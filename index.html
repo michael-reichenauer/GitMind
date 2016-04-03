@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>GitMind by michael-reichenauer</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/michael-reichenauer/GitMind">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/michael-reichenauer/GitMind/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/michael-reichenauer/GitMind/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>GitMind</h1>
+          <p>Git as in your mind</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/michael-reichenauer">michael-reichenauer</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a id="gitmind" class="anchor" href="#gitmind" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GitMind</h1>
+
+<p>A visual Windows Git client, which intends to make it easier to use Git when using a branching model similar to e.g. <a href="http://nvie.com/posts/a-successful-git-branching-model/">GitFlow</a>. The goal is to visualize the branch structure on screen in the same way as the you imagines the structure in your mind.</p>
+
+<h2>
+<a id="background" class="anchor" href="#background" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Background</h2>
+
+<p>Most current Git clients tends to visualize an overwhelming number of branches, which makes the commits history difficult to understand As a workaround, many developer simplify history by rebasing or squashing. </p>
+
+<p>Some clients like e.g. Visual Studio tries to reduce the complexity. But I think that the <a href="http://doc.bazaar.canonical.com/explorer/en/guide/qbzr/qlog.html">Bazaar QLog</a> <a href="http://stackoverflow.com/questions/5099152/git-history-visualizer-gui-that-can-hide-branches">interface</a> might provide a better inspiration. </p>
+
+<p>The GitMind client aims to provide an user experience, where the visualization of branches and commits history is understandable and usable without the need for rebasing or squashing. </p>
+
+<h2>
+<a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Status</h2>
+
+<p>The current code status is a prototype which tries to give a preview of the base concepts. The focus has been to produce a working viewing client which handles a "happy path". I.e. there is limited error handling and very limited handling of different environments. The code is currently being refactored to be more robust and better adhere to standard patterns like e.g. MVVM, as well as being more readable and understandable. </p>
+
+<p>Once the viewing functionality like history, status, diff, ... has been stabilized, action commands like commit, push, pull branch, merge, ... will be implemented as well.</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
