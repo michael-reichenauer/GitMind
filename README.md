@@ -15,5 +15,3 @@ The GitMind client aims to provide an user experience, where the visualization o
 The current code status is a prototype which tries to give a preview of the base concepts. The focus has been to produce a working viewing client which handles a "happy path". I.e. there is limited error handling and very limited handling of different environments. The code is currently being refactored to be more robust and better adhere to standard patterns like e.g. MVVM, as well as being more readable and understandable. 
 
 Once the viewing functionality like history, status, diff, ... has been stabilized, action commands like commit, push, pull branch, merge, ... will be implemented as well.  
-
-
