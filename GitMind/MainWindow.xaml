@@ -1,0 +1,603 @@
+﻿<Window 
+	x:Class="GitMind.MainWindow"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:virtualCanvas="clr-namespace:GitMind.VirtualCanvas"
+	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+	xmlns:gitMind="clr-namespace:GitMind"
+	Title="GitMind"
+	Height="800"
+	Width="1050" 
+	AllowsTransparency="True"
+	WindowStyle="None"
+	BorderBrush="DarkSlateBlue"
+	BorderThickness="3"
+	ResizeMode="CanResizeWithGrip"
+	Icon="Application.ico">
+
+	<Window.Resources>
+
+	</Window.Resources>
+
+
+	<!--  -->
+	<Grid Background="Black">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+	
+
+		<!--First row (title bar) -->
+		<Border 
+			BorderThickness="1" 
+			BorderBrush="DarkSlateBlue" 
+			Grid.Row="1">
+
+			<!-- Background="Black" -->
+			<Grid >
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition Width="250"/>
+				</Grid.ColumnDefinitions>
+
+				<StackPanel 
+					Grid.Column="0" 
+					Orientation="Horizontal">
+
+					<!-- Working folder -->
+					<TextBlock 				
+					Margin="3,5"
+					Text="GitMind:"
+					Foreground="DarkOrchid"
+					HorizontalAlignment="Left"
+					VerticalAlignment="Center">
+
+						<TextBlock.ToolTip>
+							<ToolTip
+							Placement="Bottom"
+							HorizontalOffset="-15" 
+							VerticalOffset="5"
+							Background="Black"
+							BorderBrush="DarkOrchid">
+								<StackPanel>
+									<TextBlock Text="{Binding VersionText}" Foreground="LightSteelBlue"/>
+								</StackPanel>
+							</ToolTip>
+						</TextBlock.ToolTip>
+				</TextBlock>
+
+					<!-- Working folder (need hyperlink to get "hand" mouse over, but hyperlink command does not work -->
+					<TextBlock>
+						 <Hyperlink TextDecorations="None">
+							<TextBlock 	
+								Margin="3,5"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Center"
+								Foreground="LightSteelBlue"
+								Text="{Binding WorkingFolder}">
+								<TextBlock.InputBindings>
+									<MouseBinding 
+										Command="{Binding SelectWorkingFolderCommand}" 
+										MouseAction="LeftClick" />
+								</TextBlock.InputBindings>
+						
+							</TextBlock>
+						</Hyperlink>
+					</TextBlock>
+
+					<TextBlock 				
+						Margin="3,5"
+						Text="  Branch:"
+						Foreground="DarkOrchid"
+						HorizontalAlignment="Left"
+						VerticalAlignment="Center"/>
+
+					<TextBlock 
+						Margin="3, 5"
+						Text="{Binding BranchName}"
+						Foreground="LightSteelBlue"
+						HorizontalAlignment="Left"
+						VerticalAlignment="Center"/>
+
+					<!-- Commit status  -->
+					<TextBlock 
+						Visibility="{Binding Path=IsStatusVisible, Converter={StaticResource PropertyToVisibilityConverter}}"
+						Margin="3, 5"
+						Text="{Binding StatusText}"
+						Foreground="BurlyWood"
+						HorizontalAlignment="Left"
+						VerticalAlignment="Center">
+
+						<TextBlock.ContextMenu>
+							<ContextMenu 
+								Background="Transparent" 
+								Foreground="LightSteelBlue"
+								BorderBrush="DarkSlateBlue"
+								BorderThickness="0">
+
+								<MenuItem 
+									Header="Show Diff ..."
+									Command="{Binding ShowDiffCommand}"/>
+							</ContextMenu>
+						</TextBlock.ContextMenu>
+					</TextBlock>
+				</StackPanel>
+
+
+				<StackPanel Grid.Column="1" Orientation="Horizontal">
+
+					<!-- Latest version button -->
+					<Button 
+						Name="GetLatestVersionButton"
+						Visibility="{Binding Path=IsNewVersionVisible, Converter={StaticResource PropertyToVisibilityConverter}}"
+						Background="Black"  
+						BorderBrush="Black"
+						Foreground="Green"
+						Margin="10,0,0,0"
+						
+						Content="New Version"
+						Command="{Binding InstallLatestVersionCommand}">
+
+						<Button.ToolTip>
+							<ToolTip
+								Placement="Bottom"
+								HorizontalOffset="-15" 
+								VerticalOffset="5"
+								Background="Black"
+								BorderBrush="Green">
+								<StackPanel>
+									<TextBlock 
+										Text="New version is available, click to download and start installer ..." 
+										Foreground="LightSteelBlue"/>
+								</StackPanel>
+							</ToolTip>
+						</Button.ToolTip>
+					</Button>
+
+					<!-- Feedback button  -->
+					<Button 
+						Name="FeedbackButton"
+						Background="Black" 
+						BorderBrush="Black"
+						Foreground="LightSteelBlue"
+						Margin="5,0,5,0"
+						
+						Content="@"
+						Command="{Binding FeedbackCommand}">
+
+						<!---->
+						<Button.ToolTip>
+							<ToolTip
+								Placement="Bottom"
+								HorizontalOffset="-15" 
+								VerticalOffset="5"
+								Background="Black" 
+								BorderBrush="DarkOrchid">
+								<StackPanel>
+									<TextBlock Text="Send feedback..." Foreground="LightSteelBlue"/>
+								</StackPanel>
+							</ToolTip>
+						</Button.ToolTip>
+					</Button>
+				</StackPanel>
+
+
+				<StackPanel Grid.Column="2" Orientation="Horizontal">
+
+					<!-- Search box  -->
+					<TextBox
+						IsEnabled="False"
+						BorderBrush="DarkSlateBlue"
+						Width="195"
+						Height="20"
+						Margin="3,0"
+						Background="Black"
+						Text="Search (not implemented)"
+						Foreground="DarkSlateGray"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Center"/>
+
+					<!-- Minimize button-->
+					<Button 
+						Name="MinimizeButton"
+						Background="Black"
+						Foreground="LightSteelBlue"
+						Margin="10,0,5,0"
+						BorderBrush="Black"
+						BorderThickness="0"
+						Content="_"
+						Click="MinimizeButton_OnClick"/>
+
+					<!-- Close Button -->
+					<Button 
+						Name="CloseButton"
+						Background="Black"
+						Foreground="LightSteelBlue"
+						Margin="5,0"
+						BorderBrush="Black"
+						BorderThickness="0"
+						Content="X"
+						Click="CloseButton_OnClick"/>
+				</StackPanel>
+			</Grid>
+		</Border>
+
+
+		<!--Commit log 
+		Background="Black"  
+		
+		-->
+		<DockPanel Grid.Row="2" >
+
+			<ListBox 
+				
+				Padding="4"
+				x:Name="ItemsListBox" 
+				Style="{DynamicResource ListBoxScrollbarStyle}" 
+			>
+
+				<ListBox.ContextMenu>
+					<!-- Background="Black" -->
+					<ContextMenu 
+					
+						Foreground="LightSteelBlue"
+						BorderBrush="DarkSlateBlue"
+						BorderThickness="0">
+
+						<!--Show Branch menu item -->
+						<MenuItem 
+							Header="Show Branch" 
+							ItemsSource="{Binding LogViewModel.AllBranches}" 								
+							Padding="0" 
+							Margin="0" 
+							BorderBrush="DarkSlateBlue" 
+							BorderThickness="0">
+
+							<MenuItem.ItemContainerStyle>
+								<!--<Setter Property="Background" Value="Black"/>-->
+								<Style TargetType="MenuItem">
+									<Setter Property="Header" Value="{Binding Text}"/>
+									
+									<Setter Property="Foreground" Value="LightSteelBlue"/>
+									<Setter Property="Margin" Value="0"/>
+									<Setter Property="Padding" Value="0"/>
+									<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
+									<Setter Property="BorderThickness" Value="0"/>
+									<Setter Property="Command" Value="{Binding DataContext.LogViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
+									<Setter Property="CommandParameter" Value="{Binding Text}"/>
+								</Style>
+							</MenuItem.ItemContainerStyle>
+						</MenuItem>
+					</ContextMenu>
+				</ListBox.ContextMenu>
+				
+
+				<ListBox.ItemsPanel>
+					<ItemsPanelTemplate>
+						<virtualCanvas:ZoomableCanvas 
+							Loaded="ZoomableCanvas_Loaded"
+							RealizationLimit="1000" 
+							RealizationRate="20"
+							RealizationPriority="Background"
+							ApplyTransform="false"/>
+					</ItemsPanelTemplate>
+				</ListBox.ItemsPanel>
+
+				<ListBox.ItemContainerStyle>
+					<Style TargetType="ListBoxItem">
+
+						<Setter Property="Canvas.Top" Value="{Binding Rect.Top}"/>
+						<Setter Property="Canvas.Left" Value="{Binding Rect.Left}"/>
+
+						<Setter Property="Width">
+							<Setter.Value>
+								<MultiBinding 
+									Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
+									ConverterParameter="*">
+									<Binding Path="Width"/>
+									<Binding 
+										Path="Scale"
+										RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
+								</MultiBinding>
+							</Setter.Value>
+						</Setter>
+
+						<Setter Property="Height">
+							<Setter.Value>
+								<MultiBinding 
+									Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
+									ConverterParameter="*">
+									<Binding Path="Rect.Height"/>
+									<Binding 
+										Path="Scale"
+										RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
+								</MultiBinding>
+							</Setter.Value>
+						</Setter>
+
+						<Setter Property="VerticalContentAlignment" Value="Stretch"/>
+						<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+						<Setter Property="Padding" Value="0"/>
+						<Setter Property="Background" Value="Transparent"/>
+
+						<Style.Triggers>
+					
+								
+							<!-- Branch line -->
+							<DataTrigger Binding="{Binding Type}" Value="Branch">
+								<Setter Property="IsEnabled" Value="false"/>
+								<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
+								<Setter Property="Focusable" Value="False"/>
+								<Setter Property="Background" Value="Transparent"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid>
+												<Path 
+													Data="{Binding Line}"
+													Stroke="{Binding Brush}"
+													StrokeThickness="2">
+												</Path>
+												
+												<Grid.ToolTip>
+													<ToolTip  												
+														Background="Black"
+														BorderBrush="{Binding Brush}">
+														<StackPanel>
+															<TextBlock Text="{Binding BranchToolTip}" Foreground="LightSteelBlue"/>
+														</StackPanel>
+													</ToolTip>
+												</Grid.ToolTip>
+
+												<!--<Grid.ContextMenu>
+													<ContextMenu 
+														Background="Transparent" 
+														Foreground="LightSteelBlue"
+														BorderBrush="DarkSlateBlue"
+														BorderThickness="0">
+
+														<MenuItem 
+															Header="{Binding BranchToolTip}" IsEnabled="False">
+														</MenuItem>
+														
+														--><!--Show Branch menu item --><!--
+														<MenuItem 
+															Header="Set Parent" 
+															ItemsSource="{Binding AllBranches}" 								
+															Padding="0" 
+															Margin="0" 
+															BorderBrush="DarkSlateBlue" 
+															BorderThickness="0">
+
+															<MenuItem.ItemContainerStyle>
+																<Style TargetType="MenuItem">
+																	<Setter Property="Header" Value="{Binding Text}"/>
+																	<Setter Property="Background" Value="Black"/>
+																	<Setter Property="Foreground" Value="LightSteelBlue"/>
+																	<Setter Property="Margin" Value="0"/>
+																	<Setter Property="Padding" Value="0"/>
+																	<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
+																	<Setter Property="BorderThickness" Value="0"/>
+																	<Setter Property="Command" Value="{Binding DataContext.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
+																	<Setter Property="CommandParameter" Value="{Binding Text}"/>
+																</Style>
+															</MenuItem.ItemContainerStyle>
+														</MenuItem>--><!--
+
+														<MenuItem 
+															Header="Hide Branch"
+															Command="{Binding HideBranchCommand}"
+														</MenuItem>
+
+													</ContextMenu>
+												</Grid.ContextMenu>-->
+												
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+							</DataTrigger>
+
+
+							<!-- Merge line -->
+							<DataTrigger Binding="{Binding Type}" Value="Merge">
+								<Setter Property="IsEnabled" Value="false"/>
+								<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid>
+												<Path 
+													Data="{Binding Line}"
+													Stroke="{Binding Brush}"
+													StrokeThickness="{Binding Stroke}"
+													StrokeDashArray="{Binding StrokeDash}"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+							</DataTrigger>
+
+							<!-- Commit row  Background="Black" -->
+							<DataTrigger Binding="{Binding Type}" Value="Commit">
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid>
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="{Binding GraphWidth}"/>
+													<ColumnDefinition Width="*"/>
+												</Grid.ColumnDefinitions>
+
+
+												<!-- Commit branch point -->
+												<Canvas Grid.Column="0">
+													<Button 	
+														Canvas.Left="{Binding XPoint}"
+														Canvas.Top="{Binding YPoint}">
+														<Button.Template>
+															<ControlTemplate>
+																<Ellipse 																		
+																	Width="{Binding Size}"
+																	Height="{Binding Size}"
+																	Fill="{Binding BrushInner}"
+																	Stroke="{Binding Brush}"
+																	StrokeThickness="2">
+																</Ellipse>
+															</ControlTemplate>
+														</Button.Template>
+													</Button>
+
+													<!--<Path
+														IsEnabled="{Binding LineEnabled}"
+														Data="{Binding Line}"
+														Stroke="{Binding Brush}"
+														StrokeThickness="2"/>-->
+													
+												</Canvas>
+
+												<Grid Grid.Column="1">
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="15"/>
+														<ColumnDefinition Width="*"/>
+														<ColumnDefinition Width="130"/>
+														<ColumnDefinition Width="110"/>
+													</Grid.ColumnDefinitions>
+
+
+													<!-- Commit Id tip margin -->
+													<TextBlock 
+														Grid.Column="0"
+														Text="       "
+														HorizontalAlignment="Left"
+														VerticalAlignment="Center">
+
+														<TextBlock.ToolTip>
+															<ToolTip
+															Placement="Bottom"
+															 HorizontalOffset="-15" 
+															 VerticalOffset="5"
+															Background="Black"
+															BorderBrush="{Binding Brush}">
+																<StackPanel>
+																	<TextBlock Text="{Binding ToolTip}" Foreground="LightSteelBlue"/>
+																</StackPanel>
+															</ToolTip>
+														</TextBlock.ToolTip>
+												</TextBlock>
+
+												<Ellipse
+													Margin="0,1,3,0"
+													Visibility="{Binding Path=IsCurrent, Converter={StaticResource PropertyToVisibilityConverter}}"
+													Grid.Column="0"
+													Width="6"
+													Height="6"
+													Fill="LightSteelBlue">
+
+														<Ellipse.ToolTip>
+															<ToolTip
+															Placement="Bottom"
+															 HorizontalOffset="-15" 
+															 VerticalOffset="5"
+															Background="Black"
+															BorderBrush="{Binding Brush}">
+																<StackPanel>
+																	<TextBlock Text="{Binding ToolTip}" Foreground="LightSteelBlue"/>
+																</StackPanel>
+															</ToolTip>
+														</Ellipse.ToolTip>
+													</Ellipse>
+
+													<!-- Commit Subject column -->
+													<StackPanel 
+														Grid.Column="1"
+														Orientation="Horizontal">
+
+														<!-- Tag -->
+														<TextBlock 
+														Text="{Binding Tags}"
+														Foreground="MediumSeaGreen"
+														HorizontalAlignment="Left"
+														VerticalAlignment="Center"/>
+
+														<!-- Tickets -->
+														<TextBlock 
+														Text="{Binding Tickets}"
+														Foreground="Red"
+														HorizontalAlignment="Left"
+														VerticalAlignment="Center"/>
+
+														<!-- Subject -->
+														<TextBlock 
+														Text="{Binding Subject}"
+														Foreground="{Binding SubjectBrush}"
+														HorizontalAlignment="Left"
+														VerticalAlignment="Center"/>
+													</StackPanel>
+
+
+													<!-- Author column -->
+													<TextBlock 
+													Grid.Column="2"
+													Margin="5,0"
+													Text="{Binding Author}"
+													 Foreground="LightSteelBlue"
+													HorizontalAlignment="Left"
+													VerticalAlignment="Center"/>
+
+													<!-- Date column -->
+													<TextBlock 
+													Grid.Column="3"
+													Margin="5,0"
+													Text="{Binding Date}"
+													 Foreground="LightSteelBlue"
+													HorizontalAlignment="Left"
+													VerticalAlignment="Center"/>
+
+													<Grid.ContextMenu>
+														<ContextMenu 
+															Background="Transparent" 
+															Foreground="LightSteelBlue"
+															BorderBrush="DarkSlateBlue"
+															BorderThickness="0">
+
+															<MenuItem 
+																Header="Show Diff ..."
+																Command="{Binding ShowDiffCommand}"
+																CommandParameter="{Binding Id}"/>
+
+															<MenuItem 
+																Header="{Binding CommitBranchText}"
+																Command="{Binding HideBranchCommand}"
+																CommandParameter="{Binding CommitBranchName}"/>
+
+
+															<!--<MenuItem 
+																Header="Set Commit Branch"
+																Command="{Binding SetCommitBranchCommand}"/>-->
+
+
+														</ContextMenu>
+													</Grid.ContextMenu>
+												</Grid>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+							</DataTrigger>
+
+						</Style.Triggers>
+
+					</Style>
+					
+				</ListBox.ItemContainerStyle>
+
+			</ListBox>
+
+		</DockPanel>
+
+	</Grid>
+</Window>
