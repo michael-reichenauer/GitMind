@@ -1,8 +1,8 @@
 @echo off
-echo Builing setup ...
+echo Building setup ...
 echo.
 
-rmdir Releases /S /Q
+rmdir Releases /S /Q >nul 2>&1
 
 "%ProgramFiles(x86)%\MSBuild\14.0\Bin\msbuild.exe" GitMind.sln /t:rebuild /v:m /nologo
 
