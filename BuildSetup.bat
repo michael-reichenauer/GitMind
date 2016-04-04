@@ -1,5 +1,8 @@
 @echo off
-nuget restore
+
+call nuget restore GitMind.sln
+echo.
+
 "C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe"
 
 mkdir Releases
