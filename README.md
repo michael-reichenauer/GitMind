@@ -1,6 +1,5 @@
 # GitMind
-
-A visual Windows Git client, which intends to make it easier to use Git when using a branching model similar to e.g. [GitFlow](http://nvie.com/posts/a-successful-git-branching-model/). The goal is to visualize the branch structure on screen in the same way as the you imagines the structure in your mind.
+[GitMind](http://michael-reichenauer.github.io/GitMind/) is a visual Windows Git client, which intends to make it easier to use Git when using a branching model similar to e.g. [GitFlow](http://nvie.com/posts/a-successful-git-branching-model/). The goal is to visualize the branch structure on screen in the same way as the you imagines the structure in your mind.
 
 
 ## Background
