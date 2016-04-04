@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using GitMind.Settings;
 using GitMind.Utils;
@@ -10,26 +11,26 @@ namespace GitMind.Installation.Private
 {
 	internal class LatestVersionService : ILatestVersionService
 	{
+		private static readonly string latestUri =
+			"https://github.com/michael-reichenauer/GitMind/raw/latest/Releases/";
+
+		private static readonly string latestVersionUri = latestUri + "version.txt";
+		private static readonly string latestSetupUri = latestUri + "GitMindSetup.exe";
+
+
 		public async Task<bool> IsNewVersionAvailableAsync()
 		{
 			return await Task.Run(() =>
 			{
 				try
 				{
-					string currentPath = ProgramPaths.GetCurrentInstancePath();
-					string remoteSetupPath = ProgramPaths.RemoteSetupPath;
+					Log.Debug($"Checking remote version of {latestVersionUri} ...");
+					Version remoteSetupFileVersion = GetLatestRemoteVersion();
 
-					Log.Debug($"Check version of {remoteSetupPath}");
+					Version currentVersion = ProgramPaths.GetCurrentVersion();
+					Log.Debug($"Current version: {currentVersion} remote version: {remoteSetupFileVersion}");
 
-					if (currentPath != remoteSetupPath)
-					{
-						Version currentVersion = ProgramPaths.GetCurrentVersion();
-						Version remoteSetupFileVersion = ProgramPaths.GetVersion(remoteSetupPath);
-
-						Log.Debug($"Version {currentVersion}, {remoteSetupFileVersion} of {remoteSetupPath}");
-
-						return currentVersion < remoteSetupFileVersion;
-					}
+					return currentVersion < remoteSetupFileVersion;
 				}
 				catch (Exception e)
 				{
@@ -41,27 +42,33 @@ namespace GitMind.Installation.Private
 		}
 
 
+		private static Version GetLatestRemoteVersion()
+		{
+			WebClient webClient = new WebClient();
+			string version = webClient.DownloadString(latestVersionUri).Trim();
+
+			return Version.Parse(version);
+		}
+
+
 		public Task<bool> InstallLatestVersionAsync()
 		{
 			return Task.Run(() =>
 			{
 				try
 				{
-					string remoteSetupPath = ProgramPaths.RemoteSetupPath;
+					Log.Debug($"Downloading remote setup {latestSetupUri} ...");
 
-					if (File.Exists(remoteSetupPath))
-					{
-						string tempSuffix = Path.GetFileNameWithoutExtension(Path.GetTempFileName());
-						string tempName = "GitMindSetup_" + tempSuffix + ".exe";
+					byte[] remoteFileData = GetLatestRemoteSetup();
 
-						string tempPath = Path.Combine(Path.GetTempPath(), tempName);
-						File.Copy(remoteSetupPath, tempPath, true);
+					string tempPath = Path.Combine(Path.GetTempPath(), "GitMindSetup.exe");
+					File.WriteAllBytes(tempPath, remoteFileData);
 
-						ProcessStartInfo info = new ProcessStartInfo(tempPath);
-						info.UseShellExecute = true;
-						Process.Start(info);
-						return true;
-					}
+					ProcessStartInfo info = new ProcessStartInfo(tempPath);
+					info.UseShellExecute = true;
+					Process.Start(info);
+					return true;
+
 				}
 				catch (Exception e)
 				{
@@ -70,6 +77,13 @@ namespace GitMind.Installation.Private
 
 				return false;
 			});
+		}
+
+
+		private static byte[] GetLatestRemoteSetup()
+		{
+			WebClient webClient = new WebClient();
+			return webClient.DownloadData(latestSetupUri);
 		}
 	}
 }

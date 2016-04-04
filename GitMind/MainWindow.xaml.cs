@@ -151,7 +151,7 @@ namespace GitMind
 		{
 			Log.Debug("Start version timer");
 			newVersionTime.Tick += NewVersionAsync;
-			newVersionTime.Interval = TimeSpan.FromSeconds(15);
+			newVersionTime.Interval = TimeSpan.FromSeconds(5);
 			newVersionTime.Start();
 
 			refreshService.Start();

@@ -25,7 +25,7 @@ namespace GitMind.Utils
 			try
 			{
 				List<string> lines = new List<string>();
-				Log.Debug($"Cmd: {path} {args}");
+				// Log.Debug($"Cmd: {path} {args}");
 
 				var process = new Process
 				{
@@ -50,7 +50,7 @@ namespace GitMind.Utils
 				process.WaitForExit();
 				output = lines;
 
-				Log.Debug($"Cmd exit code: {process.ExitCode} for {path} {args}");
+				// Log.Debug($"Cmd exit code: {process.ExitCode} for {path} {args}");
 				return process.ExitCode;
 			}
 			catch (Exception e)
