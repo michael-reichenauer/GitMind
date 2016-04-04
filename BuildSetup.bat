@@ -4,6 +4,9 @@ echo.
 
 rmdir Releases /S /Q >nul 2>&1
 
+call nuget restore GitMind.sln
+echo.
+
 "%ProgramFiles(x86)%\MSBuild\14.0\Bin\msbuild.exe" GitMind.sln /t:rebuild /v:m /nologo
 
 echo.
