@@ -8,6 +8,9 @@ namespace GitMind.Settings
 		public static void SetLatestUsedWorkingFolderPath(string workingFolderPath)
 		{
 			string settingPath = ProgramPaths.GetSettingPath();
+			string parentPath = Path.GetDirectoryName(settingPath);
+
+			Directory.CreateDirectory(parentPath);
 
 			File.WriteAllText(settingPath, workingFolderPath);
 		}
