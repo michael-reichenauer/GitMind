@@ -36,6 +36,8 @@ namespace GitMind.Utils
 
 		public static implicit operator Result<T>(Error error) => new Result<T>(error);
 
+		public static implicit operator Result<T>(T value) => new Result<T>(value);
+
 
 		public T Value
 		{
@@ -46,11 +48,11 @@ namespace GitMind.Utils
 					return value;
 				}
 
-				throw Asserter.FailFast;
+				throw Asserter.FailFast(Error);
 			}
 		}
 
-		public bool HasValue => Error == Error.None;
+		public bool HasValue => !IsFaulted;
 		public bool IsFaulted => Error != Error.None;
 
 

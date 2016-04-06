@@ -81,11 +81,11 @@ namespace GitMind.Git.Private
 
 			if (0 == result.ExitCode)
 			{
-				return Result.From(result.Output[0].Trim());
+				return result.Output[0].Trim();
 			}
 			else
 			{
-				return Error.From($"Git command failed: >git {args}");
+				return new Error($"Git command failed: >git {args}");
 			}
 		}
 

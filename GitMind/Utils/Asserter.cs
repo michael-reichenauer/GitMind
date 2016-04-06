@@ -60,31 +60,34 @@ namespace GitMind.Utils
 		}
 
 
-		public static Exception FailFast
+		public static Exception FailFast(Error error)
 		{
-			get
+			return FailFast(error.Message);
+		}
+
+
+		public static Exception FailFast(string error)
+		{
+			string message = $"Failed: {error}, at:\n {new StackTrace()}";
+			Log.Error(message);
+
+			MessageBox.Show(
+				Application.Current.MainWindow,
+				message,
+				"GitMind - Asserter",
+				MessageBoxButton.OK,
+				MessageBoxImage.Error);
+
+			if (Debugger.IsAttached)
 			{
-				StackTrace stackTrace = new StackTrace();
-				Log.Error("Failed at:\n" + stackTrace);
-
-				MessageBox.Show(
-					Application.Current.MainWindow,
-					"Failed:\n" + stackTrace,
-					"GitMind - Asserter",
-					MessageBoxButton.OK,
-					MessageBoxImage.Error);
-
-				if (Debugger.IsAttached)
-				{
-					Debugger.Break();
-				}
-				else
-				{
-					Application.Current.Shutdown(-1);
-				}
-
-				return new InvalidOperationException();
+				Debugger.Break();
 			}
-		} 
+			else
+			{
+				Application.Current.Shutdown(-1);
+			}
+
+			return new InvalidOperationException();
+		}
 	}
 }
