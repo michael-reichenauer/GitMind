@@ -46,11 +46,9 @@ namespace GitMind.CommitsHistory
 
 			await Task.Run(() =>
 			{
-				string output;
 				cmd.Run(
 					p4mergeExe,
-					"\"" + commitDiff.LeftPath + "\"" + " " + "\"" + commitDiff.RightPath + "\"",
-					out output);
+					"\"" + commitDiff.LeftPath + "\"" + " " + "\"" + commitDiff.RightPath + "\"");
 			});
 		}
 	}

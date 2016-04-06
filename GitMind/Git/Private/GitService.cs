@@ -56,8 +56,6 @@ namespace GitMind.Git.Private
 
 			IReadOnlyList<GitCommit> commits = await GetCommitsAsync(path, context);
 
-			GitStatus status = await GetStatusAsync(path, context);
-
 			GitCommit currentCommit = await GetCurrentCommitAsync(path, commits, context);
 
 			// Getting current branch to be included in stored data
@@ -77,10 +75,11 @@ namespace GitMind.Git.Private
 		{
 			string args = "rev-parse --show-toplevel";
 
-			IReadOnlyList<string> lines;
-			if (0 == cmd.Run("git", args, out lines))
+			CmdResult result = cmd.Run("git", args);
+
+			if (0 == result.ExitCode)
 			{
-				return lines[0].Trim();
+				return result.Output[0].Trim();
 			}
 			else
 			{
@@ -480,34 +479,35 @@ namespace GitMind.Git.Private
 				}
 				else
 				{
-					IReadOnlyList<string> lines;
 					if (context != null)
 					{
 						File.AppendAllText(context, $"{cmdPrefix}:{gitArgs}\n");
 					}
-					int exitCode = cmd.Run(GetGitBinPath(), gitArgs, out lines);
-					if (exitCode == 128)
+
+					CmdResult result = cmd.Run(GetGitBinPath(), gitArgs);
+	
+					if (result.ExitCode == 128)
 					{
 						throw new FileLoadException("No valid git repo found.");
 					}
 
-					if (0 == exitCode || 1 == exitCode)
+					if (0 == result.ExitCode || 1 == result.ExitCode)
 					{
 						if (context != null)
 						{
-							File.AppendAllLines(context, lines);
+							File.AppendAllLines(context, result.Output);
 						}
 
-						return lines;
+						return result.Output;
 					}
 					else
 					{
 						if (context != null)
 						{
-							File.AppendAllText(context, $"{errorprefix}:{exitCode}\n");
+							File.AppendAllText(context, $"{errorprefix}:{result.ExitCode}\n");
 						}
 						throw new InvalidDataException(
-							$"Git command failed: >git {gitArgs}\nExit code: {exitCode}");
+							$"Git command failed: >git {gitArgs}\nExit code: {result.ExitCode}");
 					}
 				}
 			});

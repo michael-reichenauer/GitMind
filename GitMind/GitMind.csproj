@@ -94,6 +94,7 @@
     <Compile Include="IStatusRefreshService.cs" />
     <Compile Include="PropertyToVisibilityConverter.cs" />
     <Compile Include="StatusRefreshService.cs" />
+    <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
     <Compile Include="Utils\UI\Property.cs" />
     <Compile Include="Utils\UI\RelayCommand.cs" />

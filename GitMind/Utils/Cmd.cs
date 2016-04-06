@@ -7,20 +7,9 @@ namespace GitMind.Utils
 {
 	public class Cmd : ICmd
 	{
-		public int Run(string path, string args, out string output)
-		{
-			IReadOnlyList<string> lines;
-			if (0 == Run(path, args, out lines))
-			{
-				output = string.Join("\n", lines);
-				return 0;
-			}
+		private static readonly IReadOnlyList<string> EmptyLines = new string[0];
 
-			output = null;
-			return -1;
-		}
-
-		public int Run(string path, string args, out IReadOnlyList<string> output)
+		public CmdResult Run(string path, string args)
 		{
 			try
 			{
@@ -48,17 +37,14 @@ namespace GitMind.Utils
 				}
 
 				process.WaitForExit();
-				output = lines;
 
-				// Log.Debug($"Cmd exit code: {process.ExitCode} for {path} {args}");
-				return process.ExitCode;
+				return new CmdResult(process.ExitCode, lines, EmptyLines);
 			}
 			catch (Exception e)
 			{
 				Log.Error($"Exception for {path} {args}, {e}");
-				output = null;
-				return -1;
+				return new CmdResult(-1, EmptyLines, new [] {e.Message});
 			}
-		}
+		}	
 	}
 }
