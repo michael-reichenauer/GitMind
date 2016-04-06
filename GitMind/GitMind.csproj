@@ -75,6 +75,7 @@
     <Compile Include="DataModel\Private\Commit.cs" />
     <Compile Include="DataModel\Private\CommitComparer.cs" />
     <Compile Include="DataModel\Private\Commits.cs" />
+    <Compile Include="Utils\Error.cs" />
     <Compile Include="Git\Private\GitDiffParser.cs" />
     <Compile Include="Git\Private\IGitDiffParser.cs" />
     <Compile Include="DataModel\Private\ModelBuilder.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="PropertyToVisibilityConverter.cs" />
     <Compile Include="StatusRefreshService.cs" />
     <Compile Include="Utils\CmdResult.cs" />
+    <Compile Include="Utils\Result.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
     <Compile Include="Utils\UI\Property.cs" />
     <Compile Include="Utils\UI\RelayCommand.cs" />

@@ -140,7 +140,7 @@ namespace GitMind
 
 			await LogViewModel.LoadAsync(owner);
 
-			WorkingFolder.Value = ProgramPaths.TryGetWorkingFolderPath(Environment.CurrentDirectory);
+			WorkingFolder.Value = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 		}
 	}
 }

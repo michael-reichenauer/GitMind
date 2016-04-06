@@ -188,21 +188,20 @@ namespace GitMind
 
 		private void SetWorkingFolder()
 		{
-			string workingFolder = ProgramPaths.TryGetWorkingFolderPath(Environment.CurrentDirectory);
-			if (workingFolder == null)
+			Result<string> workingFolder = ProgramPaths.GetWorkingFolderPath(
+				Environment.CurrentDirectory);
+
+			if (workingFolder.HasValue)
 			{
 				string lastUsedFolder = ProgramSettings.TryGetLatestUsedWorkingFolderPath();
 
 				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
 				{
-					workingFolder = ProgramPaths.TryGetWorkingFolderPath(lastUsedFolder);
+					workingFolder = ProgramPaths.GetWorkingFolderPath(lastUsedFolder);
 				}
 			}
 
-			if (workingFolder != null)
-			{
-				Environment.CurrentDirectory = workingFolder;
-			}
+			workingFolder.OnValue(v => Environment.CurrentDirectory = v);
 		}
 
 
@@ -212,7 +211,7 @@ namespace GitMind
 			canvas = (ZoomableCanvas)sender;
 
 			mainWindowViewModel.WorkingFolder.Value =
-				ProgramPaths.TryGetWorkingFolderPath(Environment.CurrentDirectory);
+				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 
 			await historyViewModel.LoadAsync(this);
 			LoadedTime = DateTime.Now;

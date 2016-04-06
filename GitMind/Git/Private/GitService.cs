@@ -10,7 +10,6 @@ namespace GitMind.Git.Private
 {
 	internal class GitService : IGitService
 	{
-
 		private static readonly string LegacyGitPath = "C:\\Program Files (x86)\\Git\\bin\\git.exe";
 		private static readonly string GitPath = "C:\\Program Files\\Git\\bin\\git.exe";
 		private static readonly string Origin = "origin/";
@@ -18,7 +17,7 @@ namespace GitMind.Git.Private
 		private static readonly char[] LogSplitter = "|".ToCharArray();
 		private static readonly string[] NoParent = new string[0];
 		private static readonly string cmdPrefix = "d122adb9-1ec3-44f6-826a-e923aef4edc5";
-		private static readonly string errorprefix = "d122adb9-1ec3-44f6-826a-e923aef4edc6";
+		private static readonly string errorPrefix = "d122adb9-1ec3-44f6-826a-e923aef4edc6";
 		private static readonly string filePrefix = "C:\\TempGitMind\\gitmind";
 		private static readonly string sourceFile = $"{filePrefix}.txt";
 
@@ -37,6 +36,9 @@ namespace GitMind.Git.Private
 			: this(new Cmd(), new GitDiffParser())
 		{
 		}
+
+
+		public Error GitNotInstalled { get; } = new Error();
 
 
 		public async Task<IGitRepo> GetRepoAsync(string path, bool isShift)
@@ -71,7 +73,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public string GetCurrentRootPath(string path)
+		public Result<string> GetCurrentRootPath(string path)
 		{
 			string args = "rev-parse --show-toplevel";
 
@@ -79,11 +81,11 @@ namespace GitMind.Git.Private
 
 			if (0 == result.ExitCode)
 			{
-				return result.Output[0].Trim();
+				return Result.From(result.Output[0].Trim());
 			}
 			else
 			{
-				throw new InvalidDataException($"Git command failed: >git {args}");
+				return Error.From($"Git command failed: >git {args}");
 			}
 		}
 
@@ -504,7 +506,7 @@ namespace GitMind.Git.Private
 					{
 						if (context != null)
 						{
-							File.AppendAllText(context, $"{errorprefix}:{result.ExitCode}\n");
+							File.AppendAllText(context, $"{errorPrefix}:{result.ExitCode}\n");
 						}
 						throw new InvalidDataException(
 							$"Git command failed: >git {gitArgs}\nExit code: {result.ExitCode}");
@@ -565,9 +567,9 @@ namespace GitMind.Git.Private
 				}
 				else if (lines[i] == commandLine)
 				{
-					if (i + 1 < lines.Length && lines[i + 1].StartsWith(errorprefix))
+					if (i + 1 < lines.Length && lines[i + 1].StartsWith(errorPrefix))
 					{
-						int exitCode = int.Parse(lines[i + 1].Substring(errorprefix.Length + 1));
+						int exitCode = int.Parse(lines[i + 1].Substring(errorPrefix.Length + 1));
 						throw new InvalidDataException(
 							$"Git command failed: >git {gitArgs}\nExit code: {exitCode}");
 					}

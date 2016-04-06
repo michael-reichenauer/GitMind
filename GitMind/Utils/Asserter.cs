@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
@@ -57,5 +58,33 @@ namespace GitMind.Utils
 				}
 			}
 		}
+
+
+		public static Exception FailFast
+		{
+			get
+			{
+				StackTrace stackTrace = new StackTrace();
+				Log.Error("Failed at:\n" + stackTrace);
+
+				MessageBox.Show(
+					Application.Current.MainWindow,
+					"Failed:\n" + stackTrace,
+					"GitMind - Asserter",
+					MessageBoxButton.OK,
+					MessageBoxImage.Error);
+
+				if (Debugger.IsAttached)
+				{
+					Debugger.Break();
+				}
+				else
+				{
+					Application.Current.Shutdown(-1);
+				}
+
+				return new InvalidOperationException();
+			}
+		} 
 	}
 }

@@ -141,20 +141,14 @@ namespace GitMind.Settings
 			}
 		}
 
-		public static string TryGetWorkingFolderPath(string path)
+		public static Result<string> GetWorkingFolderPath(string path)
 		{
 			IGitService gitService = new GitService();
 
-			try
-			{
-				Environment.CurrentDirectory = path;
-				return gitService.GetCurrentRootPath(null);
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Not a working folder {path}, {e}");
-				return null;
-			}
+			Environment.CurrentDirectory = path;
+
+			return gitService.GetCurrentRootPath(null)
+				.OnError(e => Log.Warn($"Not a working folder {path}, {e}"));			
 		}
 	}
 }
