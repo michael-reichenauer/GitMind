@@ -30,6 +30,17 @@ namespace GitMind.Utils
 			}
 		}
 
+		public static Exception FailFast(
+			string errorMessage,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0)
+		{
+			Fail(errorMessage, memberName, sourceFilePath, sourceLineNumber);
+
+			return new InvalidOperationException();
+		}
+
 
 		public static Exception FailFast(
 			Error error,

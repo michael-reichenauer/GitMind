@@ -154,7 +154,7 @@ namespace GitMind.Utils
 				return provider();
 			}
 
-			throw new InvalidOperationException("Not supported type " + type.FullName);
+			throw Asserter.FailFast("Not supported type " + type.FullName);
 		}
 
 		private static bool IsEnumerable(Type type)

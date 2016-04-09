@@ -203,17 +203,15 @@ namespace GitMind.Git.Private
 
 		private async Task FetchAsync(string path)
 		{
-			try
-			{
-				string args = "fetch";
+			string args = "fetch";
 
-				await GitAsync(path, args, null);
-			}
-			catch (Exception e)
+			Result<IReadOnlyList<string>> fetchResult = await GitAsync(path, args, null);
+
+			fetchResult.OnError(e =>
 			{
 				// Git fetch failed, but ignore that for now
-				Log.Warn($"Git Fetch failed {e.Message}");
-			}
+				Log.Warn($"Git Fetch failed {e}");
+			});
 		}
 
 
@@ -426,7 +424,7 @@ namespace GitMind.Git.Private
 
 				if (parts.Length < 5)
 				{
-					throw new InvalidDataException("Unknown log format");
+					return GitCommandError.With("Unknown log format");
 				}
 
 				string subject;
