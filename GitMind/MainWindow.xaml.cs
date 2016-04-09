@@ -38,6 +38,8 @@ namespace GitMind
 
 		public MainWindow()
 		{
+			ExceptionHandling.Init();
+
 			if (!IsStartProgram())
 			{
 				Application.Current.Shutdown(0);

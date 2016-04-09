@@ -42,6 +42,7 @@ namespace GitMind.Installation.Private
 		}
 
 
+		[AcceptingExceptions(typeof(ArgumentNullException))]
 		private static Version GetLatestRemoteVersion()
 		{
 			WebClient webClient = new WebClient();

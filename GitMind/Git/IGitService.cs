@@ -7,16 +7,17 @@ namespace GitMind.Git
 {
 	internal interface IGitService
 	{
-		Error GitNotInstalled { get; }
+		Error GitNotInstalledError { get; }
+		Error NoValidRepositoryError { get; }
 
-		Task<IGitRepo> GetRepoAsync(string path, bool isShift);
+		Task<Result<IGitRepo>> GetRepoAsync(string path, bool isShift);
 
-		Task<string> GetCurrentBranchNameAsync(string path);
+		Task<Result<string>> GetCurrentBranchNameAsync(string path);
 
 		Result<string> GetCurrentRootPath(string path);
 
-		Task<CommitDiff> GetCommitDiffAsync(string commitId);
+		Task<Result<CommitDiff>> GetCommitDiffAsync(string commitId);
 
-		Task<GitStatus> GetStatusAsync(string path);
+		Task<Result<GitStatus>> GetStatusAsync(string path);
 	}
 }

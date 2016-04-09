@@ -43,8 +43,10 @@ namespace GitMind
 		{
 			try
 			{
-				GitStatus status = await gitService.GetStatusAsync(null);
+				Result<GitStatus> statusResult = await gitService.GetStatusAsync(null);
+				if (statusResult.IsFaulted) return;
 
+				GitStatus status = statusResult.Value;
 				string statusText = null;
 
 				if (!status.OK)
@@ -56,9 +58,10 @@ namespace GitMind
 				mainWindowViewModel.StatusText.Set(statusText);
 				mainWindowViewModel.IsStatusVisible.Set(!string.IsNullOrWhiteSpace(statusText));
 
-				string currentBranchName = await gitService.GetCurrentBranchNameAsync(null);
+				Result<string> currentBranchName = await gitService.GetCurrentBranchNameAsync(null);
+				if (currentBranchName.IsFaulted) return;
 
-				mainWindowViewModel.BranchName.Set(currentBranchName);
+				mainWindowViewModel.BranchName.Set(currentBranchName.Value);
 			}
 			catch (Exception ex)
 			{

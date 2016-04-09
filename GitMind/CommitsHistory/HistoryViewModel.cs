@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -66,7 +65,7 @@ namespace GitMind.CommitsHistory
 
 			ItemsSource = new LogItemsSource(this);
 		}
-	
+
 
 		public ICommand ShowBranchCommand => Command<string>(ShowBranch);
 
@@ -125,7 +124,7 @@ namespace GitMind.CommitsHistory
 			{
 				// User clicked on latest commit point on a branch, which will close the branch 
 				activeBrancheNames.Remove(commitViewModel.Commit.Branch.Name);
-				
+
 				UpdateUIModel();
 			}
 		}
@@ -148,16 +147,17 @@ namespace GitMind.CommitsHistory
 		{
 			while (true)
 			{
-				try
+				List<string> branchNames = activeBrancheNames.ToList();
+				Result<IGitRepo> gitRepo = await gitService.GetRepoAsync(null, false);
+
+				if (gitRepo.HasValue)
 				{
-					List<string> branchNames = activeBrancheNames.ToList();
-					IGitRepo gitRepo = await gitService.GetRepoAsync(null, false);
-					model = await modelService.GetModelAsync(gitRepo, branchNames);
+					model = await modelService.GetModelAsync(gitRepo.Value, branchNames);
 					UpdateUIModel();
 					ProgramSettings.SetLatestUsedWorkingFolderPath(Environment.CurrentDirectory);
-					break;
+					return;
 				}
-				catch (FileLoadException)
+				else if (gitRepo.Error == gitService.NoValidRepositoryError)
 				{
 					// Could not locate a local working folder
 					model = Model.None;
@@ -178,7 +178,7 @@ namespace GitMind.CommitsHistory
 						return;
 					}
 				}
-				catch (FileNotFoundException)
+				else if (gitRepo.Error == gitService.GitNotInstalledError)
 				{
 					// Could not locate a compatible installed git executable
 					model = Model.None;
@@ -194,10 +194,9 @@ namespace GitMind.CommitsHistory
 					Application.Current.Shutdown(1);
 					return;
 				}
-				catch (Exception e)
+				else
 				{
-					Log.Warn($"Error: {e}");
-					throw;
+					Log.Warn($"Error: {gitRepo.Error}");
 				}
 			}
 		}
@@ -205,15 +204,17 @@ namespace GitMind.CommitsHistory
 
 		public async Task RefreshAsync(bool isShift)
 		{
-			IGitRepo gitRepo = await gitService.GetRepoAsync(null, isShift);
-
-			Model currentModel = model;
-
-			if (currentModel != null)
+			Result<IGitRepo> gitRepo = await gitService.GetRepoAsync(null, isShift);
+			if (gitRepo.HasValue)
 			{
-				model = await modelService.RefreshAsync(gitRepo, currentModel);
+				Model currentModel = model;
 
-				UpdateUIModel();
+				if (currentModel != null)
+				{
+					model = await modelService.RefreshAsync(gitRepo.Value, currentModel);
+
+					UpdateUIModel();
+				}
 			}
 		}
 

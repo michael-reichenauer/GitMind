@@ -59,6 +59,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AcceptingExceptionsAttribute.cs" />
     <Compile Include="BranchName.cs" />
     <Compile Include="CommitsHistory\BrushService.cs" />
     <Compile Include="CommitsHistory\CoordinateConverter.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="DataModel\Private\Commit.cs" />
     <Compile Include="DataModel\Private\CommitComparer.cs" />
     <Compile Include="DataModel\Private\Commits.cs" />
+    <Compile Include="ExceptionHandling.cs" />
     <Compile Include="Utils\Error.cs" />
     <Compile Include="Git\Private\GitDiffParser.cs" />
     <Compile Include="Git\Private\IGitDiffParser.cs" />
