@@ -30,7 +30,7 @@ namespace GitMind
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
 
-			StatusText.WhenSetNotify(nameof(IsStatusVisible));
+			StatusText.WhenSetAlsoNotify(nameof(IsStatusVisible));
 		}
 
 
@@ -140,7 +140,7 @@ namespace GitMind
 
 			await LogViewModel.LoadAsync(owner);
 
-			WorkingFolder.Value = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
+			WorkingFolder.Set(ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or(""));
 		}
 	}
 }

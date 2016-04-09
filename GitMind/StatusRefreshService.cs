@@ -53,12 +53,12 @@ namespace GitMind
 					statusText = $"  Uncommitted: {count}";
 				}
 
-				mainWindowViewModel.StatusText.Value = statusText;
-				mainWindowViewModel.IsStatusVisible.Value = !string.IsNullOrWhiteSpace(statusText);
+				mainWindowViewModel.StatusText.Set(statusText);
+				mainWindowViewModel.IsStatusVisible.Set(!string.IsNullOrWhiteSpace(statusText));
 
 				string currentBranchName = await gitService.GetCurrentBranchNameAsync(null);
 
-				mainWindowViewModel.BranchName.Value = currentBranchName;
+				mainWindowViewModel.BranchName.Set(currentBranchName);
 			}
 			catch (Exception ex)
 			{

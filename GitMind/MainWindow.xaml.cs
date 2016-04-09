@@ -176,11 +176,11 @@ namespace GitMind
 
 		private async void NewVersionAsync(object sender, EventArgs e)
 		{
-			mainWindowViewModel.IsNewVersionVisible.Value = false;
+			mainWindowViewModel.IsNewVersionVisible.Set(false);
 
 			bool isNewVersion = await latestVersionService.IsNewVersionAvailableAsync();
 
-			mainWindowViewModel.IsNewVersionVisible.Value = isNewVersion;
+			mainWindowViewModel.IsNewVersionVisible.Set(isNewVersion);
 
 			newVersionTime.Interval = TimeSpan.FromMinutes(60);
 		}
@@ -191,7 +191,7 @@ namespace GitMind
 			Result<string> workingFolder = ProgramPaths.GetWorkingFolderPath(
 				Environment.CurrentDirectory);
 
-			if (workingFolder.HasValue)
+			if (!workingFolder.HasValue)
 			{
 				string lastUsedFolder = ProgramSettings.TryGetLatestUsedWorkingFolderPath();
 
@@ -210,8 +210,8 @@ namespace GitMind
 			// Store the canvas in a local variable since x:Name doesn't work.
 			canvas = (ZoomableCanvas)sender;
 
-			mainWindowViewModel.WorkingFolder.Value =
-				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
+			mainWindowViewModel.WorkingFolder.Set(
+				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or(""));
 
 			await historyViewModel.LoadAsync(this);
 			LoadedTime = DateTime.Now;

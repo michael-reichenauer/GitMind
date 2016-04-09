@@ -22,33 +22,58 @@ namespace GitMind.Utils.UI
 		}
 
 
-		public T Value
+		//public T Value
+		//{
+		//	get { return propertyValue; }
+		//	set
+		//	{
+		//		// Investigate if we can avoid assigning same value ####
+		//		propertyValue = value;
+		//		viewModel.OnPropertyChanged(propertyName);
+
+		//		// Trigger related properties (if specified)			
+		//		otherProperties?.ForEach(property => viewModel.OnPropertyChanged(propertyName));
+		//	}
+		//}
+
+
+		public static implicit operator T(Property<T> propertyInstance) => propertyInstance.Get();
+
+
+		public T Get()
 		{
-			get { return propertyValue; }
-			set
-			{
-				// Investigate if we can avoid assigning same value ####
-				propertyValue = value;
-				viewModel.OnPropertyChanged(propertyName);
-	
-				// Trigger related properties (if specified)			
-				otherProperties?.ForEach(property => viewModel.OnPropertyChanged(propertyName));				
-			}
+			return propertyValue;
 		}
 
-		public static implicit operator T(Property<T> propertyInstance) => propertyInstance.Value;
 
-		public void WhenSetNotify(string name)
+		public void Set(T value)
+		{
+			// Investigate if we can avoid assigning same value ####
+			propertyValue = value;
+			NotifyChanged();
+		}
+
+
+		public void NotifyChanged()
+		{
+			viewModel.OnPropertyChanged(propertyName);
+
+			// Trigger related properties (if specified using WhenSetAlsoNotify)			
+			otherProperties?.ForEach(property => viewModel.OnPropertyChanged(propertyName));
+		}
+
+
+		public void WhenSetAlsoNotify(string otherPropertyName)
 		{
 			if (otherProperties == null)
 			{
 				otherProperties = new List<string>();
 			}
 
-			otherProperties.Add(name);
+			otherProperties.Add(otherPropertyName);
 		}
 
 
-		public override string ToString() => propertyValue?.ToString();
+		public override string ToString() => propertyValue?.ToString() ?? "";
 	}
 }

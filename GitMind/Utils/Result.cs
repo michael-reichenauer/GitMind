@@ -1,5 +1,4 @@
 using System;
-using System.Data;
 
 
 namespace GitMind.Utils
@@ -77,7 +76,7 @@ namespace GitMind.Utils
 		}
 
 
-		public T Or(T defaultValue) 
+		public T Or(T defaultValue)
 		{
 			if (IsFaulted)
 			{
@@ -85,6 +84,17 @@ namespace GitMind.Utils
 			}
 
 			return Value;
+		}
+
+
+		public override string ToString()
+		{
+			if (IsFaulted)
+			{
+				return $"Error: {Error}";
+			}
+
+			return value?.ToString() ?? "";
 		}
 	}
 }
