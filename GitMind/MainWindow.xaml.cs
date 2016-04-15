@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -168,13 +169,14 @@ namespace GitMind
 			{
 				autoRefreshTime.Interval = TimeSpan.FromMinutes(10);
 
-				await historyViewModel.RefreshAsync(true);
+				await RefreshAsync(true);
 			}
 			catch (Exception ex)
 			{
 				Log.Error($"Failed to auto refresh {ex}");
 			}
 		}
+
 
 
 		private async void NewVersionAsync(object sender, EventArgs e)
@@ -248,12 +250,20 @@ namespace GitMind
 					dispatcherTimer.Stop();
 				}
 
-				await historyViewModel.RefreshAsync(true);
+				await RefreshAsync(true);
 			}
 			catch (Exception ex)
 			{
 				Log.Warn($"Failed to refresh {ex}");
 			}
+		}
+
+
+
+		private async Task RefreshAsync(bool isShift)
+		{
+			await refreshService.UpdateStatusAsync();
+			await historyViewModel.RefreshAsync(isShift);
 		}
 
 		protected override async void OnPreviewMouseUp(MouseButtonEventArgs e)
@@ -287,8 +297,7 @@ namespace GitMind
 			{
 				bool isShift = (Keyboard.Modifiers & ModifierKeys.Shift) > 0;
 				Log.Debug("Refresh");
-				await refreshService.UpdateStatusAsync();
-				await historyViewModel.RefreshAsync(isShift);
+				await RefreshAsync(isShift);
 			}
 
 			base.OnKeyUp(e);
