@@ -21,8 +21,8 @@ namespace GitMind.Utils
 			{
 				Log.Error($"Starting installed path, {targetPath}");
 
-				Process process = Process.Start(info);
-				return new CmdResult(process.ExitCode, EmptyLines, EmptyLines);
+				Process.Start(info);
+				return new CmdResult(0, EmptyLines, EmptyLines);
 			}
 			catch (Exception e)
 			{
