@@ -25,6 +25,7 @@ namespace GitMind
 		private readonly IStatusRefreshService refreshService;
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly IInstaller installer = new Installer();
+		private readonly ICommandLine commandLine = new CommandLine();
 		private readonly IDiffService diffService = new DiffService();
 
 		private static Mutex programMutex;
@@ -74,25 +75,25 @@ namespace GitMind
 
 		private bool IsStartProgram()
 		{
-			if (installer.IsNormalInstallation())
+			if (commandLine.IsNormalInstallation())
 			{
 				installer.InstallNormal();
 
 				return false;
 			}
-			else if (installer.IsSilentInstallation())
+			else if (commandLine.IsSilentInstallation())
 			{
 				installer.InstallSilent();
 
 				return false;
 			}
-			else if (installer.IsNormalUninstallation())
+			else if (commandLine.IsNormalUninstallation())
 			{
 				installer.UninstallNormal();
 
 				return false;
 			}
-			else if (installer.IsSilentUninstallation())
+			else if (commandLine.IsSilentUninstallation())
 			{
 				installer.UninstallSilent();
 

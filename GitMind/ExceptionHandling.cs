@@ -22,7 +22,6 @@ namespace GitMind
 
 		private static readonly IReadOnlyList<Type> FatalTypes = new[]
 		{
-			// .NET exceptions
 			typeof(ArgumentException),
 			typeof(AccessViolationException),
 			typeof(AppDomainUnloadedException),
@@ -177,7 +176,7 @@ namespace GitMind
 				}
 				else
 				{
-					dispatcher.Invoke(() => { ShowExceptionDialog(errorMessage, exception); });
+					dispatcher.Invoke(() => ShowExceptionDialog(errorMessage, exception));
 				}
 			}
 		}

@@ -46,46 +46,6 @@ namespace GitMind.Installation.Private
 			}
 		}
 
-
-		public bool IsNormalInstallation()
-		{
-			string[] args = Environment.GetCommandLineArgs();
-
-			return
-				(args.Length == 1 && IsRunningSetupFile())
-				|| (args.Length == 2 && args[1] == "/install");
-		}
-
-
-		public bool IsSilentInstallation()
-		{
-			string[] args = Environment.GetCommandLineArgs();
-
-			return
-				(args.Length == 3 && args[1] == "/install" && args[2] == "/silent")
-				|| (args.Length == 2 && IsRunningSetupFile() && args[1] == "/silent");
-		}
-
-
-		private static bool IsRunningSetupFile()
-		{
-			return Path.GetFileNameWithoutExtension(
-				Assembly.GetEntryAssembly().Location).StartsWith("GitMindSetup");
-		}
-
-
-		public bool IsNormalUninstallation()
-		{
-			string[] args = Environment.GetCommandLineArgs();
-			return args.Length == 2 && args[1] == "/uninstall";
-		}
-
-		public bool IsSilentUninstallation()
-		{
-			string[] args = Environment.GetCommandLineArgs();
-			return args.Length == 3 && args[1] == "/uninstall" && args[2] == "/silent";
-		}
-
 		public void InstallNormal()
 		{
 			if (MessageBoxResult.OK != MessageBox.Show(
