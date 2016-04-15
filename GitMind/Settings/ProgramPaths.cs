@@ -81,7 +81,7 @@ namespace GitMind.Settings
 		}
 
 
-		public static string GetInstalledFilePath()
+		public static string GetInstallFilePath()
 		{
 			string programFilesFolderPath = GetProgramFolderPath();
 			return Path.Combine(programFilesFolderPath, ProgramFileName);

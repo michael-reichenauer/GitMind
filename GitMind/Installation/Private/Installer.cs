@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Windows;
 using GitMind.Settings;
@@ -13,6 +11,8 @@ namespace GitMind.Installation.Private
 {
 	internal class Installer : IInstaller
 	{
+		private readonly ICmd cmd;
+
 		private static readonly string UninstallSubKey =
 			$"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{{{ProgramPaths.ProductGuid}}}_is1";
 		private static readonly string UninstallRegKey = "HKEY_CURRENT_USER\\" + UninstallSubKey;
@@ -25,26 +25,17 @@ namespace GitMind.Installation.Private
 		private readonly string SetupTitle = "GitMind - Setup";
 
 
-
-		public void StartInstalledInstance()
+		public Installer()
+			: this(new Cmd())
 		{
-			string targetPath = ProgramPaths.GetInstalledFilePath();
-
-			ProcessStartInfo info = new ProcessStartInfo(targetPath);
-			info.Arguments = "";
-			info.UseShellExecute = true;
-			try
-			{
-				Log.Error($"Starting installed path, {targetPath}");
-
-				Process.Start(info);
-			}
-			catch (Exception e)
-			{
-				Log.Error($"Failed to start installed instance, {e}");
-				throw;
-			}
 		}
+
+
+		public Installer(ICmd cmd)
+		{
+			this.cmd = cmd;
+		}
+
 
 		public void InstallNormal()
 		{
@@ -77,7 +68,8 @@ namespace GitMind.Installation.Private
 				MessageBoxButton.OK,
 				MessageBoxImage.Information);
 
-			StartInstalledInstance();
+			string targetPath = ProgramPaths.GetInstallFilePath();
+			cmd.Start(targetPath, "");
 		}
 
 
@@ -108,19 +100,12 @@ namespace GitMind.Installation.Private
 
 		public void InstallSilent()
 		{
-			try
-			{
-				string path = CopyFileToProgramFiles();
-				AddUninstallSupport(path);
-				CreateStartMenuShortcut(path);
-				AddToPathVariable(path);
-				AddFolderContextMenu();
-			}
-			catch (Exception e)
-			{
-				Log.Error($"Failed to install {e}");
-				throw;
-			}
+			string path = CopyFileToProgramFiles();
+
+			AddUninstallSupport(path);
+			CreateStartMenuShortcut(path);
+			AddToPathVariable(path);
+			AddFolderContextMenu();
 		}
 
 
@@ -131,7 +116,7 @@ namespace GitMind.Installation.Private
 				// The running instance is the file, which should be deleted and would block deletion,
 				// Copy the file to temp and run uninstallation from that file.
 				string tempPath = CopyFileToTemp();
-				StartUnistallInTempFile(tempPath);
+				cmd.Start(tempPath, "/uninstall");
 				return;
 			}
 
@@ -165,28 +150,8 @@ namespace GitMind.Installation.Private
 			DeleteProgramDataFolder();
 			DeleteStartMenuShortcut();
 			DeleteInPathVariable();
-			DeleteFolderContexteMenu();
+			DeleteFolderContextMenu();
 			DeleteUninstallSupport();
-		}
-
-
-
-		private void StartUnistallInTempFile(string path)
-		{
-			ProcessStartInfo info = new ProcessStartInfo(path);
-			info.Arguments = "/uninstall";
-			info.UseShellExecute = true;
-			try
-			{
-				Log.Error($"Starting in temp path, {path}");
-
-				Process.Start(info);
-			}
-			catch (Exception e)
-			{
-				Log.Error($"Failed to start temp path, {e}");
-				throw;
-			}
 		}
 
 
@@ -196,13 +161,9 @@ namespace GitMind.Installation.Private
 
 			string targetFolder = ProgramPaths.GetProgramFolderPath();
 
-			if (!Directory.Exists(targetFolder))
-			{
-				Directory.CreateDirectory(targetFolder);
-			}
+			EnsureDirectoryIsCreated(targetFolder);
 
-			string targetPath = ProgramPaths.GetInstalledFilePath();
-
+			string targetPath = ProgramPaths.GetInstallFilePath();
 
 			try
 			{
@@ -247,7 +208,16 @@ namespace GitMind.Installation.Private
 		}
 
 
-		private void DeleteProgramFilesFolder()
+		private static void EnsureDirectoryIsCreated(string targetFolder)
+		{
+			if (!Directory.Exists(targetFolder))
+			{
+				Directory.CreateDirectory(targetFolder);
+			}
+		}
+
+
+		private static void DeleteProgramFilesFolder()
 		{
 			Thread.Sleep(300);
 			string folderPath = ProgramPaths.GetProgramFolderPath();
@@ -332,7 +302,7 @@ namespace GitMind.Installation.Private
 		}
 
 
-		private void DeleteInPathVariable()
+		private static void DeleteInPathVariable()
 		{
 			string programFilesFolderPath = ProgramPaths.GetProgramFolderPath();
 
@@ -377,16 +347,16 @@ namespace GitMind.Installation.Private
 
 
 
-		private void AddFolderContextMenu()
+		private static void AddFolderContextMenu()
 		{
-			string programFilePath = ProgramPaths.GetInstalledFilePath();
+			string programFilePath = ProgramPaths.GetInstallFilePath();
 
 			Registry.SetValue(folderContextMenuPath, "", ProgramPaths.ProgramName);
 			Registry.SetValue(folderCommandContextMenuPath, "", "\"" + programFilePath + "\" \"/d:%1\"");
 		}
 
 
-		private void DeleteFolderContexteMenu()
+		private static void DeleteFolderContextMenu()
 		{
 			try
 			{
@@ -400,7 +370,7 @@ namespace GitMind.Installation.Private
 		}
 
 
-		private bool IsInstalledInstance()
+		private static bool IsInstalledInstance()
 		{
 			string folderPath = Path.GetDirectoryName(ProgramPaths.GetCurrentInstancePath());
 			string programFolderGitMind = ProgramPaths.GetProgramFolderPath();

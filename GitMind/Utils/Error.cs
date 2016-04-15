@@ -19,7 +19,7 @@ namespace GitMind.Utils
 			Message = message ?? "";
 		}
 
-
+		public static Error From(Exception e) => new Error(e.Message);
 		public static Error From(string message = "") => new Error(message);
 
 		public static Error None = new Error();

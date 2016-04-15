@@ -5,6 +5,8 @@ namespace GitMind.Utils
 {
 	public class Result
 	{
+		public static Result Ok = new Result(Error.None);
+
 		public Result(Error error)
 		{
 			Error = error;
@@ -12,8 +14,12 @@ namespace GitMind.Utils
 
 
 		public Error Error { get; }
+		public bool IsFaulted => Error != Error.None;
 
 		public static Result<T> From<T>(T result) => new Result<T>(result);
+
+		public static implicit operator Result(Error error) => new Result(error);
+		public static implicit operator Result(Exception e) => new Result(Error.From(e));
 	}
 
 
@@ -34,6 +40,7 @@ namespace GitMind.Utils
 
 
 		public static implicit operator Result<T>(Error error) => new Result<T>(error);
+		public static implicit operator Result<T>(Exception e) => new Result<T>(Error.From(e));
 
 		public static implicit operator Result<T>(T value) => new Result<T>(value);
 
@@ -52,7 +59,7 @@ namespace GitMind.Utils
 		}
 
 		public bool HasValue => !IsFaulted;
-		public bool IsFaulted => Error != Error.None;
+		
 
 
 		public Result<T> OnError(Action<Error> errorAction)
