@@ -11,12 +11,12 @@ echo.
 
 echo.
 mkdir Releases >nul 2>&1
-copy GitMind\bin\Debug\GitMind.exe Releases\GitMindSetup.exe /Y 
+copy GitMind\bin\Debug\GitMind.exe GitMindSetup.exe /Y 
 
-PowerShell -Command "& {(Get-Item Releases\GitMindSetup.exe).VersionInfo.FILEVERSION }" > Releases\version.txt
+PowerShell -Command "& {(Get-Item GitMindSetup.exe).VersionInfo.FILEVERSION }" > version.txt
 echo.
 echo GitMindSetup.exe version:
-type Releases\version.txt 
+type version.txt 
 
 echo.
 echo.
