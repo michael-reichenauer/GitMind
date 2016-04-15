@@ -157,7 +157,7 @@ namespace GitMind.CommitsHistory
 					ProgramSettings.SetLatestUsedWorkingFolderPath(Environment.CurrentDirectory);
 					return;
 				}
-				else if (gitRepo.Error == gitService.NoValidRepositoryError)
+				else if (gitRepo.Error == gitService.GitCommandError)
 				{
 					// Could not locate a local working folder
 					model = Model.None;

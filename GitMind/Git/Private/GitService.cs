@@ -39,7 +39,6 @@ namespace GitMind.Git.Private
 
 
 		public Error GitNotInstalledError { get; } = new Error("Compatible git installation not found");
-		public Error NoValidRepositoryError { get; } = new Error("No valid git repo was found");
 		public Error GitCommandError { get; } = new Error("Git command failed: ");
 
 
@@ -503,11 +502,6 @@ namespace GitMind.Git.Private
 
 			CmdResult result = cmd.Run(gitBinPath.Value, gitArgs);
 
-			if (result.ExitCode == 128)
-			{
-				return NoValidRepositoryError;
-			}
-
 			if (0 == result.ExitCode || 1 == result.ExitCode)
 			{
 				if (context != null)
@@ -524,6 +518,7 @@ namespace GitMind.Git.Private
 					File.AppendAllText(context, $"{errorPrefix}:{result.ExitCode}\n");
 				}
 
+				Log.Warn($"git failed: {result.ExitCode}, {string.Join("\n", result.Error)}");
 				return GitCommandError.With(result.ToString());
 			}
 		}

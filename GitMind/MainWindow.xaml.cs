@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -40,6 +41,9 @@ namespace GitMind
 
 		public MainWindow()
 		{
+			Version currentVersion = ProgramPaths.GetCurrentVersion();
+			Log.Debug($"Current version: {currentVersion}");
+
 			ExceptionHandling.Init();
 
 			if (!IsStartProgram())
@@ -132,7 +136,7 @@ namespace GitMind
 
 			List<string> specifiedBranchNames = new List<string>();
 
-			if (args.Length == 2 && args[1] == "/test")
+			if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path2))
 			{
 				Environment.CurrentDirectory = TestRepo.Path2;
 			}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using GitMind.Utils;
 
 
 namespace GitMind.Installation.Private
@@ -12,6 +13,8 @@ namespace GitMind.Installation.Private
 		public CommandLine()
 		{
 			args = Environment.GetCommandLineArgs();
+
+			Log.Debug($"Args: '{string.Join("','", args)}'");
 		}
 
 		public bool IsNormalInstallation()

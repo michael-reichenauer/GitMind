@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using GitMind.Settings;
 
 
 namespace GitMind.Utils
@@ -12,15 +11,11 @@ namespace GitMind.Utils
 
 		public CmdResult Start(string path, string args)
 		{
-			string targetPath = ProgramPaths.GetInstallFilePath();
-
-			ProcessStartInfo info = new ProcessStartInfo(targetPath);
-			info.Arguments = "";
+			ProcessStartInfo info = new ProcessStartInfo(path);
+			info.Arguments = args;
 			info.UseShellExecute = true;
 			try
 			{
-				Log.Error($"Starting installed path, {targetPath}");
-
 				Process.Start(info);
 				return new CmdResult(0, EmptyLines, EmptyLines);
 			}
@@ -66,8 +61,8 @@ namespace GitMind.Utils
 			catch (Exception e)
 			{
 				Log.Error($"Exception for {path} {args}, {e}");
-				return new CmdResult(-1, EmptyLines, new [] {e.Message});
+				return new CmdResult(-1, EmptyLines, new[] { e.Message });
 			}
-		}	
+		}
 	}
 }

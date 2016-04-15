@@ -39,6 +39,7 @@ namespace GitMind.Installation.Private
 
 		public void InstallNormal()
 		{
+			Log.Debug("Install normal.");
 			if (MessageBoxResult.OK != MessageBox.Show(
 				Application.Current.MainWindow,
 				"Welcome to the GitMind setup.\n\n" +
@@ -85,6 +86,7 @@ namespace GitMind.Installation.Private
 						return true;
 					}
 
+					Log.Debug("GitMind instance is already running, needs to be closed.");
 					if (MessageBoxResult.OK != MessageBox.Show(
 						"Please close all instances of GitMind before continue the installation.",
 						ProgramPaths.ProgramName,
@@ -100,22 +102,26 @@ namespace GitMind.Installation.Private
 
 		public void InstallSilent()
 		{
+			Log.Debug("Installing ...");
 			string path = CopyFileToProgramFiles();
 
 			AddUninstallSupport(path);
 			CreateStartMenuShortcut(path);
 			AddToPathVariable(path);
 			AddFolderContextMenu();
+			Log.Debug("Installed");
 		}
 
 
 		public void UninstallNormal()
 		{
+			Log.Debug("Uninstall normal");
 			if (IsInstalledInstance())
 			{
 				// The running instance is the file, which should be deleted and would block deletion,
 				// Copy the file to temp and run uninstallation from that file.
 				string tempPath = CopyFileToTemp();
+				Log.Debug("Start uninstaller in tmp folder");
 				cmd.Start(tempPath, "/uninstall");
 				return;
 			}
@@ -146,12 +152,14 @@ namespace GitMind.Installation.Private
 
 		public void UninstallSilent()
 		{
+			Log.Debug("Uninstalling...");
 			DeleteProgramFilesFolder();
 			DeleteProgramDataFolder();
 			DeleteStartMenuShortcut();
 			DeleteInPathVariable();
 			DeleteFolderContextMenu();
 			DeleteUninstallSupport();
+			Log.Debug("Uninstalled");
 		}
 
 
@@ -375,8 +383,6 @@ namespace GitMind.Installation.Private
 			string folderPath = Path.GetDirectoryName(ProgramPaths.GetCurrentInstancePath());
 			string programFolderGitMind = ProgramPaths.GetProgramFolderPath();
 
-			Log.Warn($"Path1 {folderPath}");
-			Log.Warn($"Path2 {programFolderGitMind}");
 			return folderPath == programFolderGitMind;
 		}
 

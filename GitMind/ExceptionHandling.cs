@@ -129,7 +129,7 @@ namespace GitMind
 			{
 				if (stackTraceText.Contains(item.Location) && item.ExceptionType == exceptionType)
 				{
-					Log.Error($"First chance exception suppressed:\n{e}\nthrown via:\n {item.Location}");
+					// Log.Error($"First chance exception suppressed:\n{e}\nthrown via:\n {item.Location}");
 					return true;
 				}
 			}

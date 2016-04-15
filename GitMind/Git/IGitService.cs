@@ -8,7 +8,7 @@ namespace GitMind.Git
 	internal interface IGitService
 	{
 		Error GitNotInstalledError { get; }
-		Error NoValidRepositoryError { get; }
+		Error GitCommandError { get; }
 
 		Task<Result<IGitRepo>> GetRepoAsync(string path, bool isShift);
 

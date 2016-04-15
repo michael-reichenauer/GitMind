@@ -16,5 +16,11 @@ namespace GitMind.Utils
 			Output = output;
 			Error = error;
 		}
+
+
+		public override string ToString()
+		{
+			return $"Exit code: {ExitCode}";
+		}
 	}
 }
