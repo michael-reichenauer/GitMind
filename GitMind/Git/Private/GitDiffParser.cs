@@ -25,7 +25,7 @@ namespace GitMind.Git.Private
 				StringBuilder left = new StringBuilder();
 				StringBuilder right = new StringBuilder();
 
-				// MUst be fixed #####
+				// MUst be fixed ####
 				int diffFileIndex = 0;
 
 				int index = 0;
@@ -232,7 +232,7 @@ namespace GitMind.Git.Private
 						int row = int.Parse(part);
 
 						int count = 0;
-					
+
 						if (stopIndex > -1 && stopIndex > index)
 						{
 							string countPart = line.Substring(index + 1, stopIndex - (index + 1));
@@ -270,7 +270,7 @@ namespace GitMind.Git.Private
 				LastRow = count > 0 ? FirstRow + count - 1 : FirstRow;
 			}
 
-			public int FirstRow { get;  }
+			public int FirstRow { get; }
 			public int LastRow { get; }
 		}
 	}
