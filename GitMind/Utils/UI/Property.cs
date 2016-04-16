@@ -1,10 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 
 namespace GitMind.Utils.UI
 {
 	internal class Property
-	{		
+	{
 	}
 
 	internal class Property<T> : Property
@@ -13,28 +15,15 @@ namespace GitMind.Utils.UI
 
 		private readonly string propertyName;
 		private readonly ViewModel viewModel;
-		private T propertyValue;
+		//private T value;
+		private Task<T> valueTask;
 
 		public Property(string propertyName, ViewModel viewModel)
 		{
 			this.propertyName = propertyName;
 			this.viewModel = viewModel;
+			valueTask = Task.FromResult(default(T));
 		}
-
-
-		//public T Value
-		//{
-		//	get { return propertyValue; }
-		//	set
-		//	{
-		//		// Investigate if we can avoid assigning same value ####
-		//		propertyValue = value;
-		//		viewModel.OnPropertyChanged(propertyName);
-
-		//		// Trigger related properties (if specified)			
-		//		otherProperties?.ForEach(property => viewModel.OnPropertyChanged(propertyName));
-		//	}
-		//}
 
 
 		public static implicit operator T(Property<T> propertyInstance) => propertyInstance.Get();
@@ -42,16 +31,60 @@ namespace GitMind.Utils.UI
 
 		public T Get()
 		{
-			return propertyValue;
+			return (valueTask.Status == TaskStatus.RanToCompletion)
+			? valueTask.Result : default(T);
 		}
 
 
-		public void Set(T value)
+		public void Set(T propertyValue)
 		{
 			// Investigate if we can avoid assigning same value ####
-			propertyValue = value;
+			Set(Task.FromResult(propertyValue));
+		}
+
+
+		public void Set(Task<T> propertyValueTask)
+		{
+			valueTask = propertyValueTask;
+			NotifyChanged();
+
+			if (!valueTask.IsCompleted)
+			{
+				SetAsync(propertyValueTask).RunInBackground();
+			}
+		}
+
+
+		private async Task SetAsync(Task<T> task)
+		{
+			try
+			{
+				await task;
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				// Errors will be handled by the task
+			}
+
 			NotifyChanged();
 		}
+
+
+		//public T Result => (valueTask.Status == TaskStatus.RanToCompletion)
+		//	? valueTask.Result : default(T);
+
+		public TaskStatus Status => valueTask.Status;
+		public bool IsCompleted => valueTask.IsCompleted;
+		public bool IsNotCompleted => !valueTask.IsCompleted;
+		public bool IsSuccessfullyCompleted => valueTask.Status == TaskStatus.RanToCompletion;
+		public bool IsNotSuccessfullyCompleted => !IsSuccessfullyCompleted;
+		public bool IsCanceled => valueTask.IsCanceled;
+		public bool IsFaulted => valueTask.IsFaulted;
+
+		//public AggregateException Exception => valueTask.Exception;
+		//public Exception InnerException => Exception?.InnerException;
+		//public string ErrorMessage => InnerException?.Message;
+
 
 
 		public void NotifyChanged()
@@ -74,6 +107,6 @@ namespace GitMind.Utils.UI
 		}
 
 
-		public override string ToString() => propertyValue?.ToString() ?? "";
+		public override string ToString() => Get()?.ToString() ?? "";
 	}
 }

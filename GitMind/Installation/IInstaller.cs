@@ -9,5 +9,7 @@
 		void UninstallNormal();
 
 		void UninstallSilent();
+
+		void StartInstalled();
 	}
 }

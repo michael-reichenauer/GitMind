@@ -80,25 +80,30 @@ namespace GitMind
 
 		private bool IsStartProgram()
 		{
-			if (commandLine.IsNormalInstallation())
+			if (commandLine.IsInstall && !commandLine.IsSilent)
 			{
 				installer.InstallNormal();
 
 				return false;
 			}
-			else if (commandLine.IsSilentInstallation())
+			else if (commandLine.IsInstall && commandLine.IsSilent)
 			{
 				installer.InstallSilent();
 
+				if (commandLine.IsRunInstalled)
+				{
+					installer.StartInstalled();
+				}
+
 				return false;
 			}
-			else if (commandLine.IsNormalUninstallation())
+			else if (commandLine.IsUninstall && !commandLine.IsSilent)
 			{
 				installer.UninstallNormal();
 
 				return false;
 			}
-			else if (commandLine.IsSilentUninstallation())
+			else if (commandLine.IsUninstall && commandLine.IsSilent)
 			{
 				installer.UninstallSilent();
 
@@ -175,7 +180,7 @@ namespace GitMind
 
 				await RefreshAsync(true);
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (ex.IsNotFatal())
 			{
 				Log.Error($"Failed to auto refresh {ex}");
 			}
@@ -183,15 +188,12 @@ namespace GitMind
 
 
 
-		private async void NewVersionAsync(object sender, EventArgs e)
+		private void NewVersionAsync(object sender, EventArgs e)
 		{
-			mainWindowViewModel.IsNewVersionVisible.Set(false);
+			mainWindowViewModel.IsNewVersionVisible.Set(
+				latestVersionService.IsNewVersionAvailableAsync());
 
-			bool isNewVersion = await latestVersionService.IsNewVersionAvailableAsync();
-
-			mainWindowViewModel.IsNewVersionVisible.Set(isNewVersion);
-
-			newVersionTime.Interval = TimeSpan.FromMinutes(60);
+			newVersionTime.Interval = TimeSpan.FromSeconds(60);
 		}
 
 
@@ -256,7 +258,7 @@ namespace GitMind
 
 				await RefreshAsync(true);
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (ex.IsNotFatal())
 			{
 				Log.Warn($"Failed to refresh {ex}");
 			}

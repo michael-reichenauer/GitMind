@@ -69,6 +69,13 @@ namespace GitMind.Installation.Private
 				MessageBoxButton.OK,
 				MessageBoxImage.Information);
 
+			StartInstalled();
+		}
+
+
+
+		public void StartInstalled()
+		{
 			string targetPath = ProgramPaths.GetInstallFilePath();
 			cmd.Start(targetPath, "");
 		}
@@ -163,6 +170,7 @@ namespace GitMind.Installation.Private
 		}
 
 
+
 		private string CopyFileToProgramFiles()
 		{
 			string sourcePath = ProgramPaths.GetCurrentInstancePath();
@@ -176,13 +184,13 @@ namespace GitMind.Installation.Private
 			try
 			{
 				if (sourcePath != targetPath)
-				{
-					File.Copy(sourcePath, targetPath, true);
+				{				
+					CopyFile(sourcePath, targetPath);
 				}
 			}
-			catch (Exception e)
+			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Debug($"Failed to copy {sourcePath} to target {targetPath}, trying to move target, {e}");
+				Log.Debug($"Failed to copy {sourcePath} to target {targetPath}, moving target first, {e}");
 				try
 				{
 					string oldFilePath = targetPath + "_old";
@@ -192,20 +200,20 @@ namespace GitMind.Installation.Private
 						{
 							File.Delete(oldFilePath);
 							File.Move(targetPath, oldFilePath);
-							File.Copy(sourcePath, targetPath, true);
+							CopyFile(sourcePath, targetPath);
 						}
-						catch (Exception)
+						catch (Exception) when (e.IsNotFatal())
 						{
-							File.Copy(sourcePath, targetPath);
+							CopyFile(sourcePath, targetPath);
 						}
 					}
 					else
 					{
 						File.Move(targetPath, oldFilePath);
-						File.Copy(sourcePath, targetPath, true);
+						CopyFile(sourcePath, targetPath);
 					}
 				}
-				catch (Exception ex)
+				catch (Exception ex) when (e.IsNotFatal())
 				{
 					Log.Error($"Failed to copy {sourcePath} to target {targetPath}, {ex}");
 					throw;
@@ -213,6 +221,14 @@ namespace GitMind.Installation.Private
 			}
 
 			return targetPath;
+		}
+
+
+		private static void CopyFile(string sourcePath, string targetPath)
+		{
+			// Not using File.Copy, to avoid copying possible "downloaded from internet flag"
+			byte[] fileData = File.ReadAllBytes(sourcePath);
+			File.WriteAllBytes(targetPath, fileData);
 		}
 
 
@@ -243,7 +259,7 @@ namespace GitMind.Installation.Private
 						return;
 					}
 				}
-				catch (Exception)
+				catch (Exception e) when (e.IsNotFatal())
 				{
 					Log.Debug($"Failed to delete {folderPath}");
 					Thread.Sleep(1000);
@@ -347,7 +363,7 @@ namespace GitMind.Installation.Private
 			{
 				Registry.CurrentUser.DeleteSubKeyTree(UninstallSubKey);
 			}
-			catch (Exception e)
+			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Warn($"Failed to delete uninstall support {e}");
 			}
@@ -370,7 +386,7 @@ namespace GitMind.Installation.Private
 			{
 				Registry.CurrentUser.DeleteSubKeyTree(subFolderContextMenuPath);
 			}
-			catch (Exception e)
+			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Warn($"Failed to delete folder context menu {e}");
 			}

@@ -63,9 +63,9 @@ namespace GitMind
 
 				mainWindowViewModel.BranchName.Set(currentBranchName.Value);
 			}
-			catch (Exception ex)
+			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to update status {ex}");
+				Log.Warn($"Failed to update status {e}");
 			}
 		}
 

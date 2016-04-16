@@ -134,7 +134,7 @@ namespace GitMind.Settings
 
 				return version;
 			}
-			catch (Exception e)
+			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Warn($"Failed to get version from {path}, {e}");
 				return new Version(0, 0, 0, 0);
@@ -148,7 +148,7 @@ namespace GitMind.Settings
 			Environment.CurrentDirectory = path;
 
 			return gitService.GetCurrentRootPath(null)
-				.OnError(e => Log.Warn($"Not a working folder {path}, {e}"));			
+				.OnError(e => Log.Warn($"Not a working folder {path}, {e}"));
 		}
 	}
 }

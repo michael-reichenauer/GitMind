@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.Net;
+using System.Linq;
+using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using GitMind.Settings;
 using GitMind.Utils;
@@ -12,80 +13,122 @@ namespace GitMind.Installation.Private
 	internal class LatestVersionService : ILatestVersionService
 	{
 		private static readonly string latestUri =
-			"https://github.com/michael-reichenauer/GitMind/raw/latest/Releases/";
+			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
+		private static readonly string UserAgent = "GitMind";
 
-		private static readonly string latestVersionUri = latestUri + "version.txt";
-		private static readonly string latestSetupUri = latestUri + "GitMindSetup.exe";
+		private readonly JsonSerializer serializer = new JsonSerializer();
+		private readonly ICmd cmd = new Cmd();
 
 
 		public async Task<bool> IsNewVersionAvailableAsync()
 		{
-			return await Task.Run(() =>
+			Log.Debug($"Checking remote version of {latestUri} ...");
+			Version remoteSetupFileVersion = await GetLatestRemoteVersionAsync();
+
+			Version currentVersion = ProgramPaths.GetCurrentVersion();
+			Log.Debug($"Current version: {currentVersion} remote version: {remoteSetupFileVersion}");
+
+			return currentVersion < remoteSetupFileVersion;
+		}
+
+
+		private async Task<Version> GetLatestRemoteVersionAsync()
+		{
+			Result<LatestInfo> latestInfo = await GetLatestInfoAsync();
+
+			if (latestInfo.IsFaulted) return new Version(0, 0, 0, 0);
+
+			return Version.Parse(latestInfo.Value.tag_name.Substring(1));
+		}
+
+
+		private async Task<Result<LatestInfo>> GetLatestInfoAsync()
+		{
+			try
 			{
-				try
+				using (HttpClient httpClient = GetHttpClient())
 				{
-					Log.Debug($"Checking remote version of {latestVersionUri} ...");
-					Version remoteSetupFileVersion = GetLatestRemoteVersion();
+					string latestInfoText = await httpClient.GetStringAsync(latestUri);
 
-					Version currentVersion = ProgramPaths.GetCurrentVersion();
-					Log.Debug($"Current version: {currentVersion} remote version: {remoteSetupFileVersion}");
-
-					return currentVersion < remoteSetupFileVersion;
+					return serializer.Deserialize<LatestInfo>(latestInfoText);
 				}
-				catch (Exception e)
-				{
-					Log.Error($"Failed to check remote version {e}");
-				}
-
-				return false;
-			});
-		}
-
-
-		[AcceptingExceptions(typeof(ArgumentNullException))]
-		[AcceptingExceptions(typeof(WebException))]
-		private static Version GetLatestRemoteVersion()
-		{
-			WebClient webClient = new WebClient();
-			string version = webClient.DownloadString(latestVersionUri).Trim();
-
-			return Version.Parse(version);
-		}
-
-
-		public Task<bool> InstallLatestVersionAsync()
-		{
-			return Task.Run(() =>
+			}
+			catch (Exception e) when (e.IsNotFatal())
 			{
-				try
-				{
-					Log.Debug($"Downloading remote setup {latestSetupUri} ...");
-
-					byte[] remoteFileData = GetLatestRemoteSetup();
-
-					string tempPath = Path.Combine(Path.GetTempPath(), "GitMindSetup.exe");
-					File.WriteAllBytes(tempPath, remoteFileData);
-
-					ProcessStartInfo info = new ProcessStartInfo(tempPath);
-					info.UseShellExecute = true;
-					Process.Start(info);
-					return true;
-
-				}
-				catch (Exception e)
-				{
-					Log.Error($"Failed to install new version {e}");
-				}
-
-				return false;
-			});
+				Log.Warn($"Failed to download latest setup: {e}");
+				return e;
+			}
 		}
 
 
-		private static byte[] GetLatestRemoteSetup()
+		public async Task<bool> InstallLatestVersionAsync()
 		{
-			WebClient webClient = new WebClient();
-			return webClient.DownloadData(latestSetupUri);
+			try
+			{
+				Log.Debug($"Downloading remote setup {latestUri} ...");
+
+				Result<LatestInfo> latestInfo = await GetLatestInfoAsync();
+				if (latestInfo.IsFaulted) return false;
+
+				if (latestInfo.Value.assets != null)
+				{
+					Asset setupInfo = latestInfo.Value.assets.First(a => a.name == "GitMindSetup.exe");
+
+					using (HttpClient httpClient = GetHttpClient())
+					{
+						Log.Debug(
+							$"Downloading {latestInfo.Value.tag_name} from {setupInfo.browser_download_url}");
+
+						byte[] remoteFileData = await httpClient.GetByteArrayAsync(
+							setupInfo.browser_download_url);
+
+						string tempPath = Path.Combine(Path.GetTempPath(), setupInfo.name);
+						File.WriteAllBytes(tempPath, remoteFileData);
+
+						Log.Debug($"Downloaded {latestInfo.Value.tag_name} to {tempPath}");
+
+						cmd.Start(tempPath, "/install /silent /run");
+						return true;
+					}
+				}
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				Log.Error($"Failed to install new version {e}");
+			}
+
+			return false;
+		}
+
+		private static HttpClient GetHttpClient()
+		{
+			HttpClient httpClient = new HttpClient();
+			httpClient.DefaultRequestHeaders.Add("user-agent", UserAgent);
+			return httpClient;
+		}
+
+
+		[DataContract]
+		public class LatestInfo
+		{
+			[DataMember]
+			public string tag_name;
+
+			[DataMember]
+			public Asset[] assets;
+		}
+
+		[DataContract]
+		internal class Asset
+		{
+			[DataMember]
+			public string name;
+
+			[DataMember]
+			public int download_count;
+
+			[DataMember]
+			public string browser_download_url;
 		}
 	}
 }

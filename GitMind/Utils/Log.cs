@@ -28,8 +28,18 @@ namespace GitMind.Utils
 			[CallerMemberName] string memberName = "",
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
-			{
+		{
 			Write("WARN  [", msg, memberName, sourceFilePath, sourceLineNumber);
+		}
+
+
+		internal static void Warn(
+			Exception e,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0)
+		{
+			throw new NotImplementedException();
 		}
 
 
@@ -59,7 +69,7 @@ namespace GitMind.Utils
 
 				Debugger.Log(0, Debugger.DefaultCategory, text);
 			}
-			catch (Exception e)
+			catch (Exception e) when (e.IsNotFatal())
 			{
 				Debugger.Log(0, Debugger.DefaultCategory, "ERROR Failed to log to udp " + e);
 			}

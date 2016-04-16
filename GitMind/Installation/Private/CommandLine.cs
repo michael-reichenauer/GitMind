@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using GitMind.Utils;
 
@@ -17,38 +18,17 @@ namespace GitMind.Installation.Private
 			Log.Debug($"Args: '{string.Join("','", args)}'");
 		}
 
-		public bool IsNormalInstallation()
-		{
-			return
-				(args.Length == 1 && IsRunningSetupFile())
-				|| (args.Length == 2 && args[1] == "/install");
-		}
 
+		public bool IsSilent => args.Contains("/silent");
 
-		public bool IsSilentInstallation()
-		{
-			return
-				(args.Length == 3 && args[1] == "/install" && args[2] == "/silent")
-				|| (args.Length == 2 && IsRunningSetupFile() && args[1] == "/silent");
-		}
+		public bool IsInstall => args.Contains("/install") || IsRunningSetupFile;
 
+		public bool IsUninstall => args.Contains("/uninstall");
 
-		private static bool IsRunningSetupFile()
-		{
-			return Path.GetFileNameWithoutExtension(
-				Assembly.GetEntryAssembly().Location).StartsWith("GitMindSetup");
-		}
+		public bool IsRunInstalled => args.Contains("/run");
 
-
-		public bool IsNormalUninstallation()
-		{
-			return args.Length == 2 && args[1] == "/uninstall";
-		}
-
-
-		public bool IsSilentUninstallation()
-		{
-			return args.Length == 3 && args[1] == "/uninstall" && args[2] == "/silent";
-		}
+		private bool IsRunningSetupFile => 
+			Path.GetFileNameWithoutExtension(
+				Assembly.GetEntryAssembly().Location).StartsWith("GitMindSetup");	
 	}
 }

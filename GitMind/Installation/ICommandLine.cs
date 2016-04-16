@@ -2,9 +2,9 @@
 {
 	internal interface ICommandLine
 	{
-		bool IsNormalInstallation();
-		bool IsSilentInstallation();
-		bool IsNormalUninstallation();
-		bool IsSilentUninstallation();
+		bool IsSilent { get; }
+		bool IsInstall { get; }
+		bool IsUninstall { get; }
+		bool IsRunInstalled { get; }
 	}
 }

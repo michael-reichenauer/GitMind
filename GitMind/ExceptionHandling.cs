@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.ExceptionServices;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -20,43 +18,12 @@ namespace GitMind
 
 		private static readonly List<SuppressItems> suppressItems = new List<SuppressItems>();
 
-		private static readonly IReadOnlyList<Type> FatalTypes = new[]
-		{
-			typeof(ArgumentException),
-			typeof(AccessViolationException),
-			typeof(AppDomainUnloadedException),
-			typeof(ArithmeticException),
-			typeof(ArrayTypeMismatchException),
-			typeof(BadImageFormatException),
-			typeof(CannotUnloadAppDomainException),
-			typeof(ContextMarshalException),
-			typeof(DataMisalignedException),
-			typeof(IndexOutOfRangeException),
-			typeof(InsufficientExecutionStackException),
-			typeof(InvalidCastException),
-			typeof(InvalidOperationException),
-			typeof(InvalidProgramException),
-			typeof(MemberAccessException),
-			typeof(MulticastNotSupportedException),
-			typeof(NotImplementedException),
-			typeof(NotSupportedException),
-			typeof(NullReferenceException),
-			typeof(OutOfMemoryException),
-			typeof(RankException),
-			typeof(AmbiguousMatchException),
-			typeof(InvalidComObjectException),
-			typeof(InvalidOleVariantTypeException),
-			typeof(MarshalDirectiveException),
-			typeof(SafeArrayRankMismatchException),
-			typeof(SafeArrayTypeMismatchException),
-			typeof(StackOverflowException),
-			typeof(TypeInitializationException),
-		};
+
 
 		public static void Init()
 		{
 			// Add the event handler for handling UI thread exceptions to the event.		
-			Application.Current.DispatcherUnhandledException +=	(s, e) =>
+			Application.Current.DispatcherUnhandledException += (s, e) =>
 				HandleException("dispatcher exception", e.Exception);
 
 			// Add the event handler for handling non-UI thread exceptions to the event. 
@@ -66,13 +33,13 @@ namespace GitMind
 			// Log exceptions that hasn't been handled when a Task is finalized.
 			TaskScheduler.UnobservedTaskException += (s, e) =>
 				HandleException("unobserved task exception", e.Exception);
-		
 
-		// Set the handler for unhandled exceptions on a Task that is marked as FailOnFaulted.
-		// FailOnFaultedTaskExtensions.FailOnFaultedTask += TaskFailOnFaulted;
 
-		// Register handler for all exceptions as they are being thrown
-		AppDomain.CurrentDomain.FirstChanceException += FirstChanceException;
+			// Set the handler for unhandled exceptions on a Task that is marked as FailOnFaulted.
+			// FailOnFaultedTaskExtensions.FailOnFaultedTask += TaskFailOnFaulted;
+
+			// Register handler for all exceptions as they are being thrown
+			// AppDomain.CurrentDomain.FirstChanceException += FirstChanceException;
 
 			RegisterSuppressionAttributes();
 		}
@@ -93,7 +60,7 @@ namespace GitMind
 					foreach (var attribute in attributes)
 					{
 						string location = attribute.ExternalLocation ??
-							$"{member.DeclaringType?.FullName}.{member.Name}";		
+							$"{member.DeclaringType?.FullName}.{member.Name}";
 
 						suppressItems.Add(new SuppressItems(location, attribute.ExceptionType));
 					}
@@ -102,46 +69,42 @@ namespace GitMind
 		}
 
 
-		/// <summary>
-		/// Called for each exception thrown this application domain.
-		/// </summary>
-		private static void FirstChanceException(object sender, FirstChanceExceptionEventArgs args)
-		{
-			StackTrace stackTrace = new StackTrace(1, true);
+		///// <summary>
+		///// Called for each exception thrown this application domain.
+		///// </summary>
+		//private static void FirstChanceException(object sender, FirstChanceExceptionEventArgs args)
+		//{
+		//	StackTrace stackTrace = new StackTrace(1, true);
 
-			if (SuppressedException(stackTrace, args.Exception))
-			{
-				return;
-			}
-
-
-			HandleException($"exception:\n{args.Exception}\n\nThrown:\n{stackTrace}", args.Exception);
-		}
+		//	if (SuppressedException(stackTrace, args.Exception))
+		//	{
+		//		return;
+		//	}
 
 
-		private static bool SuppressedException(StackTrace stackTrace, Exception e)
-		{
-			Type exceptionType = e.GetType();
+		//	HandleException($"exception:\n{args.Exception}\n\nThrown:\n{stackTrace}", args.Exception);
+		//}
 
-			string stackTraceText = stackTrace.ToString();
 
-			foreach (SuppressItems item in suppressItems)
-			{
-				if (stackTraceText.Contains(item.Location) && item.ExceptionType == exceptionType)
-				{
-					// Log.Error($"First chance exception suppressed:\n{e}\nthrown via:\n {item.Location}");
-					return true;
-				}
-			}
+		//private static bool SuppressedException(StackTrace stackTrace, Exception e)
+		//{
+		//	Type exceptionType = e.GetType();
 
-			if (FatalTypes.Contains(exceptionType))
-			{
-				return false;
-			}
+		//	string stackTraceText = stackTrace.ToString();
 
-	
-			return false;
-		}
+		//	foreach (SuppressItems item in suppressItems)
+		//	{
+		//		if (stackTraceText.Contains(item.Location) && item.ExceptionType == exceptionType)
+		//		{
+		//			// Log.Error($"First chance exception suppressed:\n{e}\nthrown via:\n {item.Location}");
+		//			return true;
+		//		}
+		//	}
+
+
+
+		//	return false;
+		//}
 
 
 		//private static void TaskFailOnFaulted(object sender, FailOnFaultedTaskEventArgs e)
@@ -169,16 +132,29 @@ namespace GitMind
 			}
 			else
 			{
-				var dispatcher = GetApplicationDispatcher();
-				if (dispatcher.CheckAccess())
-				{
-					ShowExceptionDialog(errorMessage, exception);
-				}
-				else
-				{
-					dispatcher.Invoke(() => ShowExceptionDialog(errorMessage, exception));
-				}
+				Shutdown(errorMessage, exception);
 			}
+		}
+
+
+		public static void Shutdown(string errorMessage, Exception e)
+		{
+			var dispatcher = GetApplicationDispatcher();
+			if (dispatcher.CheckAccess())
+			{
+				ShowExceptionDialog(errorMessage, e);
+			}
+			else
+			{
+				dispatcher.Invoke(() => ShowExceptionDialog(errorMessage, e));
+			}
+
+			if (Debugger.IsAttached)
+			{
+				Debugger.Break();
+			}
+
+			Environment.FailFast(errorMessage, e);
 		}
 
 
@@ -190,20 +166,13 @@ namespace GitMind
 			}
 
 			hasDisplayedErrorMessageBox = true;
-			
+
 			MessageBox.Show(
 				Application.Current.MainWindow,
 				errorMessage,
 				"GitMind - Unhandled Exception",
 				MessageBoxButton.OK,
 				MessageBoxImage.Error);
-
-			if (Debugger.IsAttached)
-			{
-				Debugger.Break();
-			}
-
-			Environment.FailFast(errorMessage, e);
 		}
 
 

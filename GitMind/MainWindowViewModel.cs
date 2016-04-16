@@ -109,7 +109,7 @@ namespace GitMind
 				proc.StartInfo.FileName = "mailto:michael.reichenauer@gmail.com&subject=GitMind Feedback";
 				proc.Start();
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (ex.IsNotFatal())
 			{
 				Log.Error($"Failed to open feedback link {ex}");
 			}

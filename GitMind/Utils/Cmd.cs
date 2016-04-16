@@ -19,7 +19,7 @@ namespace GitMind.Utils
 				Process.Start(info);
 				return new CmdResult(0, EmptyLines, EmptyLines);
 			}
-			catch (Exception e)
+			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Error($"Exception for {path} {args}, {e}");
 				return new CmdResult(-1, EmptyLines, new[] { e.Message });
@@ -58,7 +58,7 @@ namespace GitMind.Utils
 
 				return new CmdResult(process.ExitCode, lines, EmptyLines);
 			}
-			catch (Exception e)
+			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Error($"Exception for {path} {args}, {e}");
 				return new CmdResult(-1, EmptyLines, new[] { e.Message });
