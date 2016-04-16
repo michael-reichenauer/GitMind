@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -220,6 +221,9 @@ namespace GitMind.Git.Private
 				if (startIndex > -1 && startIndex < endIndex)
 				{
 					int index = line.IndexOf(",", startIndex);
+					int stopIndex = line.IndexOf(" ", startIndex);
+
+					index = Math.Min(index, stopIndex);
 
 					if (index > -1 && index < endIndex)
 					{
@@ -228,13 +232,13 @@ namespace GitMind.Git.Private
 						int row = int.Parse(part);
 
 						int count = 0;
-						int stopIndex = line.IndexOf(" ", index);
-
-						if (stopIndex > -1)
+					
+						if (stopIndex > -1 && stopIndex > index)
 						{
 							string countPart = line.Substring(index + 1, stopIndex - (index + 1));
 							count = int.Parse(countPart);
 						}
+
 						return new RowInfo(row, count);
 					}
 				}
