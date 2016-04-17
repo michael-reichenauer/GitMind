@@ -1,19 +1,23 @@
 using System.Threading.Tasks;
 using GitMind.Git.Private;
+using GitMind.Utils;
 
 
 namespace GitMind.Git
 {
 	internal interface IGitService
 	{
-		Task<IGitRepo> GetRepoAsync(string path, bool isShift);
+		Error GitNotInstalledError { get; }
+		Error GitCommandError { get; }
 
-		Task<string> GetCurrentBranchNameAsync(string path);
+		Task<Result<IGitRepo>> GetRepoAsync(string path, bool isShift);
 
-		string GetCurrentRootPath(string path);
+		Task<Result<string>> GetCurrentBranchNameAsync(string path);
 
-		Task<CommitDiff> GetCommitDiffAsync(string commitId);
+		Result<string> GetCurrentRootPath(string path);
 
-		Task<GitStatus> GetStatusAsync(string path);
+		Task<Result<CommitDiff>> GetCommitDiffAsync(string commitId);
+
+		Task<Result<GitStatus>> GetStatusAsync(string path);
 	}
 }

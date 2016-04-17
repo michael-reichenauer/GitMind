@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
@@ -13,7 +14,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Assert(instance != null, memberName, sourceFilePath, sourceLineNumber);
+			Requires(instance != null, memberName, sourceFilePath, sourceLineNumber);
 		}
 
 
@@ -23,39 +24,72 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Assert(predicate, memberName, sourceFilePath, sourceLineNumber);
+			if (!predicate)
+			{
+				Fail("assert", memberName, sourceFilePath, sourceLineNumber);
+			}
+		}
+
+		public static Exception FailFast(
+			string errorMessage,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0)
+		{
+			Fail(errorMessage, memberName, sourceFilePath, sourceLineNumber);
+
+			return new InvalidOperationException();
 		}
 
 
-		private static void Assert(
-			bool predicate, string memberName, string sourceFilePath, int sourceLineNumber)
+		public static Exception FailFast(
+			Error error,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			if (!predicate)
+			Fail(error.Message, memberName, sourceFilePath, sourceLineNumber);
+
+			return new InvalidOperationException();
+		}
+
+
+		private static void Fail(
+			 string error, string memberName, string sourceFilePath, int sourceLineNumber)
+		{
+			StackTrace stackTrace = new StackTrace(true);
+
+			string message =
+				$"Fail {error} at\n{sourceFilePath}({sourceLineNumber}) {memberName}\n\n{stackTrace}";
+
+			ShowError(message);
+
+			CloseProgram(message);
+			
+		}
+
+
+		private static void CloseProgram(string message)
+		{
+			if (Debugger.IsAttached)
 			{
-				StackTrace stackTrace = new StackTrace(true);
-
-				string message =
-					$"Assert failed at\n{sourceFilePath}({sourceLineNumber}) {memberName}\n\n{stackTrace}";
-
-				Log.Error(message);
-
-				MessageBox.Show(
-					Application.Current.MainWindow,
-					message,
-					"Asserter",
-					MessageBoxButton.OK,
-					MessageBoxImage.Error);
-
-				if (Debugger.IsAttached)
-				{
-					Debugger.Break();
-				}
-				else
-				{
-					Debugger.Launch();
-					Application.Current.Shutdown(-1);
-				}
+				Debugger.Break();
 			}
+
+			Environment.FailFast(message);
+		}
+
+
+		private static void ShowError(string message)
+		{
+			Log.Error(message);
+
+			MessageBox.Show(
+				Application.Current.MainWindow,
+				message,
+				"GitMind - Asserter",
+				MessageBoxButton.OK,
+				MessageBoxImage.Error);
 		}
 	}
 }

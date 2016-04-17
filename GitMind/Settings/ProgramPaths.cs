@@ -81,7 +81,7 @@ namespace GitMind.Settings
 		}
 
 
-		public static string GetInstalledFilePath()
+		public static string GetInstallFilePath()
 		{
 			string programFilesFolderPath = GetProgramFolderPath();
 			return Path.Combine(programFilesFolderPath, ProgramFileName);
@@ -134,27 +134,21 @@ namespace GitMind.Settings
 
 				return version;
 			}
-			catch (Exception e)
+			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Warn($"Failed to get version from {path}, {e}");
 				return new Version(0, 0, 0, 0);
 			}
 		}
 
-		public static string TryGetWorkingFolderPath(string path)
+		public static Result<string> GetWorkingFolderPath(string path)
 		{
 			IGitService gitService = new GitService();
 
-			try
-			{
-				Environment.CurrentDirectory = path;
-				return gitService.GetCurrentRootPath(null);
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Not a working folder {path}, {e}");
-				return null;
-			}
+			Environment.CurrentDirectory = path;
+
+			return gitService.GetCurrentRootPath(null)
+				.OnError(e => Log.Warn($"Not a working folder {path}, {e}"));
 		}
 	}
 }

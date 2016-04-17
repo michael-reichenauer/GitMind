@@ -42,16 +42,15 @@ namespace GitMind.CommitsHistory
 				return;
 			}
 
-			CommitDiff commitDiff = await gitService.GetCommitDiffAsync(commitId);
+			Result<CommitDiff> commitDiff = await gitService.GetCommitDiffAsync(commitId);
 
-			await Task.Run(() =>
+			if (commitDiff.HasValue)
 			{
-				string output;
-				cmd.Run(
-					p4mergeExe,
-					"\"" + commitDiff.LeftPath + "\"" + " " + "\"" + commitDiff.RightPath + "\"",
-					out output);
-			});
+				await Task.Run(() =>
+				{
+					cmd.Run(p4mergeExe, $"\"{commitDiff.Value.LeftPath}\" \"{commitDiff.Value.RightPath}\"");
+				});
+			}
 		}
 	}
 }

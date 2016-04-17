@@ -178,7 +178,7 @@ namespace GitMind.DataModel.Private
 					gitRepo);
 
 
-				Log.Warn($"Done get model, time {timestamp.Elapsed}");
+				Log.Debug($"Done get model, time {timestamp.Elapsed}");
 				return model1;
 			});
 		}
@@ -216,13 +216,13 @@ namespace GitMind.DataModel.Private
 				{
 					if (commit.BranchName != null && commit.BranchName != branch.Name)
 					{
-						Log.Warn($"Commit {commit} specified to be in {commit.BranchName} != {branch.Name}");
+						Log.Debug($"Commit {commit} specified to be in {commit.BranchName} != {branch.Name}");
 					}
 
 					string branchName = commit.TryGetBranchNameFromSubject();
 					if (branchName != null && branchName != branch.Name && commit.DateTime.Year > 2014)
 					{
-						Log.Warn($"Commit {commit} subject branch is {branchName} != {branch.Name}");
+						Log.Debug($"Commit {commit} subject branch is {branchName} != {branch.Name}");
 					}
 				}
 			}

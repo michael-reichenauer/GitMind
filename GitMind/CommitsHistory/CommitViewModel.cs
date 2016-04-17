@@ -100,8 +100,8 @@ namespace GitMind.CommitsHistory
 		public string CommitBranchText { get; }
 		public string CommitBranchName { get; }
 
-		public ICommand HideBranchCommand => Command(HideBranchAsync);
-		public ICommand ShowDiffCommand => Command(ShowDiffAsync);
+		public Command HideBranchCommand => Command(HideBranchAsync);
+		public Command ShowDiffCommand => Command(ShowDiffAsync);
 
 
 		public override string ToString() => $"{Commit.ShortId} {Subject} {DateTime}";
@@ -133,7 +133,7 @@ namespace GitMind.CommitsHistory
 			if (Commit.Subject.StartsWith("#"))
 			{
 				int index = Commit.Subject.IndexOf(" ");
-				if (index > 2)
+				if (index > 1)
 				{
 					return Commit.Subject.Substring(0, index);
 				}

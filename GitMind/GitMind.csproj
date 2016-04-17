@@ -40,6 +40,7 @@
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,6 +60,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AcceptingExceptionsAttribute.cs" />
     <Compile Include="BranchName.cs" />
     <Compile Include="CommitsHistory\BrushService.cs" />
     <Compile Include="CommitsHistory\CoordinateConverter.cs" />
@@ -75,6 +77,11 @@
     <Compile Include="DataModel\Private\Commit.cs" />
     <Compile Include="DataModel\Private\CommitComparer.cs" />
     <Compile Include="DataModel\Private\Commits.cs" />
+    <Compile Include="ExceptionHandling.cs" />
+    <Compile Include="FatalExceptionsExtensions.cs" />
+    <Compile Include="Installation\Private\CommandLine.cs" />
+    <Compile Include="Installation\ICommandLine.cs" />
+    <Compile Include="Utils\Error.cs" />
     <Compile Include="Git\Private\GitDiffParser.cs" />
     <Compile Include="Git\Private\IGitDiffParser.cs" />
     <Compile Include="DataModel\Private\ModelBuilder.cs" />
@@ -94,9 +101,13 @@
     <Compile Include="IStatusRefreshService.cs" />
     <Compile Include="PropertyToVisibilityConverter.cs" />
     <Compile Include="StatusRefreshService.cs" />
+    <Compile Include="Utils\CmdResult.cs" />
+    <Compile Include="Utils\JsonSerializer.cs" />
+    <Compile Include="Utils\Result.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
+    <Compile Include="Utils\UI\BusyIndicator.cs" />
     <Compile Include="Utils\UI\Property.cs" />
-    <Compile Include="Utils\UI\RelayCommand.cs" />
+    <Compile Include="Utils\UI\Command.cs" />
     <Compile Include="Git\CommitDiff.cs" />
     <Compile Include="CommitsHistory\BranchViewModel.cs" />
     <Compile Include="Git\GitBranch.cs" />

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Input;
 using GitMind.CommitsHistory;
 using GitMind.Installation;
 using GitMind.Settings;
@@ -30,7 +29,7 @@ namespace GitMind
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
 
-			StatusText.WhenSetNotify(nameof(IsStatusVisible));
+			StatusText.WhenSetAlsoNotify(nameof(IsStatusVisible));
 		}
 
 
@@ -43,6 +42,8 @@ namespace GitMind
 		public Property<string> BranchName => Property<string>();
 
 		public Property<string> WorkingFolder => Property<string>();
+
+		public BusyIndicator Busy => BusyIndicator();
 
 		public ILogViewModel LogViewModel { get; }
 
@@ -60,13 +61,13 @@ namespace GitMind
 		}
 
 
-		public ICommand SelectWorkingFolderCommand => Command(SelectWorkingFolder);
+		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
 
-		public ICommand ShowDiffCommand => Command(ShowDiff);
+		public Command ShowDiffCommand => Command(ShowDiff);
 
-		public ICommand InstallLatestVersionCommand => Command(InstallLatestVersion);
+		public Command InstallLatestVersionCommand => Command(InstallLatestVersion);
 
-		public ICommand FeedbackCommand => Command(Feedback);
+		public Command FeedbackCommand => Command(Feedback);
 
 
 		private async void InstallLatestVersion()
@@ -109,7 +110,7 @@ namespace GitMind
 				proc.StartInfo.FileName = "mailto:michael.reichenauer@gmail.com&subject=GitMind Feedback";
 				proc.Start();
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (ex.IsNotFatal())
 			{
 				Log.Error($"Failed to open feedback link {ex}");
 			}
@@ -140,7 +141,7 @@ namespace GitMind
 
 			await LogViewModel.LoadAsync(owner);
 
-			WorkingFolder.Value = ProgramPaths.TryGetWorkingFolderPath(Environment.CurrentDirectory);
+			WorkingFolder.Set(ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or(""));
 		}
 	}
 }

@@ -12,10 +12,10 @@ namespace GitMindTest.Utils
 		{
 			Cmd cmd = new Cmd();
 
-			string output;
-			Assert.AreEqual(0, cmd.Run("git", "version", out output));
+			CmdResult result = cmd.Run("git", "version");
+			Assert.AreEqual(0, result.ExitCode);
 
-			Assert.That(output, Is.StringStarting("git version 2."));
+			Assert.That(result.Output, Is.StringStarting("git version 2."));
 		}
 	}
 }

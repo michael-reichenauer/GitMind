@@ -7,25 +7,32 @@ namespace GitMind.Utils
 {
 	public class Cmd : ICmd
 	{
-		public int Run(string path, string args, out string output)
-		{
-			IReadOnlyList<string> lines;
-			if (0 == Run(path, args, out lines))
-			{
-				output = string.Join("\n", lines);
-				return 0;
-			}
+		private static readonly IReadOnlyList<string> EmptyLines = new string[0];
 
-			output = null;
-			return -1;
+		public CmdResult Start(string path, string args)
+		{
+			ProcessStartInfo info = new ProcessStartInfo(path);
+			info.Arguments = args;
+			info.UseShellExecute = true;
+			try
+			{
+				Process.Start(info);
+				return new CmdResult(0, EmptyLines, EmptyLines);
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				Log.Error($"Exception for {path} {args}, {e}");
+				return new CmdResult(-1, EmptyLines, new[] { e.Message });
+			}
 		}
 
-		public int Run(string path, string args, out IReadOnlyList<string> output)
+
+		public CmdResult Run(string path, string args)
 		{
 			try
 			{
 				List<string> lines = new List<string>();
-				Log.Debug($"Cmd: {path} {args}");
+				// Log.Debug($"Cmd: {path} {args}");
 
 				var process = new Process
 				{
@@ -48,16 +55,13 @@ namespace GitMind.Utils
 				}
 
 				process.WaitForExit();
-				output = lines;
 
-				Log.Debug($"Cmd exit code: {process.ExitCode} for {path} {args}");
-				return process.ExitCode;
+				return new CmdResult(process.ExitCode, lines, EmptyLines);
 			}
-			catch (Exception e)
+			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Error($"Exception for {path} {args}, {e}");
-				output = null;
-				return -1;
+				return new CmdResult(-1, EmptyLines, new[] { e.Message });
 			}
 		}
 	}

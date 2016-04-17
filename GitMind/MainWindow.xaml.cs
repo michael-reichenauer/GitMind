@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -25,6 +27,7 @@ namespace GitMind
 		private readonly IStatusRefreshService refreshService;
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly IInstaller installer = new Installer();
+		private readonly ICommandLine commandLine = new CommandLine();
 		private readonly IDiffService diffService = new DiffService();
 
 		private static Mutex programMutex;
@@ -38,6 +41,11 @@ namespace GitMind
 
 		public MainWindow()
 		{
+			Version currentVersion = ProgramPaths.GetCurrentVersion();
+			Log.Debug($"Current version: {currentVersion}");
+
+			ExceptionHandling.Init();
+
 			if (!IsStartProgram())
 			{
 				Application.Current.Shutdown(0);
@@ -72,25 +80,30 @@ namespace GitMind
 
 		private bool IsStartProgram()
 		{
-			if (installer.IsNormalInstallation())
+			if (commandLine.IsInstall && !commandLine.IsSilent)
 			{
 				installer.InstallNormal();
 
 				return false;
 			}
-			else if (installer.IsSilentInstallation())
+			else if (commandLine.IsInstall && commandLine.IsSilent)
 			{
 				installer.InstallSilent();
 
+				if (commandLine.IsRunInstalled)
+				{
+					installer.StartInstalled();
+				}
+
 				return false;
 			}
-			else if (installer.IsNormalUninstallation())
+			else if (commandLine.IsUninstall && !commandLine.IsSilent)
 			{
 				installer.UninstallNormal();
 
 				return false;
 			}
-			else if (installer.IsSilentUninstallation())
+			else if (commandLine.IsUninstall && commandLine.IsSilent)
 			{
 				installer.UninstallSilent();
 
@@ -128,7 +141,7 @@ namespace GitMind
 
 			List<string> specifiedBranchNames = new List<string>();
 
-			if (args.Length == 2 && args[1] == "/test")
+			if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path2))
 			{
 				Environment.CurrentDirectory = TestRepo.Path2;
 			}
@@ -151,7 +164,7 @@ namespace GitMind
 		{
 			Log.Debug("Start version timer");
 			newVersionTime.Tick += NewVersionAsync;
-			newVersionTime.Interval = TimeSpan.FromSeconds(15);
+			newVersionTime.Interval = TimeSpan.FromSeconds(5);
 			newVersionTime.Start();
 
 			refreshService.Start();
@@ -165,44 +178,41 @@ namespace GitMind
 			{
 				autoRefreshTime.Interval = TimeSpan.FromMinutes(10);
 
-				await historyViewModel.RefreshAsync(true);
+				await RefreshAsync(true);
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (ex.IsNotFatal())
 			{
 				Log.Error($"Failed to auto refresh {ex}");
 			}
 		}
 
 
-		private async void NewVersionAsync(object sender, EventArgs e)
+
+		private void NewVersionAsync(object sender, EventArgs e)
 		{
-			mainWindowViewModel.IsNewVersionVisible.Value = false;
+			mainWindowViewModel.IsNewVersionVisible.Set(
+				latestVersionService.IsNewVersionAvailableAsync());
 
-			bool isNewVersion = await latestVersionService.IsNewVersionAvailableAsync();
-
-			mainWindowViewModel.IsNewVersionVisible.Value = isNewVersion;
-
-			newVersionTime.Interval = TimeSpan.FromMinutes(60);
+			newVersionTime.Interval = TimeSpan.FromSeconds(60);
 		}
 
 
 		private void SetWorkingFolder()
 		{
-			string workingFolder = ProgramPaths.TryGetWorkingFolderPath(Environment.CurrentDirectory);
-			if (workingFolder == null)
+			Result<string> workingFolder = ProgramPaths.GetWorkingFolderPath(
+				Environment.CurrentDirectory);
+
+			if (!workingFolder.HasValue)
 			{
 				string lastUsedFolder = ProgramSettings.TryGetLatestUsedWorkingFolderPath();
 
 				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
 				{
-					workingFolder = ProgramPaths.TryGetWorkingFolderPath(lastUsedFolder);
+					workingFolder = ProgramPaths.GetWorkingFolderPath(lastUsedFolder);
 				}
 			}
 
-			if (workingFolder != null)
-			{
-				Environment.CurrentDirectory = workingFolder;
-			}
+			workingFolder.OnValue(v => Environment.CurrentDirectory = v);
 		}
 
 
@@ -211,10 +221,13 @@ namespace GitMind
 			// Store the canvas in a local variable since x:Name doesn't work.
 			canvas = (ZoomableCanvas)sender;
 
-			mainWindowViewModel.WorkingFolder.Value =
-				ProgramPaths.TryGetWorkingFolderPath(Environment.CurrentDirectory);
+			mainWindowViewModel.WorkingFolder.Set(
+				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or(""));
 
-			await historyViewModel.LoadAsync(this);
+			Task loadTask = historyViewModel.LoadAsync(this);
+			mainWindowViewModel.Busy.Add(loadTask);
+
+			await loadTask;
 			LoadedTime = DateTime.Now;
 
 			autoRefreshTime.Tick += FetchAndRefreshAsync;
@@ -246,12 +259,27 @@ namespace GitMind
 					dispatcherTimer.Stop();
 				}
 
-				await historyViewModel.RefreshAsync(true);
+				await RefreshAsync(true);
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (ex.IsNotFatal())
 			{
 				Log.Warn($"Failed to refresh {ex}");
 			}
+		}
+
+
+
+		private async Task RefreshAsync(bool isShift)
+		{
+			Task refreshTask = RefreshInternalAsync(isShift);
+			mainWindowViewModel.Busy.Add(refreshTask);
+			await refreshTask;
+		}
+
+		private async Task RefreshInternalAsync(bool isShift)
+		{
+			await refreshService.UpdateStatusAsync();
+			await historyViewModel.RefreshAsync(isShift);
 		}
 
 		protected override async void OnPreviewMouseUp(MouseButtonEventArgs e)
@@ -285,8 +313,7 @@ namespace GitMind
 			{
 				bool isShift = (Keyboard.Modifiers & ModifierKeys.Shift) > 0;
 				Log.Debug("Refresh");
-				await refreshService.UpdateStatusAsync();
-				await historyViewModel.RefreshAsync(isShift);
+				await RefreshAsync(isShift);
 			}
 
 			base.OnKeyUp(e);

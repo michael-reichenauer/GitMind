@@ -124,13 +124,19 @@
 							</ContextMenu>
 						</TextBlock.ContextMenu>
 					</TextBlock>
+					
+					<Label 
+						Margin="10,0"
+						Foreground="DarkOrchid"
+						FontSize="10"
+						Content="{Binding Busy.Text}" />
 				</StackPanel>
 
 
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
 
-					<!-- Latest version button -->
-					<Button 
+				<!-- Latest version button -->
+				<Button 
 						Name="GetLatestVersionButton"
 						Visibility="{Binding Path=IsNewVersionVisible, Converter={StaticResource PropertyToVisibilityConverter}}"
 						Background="Black"  

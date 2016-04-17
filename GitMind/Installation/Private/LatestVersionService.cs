@@ -1,6 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using GitMind.Settings;
 using GitMind.Utils;
@@ -10,66 +12,123 @@ namespace GitMind.Installation.Private
 {
 	internal class LatestVersionService : ILatestVersionService
 	{
+		private static readonly string latestUri =
+			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
+		private static readonly string UserAgent = "GitMind";
+
+		private readonly JsonSerializer serializer = new JsonSerializer();
+		private readonly ICmd cmd = new Cmd();
+
+
 		public async Task<bool> IsNewVersionAvailableAsync()
 		{
-			return await Task.Run(() =>
-			{
-				try
-				{
-					string currentPath = ProgramPaths.GetCurrentInstancePath();
-					string remoteSetupPath = ProgramPaths.RemoteSetupPath;
+			Log.Debug($"Checking remote version of {latestUri} ...");
+			Version remoteSetupFileVersion = await GetLatestRemoteVersionAsync();
 
-					Log.Debug($"Check version of {remoteSetupPath}");
+			Version currentVersion = ProgramPaths.GetCurrentVersion();
+			Log.Debug($"Current version: {currentVersion} remote version: {remoteSetupFileVersion}");
 
-					if (currentPath != remoteSetupPath)
-					{
-						Version currentVersion = ProgramPaths.GetCurrentVersion();
-						Version remoteSetupFileVersion = ProgramPaths.GetVersion(remoteSetupPath);
-
-						Log.Debug($"Version {currentVersion}, {remoteSetupFileVersion} of {remoteSetupPath}");
-
-						return currentVersion < remoteSetupFileVersion;
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Error($"Failed to check remote version {e}");
-				}
-
-				return false;
-			});
+			return currentVersion < remoteSetupFileVersion;
 		}
 
 
-		public Task<bool> InstallLatestVersionAsync()
+		private async Task<Version> GetLatestRemoteVersionAsync()
 		{
-			return Task.Run(() =>
+			Result<LatestInfo> latestInfo = await GetLatestInfoAsync();
+
+			if (latestInfo.IsFaulted) return new Version(0, 0, 0, 0);
+
+			return Version.Parse(latestInfo.Value.tag_name.Substring(1));
+		}
+
+
+		private async Task<Result<LatestInfo>> GetLatestInfoAsync()
+		{
+			try
 			{
-				try
+				using (HttpClient httpClient = GetHttpClient())
 				{
-					string remoteSetupPath = ProgramPaths.RemoteSetupPath;
+					string latestInfoText = await httpClient.GetStringAsync(latestUri);
 
-					if (File.Exists(remoteSetupPath))
+					return serializer.Deserialize<LatestInfo>(latestInfoText);
+				}
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				Log.Warn($"Failed to download latest setup: {e}");
+				return e;
+			}
+		}
+
+
+		public async Task<bool> InstallLatestVersionAsync()
+		{
+			try
+			{
+				Log.Debug($"Downloading remote setup {latestUri} ...");
+
+				Result<LatestInfo> latestInfo = await GetLatestInfoAsync();
+				if (latestInfo.IsFaulted) return false;
+
+				if (latestInfo.Value.assets != null)
+				{
+					Asset setupInfo = latestInfo.Value.assets.First(a => a.name == "GitMindSetup.exe");
+
+					using (HttpClient httpClient = GetHttpClient())
 					{
-						string tempSuffix = Path.GetFileNameWithoutExtension(Path.GetTempFileName());
-						string tempName = "GitMindSetup_" + tempSuffix + ".exe";
+						Log.Debug(
+							$"Downloading {latestInfo.Value.tag_name} from {setupInfo.browser_download_url}");
 
-						string tempPath = Path.Combine(Path.GetTempPath(), tempName);
-						File.Copy(remoteSetupPath, tempPath, true);
+						byte[] remoteFileData = await httpClient.GetByteArrayAsync(
+							setupInfo.browser_download_url);
 
-						ProcessStartInfo info = new ProcessStartInfo(tempPath);
-						info.UseShellExecute = true;
-						Process.Start(info);
+						string tempPath = Path.Combine(Path.GetTempPath(), setupInfo.name);
+						File.WriteAllBytes(tempPath, remoteFileData);
+
+						Log.Debug($"Downloaded {latestInfo.Value.tag_name} to {tempPath}");
+
+						cmd.Start(tempPath, "/install /silent /run");
 						return true;
 					}
 				}
-				catch (Exception e)
-				{
-					Log.Error($"Failed to install new version {e}");
-				}
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				Log.Error($"Failed to install new version {e}");
+			}
 
-				return false;
-			});
+			return false;
+		}
+
+		private static HttpClient GetHttpClient()
+		{
+			HttpClient httpClient = new HttpClient();
+			httpClient.DefaultRequestHeaders.Add("user-agent", UserAgent);
+			return httpClient;
+		}
+
+
+		[DataContract]
+		public class LatestInfo
+		{
+			[DataMember]
+			public string tag_name;
+
+			[DataMember]
+			public Asset[] assets;
+		}
+
+		[DataContract]
+		internal class Asset
+		{
+			[DataMember]
+			public string name;
+
+			[DataMember]
+			public int download_count;
+
+			[DataMember]
+			public string browser_download_url;
 		}
 	}
 }

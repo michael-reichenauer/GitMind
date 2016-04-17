@@ -21,21 +21,6 @@ namespace GitMind.DataModel.Private
 
 		public Commit GetById(string commitId)
 		{
-			try
-			{
-				return GetCommitById(commitId);
-			}
-			catch (Exception)
-			{
-				Log.Warn($"Failed to get {commitId}");
-				throw;
-			}
-			
-		}
-
-
-		private Commit GetCommitById(string commitId)
-		{
 			Commit commit;
 			if (commitIdToCommit.TryGetValue(commitId, out commit))
 			{
@@ -45,9 +30,9 @@ namespace GitMind.DataModel.Private
 			GitCommit gitCommit = gitRepo.GetCommit(commitId);
 
 			Lazy<IReadOnlyList<Commit>> parents = new Lazy<IReadOnlyList<Commit>>(
-				() => gitCommit.ParentIds.Select(GetCommitById).ToList());
+				() => gitCommit.ParentIds.Select(GetById).ToList());
 			Lazy<IReadOnlyList<Commit>> children = new Lazy<IReadOnlyList<Commit>>(
-				() => gitRepo.GetCommitChildren(gitCommit.Id).Select(GetCommitById).ToList());
+				() => gitRepo.GetCommitChildren(gitCommit.Id).Select(GetById).ToList());
 
 			commit = new Commit(
 				gitCommit.Id,

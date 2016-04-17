@@ -34,30 +34,46 @@ namespace GitMind.Utils.UI
 			return (Property<T>)property;
 		}
 
-		protected ICommand Command<T>(Action<T> executeMethod, [CallerMemberName] string memberName = "")
+
+		protected BusyIndicator BusyIndicator([CallerMemberName] string memberName = "")
 		{
-			ICommand command;
-			if (!commands.TryGetValue(memberName, out command))
+			Property property;
+			if (!properties.TryGetValue(memberName, out property))
 			{
 
-				command = new RelayCommand<T>(executeMethod);
-				commands[memberName] = command;
+				property = new BusyIndicator(memberName, this);
+				properties[memberName] = property;
 			}
 
-			return command;
+			return (BusyIndicator)property;
 		}
 
-		protected ICommand Command(Action executeMethod, [CallerMemberName] string memberName = "")
+
+		protected Command<T> Command<T>(
+			Action<T> executeMethod, [CallerMemberName] string memberName = "")
 		{
 			ICommand command;
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new RelayCommand(executeMethod);
+				command = new Command<T>(executeMethod);
 				commands[memberName] = command;
 			}
 
-			return command;
+			return (Command<T>)command;
+		}
+
+		protected Command Command(Action executeMethod, [CallerMemberName] string memberName = "")
+		{
+			ICommand command;
+			if (!commands.TryGetValue(memberName, out command))
+			{
+
+				command = new Command(executeMethod);
+				commands[memberName] = command;
+			}
+
+			return (Command)command;
 		}
 	}
 }
