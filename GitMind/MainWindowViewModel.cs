@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Input;
 using GitMind.CommitsHistory;
 using GitMind.Installation;
 using GitMind.Settings;
@@ -62,13 +61,13 @@ namespace GitMind
 		}
 
 
-		public ICommand SelectWorkingFolderCommand => Command(SelectWorkingFolder);
+		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
 
-		public ICommand ShowDiffCommand => Command(ShowDiff);
+		public Command ShowDiffCommand => Command(ShowDiff);
 
-		public ICommand InstallLatestVersionCommand => Command(InstallLatestVersion);
+		public Command InstallLatestVersionCommand => Command(InstallLatestVersion);
 
-		public ICommand FeedbackCommand => Command(Feedback);
+		public Command FeedbackCommand => Command(Feedback);
 
 
 		private async void InstallLatestVersion()

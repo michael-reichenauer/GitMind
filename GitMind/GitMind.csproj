@@ -107,7 +107,7 @@
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
     <Compile Include="Utils\UI\BusyIndicator.cs" />
     <Compile Include="Utils\UI\Property.cs" />
-    <Compile Include="Utils\UI\RelayCommand.cs" />
+    <Compile Include="Utils\UI\Command.cs" />
     <Compile Include="Git\CommitDiff.cs" />
     <Compile Include="CommitsHistory\BranchViewModel.cs" />
     <Compile Include="Git\GitBranch.cs" />

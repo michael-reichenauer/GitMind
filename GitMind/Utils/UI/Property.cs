@@ -72,8 +72,7 @@ namespace GitMind.Utils.UI
 
 		//public T Result => (valueTask.Status == TaskStatus.RanToCompletion)
 		//	? valueTask.Result : default(T);
-
-		public TaskStatus Status => valueTask.Status;
+		
 		public bool IsCompleted => valueTask.IsCompleted;
 		public bool IsNotCompleted => !valueTask.IsCompleted;
 		public bool IsSuccessfullyCompleted => valueTask.Status == TaskStatus.RanToCompletion;
@@ -81,6 +80,7 @@ namespace GitMind.Utils.UI
 		public bool IsCanceled => valueTask.IsCanceled;
 		public bool IsFaulted => valueTask.IsFaulted;
 
+		// public TaskStatus Status => valueTask.Status;
 		//public AggregateException Exception => valueTask.Exception;
 		//public Exception InnerException => Exception?.InnerException;
 		//public string ErrorMessage => InnerException?.Message;

@@ -49,30 +49,31 @@ namespace GitMind.Utils.UI
 		}
 
 
-		protected ICommand Command<T>(Action<T> executeMethod, [CallerMemberName] string memberName = "")
+		protected Command<T> Command<T>(
+			Action<T> executeMethod, [CallerMemberName] string memberName = "")
 		{
 			ICommand command;
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new RelayCommand<T>(executeMethod);
+				command = new Command<T>(executeMethod);
 				commands[memberName] = command;
 			}
 
-			return command;
+			return (Command<T>)command;
 		}
 
-		protected ICommand Command(Action executeMethod, [CallerMemberName] string memberName = "")
+		protected Command Command(Action executeMethod, [CallerMemberName] string memberName = "")
 		{
 			ICommand command;
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new RelayCommand(executeMethod);
+				command = new Command(executeMethod);
 				commands[memberName] = command;
 			}
 
-			return command;
+			return (Command)command;
 		}
 	}
 }

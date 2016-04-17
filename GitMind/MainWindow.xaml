@@ -126,8 +126,9 @@
 					</TextBlock>
 					
 					<Label 
-						Margin="30,0"
+						Margin="10,0"
 						Foreground="DarkOrchid"
+						FontSize="10"
 						Content="{Binding Busy.Text}" />
 				</StackPanel>
 

@@ -8,6 +8,7 @@ namespace GitMind.Utils.UI
 	internal class BusyIndicator : Property<string>
 	{
 		private static readonly string[] indicators = { "o", "o o", "o o o", "o o o o" };
+		//private static readonly string[] indicators = { ".", ". .", ". . .", ". . . ." };
 		private static readonly TimeSpan InitialIndicatorTime = TimeSpan.FromMilliseconds(100);
 		private static readonly TimeSpan IndicatorInterval = TimeSpan.FromMilliseconds(500);
 

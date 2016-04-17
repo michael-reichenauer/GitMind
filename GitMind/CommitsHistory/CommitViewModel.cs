@@ -100,8 +100,8 @@ namespace GitMind.CommitsHistory
 		public string CommitBranchText { get; }
 		public string CommitBranchName { get; }
 
-		public ICommand HideBranchCommand => Command(HideBranchAsync);
-		public ICommand ShowDiffCommand => Command(ShowDiffAsync);
+		public Command HideBranchCommand => Command(HideBranchAsync);
+		public Command ShowDiffCommand => Command(ShowDiffAsync);
 
 
 		public override string ToString() => $"{Commit.ShortId} {Subject} {DateTime}";
