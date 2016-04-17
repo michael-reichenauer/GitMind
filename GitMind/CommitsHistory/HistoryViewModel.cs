@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Xml.Serialization.Advanced;
 using GitMind.DataModel;
 using GitMind.DataModel.Private;
 using GitMind.Git;
@@ -32,8 +33,17 @@ namespace GitMind.CommitsHistory
 		private double width = 1000;
 
 		private Model model;
+		private int currentCommitId = 0;
+		private int currentBranchId = 0;
+		private int currentMergeId = 0;
 		private readonly List<CommitViewModel> commits = new List<CommitViewModel>();
-		private readonly Dictionary<string, int> commitIdToCommitIndex = new Dictionary<string, int>();
+		private readonly Dictionary<string, int> commitIdToRowIndex = new Dictionary<string, int>();
+
+		private readonly Dictionary<string, int> commitIdToItemId = new Dictionary<string, int>();
+		private readonly Dictionary<int, CommitViewModel> itemIdToCommit =
+			new Dictionary<int, CommitViewModel>();
+
+
 		private readonly List<BranchViewModel> branches = new List<BranchViewModel>();
 		private readonly List<MergeViewModel> merges = new List<MergeViewModel>();
 		private readonly List<string> activeBrancheNames = new List<string>();
@@ -271,7 +281,11 @@ namespace GitMind.CommitsHistory
 					// Return visible commits
 					for (int i = topRowIndex; i <= bottomRowIndex; i++)
 					{
-						yield return i;
+						if (i >= 0 && i < commits.Count)
+						{
+							int itemId = commits[i].ItemId;
+							yield return itemId;
+						}
 					}
 				}
 			}
@@ -294,34 +308,23 @@ namespace GitMind.CommitsHistory
 			if (id < branchBaseIndex)
 			{
 				// An item in the commit row range
-				if (id < 0 || id >= commits.Count)
-				{
-					return null;
-				}
-
-				return commits[id];
+				CommitViewModel commit;
+				itemIdToCommit.TryGetValue(id, out commit);
+				return commit;
 			}
 			else if (id < mergeBaseIndex)
 			{
 				// An item in the branch range
-				int branchIndex = id - branchBaseIndex;
-				if (branchIndex < 0 || branchIndex >= branches.Count)
-				{
-					return null;
-				}
+				int branchId = id - branchBaseIndex;
 
-				return branches[branchIndex];
+				return branches.FirstOrDefault(b => b.BranchId == branchId);
 			}
 			else
 			{
 				// An item in the merge range
-				int mergeIndex = id - mergeBaseIndex;
-				if (mergeIndex < 0 || mergeIndex >= merges.Count)
-				{
-					return null;
-				}
-
-				return merges[mergeIndex];
+				int mergeId = id - mergeBaseIndex;
+			
+				return merges.FirstOrDefault(m => m.MergeId == mergeId);
 			}
 		}
 
@@ -366,7 +369,8 @@ namespace GitMind.CommitsHistory
 			}
 
 			commits.Clear();
-			commitIdToCommitIndex.Clear();
+			commitIdToRowIndex.Clear();
+
 			branches.Clear();
 			merges.Clear();
 
@@ -396,63 +400,75 @@ namespace GitMind.CommitsHistory
 
 		private void CreateRows()
 		{
-			for (int i = 0; i < model.Commits.Count; i++)
+			for (int rowIndex = 0; rowIndex < model.Commits.Count; rowIndex++)
 			{
-				Commit commit = model.Commits[i];
+				Commit commit = model.Commits[rowIndex];
 
-				int rowIndex = i;
-				bool isMergePoint = commit.Parents.Count > 1
+				CommitViewModel commitViewModel = GetCommitViewModel(commit);
+
+				commitViewModel.Commit = commit;
+				commitViewModel.Rect.Set(new Rect(
+					0,
+					coordinateConverter.ConvertFromRow(rowIndex),
+					Width - 35,
+					coordinateConverter.ConvertFromRow(1)));
+
+				commitViewModel.IsMergePoint = commit.Parents.Count > 1
 					&& (!commit.SecondParent.IsOnActiveBranch()
 						|| commit.Branch != commit.SecondParent.Branch);
-				bool isCurrent = commit == model.CurrentCommit;
+				commitViewModel.IsCurrent.Set(commit == model.CurrentCommit);
 
-				int branchColumn = GetBranchColumnForBranchName(commit.Branch.Name);
+				commitViewModel.BranchColumn = GetBranchColumnForBranchName(commit.Branch.Name);
+				commitViewModel.GraphWidth.Set(coordinateConverter.ConvertFromColumn(model.Branches.Count));
 
-				int size = isMergePoint ? 10 : 6;
-				int xPoint = isMergePoint ?
-					2 + coordinateConverter.ConvertFromColumn(branchColumn) :
-					4 + coordinateConverter.ConvertFromColumn(branchColumn);
-				int yPoint = isMergePoint ? 2 : 4;
+				commitViewModel.Size.Set(commitViewModel.IsMergePoint ? 10 : 6);
+				commitViewModel.XPoint.Set(commitViewModel.IsMergePoint ?
+					2 + coordinateConverter.ConvertFromColumn(commitViewModel.BranchColumn) :
+					4 + coordinateConverter.ConvertFromColumn(commitViewModel.BranchColumn));
+				commitViewModel.YPoint.Set(commitViewModel.IsMergePoint ? 2 : 4);
 
-				Brush brush = brushService.GetBRanchBrush(commit.Branch);
-				Brush brushInner = commit.IsExpanded ? brushService.GetDarkerBrush(brush) : brush;
+				commitViewModel.Brush = brushService.GetBRanchBrush(commit.Branch);
+				commitViewModel.BrushInner.Set(commit.IsExpanded
+					? brushService.GetDarkerBrush(commitViewModel.Brush) : commitViewModel.Brush);
 
-				Brush subjectBrush = GetSubjectBrush(commit);
+				commitViewModel.SubjectBrush.Set(GetSubjectBrush(commit));
+				commitViewModel.Width.Set(Width - 35);
+				commitViewModel.ToolTip = GetCommitToolTip(commit);
 
-				string toolTip = GetCommitToolTip(commit);
-
-				string date = commit.DateTime.ToShortDateString()
+				commitViewModel.Date = commit.DateTime.ToShortDateString()
 					+ " " + commit.DateTime.ToShortTimeString();
-				string commitBranchText = "Hide branch: " + commit.Branch.Name;
+				commitViewModel.CommitBranchText = "Hide branch: " + commit.Branch.Name;
+				commitViewModel.CommitBranchName = commit.Branch.Name;
 
-				CommitViewModel commitViewModel = new CommitViewModel(
-					branchColumn,
-					commit,
-					isMergePoint,
-					isCurrent,
-					new Rect(
-						0,
-						coordinateConverter.ConvertFromRow(rowIndex),
-						Width - 35,
-						coordinateConverter.ConvertFromRow(1)),
+
+				commits.Add(commitViewModel);
+				commitIdToRowIndex[commit.Id] = rowIndex;
+			}
+		}
+
+
+		private CommitViewModel GetCommitViewModel(Commit commit)
+		{
+			CommitViewModel commitViewModel;
+			int itemId = 0;
+			if (!commitIdToItemId.TryGetValue(commit.Id, out itemId))
+			{
+				itemId = ++currentCommitId;
+				commitIdToItemId[commit.Id] = itemId;
+
+				commitViewModel = new CommitViewModel(
+					itemId,
 					() => Width - 35,
-					coordinateConverter.ConvertFromColumn(model.Branches.Count),
-					subjectBrush,
-					date,
-					toolTip,
-					brush,
-					brushInner,
-					xPoint,
-					yPoint,
-					size,
-					commitBranchText,
-					commit.Branch.Name,
 					HideBranchNameAsync,
 					ShowDiffAsync);
 
-				commits.Add(commitViewModel);
-				commitIdToCommitIndex[commit.Id] = rowIndex;
+				itemIdToCommit[itemId] = commitViewModel;
 			}
+			else
+			{
+				commitViewModel = itemIdToCommit[itemId];
+			}
+			return commitViewModel;
 		}
 
 
@@ -498,18 +514,19 @@ namespace GitMind.CommitsHistory
 			for (int i = 0; i < model.Branches.Count; i++)
 			{
 				IBranch branch = model.Branches[i];
-				int branchId = i;
-				int latestRowIndex = commitIdToCommitIndex[branch.LatestCommit.Id];
-				int firstRowIndex = commitIdToCommitIndex[branch.FirstCommit.Id];
+				int branchId = ++currentBranchId;
+				int latestRowIndex = commitIdToRowIndex[branch.LatestCommit.Id];
+				int firstRowIndex = commitIdToRowIndex[branch.FirstCommit.Id];
 				int height = coordinateConverter.ConvertFromRow(firstRowIndex - latestRowIndex);
 
 				BranchViewModel branchViewModel = new BranchViewModel(
 					branch.Name,
 					branchId,
+					i,
 					latestRowIndex,
 					firstRowIndex,
 					new Rect(
-						(double)coordinateConverter.ConvertFromColumn(branchId) + 5,
+						(double)coordinateConverter.ConvertFromColumn(i) + 5,
 						(double)coordinateConverter.ConvertFromRow(latestRowIndex) + CoordinateConverter.HalfRow,
 						6,
 						height),
@@ -527,13 +544,13 @@ namespace GitMind.CommitsHistory
 			for (int i = 0; i < model.Merges.Count; i++)
 			{
 				Merge merge = model.Merges[i];
-				int mergeId = i;
+				int mergeId = ++currentMergeId;
 
-				int parentRowIndex = commitIdToCommitIndex[merge.ParentCommit.Id];
+				int parentRowIndex = commitIdToRowIndex[merge.ParentCommit.Id];
 				BranchBuilder parentBranch = merge.ParentCommit.Branch;
 				int parrentColumn = branches.First(b => b.Name == parentBranch.Name).BranchColumn;
 
-				int childRowIndex = commitIdToCommitIndex[merge.ChildCommit.Id];
+				int childRowIndex = commitIdToRowIndex[merge.ChildCommit.Id];
 				BranchBuilder childBranch = merge.ChildCommit.Branch;
 				int childColumn = branches.First(b => b.Name == childBranch.Name).BranchColumn;
 
@@ -594,8 +611,11 @@ namespace GitMind.CommitsHistory
 			set
 			{
 				width = value;
-				ItemsSource.TriggerExtentChanged();
-				ItemsSource.TriggerItemsChanged();
+
+				if (model != null)
+				{
+					UpdateUIModel();
+				}
 			}
 		}
 

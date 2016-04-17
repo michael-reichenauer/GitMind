@@ -1297,13 +1297,13 @@ namespace GitMind.VirtualCanvas
 		/// <param name="e">The event arguments.</param>
 		private void OnSpatialQueryInvalidated(object sender, EventArgs e)
 		{
-			// Clearing all already realized items by first virtualizing them and clear the liist
-			foreach (var realizedItem in RealizedItems)
-			{
-				VirtualizeItem(realizedItem);
-			}
+			//// Clearing all already realized items by first virtualizing them and clear the liist
+			//foreach (var realizedItem in RealizedItems)
+			//{
+			//	VirtualizeItem(realizedItem);
+			//}
 
-			RealizedItems.Clear();
+			//RealizedItems.Clear();
 
 			InvalidateReality();
 		}
