@@ -266,7 +266,7 @@
 								<!--<Setter Property="Background" Value="Black"/>-->
 								<Style TargetType="MenuItem">
 									<Setter Property="Header" Value="{Binding Text}"/>
-									
+									<Setter Property="Background" Value="Black"/>
 									<Setter Property="Foreground" Value="LightSteelBlue"/>
 									<Setter Property="Margin" Value="0"/>
 									<Setter Property="Padding" Value="0"/>
@@ -432,7 +432,7 @@
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
-											<Grid>
+											<Grid Background="Black">
 												<Grid.ColumnDefinitions>
 													<ColumnDefinition Width="{Binding GraphWidth.Value}"/>
 													<ColumnDefinition Width="*"/>
