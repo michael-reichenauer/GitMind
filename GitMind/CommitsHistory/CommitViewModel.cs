@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.DataModel.Private;
 using GitMind.Utils.UI;
@@ -18,93 +17,58 @@ namespace GitMind.CommitsHistory
 
 
 		public CommitViewModel(
-			int branchColumn,
-			Commit commit,
-			bool isMergePoint,
-			bool isCurrent,
-			Rect rect,
+			int itemId,
 			Func<double> width,
-			int graphWidth,
-			Brush subjectBrush,
-			string date,
-			string toolTip,
-			Brush brush,
-			Brush brushInner,
-			int xPoint,
-			int yPoint,
-			int size,
-			string commitBranchText,
-			string commitBranchName,
 			Func<string, Task> hideBranchAsync,
 			Func<string, Task> showDiffAsync)
 		{
+			ItemId = itemId;
 			this.width = width;
 			this.hideBranchAsync = hideBranchAsync;
 			this.showDiffAsync = showDiffAsync;
-			BranchColumn = branchColumn;
-			Commit = commit;
-			IsMergePoint = isMergePoint;
-			IsCurrent = isCurrent;
-			Rect = rect;
-			
-			GraphWidth = graphWidth;
-			SubjectBrush = subjectBrush;
-			Date = date;
-			ToolTip = toolTip;
-			Brush = brush;
-			BrushInner = brushInner;
-			XPoint = xPoint;
-			YPoint = yPoint;
-			Size = size;
-			CommitBranchText = commitBranchText;
-			CommitBranchName = commitBranchName;
-			CommitBranchName = commit.Branch.Name;
-			Tags = GetTagsText(commit);
-			Tickets = GetTickets();
-			Subject = GetSubjectWithouTags(Tickets);
 		}
 
 
-
-
-
-		public Commit Commit { get; }
+		public int ItemId { get; }
+		public Commit Commit { get; set; }
 		public string Id => Commit.Id;
 		public string Author => Commit.Author;
-		public string Subject { get; }
-		public DateTime DateTime => Commit.DateTime;
-		public bool IsMergePoint { get; }
-		public string Tags { get; }
-		public int BranchColumn { get; }
+		public string Date { get; set; }
 
-		public string Tickets { get; }
+		public string Subject => Commit.Subject;
+		public string Tags { get; set; }
+		public string Tickets { get; set; }
 
-		public bool IsCurrent { get; }
+		public Property<bool> IsCurrent => Property<bool>();
 
+		// The branch point 
+		public bool IsMergePoint { get; set; }
+		public int BranchColumn { get; set; }
+		public Property<int> XPoint => Property<int>();
+		public Property<int> YPoint => Property<int>();
+		public Property<int> Size => Property<int>();
 
 		public string Type => "Commit";
 
-		public Rect Rect { get; }
-		public double Width => width();
-		public int GraphWidth { get; }
-		public Brush SubjectBrush { get; }
+		public Property<double> Width => Property<double>();
+		public Property<int> GraphWidth => Property<int>();
+		public Property<Brush> SubjectBrush => Property<Brush>();
 
-		public string Date { get; }
-		public string ToolTip { get; }
+
+		public string ToolTip { get; set; }
 		public Brush Brush { get; set; }
-		public Brush BrushInner { get; }
-		public int XPoint { get; }
-		public int YPoint { get; }
-		public int Size { get; }
+		public Property<Brush> BrushInner => Property<Brush>();
 
-		public string CommitBranchText { get; }
-		public string CommitBranchName { get; }
+		public Property<Rect> Rect => Property<Rect>();
+	
+		public string CommitBranchText { get; set; }
+		public string CommitBranchName { get; set; }
 
 		public Command HideBranchCommand => Command(HideBranchAsync);
 		public Command ShowDiffCommand => Command(ShowDiffAsync);
 
 
-		public override string ToString() => $"{Commit.ShortId} {Subject} {DateTime}";
+		public override string ToString() => $"{Commit.ShortId} {Subject} {Date}";
 
 
 		private async void HideBranchAsync()

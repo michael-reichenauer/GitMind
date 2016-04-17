@@ -266,7 +266,7 @@
 								<!--<Setter Property="Background" Value="Black"/>-->
 								<Style TargetType="MenuItem">
 									<Setter Property="Header" Value="{Binding Text}"/>
-									
+									<Setter Property="Background" Value="Black"/>
 									<Setter Property="Foreground" Value="LightSteelBlue"/>
 									<Setter Property="Margin" Value="0"/>
 									<Setter Property="Padding" Value="0"/>
@@ -295,15 +295,15 @@
 				<ListBox.ItemContainerStyle>
 					<Style TargetType="ListBoxItem">
 
-						<Setter Property="Canvas.Top" Value="{Binding Rect.Top}"/>
-						<Setter Property="Canvas.Left" Value="{Binding Rect.Left}"/>
+						<Setter Property="Canvas.Top" Value="{Binding Rect.Value.Top}"/>
+						<Setter Property="Canvas.Left" Value="{Binding Rect.Value.Left}"/>
 
 						<Setter Property="Width">
 							<Setter.Value>
 								<MultiBinding 
 									Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
 									ConverterParameter="*">
-									<Binding Path="Width"/>
+									<Binding Path="Width.Value"/>
 									<Binding 
 										Path="Scale"
 										RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
@@ -316,7 +316,7 @@
 								<MultiBinding 
 									Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
 									ConverterParameter="*">
-									<Binding Path="Rect.Height"/>
+									<Binding Path="Rect.Value.Height"/>
 									<Binding 
 										Path="Scale"
 										RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
@@ -432,9 +432,9 @@
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
-											<Grid>
+											<Grid Background="Black">
 												<Grid.ColumnDefinitions>
-													<ColumnDefinition Width="{Binding GraphWidth}"/>
+													<ColumnDefinition Width="{Binding GraphWidth.Value}"/>
 													<ColumnDefinition Width="*"/>
 												</Grid.ColumnDefinitions>
 
@@ -442,14 +442,14 @@
 												<!-- Commit branch point -->
 												<Canvas Grid.Column="0">
 													<Button 	
-														Canvas.Left="{Binding XPoint}"
-														Canvas.Top="{Binding YPoint}">
+														Canvas.Left="{Binding XPoint.Value}"
+														Canvas.Top="{Binding YPoint.Value}">
 														<Button.Template>
 															<ControlTemplate>
 																<Ellipse 																		
-																	Width="{Binding Size}"
-																	Height="{Binding Size}"
-																	Fill="{Binding BrushInner}"
+																	Width="{Binding Size.Value}"
+																	Height="{Binding Size.Value}"
+																	Fill="{Binding BrushInner.Value}"
 																	Stroke="{Binding Brush}"
 																	StrokeThickness="2">
 																</Ellipse>
@@ -539,7 +539,7 @@
 														<!-- Subject -->
 														<TextBlock 
 														Text="{Binding Subject}"
-														Foreground="{Binding SubjectBrush}"
+														Foreground="{Binding SubjectBrush.Value}"
 														HorizontalAlignment="Left"
 														VerticalAlignment="Center"/>
 													</StackPanel>

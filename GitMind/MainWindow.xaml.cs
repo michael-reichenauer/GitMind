@@ -193,7 +193,7 @@ namespace GitMind
 			mainWindowViewModel.IsNewVersionVisible.Set(
 				latestVersionService.IsNewVersionAvailableAsync());
 
-			newVersionTime.Interval = TimeSpan.FromSeconds(60);
+			newVersionTime.Interval = TimeSpan.FromHours(3);
 		}
 
 

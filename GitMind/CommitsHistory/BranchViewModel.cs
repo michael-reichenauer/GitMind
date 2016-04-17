@@ -10,6 +10,7 @@ namespace GitMind.CommitsHistory
 		public BranchViewModel(
 			string name,
 			int branchId,
+			int branchColumn,
 			int latestRowIndex,
 			int firstRowIndex,
 			Rect rect,
@@ -21,11 +22,12 @@ namespace GitMind.CommitsHistory
 			BranchId = branchId;
 			LatestRowIndex = latestRowIndex;
 			FirstRowIndex = firstRowIndex;
-			Rect = rect;
+			Rect.Set(rect);
+			Width.Set(rect.Width);
 			Line = line;
 			Brush = brush;
 			BranchToolTip = branchToolTip;
-			BranchColumn = branchId;
+			BranchColumn = branchColumn;
 		}
 
 		public string Type => "Branch";
@@ -34,8 +36,8 @@ namespace GitMind.CommitsHistory
 		public int BranchColumn { get; }
 		public int LatestRowIndex { get; }
 		public int FirstRowIndex { get; }
-		public Rect Rect { get; }
-		public double Width => Rect.Width;
+		public Property<Rect> Rect => Property<Rect>();
+		public Property<double> Width => Property<double>();
 		public string Line { get; }
 		public Brush Brush { get; }
 		public string BranchToolTip { get; }

@@ -15,6 +15,7 @@ namespace GitMind.Utils.UI
 
 		private readonly string propertyName;
 		private readonly ViewModel viewModel;
+
 		//private T value;
 		private Task<T> valueTask;
 
@@ -28,11 +29,12 @@ namespace GitMind.Utils.UI
 
 		public static implicit operator T(Property<T> propertyInstance) => propertyInstance.Get();
 
+		public T Value => Get();
 
 		public T Get()
 		{
 			return (valueTask.Status == TaskStatus.RanToCompletion)
-			? valueTask.Result : default(T);
+				? valueTask.Result : default(T);
 		}
 
 
