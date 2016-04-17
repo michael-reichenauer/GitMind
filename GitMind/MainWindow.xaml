@@ -124,6 +124,11 @@
 							</ContextMenu>
 						</TextBlock.ContextMenu>
 					</TextBlock>
+					
+					<Label 
+						Margin="30,0"
+						Foreground="DarkOrchid"
+						Content="{Binding Busy.Text}" />
 				</StackPanel>
 
 

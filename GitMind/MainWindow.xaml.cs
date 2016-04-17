@@ -224,7 +224,10 @@ namespace GitMind
 			mainWindowViewModel.WorkingFolder.Set(
 				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or(""));
 
-			await historyViewModel.LoadAsync(this);
+			Task loadTask = historyViewModel.LoadAsync(this);
+			mainWindowViewModel.Busy.Add(loadTask);
+
+			await loadTask;
 			LoadedTime = DateTime.Now;
 
 			autoRefreshTime.Tick += FetchAndRefreshAsync;
@@ -267,6 +270,13 @@ namespace GitMind
 
 
 		private async Task RefreshAsync(bool isShift)
+		{
+			Task refreshTask = RefreshInternalAsync(isShift);
+			mainWindowViewModel.Busy.Add(refreshTask);
+			await refreshTask;
+		}
+
+		private async Task RefreshInternalAsync(bool isShift)
 		{
 			await refreshService.UpdateStatusAsync();
 			await historyViewModel.RefreshAsync(isShift);

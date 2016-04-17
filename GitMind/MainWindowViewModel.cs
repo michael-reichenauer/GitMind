@@ -44,6 +44,8 @@ namespace GitMind
 
 		public Property<string> WorkingFolder => Property<string>();
 
+		public BusyIndicator Busy => BusyIndicator();
+
 		public ILogViewModel LogViewModel { get; }
 
 

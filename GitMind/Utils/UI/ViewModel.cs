@@ -34,6 +34,21 @@ namespace GitMind.Utils.UI
 			return (Property<T>)property;
 		}
 
+
+		protected BusyIndicator BusyIndicator([CallerMemberName] string memberName = "")
+		{
+			Property property;
+			if (!properties.TryGetValue(memberName, out property))
+			{
+
+				property = new BusyIndicator(memberName, this);
+				properties[memberName] = property;
+			}
+
+			return (BusyIndicator)property;
+		}
+
+
 		protected ICommand Command<T>(Action<T> executeMethod, [CallerMemberName] string memberName = "")
 		{
 			ICommand command;

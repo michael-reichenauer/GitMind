@@ -105,6 +105,7 @@
     <Compile Include="Utils\JsonSerializer.cs" />
     <Compile Include="Utils\Result.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
+    <Compile Include="Utils\UI\BusyIndicator.cs" />
     <Compile Include="Utils\UI\Property.cs" />
     <Compile Include="Utils\UI\RelayCommand.cs" />
     <Compile Include="Git\CommitDiff.cs" />
