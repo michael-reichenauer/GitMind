@@ -295,15 +295,15 @@
 				<ListBox.ItemContainerStyle>
 					<Style TargetType="ListBoxItem">
 
-						<Setter Property="Canvas.Top" Value="{Binding Rect.Value.Top}"/>
-						<Setter Property="Canvas.Left" Value="{Binding Rect.Value.Left}"/>
+						<Setter Property="Canvas.Top" Value="{Binding Rect.Top}"/>
+						<Setter Property="Canvas.Left" Value="{Binding Rect.Left}"/>
 
 						<Setter Property="Width">
 							<Setter.Value>
 								<MultiBinding 
 									Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
 									ConverterParameter="*">
-									<Binding Path="Width.Value"/>
+									<Binding Path="Width"/>
 									<Binding 
 										Path="Scale"
 										RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
@@ -316,7 +316,7 @@
 								<MultiBinding 
 									Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
 									ConverterParameter="*">
-									<Binding Path="Rect.Value.Height"/>
+									<Binding Path="Rect.Height"/>
 									<Binding 
 										Path="Scale"
 										RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
@@ -434,7 +434,7 @@
 										<DataTemplate>
 											<Grid Background="Black">
 												<Grid.ColumnDefinitions>
-													<ColumnDefinition Width="{Binding GraphWidth.Value}"/>
+													<ColumnDefinition Width="{Binding GraphWidth}"/>
 													<ColumnDefinition Width="*"/>
 												</Grid.ColumnDefinitions>
 
@@ -442,14 +442,14 @@
 												<!-- Commit branch point -->
 												<Canvas Grid.Column="0">
 													<Button 	
-														Canvas.Left="{Binding XPoint.Value}"
-														Canvas.Top="{Binding YPoint.Value}">
+														Canvas.Left="{Binding XPoint}"
+														Canvas.Top="{Binding YPoint}">
 														<Button.Template>
 															<ControlTemplate>
 																<Ellipse 																		
-																	Width="{Binding Size.Value}"
-																	Height="{Binding Size.Value}"
-																	Fill="{Binding BrushInner.Value}"
+																	Width="{Binding Size}"
+																	Height="{Binding Size}"
+																	Fill="{Binding BrushInner}"
 																	Stroke="{Binding Brush}"
 																	StrokeThickness="2">
 																</Ellipse>
@@ -539,7 +539,7 @@
 														<!-- Subject -->
 														<TextBlock 
 														Text="{Binding Subject}"
-														Foreground="{Binding SubjectBrush.Value}"
+														Foreground="{Binding SubjectBrush}"
 														HorizontalAlignment="Left"
 														VerticalAlignment="Center"/>
 													</StackPanel>

@@ -39,27 +39,69 @@ namespace GitMind.CommitsHistory
 		public string Tags { get; set; }
 		public string Tickets { get; set; }
 
-		public Property<bool> IsCurrent => Property<bool>();
+		public bool IsCurrent
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		// The branch point 
 		public bool IsMergePoint { get; set; }
 		public int BranchColumn { get; set; }
-		public Property<int> XPoint => Property<int>();
-		public Property<int> YPoint => Property<int>();
-		public Property<int> Size => Property<int>();
+
+		public int XPoint
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public int YPoint
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public int Size
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		public string Type => "Commit";
 
-		public Property<double> Width => Property<double>();
-		public Property<int> GraphWidth => Property<int>();
-		public Property<Brush> SubjectBrush => Property<Brush>();
+		public double Width
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public int GraphWidth
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public Brush SubjectBrush
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 
 		public string ToolTip { get; set; }
 		public Brush Brush { get; set; }
-		public Property<Brush> BrushInner => Property<Brush>();
 
-		public Property<Rect> Rect => Property<Rect>();
+		public Brush BrushInner
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public Rect Rect
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 	
 		public string CommitBranchText { get; set; }
 		public string CommitBranchName { get; set; }

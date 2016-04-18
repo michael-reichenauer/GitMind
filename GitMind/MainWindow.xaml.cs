@@ -187,11 +187,10 @@ namespace GitMind
 		}
 
 
-
-		private void NewVersionAsync(object sender, EventArgs e)
+		private async void NewVersionAsync(object sender, EventArgs e)
 		{
-			mainWindowViewModel.IsNewVersionVisible.Set(
-				latestVersionService.IsNewVersionAvailableAsync());
+			mainWindowViewModel.IsNewVersionVisible = await
+				latestVersionService.IsNewVersionAvailableAsync();
 
 			newVersionTime.Interval = TimeSpan.FromHours(3);
 		}
@@ -221,8 +220,8 @@ namespace GitMind
 			// Store the canvas in a local variable since x:Name doesn't work.
 			canvas = (ZoomableCanvas)sender;
 
-			mainWindowViewModel.WorkingFolder.Set(
-				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or(""));
+			mainWindowViewModel.WorkingFolder =
+				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 
 			Task loadTask = historyViewModel.LoadAsync(this);
 			mainWindowViewModel.Busy.Add(loadTask);

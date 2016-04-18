@@ -407,32 +407,32 @@ namespace GitMind.CommitsHistory
 				CommitViewModel commitViewModel = GetCommitViewModel(commit);
 
 				commitViewModel.Commit = commit;
-				commitViewModel.Rect.Set(new Rect(
+				commitViewModel.Rect = new Rect(
 					0,
 					coordinateConverter.ConvertFromRow(rowIndex),
 					Width - 35,
-					coordinateConverter.ConvertFromRow(1)));
+					coordinateConverter.ConvertFromRow(1));
 
 				commitViewModel.IsMergePoint = commit.Parents.Count > 1
 					&& (!commit.SecondParent.IsOnActiveBranch()
 						|| commit.Branch != commit.SecondParent.Branch);
-				commitViewModel.IsCurrent.Set(commit == model.CurrentCommit);
+				commitViewModel.IsCurrent = commit == model.CurrentCommit;
 
 				commitViewModel.BranchColumn = GetBranchColumnForBranchName(commit.Branch.Name);
-				commitViewModel.GraphWidth.Set(coordinateConverter.ConvertFromColumn(model.Branches.Count));
+				commitViewModel.GraphWidth = coordinateConverter.ConvertFromColumn(model.Branches.Count);
 
-				commitViewModel.Size.Set(commitViewModel.IsMergePoint ? 10 : 6);
-				commitViewModel.XPoint.Set(commitViewModel.IsMergePoint ?
+				commitViewModel.Size = commitViewModel.IsMergePoint ? 10 : 6;
+				commitViewModel.XPoint = commitViewModel.IsMergePoint ?
 					2 + coordinateConverter.ConvertFromColumn(commitViewModel.BranchColumn) :
-					4 + coordinateConverter.ConvertFromColumn(commitViewModel.BranchColumn));
-				commitViewModel.YPoint.Set(commitViewModel.IsMergePoint ? 2 : 4);
+					4 + coordinateConverter.ConvertFromColumn(commitViewModel.BranchColumn);
+				commitViewModel.YPoint = commitViewModel.IsMergePoint ? 2 : 4;
 
 				commitViewModel.Brush = brushService.GetBRanchBrush(commit.Branch);
-				commitViewModel.BrushInner.Set(commit.IsExpanded
-					? brushService.GetDarkerBrush(commitViewModel.Brush) : commitViewModel.Brush);
+				commitViewModel.BrushInner = commit.IsExpanded
+					? brushService.GetDarkerBrush(commitViewModel.Brush) : commitViewModel.Brush;
 
-				commitViewModel.SubjectBrush.Set(GetSubjectBrush(commit));
-				commitViewModel.Width.Set(Width - 35);
+				commitViewModel.SubjectBrush = GetSubjectBrush(commit);
+				commitViewModel.Width = Width - 35;
 				commitViewModel.ToolTip = GetCommitToolTip(commit);
 
 				commitViewModel.Date = commit.DateTime.ToShortDateString()

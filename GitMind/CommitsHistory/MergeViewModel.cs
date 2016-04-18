@@ -20,8 +20,8 @@ namespace GitMind.CommitsHistory
 			MergeId = mergeId;
 			ParentRowIndex = parentRowIndex;
 			ChildRowIndex = childRowIndex;
-			Rect.Set(rect);
-			Width.Set(rect.Width);
+			Rect = rect;
+			Width = rect.Width;
 			Line = line;
 			Brush = brush;
 			Stroke = stroke;
@@ -32,8 +32,17 @@ namespace GitMind.CommitsHistory
 		public int MergeId { get; }
 		public int ParentRowIndex { get; }
 		public int ChildRowIndex { get; }
-		public Property<Rect> Rect => Property<Rect>();
-		public Property<double> Width => Property<double>();
+		public Rect Rect
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public double Width
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 		public string Line { get; }
 		public Brush Brush { get; }
 		public int Stroke { get; }
