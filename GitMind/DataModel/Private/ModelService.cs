@@ -54,18 +54,25 @@ namespace GitMind.DataModel.Private
 
 			if (model.Commits.Contains(secondParent))
 			{
+				// Close child branch.
+				// Branches are sorted so find out if the commit or the secondParent is on the 
+				// parent branch
 				IBranch branch = model.Branches.First(
 					b => b.Name == commit.Branch.Name || b.Name == secondParent.Branch.Name);
+
 				if (branch.Name == commit.Branch.Name)
 				{
+					// The commit is on the parent branch, so close the branch of the secondParent commit
 					return await WithRemoveBranchNameAsync(model, secondParent.Branch.Name);
 				}
 				else
 				{
+					// The commit was on the child branch, lets close the branch of the commit
 					return await WithRemoveBranchNameAsync(model, commit.Branch.Name);
 				}
 			}
 
+			// Open child branch.
 			string branchName = secondParent.TryGetBranchNameFromSubject();
 
 			if (branchName != null && model.GitRepo.TryGetBranch(branchName) != null)
@@ -1021,18 +1028,23 @@ namespace GitMind.DataModel.Private
 					{
 						return CreateBranch(modelBuilder, gitBranch);
 					}
-					else
+					else if (activeCommit.CommitDate > latestCommit.CommitDate
+						&& activeCommit.CommitDate > latestTrackingCommit.CommitDate)
 					{
 						return CreateBranch(modelBuilder, new GitBranch(
-							gitBranch.Name, 
+							gitBranch.Name,
 							activeBranch.CommitId,
-							gitBranch.IsCurrent, 
-							gitBranch.TrackingBranchName, 
+							gitBranch.IsCurrent,
+							gitBranch.TrackingBranchName,
 							gitBranch.LatestTrackingCommitId,
 							gitBranch.IsRemote,
 							gitBranch.IsAnonyous));
 
 					}
+					//else
+					//{
+					//	return CreateBranch(modelBuilder, gitBranch);
+					//}
 				}
 			}
 
