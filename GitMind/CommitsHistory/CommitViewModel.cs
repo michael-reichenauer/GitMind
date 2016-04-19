@@ -11,19 +11,16 @@ namespace GitMind.CommitsHistory
 {
 	internal class CommitViewModel : ViewModel
 	{
-		private readonly Func<double> width;
 		private readonly Func<string, Task> hideBranchAsync;
 		private readonly Func<string, Task> showDiffAsync;
 
 
 		public CommitViewModel(
 			int itemId,
-			Func<double> width,
 			Func<string, Task> hideBranchAsync,
 			Func<string, Task> showDiffAsync)
 		{
 			ItemId = itemId;
-			this.width = width;
 			this.hideBranchAsync = hideBranchAsync;
 			this.showDiffAsync = showDiffAsync;
 		}
@@ -35,7 +32,8 @@ namespace GitMind.CommitsHistory
 		public string Author => Commit.Author;
 		public string Date { get; set; }
 
-		public string Subject => Commit.Subject;
+		public string Subject { get; set; }
+
 		public string Tags { get; set; }
 		public string Tickets { get; set; }
 
@@ -102,7 +100,7 @@ namespace GitMind.CommitsHistory
 			get { return Get(); }
 			set { Set(value); }
 		}
-	
+
 		public string CommitBranchText { get; set; }
 		public string CommitBranchName { get; set; }
 
@@ -125,38 +123,6 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		private static string GetTagsText(Commit commit)
-		{
-			return commit.Tags.Count == 0
-				? ""
-				: "[" + string.Join("],[", commit.Tags.Select(t => t.Text)) + "] ";
-		}
-
-
-
-		private string GetTickets()
-		{
-			if (Commit.Subject.StartsWith("#"))
-			{
-				int index = Commit.Subject.IndexOf(" ");
-				if (index > 1)
-				{
-					return Commit.Subject.Substring(0, index);
-				}
-				if (index > 0)
-				{
-					index = Commit.Subject.IndexOf(" ", index + 1);
-					return Commit.Subject.Substring(0, index);
-				}
-			}
-
-			return "";
-		}
-
-
-		private string GetSubjectWithouTags(string tags)
-		{
-			return Commit.Subject.Substring(tags.Length);
-		}
+	
 	}
 }

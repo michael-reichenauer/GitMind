@@ -435,8 +435,10 @@ namespace GitMind.CommitsHistory
 				commitViewModel.Width = Width - 35;
 				commitViewModel.ToolTip = GetCommitToolTip(commit);
 
-				commitViewModel.Date = commit.DateTime.ToShortDateString()
-					+ " " + commit.DateTime.ToShortTimeString();
+				commitViewModel.Date = GetCommitDate(commit);
+				commitViewModel.Subject = GetSubjectWithoutTickets(commit);
+				commitViewModel.Tags = GetTags(commit);
+				commitViewModel.Tickets = GetTickets(commit);
 				commitViewModel.CommitBranchText = "Hide branch: " + commit.Branch.Name;
 				commitViewModel.CommitBranchName = commit.Branch.Name;
 
@@ -444,6 +446,48 @@ namespace GitMind.CommitsHistory
 				commits.Add(commitViewModel);
 				commitIdToRowIndex[commit.Id] = rowIndex;
 			}
+		}
+
+
+		private static string GetCommitDate(Commit commit)
+		{
+			return commit.DateTime.ToShortDateString()
+						 + " " + commit.DateTime.ToShortTimeString();
+		}
+
+
+		private string GetSubjectWithoutTickets(Commit commit)
+		{
+			string tickets = GetTickets(commit);
+			return commit.Subject.Substring(tickets.Length);
+		}
+
+
+		private static string GetTags(Commit commit)
+		{
+			return commit.Tags.Count == 0
+				? ""
+				: "[" + string.Join("],[", commit.Tags.Select(t => t.Text)) + "] ";
+		}
+
+
+		private string GetTickets(Commit commit)
+		{
+			if (commit.Subject.StartsWith("#"))
+			{
+				int index = commit.Subject.IndexOf(" ");
+				if (index > 1)
+				{
+					return commit.Subject.Substring(0, index);
+				}
+				if (index > 0)
+				{
+					index = commit.Subject.IndexOf(" ", index + 1);
+					return commit.Subject.Substring(0, index);
+				}
+			}
+
+			return "";
 		}
 
 
@@ -458,7 +502,6 @@ namespace GitMind.CommitsHistory
 
 				commitViewModel = new CommitViewModel(
 					itemId,
-					() => Width - 35,
 					HideBranchNameAsync,
 					ShowDiffAsync);
 
