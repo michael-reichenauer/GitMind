@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -113,14 +114,13 @@ namespace GitMind.DataModel.Private
 
 		private Task<Model> GetModelAsync(IReadOnlyList<ActiveBranch> activeBranches, IGitRepo gitRepo)
 		{
-			Log.Debug("Start get model");
 			Timestamp timestamp = new Timestamp();
-
+			
 			return Task.Run(() =>
 			{
 				foreach (ActiveBranch activeBranch in activeBranches)
 				{
-					Log.Debug($"Branches {activeBranch}");
+					//Log.Debug($"Branches {activeBranch}");
 				}
 
 				if (!activeBranches.Any())
@@ -172,7 +172,6 @@ namespace GitMind.DataModel.Private
 				Commit currentCommit = model.Commits.GetById(gitRepo.GetCurrentCommit().Id);
 
 				IReadOnlyList<string> allBranchNames = GetAllBranchNames(gitRepo, branchPriority);
-				//GitStatus gitStatus = gitRepo.GetStatus();
 
 				Model model1 = new Model(
 					activeBrancheBuilders,
@@ -185,7 +184,7 @@ namespace GitMind.DataModel.Private
 					gitRepo);
 
 
-				Log.Debug($"Done get model, time {timestamp.Elapsed}");
+				// Log.Debug($"Done get model, time {timestamp.Elapsed}");
 				return model1;
 			});
 		}
@@ -229,7 +228,7 @@ namespace GitMind.DataModel.Private
 					string branchName = commit.TryGetBranchNameFromSubject();
 					if (branchName != null && branchName != branch.Name && commit.DateTime.Year > 2014)
 					{
-						Log.Debug($"Commit {commit} subject branch is {branchName} != {branch.Name}");
+						//Log.Debug($"Commit {commit} subject branch is {branchName} != {branch.Name}");
 					}
 				}
 			}

@@ -41,9 +41,6 @@ namespace GitMind
 
 		public MainWindow()
 		{
-			Version currentVersion = ProgramPaths.GetCurrentVersion();
-			Log.Debug($"Current version: {currentVersion}");
-
 			ExceptionHandling.Init();
 
 			if (!IsStartProgram())
@@ -162,7 +159,6 @@ namespace GitMind
 
 		private void StartBackgroundTasks()
 		{
-			Log.Debug("Start version timer");
 			newVersionTime.Tick += NewVersionAsync;
 			newVersionTime.Interval = TimeSpan.FromSeconds(5);
 			newVersionTime.Start();
@@ -237,7 +233,6 @@ namespace GitMind
 
 		protected override void OnActivated(EventArgs e)
 		{
-			Log.Debug("On activated");
 			if (LoadedTime < DateTime.MaxValue && DateTime.Now - LoadedTime > TimeSpan.FromSeconds(10))
 			{
 				DispatcherTimer dispatcherTimer = new DispatcherTimer();

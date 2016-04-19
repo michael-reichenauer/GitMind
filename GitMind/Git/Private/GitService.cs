@@ -442,7 +442,7 @@ namespace GitMind.Git.Private
 				string branchName = null;
 				if (branchNames.TryGetValue(shortId, out branchName))
 				{
-					Log.Debug($"Commit {shortId} - {branchName}");
+					// Log.Debug($"Commit {shortId} - {branchName}");
 				}
 
 				var gitCommit = new GitCommit(
@@ -518,7 +518,7 @@ namespace GitMind.Git.Private
 					File.AppendAllText(context, $"{errorPrefix}:{result.ExitCode}\n");
 				}
 
-				Log.Warn($"git failed: {result.ExitCode}, {string.Join("\n", result.Error)}");
+				Log.Warn($"Error: git {gitArgs}, {result.ExitCode}, {string.Join("\n", result.Error)}");
 				return GitCommandError.With(result.ToString());
 			}
 		}
