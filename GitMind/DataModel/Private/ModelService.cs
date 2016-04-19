@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -54,18 +55,25 @@ namespace GitMind.DataModel.Private
 
 			if (model.Commits.Contains(secondParent))
 			{
+				// Close child branch.
+				// Branches are sorted so find out if the commit or the secondParent is on the 
+				// parent branch
 				IBranch branch = model.Branches.First(
 					b => b.Name == commit.Branch.Name || b.Name == secondParent.Branch.Name);
+
 				if (branch.Name == commit.Branch.Name)
 				{
+					// The commit is on the parent branch, so close the branch of the secondParent commit
 					return await WithRemoveBranchNameAsync(model, secondParent.Branch.Name);
 				}
 				else
 				{
+					// The commit was on the child branch, lets close the branch of the commit
 					return await WithRemoveBranchNameAsync(model, commit.Branch.Name);
 				}
 			}
 
+			// Open child branch.
 			string branchName = secondParent.TryGetBranchNameFromSubject();
 
 			if (branchName != null && model.GitRepo.TryGetBranch(branchName) != null)
@@ -106,14 +114,13 @@ namespace GitMind.DataModel.Private
 
 		private Task<Model> GetModelAsync(IReadOnlyList<ActiveBranch> activeBranches, IGitRepo gitRepo)
 		{
-			Log.Debug("Start get model");
 			Timestamp timestamp = new Timestamp();
-
+			
 			return Task.Run(() =>
 			{
 				foreach (ActiveBranch activeBranch in activeBranches)
 				{
-					Log.Debug($"Branches {activeBranch}");
+					//Log.Debug($"Branches {activeBranch}");
 				}
 
 				if (!activeBranches.Any())
@@ -165,7 +172,6 @@ namespace GitMind.DataModel.Private
 				Commit currentCommit = model.Commits.GetById(gitRepo.GetCurrentCommit().Id);
 
 				IReadOnlyList<string> allBranchNames = GetAllBranchNames(gitRepo, branchPriority);
-				//GitStatus gitStatus = gitRepo.GetStatus();
 
 				Model model1 = new Model(
 					activeBrancheBuilders,
@@ -178,7 +184,7 @@ namespace GitMind.DataModel.Private
 					gitRepo);
 
 
-				Log.Debug($"Done get model, time {timestamp.Elapsed}");
+				// Log.Debug($"Done get model, time {timestamp.Elapsed}");
 				return model1;
 			});
 		}
@@ -222,7 +228,7 @@ namespace GitMind.DataModel.Private
 					string branchName = commit.TryGetBranchNameFromSubject();
 					if (branchName != null && branchName != branch.Name && commit.DateTime.Year > 2014)
 					{
-						Log.Debug($"Commit {commit} subject branch is {branchName} != {branch.Name}");
+						//Log.Debug($"Commit {commit} subject branch is {branchName} != {branch.Name}");
 					}
 				}
 			}
@@ -1021,18 +1027,23 @@ namespace GitMind.DataModel.Private
 					{
 						return CreateBranch(modelBuilder, gitBranch);
 					}
-					else
+					else if (activeCommit.CommitDate > latestCommit.CommitDate
+						&& activeCommit.CommitDate > latestTrackingCommit.CommitDate)
 					{
 						return CreateBranch(modelBuilder, new GitBranch(
-							gitBranch.Name, 
+							gitBranch.Name,
 							activeBranch.CommitId,
-							gitBranch.IsCurrent, 
-							gitBranch.TrackingBranchName, 
+							gitBranch.IsCurrent,
+							gitBranch.TrackingBranchName,
 							gitBranch.LatestTrackingCommitId,
 							gitBranch.IsRemote,
 							gitBranch.IsAnonyous));
 
 					}
+					//else
+					//{
+					//	return CreateBranch(modelBuilder, gitBranch);
+					//}
 				}
 			}
 

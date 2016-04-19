@@ -41,9 +41,6 @@ namespace GitMind
 
 		public MainWindow()
 		{
-			Version currentVersion = ProgramPaths.GetCurrentVersion();
-			Log.Debug($"Current version: {currentVersion}");
-
 			ExceptionHandling.Init();
 
 			if (!IsStartProgram())
@@ -162,7 +159,6 @@ namespace GitMind
 
 		private void StartBackgroundTasks()
 		{
-			Log.Debug("Start version timer");
 			newVersionTime.Tick += NewVersionAsync;
 			newVersionTime.Interval = TimeSpan.FromSeconds(5);
 			newVersionTime.Start();
@@ -187,11 +183,10 @@ namespace GitMind
 		}
 
 
-
-		private void NewVersionAsync(object sender, EventArgs e)
+		private async void NewVersionAsync(object sender, EventArgs e)
 		{
-			mainWindowViewModel.IsNewVersionVisible.Set(
-				latestVersionService.IsNewVersionAvailableAsync());
+			mainWindowViewModel.IsNewVersionVisible = await
+				latestVersionService.IsNewVersionAvailableAsync();
 
 			newVersionTime.Interval = TimeSpan.FromHours(3);
 		}
@@ -221,8 +216,8 @@ namespace GitMind
 			// Store the canvas in a local variable since x:Name doesn't work.
 			canvas = (ZoomableCanvas)sender;
 
-			mainWindowViewModel.WorkingFolder.Set(
-				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or(""));
+			mainWindowViewModel.WorkingFolder =
+				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 
 			Task loadTask = historyViewModel.LoadAsync(this);
 			mainWindowViewModel.Busy.Add(loadTask);
@@ -238,7 +233,6 @@ namespace GitMind
 
 		protected override void OnActivated(EventArgs e)
 		{
-			Log.Debug("On activated");
 			if (LoadedTime < DateTime.MaxValue && DateTime.Now - LoadedTime > TimeSpan.FromSeconds(10))
 			{
 				DispatcherTimer dispatcherTimer = new DispatcherTimer();

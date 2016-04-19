@@ -5,26 +5,29 @@ using System.Windows.Threading;
 
 namespace GitMind.Utils.UI
 {
-	internal class BusyIndicator : Property<string>
+	internal class BusyIndicator
 	{
+		private readonly string propertyName;
+		private readonly ViewModel viewModel;
 		private static readonly string[] indicators = { "o", "o o", "o o o", "o o o o" };
-		//private static readonly string[] indicators = { ".", ". .", ". . .", ". . . ." };
 		private static readonly TimeSpan InitialIndicatorTime = TimeSpan.FromMilliseconds(100);
 		private static readonly TimeSpan IndicatorInterval = TimeSpan.FromMilliseconds(500);
 
 		private readonly DispatcherTimer timer = new DispatcherTimer();
 		private int taskCount;
 		private int indicatorIndex;
-	
+
 
 		public BusyIndicator(string propertyName, ViewModel viewModel)
-			: base(propertyName, viewModel)
 		{
+			this.propertyName = propertyName;
+			this.viewModel = viewModel;
 			timer.Tick += UpdateIndicator;
 		}
+		
+		
 
-
-		public string Text => Get();
+		public string Text { get; private set; }
 
 
 		public void Add(Task task)
@@ -52,7 +55,7 @@ namespace GitMind.Utils.UI
 
 
 		private void StartIndicator()
-		{	
+		{
 			timer.Interval = InitialIndicatorTime;
 			timer.Start();
 		}
@@ -74,6 +77,13 @@ namespace GitMind.Utils.UI
 				indicatorIndex = 0;
 				Set("");
 			}
+		}
+
+
+		private void Set(string indicatorText)
+		{
+			Text = indicatorText;
+			viewModel.OnPropertyChanged(propertyName);
 		}
 	}
 }

@@ -106,6 +106,7 @@
     <Compile Include="Utils\Result.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
     <Compile Include="Utils\UI\BusyIndicator.cs" />
+    <Compile Include="Utils\UI\IPropertySetter.cs" />
     <Compile Include="Utils\UI\Property.cs" />
     <Compile Include="Utils\UI\Command.cs" />
     <Compile Include="Git\CommitDiff.cs" />

@@ -407,36 +407,38 @@ namespace GitMind.CommitsHistory
 				CommitViewModel commitViewModel = GetCommitViewModel(commit);
 
 				commitViewModel.Commit = commit;
-				commitViewModel.Rect.Set(new Rect(
+				commitViewModel.Rect = new Rect(
 					0,
 					coordinateConverter.ConvertFromRow(rowIndex),
 					Width - 35,
-					coordinateConverter.ConvertFromRow(1)));
+					coordinateConverter.ConvertFromRow(1));
 
 				commitViewModel.IsMergePoint = commit.Parents.Count > 1
 					&& (!commit.SecondParent.IsOnActiveBranch()
 						|| commit.Branch != commit.SecondParent.Branch);
-				commitViewModel.IsCurrent.Set(commit == model.CurrentCommit);
+				commitViewModel.IsCurrent = commit == model.CurrentCommit;
 
 				commitViewModel.BranchColumn = GetBranchColumnForBranchName(commit.Branch.Name);
-				commitViewModel.GraphWidth.Set(coordinateConverter.ConvertFromColumn(model.Branches.Count));
+				commitViewModel.GraphWidth = coordinateConverter.ConvertFromColumn(model.Branches.Count);
 
-				commitViewModel.Size.Set(commitViewModel.IsMergePoint ? 10 : 6);
-				commitViewModel.XPoint.Set(commitViewModel.IsMergePoint ?
+				commitViewModel.Size = commitViewModel.IsMergePoint ? 10 : 6;
+				commitViewModel.XPoint = commitViewModel.IsMergePoint ?
 					2 + coordinateConverter.ConvertFromColumn(commitViewModel.BranchColumn) :
-					4 + coordinateConverter.ConvertFromColumn(commitViewModel.BranchColumn));
-				commitViewModel.YPoint.Set(commitViewModel.IsMergePoint ? 2 : 4);
+					4 + coordinateConverter.ConvertFromColumn(commitViewModel.BranchColumn);
+				commitViewModel.YPoint = commitViewModel.IsMergePoint ? 2 : 4;
 
 				commitViewModel.Brush = brushService.GetBRanchBrush(commit.Branch);
-				commitViewModel.BrushInner.Set(commit.IsExpanded
-					? brushService.GetDarkerBrush(commitViewModel.Brush) : commitViewModel.Brush);
+				commitViewModel.BrushInner = commit.IsExpanded
+					? brushService.GetDarkerBrush(commitViewModel.Brush) : commitViewModel.Brush;
 
-				commitViewModel.SubjectBrush.Set(GetSubjectBrush(commit));
-				commitViewModel.Width.Set(Width - 35);
+				commitViewModel.SubjectBrush = GetSubjectBrush(commit);
+				commitViewModel.Width = Width - 35;
 				commitViewModel.ToolTip = GetCommitToolTip(commit);
 
-				commitViewModel.Date = commit.DateTime.ToShortDateString()
-					+ " " + commit.DateTime.ToShortTimeString();
+				commitViewModel.Date = GetCommitDate(commit);
+				commitViewModel.Subject = GetSubjectWithoutTickets(commit);
+				commitViewModel.Tags = GetTags(commit);
+				commitViewModel.Tickets = GetTickets(commit);
 				commitViewModel.CommitBranchText = "Hide branch: " + commit.Branch.Name;
 				commitViewModel.CommitBranchName = commit.Branch.Name;
 
@@ -444,6 +446,48 @@ namespace GitMind.CommitsHistory
 				commits.Add(commitViewModel);
 				commitIdToRowIndex[commit.Id] = rowIndex;
 			}
+		}
+
+
+		private static string GetCommitDate(Commit commit)
+		{
+			return commit.DateTime.ToShortDateString()
+						 + " " + commit.DateTime.ToShortTimeString();
+		}
+
+
+		private string GetSubjectWithoutTickets(Commit commit)
+		{
+			string tickets = GetTickets(commit);
+			return commit.Subject.Substring(tickets.Length);
+		}
+
+
+		private static string GetTags(Commit commit)
+		{
+			return commit.Tags.Count == 0
+				? ""
+				: "[" + string.Join("],[", commit.Tags.Select(t => t.Text)) + "] ";
+		}
+
+
+		private string GetTickets(Commit commit)
+		{
+			if (commit.Subject.StartsWith("#"))
+			{
+				int index = commit.Subject.IndexOf(" ");
+				if (index > 1)
+				{
+					return commit.Subject.Substring(0, index);
+				}
+				if (index > 0)
+				{
+					index = commit.Subject.IndexOf(" ", index + 1);
+					return commit.Subject.Substring(0, index);
+				}
+			}
+
+			return "";
 		}
 
 
@@ -458,7 +502,6 @@ namespace GitMind.CommitsHistory
 
 				commitViewModel = new CommitViewModel(
 					itemId,
-					() => Width - 35,
 					HideBranchNameAsync,
 					ShowDiffAsync);
 

@@ -28,20 +28,39 @@ namespace GitMind
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
+		}
 
-			StatusText.WhenSetAlsoNotify(nameof(IsStatusVisible));
+		
+		public string StatusText
+		{
+			get { return Get(); }
+			set { Set(value).Notify(nameof(IsStatusVisible)); }
+		}
+
+		public bool IsStatusVisible
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public bool IsNewVersionVisible
+		{
+			get { return Get(); }
+			set { Set(value); }
 		}
 
 
-		public Property<string> StatusText => Property<string>();
+		public string BranchName
+		{
+			get { return Get(); }
+			set { Set(value); }
+		} 
 
-		public Property<bool> IsStatusVisible => Property<bool>();
-
-		public Property<bool> IsNewVersionVisible => Property<bool>();
-
-		public Property<string> BranchName => Property<string>();
-
-		public Property<string> WorkingFolder => Property<string>();
+		public string WorkingFolder
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		public BusyIndicator Busy => BusyIndicator();
 
@@ -141,7 +160,7 @@ namespace GitMind
 
 			await LogViewModel.LoadAsync(owner);
 
-			WorkingFolder.Set(ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or(""));
+			WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 		}
 	}
 }

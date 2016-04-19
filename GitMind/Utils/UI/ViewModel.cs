@@ -13,6 +13,8 @@ namespace GitMind.Utils.UI
 
 		private readonly Dictionary<string, Property> properties = new Dictionary<string, Property>();
 		private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>();
+		private readonly Dictionary<string, BusyIndicator> busyIndicators = 
+			new Dictionary<string, BusyIndicator>();
 
 
 		internal void OnPropertyChanged(string propertyName)
@@ -20,32 +22,58 @@ namespace GitMind.Utils.UI
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-
-		protected Property<T> Property<T>([CallerMemberName] string memberName = "")
+		protected Property Get([CallerMemberName] string memberName = "")
 		{
 			Property property;
 			if (!properties.TryGetValue(memberName, out property))
 			{
-
-				property = new Property<T>(memberName, this);
+				property = new Property(memberName, this);
 				properties[memberName] = property;
 			}
 
-			return (Property<T>)property;
+			return property;
 		}
+
+
+		protected T Get<T>([CallerMemberName] string memberName = "")
+		{		
+			return (T)Get(memberName).Value;
+		}
+
+
+		protected IPropertySetter Set<T>(T value, [CallerMemberName] string memberName = "")
+		{
+			Property property = Get(memberName);
+			property.Value = value;
+			return property;
+		}
+
+
+		//protected Property<T> Property<T>([CallerMemberName] string memberName = "")
+		//{
+		//	Property property;
+		//	if (!properties.TryGetValue(memberName, out property))
+		//	{
+
+		//		property = new Property<T>(memberName, this);
+		//		properties[memberName] = property;
+		//	}
+
+		//	return (Property<T>)property;
+		//}
 
 
 		protected BusyIndicator BusyIndicator([CallerMemberName] string memberName = "")
 		{
-			Property property;
-			if (!properties.TryGetValue(memberName, out property))
+			BusyIndicator busyIndicator;
+			if (!busyIndicators.TryGetValue(memberName, out busyIndicator))
 			{
 
-				property = new BusyIndicator(memberName, this);
-				properties[memberName] = property;
+				busyIndicator = new BusyIndicator(memberName, this);
+				busyIndicators[memberName] = busyIndicator;
 			}
 
-			return (BusyIndicator)property;
+			return busyIndicator;
 		}
 
 

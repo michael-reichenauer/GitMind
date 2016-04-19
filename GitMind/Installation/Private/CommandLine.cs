@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using GitMind.Settings;
 using GitMind.Utils;
 
 
@@ -14,8 +15,8 @@ namespace GitMind.Installation.Private
 		public CommandLine()
 		{
 			args = Environment.GetCommandLineArgs();
-
-			Log.Debug($"Args: '{string.Join("','", args)}'");
+			Version currentVersion = ProgramPaths.GetCurrentVersion();
+			Log.Debug($"Version: {currentVersion}, args: '{string.Join("','", args)}'");
 		}
 
 
