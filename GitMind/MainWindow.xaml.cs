@@ -185,8 +185,14 @@ namespace GitMind
 
 		private async void NewVersionAsync(object sender, EventArgs e)
 		{
-			mainWindowViewModel.IsNewVersionVisible = await
-				latestVersionService.IsNewVersionAvailableAsync();
+			//mainWindowViewModel.IsNewVersionVisible = await
+			//	latestVersionService.IsNewVersionAvailableAsync();
+
+			if (await latestVersionService.IsNewVersionAvailableAsync())
+			{
+				await latestVersionService.InstallLatestVersionAsync();
+			}
+
 
 			newVersionTime.Interval = TimeSpan.FromHours(3);
 		}
@@ -260,8 +266,6 @@ namespace GitMind
 				Log.Warn($"Failed to refresh {ex}");
 			}
 		}
-
-
 
 		private async Task RefreshAsync(bool isShift)
 		{

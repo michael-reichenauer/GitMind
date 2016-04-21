@@ -39,7 +39,7 @@
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="Auto"/>
-					<ColumnDefinition Width="250"/>
+					<ColumnDefinition Width="263"/>
 				</Grid.ColumnDefinitions>
 
 				<StackPanel 
@@ -211,7 +211,7 @@
 					<TextBox
 						IsEnabled="False"
 						BorderBrush="DarkSlateBlue"
-						Width="195"
+						Width="210"
 						Height="20"
 						Margin="3,0"
 						Background="Black"

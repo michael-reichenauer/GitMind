@@ -104,16 +104,16 @@ namespace GitMind
 
 		private async void InstallLatestVersion()
 		{
-			if (MessageBoxResult.OK != MessageBox.Show(
-				Application.Current.MainWindow,
-				"There is a new version of GitMind.\n\n" +
-				"Would you like to download and install the new version?",
-				"GitMind",
-				MessageBoxButton.OKCancel,
-				MessageBoxImage.Question))
-			{
-				return;
-			}
+			//if (MessageBoxResult.OK != MessageBox.Show(
+			//	Application.Current.MainWindow,
+			//	"There is a new version of GitMind.\n\n" +
+			//	"Would you like to download and install the new version?",
+			//	"GitMind",
+			//	MessageBoxButton.OKCancel,
+			//	MessageBoxImage.Question))
+			//{
+			//	return;
+			//}
 
 			bool isInstalling = await latestVersionService.InstallLatestVersionAsync();
 

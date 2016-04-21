@@ -190,26 +190,30 @@ namespace GitMind.Installation.Private
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Debug($"Failed to copy {sourcePath} to target {targetPath}, moving target first, {e}");
+				Log.Debug($"Failed to copy {sourcePath} to target {targetPath} {e.Message}");
 				try
-				{
+				{				
 					string oldFilePath = targetPath + "_old";
+					Log.Debug($"Moving {targetPath} to {oldFilePath}");
 					if (File.Exists(oldFilePath))
 					{
 						try
-						{
+						{					
 							File.Delete(oldFilePath);
 							File.Move(targetPath, oldFilePath);
+							Log.Debug($"Moved {targetPath} to target {oldFilePath}");
 							CopyFile(sourcePath, targetPath);
 						}
 						catch (Exception) when (e.IsNotFatal())
 						{
+							Log.Debug($"Failed to move {targetPath} to target {oldFilePath} {e.Message}");
 							CopyFile(sourcePath, targetPath);
 						}
 					}
 					else
 					{
 						File.Move(targetPath, oldFilePath);
+						Log.Debug($"Moved {targetPath} to target {oldFilePath}");
 						CopyFile(sourcePath, targetPath);
 					}
 				}
@@ -229,6 +233,7 @@ namespace GitMind.Installation.Private
 			// Not using File.Copy, to avoid copying possible "downloaded from internet flag"
 			byte[] fileData = File.ReadAllBytes(sourcePath);
 			File.WriteAllBytes(targetPath, fileData);
+			Log.Debug($"Copied {sourcePath} to target {targetPath}");
 		}
 
 

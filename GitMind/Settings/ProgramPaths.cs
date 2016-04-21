@@ -118,6 +118,17 @@ namespace GitMind.Settings
 			return GetVersion(Assembly.GetEntryAssembly().Location);
 		}
 
+
+		public static Version GetInstalledVersion()
+		{
+			if (!File.Exists(GetInstallFilePath()))
+			{
+				return new Version(0, 0, 0, 0);
+			}
+
+			return GetVersion(GetInstallFilePath());
+		}
+
 		public static Version GetVersion(string path)
 		{
 			if (!File.Exists(path))
