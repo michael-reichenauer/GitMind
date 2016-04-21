@@ -28,7 +28,7 @@ namespace GitMind.Installation.Private
 			Version installedVersion = ProgramPaths.GetInstalledVersion();
 			Log.Debug($"Installed version: {installedVersion} remote version: {remoteSetupFileVersion}");
 
-			return true /*|| installedVersion < remoteSetupFileVersion*/;
+			return installedVersion < remoteSetupFileVersion;
 		}
 
 
