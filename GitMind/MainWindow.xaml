@@ -23,7 +23,6 @@
 	<!--  -->
 	<Grid Background="Black">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
@@ -33,7 +32,7 @@
 		<Border 
 			BorderThickness="1" 
 			BorderBrush="DarkSlateBlue" 
-			Grid.Row="1">
+			Grid.Row="0">
 
 			<!-- Background="Black" -->
 			<Grid >
@@ -46,16 +45,13 @@
 				<StackPanel 
 					Grid.Column="0" 
 					Orientation="Horizontal">
+					<Image 
+						Source="Application.ico" 
+						Width="15"
+						Height="15"
+						Margin="5,0">
 
-					<!-- Working folder -->
-					<TextBlock 				
-					Margin="3,5"
-					Text="GitMind:"
-					Foreground="DarkOrchid"
-					HorizontalAlignment="Left"
-					VerticalAlignment="Center">
-
-						<TextBlock.ToolTip>
+						<Image.ToolTip>
 							<ToolTip
 							Placement="Bottom"
 							HorizontalOffset="-15" 
@@ -66,9 +62,9 @@
 									<TextBlock Text="{Binding VersionText}" Foreground="LightSteelBlue"/>
 								</StackPanel>
 							</ToolTip>
-						</TextBlock.ToolTip>
-				</TextBlock>
-
+						</Image.ToolTip>
+					</Image>
+	
 					<!-- Working folder (need hyperlink to get "hand" mouse over, but hyperlink command does not work -->
 					<TextBlock>
 						 <Hyperlink TextDecorations="None">
@@ -83,24 +79,23 @@
 										Command="{Binding SelectWorkingFolderCommand}" 
 										MouseAction="LeftClick" />
 								</TextBlock.InputBindings>
-						
+								<TextBlock.ToolTip>
+									<ToolTip
+										Placement="Bottom"					
+										VerticalOffset="5"
+										Background="Black"
+										BorderBrush="DarkOrchid">
+										<StackPanel Orientation="Horizontal">
+											<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
+											<TextBlock Text="{Binding BranchName}" Foreground="LightSteelBlue"/>
+										</StackPanel>
+									</ToolTip>
+								</TextBlock.ToolTip>
 							</TextBlock>
 						</Hyperlink>
 					</TextBlock>
 
-					<TextBlock 				
-						Margin="3,5"
-						Text="  Branch:"
-						Foreground="DarkOrchid"
-						HorizontalAlignment="Left"
-						VerticalAlignment="Center"/>
-
-					<TextBlock 
-						Margin="3, 5"
-						Text="{Binding BranchName}"
-						Foreground="LightSteelBlue"
-						HorizontalAlignment="Left"
-						VerticalAlignment="Center"/>
+					
 
 					<!-- Commit status  -->
 					<TextBlock 
@@ -110,6 +105,19 @@
 						Foreground="BurlyWood"
 						HorizontalAlignment="Left"
 						VerticalAlignment="Center">
+
+						<TextBlock.ToolTip>
+							<ToolTip
+								Placement="Bottom"					
+								VerticalOffset="5"
+								Background="Black"
+								BorderBrush="DarkOrchid">
+								<StackPanel Orientation="Horizontal">
+									<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
+									<TextBlock Text="{Binding BranchName}" Foreground="LightSteelBlue"/>
+								</StackPanel>
+							</ToolTip>
+						</TextBlock.ToolTip>
 
 						<TextBlock.ContextMenu>
 							<ContextMenu 
@@ -123,7 +131,7 @@
 									Command="{Binding ShowDiffCommand}"/>
 							</ContextMenu>
 						</TextBlock.ContextMenu>
-					</TextBlock>
+					</TextBlock>			
 					
 					<Label 
 						Margin="10,0"
@@ -164,30 +172,36 @@
 					</Button>
 
 					<!-- Feedback button  -->
-					<Button 
-						Name="FeedbackButton"
-						Background="Black" 
-						BorderBrush="Black"
-						Foreground="LightSteelBlue"
-						Margin="5,0,5,0"
-						
-						Content="@"
-						Command="{Binding FeedbackCommand}">
-
-						<!---->
-						<Button.ToolTip>
-							<ToolTip
-								Placement="Bottom"
-								HorizontalOffset="-15" 
-								VerticalOffset="5"
-								Background="Black" 
-								BorderBrush="DarkOrchid">
-								<StackPanel>
-									<TextBlock Text="Send feedback..." Foreground="LightSteelBlue"/>
-								</StackPanel>
-							</ToolTip>
-						</Button.ToolTip>
-					</Button>
+						<TextBlock>
+						 <Hyperlink TextDecorations="None">
+							<TextBlock 
+								Name="FeedbackButton"
+								Background="Black"
+								Foreground="LightSteelBlue"
+								Margin="10,5,5,0"	
+								FontWeight="Bold"
+								Text="@">
+								<TextBlock.InputBindings>
+									<MouseBinding 
+										Command="{Binding FeedbackCommand}" 
+										MouseAction="LeftClick" />
+								</TextBlock.InputBindings>
+								<TextBlock.ToolTip>
+									<ToolTip
+										Placement="Bottom"
+										HorizontalOffset="-15" 
+										VerticalOffset="5"
+										Background="Black" 
+										BorderBrush="DarkOrchid">
+										<StackPanel>
+											<TextBlock Text="Send feedback..." Foreground="LightSteelBlue"/>
+										</StackPanel>
+										</ToolTip>
+									</TextBlock.ToolTip>
+								</TextBlock>
+							</Hyperlink>
+					</TextBlock>
+					
 				</StackPanel>
 
 
@@ -207,26 +221,42 @@
 						VerticalAlignment="Center"/>
 
 					<!-- Minimize button-->
-					<Button 
-						Name="MinimizeButton"
-						Background="Black"
-						Foreground="LightSteelBlue"
-						Margin="10,0,5,0"
-						BorderBrush="Black"
-						BorderThickness="0"
-						Content="_"
-						Click="MinimizeButton_OnClick"/>
-
+					<TextBlock>
+						 <Hyperlink TextDecorations="None">
+							<TextBlock 
+								Name="MinimizeButton"
+								Background="Black"
+								Foreground="LightSteelBlue"
+								Margin="10,0,5,0"	
+								FontWeight="ExtraBold"
+								Text="_">
+									<TextBlock.InputBindings>
+										<MouseBinding 
+										Command="{Binding MinimizeCommand}" 
+										MouseAction="LeftClick" />
+									</TextBlock.InputBindings>
+								</TextBlock>
+							</Hyperlink>
+					</TextBlock>
+					
 					<!-- Close Button -->
-					<Button 
-						Name="CloseButton"
-						Background="Black"
-						Foreground="LightSteelBlue"
-						Margin="5,0"
-						BorderBrush="Black"
-						BorderThickness="0"
-						Content="X"
-						Click="CloseButton_OnClick"/>
+						<TextBlock>
+						 <Hyperlink TextDecorations="None">
+							<TextBlock 
+								Name="CloseButton"
+								Background="Black"
+								Foreground="LightSteelBlue"
+								Margin="10,5,5,0"		
+								FontWeight="Bold"
+								Text="X">
+									<TextBlock.InputBindings>
+										<MouseBinding 
+										Command="{Binding CloseCommand}" 
+										MouseAction="LeftClick" />
+									</TextBlock.InputBindings>
+								</TextBlock>
+							</Hyperlink>
+					</TextBlock>
 				</StackPanel>
 			</Grid>
 		</Border>
@@ -236,7 +266,7 @@
 		Background="Black"  
 		
 		-->
-		<DockPanel Grid.Row="2" >
+		<DockPanel Grid.Row="1" >
 
 			<ListBox 
 				
@@ -483,11 +513,12 @@
 
 														<TextBlock.ToolTip>
 															<ToolTip
-															Placement="Bottom"
-															 HorizontalOffset="-15" 
-															 VerticalOffset="5"
-															Background="Black"
-															BorderBrush="{Binding Brush}">
+																Placement="Bottom"
+																 HorizontalOffset="-15" 
+																VerticalOffset="5"
+																Background="Black"
+																BorderThickness="1"
+																BorderBrush="{Binding Brush}">
 																<StackPanel>
 																	<TextBlock Text="{Binding ToolTip}" Foreground="LightSteelBlue"/>
 																</StackPanel>

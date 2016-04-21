@@ -88,6 +88,19 @@ namespace GitMind
 
 		public Command FeedbackCommand => Command(Feedback);
 
+		public Command MinimizeCommand => Command(Minimize);
+		public Command CloseCommand => Command(CloseWindow);
+
+
+		private void Minimize()
+		{
+			Application.Current.MainWindow.WindowState = WindowState.Minimized; 
+		}
+
+		private void CloseWindow()
+		{
+			Application.Current.Shutdown(0);
+		}
 
 		private async void InstallLatestVersion()
 		{

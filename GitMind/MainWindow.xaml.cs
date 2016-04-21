@@ -401,18 +401,6 @@ namespace GitMind
 
 			e.Handled = true;
 		}
-
-
-		private void CloseButton_OnClick(object sender, RoutedEventArgs e)
-		{
-			Application.Current.Shutdown(0);
-		}
-
-
-		private void MinimizeButton_OnClick(object sender, RoutedEventArgs e)
-		{
-			WindowState = WindowState.Minimized;
-		}
 	}
 }
 
