@@ -300,14 +300,14 @@ namespace GitMind
 		{
 			if (e.Key == Key.Escape)
 			{
-				if (mainWindowViewModel.SearchBox != "")
-				{
-					mainWindowViewModel.SearchBox = "";
-				}
-				else
-				{
-					Close();
-				}			
+				//if (mainWindowViewModel.SearchBox != "")
+				//{
+				//	mainWindowViewModel.SearchBox = "";
+				//}
+				//else
+				//{
+					mainWindowViewModel.CloseCommand.ExecuteAsync(null).RunInBackground();
+				//}
 			}
 		}
 

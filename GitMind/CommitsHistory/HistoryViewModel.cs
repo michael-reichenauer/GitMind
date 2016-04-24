@@ -300,6 +300,7 @@ namespace GitMind.CommitsHistory
 					{
 						if (i >= 0 && i < commits.Count)
 						{
+							Log.Debug($"Index {i}");
 							yield return i;
 							//int itemId = commits[i].ItemId;
 							//yield return itemId;
@@ -325,7 +326,15 @@ namespace GitMind.CommitsHistory
 
 			if (id < branchBaseIndex)
 			{
-				return commits[id];
+				if (commits.Count > 0 && id >= 0 && id < commits.Count)
+				{
+					return commits[id];
+				}
+
+				if (commits.Count > 0 && id >= commits.Count)
+				{
+					return commits[commits.Count - 1];
+				}
 				//// An item in the commit row range
 				//CommitViewModel commit;
 				//itemIdToCommit.TryGetValue(id, out commit);
@@ -345,6 +354,8 @@ namespace GitMind.CommitsHistory
 
 				return merges.FirstOrDefault(m => m.MergeId == mergeId);
 			}
+
+			return null;
 		}
 
 
