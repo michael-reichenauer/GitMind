@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -16,26 +15,53 @@ namespace GitMind.CommitsHistory
 
 
 		public CommitViewModel(
-			int itemId,
 			Func<string, Task> hideBranchAsync,
 			Func<string, Task> showDiffAsync)
 		{
-			ItemId = itemId;
 			this.hideBranchAsync = hideBranchAsync;
 			this.showDiffAsync = showDiffAsync;
 		}
 
 
-		public int ItemId { get; }
+		// public int ItemId { get; }
 		public Commit Commit { get; set; }
-		public string Id => Commit.Id;
-		public string Author => Commit.Author;
-		public string Date { get; set; }
+		public string Type => "Commit";
 
-		public string Subject { get; set; }
+		public string Id
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
-		public string Tags { get; set; }
-		public string Tickets { get; set; }
+		public string Author
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public string Date
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public string Subject
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public string Tags
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public string Tickets
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		public bool IsCurrent
 		{
@@ -44,8 +70,17 @@ namespace GitMind.CommitsHistory
 		}
 
 		// The branch point 
-		public bool IsMergePoint { get; set; }
-		public int BranchColumn { get; set; }
+		public bool IsMergePoint
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public int BranchColumn
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		public int XPoint
 		{
@@ -65,8 +100,6 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
-		public string Type => "Commit";
-
 		public double Width
 		{
 			get { return Get(); }
@@ -85,9 +118,17 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
+		public string ToolTip
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
-		public string ToolTip { get; set; }
-		public Brush Brush { get; set; }
+		public Brush Brush
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		public Brush BrushInner
 		{
@@ -101,8 +142,17 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
-		public string CommitBranchText { get; set; }
-		public string CommitBranchName { get; set; }
+		public string CommitBranchText
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public string CommitBranchName
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		public Command HideBranchCommand => Command(HideBranchAsync);
 		public Command ShowDiffCommand => Command(ShowDiffAsync);
@@ -121,8 +171,5 @@ namespace GitMind.CommitsHistory
 		{
 			await showDiffAsync(Id);
 		}
-
-
-	
 	}
 }

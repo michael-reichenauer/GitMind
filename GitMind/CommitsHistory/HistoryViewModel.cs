@@ -33,16 +33,10 @@ namespace GitMind.CommitsHistory
 		private double width = 1000;
 
 		private Model model;
-		private int currentCommitId = 0;
 		private int currentBranchId = 0;
 		private int currentMergeId = 0;
 		private readonly List<CommitViewModel> commits = new List<CommitViewModel>();
 		private readonly Dictionary<string, int> commitIdToRowIndex = new Dictionary<string, int>();
-
-		private readonly Dictionary<string, int> commitIdToItemId = new Dictionary<string, int>();
-		private readonly Dictionary<int, CommitViewModel> itemIdToCommit =
-			new Dictionary<int, CommitViewModel>();
-
 
 		private readonly List<BranchViewModel> branches = new List<BranchViewModel>();
 		private readonly List<MergeViewModel> merges = new List<MergeViewModel>();
@@ -306,8 +300,9 @@ namespace GitMind.CommitsHistory
 					{
 						if (i >= 0 && i < commits.Count)
 						{
-							int itemId = commits[i].ItemId;
-							yield return itemId;
+							yield return i;
+							//int itemId = commits[i].ItemId;
+							//yield return itemId;
 						}
 					}
 				}
@@ -330,10 +325,11 @@ namespace GitMind.CommitsHistory
 
 			if (id < branchBaseIndex)
 			{
-				// An item in the commit row range
-				CommitViewModel commit;
-				itemIdToCommit.TryGetValue(id, out commit);
-				return commit;
+				return commits[id];
+				//// An item in the commit row range
+				//CommitViewModel commit;
+				//itemIdToCommit.TryGetValue(id, out commit);
+				//return commit;
 			}
 			else if (id < mergeBaseIndex)
 			{
@@ -391,7 +387,6 @@ namespace GitMind.CommitsHistory
 				activeBrancheNames.Add(branch.Name);
 			}
 
-			commits.Clear();
 			commitIdToRowIndex.Clear();
 
 			branches.Clear();
@@ -423,6 +418,8 @@ namespace GitMind.CommitsHistory
 
 		private void CreateRows()
 		{
+			SetNumberOfCommit(model.Commits.Count);
+
 			for (int rowIndex = 0; rowIndex < model.Commits.Count; rowIndex++)
 			{
 				Commit commit = model.Commits[rowIndex];
@@ -433,9 +430,10 @@ namespace GitMind.CommitsHistory
 				//	isDisabled = true;
 				//}
 
-				CommitViewModel commitViewModel = GetCommitViewModel(commit);
+				CommitViewModel commitViewModel = commits[rowIndex];
 
 				commitViewModel.Commit = commit;
+				commitViewModel.Id = commit.Id;
 				commitViewModel.Rect = new Rect(
 					0,
 					coordinateConverter.ConvertFromRow(rowIndex),
@@ -466,15 +464,36 @@ namespace GitMind.CommitsHistory
 				commitViewModel.ToolTip = GetCommitToolTip(commit);
 
 				commitViewModel.Date = GetCommitDate(commit);
+				commitViewModel.Author = commit.Author;
 				commitViewModel.Subject = GetSubjectWithoutTickets(commit);
 				commitViewModel.Tags = GetTags(commit);
 				commitViewModel.Tickets = GetTickets(commit);
 				commitViewModel.CommitBranchText = "Hide branch: " + commit.Branch.Name;
 				commitViewModel.CommitBranchName = commit.Branch.Name;
 
-
-				commits.Add(commitViewModel);
 				commitIdToRowIndex[commit.Id] = rowIndex;
+			}
+		}
+
+
+		private void SetNumberOfCommit(int capacity)
+		{		
+			if (commits.Count > capacity)
+			{
+				// To many items, lets remove the rows no longer needed
+				commits.RemoveRange(capacity, commits.Count - capacity);
+				return;
+			}
+
+			if (commits.Count < capacity)
+			{
+				commits.Capacity = capacity;
+				// To few items, lets create the rows needed
+				int lowIndex = commits.Count;
+				for (int i = lowIndex; i < capacity; i++)
+				{
+					commits.Add(new CommitViewModel(HideBranchNameAsync, ShowDiffAsync));
+				}
 			}
 		}
 
@@ -518,31 +537,6 @@ namespace GitMind.CommitsHistory
 			}
 
 			return "";
-		}
-
-
-		private CommitViewModel GetCommitViewModel(Commit commit)
-		{
-			CommitViewModel commitViewModel;
-			int itemId = 0;
-			if (!commitIdToItemId.TryGetValue(commit.Id, out itemId))
-			{
-				itemId = ++currentCommitId;
-				commitIdToItemId[commit.Id] = itemId;
-
-				commitViewModel = new CommitViewModel(
-					itemId,
-					HideBranchNameAsync,
-					ShowDiffAsync);
-
-				itemIdToCommit[itemId] = commitViewModel;
-			}
-			else
-			{
-				commitViewModel = itemIdToCommit[itemId];
-			}
-
-			return commitViewModel;
 		}
 
 

@@ -331,7 +331,7 @@ namespace GitMind
 			Point position = e.GetPosition(ItemsListBox);
 			//Log.Debug($"Position {position}");
 			if (e.LeftButton == MouseButtonState.Pressed
-				&& position.Y < 0 && position.X < (canvas.ActualWidth - 320))
+				&& position.Y < 0 && position.X < (canvas.ActualWidth - 260))
 			{
 				DragMove();
 			}
