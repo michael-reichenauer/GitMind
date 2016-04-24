@@ -176,11 +176,11 @@ namespace GitMind.DataModel.Private
 				Model model1 = new Model(
 					activeBrancheBuilders,
 					commits,
+					id => model.Commits.GetById(id),
 					model.Merges,
 					currentCommit,
 					gitRepo.GetCurrentBranch().Name,
 					allBranchNames,
-					//gitStatus,
 					gitRepo);
 
 
