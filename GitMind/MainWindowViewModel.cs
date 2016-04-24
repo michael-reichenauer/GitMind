@@ -19,12 +19,12 @@ namespace GitMind
 
 
 		internal MainWindowViewModel(
-			ILogViewModel logViewModelViewModel,
+			IHistoryViewModel historyViewModelViewModel,
 			IDiffService diffService,
 			ILatestVersionService latestVersionService,
 			Window owner)
 		{
-			LogViewModel = logViewModelViewModel;
+			HistoryViewModel = historyViewModelViewModel;
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
@@ -62,9 +62,26 @@ namespace GitMind
 			set { Set(value); }
 		}
 
+		public string SearchBox
+		{
+			get { return Get(); }
+			set
+			{
+				Set(value);
+				SetSearchBoxValue(value);
+			}
+		}
+
+
+		private void SetSearchBoxValue(string text)
+		{
+			HistoryViewModel.SetFilter(text);
+		}
+
+
 		public BusyIndicator Busy => BusyIndicator();
 
-		public ILogViewModel LogViewModel { get; }
+		public IHistoryViewModel HistoryViewModel { get; }
 
 
 		public string VersionText
@@ -90,7 +107,7 @@ namespace GitMind
 
 		public Command MinimizeCommand => Command(Minimize);
 		public Command CloseCommand => Command(CloseWindow);
-
+	
 
 		private void Minimize()
 		{
@@ -158,7 +175,7 @@ namespace GitMind
 		private async void SelectWorkingFolder()
 		{
 			List<string> activeBranches = new List<string>();
-			LogViewModel.SetBranches(activeBranches);
+			HistoryViewModel.SetBranches(activeBranches);
 
 			var dialog = new System.Windows.Forms.FolderBrowserDialog();
 			dialog.Description = "Select a working folder.";
@@ -171,7 +188,7 @@ namespace GitMind
 
 			Environment.CurrentDirectory = dialog.SelectedPath;
 
-			await LogViewModel.LoadAsync(owner);
+			await HistoryViewModel.LoadAsync(owner);
 
 			WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 		}

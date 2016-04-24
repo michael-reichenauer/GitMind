@@ -57,6 +57,7 @@
 							HorizontalOffset="-15" 
 							VerticalOffset="5"
 							Background="Black"
+							BorderThickness="2"
 							BorderBrush="DarkOrchid">
 								<StackPanel>
 									<TextBlock Text="{Binding VersionText}" Foreground="LightSteelBlue"/>
@@ -84,10 +85,11 @@
 										Placement="Bottom"					
 										VerticalOffset="5"
 										Background="Black"
+										BorderThickness="2"
 										BorderBrush="DarkOrchid">
 										<StackPanel Orientation="Horizontal">
 											<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
-											<TextBlock Text="{Binding BranchName}" Foreground="LightSteelBlue"/>
+											<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
 										</StackPanel>
 									</ToolTip>
 								</TextBlock.ToolTip>
@@ -111,10 +113,11 @@
 								Placement="Bottom"					
 								VerticalOffset="5"
 								Background="Black"
+								BorderThickness="2"
 								BorderBrush="DarkOrchid">
 								<StackPanel Orientation="Horizontal">
 									<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
-									<TextBlock Text="{Binding BranchName}" Foreground="LightSteelBlue"/>
+									<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
 								</StackPanel>
 							</ToolTip>
 						</TextBlock.ToolTip>
@@ -209,14 +212,14 @@
 
 					<!-- Search box  -->
 					<TextBox
-						IsEnabled="False"
+						IsEnabled="true"
 						BorderBrush="DarkSlateBlue"
 						Width="210"
 						Height="20"
 						Margin="3,0"
 						Background="Black"
-						Text="Search (not implemented)"
-						Foreground="DarkSlateGray"
+						Text="{Binding SearchBox, UpdateSourceTrigger=PropertyChanged}"
+						Foreground="Lavender"
 						HorizontalAlignment="Right"
 						VerticalAlignment="Center"/>
 
@@ -517,7 +520,7 @@
 																 HorizontalOffset="-15" 
 																VerticalOffset="5"
 																Background="Black"
-																BorderThickness="1"
+																BorderThickness="2"
 																BorderBrush="{Binding Brush}">
 																<StackPanel>
 																	<TextBlock Text="{Binding ToolTip}" Foreground="LightSteelBlue"/>
@@ -540,6 +543,7 @@
 															 HorizontalOffset="-15" 
 															 VerticalOffset="5"
 															Background="Black"
+															BorderThickness="2"
 															BorderBrush="{Binding Brush}">
 																<StackPanel>
 																	<TextBlock Text="{Binding ToolTip}" Foreground="LightSteelBlue"/>

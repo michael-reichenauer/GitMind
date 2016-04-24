@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Xml.Serialization.Advanced;
+using System.Windows.Threading;
 using GitMind.DataModel;
 using GitMind.DataModel.Private;
 using GitMind.Git;
@@ -19,7 +19,7 @@ using GitMind.VirtualCanvas;
 
 namespace GitMind.CommitsHistory
 {
-	internal class HistoryViewModel : ViewModel, ILogViewModel
+	internal class HistoryViewModel : ViewModel, IHistoryViewModel
 	{
 		private static readonly int branchBaseIndex = 1000000;
 		private static readonly int mergeBaseIndex = 2000000;
@@ -47,7 +47,8 @@ namespace GitMind.CommitsHistory
 		private readonly List<BranchViewModel> branches = new List<BranchViewModel>();
 		private readonly List<MergeViewModel> merges = new List<MergeViewModel>();
 		private readonly List<string> activeBrancheNames = new List<string>();
-
+		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
+		private string filterText = "";
 
 		public HistoryViewModel()
 			: this(
@@ -72,9 +73,13 @@ namespace GitMind.CommitsHistory
 			this.brushService = brushService;
 			this.diffService = diffService;
 			this.coordinateConverter = coordinateConverter;
+			filterTriggerTimer.Tick += FilterTrigger;
 
 			ItemsSource = new LogItemsSource(this);
 		}
+
+
+
 
 
 		public ICommand ShowBranchCommand => Command<string>(ShowBranch);
@@ -102,6 +107,24 @@ namespace GitMind.CommitsHistory
 			UpdateUIModel();
 		}
 
+
+		public void SetFilter(string text)
+		{
+			filterTriggerTimer.Stop();
+			filterText = text;
+			filterTriggerTimer.Interval = TimeSpan.FromMilliseconds(1500);
+			filterTriggerTimer.Start();
+		}
+
+
+		private void FilterTrigger(object sender, EventArgs e)
+		{
+			filterTriggerTimer.Stop();
+
+			Log.Debug($"Start filter with: {filterText}");
+			UpdateUIModel();
+			Log.Debug($"Done filter with: {filterText}");
+		}
 
 
 		public async Task ToggleAsync(int column, int rowIndex, bool isControl)
@@ -323,7 +346,7 @@ namespace GitMind.CommitsHistory
 			{
 				// An item in the merge range
 				int mergeId = id - mergeBaseIndex;
-			
+
 				return merges.FirstOrDefault(m => m.MergeId == mergeId);
 			}
 		}
@@ -404,6 +427,12 @@ namespace GitMind.CommitsHistory
 			{
 				Commit commit = model.Commits[rowIndex];
 
+				//bool isDisabled = false;
+				//if (!string.IsNullOrWhiteSpace(filterText) && commit.Subject.Contains(filterText))
+				//{
+				//	isDisabled = true;
+				//}
+
 				CommitViewModel commitViewModel = GetCommitViewModel(commit);
 
 				commitViewModel.Commit = commit;
@@ -432,6 +461,7 @@ namespace GitMind.CommitsHistory
 					? brushService.GetDarkerBrush(commitViewModel.Brush) : commitViewModel.Brush;
 
 				commitViewModel.SubjectBrush = GetSubjectBrush(commit);
+
 				commitViewModel.Width = Width - 35;
 				commitViewModel.ToolTip = GetCommitToolTip(commit);
 
@@ -511,6 +541,7 @@ namespace GitMind.CommitsHistory
 			{
 				commitViewModel = itemIdToCommit[itemId];
 			}
+
 			return commitViewModel;
 		}
 

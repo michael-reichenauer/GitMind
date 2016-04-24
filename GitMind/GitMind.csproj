@@ -115,7 +115,7 @@
     <Compile Include="Git\Private\GitRepo.cs" />
     <Compile Include="Git\IGitRepo.cs" />
     <Compile Include="CommitsHistory\HistoryViewModel.cs" />
-    <Compile Include="CommitsHistory\ILogViewModel.cs" />
+    <Compile Include="CommitsHistory\IHistoryViewModel.cs" />
     <Compile Include="CommitsHistory\MergeViewModel.cs" />
     <Compile Include="CommitsHistory\CommitViewModel.cs" />
     <Compile Include="Git\GitTag.cs" />
