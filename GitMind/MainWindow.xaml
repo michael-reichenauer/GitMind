@@ -105,41 +105,50 @@
 					
 
 					<!-- Commit status  -->
-					<TextBlock 
-						Visibility="{Binding Path=IsStatusVisible, Converter={StaticResource PropertyToVisibilityConverter}}"
-						Margin="3, 5"
-						Text="{Binding StatusText}"
-						Foreground="BurlyWood"
-						HorizontalAlignment="Left"
-						VerticalAlignment="Center">
+					<TextBlock>
+						 <Hyperlink TextDecorations="None">
+							<TextBlock 
+								Visibility="{Binding Path=IsStatusVisible, Converter={StaticResource PropertyToVisibilityConverter}}"
+								Margin="3, 5"
+								Text="{Binding StatusText}"
+								Foreground="BurlyWood"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Center">
+								
+								<TextBlock.InputBindings>
+									<MouseBinding 
+										Command="{Binding ShowDiffCommand}" 
+										MouseAction="LeftClick" />
+								</TextBlock.InputBindings>
+								<TextBlock.ToolTip>
+									<ToolTip
+										Placement="Bottom"					
+										VerticalOffset="5"
+										Background="Black"
+										BorderThickness="2"
+										BorderBrush="DarkOrchid">
+										<StackPanel Orientation="Horizontal">
+											<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
+											<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
+										</StackPanel>
+									</ToolTip>
+								</TextBlock.ToolTip>
 
-						<TextBlock.ToolTip>
-							<ToolTip
-								Placement="Bottom"					
-								VerticalOffset="5"
-								Background="Black"
-								BorderThickness="2"
-								BorderBrush="DarkOrchid">
-								<StackPanel Orientation="Horizontal">
-									<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
-									<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
-								</StackPanel>
-							</ToolTip>
-						</TextBlock.ToolTip>
+								<TextBlock.ContextMenu>
+									<ContextMenu 
+										Background="Transparent" 
+										Foreground="LightSteelBlue"
+										BorderBrush="DarkSlateBlue"
+										BorderThickness="0">
 
-						<TextBlock.ContextMenu>
-							<ContextMenu 
-								Background="Transparent" 
-								Foreground="LightSteelBlue"
-								BorderBrush="DarkSlateBlue"
-								BorderThickness="0">
-
-								<MenuItem 
-									Header="Show Diff ..."
-									Command="{Binding ShowDiffCommand}"/>
-							</ContextMenu>
-						</TextBlock.ContextMenu>
-					</TextBlock>			
+										<MenuItem 
+											Header="Show Diff ..."
+											Command="{Binding ShowDiffCommand}"/>
+									</ContextMenu>
+								</TextBlock.ContextMenu>
+							</TextBlock>	
+						</Hyperlink>
+					</TextBlock>
 					
 					<Label 
 						Margin="10,0"
@@ -199,7 +208,8 @@
 										Placement="Bottom"
 										HorizontalOffset="-15" 
 										VerticalOffset="5"
-										Background="Black" 
+										Background="Black"
+										BorderThickness="2"
 										BorderBrush="DarkOrchid">
 										<StackPanel>
 											<TextBlock Text="Send feedback..." Foreground="LightSteelBlue"/>
