@@ -161,7 +161,7 @@
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
 
 				<!-- Latest version button -->
-				<Button 
+				<!--<Button 
 						Name="GetLatestVersionButton"
 						Visibility="{Binding Path=IsNewVersionVisible, Converter={StaticResource PropertyToVisibilityConverter}}"
 						Background="Black"  
@@ -186,7 +186,7 @@
 								</StackPanel>
 							</ToolTip>
 						</Button.ToolTip>
-					</Button>
+					</Button>-->
 
 					<!-- Feedback button  -->
 						<TextBlock>

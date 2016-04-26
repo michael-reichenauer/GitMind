@@ -428,7 +428,8 @@ namespace GitMind.CommitsHistory
 			{
 				sourceCommits = model.GitRepo.GetAllCommts()
 					.Where(c => c.Subject.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) != -1
-					|| c.Author.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) != -1)
+					|| c.Author.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) != -1
+					|| c.Id.StartsWith(filterText, StringComparison.CurrentCultureIgnoreCase))
 					.Select(c => model.GetCommit(c.Id))
 					.ToList();
 			}
