@@ -59,7 +59,7 @@ namespace GitMind
 			historyViewModel = new HistoryViewModel();
 
 			mainWindowViewModel = new MainWindowViewModel(
-				historyViewModel, diffService, latestVersionService, this);
+				historyViewModel, diffService, latestVersionService, this, () => RefreshAsync(true));
 
 			refreshService = new StatusRefreshService(mainWindowViewModel);
 
@@ -293,35 +293,6 @@ namespace GitMind
 			await historyViewModel.ClickedAsync(position, isControl);
 
 			base.OnPreviewMouseUp(e);
-		}
-
-
-		protected override void OnPreviewKeyDown(KeyEventArgs e)
-		{
-			if (e.Key == Key.Escape)
-			{
-				//if (mainWindowViewModel.SearchBox != "")
-				//{
-				//	mainWindowViewModel.SearchBox = "";
-				//}
-				//else
-				//{
-					mainWindowViewModel.CloseCommand.ExecuteAsync(null).RunInBackground();
-				//}
-			}
-		}
-
-
-		protected override async void OnKeyUp(KeyEventArgs e)
-		{
-			if (e.Key == Key.F5)
-			{
-				bool isShift = (Keyboard.Modifiers & ModifierKeys.Shift) > 0;
-				Log.Debug("Refresh");
-				await RefreshAsync(isShift);
-			}
-
-			base.OnKeyUp(e);
 		}
 
 

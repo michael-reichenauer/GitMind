@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using GitMind.CommitsHistory;
 using GitMind.Installation;
@@ -16,18 +17,21 @@ namespace GitMind
 		private readonly IDiffService diffService;
 		private readonly ILatestVersionService latestVersionService;
 		private readonly Window owner;
+		private readonly Func<Task> refreshAsync;
 
 
 		internal MainWindowViewModel(
 			IHistoryViewModel historyViewModelViewModel,
 			IDiffService diffService,
 			ILatestVersionService latestVersionService,
-			Window owner)
+			Window owner,
+			Func<Task> refreshAsync)
 		{
 			HistoryViewModel = historyViewModelViewModel;
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
+			this.refreshAsync = refreshAsync;
 		}
 
 		
@@ -106,8 +110,35 @@ namespace GitMind
 		public Command FeedbackCommand => Command(Feedback);
 
 		public Command MinimizeCommand => Command(Minimize);
+
 		public Command CloseCommand => Command(CloseWindow);
-	
+
+		public Command EscapeCommand => Command(Escape);
+
+
+		private void Escape()
+		{
+			if (!string.IsNullOrWhiteSpace(SearchBox))
+			{
+				SearchBox = "";
+			}
+			else
+			{
+				CloseWindow();
+			}
+		}
+
+
+		public Command RefreshCommand => AsyncCommand(Refresh);
+
+
+		private async Task Refresh()
+		{
+			Task refreshTask = refreshAsync();
+			Busy.Add(refreshTask);
+			await refreshTask;
+		}
+
 
 		private void Minimize()
 		{

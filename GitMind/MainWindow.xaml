@@ -15,6 +15,11 @@
 	ResizeMode="CanResizeWithGrip"
 	Icon="Application.ico">
 
+	<Window.InputBindings>
+		<KeyBinding Command="{Binding EscapeCommand}" Key="Escape"/>
+		<KeyBinding Command="{Binding RefreshCommand}" Key="F5"/>
+	</Window.InputBindings>
+
 	<Window.Resources>
 
 	</Window.Resources>
@@ -272,7 +277,7 @@
 		<DockPanel Grid.Row="1" >
 
 			<ListBox 
-				
+				IsTextSearchEnabled="False"
 				Padding="4"
 				x:Name="ItemsListBox" 
 				Style="{DynamicResource ListBoxScrollbarStyle}" 

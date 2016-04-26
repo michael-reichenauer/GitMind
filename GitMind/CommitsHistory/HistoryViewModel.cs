@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -115,9 +116,7 @@ namespace GitMind.CommitsHistory
 		{
 			filterTriggerTimer.Stop();
 
-			Log.Debug($"Start filter with: {filterText}");
 			UpdateUIModel();
-			Log.Debug($"Done filter with: {filterText}");
 		}
 
 
@@ -300,10 +299,7 @@ namespace GitMind.CommitsHistory
 					{
 						if (i >= 0 && i < commits.Count)
 						{
-							Log.Debug($"Index {i}");
 							yield return i;
-							//int itemId = commits[i].ItemId;
-							//yield return itemId;
 						}
 					}
 				}
@@ -330,15 +326,6 @@ namespace GitMind.CommitsHistory
 				{
 					return commits[id];
 				}
-
-				if (commits.Count > 0 && id >= commits.Count)
-				{
-					return commits[commits.Count - 1];
-				}
-				//// An item in the commit row range
-				//CommitViewModel commit;
-				//itemIdToCommit.TryGetValue(id, out commit);
-				//return commit;
 			}
 			else if (id < mergeBaseIndex)
 			{
