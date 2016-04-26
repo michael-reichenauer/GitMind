@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using GitMind.CommitsHistory;
 using GitMind.Installation;
 using GitMind.Settings;
 using GitMind.Utils;
 using GitMind.Utils.UI;
+using Application = System.Windows.Application;
+using MessageBox = System.Windows.MessageBox;
 
 
 namespace GitMind
@@ -113,6 +116,8 @@ namespace GitMind
 
 		public Command CloseCommand => Command(CloseWindow);
 
+		public Command ToggleMaximizeCommand => Command(ToggleMaximize);
+
 		public Command EscapeCommand => Command(Escape);
 
 
@@ -143,6 +148,22 @@ namespace GitMind
 		private void Minimize()
 		{
 			Application.Current.MainWindow.WindowState = WindowState.Minimized; 
+		}
+
+
+		private void ToggleMaximize()
+		{
+			if (Application.Current.MainWindow.WindowState == WindowState.Maximized)
+			{
+				Application.Current.MainWindow.WindowState = WindowState.Normal;
+			}
+			else
+			{
+				Application.Current.MainWindow.WindowState = WindowState.Maximized;
+			}
+
+			// Application.Current.MainWindow. = this.Size;
+			//this.MaximumSize = this.Size;
 		}
 
 		private void CloseWindow()

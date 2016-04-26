@@ -229,7 +229,7 @@
 					<TextBox
 						IsEnabled="true"
 						BorderBrush="DarkSlateBlue"
-						Width="210"
+						Width="185"
 						Height="20"
 						Margin="3,0"
 						Background="Black"
@@ -253,6 +253,24 @@
 										Command="{Binding MinimizeCommand}" 
 										MouseAction="LeftClick" />
 									</TextBlock.InputBindings>
+								</TextBlock>
+							</Hyperlink>
+					</TextBlock>
+					
+						<!-- Maximize button-->
+					<TextBlock>
+						 <Hyperlink TextDecorations="None">
+							<TextBlock 
+								Name="MaximizeButton"
+								Background="Black"
+								Foreground="LightSteelBlue"
+								Margin="10,4,5,0"							
+								Text="[]">
+								<TextBlock.InputBindings>
+									<MouseBinding 
+										Command="{Binding ToggleMaximizeCommand}" 
+										MouseAction="LeftClick" />
+								</TextBlock.InputBindings>
 								</TextBlock>
 							</Hyperlink>
 					</TextBlock>
