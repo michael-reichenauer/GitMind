@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using GitMind;
+using GitMind.Utils;
 
 
 namespace System
@@ -57,7 +59,11 @@ namespace System
 
 			if (FatalTypes.Contains(exceptionType))
 			{
-				ExceptionHandling.Shutdown($"Exception type is fatal: {exceptionType}", exception);
+				StackTrace stackTrace = new StackTrace(1, true);
+				string stackTraceText = stackTrace.ToString();
+				string message = $"Exception type is fatal: {exceptionType}, {e.Message}\n{stackTraceText}";
+				Log.Error(message);
+				ExceptionHandling.Shutdown(message, exception);
 				return false;
 			}
 

@@ -18,10 +18,16 @@ namespace GitMind.Installation.Private
 		private static readonly string UninstallRegKey = "HKEY_CURRENT_USER\\" + UninstallSubKey;
 		private static readonly string subFolderContextMenuPath =
 			"Software\\Classes\\Folder\\shell\\gitmind";
+		private static readonly string subDirectoryBackgroundContextMenuPath =
+			"Software\\Classes\\Directory\\Background\\shell\\gitmind";
 		private static readonly string folderContextMenuPath =
 			"HKEY_CURRENT_USER\\" + subFolderContextMenuPath;
+		private static readonly string directoryContextMenuPath =
+			"HKEY_CURRENT_USER\\" + subDirectoryBackgroundContextMenuPath;
 		private static readonly string folderCommandContextMenuPath =
 			folderContextMenuPath + "\\command";
+		private static readonly string directoryCommandContextMenuPath =
+			directoryContextMenuPath + "\\command";
 		private readonly string SetupTitle = "GitMind - Setup";
 
 
@@ -184,32 +190,36 @@ namespace GitMind.Installation.Private
 			try
 			{
 				if (sourcePath != targetPath)
-				{				
+				{
 					CopyFile(sourcePath, targetPath);
 				}
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Debug($"Failed to copy {sourcePath} to target {targetPath}, moving target first, {e}");
+				Log.Debug($"Failed to copy {sourcePath} to target {targetPath} {e.Message}");
 				try
 				{
 					string oldFilePath = targetPath + "_old";
+					Log.Debug($"Moving {targetPath} to {oldFilePath}");
 					if (File.Exists(oldFilePath))
 					{
 						try
 						{
 							File.Delete(oldFilePath);
 							File.Move(targetPath, oldFilePath);
+							Log.Debug($"Moved {targetPath} to target {oldFilePath}");
 							CopyFile(sourcePath, targetPath);
 						}
 						catch (Exception) when (e.IsNotFatal())
 						{
+							Log.Debug($"Failed to move {targetPath} to target {oldFilePath} {e.Message}");
 							CopyFile(sourcePath, targetPath);
 						}
 					}
 					else
 					{
 						File.Move(targetPath, oldFilePath);
+						Log.Debug($"Moved {targetPath} to target {oldFilePath}");
 						CopyFile(sourcePath, targetPath);
 					}
 				}
@@ -229,6 +239,7 @@ namespace GitMind.Installation.Private
 			// Not using File.Copy, to avoid copying possible "downloaded from internet flag"
 			byte[] fileData = File.ReadAllBytes(sourcePath);
 			File.WriteAllBytes(targetPath, fileData);
+			Log.Debug($"Copied {sourcePath} to target {targetPath}");
 		}
 
 
@@ -351,8 +362,11 @@ namespace GitMind.Installation.Private
 			string version = ProgramPaths.GetVersion(path).ToString();
 
 			Registry.SetValue(UninstallRegKey, "DisplayName", ProgramPaths.ProgramName);
+			Registry.SetValue(UninstallRegKey, "DisplayIcon", path);
+			Registry.SetValue(UninstallRegKey, "Publisher", "Michael Reichenauer");
 			Registry.SetValue(UninstallRegKey, "DisplayVersion", version);
 			Registry.SetValue(UninstallRegKey, "UninstallString", path + " /uninstall");
+			Registry.SetValue(UninstallRegKey, "EstimatedSize", 1000);			
 		}
 
 
@@ -376,7 +390,13 @@ namespace GitMind.Installation.Private
 			string programFilePath = ProgramPaths.GetInstallFilePath();
 
 			Registry.SetValue(folderContextMenuPath, "", ProgramPaths.ProgramName);
+			Registry.SetValue(folderContextMenuPath, "Icon", programFilePath);
 			Registry.SetValue(folderCommandContextMenuPath, "", "\"" + programFilePath + "\" \"/d:%1\"");
+
+			Registry.SetValue(directoryContextMenuPath, "", ProgramPaths.ProgramName);
+			Registry.SetValue(directoryContextMenuPath, "Icon", programFilePath);
+			Registry.SetValue(
+				directoryCommandContextMenuPath, "", "\"" + programFilePath + "\" \"/d:%V\"");
 		}
 
 
@@ -385,6 +405,7 @@ namespace GitMind.Installation.Private
 			try
 			{
 				Registry.CurrentUser.DeleteSubKeyTree(subFolderContextMenuPath);
+				Registry.CurrentUser.DeleteSubKeyTree(subDirectoryBackgroundContextMenuPath);
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{

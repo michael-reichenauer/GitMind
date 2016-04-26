@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 
@@ -98,6 +99,21 @@ namespace GitMind.Utils.UI
 			{
 
 				command = new Command(executeMethod);
+				commands[memberName] = command;
+			}
+
+			return (Command)command;
+		}
+
+
+		protected Command AsyncCommand(
+			Func<Task> executeMethodAsync, [CallerMemberName] string memberName = "")
+		{
+			ICommand command;
+			if (!commands.TryGetValue(memberName, out command))
+			{
+
+				command = new Command(executeMethodAsync);
 				commands[memberName] = command;
 			}
 

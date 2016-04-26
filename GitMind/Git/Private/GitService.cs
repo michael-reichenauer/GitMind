@@ -319,7 +319,9 @@ namespace GitMind.Git.Private
 
 			foreach (string line in lines)
 			{
-				if (-1 != line.IndexOf(" -> "))
+				int refIndex = line.IndexOf(" -> ");
+				int refIndex2 = line.IndexOf(" ");
+				if (refIndex > 1 && refIndex == refIndex2)
 				{
 					continue;
 				}

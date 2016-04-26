@@ -25,10 +25,10 @@ namespace GitMind.Installation.Private
 			Log.Debug($"Checking remote version of {latestUri} ...");
 			Version remoteSetupFileVersion = await GetLatestRemoteVersionAsync();
 
-			Version currentVersion = ProgramPaths.GetCurrentVersion();
-			Log.Debug($"Current version: {currentVersion} remote version: {remoteSetupFileVersion}");
+			Version installedVersion = ProgramPaths.GetInstalledVersion();
+			Log.Debug($"Installed version: {installedVersion} remote version: {remoteSetupFileVersion}");
 
-			return currentVersion < remoteSetupFileVersion;
+			return installedVersion < remoteSetupFileVersion;
 		}
 
 
@@ -87,7 +87,7 @@ namespace GitMind.Installation.Private
 
 						Log.Debug($"Downloaded {latestInfo.Value.tag_name} to {tempPath}");
 
-						cmd.Start(tempPath, "/install /silent /run");
+						cmd.Start(tempPath, "/install /silent");
 						return true;
 					}
 				}

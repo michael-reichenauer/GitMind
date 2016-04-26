@@ -59,7 +59,7 @@ namespace GitMind
 			historyViewModel = new HistoryViewModel();
 
 			mainWindowViewModel = new MainWindowViewModel(
-				historyViewModel, diffService, latestVersionService, this);
+				historyViewModel, diffService, latestVersionService, this, () => RefreshAsync(true));
 
 			refreshService = new StatusRefreshService(mainWindowViewModel);
 
@@ -185,8 +185,14 @@ namespace GitMind
 
 		private async void NewVersionAsync(object sender, EventArgs e)
 		{
-			mainWindowViewModel.IsNewVersionVisible = await
-				latestVersionService.IsNewVersionAvailableAsync();
+			//mainWindowViewModel.IsNewVersionVisible = await
+			//	latestVersionService.IsNewVersionAvailableAsync();
+
+			if (await latestVersionService.IsNewVersionAvailableAsync())
+			{
+				await latestVersionService.InstallLatestVersionAsync();
+			}
+
 
 			newVersionTime.Interval = TimeSpan.FromHours(3);
 		}
@@ -261,8 +267,6 @@ namespace GitMind
 			}
 		}
 
-
-
 		private async Task RefreshAsync(bool isShift)
 		{
 			Task refreshTask = RefreshInternalAsync(isShift);
@@ -292,28 +296,6 @@ namespace GitMind
 		}
 
 
-		protected override void OnPreviewKeyDown(KeyEventArgs e)
-		{
-			if (e.Key == Key.Escape)
-			{
-				Close();
-			}
-		}
-
-
-		protected override async void OnKeyUp(KeyEventArgs e)
-		{
-			if (e.Key == Key.F5)
-			{
-				bool isShift = (Keyboard.Modifiers & ModifierKeys.Shift) > 0;
-				Log.Debug("Refresh");
-				await RefreshAsync(isShift);
-			}
-
-			base.OnKeyUp(e);
-		}
-
-
 		protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
 		{
 			base.OnRenderSizeChanged(sizeInfo);
@@ -327,7 +309,7 @@ namespace GitMind
 			Point position = e.GetPosition(ItemsListBox);
 			//Log.Debug($"Position {position}");
 			if (e.LeftButton == MouseButtonState.Pressed
-				&& position.Y < 0 && position.X < (canvas.ActualWidth - 320))
+				&& position.Y < 0 && position.X < (canvas.ActualWidth - 260))
 			{
 				DragMove();
 			}
@@ -400,18 +382,6 @@ namespace GitMind
 			}
 
 			e.Handled = true;
-		}
-
-
-		private void CloseButton_OnClick(object sender, RoutedEventArgs e)
-		{
-			Application.Current.Shutdown(0);
-		}
-
-
-		private void MinimizeButton_OnClick(object sender, RoutedEventArgs e)
-		{
-			WindowState = WindowState.Minimized;
 		}
 	}
 }

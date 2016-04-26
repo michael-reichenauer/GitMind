@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace GitMind.CommitsHistory
 {
-	internal interface ILogViewModel
+	internal interface IHistoryViewModel
 	{
 		ICommand ShowBranchCommand { get; }
 
@@ -22,5 +22,6 @@ namespace GitMind.CommitsHistory
 
 		IReadOnlyList<string> GetAllBranchNames();
 		Task HideBranchNameAsync(string branchName);
+		void SetFilter(string text);
 	}
 }
