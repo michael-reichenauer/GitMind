@@ -322,7 +322,7 @@
 						<!--Show Branch menu item -->
 						<MenuItem 
 							Header="Show Branch" 
-							ItemsSource="{Binding LogViewModel.AllBranches}" 								
+							ItemsSource="{Binding HistoryViewModel.AllBranches}" 								
 							Padding="0" 
 							Margin="0" 
 							BorderBrush="DarkSlateBlue" 
@@ -338,7 +338,7 @@
 									<Setter Property="Padding" Value="0"/>
 									<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
 									<Setter Property="BorderThickness" Value="0"/>
-									<Setter Property="Command" Value="{Binding DataContext.LogViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
+									<Setter Property="Command" Value="{Binding DataContext.HistoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
 									<Setter Property="CommandParameter" Value="{Binding Text}"/>
 								</Style>
 							</MenuItem.ItemContainerStyle>
