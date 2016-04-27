@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Michael Reichenauer")]
 [assembly: AssemblyProduct("GitMind")]
-[assembly: AssemblyCopyright("Copyright © Michael Reichenauer 2015")]
+[assembly: AssemblyCopyright("Copyright © Michael Reichenauer 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

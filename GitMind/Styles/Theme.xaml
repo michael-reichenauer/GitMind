@@ -16,7 +16,7 @@
 		<GradientStop Color="#FF000000" Offset="1"/>
 	</LinearGradientBrush>
 	<LinearGradientBrush x:Key="GlossyBlack_StrokeGradient" EndPoint="0.5,1" StartPoint="0.5,0">
-		<GradientStop Color="#7FFFFFFF"/>
+		<GradientStop Color="BlueViolet"/>
 		<GradientStop Color="#33FFFFFF" Offset="1"/>
 	</LinearGradientBrush>
 	
@@ -41,7 +41,7 @@
 				<TranslateTransform Y="0.562"/>
 			</TransformGroup>
 		</RadialGradientBrush.RelativeTransform>
-		<GradientStop Color="#CCFFFFFF"/>
+		<GradientStop Color="BlueViolet"/>
 		<GradientStop Color="#00000000" Offset="1"/>
 	</RadialGradientBrush>
 	<LinearGradientBrush x:Key="GlossyBlack_PressedBackgroundGradient" EndPoint="0.5,0" StartPoint="0.5,1">
@@ -1765,7 +1765,7 @@
 		<Setter Property="HorizontalContentAlignment" Value="Left"/>
 		<Setter Property="VerticalContentAlignment" Value="Top"/>
 		<Setter Property="Background" Value="Black"/>
-		<Setter Property="Foreground" Value="#FFFFFFFF" />
+		<Setter Property="Foreground" Value="Lavender" />
 		<Setter Property="BorderThickness" Value="1"/>
 		<Setter Property="Template">
 			<Setter.Value>

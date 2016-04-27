@@ -30,8 +30,9 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
+			<RowDefinition Height="0"/>
 		</Grid.RowDefinitions>
-	
+
 
 		<!--First row (title bar) -->
 		<Border 
@@ -70,7 +71,7 @@
 							</ToolTip>
 						</Image.ToolTip>
 					</Image>
-	
+
 					<!-- Working folder (need hyperlink to get "hand" mouse over, but hyperlink command does not work -->
 					<TextBlock>
 						 <Hyperlink TextDecorations="None">
@@ -114,7 +115,7 @@
 								Foreground="BurlyWood"
 								HorizontalAlignment="Left"
 								VerticalAlignment="Center">
-								
+
 								<TextBlock.InputBindings>
 									<MouseBinding 
 										Command="{Binding ShowDiffCommand}" 
@@ -214,8 +215,8 @@
 										<StackPanel>
 											<TextBlock Text="Send feedback..." Foreground="LightSteelBlue"/>
 										</StackPanel>
-										</ToolTip>
-									</TextBlock.ToolTip>
+									</ToolTip>
+								</TextBlock.ToolTip>
 								</TextBlock>
 							</Hyperlink>
 					</TextBlock>
@@ -248,11 +249,11 @@
 								Margin="10,0,5,0"	
 								FontWeight="ExtraBold"
 								Text="_">
-									<TextBlock.InputBindings>
-										<MouseBinding 
+								<TextBlock.InputBindings>
+									<MouseBinding 
 										Command="{Binding MinimizeCommand}" 
 										MouseAction="LeftClick" />
-									</TextBlock.InputBindings>
+								</TextBlock.InputBindings>
 								</TextBlock>
 							</Hyperlink>
 					</TextBlock>
@@ -285,11 +286,11 @@
 								Margin="10,5,5,0"		
 								FontWeight="Bold"
 								Text="X">
-									<TextBlock.InputBindings>
-										<MouseBinding 
+								<TextBlock.InputBindings>
+									<MouseBinding 
 										Command="{Binding CloseCommand}" 
 										MouseAction="LeftClick" />
-									</TextBlock.InputBindings>
+								</TextBlock.InputBindings>
 								</TextBlock>
 							</Hyperlink>
 					</TextBlock>
@@ -302,7 +303,12 @@
 		Background="Black"  
 		
 		-->
-		<DockPanel Grid.Row="1" >
+		
+		<Border 
+			BorderThickness="1" 
+			BorderBrush="DarkSlateBlue" 
+			Grid.Row="1">
+		<DockPanel>
 
 			<ListBox 
 				IsTextSearchEnabled="False"
@@ -547,19 +553,19 @@
 														HorizontalAlignment="Left"
 														VerticalAlignment="Center">
 
-														<TextBlock.ToolTip>
-															<ToolTip
+															<TextBlock.ToolTip>
+																<ToolTip
 																Placement="Bottom"
 																 HorizontalOffset="-15" 
 																VerticalOffset="5"
 																Background="Black"
 																BorderThickness="2"
 																BorderBrush="{Binding Brush}">
-																<StackPanel>
-																	<TextBlock Text="{Binding ToolTip}" Foreground="LightSteelBlue"/>
-																</StackPanel>
-															</ToolTip>
-														</TextBlock.ToolTip>
+																	<StackPanel>
+																		<TextBlock Text="{Binding ToolTip}" Foreground="LightSteelBlue"/>
+																	</StackPanel>
+																</ToolTip>
+															</TextBlock.ToolTip>
 												</TextBlock>
 
 												<Ellipse
@@ -672,6 +678,38 @@
 			</ListBox>
 
 		</DockPanel>
-
+		</Border> 
+		
+		<Border 
+			BorderThickness="1" 
+			BorderBrush="DarkSlateBlue" 
+			Grid.Row="2">
+			
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="1*" />
+				</Grid.ColumnDefinitions>
+				
+				<ListBox
+					BorderThickness="1"
+					BorderBrush="DarkSlateBlue"
+					Grid.Column="0"
+					>
+					<ListBoxItem>ListBox Item #1</ListBoxItem>
+				</ListBox>
+					
+					
+				<ListBox
+					Grid.Column="1"
+					BorderThickness="1"
+					BorderBrush="DarkSlateBlue"
+					>
+					<ListBoxItem>ListBox Item #1</ListBoxItem>
+				</ListBox>
+			
+			</Grid>
+			
+		</Border> 
 	</Grid>
 </Window>
