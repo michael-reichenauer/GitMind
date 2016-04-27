@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 
 
 namespace GitMind.Utils
@@ -42,7 +43,8 @@ namespace GitMind.Utils
 						Arguments = args,
 						UseShellExecute = false,
 						RedirectStandardOutput = true,
-						CreateNoWindow = true
+						CreateNoWindow = true,
+						StandardOutputEncoding = Encoding.UTF8
 					}
 				};
 
