@@ -66,6 +66,7 @@
     <Compile Include="AcceptingExceptionsAttribute.cs" />
     <Compile Include="BranchName.cs" />
     <Compile Include="CommitsHistory\BrushService.cs" />
+    <Compile Include="CommitsHistory\CommitDetailViewModel.cs" />
     <Compile Include="CommitsHistory\CoordinateConverter.cs" />
     <Compile Include="CommitsHistory\DiffService.cs" />
     <Compile Include="CommitsHistory\IBrushService.cs" />
@@ -163,6 +164,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Styles\ListBoxScrollbarStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\ListBoxStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

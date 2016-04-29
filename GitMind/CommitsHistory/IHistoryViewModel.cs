@@ -13,6 +13,8 @@ namespace GitMind.CommitsHistory
 
 		ICommand HideBranchCommand { get; }
 
+		ICommand ToggleDetailsCommand { get; }
+
 		ObservableCollection<BranchName> AllBranches { get; }
 
 		Task LoadAsync(Window window);

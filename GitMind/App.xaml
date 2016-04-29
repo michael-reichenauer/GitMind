@@ -14,7 +14,8 @@
 				
 				<ResourceDictionary Source="Styles\ListBoxScrollbarStyle.xaml"/>
 				<ResourceDictionary Source="Styles\ContextMenuStyle.xaml"/>
-				<ResourceDictionary Source="Styles\Theme.xaml"/>
+				<ResourceDictionary Source="Styles\ListBoxStyle.xaml"/>
+				<!--<ResourceDictionary Source="Styles\Theme.xaml"/>-->
 
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>

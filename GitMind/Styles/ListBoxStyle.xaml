@@ -1,0 +1,71 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:GitMind.Styles">
+
+	<SolidColorBrush x:Key="ItemBrush" Color="Transparent" />
+	<SolidColorBrush x:Key="SelectedItemBorderBrush" Color="CornflowerBlue" />
+	<SolidColorBrush x:Key="SelectedItemBackgroundBrush" Color="#000025" />
+	<SolidColorBrush x:Key="HoverItemBrush" Color="RoyalBlue" />
+	<SolidColorBrush x:Key="TextBrush" Color="Lavender" />
+	<SolidColorBrush x:Key="TextLowBrush" Color="LightSteelBlue" />
+
+	<!-- List box item style -->
+	<Style TargetType="ListBoxItem">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ListBoxItem">
+					<Border 
+						Name="ItemBorder"
+						CornerRadius="0" 
+						BorderBrush="Black"
+						BorderThickness="1" 
+						Margin="2,1"
+						Background="{StaticResource ItemBrush}">
+						<ContentPresenter />
+					</Border>
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsSelected" Value="True">
+							<Setter 
+								TargetName="ItemBorder" 
+								Property="BorderBrush" 
+								Value="{StaticResource SelectedItemBorderBrush}" />
+							<Setter 
+								TargetName="ItemBorder" 
+								Property="Background" 
+								Value="{StaticResource SelectedItemBackgroundBrush}" />
+						</Trigger>
+						<MultiTrigger>
+							<MultiTrigger.Conditions>
+								<Condition Property="IsMouseOver" Value="True" />
+								<Condition Property="IsSelected" Value="False" />
+							</MultiTrigger.Conditions>
+							<Setter 
+								TargetName="ItemBorder" 
+								Property="BorderBrush" 
+								Value="{StaticResource HoverItemBrush}" />
+						</MultiTrigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style x:Key="NoSelectionItem" TargetType="ListBoxItem">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ListBoxItem">
+					<Border 
+						Name="ItemBorder"
+						CornerRadius="0" 
+						BorderBrush="Black"
+						BorderThickness="1" 
+						Margin="2,1"
+						Background="{StaticResource ItemBrush}">
+						<ContentPresenter />
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+</ResourceDictionary>

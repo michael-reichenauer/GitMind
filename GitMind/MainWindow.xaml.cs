@@ -383,6 +383,12 @@ namespace GitMind
 
 			e.Handled = true;
 		}
+
+
+		private void MoudeDobleClick(object sender, MouseButtonEventArgs e)
+		{
+			mainWindowViewModel.HistoryViewModel.ToggleDetailsCommand.Execute(null);
+		}
 	}
 }
 

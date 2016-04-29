@@ -3,6 +3,13 @@
 										xmlns:local="clr-namespace:GitMind.Styles"
 										xmlns:themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero">
 
+	
+	
+	
+	
+	
+	
+	
 	<Style x:Key="ListBoxScrollbarStyle" TargetType="{x:Type ListBox}">
 
 		<Setter Property="Background" Value="Black"/>

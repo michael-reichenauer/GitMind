@@ -16,8 +16,9 @@
 	Icon="Application.ico">
 
 	<Window.InputBindings>
-		<KeyBinding Command="{Binding EscapeCommand}" Key="Escape"/>
-		<KeyBinding Command="{Binding RefreshCommand}" Key="F5"/>
+		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
+		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
+		<KeyBinding Key="Enter" Command="{Binding HistoryViewModel.ToggleDetailsCommand}" />
 	</Window.InputBindings>
 
 	<Window.Resources>
@@ -30,9 +31,8 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
-			<RowDefinition Height="0"/>
+			<RowDefinition Height="{Binding HistoryViewModel.DetailsSize}"/>
 		</Grid.RowDefinitions>
-
 
 		<!--First row (title bar) -->
 		<Border 
@@ -315,7 +315,11 @@
 				Padding="4"
 				x:Name="ItemsListBox" 
 				Style="{DynamicResource ListBoxScrollbarStyle}" 
+				SelectedIndex="{Binding HistoryViewModel.SelectedIndex}" 
 			>
+				<ListBox.InputBindings>
+					<KeyBinding Key="Space" Command="{Binding HistoryViewModel.ToggleDetailsCommand}" />
+				</ListBox.InputBindings>
 
 				<ListBox.ContextMenu>
 					<!-- Background="Black" -->
@@ -369,7 +373,7 @@
 
 						<Setter Property="Canvas.Top" Value="{Binding Rect.Top}"/>
 						<Setter Property="Canvas.Left" Value="{Binding Rect.Left}"/>
-
+						<EventSetter Event="MouseDoubleClick" Handler="MoudeDobleClick" />
 						<Setter Property="Width">
 							<Setter.Value>
 								<MultiBinding 
@@ -504,6 +508,7 @@
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
+											
 											<Grid Background="Black">
 												<Grid.ColumnDefinitions>
 													<ColumnDefinition Width="{Binding GraphWidth}"/>
@@ -680,36 +685,134 @@
 		</DockPanel>
 		</Border> 
 		
+		<!-- Commit details -->
 		<Border 
+			CornerRadius="0" 
 			BorderThickness="1" 
 			BorderBrush="DarkSlateBlue" 
 			Grid.Row="2">
-			
+
 			<Grid>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="1*" />
 					<ColumnDefinition Width="1*" />
 				</Grid.ColumnDefinitions>
 				
-				<ListBox
-					BorderThickness="1"
-					BorderBrush="DarkSlateBlue"
-					Grid.Column="0"
-					>
-					<ListBoxItem>ListBox Item #1</ListBoxItem>
-				</ListBox>
+				<!-- The commit details list -->
+				<Border 
+					CornerRadius="0" 
+					BorderThickness="1" 
+					BorderBrush="DarkSlateBlue" 
+					Grid.Column="0">
+				
+					<Grid>
+						<Grid.Resources>
+							<Style x:Key="HeaderLabelStyle" TargetType="Label">
+								<Setter Property="Padding" Value="3,1" />
+								<Setter Property="FontWeight" Value="Bold" />
+								<Setter Property="Foreground" Value="{StaticResource TextLowBrush}" />
+							</Style>
+							<Style x:Key="TextLabelStyle" TargetType="Label">
+								<Setter Property="Padding" Value="3,1" />					
+								<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+							</Style>
+						</Grid.Resources>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="60" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="auto"/>
+						</Grid.RowDefinitions>
+						<Label 
+							Grid.Column="0" Grid.Row="0"
+							Style="{StaticResource HeaderLabelStyle}"
+							Content="Id:"/>
+						<Label 
+							Grid.Column="1" Grid.Row="0"
+							Style="{StaticResource TextLabelStyle}" 
+							Content="{Binding HistoryViewModel.CommitDetail.Id}"/>
+						<Label 
+							Grid.Column="0" Grid.Row="1" 
+							Style="{StaticResource HeaderLabelStyle}" 
+							Content="Branch:"/>
+						<Label 
+							Grid.Column="1" Grid.Row="1"
+							Style="{StaticResource TextLabelStyle}" 
+							Content="{Binding HistoryViewModel.CommitDetail.Branch}"/>
+						<Label 
+							Grid.Column="0" Grid.Row="2"
+							Visibility="{Binding Path=HistoryViewModel.CommitDetail.IsTags, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Style="{StaticResource HeaderLabelStyle}" 
+							Content="Tags:"/>
+						<Label 
+							Grid.Column="1" Grid.Row="2"
+							Visibility="{Binding Path=HistoryViewModel.CommitDetail.IsTags, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Style="{StaticResource TextLabelStyle}" 
+							Foreground="MediumSeaGreen"
+							Content="{Binding HistoryViewModel.CommitDetail.Tags}"/>
+						<Label 
+							Grid.Column="0" Grid.Row="3"
+							Visibility="{Binding Path=HistoryViewModel.CommitDetail.IsTickets, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Style="{StaticResource HeaderLabelStyle}" 
+							Content="Tickets:"/>				
+						<Label 
+							Grid.Column="1" Grid.Row="3"
+							Visibility="{Binding Path=HistoryViewModel.CommitDetail.IsTickets, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Style="{StaticResource TextLabelStyle}" 
+							Foreground="Red"
+							Content="{Binding HistoryViewModel.CommitDetail.Tickets}"/>			
+						<Label 
+							Grid.Column="0" Grid.Row="4"
+							Style="{StaticResource HeaderLabelStyle}" 
+							Content="Subject:"/>
+						<ScrollViewer Grid.Column="1" Grid.Row="4" 
+							VerticalScrollBarVisibility="Auto">
+							<TextBlock			
+								Foreground="{StaticResource TextBrush}"
+								Padding="3,1"
+								Text="{Binding HistoryViewModel.CommitDetail.Subject}"
+								TextWrapping="Wrap"
+							/>
+						</ScrollViewer>
+					</Grid>
 					
-					
-				<ListBox
-					Grid.Column="1"
-					BorderThickness="1"
-					BorderBrush="DarkSlateBlue"
+				</Border>
+						
+				
+				<!-- The commit files list -->
+				<Border 
+					CornerRadius="0" 
+					BorderThickness="1" 
+					BorderBrush="DarkSlateBlue" 
+					Grid.Column="1">
+				
+					<ListBox
+						Background="Transparent"
+						ItemsSource="{Binding HistoryViewModel.CommitFiles}"
+						Style="{DynamicResource ListBoxScrollbarStyle}"		
+						HorizontalContentAlignment="Stretch"
 					>
-					<ListBoxItem>ListBox Item #1</ListBoxItem>
+					<ListBox.ItemTemplate>
+						<DataTemplate DataType="{x:Type gitMind:CommitFile}">
+							<StackPanel Orientation="Horizontal">
+								<Label 
+									Padding="0"
+									Content="{Binding Name}" 
+									Foreground="{StaticResource TextBrush}"/>
+							</StackPanel>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
 				</ListBox>
-			
+				</Border>
 			</Grid>
-			
-		</Border> 
+
+		</Border>
+		
 	</Grid>
 </Window>

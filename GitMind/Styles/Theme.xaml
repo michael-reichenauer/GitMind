@@ -5,8 +5,14 @@
 	xmlns:vsm="clr-namespace:System.Windows;assembly=PresentationFramework"
 	mc:Ignorable="d">
 
+
+
+
+	
+
 	<SolidColorBrush x:Key="WindowBackgroundBrush" Color="Black" />
 	
+	<!-- border -->
 	<LinearGradientBrush x:Key="GlossyBlack_GlossGradient" EndPoint="0.0149999996647239,0.0160000007599592" StartPoint="0.486000001430511,0.723999977111816">
 		<GradientStop Color="#0CFFFFFF"/>
 		<GradientStop Color="#4CFFFFFF" Offset="1"/>
@@ -16,10 +22,12 @@
 		<GradientStop Color="#FF000000" Offset="1"/>
 	</LinearGradientBrush>
 	<LinearGradientBrush x:Key="GlossyBlack_StrokeGradient" EndPoint="0.5,1" StartPoint="0.5,0">
-		<GradientStop Color="BlueViolet"/>
+		<GradientStop Color="Yellow"/>
 		<GradientStop Color="#33FFFFFF" Offset="1"/>
 	</LinearGradientBrush>
-	
+
+
+	<!-- ???? -->
 	<RadialGradientBrush x:Key="GlossyBlack_HighlightGradient">
 		<RadialGradientBrush.RelativeTransform>
 			<TransformGroup>
@@ -29,9 +37,11 @@
 				<TranslateTransform Y="0.562"/>
 			</TransformGroup>
 		</RadialGradientBrush.RelativeTransform>
-		<GradientStop Color="#4CFFFFFF"/>
+		<GradientStop Color="DodgerBlue"/>
 		<GradientStop Color="#00000000" Offset="1"/>
 	</RadialGradientBrush>
+	
+	 <!--Bottom inner border-->
 	<RadialGradientBrush x:Key="GlossyBlack_MouseOverBackgroundGradient">
 		<RadialGradientBrush.RelativeTransform>
 			<TransformGroup>
@@ -41,13 +51,17 @@
 				<TranslateTransform Y="0.562"/>
 			</TransformGroup>
 		</RadialGradientBrush.RelativeTransform>
-		<GradientStop Color="BlueViolet"/>
+		<GradientStop Color="Red"/>
 		<GradientStop Color="#00000000" Offset="1"/>
 	</RadialGradientBrush>
+	
+	
 	<LinearGradientBrush x:Key="GlossyBlack_PressedBackgroundGradient" EndPoint="0.5,0" StartPoint="0.5,1">
 		<GradientStop Color="#FF3B3B3B"/>
 		<GradientStop Color="#FF000000" Offset="1"/>
 	</LinearGradientBrush>
+	
+	
 	<RadialGradientBrush x:Key="GlossyBlack_PressedHighlightGradient">
 		<RadialGradientBrush.RelativeTransform>
 			<TransformGroup>

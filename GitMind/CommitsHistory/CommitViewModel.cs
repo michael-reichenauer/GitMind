@@ -22,8 +22,6 @@ namespace GitMind.CommitsHistory
 			this.showDiffAsync = showDiffAsync;
 		}
 
-
-		// public int ItemId { get; }
 		public Commit Commit { get; set; }
 		public string Type => "Commit";
 

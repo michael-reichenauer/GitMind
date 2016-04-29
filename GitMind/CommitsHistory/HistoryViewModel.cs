@@ -75,17 +75,49 @@ namespace GitMind.CommitsHistory
 
 
 
-
-
 		public ICommand ShowBranchCommand => Command<string>(ShowBranch);
 
 		public ICommand HideBranchCommand => Command<string>(HideBranch);
 
+		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
+
+
+		private void ToggleDetails()
+		{
+			DetailsSize = DetailsSize > 0 ? 0 : 150;
+		}
+
+
+		public int DetailsSize
+		{
+			get { return Get(); }
+			set { Set(value); }	
+		}
+
+
 		public ObservableCollection<BranchName> AllBranches { get; }
 			= new ObservableCollection<BranchName>();
-
+	
 		public ItemsSource ItemsSource { get; }
 
+		public int SelectedIndex
+		{
+			get { return Get(); }
+			set
+			{
+				Log.Debug($"Setting value {value}");
+				CommitViewModel commit = commits[value];
+
+				CommitDetail.Id = commit.Id;
+				CommitDetail.Branch = commit.Commit.Branch.Name;
+				CommitDetail.Tickets = commit.Tickets;
+				CommitDetail.Tags = commit.Tags;
+				CommitDetail.Subject = commit.Subject;
+			}
+		}
+
+
+		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);
 
 		// The virtual area rectangle, which would be needed to show all commits
 		private Rect VirtualExtent { get; set; } = ItemsSource.EmptyExtent;
@@ -180,6 +212,7 @@ namespace GitMind.CommitsHistory
 				{
 					model = await modelService.GetModelAsync(gitRepo.Value, branchNames);
 					UpdateUIModel();
+					SelectedIndex = 0;
 					ProgramSettings.SetLatestUsedWorkingFolderPath(Environment.CurrentDirectory);
 					return;
 				}
