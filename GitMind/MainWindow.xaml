@@ -18,7 +18,6 @@
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
-		<KeyBinding Key="Enter" Command="{Binding HistoryViewModel.ToggleDetailsCommand}" />
 	</Window.InputBindings>
 
 	<Window.Resources>
@@ -686,13 +685,9 @@
 		</Border> 
 		
 		<!-- Commit details -->
-		<Border 
-			CornerRadius="0" 
-			BorderThickness="1" 
-			BorderBrush="DarkSlateBlue" 
-			Grid.Row="2">
-
-			<Grid>
+	
+			<Grid
+				Grid.Row="2">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="1*" />
 					<ColumnDefinition Width="1*" />
@@ -787,6 +782,7 @@
 				
 				<!-- The commit files list -->
 				<Border 
+					
 					CornerRadius="0" 
 					BorderThickness="1" 
 					BorderBrush="DarkSlateBlue" 
@@ -794,7 +790,7 @@
 				
 					<ListBox
 						Background="Transparent"
-						ItemsSource="{Binding HistoryViewModel.CommitFiles}"
+						ItemsSource="{Binding HistoryViewModel.CommitDetail.Files}"
 						Style="{DynamicResource ListBoxScrollbarStyle}"		
 						HorizontalContentAlignment="Stretch"
 					>
@@ -811,8 +807,6 @@
 				</ListBox>
 				</Border>
 			</Grid>
-
-		</Border>
 		
 	</Grid>
 </Window>

@@ -184,7 +184,7 @@ namespace GitMind.DataModel.Private
 					gitRepo);
 
 
-				// Log.Debug($"Done get model, time {timestamp.Elapsed}");
+				// Log.Debug($"Done get model, time {timestamp}");
 				return model1;
 			});
 		}

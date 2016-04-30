@@ -16,10 +16,7 @@ namespace GitMind.Git.Private
 		private static readonly char[] IdSplitter = " ".ToCharArray();
 		private static readonly char[] LogSplitter = "|".ToCharArray();
 		private static readonly string[] NoParent = new string[0];
-		// private static readonly string cmdPrefix = "d122adb9-1ec3-44f6-826a-e923aef4edc5";
-		private static readonly string errorPrefix = "d122adb9-1ec3-44f6-826a-e923aef4edc6";
-		private static readonly string filePrefix = "C:\\TempGitMind\\gitmind";
-		private static readonly string sourceFile = $"{filePrefix}.txt";
+	
 
 		private readonly ICmd cmd;
 		private readonly IGitDiffParser gitDiffParser;
@@ -42,39 +39,38 @@ namespace GitMind.Git.Private
 		public Error GitCommandError { get; } = new Error("Git command failed: ");
 
 
-		public async Task<Result<IGitRepo>> GetRepoAsync(string path, bool isShift)
+		public async Task<Result<IGitRepo>> GetRepoAsync(string path)
 		{
-			string time = DateTime.Now.ToShortTimeString().Replace(":", "-");
-			string date = DateTime.Now.ToShortDateString().Replace(":", "-");
-			string context = $"{filePrefix}_{date}_{time}.txt";
+			//string time = DateTime.Now.ToShortTimeString().Replace(":", "-");
+			//string date = DateTime.Now.ToShortDateString().Replace(":", "-");
 
-			if (isShift)
-			{
-				await FetchAsync(path);
-			}
-
-			Result<IReadOnlyList<GitTag>> tags = await GetTagsAsync(path, context);
+			Result<IReadOnlyList<GitTag>> tags = await GetTagsAsync(path);
 			if (tags.IsFaulted) return tags.Error;
 
-			Result<IReadOnlyList<GitBranch>> branches = await GetBranchesAsync(path, context);
+			Result<IReadOnlyList<GitBranch>> branches = await GetBranchesAsync(path);
 			if (branches.IsFaulted) return branches.Error;
 
-			Result<IReadOnlyList<GitCommit>> commits = await GetCommitsAsync(path, context);
+			Result<IReadOnlyList<GitCommit>> commits = await GetCommitsAsync(path);
 			if (commits.IsFaulted) return commits.Error;
 
-			Result<GitCommit> currentCommit = await GetCurrentCommitAsync(path, commits.Value, context);
+			Result<GitCommit> currentCommit = await GetCurrentCommitAsync(path, commits.Value);
 			if (currentCommit.IsFaulted) return currentCommit.Error;
 
 			// Getting current branch to be included in stored data
-			await GetCurrentBranchNameAsync(path, context);
+			await GetCurrentBranchNameAsync(path);
 
 			return new GitRepo(branches.Value, commits.Value, tags.Value, currentCommit.Value);
 		}
 
 
-		public Task<Result<string>> GetCurrentBranchNameAsync(string path)
+		public async Task<Result<string>> GetCurrentBranchNameAsync(string path)
 		{
-			return GetCurrentBranchNameAsync(path, null);
+			string args = "rev-parse --abbrev-ref HEAD";
+
+			Result<IReadOnlyList<string>> currentBranch = await GitAsync(path, args);
+			if (currentBranch.IsFaulted) return currentBranch.Error;
+
+			return currentBranch.Value[0].Trim();
 		}
 
 
@@ -95,9 +91,39 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<Result<GitStatus>> GetStatusAsync(string path)
+		public async Task<Result<GitStatus>> GetStatusAsync(string path)
 		{
-			return GetStatusAsync(path, null);
+			string args = "status -s";
+
+			Result<IReadOnlyList<string>> status = await GitAsync(path, args);
+			if (status.IsFaulted) return status.Error;
+
+			int modified = 0;
+			int added = 0;
+			int deleted = 0;
+			int other = 0;
+
+			foreach (string line in status.Value)
+			{
+				if (line.StartsWith(" M "))
+				{
+					modified++;
+				}
+				else if (line.StartsWith("?? "))
+				{
+					added++;
+				}
+				else if (line.StartsWith(" D "))
+				{
+					deleted++;
+				}
+				else
+				{
+					other++;
+				}
+			}
+
+			return new GitStatus(modified, added, deleted, other);
 		}
 
 
@@ -119,7 +145,7 @@ namespace GitMind.Git.Private
 				args = $"diff --unified=5 -M";
 			}
 
-			Result<IReadOnlyList<string>> diff = await GitAsync(null, args, null);
+			Result<IReadOnlyList<string>> diff = await GitAsync(null, args);
 			if (diff.IsFaulted) return diff.Error;
 
 			IReadOnlyList<string> diffLInes = diff.Value;
@@ -136,13 +162,28 @@ namespace GitMind.Git.Private
 		}
 
 
+		public async Task FetchAsync(string path)
+		{
+			string args = "fetch";
+
+			Result<IReadOnlyList<string>> fetchResult = await GitAsync(path, args);
+
+			fetchResult.OnError(e =>
+			{
+				// Git fetch failed, but ignore that for now
+				Log.Warn($"Git Fetch failed {e}");
+			});
+		}
+
+
+
 		private async Task<Result<IReadOnlyList<string>>> GetAddFileLinesAsync()
 		{
 			string args = "status -s";
 
 			List<string> addFilesLines = new List<string>();
 
-			Result<IReadOnlyList<string>> status = await GitAsync(null, args, null);
+			Result<IReadOnlyList<string>> status = await GitAsync(null, args);
 			if (status.IsFaulted) return status.Error;
 
 			foreach (string line in status.Value)
@@ -200,26 +241,13 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task FetchAsync(string path)
-		{
-			string args = "fetch";
-
-			Result<IReadOnlyList<string>> fetchResult = await GitAsync(path, args, null);
-
-			fetchResult.OnError(e =>
-			{
-				// Git fetch failed, but ignore that for now
-				Log.Warn($"Git Fetch failed {e}");
-			});
-		}
-
 
 		private async Task<Result<GitCommit>> GetCurrentCommitAsync(
-			string path, IReadOnlyList<GitCommit> commits, string context)
+			string path, IReadOnlyList<GitCommit> commits)
 		{
 			string args = "rev-parse HEAD";
 
-			Result<IReadOnlyList<string>> currentCommit = await GitAsync(path, args, context);
+			Result<IReadOnlyList<string>> currentCommit = await GitAsync(path, args);
 			if (currentCommit.IsFaulted) return currentCommit.Error;
 
 			string commitId = currentCommit.Value[0].Trim();
@@ -228,59 +256,14 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task<Result<string>> GetCurrentBranchNameAsync(string path, string context)
-		{
-			string args = "rev-parse --abbrev-ref HEAD";
-
-			Result<IReadOnlyList<string>> currentBranch = await GitAsync(path, args, context);
-			if (currentBranch.IsFaulted) return currentBranch.Error;
-
-			return currentBranch.Value[0].Trim();
-		}
 
 
-		private async Task<Result<GitStatus>> GetStatusAsync(string path, string context)
-		{
-			string args = "status -s";
-
-			Result<IReadOnlyList<string>> status = await GitAsync(path, args, context);
-			if (status.IsFaulted) return status.Error;
-
-			int modified = 0;
-			int added = 0;
-			int deleted = 0;
-			int other = 0;
-
-			foreach (string line in status.Value)
-			{
-				if (line.StartsWith(" M "))
-				{
-					modified++;
-				}
-				else if (line.StartsWith("?? "))
-				{
-					added++;
-				}
-				else if (line.StartsWith(" D "))
-				{
-					deleted++;
-				}
-				else
-				{
-					other++;
-				}
-			}
-
-			return new GitStatus(modified, added, deleted, other);
-		}
-
-
-		public async Task<Result<IReadOnlyList<GitTag>>> GetTagsAsync(string path, string context)
+		public async Task<Result<IReadOnlyList<GitTag>>> GetTagsAsync(string path)
 		{
 			List<GitTag> tags = new List<GitTag>();
 
 			string args = "show-ref --tags -d";
-			Result<IReadOnlyList<string>> showResult = await GitAsync(path, args, context);
+			Result<IReadOnlyList<string>> showResult = await GitAsync(path, args);
 			if (showResult.IsFaulted) return showResult.Error;
 
 			foreach (string line in showResult.Value)
@@ -300,17 +283,17 @@ namespace GitMind.Git.Private
 
 
 
-		public async Task<Result<IReadOnlyList<GitBranch>>> GetBranchesAsync(string path, string context)
+		public async Task<Result<IReadOnlyList<GitBranch>>> GetBranchesAsync(string path)
 		{
 			List<GitBranch> branches = new List<GitBranch>();
 
 			// Get list of local branches
 			string args = "branch -vv --no-color --no-abbrev";
-			Result<IReadOnlyList<string>> localBranches = await GitAsync(path, args, context);
+			Result<IReadOnlyList<string>> localBranches = await GitAsync(path, args);
 			if (localBranches.IsFaulted) return localBranches.Error;
 
 			// Get list of remote branches
-			Result<IReadOnlyList<string>> remoteBranches = await GitAsync(path, args + " -r", context);
+			Result<IReadOnlyList<string>> remoteBranches = await GitAsync(path, args + " -r");
 			if (remoteBranches.IsFaulted) return remoteBranches.Error;
 
 			// Make one list, but prefix a "r" on remote branch lines
@@ -359,7 +342,7 @@ namespace GitMind.Git.Private
 					index = newLine.IndexOf("]");
 					if (index2 > -1 && index2 < index)
 					{
-						// The remote tracking branch contained a ": X Behind ir ": X ahead"
+						// The remote tracking branch contained a ": X Behind or ": X ahead"
 						index = index2;
 					}
 
@@ -405,13 +388,16 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<Result<IReadOnlyList<GitCommit>>> GetCommitsAsync(string path, string context)
+		public async Task<Result<IReadOnlyList<GitCommit>>> GetCommitsAsync(string path)
 		{
-			IDictionary<string, string> branchNames = ParseCommitBranchNames(path, context);
+			IDictionary<string, string> branchNames = ParseCommitBranchNames(path);
 
 			string args = "log --all --pretty=\"%H|%ai|%ci|%an|%P|%s\"";
 
-			Result<IReadOnlyList<string>> logResult = await GitAsync(path, args, context);
+			Log.Debug("Getting log ...");
+			Timestamp time = new Timestamp();
+			Result<IReadOnlyList<string>> logResult = await GitAsync(path, args);
+			Log.Error($"Time for log {time}");
 
 			if (logResult.IsFaulted) return logResult.Error;
 
@@ -459,11 +445,12 @@ namespace GitMind.Git.Private
 				logItems.Add(gitCommit);
 			}
 
+			Log.Debug($"Parsed {time} ({time.DiffMs})");
 			return logItems;
 		}
 
 
-		private IDictionary<string, string> ParseCommitBranchNames(string path, string context)
+		private IDictionary<string, string> ParseCommitBranchNames(string path)
 		{
 			Dictionary<string, string> branchNames = new Dictionary<string, string>();
 
@@ -484,20 +471,15 @@ namespace GitMind.Git.Private
 
 
 		private async Task<Result<IReadOnlyList<string>>> GitAsync(
-			string path, string args, string context)
+			string path, string args)
 		{
-			if (!Directory.Exists("C:\\TempGitMind"))
-			{
-				context = null;
-			}
-
 			string gitArgs = path != null ? $"--git-dir \"{path}\\.git\" {args}" : args;
 
-			return await Task.Run(() => GitCommand(context, gitArgs));
+			return await Task.Run(() => GitCommand(gitArgs));
 		}
 
 
-		private Result<IReadOnlyList<string>> GitCommand(string context, string gitArgs)
+		private Result<IReadOnlyList<string>> GitCommand(string gitArgs)
 		{
 			Result<string> gitBinPath = GetGitBinPath();
 			if (gitBinPath.IsFaulted) return gitBinPath.Error;
@@ -506,25 +488,14 @@ namespace GitMind.Git.Private
 
 			if (0 == result.ExitCode || 1 == result.ExitCode)
 			{
-				if (context != null)
-				{
-					File.AppendAllLines(context, result.Output);
-				}
-
 				return Result.From(result.Output);
 			}
 			else
 			{
-				if (context != null)
-				{
-					File.AppendAllText(context, $"{errorPrefix}:{result.ExitCode}\n");
-				}
-
 				Log.Warn($"Error: git {gitArgs}, {result.ExitCode}, {string.Join("\n", result.Error)}");
 				return GitCommandError.With(result.ToString());
 			}
 		}
-
 
 
 		private Result<string> GetGitBinPath()
@@ -541,8 +512,7 @@ namespace GitMind.Git.Private
 			{
 				string appdataPath = Environment.GetFolderPath(
 					Environment.SpecialFolder.LocalApplicationData);
-				// C:\Users\Michael\AppData\Local\GitHub\ncmtfqh2.rws
-				// string gitPath = Path.Combine(appdataPath, "GitHub", "ncmtfqh2.rws", "cmd", "git.exe");
+			
 				string gitPath = Path.Combine(appdataPath, "Programs", "Git", "cmd", "git.exe");
 
 				if (File.Exists(gitPath))
@@ -553,62 +523,5 @@ namespace GitMind.Git.Private
 
 			return GitNotInstalledError.With("Git binary not found");
 		}
-
-
-		//private IReadOnlyList<string> ReadCommandFromFile(string gitArgs)
-		//{
-		//	List<string> outputLines = new List<string>();
-		//	Log.Warn($"Reading command 'git {gitArgs}' from file");
-		//	string commandLine = $"{cmdPrefix}:{gitArgs}";
-		//	string[] lines = File.ReadAllLines(sourceFile);
-		//	bool isOutputLine = false;
-
-		//	for (int i = 0; i < lines.Length; i++)
-		//	{
-		//		if (isOutputLine)
-		//		{
-		//			if (lines[i].StartsWith(cmdPrefix))
-		//			{
-		//				return outputLines;
-		//			}
-		//			else
-		//			{
-		//				outputLines.Add(lines[i]);
-		//			}
-		//		}
-		//		else if (lines[i] == commandLine)
-		//		{
-		//			if (i + 1 < lines.Length && lines[i + 1].StartsWith(errorPrefix))
-		//			{
-		//				int exitCode = int.Parse(lines[i + 1].Substring(errorPrefix.Length + 1));
-		//				throw new InvalidDataException(
-		//					$"Git command failed: >git {gitArgs}\nExit code: {exitCode}");
-		//			}
-		//			else
-		//			{
-		//				isOutputLine = true;
-		//			}
-		//		}
-		//	}
-
-		//	return outputLines;
-		//}
-
-
-		//private IReadOnlyList<string> Git(string path, string args)
-		//{
-
-		//	string gitArgs = path != null ? $"--git-dir \"{path}\\.git\" {args}" : args;
-
-		//	IReadOnlyList<string> lines;
-		//	if (0 == cmd.Run("git", gitArgs, out lines))
-		//	{
-		//		return lines;
-		//	}
-		//	else
-		//	{
-		//		throw new InvalidDataException($"Git command failed: >git {gitArgs}");
-		//	}
-		//}
 	}
 }

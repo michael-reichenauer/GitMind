@@ -3,9 +3,9 @@
                     xmlns:local="clr-namespace:GitMind.Styles">
 
 	<SolidColorBrush x:Key="ItemBrush" Color="Transparent" />
-	<SolidColorBrush x:Key="SelectedItemBorderBrush" Color="CornflowerBlue" />
+	<SolidColorBrush x:Key="SelectedItemBorderBrush" Color="#FF6495ED"/>
 	<SolidColorBrush x:Key="SelectedItemBackgroundBrush" Color="#000025" />
-	<SolidColorBrush x:Key="HoverItemBrush" Color="RoyalBlue" />
+	<SolidColorBrush x:Key="HoverItemBrush" Color="#996495ED" />
 	<SolidColorBrush x:Key="TextBrush" Color="Lavender" />
 	<SolidColorBrush x:Key="TextLowBrush" Color="LightSteelBlue" />
 

@@ -10,7 +10,9 @@ namespace GitMind.Git
 		Error GitNotInstalledError { get; }
 		Error GitCommandError { get; }
 
-		Task<Result<IGitRepo>> GetRepoAsync(string path, bool isShift);
+		Task<Result<IGitRepo>> GetRepoAsync(string path);
+
+		Task FetchAsync(string path);
 
 		Task<Result<string>> GetCurrentBranchNameAsync(string path);
 

@@ -16,11 +16,24 @@ namespace GitMind.CommitsHistory
 			Func<string, Task> showDiffAsync)
 		{
 			this.showDiffAsync = showDiffAsync;
+
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
+			Files.Add(new CommitFile("file.txt", "1"));
 		}
 
 		public Commit Commit { get; set; }
 
-		public ObservableCollection<CommitFile> CommitFiles { get; }
+		public ObservableCollection<CommitFile> Files { get; }
 			= new ObservableCollection<CommitFile>();
 	
 		public string Id

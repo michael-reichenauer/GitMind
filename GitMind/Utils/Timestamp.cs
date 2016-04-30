@@ -7,25 +7,45 @@ namespace GitMind.Utils
 	public class Timestamp
 	{
 		private readonly Stopwatch stopwatch;
+		private TimeSpan lastTimeSpan = TimeSpan.Zero;
+
 		public Timestamp()
 		{
 			stopwatch = new Stopwatch();
 			stopwatch.Start();
 		}
 
-		public TimeSpan Elapsed
+
+		public TimeSpan Stop()
+		{
+			stopwatch.Stop();
+			return stopwatch.Elapsed;
+		}
+
+
+		public TimeSpan Elapsed 
 		{
 			get
 			{
-				stopwatch.Stop();
-				return stopwatch.Elapsed;
+				lastTimeSpan = stopwatch.Elapsed;
+				return lastTimeSpan;
 			}
 		}
 
-	
-		public TimeSpan Current => stopwatch.Elapsed;
-		public double CurrentMs => Current.TotalMilliseconds;
+		public double ElapsedMs => Elapsed.TotalMilliseconds;
 
-		public override string ToString() => $"{(long)Elapsed.TotalMilliseconds} ms";
+		public TimeSpan Diff
+		{
+			get
+			{
+				TimeSpan previous = lastTimeSpan;
+				return Elapsed - previous;
+			}
+		}
+
+		public double DiffMs => Diff.TotalMilliseconds;
+
+
+		public override string ToString() => $"{(long)ElapsedMs} ms";
 	}
 }

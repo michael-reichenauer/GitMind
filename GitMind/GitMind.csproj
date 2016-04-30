@@ -83,6 +83,7 @@
     <Compile Include="DataModel\Private\Commits.cs" />
     <Compile Include="ExceptionHandling.cs" />
     <Compile Include="FatalExceptionsExtensions.cs" />
+    <Compile Include="Git\Private\GitCacheService.cs" />
     <Compile Include="Installation\Private\CommandLine.cs" />
     <Compile Include="Installation\ICommandLine.cs" />
     <Compile Include="Utils\Error.cs" />

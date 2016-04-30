@@ -205,18 +205,19 @@ namespace GitMind.CommitsHistory
 		{
 			while (true)
 			{
-				List<string> branchNames = activeBrancheNames.ToList();
-				Result<IGitRepo> gitRepo = await gitService.GetRepoAsync(null, false);
+				Result<string> currentRootPath = gitService.GetCurrentRootPath(null);
 
-				if (gitRepo.HasValue)
+				if (currentRootPath.HasValue)
 				{
+					List<string> branchNames = activeBrancheNames.ToList();
+					Result<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
 					model = await modelService.GetModelAsync(gitRepo.Value, branchNames);
 					UpdateUIModel();
 					SelectedIndex = 0;
 					ProgramSettings.SetLatestUsedWorkingFolderPath(Environment.CurrentDirectory);
-					return;
-				}
-				else if (gitRepo.Error == gitService.GitCommandError)
+					return;			
+				}	
+				else if (currentRootPath.Error == gitService.GitCommandError)
 				{
 					// Could not locate a local working folder
 					model = Model.None;
@@ -237,7 +238,7 @@ namespace GitMind.CommitsHistory
 						return;
 					}
 				}
-				else if (gitRepo.Error == gitService.GitNotInstalledError)
+				else if (currentRootPath.Error == gitService.GitNotInstalledError)
 				{
 					// Could not locate a compatible installed git executable
 					model = Model.None;
@@ -255,7 +256,7 @@ namespace GitMind.CommitsHistory
 				}
 				else
 				{
-					Log.Warn($"Error: {gitRepo.Error}");
+					Log.Warn($"Error: {currentRootPath.Error}");
 				}
 			}
 		}
@@ -263,7 +264,12 @@ namespace GitMind.CommitsHistory
 
 		public async Task RefreshAsync(bool isShift)
 		{
-			Result<IGitRepo> gitRepo = await gitService.GetRepoAsync(null, isShift);
+			if (isShift)
+			{
+				await gitService.FetchAsync(null);
+			}
+
+			Result<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
 			if (gitRepo.HasValue)
 			{
 				Model currentModel = model;
