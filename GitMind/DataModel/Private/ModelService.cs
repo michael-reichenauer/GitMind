@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.Utils;
 
 
@@ -15,13 +15,62 @@ namespace GitMind.DataModel.Private
 
 		private static readonly CommitComparer CommitComparer = new CommitComparer();
 
+		private readonly IGitService gitService;
+		private readonly IGitCacheService gitCacheService;
 
-		public async Task<Model> GetModelAsync(IGitRepo gitRepo, IReadOnlyList<string> activeBranchNames)
+		public ModelService()
+			: this(new GitService(), new GitCacheService())
 		{
+		}
+
+
+		public ModelService(
+			IGitService gitService, 
+			IGitCacheService gitCacheService)
+		{
+			this.gitService = gitService;
+			this.gitCacheService = gitCacheService;
+		}
+
+
+		public async Task<Model> GetCachedModelAsync(IReadOnlyList<string> activeBranchNames)
+		{
+			Result<IGitRepo> gitRepo = await gitCacheService.GetRepoAsync(null);
+
+			if (gitRepo.IsFaulted)
+			{
+				gitRepo = await gitService.GetRepoAsync(null);
+
+				if (gitRepo.HasValue)
+				{
+					gitCacheService.UpdateAsync(null, gitRepo.Value).RunInBackground();
+				}
+			}
+
 			List<ActiveBranch> activeBranches = activeBranchNames
 				.Select(name => new ActiveBranch(name, null)).ToList();
 
-			return await GetModelAsync(activeBranches, gitRepo);
+			return await GetModelAsync(activeBranches, gitRepo.Value);
+		}
+
+
+		public async Task<Model> RefreshAsync(Model model)
+		{
+			Result<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
+			if (!gitRepo.HasValue)
+			{
+				Log.Warn($"Failed to refresh status [{gitRepo.Error}");
+				return model;
+			}
+
+			gitCacheService.UpdateAsync(null, gitRepo.Value).RunInBackground();
+
+			List<ActiveBranch> activeBranches = model.Branches
+				.Where(b => !b.IsMultiBranch)
+				.Select(b => new ActiveBranch(b.Name, b.LatestCommit.Id))
+				.ToList();
+
+			return await GetModelAsync(activeBranches, gitRepo.Value);
 		}
 
 
@@ -101,21 +150,13 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		public async Task<Model> RefreshAsync(IGitRepo gitRepo, Model model)
-		{
-			List<ActiveBranch> activeBranches = model.Branches
-				.Where(b => !b.IsMultiBranch)
-				.Select(b => new ActiveBranch(b.Name, b.LatestCommit.Id))
-				.ToList();
 
-			return await GetModelAsync(activeBranches, gitRepo);
-		}
 
 
 		private Task<Model> GetModelAsync(IReadOnlyList<ActiveBranch> activeBranches, IGitRepo gitRepo)
 		{
 			Timing timing = new Timing();
-			
+
 			return Task.Run(() =>
 			{
 				foreach (ActiveBranch activeBranch in activeBranches)
@@ -169,7 +210,7 @@ namespace GitMind.DataModel.Private
 					.SelectMany(branch => branch.Commits).ToList();
 				commits.Sort(CommitComparer);
 
-				Commit currentCommit = model.Commits.GetById(gitRepo.GetCurrentCommit().Id);
+				Commit currentCommit = model.Commits.GetById(gitRepo.CurrentCommitId);
 
 				IReadOnlyList<string> allBranchNames = GetAllBranchNames(gitRepo, branchPriority);
 

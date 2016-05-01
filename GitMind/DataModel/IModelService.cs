@@ -8,9 +8,9 @@ namespace GitMind.DataModel
 {
 	internal interface IModelService
 	{
-		Task<Model> GetModelAsync(IGitRepo gitRepo, IReadOnlyList<string> activeBranchNames);
+		Task<Model> GetCachedModelAsync(IReadOnlyList<string> activeBranchNames);
 
-		Task<Model> RefreshAsync(IGitRepo gitRepo, Model model);
+		Task<Model> RefreshAsync(Model model);
 
 		Task<Model> WithAddBranchNameAsync(Model model, string branchName, string commitId);
 

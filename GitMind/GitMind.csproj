@@ -84,8 +84,10 @@
     <Compile Include="ExceptionHandling.cs" />
     <Compile Include="FatalExceptionsExtensions.cs" />
     <Compile Include="Git\Private\GitCacheService.cs" />
+    <Compile Include="Git\IGitCacheService.cs" />
     <Compile Include="Installation\Private\CommandLine.cs" />
     <Compile Include="Installation\ICommandLine.cs" />
+    <Compile Include="Utils\AsyncSemaphore.cs" />
     <Compile Include="Utils\Error.cs" />
     <Compile Include="Git\Private\GitDiffParser.cs" />
     <Compile Include="Git\Private\IGitDiffParser.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="Utils\JsonSerializer.cs" />
     <Compile Include="Utils\Result.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
+    <Compile Include="Utils\TaskThrottler.cs" />
     <Compile Include="Utils\UI\BusyIndicator.cs" />
     <Compile Include="Utils\UI\IPropertySetter.cs" />
     <Compile Include="Utils\UI\Property.cs" />

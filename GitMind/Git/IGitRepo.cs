@@ -5,6 +5,8 @@ namespace GitMind.Git
 {
 	internal interface IGitRepo
 	{
+		string CurrentCommitId { get; }
+
 		GitCommit GetCommit(string commitId);
 
 		GitBranch TryGetBranch(string branchName);
@@ -18,10 +20,11 @@ namespace GitMind.Git
 		IReadOnlyList<string> GetCommitChildren(string commitId);
 
 		GitBranch GetCurrentBranch();
-		GitCommit GetCurrentCommit();
+		
 
 		IReadOnlyList<GitBranch> GetAllBranches();
 
 		IEnumerable<GitCommit> GetAllCommts();
+		IReadOnlyList<GitTag> GetAllTags();
 	}
 }

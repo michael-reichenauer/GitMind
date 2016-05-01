@@ -210,8 +210,9 @@ namespace GitMind.CommitsHistory
 				if (currentRootPath.HasValue)
 				{
 					List<string> branchNames = activeBrancheNames.ToList();
-					Result<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
-					model = await modelService.GetModelAsync(gitRepo.Value, branchNames);
+			
+					model = await modelService.GetCachedModelAsync(branchNames);
+
 					UpdateUIModel();
 					SelectedIndex = 0;
 					ProgramSettings.SetLatestUsedWorkingFolderPath(Environment.CurrentDirectory);
@@ -268,19 +269,15 @@ namespace GitMind.CommitsHistory
 			{
 				await gitService.FetchAsync(null);
 			}
+	
+			Model currentModel = model;
 
-			Result<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
-			if (gitRepo.HasValue)
+			if (currentModel != null)
 			{
-				Model currentModel = model;
+				model = await modelService.RefreshAsync(currentModel);
 
-				if (currentModel != null)
-				{
-					model = await modelService.RefreshAsync(gitRepo.Value, currentModel);
-
-					UpdateUIModel();
-				}
-			}
+				UpdateUIModel();
+			}		
 		}
 
 

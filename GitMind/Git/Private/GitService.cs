@@ -59,7 +59,7 @@ namespace GitMind.Git.Private
 			// Getting current branch to be included in stored data
 			await GetCurrentBranchNameAsync(path);
 
-			return new GitRepo(branches.Value, commits.Value, tags.Value, currentCommit.Value);
+			return new GitRepo(branches.Value, commits.Value, tags.Value, currentCommit.Value.Id);
 		}
 
 

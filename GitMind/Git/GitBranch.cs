@@ -22,9 +22,8 @@ namespace GitMind.Git
 
 
 		public string Name { get; }
-
 		public string LatestCommitId { get; }
-		public bool IsCurrent { get; set; }
+		public bool IsCurrent { get; }
 		public string TrackingBranchName { get; }
 		public string LatestTrackingCommitId { get; }
 		public bool IsRemote { get; }
