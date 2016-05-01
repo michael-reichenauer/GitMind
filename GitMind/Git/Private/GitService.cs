@@ -391,13 +391,12 @@ namespace GitMind.Git.Private
 		public async Task<Result<IReadOnlyList<GitCommit>>> GetCommitsAsync(string path)
 		{
 			IDictionary<string, string> branchNames = ParseCommitBranchNames(path);
-
+			Log.Debug("Getting log ...");
 			string args = "log --all --pretty=\"%H|%ai|%ci|%an|%P|%s\"";
 
-			Log.Debug("Getting log ...");
-			Timestamp time = new Timestamp();
+			Timing timing = new Timing();
 			Result<IReadOnlyList<string>> logResult = await GitAsync(path, args);
-			Log.Error($"Time for log {time}");
+			timing.Log("Get log");
 
 			if (logResult.IsFaulted) return logResult.Error;
 
@@ -445,7 +444,7 @@ namespace GitMind.Git.Private
 				logItems.Add(gitCommit);
 			}
 
-			Log.Debug($"Parsed {time} ({time.DiffMs})");
+			timing.Log("Parsing");
 			return logItems;
 		}
 

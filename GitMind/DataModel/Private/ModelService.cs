@@ -114,7 +114,7 @@ namespace GitMind.DataModel.Private
 
 		private Task<Model> GetModelAsync(IReadOnlyList<ActiveBranch> activeBranches, IGitRepo gitRepo)
 		{
-			Timestamp timestamp = new Timestamp();
+			Timing timing = new Timing();
 			
 			return Task.Run(() =>
 			{
@@ -184,7 +184,7 @@ namespace GitMind.DataModel.Private
 					gitRepo);
 
 
-				// Log.Debug($"Done get model, time {timestamp}");
+				// Log.Debug($"Done get model, time {Timing}");
 				return model1;
 			});
 		}

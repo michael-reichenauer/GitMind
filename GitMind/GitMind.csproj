@@ -130,7 +130,7 @@
     <Compile Include="TestRepo.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />
-    <Compile Include="Utils\Timestamp.cs" />
+    <Compile Include="Utils\Timing.cs" />
     <Compile Include="Utils\UI\ViewModel.cs" />
     <Compile Include="VirtualCanvas\ItemsSource.cs" />
     <Compile Include="VirtualCanvas\ArithmeticConverter.cs" />
