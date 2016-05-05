@@ -34,6 +34,7 @@ namespace GitMind.CommitsHistory
 		private double width = 1000;
 
 		private Model model;
+		private bool isUpdateing;
 		private int currentBranchId = 0;
 		private int currentMergeId = 0;
 		private readonly List<CommitViewModel> commits = new List<CommitViewModel>();
@@ -265,19 +266,32 @@ namespace GitMind.CommitsHistory
 
 		public async Task RefreshAsync(bool isShift)
 		{
-			if (isShift)
+			if (isUpdateing)
 			{
-				await gitService.FetchAsync(null);
+				return;
 			}
-	
-			Model currentModel = model;
 
-			if (currentModel != null)
+			try
 			{
-				model = await modelService.RefreshAsync(currentModel);
+				isUpdateing = true;
+			}
+			finally
+			{
+				if (isShift)
+				{
+					await gitService.FetchAsync(null);
+				}
 
-				UpdateUIModel();
-			}		
+				Model currentModel = model;
+
+				if (currentModel != null)
+				{
+					model = await modelService.RefreshAsync(currentModel);
+
+					UpdateUIModel();
+				}
+				isUpdateing = false;
+			}	
 		}
 
 

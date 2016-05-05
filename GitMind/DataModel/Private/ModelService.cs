@@ -18,6 +18,7 @@ namespace GitMind.DataModel.Private
 		private readonly IGitService gitService;
 		private readonly IGitCacheService gitCacheService;
 
+
 		public ModelService()
 			: this(new GitService(), new GitCacheService())
 		{
@@ -39,6 +40,7 @@ namespace GitMind.DataModel.Private
 
 			if (gitRepo.IsFaulted)
 			{
+				// No cached repo available get fresh repo
 				gitRepo = await gitService.GetRepoAsync(null);
 
 				if (gitRepo.HasValue)
