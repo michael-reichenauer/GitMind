@@ -16,56 +16,51 @@ namespace GitMind.DataModel.Private
 		private static readonly string RefsRemotesOrigin = "refs/remotes/origin/";
 		private static readonly char[] TrimChars = " './,".ToCharArray();
 
-		private static readonly MergeBranchNames NoMerge = new MergeBranchNames(null, null);
+		public static readonly MergeBranchNames NoMerge = new MergeBranchNames(null, null);
 
-		public static MergeBranchNames ParseBranchNamesFromSubject(Commit commit)
+		public static MergeBranchNames ParseBranchNamesFromSubject(string subject)
 		{
-			if (commit.SecondParent == Commit.None)
-			{
-				// This is no merge commit, i.e. no branch names to parse
-				return NoMerge;
-			}
-
 			int sourceBranchNameStart = -1;
 			int sourceBranchNameEnd = -1;
-			if (commit.Subject.StartsWith(MergeBranchSubject)
-				&& commit.Subject.Length > MergeBranchSubject.Length + 1)
+
+			if (subject.StartsWith(MergeBranchSubject)
+				&& subject.Length > MergeBranchSubject.Length + 1)
 			{
 				// Found a "Merge branch "
 				sourceBranchNameStart = MergeBranchSubject.Length;
 			}
-			else if (commit.Subject.StartsWith(OldMergedBranchSubject)
-				&& commit.Subject.Length > OldMergedBranchSubject.Length + 1)
+			else if (subject.StartsWith(OldMergedBranchSubject)
+				&& subject.Length > OldMergedBranchSubject.Length + 1)
 			{
 				// Found a "[MERGED] from "
 				sourceBranchNameStart = OldMergedBranchSubject.Length;
 			}
-			else if (commit.Subject.StartsWith(OldMergedBranchSubject2)
-				&& commit.Subject.Length > OldMergedBranchSubject2.Length + 1)
+			else if (subject.StartsWith(OldMergedBranchSubject2)
+				&& subject.Length > OldMergedBranchSubject2.Length + 1)
 			{
 				// Found a "MERGED from "
 				sourceBranchNameStart = OldMergedBranchSubject2.Length;
 			}
-			else if (commit.Subject.StartsWith(MergedBranchSubject)
-				&& commit.Subject.Length > MergedBranchSubject.Length + 1)
+			else if (subject.StartsWith(MergedBranchSubject)
+				&& subject.Length > MergedBranchSubject.Length + 1)
 			{
 				// Found a "Merged from "
 				sourceBranchNameStart = MergedBranchSubject.Length;
 			}
-			else if (commit.Subject.StartsWith(MergedBranchSubject2)
-				&& commit.Subject.Length > MergedBranchSubject2.Length + 1)
+			else if (subject.StartsWith(MergedBranchSubject2)
+				&& subject.Length > MergedBranchSubject2.Length + 1)
 			{
 				// Found a "Merged "
 				sourceBranchNameStart = MergedBranchSubject2.Length;
 			}
-			else if (commit.Subject.StartsWith(MergeRemoteTrackingBranch)
-				&& commit.Subject.Length > MergeRemoteTrackingBranch.Length + 1)
+			else if (subject.StartsWith(MergeRemoteTrackingBranch)
+				&& subject.Length > MergeRemoteTrackingBranch.Length + 1)
 			{
 				// Found a "Merge remote-tracking branch "
 				sourceBranchNameStart = MergeRemoteTrackingBranch.Length;
 			}
-			else if (commit.Subject.StartsWith(MergeBranchSubject2)
-				&& commit.Subject.Length > MergeBranchSubject2.Length + 1)
+			else if (subject.StartsWith(MergeBranchSubject2)
+				&& subject.Length > MergeBranchSubject2.Length + 1)
 			{
 				// Found a "Merge "
 				sourceBranchNameStart = MergeBranchSubject2.Length;
@@ -74,11 +69,11 @@ namespace GitMind.DataModel.Private
 
 			if (sourceBranchNameStart > 0)
 			{
-				sourceBranchNameEnd = commit.Subject.IndexOf(' ', sourceBranchNameStart);
+				sourceBranchNameEnd = subject.IndexOf(' ', sourceBranchNameStart);
 
 				if (sourceBranchNameEnd == -1)
 				{
-					sourceBranchNameEnd = commit.Subject.Length;
+					sourceBranchNameEnd = subject.Length;
 				}
 			}
 
@@ -88,21 +83,21 @@ namespace GitMind.DataModel.Private
 			if (sourceBranchNameEnd > 0)
 			{
 				// There is a source branch name
-				sourceBranchName = commit.Subject.Substring(sourceBranchNameStart, sourceBranchNameEnd - sourceBranchNameStart);
+				sourceBranchName = subject.Substring(sourceBranchNameStart, sourceBranchNameEnd - sourceBranchNameStart);
 
 				// Lets try to get a targter branch in messages like:
 				// "Merge <source-branch> into <target-branch>"
-				if (commit.Subject.Length > sourceBranchNameEnd + IntoText.Length)
+				if (subject.Length > sourceBranchNameEnd + IntoText.Length)
 				{
-					int intoIndex = commit.Subject.IndexOf(IntoText, sourceBranchNameEnd);
-					int ofIndex = commit.Subject.IndexOf(OfText, sourceBranchNameEnd);
+					int intoIndex = subject.IndexOf(IntoText, sourceBranchNameEnd);
+					int ofIndex = subject.IndexOf(OfText, sourceBranchNameEnd);
 
-					if (intoIndex > 0 && commit.Subject.Length > intoIndex + IntoText.Length)
+					if (intoIndex > 0 && subject.Length > intoIndex + IntoText.Length)
 					{
 						// Found the "into" word after the source branch name
-						targetBranchName = commit.Subject.Substring(intoIndex + IntoText.Length);
+						targetBranchName = subject.Substring(intoIndex + IntoText.Length);
 					}
-					else if (intoIndex == -1 && ofIndex > 0 && commit.Subject.Length > ofIndex + OfText.Length)
+					else if (intoIndex == -1 && ofIndex > 0 && subject.Length > ofIndex + OfText.Length)
 					{
 						// Found the "into" word after the source branch name
 						targetBranchName = sourceBranchName;
@@ -181,13 +176,6 @@ namespace GitMind.DataModel.Private
 				targetBranchName = "master";
 			}
 
-
-
-			if (commit.SecondParent != Commit.None && sourceBranchName == null)
-			{
-				//Log.Warn(
-				//	$"Failed to parse source branch of {commit.DateTime} {commit.Subject} {commit.Author}");
-			}
 
 			if (sourceBranchName == "" || targetBranchName == "")
 			{

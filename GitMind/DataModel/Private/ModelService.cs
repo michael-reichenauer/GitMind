@@ -17,7 +17,7 @@ namespace GitMind.DataModel.Private
 
 		private readonly IGitService gitService;
 		private readonly IGitCacheService gitCacheService;
-
+		private IXModelService xModelService = new XModelService();
 
 		public ModelService()
 			: this(new GitService(), new GitCacheService())
@@ -161,10 +161,7 @@ namespace GitMind.DataModel.Private
 
 			return Task.Run(() =>
 			{
-				foreach (ActiveBranch activeBranch in activeBranches)
-				{
-					//Log.Debug($"Branches {activeBranch}");
-				}
+				xModelService.XGetModel(gitRepo);
 
 				if (!activeBranches.Any())
 				{
@@ -231,8 +228,6 @@ namespace GitMind.DataModel.Private
 				return model1;
 			});
 		}
-
-
 
 
 		private void FixEmptyBranches(ModelBuilder model)

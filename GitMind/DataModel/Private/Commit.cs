@@ -38,9 +38,20 @@ namespace GitMind.DataModel.Private
 			CommitDateTime = commitDateTime;
 			BranchName = branchName;
 
-			branchNamesFromSubject = new Lazy<MergeBranchNames>(
-				() => BranchNameParser.ParseBranchNamesFromSubject(this));
+			branchNamesFromSubject = new Lazy<MergeBranchNames>(ParseBranchNamesFromSubject);
 			branchNameFromSubject = new Lazy<string>(TryExtractBranchNameFromSubject);
+		}
+
+
+		private MergeBranchNames ParseBranchNamesFromSubject()
+		{
+			if (SecondParent == Commit.None)
+			{
+				// This is no merge commit, i.e. no branch names to parse
+				return BranchNameParser.NoMerge;
+			}
+
+			return BranchNameParser.ParseBranchNamesFromSubject(this.Subject);
 		}
 
 

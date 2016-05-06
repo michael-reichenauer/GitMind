@@ -302,13 +302,6 @@ namespace GitMind.Git.Private
 
 			foreach (string line in lines)
 			{
-				int refIndex = line.IndexOf(" -> ");
-				int refIndex2 = line.IndexOf(" ");
-				if (refIndex > 1 && refIndex == refIndex2)
-				{
-					continue;
-				}
-
 				// Check if first column marks the branch as current or remote
 				bool isCurrent = false;
 				bool isRemote = false;
@@ -333,6 +326,10 @@ namespace GitMind.Git.Private
 				index = newLine.IndexOf(" ");
 				string latestCommitId = newLine.Substring(0, index);
 				newLine = newLine.Substring(index).Trim();
+				if (latestCommitId == "->")
+				{
+					continue;
+				}
 
 				// Try to parse remote tracking branch
 				string trackingBranchName = null;

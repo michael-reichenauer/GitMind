@@ -81,6 +81,9 @@
     <Compile Include="DataModel\Private\Commit.cs" />
     <Compile Include="DataModel\Private\CommitComparer.cs" />
     <Compile Include="DataModel\Private\Commits.cs" />
+    <Compile Include="DataModel\Private\IXModelService.cs" />
+    <Compile Include="DataModel\Private\XModel.cs" />
+    <Compile Include="DataModel\Private\XModelService.cs" />
     <Compile Include="ExceptionHandling.cs" />
     <Compile Include="FatalExceptionsExtensions.cs" />
     <Compile Include="Git\Private\GitCacheService.cs" />
@@ -88,6 +91,7 @@
     <Compile Include="Installation\Private\CommandLine.cs" />
     <Compile Include="Installation\ICommandLine.cs" />
     <Compile Include="Utils\AsyncSemaphore.cs" />
+    <Compile Include="Utils\EnumerableExtensions.cs" />
     <Compile Include="Utils\Error.cs" />
     <Compile Include="Git\Private\GitDiffParser.cs" />
     <Compile Include="Git\Private\IGitDiffParser.cs" />
