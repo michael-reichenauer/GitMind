@@ -12,8 +12,6 @@ namespace GitMind.DataModel.Private
 		public List<XBranch> AllBranches { get; set; } = new List<XBranch>();
 		public Dictionary<string, XBranch> IdToBranch { get; set; } = new Dictionary<string, XBranch>();
 
-
-
 		public string CurrentCommitId { get; set; }
 		public string CurrentBranchId { get; set; }
 	}
@@ -30,6 +28,7 @@ namespace GitMind.DataModel.Private
 		public bool IsMultiBranch { get; set; }
 		public int LocalAheadCount { get; set; }
 		public int RemoteAheadCount { get; set; }
+		public bool IsActive { get; set; }
 
 		public override string ToString() => Name;
 	}
