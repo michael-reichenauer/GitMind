@@ -40,6 +40,8 @@ namespace GitMind.DataModel.Private
 		public string ShortId { get; set; }
 		public List<string> ParentIds{ get; set; } = new List<string>();
 		public List<string> ChildIds { get; set; } = new List<string>();
+		public List<string> FirstChildIds { get; set; } = new List<string>();
+
 		public string BranchName { get; set; }
 		public string BranchNameSpecified { get; set; }
 		public string BranchNameFromSubject { get; set; }

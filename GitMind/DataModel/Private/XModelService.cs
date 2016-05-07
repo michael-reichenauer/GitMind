@@ -72,19 +72,47 @@ namespace GitMind.DataModel.Private
 			foreach (XCommit xCommit in commitsWithBranches)
 			{
 				string branchName = xCommit.BranchName;
-				XCommit parent = xCommit;
+
+				XCommit current = xCommit;
 				while (true)
-				{			
-					var firstChildrenIds = parent.ChildIds
-						.Where(childId => xmodel.Commit[childId].FirstParentId == parent.Id).ToList();
-					if (firstChildrenIds.Count != 1)
+				{
+					if (string.IsNullOrEmpty(current.FirstParentId))
+					{
+						// Commit has no more parents
+						break;
+					}
+
+					if (current.FirstChildIds.Count > 1)
 					{
 						// The parent has multiple children, which has the parent as first parent,
 						// I.e. the parent is root of multiple branches 
 						break;
 					}
 
-					XCommit firstChild = xmodel.Commit[firstChildrenIds.ElementAt(0)];
+					XCommit firstParent = xmodel.Commit[current.FirstParentId];
+
+					if (!string.IsNullOrEmpty(firstParent.BranchName))
+					{
+						// The child already has a branch name
+						break;
+					}
+
+					firstParent.BranchName = branchName;
+					current = firstParent;
+				}
+
+
+				current = xCommit;
+				while (true)
+				{					
+					if (current.FirstChildIds.Count != 1)
+					{
+						// The parent has multiple children, which has the parent as first parent,
+						// I.e. the parent is root of multiple branches 
+						break;
+					}
+
+					XCommit firstChild = xmodel.Commit[current.FirstChildIds.ElementAt(0)];
 					if (!string.IsNullOrEmpty(firstChild.BranchName))
 					{
 						// The child already has a branch name
@@ -92,7 +120,7 @@ namespace GitMind.DataModel.Private
 					}
 
 					firstChild.BranchName = branchName;
-					parent = firstChild;
+					current = firstChild;
 				}
 			}
 		}
@@ -119,10 +147,9 @@ namespace GitMind.DataModel.Private
 			int count = 0;
 			foreach (XCommit xCommit in commits)
 			{
-				if (xCommit.ChildIds.Count > 0 
-					&& xCommit.ChildIds.All(childId =>
-						xmodel.Commit[childId].FirstParentId != xCommit.Id))
+				if (xCommit.ChildIds.Count > 0 && !xCommit.FirstChildIds.Any())
 				{
+					// The commit has children, but is not a first parent of any of the children
 					count++;
 					string branchName = GetBranchName(xCommit);
 					if (string.IsNullOrEmpty(branchName))
@@ -347,12 +374,22 @@ namespace GitMind.DataModel.Private
 		{
 			foreach (XCommit xCommit in commits)
 			{
+				bool isFirstParent = true;
 				foreach (string parentId in xCommit.ParentIds)
 				{
 					XCommit parent = xmodel.Commit[parentId];
 					if (!parent.ChildIds.Contains(xCommit.Id))
 					{
 						parent.ChildIds.Add(xCommit.Id);
+					}
+
+					if (isFirstParent)
+					{
+						isFirstParent = false;
+						if (!parent.FirstChildIds.Contains(xCommit.Id))
+						{
+							parent.FirstChildIds.Add(xCommit.Id);
+						}
 					}
 				}
 			}
