@@ -45,8 +45,8 @@ namespace GitMind.DataModel.Private
 		public string BranchName { get; set; }
 		public string BranchNameSpecified { get; set; }
 		public string BranchNameFromSubject { get; set; }
-		public string SourceBranchNameFromSubject { get; set; }
-		public string TargetBranchNameFromSubject { get; set; }
+		public string MergeSourceBranchNameFromSubject { get; set; }
+		public string MergeTargetBranchNameFromSubject { get; set; }
 		public string Subject { get; set; }
 		public string Author { get; set; }
 		public string AuthorDate { get; set; }
@@ -55,6 +55,6 @@ namespace GitMind.DataModel.Private
 		public string FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : null;
 		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
 
-		public override string ToString() => $"{ShortId} {CommitDate} ({ParentIds.Count}) {Subject}";
+		public override string ToString() => $"{ShortId} {AuthorDate} ({ParentIds.Count}) {Subject} ({CommitDate})";
 	}
 }

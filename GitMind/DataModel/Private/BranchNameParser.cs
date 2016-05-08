@@ -4,8 +4,8 @@ namespace GitMind.DataModel.Private
 	{
 		private static readonly string MergeBranchSubject = "Merge branch ";
 		private static readonly string MergeBranchSubject2 = "Merge ";
-		private static readonly string OldMergedBranchSubject = "[MERGED] from ";
-		private static readonly string OldMergedBranchSubject2 = "MERGED from ";
+		//private static readonly string OldMergedBranchSubject = "[MERGED] from ";
+		//private static readonly string OldMergedBranchSubject2 = "MERGED from ";
 		private static readonly string MergedBranchSubject = "Merged from ";
 		private static readonly string MergedBranchSubject2 = "Merged ";
 		private static readonly string MergeRemoteTrackingBranch = "Merge remote-tracking branch ";
@@ -29,18 +29,18 @@ namespace GitMind.DataModel.Private
 				// Found a "Merge branch "
 				sourceBranchNameStart = MergeBranchSubject.Length;
 			}
-			else if (subject.StartsWith(OldMergedBranchSubject)
-				&& subject.Length > OldMergedBranchSubject.Length + 1)
-			{
-				// Found a "[MERGED] from "
-				sourceBranchNameStart = OldMergedBranchSubject.Length;
-			}
-			else if (subject.StartsWith(OldMergedBranchSubject2)
-				&& subject.Length > OldMergedBranchSubject2.Length + 1)
-			{
-				// Found a "MERGED from "
-				sourceBranchNameStart = OldMergedBranchSubject2.Length;
-			}
+			//else if (subject.StartsWith(OldMergedBranchSubject)
+			//	&& subject.Length > OldMergedBranchSubject.Length + 1)
+			//{
+			//	// Found a "[MERGED] from "
+			//	sourceBranchNameStart = OldMergedBranchSubject.Length;
+			//}
+			//else if (subject.StartsWith(OldMergedBranchSubject2)
+			//	&& subject.Length > OldMergedBranchSubject2.Length + 1)
+			//{
+			//	// Found a "MERGED from "
+			//	sourceBranchNameStart = OldMergedBranchSubject2.Length;
+			//}
 			else if (subject.StartsWith(MergedBranchSubject)
 				&& subject.Length > MergedBranchSubject.Length + 1)
 			{

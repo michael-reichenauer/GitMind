@@ -58,7 +58,7 @@ namespace GitMind.Utils
 			count++;
 
 			Utils.Log.Debug(
-				$"At {count}, {message}: {this}", memberName, sourceFilePath, sourceLineNumber);	
+				$"{count}: {message}: {this}", memberName, sourceFilePath, sourceLineNumber);	
 		}
 
 		public void Log(
