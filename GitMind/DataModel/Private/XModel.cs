@@ -30,7 +30,9 @@ namespace GitMind.DataModel.Private
 		public int RemoteAheadCount { get; set; }
 		public bool IsActive { get; set; }
 
-		public override string ToString() => Name;
+
+		public override string ToString() =>
+			$"{Name} ({LastestLocalCommitId?.Substring(0, 6)}, {LastestTrackingCommitId?.Substring(0, 6)})";
 	}
 
 
