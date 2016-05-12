@@ -21,18 +21,19 @@ namespace GitMind.DataModel.Private
 	{
 		public string Id { get; set; }
 		public string Name { get; set; }
-		public string TrackingName { get; set; }
-		public string LastestLocalCommitId { get; set; }
-		public string LastestTrackingCommitId { get; set; }
+		//public string TrackingName { get; set; }
+		//public string LastestLocalCommitId { get; set; }
+		//public string LastestTrackingCommitId { get; set; }
+		public string LatestCommitId { get; set; }
 		public string ParentId { get; set; }
 		public bool IsMultiBranch { get; set; }
 		public int LocalAheadCount { get; set; }
 		public int RemoteAheadCount { get; set; }
 		public bool IsActive { get; set; }
+		public bool IsRemote { get; set; }
 
 
-		public override string ToString() =>
-			$"{Name} ({LastestLocalCommitId?.Substring(0, 6)}, {LastestTrackingCommitId?.Substring(0, 6)})";
+		public override string ToString() =>$"{Name} ({IsRemote})";
 	}
 
 

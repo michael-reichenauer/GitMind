@@ -29,7 +29,6 @@ namespace GitMind.DataModel.Private
 			SetSubjectCommitBranchNames(commits, xModel);
 			t.Log("Set branch from subject");
 
-
 			IReadOnlyList<XBranch> branches1 = AddActiveBranches(gitBranches, xModel);
 			t.Log("Add branches");
 			Log.Debug($"Number of active branches {branches1.Count} ({xModel.AllBranches.Count})");
@@ -70,12 +69,14 @@ namespace GitMind.DataModel.Private
 			IReadOnlyList<XBranch> branches3 = AddMultiBranches(commits, xModel);
 			t.Log("Add multi branches");
 			Log.Debug($"Number of multi branches {branches3.Count} ({xModel.AllBranches.Count})");
+			SetBranchCommits(branches3, xModel);
+
+			branches = branches.Concat(branches3).ToList();
 			//branches3.ForEach(b => Log.Debug($"   Branch {b}"));
 
-			SetBranchCommits(branches3, xModel);
-		
+
 			Log.Debug($"Unset commits after multi {commits.Count(c => string.IsNullOrEmpty(c.BranchName))}");
-			Log.Debug($"All branches ({xModel.AllBranches.Count})");
+			Log.Debug($"All branches ({branches.Count})");
 			//xmodel.AllBranches.ForEach(b => Log.Debug($"   Branch {b}"));
 
 			//List<XBranch> xBranches = xModel.AllBranches.Where(b => xModel.AllBranches.Any(b2 => b2 != b && b2.Name == b.Name)).ToList();
@@ -84,17 +85,43 @@ namespace GitMind.DataModel.Private
 			//xBranches.OrderBy(b => b.Name).ForEach(b => Log.Debug($"  branches {b}"));
 
 
-			ReduceDuplicateBranches(xModel.AllBranches, xModel);
+			FindBranchId(branches, xModel);
 
-			Log.Debug($"Number of branches {xModel.AllBranches.Count}");
+			Log.Debug($"Number of total branches {xModel.AllBranches.Count}");
+			Log.Debug($"Number of total commits {xModel.AllCommits.Count}");
 
 			return xModel;
 		}
 
 
-		private void ReduceDuplicateBranches(IReadOnlyList<XBranch> allBranches, XModel xModel)
+		private void FindBranchId(IReadOnlyList<XBranch> branches, XModel xModel)
 		{
-			//throw new NotImplementedException();
+			List<XCommit> branchRoots = new List<XCommit>();
+
+			List<string> branchNames = new List<string>();
+
+			foreach (XBranch xBranch in branches)
+			{
+				IEnumerable<XCommit> commits = FirstParents(xModel.Commit[xBranch.LatestCommitId], xModel)
+				.TakeWhile(c => c.BranchName == xBranch.Name);
+				if (commits.Any())
+				{
+					XCommit branchRoot = commits.Last();
+					if (!branchRoots.Contains(branchRoot))
+					{
+						branchRoots.Add(branchRoot);
+						branchNames.Add(branchRoot.BranchName);
+					}
+				}
+			}
+
+	
+			foreach (XCommit xCommit in branchRoots)
+			{
+				Log.Debug($"Branch {xCommit.BranchName}   {xCommit}");
+			}	
+			
+			Log.Debug($"Branch count {branchNames.Count}, distingt {branchNames.Distinct().Count()}");		
 		}
 
 
@@ -264,17 +291,14 @@ namespace GitMind.DataModel.Private
 			Log.Debug($"Branch root count {roots.Count()}");
 
 			List<XBranch> branches = new List<XBranch>();
-			Log.Debug($"Branch root count {roots.Count()}");
 			foreach (XCommit root in roots)
 			{
 				string branchName = "Multibranch_" + root.ShortId;
 				XBranch xBranch = new XBranch
 				{
 					Id = Guid.NewGuid().ToString(),
-					Name = branchName,
-					TrackingName = branchName,
-					LastestLocalCommitId = null,
-					LastestTrackingCommitId = root.Id,
+					Name = branchName,		
+					LatestCommitId = root.Id,
 					IsMultiBranch = true,
 					IsActive = false
 				};
@@ -313,9 +337,7 @@ namespace GitMind.DataModel.Private
 			// top of a branch and there is no existing branch at this commit
 			IEnumerable<XCommit> topCommits = commits.Where(commit =>
 				!commit.FirstChildIds.Any()
-				&& !xModel.AllBranches.Any(
-					b =>b.LastestLocalCommitId == commit.Id
-					    || b.LastestTrackingCommitId == commit.Id));
+				&& !xModel.AllBranches.Any(b =>b.LatestCommitId == commit.Id));
 
 			foreach (XCommit xCommit in topCommits)
 			{	
@@ -329,9 +351,7 @@ namespace GitMind.DataModel.Private
 				{
 					Id = Guid.NewGuid().ToString(),
 					Name = branchName,
-					TrackingName = branchName,
-					LastestLocalCommitId = null,
-					LastestTrackingCommitId = xCommit.Id,
+					LatestCommitId = xCommit.Id,
 					IsMultiBranch = false,
 					IsActive = false
 				};
@@ -349,10 +369,7 @@ namespace GitMind.DataModel.Private
 		{
 			foreach (XBranch xBranch in branches.Where(b => b.Name != "master").ToList())
 			{
-				string id = xBranch.LastestLocalCommitId;
-				SetBranchName(xmodel, id, xBranch);
-
-				id = xBranch.LastestTrackingCommitId;
+				string id = xBranch.LatestCommitId;
 				SetBranchName(xmodel, id, xBranch);
 			}
 		}
@@ -369,7 +386,7 @@ namespace GitMind.DataModel.Private
 			{
 				if (b.Name != xBranch.Name
 					&& !(xBranch.IsActive && !b.IsActive)
-					&& (b.LastestLocalCommitId == id || b.LastestTrackingCommitId == id))
+					&& ( b.LatestCommitId == id))
 				{
 					XCommit c = xmodel.Commit[id];
 					Log.Warn($"Commit {c} in branch {xBranch} same as other branch {b}");
@@ -459,14 +476,18 @@ namespace GitMind.DataModel.Private
 
 		private void SetMasterBranchCommits(IReadOnlyList<XBranch> branches, XModel xmodel)
 		{
-			XBranch master = branches.FirstOrDefault(b => b.Name == "master");
+			// Local master
+			XBranch master = branches.FirstOrDefault(b => b.Name == "master" && !b.IsRemote);
 			if (master != null)
 			{
-				string id = master.LastestLocalCommitId;
+				SetBranchNameWithPriority(xmodel, master.LatestCommitId, master);
+			}
 
-				SetBranchNameWithPriority(xmodel, id, master);
-				id = master.LastestTrackingCommitId;
-				SetBranchNameWithPriority(xmodel, id, master);
+			// Remote master
+			master = branches.FirstOrDefault(b => b.Name == "master" && b.IsRemote);
+			if (master != null)
+			{
+				SetBranchNameWithPriority(xmodel, master.LatestCommitId, master);
 			}
 		}
 
@@ -483,11 +504,6 @@ namespace GitMind.DataModel.Private
 				}
 
 				XCommit xCommit = xmodel.Commit[id];
-
-				if (xCommit.ShortId == "6a3407")
-				{
-					
-				}
 
 				if (xCommit.BranchName == xBranch.Name)
 				{
@@ -603,17 +619,16 @@ namespace GitMind.DataModel.Private
 
 		private XBranch ToBranch(GitBranch gitBranch)
 		{
+			string latestCommitId = gitBranch.LatestCommitId;
+			
 			return new XBranch
 			{
 				Id = Guid.NewGuid().ToString(),
-				Name = gitBranch.Name,
-				TrackingName = gitBranch.TrackingBranchName,
-				LastestLocalCommitId = gitBranch.IsRemote ? null : gitBranch.LatestCommitId,
-				LastestTrackingCommitId = gitBranch.IsRemote
-					? gitBranch.LatestCommitId
-					: gitBranch.LatestTrackingCommitId,
+				Name = gitBranch.Name,			
+				LatestCommitId = latestCommitId,
 				IsMultiBranch = false,
-				IsActive = true
+				IsActive = true,
+				IsRemote = gitBranch.IsRemote || gitBranch.LatestTrackingCommitId != null
 			};
 		}
 
