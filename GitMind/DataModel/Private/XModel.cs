@@ -32,6 +32,9 @@ namespace GitMind.DataModel.Private
 		public bool IsActive { get; set; }
 		public bool IsRemote { get; set; }
 
+		public string FirstId { get; set; }
+		public string ParentCommitId { get; set; }
+
 
 		public override string ToString() =>$"{Name} ({IsRemote})";
 	}

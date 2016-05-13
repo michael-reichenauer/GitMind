@@ -9,6 +9,7 @@ namespace GitMind
 		public static readonly string Feature1 = "branches/Team1/Epic1_Feature1";
 
 		public static readonly string Path2 = @"d:\My Work\TestGit2";
+		public static readonly string Path6 = @"C:\Work Files\AcmAcs2";
 		public static readonly string MultiClient = "branches/Bespin/MultiClient";
 		public static readonly string MultiClient50 = "branches/Bespin/MultiClient_5_10";
 		public static readonly string SystemServer = "branches/Bespin/SystemServer";
