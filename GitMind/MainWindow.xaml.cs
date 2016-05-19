@@ -201,7 +201,7 @@ namespace GitMind
 
 		private void SetWorkingFolder()
 		{
-			Result<string> workingFolder = ProgramPaths.GetWorkingFolderPath(
+			R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(
 				Environment.CurrentDirectory);
 
 			if (!workingFolder.HasValue)

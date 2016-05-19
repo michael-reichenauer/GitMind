@@ -6,7 +6,7 @@ namespace GitMind.Git
 {
 	internal interface IGitCacheService
 	{
-		Task<Result<IGitRepo>> GetRepoAsync(string path);
+		Task<R<IGitRepo>> GetRepoAsync(string path);
 
 		Task UpdateAsync(string path, IGitRepo gitRepo);
 	}

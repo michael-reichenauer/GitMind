@@ -152,7 +152,7 @@ namespace GitMind.Settings
 			}
 		}
 
-		public static Result<string> GetWorkingFolderPath(string path)
+		public static R<string> GetWorkingFolderPath(string path)
 		{
 			IGitService gitService = new GitService();
 

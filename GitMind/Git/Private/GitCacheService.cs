@@ -51,7 +51,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<Result<IGitRepo>> GetRepoAsync(string path)
+		public Task<R<IGitRepo>> GetRepoAsync(string path)
 		{
 			return TaskThrottler.Run(() => Task.Run(() =>
 			{
@@ -69,7 +69,7 @@ namespace GitMind.Git.Private
 						IGitRepo gitRepo = ToGitRepo(repo);
 
 						t.Log("Copied data");
-						return Result.From(gitRepo);
+						return R.From(gitRepo);
 					}
 				}
 				catch (Exception e) when (e.IsNotFatal())

@@ -206,7 +206,7 @@ namespace GitMind.CommitsHistory
 		{
 			while (true)
 			{
-				Result<string> currentRootPath = gitService.GetCurrentRootPath(null);
+				R<string> currentRootPath = gitService.GetCurrentRootPath(null);
 
 				if (currentRootPath.HasValue)
 				{

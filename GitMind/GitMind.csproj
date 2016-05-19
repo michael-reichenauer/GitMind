@@ -114,7 +114,7 @@
     <Compile Include="StatusRefreshService.cs" />
     <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\JsonSerializer.cs" />
-    <Compile Include="Utils\Result.cs" />
+    <Compile Include="Utils\R.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
     <Compile Include="Utils\TaskThrottler.cs" />
     <Compile Include="Utils\UI\BusyIndicator.cs" />

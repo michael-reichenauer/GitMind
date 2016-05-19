@@ -37,7 +37,7 @@ namespace GitMind.Utils
 			return new Error(errorCode, Message + " " + error);
 		}
 
-		public Error With(Result result)
+		public Error With(R result)
 		{
 			return new Error(errorCode, Message + " " + result);
 		}

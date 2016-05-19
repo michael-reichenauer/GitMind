@@ -42,7 +42,7 @@ namespace GitMind.CommitsHistory
 				return;
 			}
 
-			Result<CommitDiff> commitDiff = await gitService.GetCommitDiffAsync(commitId);
+			R<CommitDiff> commitDiff = await gitService.GetCommitDiffAsync(commitId);
 
 			if (commitDiff.HasValue)
 			{

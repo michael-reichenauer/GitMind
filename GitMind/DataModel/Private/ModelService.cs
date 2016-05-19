@@ -36,7 +36,7 @@ namespace GitMind.DataModel.Private
 
 		public async Task<Model> GetCachedModelAsync(IReadOnlyList<string> activeBranchNames)
 		{
-			Result<IGitRepo> gitRepo = await gitCacheService.GetRepoAsync(null);
+			R<IGitRepo> gitRepo = await gitCacheService.GetRepoAsync(null);
 
 			if (gitRepo.IsFaulted)
 			{
@@ -58,7 +58,7 @@ namespace GitMind.DataModel.Private
 
 		public async Task<Model> RefreshAsync(Model model)
 		{
-			Result<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
+			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
 			if (!gitRepo.HasValue)
 			{
 				Log.Warn($"Failed to refresh status [{gitRepo.Error}");

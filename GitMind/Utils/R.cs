@@ -3,11 +3,11 @@ using System;
 
 namespace GitMind.Utils
 {
-	public class Result
+	public class R
 	{
-		public static Result Ok = new Result(Error.None);
+		public static R Ok = new R(Error.None);
 
-		public Result(Error error)
+		public R(Error error)
 		{
 			Error = error;
 		}
@@ -16,33 +16,33 @@ namespace GitMind.Utils
 		public Error Error { get; }
 		public bool IsFaulted => Error != Error.None;
 
-		public static Result<T> From<T>(T result) => new Result<T>(result);
+		public static R<T> From<T>(T result) => new R<T>(result);
 
-		public static implicit operator Result(Error error) => new Result(error);
-		public static implicit operator Result(Exception e) => new Result(Error.From(e));
+		public static implicit operator R(Error error) => new R(error);
+		public static implicit operator R(Exception e) => new R(Error.From(e));
 	}
 
 
-	public class Result<T> : Result
+	public class R<T> : R
 	{
 		private readonly T value;
 
-		public Result(T value)
+		public R(T value)
 			: base(Error.None)
 		{
 			this.value = value;
 		}
 
-		public Result(Error error)
+		public R(Error error)
 			: base(error)
 		{
 		}
 
 
-		public static implicit operator Result<T>(Error error) => new Result<T>(error);
-		public static implicit operator Result<T>(Exception e) => new Result<T>(Error.From(e));
+		public static implicit operator R<T>(Error error) => new R<T>(error);
+		public static implicit operator R<T>(Exception e) => new R<T>(Error.From(e));
 
-		public static implicit operator Result<T>(T value) => new Result<T>(value);
+		public static implicit operator R<T>(T value) => new R<T>(value);
 
 
 		public T Value
@@ -62,7 +62,7 @@ namespace GitMind.Utils
 		
 
 
-		public Result<T> OnError(Action<Error> errorAction)
+		public R<T> OnError(Action<Error> errorAction)
 		{
 			if (IsFaulted)
 			{
@@ -72,7 +72,7 @@ namespace GitMind.Utils
 			return this;
 		}
 
-		public Result<T> OnValue(Action<T> valueAction)
+		public R<T> OnValue(Action<T> valueAction)
 		{
 			if (!IsFaulted)
 			{
