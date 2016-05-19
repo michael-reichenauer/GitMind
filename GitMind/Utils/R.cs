@@ -42,7 +42,15 @@ namespace GitMind.Utils
 		public static implicit operator R<T>(Error error) => new R<T>(error);
 		public static implicit operator R<T>(Exception e) => new R<T>(Error.From(e));
 
-		public static implicit operator R<T>(T value) => new R<T>(value);
+		public static implicit operator R<T>(T value)
+		{
+			if (value == null)
+			{
+				throw Asserter.FailFast("Value cannot be null");
+			}
+
+			return new R<T>(value);
+		} 
 
 
 		public T Value
