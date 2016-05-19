@@ -1,39 +1,15 @@
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+using GitMind.Utils;
 
 
 namespace GitMind.DataModel.Private
 {
-	internal class Keyed<TKey, TValue> : KeyedCollection<TKey, TValue>
-	{
-		private readonly Func<TValue, TKey> getKeyForItem;
-
-		public Keyed(Func<TValue, TKey> getKeyForItem)
-		{
-			this.getKeyForItem = getKeyForItem;
-		}
-
-
-		protected override TKey GetKeyForItem(TValue item)
-		{
-			return getKeyForItem(item);
-		}
-	}
-
 	internal class XModel
 	{
-		//public Keyed<string, XCommit> Commits = new Keyed<string, XCommit>(c => c.Id);
-
-		public List<XCommit> Commits { get; } = new List<XCommit>();
-		public Dictionary<string, XCommit> CommitById { get; set; } = new Dictionary<string, XCommit>();
-
-		public List<SubBranch> SubBranches { get; } = new List<SubBranch>();
-		public Dictionary<string, SubBranch> SubBranchById { get; } = new Dictionary<string, SubBranch>();
-
-		public List<XBranch> Branches { get; } = new List<XBranch>();
-		public Dictionary<string, XBranch> BranchById { get; } = new Dictionary<string, XBranch>();
+		public KeyedList<string, XCommit> Commits = new KeyedList<string, XCommit>(c => c.Id);
+		public KeyedList<string, SubBranch> SubBranches = new KeyedList<string, SubBranch>(b => b.Id);	
+		public KeyedList<string, XBranch> Branches = new KeyedList<string, XBranch>(b => b.Id);
 
 		public string CurrentCommitId { get; set; }
 		public string CurrentBranchId { get; set; }
@@ -72,9 +48,9 @@ namespace GitMind.DataModel.Private
 		//public string LastestTrackingCommitId { get; set; }
 
 
-		public XCommit FirstCommit => XModel.CommitById[FirstCommitId];
-		public XCommit LatestCommit => XModel.CommitById[LatestCommitId];
-		public XCommit ParentCommit => XModel.CommitById[ParentCommitId];
+		public XCommit FirstCommit => XModel.Commits[FirstCommitId];
+		public XCommit LatestCommit => XModel.Commits[LatestCommitId];
+		public XCommit ParentCommit => XModel.Commits[ParentCommitId];
 
 		public override string ToString() => $"{Name}";
 	}
@@ -112,9 +88,9 @@ namespace GitMind.DataModel.Private
 		//public string LastestTrackingCommitId { get; set; }
 
 
-		public XCommit FirstCommit => XModel.CommitById[FirstCommitId];
-		public XCommit LatestCommit => XModel.CommitById[LatestCommitId];
-		public XCommit ParentCommit => XModel.CommitById[ParentCommitId];
+		public XCommit FirstCommit => XModel.Commits[FirstCommitId];
+		public XCommit LatestCommit => XModel.Commits[LatestCommitId];
+		public XCommit ParentCommit => XModel.Commits[ParentCommitId];
 
 		public override string ToString() => $"{Name} ({IsRemote})";
 	}
@@ -141,9 +117,9 @@ namespace GitMind.DataModel.Private
 		public bool HasFirstParent => ParentIds.Count > 0;
 		public bool HasSecondParent => ParentIds.Count > 1;
 		public bool HasSingleFirstChild => ChildIds.Count == 1;
-		public IEnumerable<XCommit> Parents => ParentIds.Select(id => xModel.CommitById[id]);
-		public IEnumerable<XCommit> Children => ChildIds.Select(id => xModel.CommitById[id]);
-		public IEnumerable<XCommit> FirstChildren => FirstChildIds.Select(id => xModel.CommitById[id]);
+		public IEnumerable<XCommit> Parents => ParentIds.Select(id => xModel.Commits[id]);
+		public IEnumerable<XCommit> Children => ChildIds.Select(id => xModel.Commits[id]);
+		public IEnumerable<XCommit> FirstChildren => FirstChildIds.Select(id => xModel.Commits[id]);
 
 		public string BranchName { get; set; }
 		public string BranchNameSpecified { get; set; }
@@ -156,7 +132,7 @@ namespace GitMind.DataModel.Private
 		public string CommitDate { get; set; }
 
 		public string FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : null;
-		public XCommit FirstParent => ParentIds.Count > 0 ? xModel.CommitById[ParentIds[0]] : null;
+		public XCommit FirstParent => ParentIds.Count > 0 ? xModel.Commits[ParentIds[0]] : null;
 		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
 
 

@@ -82,6 +82,7 @@
     <Compile Include="DataModel\Private\CommitComparer.cs" />
     <Compile Include="DataModel\Private\Commits.cs" />
     <Compile Include="DataModel\Private\IXModelService.cs" />
+    <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="DataModel\Private\XModel.cs" />
     <Compile Include="DataModel\Private\XModelService.cs" />
     <Compile Include="ExceptionHandling.cs" />
