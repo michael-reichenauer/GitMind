@@ -14,5 +14,10 @@ namespace System.Linq
 				action(item);
 			}
 		}
+
+		public static IReadOnlyList<TSource> AsReadOnlyList<TSource>(this IReadOnlyList<TSource> source)
+		{
+			return source;
+		}
 	}
 }

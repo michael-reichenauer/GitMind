@@ -33,6 +33,8 @@ namespace GitMind.DataModel.Private
 		public string FirstCommitId { get; set; }
 		public string ParentCommitId { get; set; }
 
+		public string ParentBranchId { get; set; }
+
 		public bool IsMultiBranch { get; set; }
 		public bool IsActive { get; set; }
 		public bool IsAnonymous { get; set; }
@@ -40,6 +42,8 @@ namespace GitMind.DataModel.Private
 
 		public List<SubBranch> SubBranches { get; } = new List<SubBranch>();
 		public List<XCommit> Commits { get; } = new List<XCommit>();
+
+		public List<XBranch> ChildBranches { get; } = new List<XBranch>();
 
 		//public int RemoteAheadCount { get; set; }
 		//public int LocalAheadCount { get; set; }
@@ -51,6 +55,7 @@ namespace GitMind.DataModel.Private
 		public XCommit FirstCommit => XModel.Commits[FirstCommitId];
 		public XCommit LatestCommit => XModel.Commits[LatestCommitId];
 		public XCommit ParentCommit => XModel.Commits[ParentCommitId];
+		public XBranch ParentBranch => XModel.Branches[ParentBranchId];
 
 		public override string ToString() => $"{Name}";
 	}
@@ -121,7 +126,22 @@ namespace GitMind.DataModel.Private
 		public IEnumerable<XCommit> Children => ChildIds.Select(id => xModel.Commits[id]);
 		public IEnumerable<XCommit> FirstChildren => FirstChildIds.Select(id => xModel.Commits[id]);
 
-		public string BranchName { get; set; }
+		public string branchName;
+		public string BranchName
+		{
+			get { return branchName; }
+			set
+			{
+				branchName = value;
+
+				//if (ShortId == "afe62f")
+				//{
+				//	Log.Warn($"Setting branch name {branchName} != '{BranchNameFromSubject}' from subject");
+				//}
+			}
+		}
+		public string SubBranchId { get; set; }
+
 		public string BranchNameSpecified { get; set; }
 		public string BranchNameFromSubject { get; set; }
 		public string MergeSourceBranchNameFromSubject { get; set; }
@@ -134,6 +154,8 @@ namespace GitMind.DataModel.Private
 		public string FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : null;
 		public XCommit FirstParent => ParentIds.Count > 0 ? xModel.Commits[ParentIds[0]] : null;
 		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
+		public XCommit SecondParent => ParentIds.Count > 1 ? xModel.Commits[ParentIds[1]] : null;
+
 
 
 		public IEnumerable<XCommit> FirstAncestors()
