@@ -10,7 +10,6 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.DataModel;
 using GitMind.DataModel.Old;
-using GitMind.DataModel.Private;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.Settings;

@@ -1,4 +1,4 @@
-namespace GitMind.DataModel.Private
+namespace GitMind.GitModel.Private
 {
 	internal class MergeBranchNames
 	{

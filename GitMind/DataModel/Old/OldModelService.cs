@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GitMind.DataModel.Private;
 using GitMind.Git;
 using GitMind.Git.Private;
+using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 
 

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
 
-namespace GitMind.DataModel.Private
+namespace GitMind.GitModel.Private
 {
 	internal class MBranch
 	{

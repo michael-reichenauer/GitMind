@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GitMind.DataModel.Private;
+using GitMind.GitModel.Private;
 
 
 namespace GitMind.DataModel.Old

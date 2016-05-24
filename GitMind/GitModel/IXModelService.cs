@@ -1,8 +1,8 @@
-using GitMind.DataModel.Private;
 using GitMind.Git;
+using GitMind.GitModel.Private;
 
 
-namespace GitMind.DataModel
+namespace GitMind.GitModel
 {
 	internal interface IXModelService
 	{

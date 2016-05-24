@@ -1,7 +1,7 @@
 using GitMind.Utils;
 
 
-namespace GitMind.DataModel.Private
+namespace GitMind.GitModel.Private
 {
 	internal class MModel
 	{

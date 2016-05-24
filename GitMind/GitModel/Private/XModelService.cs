@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using GitMind.Git;
 using GitMind.Utils;
 
 
-namespace GitMind.DataModel.Private
+namespace GitMind.GitModel.Private
 {
 	internal class XModelService : IXModelService
 	{
