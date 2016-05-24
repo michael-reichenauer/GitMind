@@ -1,5 +1,6 @@
 using System.Windows.Media;
 using GitMind.DataModel;
+using GitMind.DataModel.Old;
 
 
 namespace GitMind.CommitsHistory

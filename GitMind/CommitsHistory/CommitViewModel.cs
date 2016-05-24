@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.DataModel.Old;
 using GitMind.DataModel.Private;
 using GitMind.Utils.UI;
 

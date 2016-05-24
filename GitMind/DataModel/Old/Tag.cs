@@ -1,4 +1,4 @@
-﻿namespace GitMind.DataModel
+﻿namespace GitMind.DataModel.Old
 {
 	internal class Tag
 	{

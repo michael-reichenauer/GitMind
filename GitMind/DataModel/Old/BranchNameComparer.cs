@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace GitMind.DataModel.Private
+namespace GitMind.DataModel.Old
 {
 	internal class BranchNameComparer : IComparer<string>
 	{

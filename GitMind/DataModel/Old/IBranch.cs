@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using GitMind.DataModel.Private;
 
 
-namespace GitMind.DataModel
+namespace GitMind.DataModel.Old
 {
 	internal interface IBranch
 	{

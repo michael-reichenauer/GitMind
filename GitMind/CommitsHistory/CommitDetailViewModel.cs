@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using GitMind.DataModel.Old;
 using GitMind.DataModel.Private;
 using GitMind.Utils.UI;
 

@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using GitMind.DataModel.Private;
-using GitMind.Git;
 
 
-namespace GitMind.DataModel
+namespace GitMind.DataModel.Old
 {
 	internal interface IModelService
 	{

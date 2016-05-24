@@ -2,7 +2,7 @@
 using System.Linq;
 
 
-namespace GitMind.DataModel.Private
+namespace GitMind.DataModel.Old
 {
 	internal class BranchBuilder : IBranch
 	{

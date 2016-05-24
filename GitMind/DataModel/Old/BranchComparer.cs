@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
 
-namespace GitMind.DataModel.Private
+namespace GitMind.DataModel.Old
 {
 	internal class BranchComparer : IComparer<BranchBuilder>
 	{

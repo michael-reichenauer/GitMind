@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using GitMind.DataModel.Private;
 using GitMind.Git;
 
 
-namespace GitMind.DataModel
+namespace GitMind.DataModel.Old
 {
 	internal class Model
 	{

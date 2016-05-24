@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Git;
-using GitMind.Utils;
 
 
-namespace GitMind.DataModel.Private
+namespace GitMind.DataModel.Old
 {
 	internal class Commits
 	{

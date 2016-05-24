@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using GitMind.Git;
 
 
-namespace GitMind.DataModel.Private
+namespace GitMind.DataModel.Old
 {
 	internal class ModelBuilder
 	{
