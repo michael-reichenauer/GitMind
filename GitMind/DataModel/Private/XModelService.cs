@@ -68,7 +68,7 @@ namespace GitMind.DataModel.Private
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.FirstParentId}"));
 			Log.Debug($"All branches ({branches.Count})");
 
-			SetParentCommitId(branches, xModel);
+			SetParentCommitId(branches);
 			GroupSubBranches(branches);
 
 			SetBranchHierarchy(xModel.Branches);
@@ -119,7 +119,7 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private static void SetParentCommitId(IReadOnlyList<SubBranch> subBranches, XModel xModel)
+		private static void SetParentCommitId(IReadOnlyList<SubBranch> subBranches)
 		{
 			foreach (SubBranch subBranch in subBranches)
 			{

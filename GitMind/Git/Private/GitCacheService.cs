@@ -35,11 +35,11 @@ namespace GitMind.Git.Private
 					string cachePath = GetCachePath(path);
 					Timing t = new Timing();
 
-					Repo repo = ToRepo(gitRepo);
+					RepositoryDto repositoryDto = ToRepo(gitRepo);
 
 					t.Log("copied data");
 
-					Serialize(cachePath, repo);
+					Serialize(cachePath, repositoryDto);
 
 					t.Log("wrote jason data");
 				}));
@@ -62,11 +62,11 @@ namespace GitMind.Git.Private
 					if (File.Exists(cachePath))
 					{
 						Timing t = new Timing();
-						Repo repo = Deserailize(cachePath);
+						RepositoryDto repositoryDto = Deserailize(cachePath);
 
 						t.Log("Read json data");
 
-						IGitRepo gitRepo = ToGitRepo(repo);
+						IGitRepo gitRepo = ToGitRepo(repositoryDto);
 
 						t.Log("Copied data");
 						return R.From(gitRepo);
@@ -82,39 +82,39 @@ namespace GitMind.Git.Private
 		}
 
 
-		private void Serialize(string cachePath, Repo repo)
+		private void Serialize(string cachePath, RepositoryDto repositoryDto)
 		{
 			// string tempPath = cachePath + Guid.NewGuid();
 
 			using (Stream stream = File.Create(cachePath))
 			{
-				serializer.Serialize(repo, stream);
+				serializer.Serialize(repositoryDto, stream);
 			}
 		}
 
 
-		private Repo Deserailize(string cachePath)
+		private RepositoryDto Deserailize(string cachePath)
 		{
 			using (Stream stream = File.OpenRead(cachePath))
 			{
-				return serializer.Deserialize<Repo>(stream);
+				return serializer.Deserialize<RepositoryDto>(stream);
 			}
 		}
 
 
-		private static GitRepo ToGitRepo(Repo repo)
+		private static GitRepo ToGitRepo(RepositoryDto repositoryDto)
 		{
 			return new GitRepo(
-				ToGitBranches(repo.Branches),
-				ToGitCommits(repo.Commits),
-				ToGitTags(repo.Tags),
-				repo.CurrentCommitId);
+				ToGitBranches(repositoryDto.Branches),
+				ToGitCommits(repositoryDto.Commits),
+				ToGitTags(repositoryDto.Tags),
+				repositoryDto.CurrentCommitId);
 		}
 
 
-		private static Repo ToRepo(IGitRepo gitRepo)
+		private static RepositoryDto ToRepo(IGitRepo gitRepo)
 		{
-			return new Repo
+			return new RepositoryDto
 			{
 				Branches = ToBranches(gitRepo.GetAllBranches()),
 				Commits = ToCommits(gitRepo.GetAllCommts()),
@@ -124,10 +124,10 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static List<Branch> ToBranches(IEnumerable<GitBranch> branches)
+		private static List<BranchDto> ToBranches(IEnumerable<GitBranch> branches)
 		{
 			return branches.Select(
-				b => new Branch
+				b => new BranchDto
 				{
 					Name = b.Name,
 					LatestCommitId = b.LatestCommitId,
@@ -141,10 +141,10 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static List<Commit> ToCommits(IEnumerable<GitCommit> commits)
+		private static List<CommitDto> ToCommits(IEnumerable<GitCommit> commits)
 		{
 			return commits.Select(
-				c => new Commit
+				c => new CommitDto
 				{
 					Id = c.Id,
 					Author = c.Author,
@@ -158,20 +158,20 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static List<Tag> ToTags(IReadOnlyList<GitTag> tags)
+		private static List<TagDto> ToTags(IReadOnlyList<GitTag> tags)
 		{
-			return tags.Select(t => new Tag { TagName = t.TagName, CommitId = t.CommitId }).ToList();
+			return tags.Select(t => new TagDto { TagName = t.TagName, CommitId = t.CommitId }).ToList();
 		}
 
 
-		private static List<GitTag> ToGitTags(IEnumerable<Tag> tags)
+		private static List<GitTag> ToGitTags(IEnumerable<TagDto> tags)
 		{
 			return tags.Select(t => new GitTag(t.CommitId, t.TagName))
 				.ToList();
 		}
 
 
-		private static IReadOnlyList<GitCommit> ToGitCommits(IEnumerable<Commit> commits)
+		private static IReadOnlyList<GitCommit> ToGitCommits(IEnumerable<CommitDto> commits)
 		{
 			return commits.Select(c => new GitCommit(
 				c.Id,
@@ -185,7 +185,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static IReadOnlyList<GitBranch> ToGitBranches(IEnumerable<Branch> branches)
+		private static IReadOnlyList<GitBranch> ToGitBranches(IEnumerable<BranchDto> branches)
 		{
 			return branches.Select(
 				b => new GitBranch(
@@ -209,24 +209,24 @@ namespace GitMind.Git.Private
 
 
 		[DataContract]
-		public class Repo
+		public class RepositoryDto
 		{
 			[DataMember]
 			public int MajorVersion { get; set; } = CurrentMajorVersion;
 			public int MinorVersion { get; set; } = CurrentMinorVersion;
 
 			[DataMember]
-			public List<Commit> Commits { get; set; }
+			public List<CommitDto> Commits { get; set; }
 			[DataMember]
 			public string CurrentCommitId { get; set; }
 			[DataMember]
-			public List<Branch> Branches { get; set; }
+			public List<BranchDto> Branches { get; set; }
 			[DataMember]
-			public List<Tag> Tags { get; set; }
+			public List<TagDto> Tags { get; set; }
 		}
 
 		[DataContract]
-		public class Commit
+		public class CommitDto
 		{
 			[DataMember]
 			public string Id { get; set; }
@@ -245,7 +245,7 @@ namespace GitMind.Git.Private
 		}
 
 		[DataContract]
-		public class Branch
+		public class BranchDto
 		{
 			[DataMember]
 			public string Name { get; set; }
@@ -264,7 +264,7 @@ namespace GitMind.Git.Private
 		}
 
 		[DataContract]
-		public class Tag
+		public class TagDto
 		{
 			[DataMember]
 			public string CommitId { get; set; }
