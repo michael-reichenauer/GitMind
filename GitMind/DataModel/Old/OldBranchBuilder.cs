@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace GitMind.DataModel.Old
 {
-	internal class BranchBuilder : IBranch
+	internal class OldBranchBuilder : IBranch
 	{
-		public static readonly BranchBuilder None = new BranchBuilder("", null, OldCommit.None, OldCommit.None);
+		public static readonly OldBranchBuilder None = new OldBranchBuilder("", null, OldCommit.None, OldCommit.None);
 
-		public BranchBuilder(
+		public OldBranchBuilder(
 			string name,
 			string trackingName,
 			OldCommit latestLocalCommit,
@@ -39,11 +39,11 @@ namespace GitMind.DataModel.Old
 
 		public List<OldCommit> CommitsBuilder { get; } = new List<OldCommit>();
 
-		public BranchBuilder Parent { get; set; }
+		public OldBranchBuilder Parent { get; set; }
 
 		public bool IsMultiBranch { get; set; }
 
-		public List<BranchBuilder> MultiBranches { get; } = new List<BranchBuilder>();
+		public List<OldBranchBuilder> MultiBranches { get; } = new List<OldBranchBuilder>();
 
 		public int LocalAheadCount { get; set; }
 		public int RemoteAheadCount { get; set; }

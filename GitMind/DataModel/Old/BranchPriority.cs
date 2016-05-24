@@ -8,7 +8,7 @@ namespace GitMind.DataModel.Old
 	internal class BranchPriority
 	{
 		private readonly IComparer<string> branchNameComparer;
-		private readonly IComparer<BranchBuilder> branchComparer;
+		private readonly IComparer<OldBranchBuilder> branchComparer;
 
 
 		public BranchPriority()
@@ -28,9 +28,9 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		public IReadOnlyList<BranchBuilder> GetSortedBranches(IReadOnlyList<BranchBuilder> unSortedbranches)
+		public IReadOnlyList<OldBranchBuilder> GetSortedBranches(IReadOnlyList<OldBranchBuilder> unSortedbranches)
 		{
-			List<BranchBuilder> branches = unSortedbranches.ToList();
+			List<OldBranchBuilder> branches = unSortedbranches.ToList();
 
 			Sorter.Sort(branches, branchComparer);
 
@@ -38,7 +38,7 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		public int Compare(BranchBuilder branch1, BranchBuilder branch2)
+		public int Compare(OldBranchBuilder branch1, OldBranchBuilder branch2)
 		{
 			return branchComparer.Compare(branch1, branch2);
 		}

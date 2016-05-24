@@ -19,7 +19,7 @@ namespace GitMind.DataModel.Old
 
 		IReadOnlyList<OldCommit> Commits { get; }
 
-		BranchBuilder Parent { get; }
+		OldBranchBuilder Parent { get; }
 
 		bool IsMultiBranch { get; }
 

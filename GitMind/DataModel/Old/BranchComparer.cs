@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GitMind.DataModel.Old
 {
-	internal class BranchComparer : IComparer<BranchBuilder>
+	internal class BranchComparer : IComparer<OldBranchBuilder>
 	{
 		private readonly IComparer<string> nameComparer;
 
@@ -14,7 +14,7 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		public int Compare(BranchBuilder x, BranchBuilder y)
+		public int Compare(OldBranchBuilder x, OldBranchBuilder y)
 		{
 			int result;
 			if (TryCompareMaster(x, y, out result))
@@ -34,7 +34,7 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		private bool TryCompareMaster(BranchBuilder x, BranchBuilder y, out int result)
+		private bool TryCompareMaster(OldBranchBuilder x, OldBranchBuilder y, out int result)
 		{
 			if (x.Name == "master")
 			{
@@ -52,7 +52,7 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		private bool TryCompareParent(BranchBuilder x, BranchBuilder y, out int result)
+		private bool TryCompareParent(OldBranchBuilder x, OldBranchBuilder y, out int result)
 		{
 			if (x == y.Parent)
 			{
@@ -70,7 +70,7 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		private bool TryCompareMultiBranch(BranchBuilder x, BranchBuilder y, out int result)
+		private bool TryCompareMultiBranch(OldBranchBuilder x, OldBranchBuilder y, out int result)
 		{
 			if (x.IsMultiBranch && x.MultiBranches.Contains(y))
 			{

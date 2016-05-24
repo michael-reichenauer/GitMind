@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -9,42 +10,42 @@ namespace GitMind.DataModel.Private
 {
 	internal class XModelService : IXModelService
 	{
-		public XModel XGetModel(IGitRepo gitRepo)
+		public MModel XGetModel(IGitRepo gitRepo)
 		{
 			IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
 			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
 			IReadOnlyList<CommitBranch> commitBranches = new CommitBranch[0];
 
-			XModel xModel = new XModel();
+			MModel mModel = new MModel();
 			Timing t = new Timing();
-			IReadOnlyList<XCommit> commits = AddCommits(gitCommits, xModel);
+			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, mModel);
 			t.Log("added commits");
 
 			SetChildren(commits);
 			t.Log("Set children");
 
-			SetSpecifiedCommitBranchNames(commitBranches, xModel);
+			SetSpecifiedCommitBranchNames(commitBranches, mModel);
 			t.Log("Set specified branch names");
 
-			SetSubjectCommitBranchNames(commits, xModel);
+			SetSubjectCommitBranchNames(commits, mModel);
 			t.Log("Parse subject branch names");
 
-			IReadOnlyList<SubBranch> branches1 = AddActiveBranches(gitBranches, xModel);
+			IReadOnlyList<MSubBranch> branches1 = AddActiveBranches(gitBranches, mModel);
 			t.Log("Add branches");
-			Log.Debug($"Number of active branches {branches1.Count} ({xModel.SubBranches.Count})");
+			Log.Debug($"Number of active branches {branches1.Count} ({mModel.SubBranches.Count})");
 
-			IReadOnlyList<SubBranch> branches2 = AddMergedInactiveBranches(commits, xModel);
-			IReadOnlyList<SubBranch> branches = branches1.Concat(branches2).ToList();
+			IReadOnlyList<MSubBranch> branches2 = AddMergedInactiveBranches(commits, mModel);
+			IReadOnlyList<MSubBranch> branches = branches1.Concat(branches2).ToList();
 			t.Log("Add merged branches");
-			Log.Debug($"Number of inactive branches {branches2.Count} ({xModel.SubBranches.Count})");
+			Log.Debug($"Number of inactive branches {branches2.Count} ({mModel.SubBranches.Count})");
 			//branches2.ForEach(b => Log.Debug($"   Branch {b}"));
 
-			SetMasterBranchCommits(branches, xModel);
+			SetMasterBranchCommits(branches, mModel);
 			t.Log("Set master branch commits");
 			Log.Debug($"Unset commits {commits.Count(c => !c.HasBranchName)}");
-			Log.Debug($"Number of branches {xModel.SubBranches.Count}");
+			Log.Debug($"Number of branches {mModel.SubBranches.Count}");
 
-			SetBranchCommits(branches, xModel);
+			SetBranchCommits(branches, mModel);
 			t.Log("Set branch commits");
 			Log.Debug($"Unset commits {commits.Count(c => !c.HasBranchName)}");
 		
@@ -56,10 +57,10 @@ namespace GitMind.DataModel.Private
 			t.Log("Set same branch name as parent with name");
 			Log.Debug($"Unset commits {commits.Count(c => !c.HasBranchName)}");
 
-			IReadOnlyList<SubBranch> branches3 = AddMultiBranches(commits, branches, xModel);
+			IReadOnlyList<MSubBranch> branches3 = AddMultiBranches(commits, branches, mModel);
 			t.Log("Add multi branches");
-			Log.Debug($"Number of multi branches {branches3.Count} ({xModel.SubBranches.Count})");
-			SetBranchCommits(branches3, xModel);
+			Log.Debug($"Number of multi branches {branches3.Count} ({mModel.SubBranches.Count})");
+			SetBranchCommits(branches3, mModel);
 
 			branches = branches.Concat(branches3).ToList();
 
@@ -71,24 +72,26 @@ namespace GitMind.DataModel.Private
 			SetParentCommitId(branches);
 			GroupSubBranches(branches);
 
-			SetBranchHierarchy(xModel.Branches);
+			SetBranchHierarchy(mModel.Branches);
 
-			Log.Debug($"Number of total branches {xModel.Branches.Count}");
-			Log.Debug($"Number of total commits {xModel.Commits.Count}");
-			Log.Debug($"Number of IsAnonymous branches {xModel.Branches.Count(b => b.IsAnonymous && !b.IsMultiBranch)}");
-			return xModel;
+			Log.Debug($"Number of total branches {mModel.Branches.Count}");
+			Log.Debug($"Number of total commits {mModel.Commits.Count}");
+			Log.Debug($"Number of IsAnonymous branches {mModel.Branches.Count(b => b.IsAnonymous && !b.IsMultiBranch)}");
+			return mModel;
 		}
 
 
-		private void SetBranchHierarchy(IReadOnlyList<XBranch> branches)
+		private void SetBranchHierarchy(IReadOnlyList<MBranch> branches)
 		{
-			foreach (XBranch xBranch in branches)
+
+			
+			foreach (MBranch xBranch in branches)
 			{
 				if (xBranch.ParentCommitId != null && xBranch.ParentCommit.BranchId != xBranch.Id)
 				{
 					xBranch.ParentBranchId = xBranch.ParentCommit.BranchId;
 
-					XBranch parentBranch = xBranch.ParentBranch;
+					MBranch parentBranch = xBranch.ParentBranch;
 					if (!parentBranch.ChildBranches.Contains(xBranch))
 					{
 						parentBranch.ChildBranches.Add(xBranch);
@@ -107,30 +110,30 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private void LogBranchHierarchy(XBranch xBranch, int indent)
+		private void LogBranchHierarchy(MBranch mBranch, int indent)
 		{
 			string indentText = new string(' ', indent);
-			Log.Debug($"{indentText}{xBranch}");
+			Log.Debug($"{indentText}{mBranch}");
 
-			foreach (XBranch childBranch in xBranch.ChildBranches.OrderBy(b => b.Name))
+			foreach (MBranch childBranch in mBranch.ChildBranches.OrderBy(b => b.Name))
 			{
 				LogBranchHierarchy(childBranch, indent + 3);
 			}
 		}
 
 
-		private static void SetParentCommitId(IReadOnlyList<SubBranch> subBranches)
+		private static void SetParentCommitId(IReadOnlyList<MSubBranch> subBranches)
 		{
-			foreach (SubBranch subBranch in subBranches)
+			foreach (MSubBranch subBranch in subBranches)
 			{
-				XCommit LatestCommit = subBranch.LatestCommit;
+				MCommit LatestCommit = subBranch.LatestCommit;
 
-				IEnumerable<XCommit> commits = subBranch.LatestCommit.FirstAncestors()
+				IEnumerable<MCommit> commits = subBranch.LatestCommit.FirstAncestors()
 					.TakeWhile(c => c.BranchName == subBranch.Name);
 
 				if (commits.Any())
 				{
-					XCommit firstCommit = commits.Last();
+					MCommit firstCommit = commits.Last();
 					subBranch.FirstCommitId = firstCommit.Id;
 					subBranch.ParentCommitId = firstCommit.FirstParentId;
 				}
@@ -149,7 +152,7 @@ namespace GitMind.DataModel.Private
 			}	
 		}
 
-		private static void GroupSubBranches(IReadOnlyList<SubBranch> branches)
+		private static void GroupSubBranches(IReadOnlyList<MSubBranch> branches)
 		{
 			var groupedOnName = branches.GroupBy(b => b.Name);
 
@@ -160,8 +163,8 @@ namespace GitMind.DataModel.Private
 				foreach (var groupByBranch in groupedByParentCommitId)
 				{
 					string id = Guid.NewGuid().ToString();
-					SubBranch subBranch = groupByBranch.First();
-					XBranch xBranch = new XBranch(subBranch.XModel)
+					MSubBranch subBranch = groupByBranch.First();
+					MBranch mBranch = new MBranch(subBranch.MModel)
 					{
 						Id = id,
 						Name = subBranch.Name,
@@ -171,10 +174,10 @@ namespace GitMind.DataModel.Private
 						ParentCommitId = subBranch.ParentCommitId
 					};
 
-					xBranch.SubBranches.AddRange(groupByBranch);
-					xBranch.SubBranches.ForEach(b => b.BranchId = id);
+					mBranch.SubBranches.AddRange(groupByBranch);
+					mBranch.SubBranches.ForEach(b => b.BranchId = id);
 
-					xBranch.Commits.AddRange(
+					mBranch.Commits.AddRange(
 						groupByBranch
 							.SelectMany(branch =>
 								new[] { branch.LatestCommit }
@@ -186,37 +189,37 @@ namespace GitMind.DataModel.Private
 								.Distinct()
 							.OrderBy(c => c.CommitDate));
 
-					if (xBranch.Commits.Any(c => c.BranchId != null))
+					if (mBranch.Commits.Any(c => c.BranchId != null))
 					{
-						var x = xBranch.Commits.Where(c => c.BranchId != null).ToList();
-						Log.Error($"Commits belong to multiple branches {xBranch}");
+						var x = mBranch.Commits.Where(c => c.BranchId != null).ToList();
+						Log.Error($"Commits belong to multiple branches {mBranch}");
 					}
 
-					xBranch.Commits.ForEach(c => c.BranchId = id);
+					mBranch.Commits.ForEach(c => c.BranchId = id);
 
-					xBranch.XModel.Branches.Add(xBranch);
+					mBranch.MModel.Branches.Add(mBranch);
 				}
 			}
 		}
 
 
-		private void SetEmptyParentCommits(IReadOnlyList<XCommit> commits)
+		private void SetEmptyParentCommits(IReadOnlyList<MCommit> commits)
 		{
 			// All commits, which do have a name, but first parent commit does not have a name
-			IEnumerable<XCommit> commitsWithBranchName =
+			IEnumerable<MCommit> commitsWithBranchName =
 				commits.Where(commit =>
 					commit.HasBranchName 
 					&& commit.HasFirstParent 
 					&& !commit.FirstParent.HasBranchName);
 
-			foreach (XCommit xCommit in commitsWithBranchName)
+			foreach (MCommit xCommit in commitsWithBranchName)
 			{
 				string branchName = xCommit.BranchName;
 				string subBranchId = xCommit.SubBranchId;
 
-				XCommit last = xCommit;
+				MCommit last = xCommit;
 				bool isFound = false;
-				foreach (XCommit current in xCommit.FirstAncestors())
+				foreach (MCommit current in xCommit.FirstAncestors())
 				{
 					if (current.HasBranchName && current.BranchName != branchName)
 					{
@@ -238,7 +241,7 @@ namespace GitMind.DataModel.Private
 
 				if (isFound)
 				{
-					foreach (XCommit current in xCommit.FirstAncestors())
+					foreach (MCommit current in xCommit.FirstAncestors())
 					{
 						current.BranchName = branchName;
 						current.SubBranchId = subBranchId;
@@ -253,20 +256,20 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private static void SetBranchCommitsOfParents(IReadOnlyList<XCommit> commits)
+		private static void SetBranchCommitsOfParents(IReadOnlyList<MCommit> commits)
 		{
-			IEnumerable<XCommit> commitsWithBranchName =
+			IEnumerable<MCommit> commitsWithBranchName =
 				commits.Where(commit =>
 					commit.HasBranchName
 					&& commit.HasFirstParent
 					&& !commit.FirstParent.HasBranchName);
 
-			foreach (XCommit xCommit in commitsWithBranchName)
+			foreach (MCommit xCommit in commitsWithBranchName)
 			{
 				string branchName = xCommit.BranchName;
 				string subBranchId = xCommit.SubBranchId;
 
-				foreach (XCommit current in xCommit.FirstAncestors()
+				foreach (MCommit current in xCommit.FirstAncestors()
 					.TakeWhile(c => c.FirstChildIds.Count <= 1 && !c.HasBranchName))
 				{
 					current.BranchName = branchName;
@@ -277,16 +280,16 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private IReadOnlyList<SubBranch> AddMultiBranches(
-			IReadOnlyList<XCommit> commits, IReadOnlyList<SubBranch> branches, XModel xmodel)
+		private IReadOnlyList<MSubBranch> AddMultiBranches(
+			IReadOnlyList<MCommit> commits, IReadOnlyList<MSubBranch> branches, MModel xmodel)
 		{
-			IEnumerable<XCommit> roots =
+			IEnumerable<MCommit> roots =
 				commits.Where(c =>
 				string.IsNullOrEmpty(c.BranchName)
 				&& c.FirstChildIds.Count > 1);
 
 			// The commits where multiple branches are starting and the commits has no branch name
-			IEnumerable<XCommit> roots2 = branches
+			IEnumerable<MCommit> roots2 = branches
 				.GroupBy(b => b.LatestCommitId)
 				.Where(group => group.Count() > 1)
 				.Select(group => xmodel.Commits[group.Key])
@@ -294,12 +297,12 @@ namespace GitMind.DataModel.Private
 
 			roots = roots.Concat(roots2);
 
-			List<SubBranch> multiBranches = new List<SubBranch>();
-			foreach (XCommit root in roots)
+			List<MSubBranch> multiBranches = new List<MSubBranch>();
+			foreach (MCommit root in roots)
 			{
 				string branchName = "Multibranch_" + root.ShortId;
 
-				SubBranch subBranch = new SubBranch(xmodel)
+				MSubBranch subBranch = new MSubBranch(xmodel)
 				{
 					Id = Guid.NewGuid().ToString(),
 					Name = branchName,		
@@ -317,18 +320,18 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private IReadOnlyList<SubBranch> AddMergedInactiveBranches(
-			IReadOnlyList<XCommit> commits, XModel xModel)
+		private IReadOnlyList<MSubBranch> AddMergedInactiveBranches(
+			IReadOnlyList<MCommit> commits, MModel mModel)
 		{
-			List<SubBranch> branches = new List<SubBranch>();
+			List<MSubBranch> branches = new List<MSubBranch>();
 
 			// Commits which has no child, which has this commit as a first parent, i.e. it is the 
 			// top of a branch and there is no existing branch at this commit
-			IEnumerable<XCommit> topCommits = commits.Where(commit =>
+			IEnumerable<MCommit> topCommits = commits.Where(commit =>
 				!commit.FirstChildIds.Any()
-				&& !xModel.SubBranches.Any(b =>b.LatestCommitId == commit.Id));
+				&& !mModel.SubBranches.Any(b =>b.LatestCommitId == commit.Id));
 
-			IEnumerable<XCommit> pullMergeTopCommits = commits
+			IEnumerable<MCommit> pullMergeTopCommits = commits
 				.Where(commit =>
 					commit.HasSecondParent
 					&& commit.MergeSourceBranchNameFromSubject != null
@@ -338,9 +341,9 @@ namespace GitMind.DataModel.Private
 			topCommits = topCommits.Concat(pullMergeTopCommits).Distinct();
 
 
-			foreach (XCommit xCommit in topCommits)
+			foreach (MCommit xCommit in topCommits)
 			{
-				SubBranch subBranch = new SubBranch(xModel)
+				MSubBranch subBranch = new MSubBranch(mModel)
 				{
 					Id = Guid.NewGuid().ToString(),
 					LatestCommitId = xCommit.Id,
@@ -357,7 +360,7 @@ namespace GitMind.DataModel.Private
 
 				subBranch.Name = branchName;
 
-				xModel.SubBranches.Add(subBranch);
+				mModel.SubBranches.Add(subBranch);
 				branches.Add(subBranch);
 			}
 
@@ -366,15 +369,15 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private string TryFindBranchName(XCommit xCommit)
+		private string TryFindBranchName(MCommit mCommit)
 		{
-			string branchName = GetBranchName(xCommit);
+			string branchName = GetBranchName(mCommit);
 
 			if (branchName == null)
 			{
 				int count = 0;
 				// Could not find a branch name from the commit, lets try it ancestors
-				foreach (XCommit commit in xCommit.FirstAncestors()
+				foreach (MCommit commit in mCommit.FirstAncestors()
 					.TakeWhile(c => c.HasSingleFirstChild))
 				{
 					count++;
@@ -390,9 +393,9 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private void SetBranchCommits(IReadOnlyList<SubBranch> branches, XModel xmodel)
+		private void SetBranchCommits(IReadOnlyList<MSubBranch> branches, MModel xmodel)
 		{
-			foreach (SubBranch xBranch in branches.ToList())
+			foreach (MSubBranch xBranch in branches.ToList())
 			{
 				string id = xBranch.LatestCommitId;
 				SetBranchName(xmodel, id, xBranch);
@@ -400,7 +403,7 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private void SetBranchName(XModel xmodel, string id, SubBranch subBranch)
+		private void SetBranchName(MModel xmodel, string id, MSubBranch subBranch)
 		{
 			if (string.IsNullOrEmpty(id))
 			{
@@ -412,20 +415,20 @@ namespace GitMind.DataModel.Private
 				
 			}
 
-			foreach (SubBranch b in xmodel.SubBranches)
+			foreach (MSubBranch b in xmodel.SubBranches)
 			{
 				if (b.Name != subBranch.Name
 					&& !(subBranch.IsActive && !b.IsActive)
 					&& !(subBranch.IsMultiBranch)
 					&& ( b.LatestCommitId == id))
 				{
-					XCommit c = xmodel.Commits[id];
+					MCommit c = xmodel.Commits[id];
 					//Log.Warn($"Commit {c} in branch {xBranch} same as other branch {b}");
 					return;
 				}
 			}
 
-			List<XCommit> pullmerges = new List<XCommit>();
+			List<MCommit> pullmerges = new List<MCommit>();
 
 			string currentId = id;
 			while (true)
@@ -435,45 +438,45 @@ namespace GitMind.DataModel.Private
 					break;
 				}
 
-				XCommit xCommit = xmodel.Commits[currentId];
+				MCommit mCommit = xmodel.Commits[currentId];
 
-				if (!string.IsNullOrEmpty(xCommit.BranchName))
+				if (!string.IsNullOrEmpty(mCommit.BranchName))
 				{
 					break;
 				}
 
-				if (IsPullMergeCommit(xCommit, subBranch))
+				if (IsPullMergeCommit(mCommit, subBranch))
 				{
-					pullmerges.Add(xCommit);
+					pullmerges.Add(mCommit);
 
 				}
 
-				if (GetBranchName(xCommit) != subBranch.Name &&
+				if (GetBranchName(mCommit) != subBranch.Name &&
 					!(subBranch.IsMultiBranch && currentId == id))
 				{
 					// for multi branches, first commit is a branch root
-					if (xCommit.ChildIds.Count > 1)
+					if (mCommit.ChildIds.Count > 1)
 					{
-						if (0 != xCommit.FirstChildren.Count(child => GetBranchName(child) != subBranch.Name))
+						if (0 != mCommit.FirstChildren.Count(child => GetBranchName(child) != subBranch.Name))
 						{
 							//Log.Warn($"Found commit which belongs to multiple different branches: {xCommit}");
 							break;
 						}
 
-						if (0 != xmodel.SubBranches.Count(b => b != subBranch && b.LatestCommit == xCommit))
+						if (0 != xmodel.SubBranches.Count(b => b != subBranch && b.LatestCommit == mCommit))
 						{
 							break;
 						}
 					}
 				}
 
-				xCommit.BranchName = subBranch.Name;
-				xCommit.SubBranchId = subBranch.Id;
+				mCommit.BranchName = subBranch.Name;
+				mCommit.SubBranchId = subBranch.Id;
 
-				currentId = xCommit.FirstParentId;
+				currentId = mCommit.FirstParentId;
 			}
 
-			foreach (XCommit xCommit in pullmerges)
+			foreach (MCommit xCommit in pullmerges)
 			{
 				//SetBranchName(xmodel, xCommit.SecondParentId, subBranch);
 
@@ -482,38 +485,38 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private bool IsPullMergeCommit(XCommit xCommit, SubBranch subBranch)
+		private bool IsPullMergeCommit(MCommit mCommit, MSubBranch subBranch)
 		{
 			return
-				xCommit.HasSecondParent
-				&& (xCommit.MergeSourceBranchNameFromSubject == subBranch.Name
-					|| GetBranchName(xCommit.SecondParent) == subBranch.Name);
+				mCommit.HasSecondParent
+				&& (mCommit.MergeSourceBranchNameFromSubject == subBranch.Name
+					|| GetBranchName(mCommit.SecondParent) == subBranch.Name);
 		}
 
 
-		private string GetBranchName(XCommit xCommit)
+		private string GetBranchName(MCommit mCommit)
 		{
-			if (!string.IsNullOrEmpty(xCommit.BranchName))
+			if (!string.IsNullOrEmpty(mCommit.BranchName))
 			{
-				return xCommit.BranchName;
+				return mCommit.BranchName;
 			}
-			else if (!string.IsNullOrEmpty(xCommit.BranchNameSpecified))
+			else if (!string.IsNullOrEmpty(mCommit.BranchNameSpecified))
 			{
-				return xCommit.BranchNameSpecified;
+				return mCommit.BranchNameSpecified;
 			}
-			else if (!string.IsNullOrEmpty(xCommit.BranchNameFromSubject))
+			else if (!string.IsNullOrEmpty(mCommit.BranchNameFromSubject))
 			{
-				return xCommit.BranchNameFromSubject;
+				return mCommit.BranchNameFromSubject;
 			}
 
 			return null;
 		}
 
 
-		private void SetMasterBranchCommits(IReadOnlyList<SubBranch> branches, XModel xmodel)
+		private void SetMasterBranchCommits(IReadOnlyList<MSubBranch> branches, MModel xmodel)
 		{
 			// Local master
-			SubBranch master = branches.FirstOrDefault(b => b.Name == "master" && !b.IsRemote);
+			MSubBranch master = branches.FirstOrDefault(b => b.Name == "master" && !b.IsRemote);
 			if (master != null)
 			{
 				SetBranchNameWithPriority(xmodel, master.LatestCommitId, master);
@@ -528,9 +531,9 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private void SetBranchNameWithPriority(XModel xmodel, string id, SubBranch subBranch)
+		private void SetBranchNameWithPriority(MModel xmodel, string id, MSubBranch subBranch)
 		{
-			List<XCommit> pullmerges = new List<XCommit>();
+			List<MCommit> pullmerges = new List<MCommit>();
 
 			while (true)
 			{
@@ -539,32 +542,32 @@ namespace GitMind.DataModel.Private
 					break;
 				}
 
-				XCommit xCommit = xmodel.Commits[id];
+				MCommit mCommit = xmodel.Commits[id];
 
-				if (xCommit.BranchName == subBranch.Name)
+				if (mCommit.BranchName == subBranch.Name)
 				{
 					break;
 				}
 
-				if (IsPullMergeCommit(xCommit, subBranch))
+				if (IsPullMergeCommit(mCommit, subBranch))
 				{
-					pullmerges.Add(xCommit);
+					pullmerges.Add(mCommit);
 				}
 
-				if (!string.IsNullOrEmpty(xCommit.BranchNameFromSubject) &&
-					xCommit.BranchNameFromSubject != subBranch.Name)
+				if (!string.IsNullOrEmpty(mCommit.BranchNameFromSubject) &&
+					mCommit.BranchNameFromSubject != subBranch.Name)
 				{
 					//Log.Debug($"Setting different name '{xBranch.Name}'!='{xCommit.BranchNameFromSubject}'");
 				}
 
-				xCommit.BranchName = subBranch.Name;
-				xCommit.SubBranchId = subBranch.Id;
+				mCommit.BranchName = subBranch.Name;
+				mCommit.SubBranchId = subBranch.Id;
 
 
-				id = xCommit.FirstParentId;
+				id = mCommit.FirstParentId;
 			}
 
-			foreach (XCommit xCommit in pullmerges)
+			foreach (MCommit xCommit in pullmerges)
 			{
 				//SetBranchNameWithPriority(xmodel, xCommit.SecondParentId, subBranch);
 				//RemovePullMergeBranch(xmodel, xBranch, xCommit.SecondParentId);
@@ -572,12 +575,12 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private void SetChildren(IReadOnlyList<XCommit> commits)
+		private void SetChildren(IReadOnlyList<MCommit> commits)
 		{
-			foreach (XCommit xCommit in commits)
+			foreach (MCommit xCommit in commits)
 			{
 				bool isFirstParent = true;
-				foreach (XCommit parent in xCommit.Parents)
+				foreach (MCommit parent in xCommit.Parents)
 				{
 					if (!parent.Children.Contains(xCommit))
 					{
@@ -599,26 +602,26 @@ namespace GitMind.DataModel.Private
 
 		private void SetSpecifiedCommitBranchNames(
 			IReadOnlyList<CommitBranch> commitBranches,
-			XModel xmodel)
+			MModel xmodel)
 		{
 			foreach (CommitBranch commitBranch in commitBranches)
 			{
-				XCommit xCommit;
-				if (xmodel.Commits.TryGetValue(commitBranch.CommitId, out xCommit))
+				MCommit mCommit;
+				if (xmodel.Commits.TryGetValue(commitBranch.CommitId, out mCommit))
 				{
-					xCommit.BranchNameSpecified = commitBranch.BranchName;
-					xCommit.BranchName = commitBranch.BranchName;
-					xCommit.SubBranchId = commitBranch.SubBranchId;
+					mCommit.BranchNameSpecified = commitBranch.BranchName;
+					mCommit.BranchName = commitBranch.BranchName;
+					mCommit.SubBranchId = commitBranch.SubBranchId;
 				}
 			}
 		}
 
 
 		private void SetSubjectCommitBranchNames(
-			IReadOnlyList<XCommit> commits,
-			XModel xmodel)
+			IReadOnlyList<MCommit> commits,
+			MModel xmodel)
 		{
-			foreach (XCommit xCommit in commits)
+			foreach (MCommit xCommit in commits)
 			{
 				xCommit.BranchNameFromSubject = TryExtractBranchNameFromSubject(xCommit, xmodel);
 			}
@@ -626,25 +629,25 @@ namespace GitMind.DataModel.Private
 
 
 
-		private IReadOnlyList<XCommit> AddCommits(IReadOnlyList<GitCommit> gitCommits, XModel xmodel)
+		private IReadOnlyList<MCommit> AddCommits(IReadOnlyList<GitCommit> gitCommits, MModel xmodel)
 		{
 			return gitCommits.Select(
 				c =>
 				{
-					XCommit xCommit = ToCommit(c, xmodel);
-					xmodel.Commits.Add(xCommit);
-					return xCommit;
+					MCommit mCommit = ToCommit(c, xmodel);
+					xmodel.Commits.Add(mCommit);
+					return mCommit;
 				})
 				.ToList();
 		}
 
 
-		private IReadOnlyList<SubBranch> AddActiveBranches(
-			IReadOnlyList<GitBranch> gitBranches, XModel xmodel)
+		private IReadOnlyList<MSubBranch> AddActiveBranches(
+			IReadOnlyList<GitBranch> gitBranches, MModel xmodel)
 		{
 			return gitBranches.Select(gitBranch =>
 			{
-				SubBranch subBranch = ToBranch(gitBranch, xmodel);
+				MSubBranch subBranch = ToBranch(gitBranch, xmodel);
 				xmodel.SubBranches.Add(subBranch);
 				return subBranch;
 			})
@@ -652,11 +655,11 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private SubBranch ToBranch(GitBranch gitBranch, XModel xModel)
+		private MSubBranch ToBranch(GitBranch gitBranch, MModel mModel)
 		{
 			string latestCommitId = gitBranch.LatestCommitId;
 			
-			return new SubBranch(xModel)
+			return new MSubBranch(mModel)
 			{
 				Id = Guid.NewGuid().ToString(),
 				Name = gitBranch.Name,			
@@ -668,11 +671,11 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private XCommit ToCommit(GitCommit gitCommit, XModel xModel)
+		private MCommit ToCommit(GitCommit gitCommit, MModel mModel)
 		{
 			MergeBranchNames branchNames = ParseMergeNamesFromSubject(gitCommit);
 
-			return new XCommit(xModel)
+			return new MCommit(mModel)
 			{
 				Id = gitCommit.Id,
 				ShortId = gitCommit.ShortId,
@@ -689,18 +692,18 @@ namespace GitMind.DataModel.Private
 		}
 
 
-		private string TryExtractBranchNameFromSubject(XCommit xCommit, XModel xModel)
+		private string TryExtractBranchNameFromSubject(MCommit mCommit, MModel mModel)
 		{
 			//if (xCommit.ShortId == "68e784")
 			//{
 
 			//}
 
-			if (xCommit.SecondParentId != null)
+			if (mCommit.SecondParentId != null)
 			{
 				// This is a merge commit, and the subject might contain the target (this current) branch 
 				// name in the subject like e.g. "Merge <source-branch> into <target-branch>"
-				string branchName = xCommit.MergeTargetBranchNameFromSubject;
+				string branchName = mCommit.MergeTargetBranchNameFromSubject;
 				if (branchName != null)
 				{
 					return branchName;
@@ -711,10 +714,10 @@ namespace GitMind.DataModel.Private
 			// the source branch name of that commit. I.e. a child commit might have a subject like
 			// e.g. "Merge <source-branch> ..." That source branch would thus be the name of the branch
 			// of this commit.
-			foreach (string childId in xCommit.ChildIds)
+			foreach (string childId in mCommit.ChildIds)
 			{
-				XCommit child = xModel.Commits[childId];
-				if (child.SecondParentId == xCommit.Id
+				MCommit child = mModel.Commits[childId];
+				if (child.SecondParentId == mCommit.Id
 					&& !string.IsNullOrEmpty(child.MergeSourceBranchNameFromSubject))
 				{
 					return child.MergeSourceBranchNameFromSubject;

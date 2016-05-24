@@ -6,6 +6,6 @@ namespace GitMind.DataModel
 {
 	internal interface IXModelService
 	{
-		XModel XGetModel(IGitRepo gitRepo);
+		MModel XGetModel(IGitRepo gitRepo);
 	}
 }

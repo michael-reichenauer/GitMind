@@ -25,11 +25,11 @@ namespace GitMind.DataModel.Old
 		public List<OldMerge> Merges { get; } = new List<OldMerge>();
 		public IGitRepo GitRepo { get; }
 
-		public List<BranchBuilder> ActiveBranches { get; } = new List<BranchBuilder>();
-		public List<BranchBuilder> AllBranches { get; } = new List<BranchBuilder>();
+		public List<OldBranchBuilder> ActiveBranches { get; } = new List<OldBranchBuilder>();
+		public List<OldBranchBuilder> AllBranches { get; } = new List<OldBranchBuilder>();
 
 
-		public bool IsParentBranch(BranchBuilder parent, BranchBuilder child)
+		public bool IsParentBranch(OldBranchBuilder parent, OldBranchBuilder child)
 		{
 			return -1 == branchPriority.Compare(parent, child);
 		}

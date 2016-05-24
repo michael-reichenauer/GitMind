@@ -431,7 +431,7 @@ namespace GitMind.CommitsHistory
 		{
 			activeBrancheNames.Clear();
 
-			foreach (BranchBuilder branch in model.Branches)
+			foreach (OldBranchBuilder branch in model.Branches)
 			{
 				activeBrancheNames.Add(branch.Name);
 			}
@@ -700,14 +700,14 @@ namespace GitMind.CommitsHistory
 				int mergeId = ++currentMergeId;
 
 				int parentRowIndex = commitIdToRowIndex[merge.ParentCommit.Id];
-				BranchBuilder parentBranch = merge.ParentCommit.Branch;
+				OldBranchBuilder parentBranch = merge.ParentCommit.Branch;
 				int parrentColumn = branches.First(b => b.Name == parentBranch.Name).BranchColumn;
 
 				int childRowIndex = commitIdToRowIndex[merge.ChildCommit.Id];
-				BranchBuilder childBranch = merge.ChildCommit.Branch;
+				OldBranchBuilder childBranch = merge.ChildCommit.Branch;
 				int childColumn = branches.First(b => b.Name == childBranch.Name).BranchColumn;
 
-				BranchBuilder mainBranch = childColumn > parrentColumn ? childBranch : parentBranch;
+				OldBranchBuilder mainBranch = childColumn > parrentColumn ? childBranch : parentBranch;
 
 				int xx1 = coordinateConverter.ConvertFromColumn(childColumn);
 				int xx2 = coordinateConverter.ConvertFromColumn(parrentColumn);

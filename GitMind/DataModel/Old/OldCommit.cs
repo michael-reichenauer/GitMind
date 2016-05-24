@@ -69,11 +69,11 @@ namespace GitMind.DataModel.Old
 		public OldCommit FirstParent => Parents.Any() ? Parents[0] : OldCommit.None;
 		public OldCommit SecondParent => Parents.Count > 1 ? Parents[1] : OldCommit.None;
 
-		public BranchBuilder Branch { get; set; }
-		public BranchBuilder ActiveBranch { get; set; }
+		public OldBranchBuilder Branch { get; set; }
+		public OldBranchBuilder ActiveBranch { get; set; }
 		public bool IsOnActiveBranch() => ActiveBranch != null;
 
-		public List<BranchBuilder> Branches { get; } = new List<BranchBuilder>();
+		public List<OldBranchBuilder> Branches { get; } = new List<OldBranchBuilder>();
 		public IReadOnlyList<OldCommit> Children => children.Value;
 		public List<OldTag> Tags { get; } = new List<OldTag>();
 		public bool IsLocalAheadMarker { get; set; }

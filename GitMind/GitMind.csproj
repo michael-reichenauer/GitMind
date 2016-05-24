@@ -73,7 +73,7 @@
     <Compile Include="CommitsHistory\ICoordinateConverter.cs" />
     <Compile Include="CommitsHistory\IDiffService.cs" />
     <Compile Include="DataModel\Old\ActiveBranch.cs" />
-    <Compile Include="DataModel\Old\BranchBuilder.cs" />
+    <Compile Include="DataModel\Old\OldBranchBuilder.cs" />
     <Compile Include="DataModel\Old\BranchComparer.cs" />
     <Compile Include="DataModel\Old\BranchNameComparer.cs" />
     <Compile Include="DataModel\Private\BranchNameParser.cs" />
@@ -82,8 +82,11 @@
     <Compile Include="DataModel\Old\CommitComparer.cs" />
     <Compile Include="DataModel\Old\Commits.cs" />
     <Compile Include="DataModel\IXModelService.cs" />
+    <Compile Include="DataModel\Private\MBranch.cs" />
+    <Compile Include="DataModel\Private\MCommit.cs" />
+    <Compile Include="DataModel\Private\MSubBranch.cs" />
     <Compile Include="Utils\KeyedList.cs" />
-    <Compile Include="DataModel\Private\XModel.cs" />
+    <Compile Include="DataModel\Private\MModel.cs" />
     <Compile Include="DataModel\Private\XModelService.cs" />
     <Compile Include="ExceptionHandling.cs" />
     <Compile Include="FatalExceptionsExtensions.cs" />
