@@ -10,7 +10,7 @@ using GitMind.Utils;
 
 namespace GitMind.DataModel.Old
 {
-	internal class ModelService : IModelService
+	internal class OldModelService : IOldModelService
 	{
 		private static readonly int VirtualMergeLimit = 10;
 
@@ -20,13 +20,13 @@ namespace GitMind.DataModel.Old
 		private readonly IGitCacheService gitCacheService;
 		private IXModelService xModelService = new XModelService();
 
-		public ModelService()
+		public OldModelService()
 			: this(new GitService(), new GitCacheService())
 		{
 		}
 
 
-		public ModelService(
+		public OldModelService(
 			IGitService gitService, 
 			IGitCacheService gitCacheService)
 		{
@@ -35,7 +35,7 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		public async Task<Model> GetCachedModelAsync(IReadOnlyList<string> activeBranchNames)
+		public async Task<OldModel> GetCachedModelAsync(IReadOnlyList<string> activeBranchNames)
 		{
 			R<IGitRepo> gitRepo = await gitCacheService.GetRepoAsync(null);
 
@@ -57,7 +57,7 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		public async Task<Model> RefreshAsync(Model model)
+		public async Task<OldModel> RefreshAsync(OldModel model)
 		{
 			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
 			if (!gitRepo.HasValue)
@@ -77,7 +77,7 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		public async Task<Model> WithRemoveBranchNameAsync(Model model, string branchName)
+		public async Task<OldModel> WithRemoveBranchNameAsync(OldModel model, string branchName)
 		{
 			List<BranchBuilder> branches = model.Branches.Select(b => (BranchBuilder)b).ToList();
 
@@ -101,9 +101,9 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		public async Task<Model> WithToggleCommitAsync(Model model, Commit commit)
+		public async Task<OldModel> WithToggleCommitAsync(OldModel model, OldCommit commit)
 		{
-			Commit secondParent = commit.SecondParent;
+			OldCommit secondParent = commit.SecondParent;
 
 			if (model.Commits.Contains(secondParent))
 			{
@@ -137,7 +137,7 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		public async Task<Model> WithAddBranchNameAsync(Model model, string branchName, string commitId)
+		public async Task<OldModel> WithAddBranchNameAsync(OldModel model, string branchName, string commitId)
 		{
 			List<ActiveBranch> activeBranches = model.Branches
 				.Where(b => !b.IsMultiBranch)
@@ -156,7 +156,7 @@ namespace GitMind.DataModel.Old
 
 
 
-		private Task<Model> GetModelAsync(IReadOnlyList<ActiveBranch> activeBranches, IGitRepo gitRepo)
+		private Task<OldModel> GetModelAsync(IReadOnlyList<ActiveBranch> activeBranches, IGitRepo gitRepo)
 		{
 			Timing timing = new Timing();
 
@@ -206,15 +206,15 @@ namespace GitMind.DataModel.Old
 				IReadOnlyList<BranchBuilder> activeBrancheBuilders = branchPriority.GetSortedBranches(
 					model.ActiveBranches);
 
-				List<Commit> commits = activeBrancheBuilders
+				List<OldCommit> commits = activeBrancheBuilders
 					.SelectMany(branch => branch.Commits).ToList();
 				commits.Sort(CommitComparer);
 
-				Commit currentCommit = model.Commits.GetById(gitRepo.CurrentCommitId);
+				OldCommit currentCommit = model.Commits.GetById(gitRepo.CurrentCommitId);
 
 				IReadOnlyList<string> allBranchNames = GetAllBranchNames(gitRepo, branchPriority);
 
-				Model model1 = new Model(
+				OldModel model1 = new OldModel(
 					activeBrancheBuilders,
 					commits,
 					id => model.Commits.GetById(id),
@@ -235,12 +235,12 @@ namespace GitMind.DataModel.Old
 		{
 			foreach (var branch in model.AllBranches.Where(b => b.Commits.Count == 0))
 			{
-				Commit parentCommit = branch.LatestCommit;
+				OldCommit parentCommit = branch.LatestCommit;
 
-				Commit commit = new Commit(
+				OldCommit commit = new OldCommit(
 					parentCommit.Id + "_1",
-					new Lazy<IReadOnlyList<Commit>>(() => new[] { parentCommit }),
-					new Lazy<IReadOnlyList<Commit>>(() => new Commit[0]),
+					new Lazy<IReadOnlyList<OldCommit>>(() => new[] { parentCommit }),
+					new Lazy<IReadOnlyList<OldCommit>>(() => new OldCommit[0]),
 					$"<<< no commits yet on branch: {branch.Name} >>>",
 					"",
 					parentCommit.DateTime,
@@ -257,7 +257,7 @@ namespace GitMind.DataModel.Old
 		{
 			foreach (BranchBuilder branch in model.AllBranches.Where(b => !b.IsMultiBranch))
 			{
-				foreach (Commit commit in branch.Commits)
+				foreach (OldCommit commit in branch.Commits)
 				{
 					if (commit.BranchName != null && commit.BranchName != branch.Name)
 					{
@@ -381,9 +381,9 @@ namespace GitMind.DataModel.Old
 		{
 			foreach (BranchBuilder branch in model.ActiveBranches)
 			{
-				Commit firstCommit = branch.FirstCommit;
+				OldCommit firstCommit = branch.FirstCommit;
 
-				if (branch.LatestTrackingCommit != Commit.None
+				if (branch.LatestTrackingCommit != OldCommit.None
 					&& branch.LatestTrackingCommit != branch.LatestLocalCommit)
 				{
 					MarkIsLocalAhead(branch.LatestLocalCommit, firstCommit, branch);
@@ -391,7 +391,7 @@ namespace GitMind.DataModel.Old
 				}
 				else
 				{
-					foreach (Commit commit in branch.Commits)
+					foreach (OldCommit commit in branch.Commits)
 					{
 						commit.IsLocalAheadMarker = true;
 						commit.IsRemoteAheadMarker = true;
@@ -400,7 +400,7 @@ namespace GitMind.DataModel.Old
 
 				int localAheadCount = 0;
 				int remoteAheadCount = 0;
-				foreach (Commit commit in branch.Commits)
+				foreach (OldCommit commit in branch.Commits)
 				{
 					if (commit.IsLocalAhead)
 					{
@@ -418,14 +418,14 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		private void MarkIsLocalAhead(Commit commit, Commit firstCommit, BranchBuilder branch)
+		private void MarkIsLocalAhead(OldCommit commit, OldCommit firstCommit, BranchBuilder branch)
 		{
 			if (!commit.IsLocalAheadMarker && commit.Branch == branch)
 			{
 				commit.IsLocalAheadMarker = true;
 				if (commit != firstCommit)
 				{
-					foreach (Commit parent in commit.Parents)
+					foreach (OldCommit parent in commit.Parents)
 					{
 						MarkIsLocalAhead(parent, firstCommit, branch);
 					}
@@ -434,14 +434,14 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		private void MarkIsRemoteAhead(Commit commit, Commit firstCommit, BranchBuilder branch)
+		private void MarkIsRemoteAhead(OldCommit commit, OldCommit firstCommit, BranchBuilder branch)
 		{
 			if (!commit.IsRemoteAheadMarker && commit.Branch == branch)
 			{
 				commit.IsRemoteAheadMarker = true;
 				if (commit != firstCommit)
 				{
-					foreach (Commit parent in commit.Parents)
+					foreach (OldCommit parent in commit.Parents)
 					{
 						MarkIsRemoteAhead(parent, firstCommit, branch);
 					}
@@ -454,7 +454,7 @@ namespace GitMind.DataModel.Old
 		{
 			foreach (BranchBuilder branch in model.ActiveBranches)
 			{
-				foreach (Commit commit in branch.Commits)
+				foreach (OldCommit commit in branch.Commits)
 				{
 					commit.ActiveBranch = branch;
 				}
@@ -465,7 +465,7 @@ namespace GitMind.DataModel.Old
 		{
 			foreach (BranchBuilder branch in model.AllBranches)
 			{
-				foreach (Commit commit in branch.Commits)
+				foreach (OldCommit commit in branch.Commits)
 				{
 					Asserter.Requires(commit.Branch == null);
 					commit.Branch = branch;
@@ -478,10 +478,10 @@ namespace GitMind.DataModel.Old
 		{
 			foreach (BranchBuilder branch in model.AllBranches)
 			{
-				Commit firstCommit = branch.FirstCommit;
-				Commit parentCommit = firstCommit.FirstParent;
+				OldCommit firstCommit = branch.FirstCommit;
+				OldCommit parentCommit = firstCommit.FirstParent;
 
-				if (parentCommit != Commit.None)
+				if (parentCommit != OldCommit.None)
 				{
 					Asserter.Requires(branch != parentCommit.Branch);
 					branch.Parent = parentCommit.Branch;
@@ -497,7 +497,7 @@ namespace GitMind.DataModel.Old
 
 			foreach (BranchBuilder multiBranch in multiBranches)
 			{
-				List<Commit> commitsToMove = new List<Commit>();
+				List<OldCommit> commitsToMove = new List<OldCommit>();
 
 				bool isCommitsMoved;
 				do
@@ -511,8 +511,8 @@ namespace GitMind.DataModel.Old
 					}
 
 					IReadOnlyList<BranchBuilder> branches = multiBranch.Commits.First().Branches.ToList();
-					Commit specifiedBranchNameCommit = multiBranch.Commits.FirstOrDefault(c => c.BranchName != null);
-					foreach (Commit commit in multiBranch.Commits)
+					OldCommit specifiedBranchNameCommit = multiBranch.Commits.FirstOrDefault(c => c.BranchName != null);
+					foreach (OldCommit commit in multiBranch.Commits)
 					{
 						commitsToMove.Add(commit);
 						if (specifiedBranchNameCommit != null && commit != specifiedBranchNameCommit)
@@ -531,7 +531,7 @@ namespace GitMind.DataModel.Old
 									commit.BranchName,
 									null,
 									multiBranch.Commits.First(),
-									Commit.None);
+									OldCommit.None);
 								modelBuilder.AllBranches.Add(branch);
 							}
 						}
@@ -557,7 +557,7 @@ namespace GitMind.DataModel.Old
 						{
 							// Move commits from multi branch to branch
 							branch.CommitsBuilder.AddRange(commitsToMove);
-							foreach (Commit commitToMove in commitsToMove)
+							foreach (OldCommit commitToMove in commitsToMove)
 							{
 								foreach (BranchBuilder builder in branches.Where(b => b != branch))
 								{
@@ -583,7 +583,7 @@ namespace GitMind.DataModel.Old
 							// multi branch commits
 							foreach (BranchBuilder builder in branches.Where(b => b != branch))
 							{
-								foreach (Commit commit1 in multiBranch.Commits)
+								foreach (OldCommit commit1 in multiBranch.Commits)
 								{
 									commit1.Branches.Remove(builder);
 								}
@@ -608,7 +608,7 @@ namespace GitMind.DataModel.Old
 
 			foreach (BranchBuilder multiBranch in multiBranches)
 			{
-				foreach (Commit commit in multiBranch.Commits)
+				foreach (OldCommit commit in multiBranch.Commits)
 				{
 					foreach (BranchBuilder commitbranch in commit.Branches)
 					{
@@ -627,15 +627,15 @@ namespace GitMind.DataModel.Old
 		{
 			List<BranchBuilder> branches = new List<BranchBuilder>();
 
-			Dictionary<string, Commit> checkedCommits = new Dictionary<string, Commit>();
-			List<Commit> topCommits = new List<Commit>();
+			Dictionary<string, OldCommit> checkedCommits = new Dictionary<string, OldCommit>();
+			List<OldCommit> topCommits = new List<OldCommit>();
 
-			foreach (Commit commit in branch.Commits)
+			foreach (OldCommit commit in branch.Commits)
 			{
 				CheckChildren(commit, checkedCommits, topCommits);
 			}
 
-			foreach (Commit commit in topCommits)
+			foreach (OldCommit commit in topCommits)
 			{
 				GitBranch gitBranch = modelBuilder.GitRepo.GetAllBranches()
 					.FirstOrDefault(
@@ -664,7 +664,7 @@ namespace GitMind.DataModel.Old
 							branchName,
 							null,
 							commit,
-							Commit.None);
+							OldCommit.None);
 						branches.Add(branchBuilder);
 					}
 				}
@@ -675,9 +675,9 @@ namespace GitMind.DataModel.Old
 
 
 		private void CheckChildren(
-			Commit commit,
-			IDictionary<string, Commit> checkedCommits,
-			ICollection<Commit> topCommits)
+			OldCommit commit,
+			IDictionary<string, OldCommit> checkedCommits,
+			ICollection<OldCommit> topCommits)
 		{
 			if (!checkedCommits.ContainsKey(commit.Id))
 			{
@@ -701,7 +701,7 @@ namespace GitMind.DataModel.Old
 					// However it could also be a "pull merge commit" lets treat is as a candidate for now
 					topCommits.Add(commit);
 				}
-				foreach (Commit childCommit in commit.Children)
+				foreach (OldCommit childCommit in commit.Children)
 				{
 					// Don't check children on master
 					if (!childCommit.Branches.Any(b => b.Name == "master"))
@@ -721,10 +721,10 @@ namespace GitMind.DataModel.Old
 		private static BranchBuilder CreateBranch(ModelBuilder modelBuilder, GitBranch gitBranch)
 		{
 			string trackingBranchName = gitBranch.TrackingBranchName;
-			Commit latestLocalCommit = modelBuilder.Commits.GetById(gitBranch.LatestCommitId);
-			Commit latestTrackingCommit = gitBranch.LatestTrackingCommitId != null
+			OldCommit latestLocalCommit = modelBuilder.Commits.GetById(gitBranch.LatestCommitId);
+			OldCommit latestTrackingCommit = gitBranch.LatestTrackingCommitId != null
 				? modelBuilder.Commits.GetById(gitBranch.LatestTrackingCommitId)
-				: Commit.None;
+				: OldCommit.None;
 
 			BranchBuilder branch = new BranchBuilder(
 				gitBranch.Name,
@@ -738,15 +738,15 @@ namespace GitMind.DataModel.Old
 
 		private void SetBranchCommits(ModelBuilder modelBuilder, BranchBuilder branch)
 		{
-			Commit latestCommit = branch.LatestLocalCommit;
+			OldCommit latestCommit = branch.LatestLocalCommit;
 
-			IReadOnlyList<Commit> commits = GetPossibleBranchCommits(modelBuilder, branch, latestCommit);
+			IReadOnlyList<OldCommit> commits = GetPossibleBranchCommits(modelBuilder, branch, latestCommit);
 
 			SetBranchCommits(commits, branch);
 
 			SetPullMergeBranchCommits(commits, branch);
 
-			if (branch.LatestTrackingCommit != Commit.None)
+			if (branch.LatestTrackingCommit != OldCommit.None)
 			{
 				// The branch is a local branch, which has a remote tracking branch. The local branch can be
 				// synced, ahead, behind or both ahead and behind the remote tracking branch 
@@ -778,11 +778,11 @@ namespace GitMind.DataModel.Old
 
 			foreach (BranchBuilder branch in modelBuilder.AllBranches)
 			{
-				List<Commit> allBranchCommits = branch.Commits.ToList();
+				List<OldCommit> allBranchCommits = branch.Commits.ToList();
 				branch.CommitsBuilder.Clear();
 
 				BranchBuilder multiBranch = null;
-				foreach (Commit commit in allBranchCommits)
+				foreach (OldCommit commit in allBranchCommits)
 				{
 					Asserter.Requires(commit.Branches.Any());
 
@@ -798,7 +798,7 @@ namespace GitMind.DataModel.Old
 
 						if (multiBranch == null)
 						{
-							multiBranch = new BranchBuilder("Multi" + commit.Id, null, commit, Commit.None);
+							multiBranch = new BranchBuilder("Multi" + commit.Id, null, commit, OldCommit.None);
 							multiBranch.IsMultiBranch = true;
 							multiBranches.Add(multiBranch);
 						}
@@ -829,12 +829,12 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		private IReadOnlyList<Commit> GetPossibleBranchCommits(
-			ModelBuilder modelBuilder, BranchBuilder branch, Commit commit)
+		private IReadOnlyList<OldCommit> GetPossibleBranchCommits(
+			ModelBuilder modelBuilder, BranchBuilder branch, OldCommit commit)
 		{
-			List<Commit> commits = new List<Commit>();
+			List<OldCommit> commits = new List<OldCommit>();
 
-			while (commit != Commit.None)
+			while (commit != OldCommit.None)
 			{
 				if (CanBeBranchCommit(modelBuilder, branch, commit))
 				{
@@ -858,15 +858,15 @@ namespace GitMind.DataModel.Old
 
 
 
-		private void SetPullMergeBranchCommits(IReadOnlyList<Commit> commits, BranchBuilder branch)
+		private void SetPullMergeBranchCommits(IReadOnlyList<OldCommit> commits, BranchBuilder branch)
 		{
-			foreach (Commit commit in commits)
+			foreach (OldCommit commit in commits)
 			{
 				if (commit.TryGetSourceBranchNameFromSubject() == branch.Name
-					|| (commit.SecondParent != Commit.None
+					|| (commit.SecondParent != OldCommit.None
 					&& commit.SecondParent.TryGetBranchNameFromSubject() == branch.Name))
 				{
-					IReadOnlyList<Commit> pullMergeCommits = GetPullMergeBranchCommits(
+					IReadOnlyList<OldCommit> pullMergeCommits = GetPullMergeBranchCommits(
 						commit.SecondParent, branch);
 					SetBranchCommits(pullMergeCommits, branch);
 
@@ -876,10 +876,10 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		private static IReadOnlyList<Commit> GetPullMergeBranchCommits(
-			Commit commit, BranchBuilder branch)
+		private static IReadOnlyList<OldCommit> GetPullMergeBranchCommits(
+			OldCommit commit, BranchBuilder branch)
 		{
-			List<Commit> commits = new List<Commit>();
+			List<OldCommit> commits = new List<OldCommit>();
 
 			while (true)
 			{
@@ -910,9 +910,9 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		private void SetBranchCommits(IReadOnlyList<Commit> commits, BranchBuilder branch)
+		private void SetBranchCommits(IReadOnlyList<OldCommit> commits, BranchBuilder branch)
 		{
-			foreach (Commit commit in commits)
+			foreach (OldCommit commit in commits)
 			{
 				commit.Branches.Add(branch);
 				branch.CommitsBuilder.Add(commit);
@@ -925,50 +925,50 @@ namespace GitMind.DataModel.Old
 			foreach (BranchBuilder branch in model.ActiveBranches
 				.Where(b => b.Name != "master").ToList())
 			{
-				Commit childCommit = branch.FirstCommit;
-				Commit parentCommit = childCommit.FirstParent;
+				OldCommit childCommit = branch.FirstCommit;
+				OldCommit parentCommit = childCommit.FirstParent;
 
 				if (model.ActiveBranches.Contains(parentCommit.Branch))
 				{
 					// Creating a start of branch merge from parent branch to first commit on branch
-					Merge merge = new Merge(parentCommit, childCommit, true, false);
+					OldMerge merge = new OldMerge(parentCommit, childCommit, true, false);
 
 					model.Merges.Add(merge);
 				}
 				else
 				{
-					Commit virtualParentCommit;
+					OldCommit virtualParentCommit;
 					if (TryFindVirtualParent(childCommit, out virtualParentCommit))
 					{
-						Merge merge = new Merge(virtualParentCommit, childCommit, true, true);
+						OldMerge merge = new OldMerge(virtualParentCommit, childCommit, true, true);
 
 						model.Merges.Add(merge);
 					}
 				}
 			}
 
-			foreach (Commit commit in model.ActiveBranches.SelectMany(b => b.Commits))
+			foreach (OldCommit commit in model.ActiveBranches.SelectMany(b => b.Commits))
 			{
 				if (commit.Parents.Count == 2)
 				{
-					Commit childCommit = commit;
-					Commit parentCommit = childCommit.SecondParent;
+					OldCommit childCommit = commit;
+					OldCommit parentCommit = childCommit.SecondParent;
 
 					if (model.ActiveBranches.Contains(parentCommit.Branch))
 					{
 						if (parentCommit.Branch != childCommit.Branch)
 						{
-							Merge merge = new Merge(parentCommit, childCommit, false, false);
+							OldMerge merge = new OldMerge(parentCommit, childCommit, false, false);
 							childCommit.IsExpanded = true;
 							model.Merges.Add(merge);
 						}
 					}
 					else
 					{
-						Commit virtualParentCommit;
+						OldCommit virtualParentCommit;
 						if (TryFindVirtualParent(childCommit, out virtualParentCommit))
 						{
-							Merge merge = new Merge(virtualParentCommit, childCommit, false, true);
+							OldMerge merge = new OldMerge(virtualParentCommit, childCommit, false, true);
 
 							model.Merges.Add(merge);
 						}
@@ -980,9 +980,9 @@ namespace GitMind.DataModel.Old
 
 		private static void OptimizeVirtualMerges(ModelBuilder modelBuilder)
 		{
-			List<Merge> merges = modelBuilder.Merges.Where(m => !m.IsVirtual).ToList();
+			List<OldMerge> merges = modelBuilder.Merges.Where(m => !m.IsVirtual).ToList();
 
-			foreach (Merge merge in modelBuilder.Merges.Where(m => m.IsVirtual).Reverse())
+			foreach (OldMerge merge in modelBuilder.Merges.Where(m => m.IsVirtual).Reverse())
 			{
 				if (merges.FirstOrDefault(m =>
 					m.ParentCommit == merge.ParentCommit
@@ -999,7 +999,7 @@ namespace GitMind.DataModel.Old
 
 
 		private static bool CanBeBranchCommit(
-			ModelBuilder modelBuilder, BranchBuilder branch, Commit commit)
+			ModelBuilder modelBuilder, BranchBuilder branch, OldCommit commit)
 		{
 			// Checks if branch already exists in commitBranchNames or if some parent branch exists
 
@@ -1032,7 +1032,7 @@ namespace GitMind.DataModel.Old
 				// The branch name does not exist in the git repository, it is probably an anonymous branch
 				// where the name is the the id of the latest commit. Let try find that
 
-				Commit commit = modelBuilder.Commits.GetById(activeBranch.CommitId);
+				OldCommit commit = modelBuilder.Commits.GetById(activeBranch.CommitId);
 				string branchName = commit.TryGetBranchNameFromSubject();
 
 				if (branchName != null)
@@ -1095,9 +1095,9 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		private static bool TryFindVirtualParent(Commit childCommit, out Commit parentCommit)
+		private static bool TryFindVirtualParent(OldCommit childCommit, out OldCommit parentCommit)
 		{
-			Commit parent;
+			OldCommit parent;
 			if (childCommit.Parents.Count == 1)
 			{
 				// The target is a first commit on a branch, while the source is first parent,
@@ -1116,7 +1116,7 @@ namespace GitMind.DataModel.Old
 
 
 		private static bool TryFindVirtualParentCommit(
-			Commit rootNode, BranchBuilder childBranch, out Commit parentCommit)
+			OldCommit rootNode, BranchBuilder childBranch, out OldCommit parentCommit)
 		{
 			for (int depth = 0; depth < VirtualMergeLimit; depth++)
 			{
@@ -1133,7 +1133,7 @@ namespace GitMind.DataModel.Old
 
 
 		private static bool TryFindVirtualParentCommit(
-			Commit node, int depth, BranchBuilder childBranch, out Commit parentCommit)
+			OldCommit node, int depth, BranchBuilder childBranch, out OldCommit parentCommit)
 		{
 			if (depth == 0
 				&& node.IsOnActiveBranch()
@@ -1145,7 +1145,7 @@ namespace GitMind.DataModel.Old
 			}
 			else if (depth > 0)
 			{
-				foreach (Commit parent in node.Parents)
+				foreach (OldCommit parent in node.Parents)
 				{
 					if (TryFindVirtualParentCommit(parent, depth - 1, childBranch, out parentCommit))
 					{
@@ -1162,11 +1162,11 @@ namespace GitMind.DataModel.Old
 
 		private void SetTags(ModelBuilder modelBuilder)
 		{
-			foreach (Commit commit in modelBuilder.ActiveBranches.SelectMany(branch => branch.Commits))
+			foreach (OldCommit commit in modelBuilder.ActiveBranches.SelectMany(branch => branch.Commits))
 			{
-				IEnumerable<Tag> tags = modelBuilder.GitRepo
+				IEnumerable<OldTag> tags = modelBuilder.GitRepo
 					.GetTags(commit.Id)
-					.Select(tag => new Tag(tag.TagName));
+					.Select(tag => new OldTag(tag.TagName));
 
 				commit.Tags.AddRange(tags);
 			}

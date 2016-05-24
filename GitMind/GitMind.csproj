@@ -78,7 +78,7 @@
     <Compile Include="DataModel\Old\BranchNameComparer.cs" />
     <Compile Include="DataModel\Private\BranchNameParser.cs" />
     <Compile Include="DataModel\Old\BranchPriority.cs" />
-    <Compile Include="DataModel\Old\Commit.cs" />
+    <Compile Include="DataModel\Old\OldCommit.cs" />
     <Compile Include="DataModel\Old\CommitComparer.cs" />
     <Compile Include="DataModel\Old\Commits.cs" />
     <Compile Include="DataModel\IXModelService.cs" />
@@ -97,13 +97,13 @@
     <Compile Include="Git\Private\GitDiffParser.cs" />
     <Compile Include="Git\Private\IGitDiffParser.cs" />
     <Compile Include="DataModel\Old\ModelBuilder.cs" />
-    <Compile Include="DataModel\Old\IModelService.cs" />
+    <Compile Include="DataModel\Old\IOldModelService.cs" />
     <Compile Include="DataModel\Old\IBranch.cs" />
-    <Compile Include="DataModel\Old\Merge.cs" />
+    <Compile Include="DataModel\Old\OldMerge.cs" />
     <Compile Include="DataModel\Private\MergeBranchNames.cs" />
-    <Compile Include="DataModel\Old\Model.cs" />
-    <Compile Include="DataModel\Old\ModelService.cs" />
-    <Compile Include="DataModel\Old\Tag.cs" />
+    <Compile Include="DataModel\Old\OldModel.cs" />
+    <Compile Include="DataModel\Old\OldModelService.cs" />
+    <Compile Include="DataModel\Old\OldTag.cs" />
     <Compile Include="Installation\IInstaller.cs" />
     <Compile Include="Installation\ILatestVersionService.cs" />
     <Compile Include="Installation\Private\LatestVersionService.cs" />

@@ -6,13 +6,13 @@ namespace GitMind.DataModel.Old
 {
 	internal class BranchBuilder : IBranch
 	{
-		public static readonly BranchBuilder None = new BranchBuilder("", null, Commit.None, Commit.None);
+		public static readonly BranchBuilder None = new BranchBuilder("", null, OldCommit.None, OldCommit.None);
 
 		public BranchBuilder(
 			string name,
 			string trackingName,
-			Commit latestLocalCommit,
-			Commit latestTrackingCommit)
+			OldCommit latestLocalCommit,
+			OldCommit latestTrackingCommit)
 		{
 			Name = name;
 			ShowName = name;
@@ -28,16 +28,16 @@ namespace GitMind.DataModel.Old
 		public string ShowName { get; set; }
 
 		public string TrackingName { get; }
-		public Commit LatestLocalCommit { get; set; }
-		public Commit LatestTrackingCommit { get; set; }
+		public OldCommit LatestLocalCommit { get; set; }
+		public OldCommit LatestTrackingCommit { get; set; }
 
-		public Commit LatestCommit => Commits.Any() ? Commits.First() : LatestLocalCommit;
+		public OldCommit LatestCommit => Commits.Any() ? Commits.First() : LatestLocalCommit;
 	
-		public Commit FirstCommit => Commits.Any() ? Commits.Last() : LatestLocalCommit;
+		public OldCommit FirstCommit => Commits.Any() ? Commits.Last() : LatestLocalCommit;
 
-		public IReadOnlyList<Commit> Commits => CommitsBuilder;
+		public IReadOnlyList<OldCommit> Commits => CommitsBuilder;
 
-		public List<Commit> CommitsBuilder { get; } = new List<Commit>();
+		public List<OldCommit> CommitsBuilder { get; } = new List<OldCommit>();
 
 		public BranchBuilder Parent { get; set; }
 

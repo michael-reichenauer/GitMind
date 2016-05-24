@@ -9,7 +9,7 @@ namespace GitMind.DataModel.Old
 	internal class Commits
 	{
 		private readonly IGitRepo gitRepo;
-		private Dictionary<string, Commit> commitIdToCommit { get; } = new Dictionary<string, Commit>();
+		private Dictionary<string, OldCommit> commitIdToCommit { get; } = new Dictionary<string, OldCommit>();
 
 
 		public Commits(IGitRepo gitRepo)
@@ -18,9 +18,9 @@ namespace GitMind.DataModel.Old
 		}
 
 
-		public Commit GetById(string commitId)
+		public OldCommit GetById(string commitId)
 		{
-			Commit commit;
+			OldCommit commit;
 			if (commitIdToCommit.TryGetValue(commitId, out commit))
 			{
 				return commit;
@@ -28,12 +28,12 @@ namespace GitMind.DataModel.Old
 
 			GitCommit gitCommit = gitRepo.GetCommit(commitId);
 
-			Lazy<IReadOnlyList<Commit>> parents = new Lazy<IReadOnlyList<Commit>>(
+			Lazy<IReadOnlyList<OldCommit>> parents = new Lazy<IReadOnlyList<OldCommit>>(
 				() => gitCommit.ParentIds.Select(GetById).ToList());
-			Lazy<IReadOnlyList<Commit>> children = new Lazy<IReadOnlyList<Commit>>(
+			Lazy<IReadOnlyList<OldCommit>> children = new Lazy<IReadOnlyList<OldCommit>>(
 				() => gitRepo.GetCommitChildren(gitCommit.Id).Select(GetById).ToList());
 
-			commit = new Commit(
+			commit = new OldCommit(
 				gitCommit.Id,
 				parents,
 				children,

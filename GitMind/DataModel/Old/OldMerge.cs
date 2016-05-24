@@ -1,8 +1,8 @@
 ﻿namespace GitMind.DataModel.Old
 {
-	internal class Merge
+	internal class OldMerge
 	{
-		public Merge(Commit parentCommit, Commit childCommit, bool isMain, bool isVirtual)
+		public OldMerge(OldCommit parentCommit, OldCommit childCommit, bool isMain, bool isVirtual)
 		{
 			ParentCommit = parentCommit;
 			ChildCommit = childCommit;
@@ -11,8 +11,8 @@
 		}
 
 
-		public Commit ParentCommit { get; }
-		public Commit ChildCommit { get; }
+		public OldCommit ParentCommit { get; }
+		public OldCommit ChildCommit { get; }
 		public bool IsMain { get; }
 		public bool IsVirtual { get; }
 	}

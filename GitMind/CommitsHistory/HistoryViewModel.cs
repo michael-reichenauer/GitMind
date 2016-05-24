@@ -26,7 +26,7 @@ namespace GitMind.CommitsHistory
 		private static readonly int branchBaseIndex = 1000000;
 		private static readonly int mergeBaseIndex = 2000000;
 
-		private readonly IModelService modelService;
+		private readonly IOldModelService modelService;
 		private readonly IGitService gitService;
 		private readonly IBrushService brushService;
 		private readonly IDiffService diffService;
@@ -34,7 +34,7 @@ namespace GitMind.CommitsHistory
 
 		private double width = 1000;
 
-		private Model model;
+		private OldModel model;
 		private bool isUpdateing;
 		private int currentBranchId = 0;
 		private int currentMergeId = 0;
@@ -49,7 +49,7 @@ namespace GitMind.CommitsHistory
 
 		public HistoryViewModel()
 			: this(
-					new ModelService(),
+					new OldModelService(),
 					new GitService(),
 					new BrushService(),
 					new DiffService(),
@@ -59,7 +59,7 @@ namespace GitMind.CommitsHistory
 
 
 		public HistoryViewModel(
-			IModelService modelService,
+			IOldModelService modelService,
 			IGitService gitService,
 			IBrushService brushService,
 			IDiffService diffService,
@@ -223,7 +223,7 @@ namespace GitMind.CommitsHistory
 				else if (currentRootPath.Error == gitService.GitCommandError)
 				{
 					// Could not locate a local working folder
-					model = Model.None;
+					model = OldModel.None;
 					UpdateUIModel();
 
 					var dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -244,7 +244,7 @@ namespace GitMind.CommitsHistory
 				else if (currentRootPath.Error == gitService.GitNotInstalledError)
 				{
 					// Could not locate a compatible installed git executable
-					model = Model.None;
+					model = OldModel.None;
 
 					UpdateUIModel();
 
@@ -283,7 +283,7 @@ namespace GitMind.CommitsHistory
 					await gitService.FetchAsync(null);
 				}
 
-				Model currentModel = model;
+				OldModel currentModel = model;
 
 				if (currentModel != null)
 				{
@@ -473,7 +473,7 @@ namespace GitMind.CommitsHistory
 		{
 			int graphWidth = coordinateConverter.ConvertFromColumn(model.Branches.Count);
 
-			IReadOnlyList<Commit> sourceCommits = model.Commits;
+			IReadOnlyList<OldCommit> sourceCommits = model.Commits;
 
 			if (!string.IsNullOrWhiteSpace(filterText))
 			{
@@ -491,7 +491,7 @@ namespace GitMind.CommitsHistory
 		
 			for (int rowIndex = 0; rowIndex < commitsCount; rowIndex++)
 			{
-				Commit commit = sourceCommits[rowIndex];
+				OldCommit commit = sourceCommits[rowIndex];
 
 				CommitViewModel commitViewModel = commits[rowIndex];
 
@@ -583,21 +583,21 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		private static string GetCommitDate(Commit commit)
+		private static string GetCommitDate(OldCommit commit)
 		{
 			return commit.DateTime.ToShortDateString()
 						 + " " + commit.DateTime.ToShortTimeString();
 		}
 
 
-		private string GetSubjectWithoutTickets(Commit commit)
+		private string GetSubjectWithoutTickets(OldCommit commit)
 		{
 			string tickets = GetTickets(commit);
 			return commit.Subject.Substring(tickets.Length);
 		}
 
 
-		private static string GetTags(Commit commit)
+		private static string GetTags(OldCommit commit)
 		{
 			return commit.Tags.Count == 0
 				? ""
@@ -605,7 +605,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		private string GetTickets(Commit commit)
+		private string GetTickets(OldCommit commit)
 		{
 			if (commit.Subject.StartsWith("#"))
 			{
@@ -631,7 +631,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public Brush GetSubjectBrush(Commit commit)
+		public Brush GetSubjectBrush(OldCommit commit)
 		{
 			Brush subjectBrush = brushService.SubjectBrush;
 			if (commit.IsLocalAhead)
@@ -646,7 +646,7 @@ namespace GitMind.CommitsHistory
 			return subjectBrush;
 		}
 
-		private static string GetCommitToolTip(Commit commit)
+		private static string GetCommitToolTip(OldCommit commit)
 		{
 			string name = commit.Branch.IsMultiBranch ? "MultiBranch" : commit.Branch.Name;
 			string toolTip = $"Commit id: {commit.ShortId}\nBranch: {name}";
@@ -696,7 +696,7 @@ namespace GitMind.CommitsHistory
 		{
 			for (int i = 0; i < model.Merges.Count; i++)
 			{
-				Merge merge = model.Merges[i];
+				OldMerge merge = model.Merges[i];
 				int mergeId = ++currentMergeId;
 
 				int parentRowIndex = commitIdToRowIndex[merge.ParentCommit.Id];

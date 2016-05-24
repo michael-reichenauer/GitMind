@@ -1,8 +1,8 @@
 ﻿namespace GitMind.DataModel.Old
 {
-	internal class Tag
+	internal class OldTag
 	{
-		public Tag(string text)
+		public OldTag(string text)
 		{
 			Text = text;
 		}

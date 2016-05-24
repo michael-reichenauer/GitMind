@@ -5,27 +5,27 @@ using GitMind.Git;
 
 namespace GitMind.DataModel.Old
 {
-	internal class Model
+	internal class OldModel
 	{
-		private readonly Func<string, Commit> getCommitFunc;
+		private readonly Func<string, OldCommit> getCommitFunc;
 
-		public static readonly Model None = new Model(
+		public static readonly OldModel None = new OldModel(
 			new IBranch[0],
-			new Commit[0],
-			_ => Commit.None,
-			new Merge[0],
-			Commit.None,
+			new OldCommit[0],
+			_ => OldCommit.None,
+			new OldMerge[0],
+			OldCommit.None,
 			"",
 			new string[0],
 			null);
 
 
-		public Model(
+		public OldModel(
 			IReadOnlyList<IBranch> branches,
-			IReadOnlyList<Commit> commits, 
-			Func<string, Commit> getCommitFunc, 
-			IReadOnlyList<Merge> merges,
-			Commit currentCommit, 
+			IReadOnlyList<OldCommit> commits, 
+			Func<string, OldCommit> getCommitFunc, 
+			IReadOnlyList<OldMerge> merges,
+			OldCommit currentCommit, 
 			string currentBranchName, 
 			IReadOnlyList<string> allBranchNames, 
 			IGitRepo gitRepo)
@@ -42,13 +42,13 @@ namespace GitMind.DataModel.Old
 
 
 		public IReadOnlyList<IBranch> Branches { get; }
-		public IReadOnlyList<Commit> Commits { get; }
-		public IReadOnlyList<Merge> Merges { get; }
+		public IReadOnlyList<OldCommit> Commits { get; }
+		public IReadOnlyList<OldMerge> Merges { get; }
 		public IReadOnlyList<string> AllBranchNames { get; }
 		public IGitRepo GitRepo { get; }
-		public Commit CurrentCommit { get; }
+		public OldCommit CurrentCommit { get; }
 		public string CurrentBranchName { get; }
 
-		public Commit GetCommit(string id) => getCommitFunc(id);
+		public OldCommit GetCommit(string id) => getCommitFunc(id);
 	}
 }

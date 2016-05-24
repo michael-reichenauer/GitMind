@@ -32,7 +32,7 @@ namespace GitMind.CommitsHistory
 			Files.Add(new CommitFile("file.txt", "1"));
 		}
 
-		public Commit Commit { get; set; }
+		public OldCommit Commit { get; set; }
 
 		public ObservableCollection<CommitFile> Files { get; }
 			= new ObservableCollection<CommitFile>();

@@ -3,9 +3,9 @@
 
 namespace GitMind.DataModel.Old
 {
-	internal class CommitComparer : IComparer<Commit>
+	internal class CommitComparer : IComparer<OldCommit>
 	{
-		public int Compare(Commit x, Commit y)
+		public int Compare(OldCommit x, OldCommit y)
 		{
 			return x.CommitDateTime.CompareTo(y.CommitDateTime) * -1;
 		}

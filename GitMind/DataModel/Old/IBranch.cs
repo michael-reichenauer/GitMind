@@ -9,15 +9,15 @@ namespace GitMind.DataModel.Old
 
 		string TrackingName { get; }
 
-		Commit LatestLocalCommit { get; }
+		OldCommit LatestLocalCommit { get; }
 
-		Commit LatestTrackingCommit { get; }
+		OldCommit LatestTrackingCommit { get; }
 
-		Commit LatestCommit { get; }
+		OldCommit LatestCommit { get; }
 
-		Commit FirstCommit { get; }
+		OldCommit FirstCommit { get; }
 
-		IReadOnlyList<Commit> Commits { get; }
+		IReadOnlyList<OldCommit> Commits { get; }
 
 		BranchBuilder Parent { get; }
 

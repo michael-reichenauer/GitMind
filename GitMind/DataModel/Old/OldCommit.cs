@@ -6,23 +6,23 @@ using GitMind.DataModel.Private;
 
 namespace GitMind.DataModel.Old
 {
-	internal class Commit
+	internal class OldCommit
 	{
-		private static readonly Lazy<IReadOnlyList<Commit>> NoCommits =
-			new Lazy<IReadOnlyList<Commit>>(() => new Commit[0]);
+		private static readonly Lazy<IReadOnlyList<OldCommit>> NoCommits =
+			new Lazy<IReadOnlyList<OldCommit>>(() => new OldCommit[0]);
 	
-		public static Commit None = new Commit(
+		public static OldCommit None = new OldCommit(
 			"000000", NoCommits, NoCommits, "", "", DateTime.MinValue, DateTime.MinValue, null);
 
-		private readonly Lazy<IReadOnlyList<Commit>> parents;
-		private readonly Lazy<IReadOnlyList<Commit>> children;
+		private readonly Lazy<IReadOnlyList<OldCommit>> parents;
+		private readonly Lazy<IReadOnlyList<OldCommit>> children;
 		private readonly Lazy<MergeBranchNames> branchNamesFromSubject;
 		private readonly Lazy<string> branchNameFromSubject;
 
-		public Commit(
+		public OldCommit(
 			string id,
-			Lazy<IReadOnlyList<Commit>> parents,
-			Lazy<IReadOnlyList<Commit>> children,
+			Lazy<IReadOnlyList<OldCommit>> parents,
+			Lazy<IReadOnlyList<OldCommit>> children,
 			string subject,
 			string author,
 			DateTime dateTime,
@@ -46,7 +46,7 @@ namespace GitMind.DataModel.Old
 
 		private MergeBranchNames ParseBranchNamesFromSubject()
 		{
-			if (SecondParent == Commit.None)
+			if (SecondParent == OldCommit.None)
 			{
 				// This is no merge commit, i.e. no branch names to parse
 				return BranchNameParser.NoMerge;
@@ -59,23 +59,23 @@ namespace GitMind.DataModel.Old
 		public string Id { get; }
 		public string ShortId { get; }
 
-		public IReadOnlyList<Commit> Parents => parents.Value;
+		public IReadOnlyList<OldCommit> Parents => parents.Value;
 		public string Subject { get; }
 		public string Author { get; }
 		public DateTime DateTime { get; }
 		public DateTime CommitDateTime { get; }
 		public string BranchName { get; }
 
-		public Commit FirstParent => Parents.Any() ? Parents[0] : Commit.None;
-		public Commit SecondParent => Parents.Count > 1 ? Parents[1] : Commit.None;
+		public OldCommit FirstParent => Parents.Any() ? Parents[0] : OldCommit.None;
+		public OldCommit SecondParent => Parents.Count > 1 ? Parents[1] : OldCommit.None;
 
 		public BranchBuilder Branch { get; set; }
 		public BranchBuilder ActiveBranch { get; set; }
 		public bool IsOnActiveBranch() => ActiveBranch != null;
 
 		public List<BranchBuilder> Branches { get; } = new List<BranchBuilder>();
-		public IReadOnlyList<Commit> Children => children.Value;
-		public List<Tag> Tags { get; } = new List<Tag>();
+		public IReadOnlyList<OldCommit> Children => children.Value;
+		public List<OldTag> Tags { get; } = new List<OldTag>();
 		public bool IsLocalAheadMarker { get; set; }
 		public bool IsRemoteAheadMarker { get; set; }
 
@@ -96,7 +96,7 @@ namespace GitMind.DataModel.Old
 
 		private string TryExtractBranchNameFromSubject()
 		{
-			if (SecondParent != Commit.None)
+			if (SecondParent != OldCommit.None)
 			{
 				// This is a merge commit, and the subject might contain the target (this current) branch 
 				// name in the subject like e.g. "Merge <source-branch> into <target-branch>"
@@ -111,7 +111,7 @@ namespace GitMind.DataModel.Old
 			// the source branch name of that commit. I.e. that child commit might have a subject like
 			// e.g. "Merge <source-branch> ..." That source branch would thus be the name of the branch
 			// of this commit.
-			Commit childCommit = Children.FirstOrDefault(c => c.SecondParent == this);
+			OldCommit childCommit = Children.FirstOrDefault(c => c.SecondParent == this);
 			return childCommit?.branchNamesFromSubject.Value.SourceBranchName;
 		}
 	}

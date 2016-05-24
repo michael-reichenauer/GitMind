@@ -22,7 +22,7 @@ namespace GitMind.DataModel.Old
 
 		public Commits Commits { get; }
 
-		public List<Merge> Merges { get; } = new List<Merge>();
+		public List<OldMerge> Merges { get; } = new List<OldMerge>();
 		public IGitRepo GitRepo { get; }
 
 		public List<BranchBuilder> ActiveBranches { get; } = new List<BranchBuilder>();
