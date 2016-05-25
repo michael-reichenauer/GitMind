@@ -13,31 +13,14 @@ namespace GitMind.GitModel.Private
 		{
 			IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
 			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
-			IReadOnlyList<CommitBranch> commitBranches = new CommitBranch[0];
+			IReadOnlyList<SpecifiedBranch> specifiedBranches = new SpecifiedBranch[0];
 
 			MRepository mRepository = new MRepository();
 			Timing t = new Timing();
-			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, mRepository);
-			t.Log("added commits");
+			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, specifiedBranches, mRepository);
+			t.Log("Added commits");
 
-			SetChildren(commits);
-			t.Log("Set children");
-
-			SetSpecifiedCommitBranchNames(commitBranches, mRepository);
-			t.Log("Set specified branch names");
-
-			SetSubjectCommitBranchNames(commits, mRepository);
-			t.Log("Parse subject branch names");
-
-			IReadOnlyList<MSubBranch> branches1 = AddActiveBranches(gitBranches, mRepository);
-			t.Log("Add branches");
-			Log.Debug($"Number of active branches {branches1.Count} ({mRepository.SubBranches.Count})");
-
-			IReadOnlyList<MSubBranch> branches2 = AddMergedInactiveBranches(commits, mRepository);
-			IReadOnlyList<MSubBranch> branches = branches1.Concat(branches2).ToList();
-			t.Log("Add merged branches");
-			Log.Debug($"Number of inactive branches {branches2.Count} ({mRepository.SubBranches.Count})");
-			//branches2.ForEach(b => Log.Debug($"   Branch {b}"));
+			IReadOnlyList<MSubBranch> branches = AddSubBranches(gitBranches, mRepository, commits);
 
 			SetMasterBranchCommits(branches, mRepository);
 			t.Log("Set master branch commits");
@@ -78,6 +61,44 @@ namespace GitMind.GitModel.Private
 			Repository repository = ToRepository(mRepository);
 			t.Log($"Repository branches: {repository.Branches.Count} commits: {repository.Commits.Count}");
 			return repository;
+		}
+
+
+		private IReadOnlyList<MSubBranch> AddSubBranches(
+			IReadOnlyList<GitBranch> gitBranches, MRepository mRepository,  IReadOnlyList<MCommit> commits)
+		{
+			Timing t = new Timing();
+			IReadOnlyList<MSubBranch> branches1 = AddActiveBranches(gitBranches, mRepository);
+			t.Log("Added branches");
+			Log.Debug($"Number of active branches {branches1.Count} ({mRepository.SubBranches.Count})");
+
+			IReadOnlyList<MSubBranch> branches2 = AddMergedInactiveBranches(commits, mRepository);
+			IReadOnlyList<MSubBranch> branches = branches1.Concat(branches2).ToList();
+			t.Log("Add merged branches");
+			Log.Debug($"Number of inactive branches {branches2.Count} ({mRepository.SubBranches.Count})");
+			//branches2.ForEach(b => Log.Debug($"   Branch {b}"));
+			return branches;
+		}
+
+
+		private IReadOnlyList<MCommit> AddCommits(
+			IReadOnlyList<GitCommit> gitCommits, 
+			IReadOnlyList<SpecifiedBranch> specifiedBranches,
+			MRepository mRepository)
+		{
+			Timing t = new Timing();
+			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, mRepository);
+			t.Log("added commits");
+
+			SetChildren(commits);
+			t.Log("Set children");
+
+			SetSpecifiedCommitBranchNames(specifiedBranches, mRepository);
+			t.Log("Set specified branch names");
+
+			SetSubjectCommitBranchNames(commits, mRepository);
+			t.Log("Parse subject branch names");
+			return commits;
 		}
 
 
@@ -646,10 +667,10 @@ namespace GitMind.GitModel.Private
 
 
 		private void SetSpecifiedCommitBranchNames(
-			IReadOnlyList<CommitBranch> commitBranches,
+			IReadOnlyList<SpecifiedBranch> commitBranches,
 			MRepository xmodel)
 		{
-			foreach (CommitBranch commitBranch in commitBranches)
+			foreach (SpecifiedBranch commitBranch in commitBranches)
 			{
 				MCommit mCommit;
 				if (xmodel.Commits.TryGetValue(commitBranch.CommitId, out mCommit))
@@ -785,14 +806,14 @@ namespace GitMind.GitModel.Private
 	}
 
 
-	internal class CommitBranch
+	internal class SpecifiedBranch
 	{
 		public string CommitId { get; set; }
 		public string BranchName { get; set; }
 		public string SubBranchId { get; set; }
 
 
-		public CommitBranch(string commitId, string branchName, string subBranchId)
+		public SpecifiedBranch(string commitId, string branchName, string subBranchId)
 		{
 			CommitId = commitId;
 			BranchName = branchName;
