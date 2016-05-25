@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 
 namespace GitMind.Utils
 {
-	internal class KeyedList<TKey, TValue> : KeyedCollection<TKey, TValue>
+	internal class KeyedList<TKey, TValue> : 
+		KeyedCollection<TKey, TValue>,
+		IReadOnlyKeyedList<TKey, TValue>
 	{
 		private readonly Func<TValue, TKey> getKeyForItem;
 

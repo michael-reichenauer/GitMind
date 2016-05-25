@@ -5,13 +5,13 @@ namespace GitMind.GitModel.Private
 {
 	internal class MBranch
 	{
-		public MBranch(MModel mModel)
+		public MBranch(MRepository mRepository)
 		{
-			MModel = mModel;
+			MRepository = mRepository;
 		}
 
 
-		public MModel MModel { get; }
+		public MRepository MRepository { get; }
 
 		public string Id { get; set; }
 		public string Name { get; set; }
@@ -39,10 +39,10 @@ namespace GitMind.GitModel.Private
 		//public string LastestTrackingCommitId { get; set; }
 
 
-		public MCommit FirstCommit => MModel.Commits[FirstCommitId];
-		public MCommit LatestCommit => MModel.Commits[LatestCommitId];
-		public MCommit ParentCommit => MModel.Commits[ParentCommitId];
-		public MBranch ParentBranch => MModel.Branches[ParentBranchId];
+		public MCommit FirstCommit => MRepository.Commits[FirstCommitId];
+		public MCommit LatestCommit => MRepository.Commits[LatestCommitId];
+		public MCommit ParentCommit => MRepository.Commits[ParentCommitId];
+		public MBranch ParentBranch => MRepository.Branches[ParentBranchId];
 
 		public override string ToString() => $"{Name}";
 	}

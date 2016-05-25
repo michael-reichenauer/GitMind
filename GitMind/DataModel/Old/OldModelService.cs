@@ -19,7 +19,7 @@ namespace GitMind.DataModel.Old
 
 		private readonly IGitService gitService;
 		private readonly IGitCacheService gitCacheService;
-		private IXModelService xModelService = new XModelService();
+		private IRepositoryService xModelService = new RepositoryService();
 
 		public OldModelService()
 			: this(new GitService(), new GitCacheService())

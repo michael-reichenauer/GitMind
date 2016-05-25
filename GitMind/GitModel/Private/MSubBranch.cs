@@ -2,13 +2,13 @@ namespace GitMind.GitModel.Private
 {
 	internal class MSubBranch
 	{
-		public MSubBranch(MModel mModel)
+		public MSubBranch(MRepository mRepository)
 		{
-			MModel = mModel;
+			MRepository = mRepository;
 		}
 
 
-		public MModel MModel { get; }
+		public MRepository MRepository { get; }
 
 		public string Id { get; set; }
 		public string BranchId { get; set; }
@@ -31,9 +31,9 @@ namespace GitMind.GitModel.Private
 		//public string LastestTrackingCommitId { get; set; }
 
 
-		public MCommit FirstCommit => MModel.Commits[FirstCommitId];
-		public MCommit LatestCommit => MModel.Commits[LatestCommitId];
-		public MCommit ParentCommit => MModel.Commits[ParentCommitId];
+		public MCommit FirstCommit => MRepository.Commits[FirstCommitId];
+		public MCommit LatestCommit => MRepository.Commits[LatestCommitId];
+		public MCommit ParentCommit => MRepository.Commits[ParentCommitId];
 
 		public override string ToString() => $"{Name} ({IsRemote})";
 	}

@@ -3,7 +3,7 @@ using GitMind.Utils;
 
 namespace GitMind.GitModel.Private
 {
-	internal class MModel
+	internal class MRepository
 	{
 		public KeyedList<string, MCommit> Commits = new KeyedList<string, MCommit>(c => c.Id);
 		public KeyedList<string, MSubBranch> SubBranches = new KeyedList<string, MSubBranch>(b => b.Id);	
