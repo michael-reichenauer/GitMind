@@ -99,7 +99,7 @@ namespace GitMind.CommitsHistory
 		public ObservableCollection<BranchName> AllBranches { get; }
 			= new ObservableCollection<BranchName>();
 	
-		public ItemsSource ItemsSource { get; }
+		public OldItemsSource ItemsSource { get; }
 
 		public int SelectedIndex
 		{
@@ -121,7 +121,7 @@ namespace GitMind.CommitsHistory
 		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);
 
 		// The virtual area rectangle, which would be needed to show all commits
-		private Rect VirtualExtent { get; set; } = ItemsSource.EmptyExtent;
+		private Rect VirtualExtent { get; set; } = OldItemsSource.EmptyExtent;
 
 		public async Task HideBranchNameAsync(string branchName)
 		{
@@ -315,7 +315,7 @@ namespace GitMind.CommitsHistory
 		/// </summary>
 		private IEnumerable<int> GetItemIds(Rect viewArea)
 		{
-			if (VirtualExtent != ItemsSource.EmptyExtent && viewArea != Rect.Empty)
+			if (VirtualExtent != OldItemsSource.EmptyExtent && viewArea != Rect.Empty)
 			{
 				// Get the part of the rectangle that is visible
 				viewArea.Intersect(VirtualExtent);
@@ -794,7 +794,7 @@ namespace GitMind.CommitsHistory
 
 
 
-		private class LogItemsSource : ItemsSource
+		private class LogItemsSource : OldItemsSource
 		{
 			private readonly OldHistoryViewModel instance;
 

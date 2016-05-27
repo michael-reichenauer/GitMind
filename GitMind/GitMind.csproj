@@ -64,14 +64,21 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AcceptingExceptionsAttribute.cs" />
-    <Compile Include="BranchName.cs" />
+    <Compile Include="CommitsHistory\BranchName.cs" />
+    <Compile Include="CommitsHistory\BranchViewModel.cs" />
     <Compile Include="CommitsHistory\BrushService.cs" />
+    <Compile Include="CommitsHistory\CommitDetail.cs" />
     <Compile Include="CommitsHistory\CommitDetailViewModel.cs" />
+    <Compile Include="CommitsHistory\CommitFile.cs" />
+    <Compile Include="CommitsHistory\CommitViewModel.cs" />
     <Compile Include="CommitsHistory\CoordinateConverter.cs" />
     <Compile Include="CommitsHistory\DiffService.cs" />
     <Compile Include="CommitsHistory\IBrushService.cs" />
     <Compile Include="CommitsHistory\ICoordinateConverter.cs" />
     <Compile Include="CommitsHistory\IDiffService.cs" />
+    <Compile Include="CommitsHistory\MergeViewModel.cs" />
+    <Compile Include="CommitsHistory\RepositoryItems.cs" />
+    <Compile Include="CommitsHistory\RepositoryViewModel.cs" />
     <Compile Include="CommitsHistory\ViewModelService.cs" />
     <Compile Include="DataModel\Old\ActiveBranch.cs" />
     <Compile Include="DataModel\Old\OldBranchBuilder.cs" />
@@ -148,7 +155,7 @@
     <Compile Include="Utils\Sorter.cs" />
     <Compile Include="Utils\Timing.cs" />
     <Compile Include="Utils\UI\ViewModel.cs" />
-    <Compile Include="VirtualCanvas\ItemsSource.cs" />
+    <Compile Include="VirtualCanvas\OldItemsSource.cs" />
     <Compile Include="VirtualCanvas\ArithmeticConverter.cs" />
     <Compile Include="VirtualCanvas\ISpatialItemsSource.cs" />
     <Compile Include="VirtualCanvas\LinkedListExtensions.cs" />

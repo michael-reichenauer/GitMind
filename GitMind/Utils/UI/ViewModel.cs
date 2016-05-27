@@ -23,6 +23,16 @@ namespace GitMind.Utils.UI
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
+
+		internal void Notify(params string[] otherPropertyNames)
+		{
+			foreach (string otherPropertyName in otherPropertyNames)
+			{
+				OnPropertyChanged(otherPropertyName);
+			}
+		}
+
+
 		protected Property Get([CallerMemberName] string memberName = "")
 		{
 			Property property;

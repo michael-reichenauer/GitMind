@@ -1,7 +1,14 @@
-﻿namespace GitMind.CommitsHistory
+﻿using GitMind.GitModel;
+
+
+namespace GitMind.CommitsHistory
 {
-	public class ViewModelService
+	internal class ViewModelService
 	{
-		
+		public RepositoryViewModel GetRepositoryViewModel(Repository repository)
+		{
+
+			return null;
+		}
 	}
 }

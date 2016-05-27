@@ -5,6 +5,7 @@
 	xmlns:virtualCanvas="clr-namespace:GitMind.VirtualCanvas"
 	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
 	xmlns:gitMind="clr-namespace:GitMind"
+	xmlns:commitsHistory="clr-namespace:GitMind.CommitsHistory"
 	Title="GitMind"
 	Height="800"
 	Width="1050" 
@@ -795,7 +796,7 @@
 						HorizontalContentAlignment="Stretch"
 					>
 					<ListBox.ItemTemplate>
-						<DataTemplate DataType="{x:Type gitMind:CommitFile}">
+						<DataTemplate DataType="{x:Type commitsHistory:CommitFile}">
 							<StackPanel Orientation="Horizontal">
 								<Label 
 									Padding="0"

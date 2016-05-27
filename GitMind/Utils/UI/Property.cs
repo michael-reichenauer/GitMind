@@ -42,10 +42,7 @@ namespace GitMind.Utils.UI
 
 		public void Notify(params string[] otherPropertyNames)
 		{
-			foreach (string otherPropertyName in otherPropertyNames)
-			{
-				viewModel.OnPropertyChanged(otherPropertyName);
-			}
+			viewModel.Notify(otherPropertyNames);		
 		}
 	}
 
