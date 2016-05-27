@@ -15,52 +15,46 @@ namespace GitMind.GitModel.Private
 			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
 			IReadOnlyList<SpecifiedBranch> specifiedBranches = new SpecifiedBranch[0];
 
-			MRepository mRepository = new MRepository();
 			Timing t = new Timing();
+			MRepository mRepository = new MRepository();
+
 			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, specifiedBranches, mRepository);
 			t.Log("Added commits");
 
-			IReadOnlyList<MSubBranch> branches = AddSubBranches(gitBranches, mRepository, commits);
+			IReadOnlyList<MSubBranch> subBranches = AddSubBranches(gitBranches, mRepository, commits);
+			t.Log("Add sub branches");
 
-			SetMasterBranchCommits(branches, mRepository);
-			t.Log("Set master branch commits");
-			Log.Debug($"Unset commits {commits.Count(c => !c.HasBranchName)}");
-			Log.Debug($"Number of branches {mRepository.SubBranches.Count}");
+			SetCommitBranchNames(subBranches, commits, mRepository);
+			t.Log("Add commit branch names");
 
-			SetBranchCommits(branches, mRepository);
-			t.Log("Set branch commits");
-			Log.Debug($"Unset commits {commits.Count(c => !c.HasBranchName)}");
-		
-			SetEmptyParentCommits(commits);
-			t.Log("Set empty parent commits");
-			Log.Debug($"Unset commits {commits.Count(c => !c.HasBranchName)}");
-
-			SetBranchCommitsOfParents(commits);
-			t.Log("Set same branch name as parent with name");
-			Log.Debug($"Unset commits {commits.Count(c => !c.HasBranchName)}");
-
-			IReadOnlyList<MSubBranch> branches3 = AddMultiBranches(commits, branches, mRepository);
+			IReadOnlyList<MSubBranch> multiBranches = AddMultiBranches(commits, subBranches, mRepository);
 			t.Log("Add multi branches");
-			Log.Debug($"Number of multi branches {branches3.Count} ({mRepository.SubBranches.Count})");
-			SetBranchCommits(branches3, mRepository);
+			Log.Debug($"Multi sub branches {multiBranches.Count} ({mRepository.SubBranches.Count})");
+			SetBranchCommits(multiBranches, mRepository);
 
-			branches = branches.Concat(branches3).ToList();
+			subBranches = subBranches.Concat(multiBranches).ToList();
+			t.Log("Set multi branch commits");
+
+			SetBranchHierarchy(subBranches, mRepository);
+			t.Log("SetBranchHierarchy");
+
+			Repository repository = ToRepository(mRepository);
+			t.Log($"Branches: {repository.Branches.Count} commits: {repository.Commits.Count}");
 
 			Log.Debug($"Unset commits after multi {commits.Count(c => !c.HasBranchName)}");
 			commits.Where(c => string.IsNullOrEmpty(c.BranchName))
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.FirstParentId}"));
-			Log.Debug($"All branches ({branches.Count})");
 
-			SetParentCommitId(branches);
-			GroupSubBranches(branches);
-
-			SetBranchHierarchy(mRepository.Branches);
-
-			t.Log("SetBranchHierarchy");
-			
-			Repository repository = ToRepository(mRepository);
-			t.Log($"Repository branches: {repository.Branches.Count} commits: {repository.Commits.Count}");
 			return repository;
+		}
+
+
+		private static void SetBranchHierarchy(
+			IReadOnlyList<MSubBranch> subBranches, MRepository mRepository)
+		{
+			SetParentCommitId(subBranches);
+			GroupSubBranches(subBranches);
+			SetBranchHierarchy(mRepository.Branches);
 		}
 
 
@@ -68,16 +62,36 @@ namespace GitMind.GitModel.Private
 			IReadOnlyList<GitBranch> gitBranches, MRepository mRepository,  IReadOnlyList<MCommit> commits)
 		{
 			Timing t = new Timing();
-			IReadOnlyList<MSubBranch> branches1 = AddActiveBranches(gitBranches, mRepository);
+			IReadOnlyList<MSubBranch> activeBranches = AddActiveBranches(gitBranches, mRepository);
 			t.Log("Added branches");
-			Log.Debug($"Number of active branches {branches1.Count} ({mRepository.SubBranches.Count})");
+			Log.Debug($"Active sub branches {activeBranches.Count} ({mRepository.SubBranches.Count})");
 
-			IReadOnlyList<MSubBranch> branches2 = AddMergedInactiveBranches(commits, mRepository);
-			IReadOnlyList<MSubBranch> branches = branches1.Concat(branches2).ToList();
-			t.Log("Add merged branches");
-			Log.Debug($"Number of inactive branches {branches2.Count} ({mRepository.SubBranches.Count})");
+			IReadOnlyList<MSubBranch> inactiveBranches = AddInactiveBranches(commits, mRepository);
+			IReadOnlyList<MSubBranch> branches = activeBranches.Concat(inactiveBranches).ToList();
+			t.Log("Inactive subbranches");
+			Log.Debug($"Inactive sub branches {inactiveBranches.Count} ({mRepository.SubBranches.Count})");
 			//branches2.ForEach(b => Log.Debug($"   Branch {b}"));
 			return branches;
+		}
+
+
+		private void SetCommitBranchNames(
+			IReadOnlyList<MSubBranch> branches, 
+			IReadOnlyList<MCommit> commits, 
+			MRepository mRepository)
+		{
+			Timing t = new Timing();
+			SetMasterBranchCommits(branches, mRepository);
+			t.Log("Set master branch commits");
+		
+			SetBranchCommits(branches, mRepository);
+			t.Log("Set branch commits");
+
+			SetEmptyParentCommits(commits);
+			t.Log("Set empty parent commits");
+
+			SetBranchCommitsOfParents(commits);
+			t.Log("Set same branch name as parent with name");
 		}
 
 
@@ -147,7 +161,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void SetBranchHierarchy(IReadOnlyList<MBranch> branches)
+		private static void SetBranchHierarchy(IReadOnlyList<MBranch> branches)
 		{
 
 			
@@ -386,7 +400,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private IReadOnlyList<MSubBranch> AddMergedInactiveBranches(
+		private IReadOnlyList<MSubBranch> AddInactiveBranches(
 			IReadOnlyList<MCommit> commits, MRepository mRepository)
 		{
 			List<MSubBranch> branches = new List<MSubBranch>();
