@@ -24,7 +24,7 @@ namespace GitMind
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private readonly HistoryViewModel historyViewModel;
+		private readonly OldHistoryViewModel historyViewModel;
 		private readonly IStatusRefreshService refreshService;
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly IInstaller installer = new Installer();
@@ -57,7 +57,7 @@ namespace GitMind
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
 
-			historyViewModel = new HistoryViewModel();
+			historyViewModel = new OldHistoryViewModel();
 
 			mainWindowViewModel = new MainWindowViewModel(
 				historyViewModel, diffService, latestVersionService, this, () => RefreshAsync(true));

@@ -5,9 +5,9 @@ using GitMind.Utils.UI;
 
 namespace GitMind.CommitsHistory
 {
-	internal class BranchViewModel : ViewModel
+	internal class OldBranchViewModel : ViewModel
 	{
-		public BranchViewModel(
+		public OldBranchViewModel(
 			string name,
 			int branchId,
 			int branchColumn,

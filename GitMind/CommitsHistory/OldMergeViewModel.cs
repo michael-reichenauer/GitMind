@@ -5,9 +5,9 @@ using GitMind.Utils.UI;
 
 namespace GitMind.CommitsHistory
 {
-	internal class MergeViewModel : ViewModel
+	internal class OldMergeViewModel : ViewModel
 	{
-		public MergeViewModel(
+		public OldMergeViewModel(
 			int mergeId,
 			int parentRowIndex,
 			int childRowIndex,

@@ -72,6 +72,7 @@
     <Compile Include="CommitsHistory\IBrushService.cs" />
     <Compile Include="CommitsHistory\ICoordinateConverter.cs" />
     <Compile Include="CommitsHistory\IDiffService.cs" />
+    <Compile Include="CommitsHistory\ViewModelService.cs" />
     <Compile Include="DataModel\Old\ActiveBranch.cs" />
     <Compile Include="DataModel\Old\OldBranchBuilder.cs" />
     <Compile Include="DataModel\Old\BranchComparer.cs" />
@@ -130,14 +131,14 @@
     <Compile Include="Utils\UI\Property.cs" />
     <Compile Include="Utils\UI\Command.cs" />
     <Compile Include="Git\CommitDiff.cs" />
-    <Compile Include="CommitsHistory\BranchViewModel.cs" />
+    <Compile Include="CommitsHistory\OldBranchViewModel.cs" />
     <Compile Include="Git\GitBranch.cs" />
     <Compile Include="Git\Private\GitRepo.cs" />
     <Compile Include="Git\IGitRepo.cs" />
-    <Compile Include="CommitsHistory\HistoryViewModel.cs" />
-    <Compile Include="CommitsHistory\IHistoryViewModel.cs" />
-    <Compile Include="CommitsHistory\MergeViewModel.cs" />
-    <Compile Include="CommitsHistory\CommitViewModel.cs" />
+    <Compile Include="CommitsHistory\OldHistoryViewModel.cs" />
+    <Compile Include="CommitsHistory\IOldHistoryViewModel.cs" />
+    <Compile Include="CommitsHistory\OldMergeViewModel.cs" />
+    <Compile Include="CommitsHistory\OldCommitViewModel.cs" />
     <Compile Include="Git\GitTag.cs" />
     <Compile Include="Git\IGitService.cs" />
     <Compile Include="Git\Private\GitStatus.cs" />

@@ -20,7 +20,7 @@ using GitMind.VirtualCanvas;
 
 namespace GitMind.CommitsHistory
 {
-	internal class HistoryViewModel : ViewModel, IHistoryViewModel
+	internal class OldHistoryViewModel : ViewModel, IOldHistoryViewModel
 	{
 		private static readonly int branchBaseIndex = 1000000;
 		private static readonly int mergeBaseIndex = 2000000;
@@ -37,16 +37,16 @@ namespace GitMind.CommitsHistory
 		private bool isUpdateing;
 		private int currentBranchId = 0;
 		private int currentMergeId = 0;
-		private readonly List<CommitViewModel> commits = new List<CommitViewModel>();
+		private readonly List<OldCommitViewModel> commits = new List<OldCommitViewModel>();
 		private readonly Dictionary<string, int> commitIdToRowIndex = new Dictionary<string, int>();
 
-		private readonly List<BranchViewModel> branches = new List<BranchViewModel>();
-		private readonly List<MergeViewModel> merges = new List<MergeViewModel>();
+		private readonly List<OldBranchViewModel> branches = new List<OldBranchViewModel>();
+		private readonly List<OldMergeViewModel> merges = new List<OldMergeViewModel>();
 		private readonly List<string> activeBrancheNames = new List<string>();
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string filterText = "";
 
-		public HistoryViewModel()
+		public OldHistoryViewModel()
 			: this(
 					new OldModelService(),
 					new GitService(),
@@ -57,7 +57,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public HistoryViewModel(
+		public OldHistoryViewModel(
 			IOldModelService modelService,
 			IGitService gitService,
 			IBrushService brushService,
@@ -107,7 +107,7 @@ namespace GitMind.CommitsHistory
 			set
 			{
 				Log.Debug($"Setting value {value}");
-				CommitViewModel commit = commits[value];
+				OldCommitViewModel commit = commits[value];
 
 				CommitDetail.Id = commit.Id;
 				CommitDetail.Branch = commit.Commit.Branch.Name;
@@ -162,7 +162,7 @@ namespace GitMind.CommitsHistory
 				return;
 			}
 
-			CommitViewModel commitViewModel = commits[rowIndex];
+			OldCommitViewModel commitViewModel = commits[rowIndex];
 
 			if (commitViewModel.IsMergePoint && commitViewModel.BranchColumn == column)
 			{
@@ -326,7 +326,7 @@ namespace GitMind.CommitsHistory
 				if (bottomRowIndex > topRowIndex)
 				{
 					// Return visible branches
-					foreach (BranchViewModel branch in branches)
+					foreach (OldBranchViewModel branch in branches)
 					{
 						if (IsVisable(topRowIndex, bottomRowIndex, branch.LatestRowIndex, branch.FirstRowIndex))
 						{
@@ -335,7 +335,7 @@ namespace GitMind.CommitsHistory
 					}
 
 					// Return visible merges
-					foreach (MergeViewModel merge in merges)
+					foreach (OldMergeViewModel merge in merges)
 					{
 						if (IsVisable(topRowIndex, bottomRowIndex, merge.ChildRowIndex, merge.ParentRowIndex))
 						{
@@ -492,7 +492,7 @@ namespace GitMind.CommitsHistory
 			{
 				OldCommit commit = sourceCommits[rowIndex];
 
-				CommitViewModel commitViewModel = commits[rowIndex];
+				OldCommitViewModel commitViewModel = commits[rowIndex];
 
 				commitViewModel.Commit = commit;
 				commitViewModel.Id = commit.Id;
@@ -576,7 +576,7 @@ namespace GitMind.CommitsHistory
 				int lowIndex = commits.Count;
 				for (int i = lowIndex; i < capacity; i++)
 				{
-					commits.Add(new CommitViewModel(HideBranchNameAsync, ShowDiffAsync));
+					commits.Add(new OldCommitViewModel(HideBranchNameAsync, ShowDiffAsync));
 				}
 			}
 		}
@@ -671,7 +671,7 @@ namespace GitMind.CommitsHistory
 				int firstRowIndex = commitIdToRowIndex[branch.FirstCommit.Id];
 				int height = coordinateConverter.ConvertFromRow(firstRowIndex - latestRowIndex);
 
-				BranchViewModel branchViewModel = new BranchViewModel(
+				OldBranchViewModel branchViewModel = new OldBranchViewModel(
 					branch.Name,
 					branchId,
 					i,
@@ -722,7 +722,7 @@ namespace GitMind.CommitsHistory
 					x1 = x1 + 2;
 				}
 
-				MergeViewModel mergeViewModel = new MergeViewModel(
+				OldMergeViewModel mergeViewModel = new OldMergeViewModel(
 					mergeId,
 					parentRowIndex,
 					childRowIndex,
@@ -796,9 +796,9 @@ namespace GitMind.CommitsHistory
 
 		private class LogItemsSource : ItemsSource
 		{
-			private readonly HistoryViewModel instance;
+			private readonly OldHistoryViewModel instance;
 
-			public LogItemsSource(HistoryViewModel instance)
+			public LogItemsSource(OldHistoryViewModel instance)
 			{
 				this.instance = instance;
 			}

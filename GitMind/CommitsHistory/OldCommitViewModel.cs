@@ -8,13 +8,13 @@ using GitMind.Utils.UI;
 
 namespace GitMind.CommitsHistory
 {
-	internal class CommitViewModel : ViewModel
+	internal class OldCommitViewModel : ViewModel
 	{
 		private readonly Func<string, Task> hideBranchAsync;
 		private readonly Func<string, Task> showDiffAsync;
 
 
-		public CommitViewModel(
+		public OldCommitViewModel(
 			Func<string, Task> hideBranchAsync,
 			Func<string, Task> showDiffAsync)
 		{

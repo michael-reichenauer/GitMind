@@ -25,7 +25,7 @@ namespace GitMind
 
 
 		internal MainWindowViewModel(
-			IHistoryViewModel historyViewModelViewModel,
+			IOldHistoryViewModel historyViewModelViewModel,
 			IDiffService diffService,
 			ILatestVersionService latestVersionService,
 			Window owner,
@@ -89,7 +89,7 @@ namespace GitMind
 
 		public BusyIndicator Busy => BusyIndicator();
 
-		public IHistoryViewModel HistoryViewModel { get; }
+		public IOldHistoryViewModel HistoryViewModel { get; }
 
 
 		public string VersionText

@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace GitMind.CommitsHistory
 {
-	internal interface IHistoryViewModel
+	internal interface IOldHistoryViewModel
 	{
 		ICommand ShowBranchCommand { get; }
 
