@@ -48,5 +48,6 @@ namespace GitMind.GitModel
 		public Commit SecondParent => repository.Commits[parentIds[0]];
 		public IEnumerable<Commit> Children => childIds.Select(id => repository.Commits[id]);
 		public Branch Branch => repository.Branches[branchId];
+		public bool IsMergePoint => parentIds.Count > 1;
 	}
 }

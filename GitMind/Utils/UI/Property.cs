@@ -38,11 +38,11 @@ namespace GitMind.Utils.UI
 		public static implicit operator double(Property instance) => (double?)instance.Value ?? 0;
 		public static implicit operator Rect(Property instance) => (Rect?)instance.Value ?? Rect.Empty;
 		public static implicit operator Brush(Property instance) => (Brush)instance.Value;
-		
+
 
 		public void Notify(params string[] otherPropertyNames)
 		{
-			viewModel.Notify(otherPropertyNames);		
+			viewModel.Notify(otherPropertyNames);
 		}
 	}
 

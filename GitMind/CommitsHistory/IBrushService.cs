@@ -1,6 +1,7 @@
 using System.Windows.Media;
 using GitMind.DataModel;
 using GitMind.DataModel.Old;
+using GitMind.GitModel;
 
 
 namespace GitMind.CommitsHistory
@@ -11,7 +12,8 @@ namespace GitMind.CommitsHistory
 		SolidColorBrush LocalAheadBrush { get; }
 		SolidColorBrush RemoteAheadBrush { get; }
 
-		Brush GetBRanchBrush(IBranch branch);
+		Brush GetBranchBrush(IBranch branch);
 		Brush GetDarkerBrush(Brush brush);
+		Brush GetBranchBrush(Branch branch);
 	}
 }

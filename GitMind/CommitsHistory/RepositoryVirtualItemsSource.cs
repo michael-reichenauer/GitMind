@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Windows;
 using GitMind.VirtualCanvas;
@@ -6,39 +5,40 @@ using GitMind.VirtualCanvas;
 
 namespace GitMind.CommitsHistory
 {
-	internal class RepositoryItems : IVirtualItems
+	internal class RepositoryVirtualItemsSource : VirtualItemsSource
 	{
 		private static readonly int branchBaseIndex = 1000000;
 		private static readonly int mergeBaseIndex = 2000000;
 
-		private readonly ICoordinateConverter coordinateConverter;
+		private readonly IReadOnlyList<BranchViewModel> branches;
+		private readonly IReadOnlyList<MergeViewModel> merges;
+		private readonly IReadOnlyList<CommitViewModel> commits;
+		private Rect virtualArea;
 
-		public List<BranchViewModel> Branches { get; } = new List<BranchViewModel>();
-		public List<MergeViewModel> Merges { get; } = new List<MergeViewModel>();
-		public List<CommitViewModel> Commits { get; } = new List<CommitViewModel>();
-
-
-		public RepositoryItems(ICoordinateConverter coordinateConverter)
+		public RepositoryVirtualItemsSource(
+			IReadOnlyList<BranchViewModel> branches,
+			IReadOnlyList<MergeViewModel> merges,
+			IReadOnlyList<CommitViewModel> commits)
 		{
-			this.coordinateConverter = coordinateConverter;
+			this.branches = branches;
+			this.merges = merges;
+			this.commits = commits;
 		}
 
 
-		public Rect VirtualArea { get; set; } = Rect.Empty;
-
-		public event EventHandler ItemsChanged;
-
-
-		public void TriggerItemsChanged()
+		public void DataChanged(double width)
 		{
-			ItemsChanged?.Invoke(this, EventArgs.Empty);
+			virtualArea = new Rect(0, 0, width, Converter.ToRowExtent(commits.Count));
 		}
+
+
+		protected override Rect VirtualArea => virtualArea;
 
 
 		/// <summary>
 		/// Returns range of item ids, which are visible in the area currently shown
 		/// </summary>
-		public IEnumerable<int> GetItemIds(Rect viewArea)
+		protected override IEnumerable<int> GetItemIds(Rect viewArea)
 		{
 			if (VirtualArea == Rect.Empty || viewArea == Rect.Empty)
 			{
@@ -48,15 +48,15 @@ namespace GitMind.CommitsHistory
 			// Get the part of the rectangle that is visible
 			viewArea.Intersect(VirtualArea);
 
-			int viewAreaTopIndex = coordinateConverter.GetTopRowIndex(viewArea, Commits.Count);
-			int vareaBottomIndex = coordinateConverter.GetBottomRowIndex(viewArea, Commits.Count);
+			int viewAreaTopIndex = Converter.ToTopRowIndex(viewArea, commits.Count);
+			int vareaBottomIndex = Converter.ToBottomRowIndex(viewArea, commits.Count);
 
 			if (vareaBottomIndex > viewAreaTopIndex)
 			{
 				// Return visible branches
-				for (int i = 0; i < Branches.Count; i++)
+				for (int i = 0; i < branches.Count; i++)
 				{
-					BranchViewModel branch = Branches[i];
+					BranchViewModel branch = branches[i];
 					if (IsVisable(
 						viewAreaTopIndex, vareaBottomIndex, branch.LatestRowIndex, branch.FirstRowIndex))
 					{
@@ -65,11 +65,11 @@ namespace GitMind.CommitsHistory
 				}
 
 				// Return visible merges
-				for (int i = 0; i < Merges.Count; i++)
+				for (int i = 0; i < merges.Count; i++)
 				{
-					MergeViewModel merge = Merges[i];
+					MergeViewModel merge = merges[i];
 					if (IsVisable(
-						viewAreaTopIndex, vareaBottomIndex, merge.ChildRowIndex, merge.ParentRowIndex))
+						viewAreaTopIndex, vareaBottomIndex, merge.ChildRow, merge.ParentRow))
 					{
 						yield return i + mergeBaseIndex;
 					}
@@ -78,7 +78,7 @@ namespace GitMind.CommitsHistory
 				// Return visible commits
 				for (int i = viewAreaTopIndex; i <= vareaBottomIndex; i++)
 				{
-					if (i >= 0 && i < Commits.Count)
+					if (i >= 0 && i < commits.Count)
 					{
 						yield return i;
 					}
@@ -93,9 +93,9 @@ namespace GitMind.CommitsHistory
 		/// Branches are in the branchBaseIndex->mergeBaseIndex-1 range
 		/// Merges are mergeBaseIndex-> ... range
 		/// </summary>
-		public object GetItem(int id)
+		protected override object GetItem(int id)
 		{
-			if (Commits.Count == 0)
+			if (commits.Count == 0)
 			{
 				// No items yet
 				return null;
@@ -103,9 +103,9 @@ namespace GitMind.CommitsHistory
 
 			if (id < branchBaseIndex)
 			{
-				if (Commits.Count > 0 && id >= 0 && id < Commits.Count)
+				if (commits.Count > 0 && id >= 0 && id < commits.Count)
 				{
-					return Commits[id];
+					return commits[id];
 				}
 			}
 			else if (id < mergeBaseIndex)
@@ -113,14 +113,14 @@ namespace GitMind.CommitsHistory
 				// An item in the branch range
 				int branchId = id - branchBaseIndex;
 
-				return Branches[branchId];
+				return branches[branchId];
 			}
 			else
 			{
 				// An item in the merge range
 				int mergeId = id - mergeBaseIndex;
 
-				return Merges[mergeId];
+				return merges[mergeId];
 			}
 
 			return null;

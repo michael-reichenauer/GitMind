@@ -13,11 +13,14 @@ namespace GitMind.CommitsHistory
 		private readonly Func<string, Task> hideBranchAsync;
 		private readonly Func<string, Task> showDiffAsync;
 		private Commit commit;
+		private int windowWidth;
 
 		public CommitViewModel(
+			int rowIndex,
 			Func<string, Task> hideBranchAsync,
 			Func<string, Task> showDiffAsync)
 		{
+			RowIndex = rowIndex;
 			this.hideBranchAsync = hideBranchAsync;
 			this.showDiffAsync = showDiffAsync;
 		}
@@ -36,6 +39,8 @@ namespace GitMind.CommitsHistory
 				}
 			}
 		}
+
+		public int RowIndex { get; }
 
 		public string Id => Commit.Id;
 		public string ShortId => Commit.ShortId;
@@ -95,7 +100,7 @@ namespace GitMind.CommitsHistory
 		public double Width
 		{
 			get { return Get(); }
-			set { Set(value); }
+			private set { Set(value); }
 		}
 
 		public int GraphWidth
@@ -131,7 +136,7 @@ namespace GitMind.CommitsHistory
 		public Rect Rect
 		{
 			get { return Get(); }
-			set { Set(value); }
+			private set { Set(value); }
 		}
 
 		public string CommitBranchText
@@ -148,6 +153,21 @@ namespace GitMind.CommitsHistory
 
 		public Command HideBranchCommand => Command(HideBranchAsync);
 		public Command ShowDiffCommand => Command(ShowDiffAsync);
+
+		public int WindowWidth
+		{
+			get { return windowWidth; }
+			set
+			{
+				if (windowWidth != value)
+				{
+					windowWidth = value;
+					Width = windowWidth - 35;
+					Rect = new Rect(0, Converter.ToY(RowIndex), Width, Converter.ToY(1));
+					
+				}
+			}
+		}
 
 
 		public override string ToString() => $"{ShortId} {Subject} {Date}";

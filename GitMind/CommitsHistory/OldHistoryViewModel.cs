@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using GitMind.DataModel;
 using GitMind.DataModel.Old;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -29,7 +27,6 @@ namespace GitMind.CommitsHistory
 		private readonly IGitService gitService;
 		private readonly IBrushService brushService;
 		private readonly IDiffService diffService;
-		private readonly ICoordinateConverter coordinateConverter;
 
 		private double width = 1000;
 
@@ -51,8 +48,7 @@ namespace GitMind.CommitsHistory
 					new OldModelService(),
 					new GitService(),
 					new BrushService(),
-					new DiffService(),
-					new CoordinateConverter())
+					new DiffService())
 		{
 		}
 
@@ -61,14 +57,12 @@ namespace GitMind.CommitsHistory
 			IOldModelService modelService,
 			IGitService gitService,
 			IBrushService brushService,
-			IDiffService diffService,
-			ICoordinateConverter coordinateConverter)
+			IDiffService diffService)
 		{
 			this.modelService = modelService;
 			this.gitService = gitService;
 			this.brushService = brushService;
 			this.diffService = diffService;
-			this.coordinateConverter = coordinateConverter;
 			filterTriggerTimer.Tick += FilterTrigger;
 
 			ItemsSource = new LogItemsSource(this);
@@ -92,14 +86,14 @@ namespace GitMind.CommitsHistory
 		public int DetailsSize
 		{
 			get { return Get(); }
-			set { Set(value); }	
+			set { Set(value); }
 		}
 
 
 		public ObservableCollection<BranchName> AllBranches { get; }
 			= new ObservableCollection<BranchName>();
-	
-		public OldItemsSource ItemsSource { get; }
+
+		public VirtualItemsSource ItemsSource { get; }
 
 		public int SelectedIndex
 		{
@@ -121,7 +115,7 @@ namespace GitMind.CommitsHistory
 		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);
 
 		// The virtual area rectangle, which would be needed to show all commits
-		private Rect VirtualExtent { get; set; } = OldItemsSource.EmptyExtent;
+		private Rect VirtualExtent { get; set; } = VirtualItemsSource.EmptyExtent;
 
 		public async Task HideBranchNameAsync(string branchName)
 		{
@@ -211,14 +205,14 @@ namespace GitMind.CommitsHistory
 				if (currentRootPath.HasValue)
 				{
 					List<string> branchNames = activeBrancheNames.ToList();
-			
+
 					model = await modelService.GetCachedModelAsync(branchNames);
 
 					UpdateUIModel();
 					SelectedIndex = 0;
 					ProgramSettings.SetLatestUsedWorkingFolderPath(Environment.CurrentDirectory);
-					return;			
-				}	
+					return;
+				}
 				else if (currentRootPath.Error == gitService.GitCommandError)
 				{
 					// Could not locate a local working folder
@@ -291,7 +285,7 @@ namespace GitMind.CommitsHistory
 					UpdateUIModel();
 				}
 				isUpdateing = false;
-			}	
+			}
 		}
 
 
@@ -315,13 +309,13 @@ namespace GitMind.CommitsHistory
 		/// </summary>
 		private IEnumerable<int> GetItemIds(Rect viewArea)
 		{
-			if (VirtualExtent != OldItemsSource.EmptyExtent && viewArea != Rect.Empty)
+			if (VirtualExtent != VirtualItemsSource.EmptyExtent && viewArea != Rect.Empty)
 			{
 				// Get the part of the rectangle that is visible
 				viewArea.Intersect(VirtualExtent);
 
-				int topRowIndex = coordinateConverter.GetTopRowIndex(viewArea, commits.Count);
-				int bottomRowIndex = coordinateConverter.GetBottomRowIndex(viewArea, commits.Count);
+				int topRowIndex = Converter.ToTopRowIndex(viewArea, commits.Count);
+				int bottomRowIndex = Converter.ToBottomRowIndex(viewArea, commits.Count);
 
 				if (bottomRowIndex > topRowIndex)
 				{
@@ -462,7 +456,7 @@ namespace GitMind.CommitsHistory
 
 		private void DataChanged()
 		{
-			VirtualExtent = new Rect(0, 0, Width, coordinateConverter.GetRowExtent(commits.Count));
+			VirtualExtent = new Rect(0, 0, Width, Converter.ToRowExtent(commits.Count));
 
 			ItemsSource.TriggerInvalidated();
 		}
@@ -470,7 +464,7 @@ namespace GitMind.CommitsHistory
 
 		private void CreateRows()
 		{
-			int graphWidth = coordinateConverter.ConvertFromColumn(model.Branches.Count);
+			int graphWidth = Converter.ToX(model.Branches.Count);
 
 			IReadOnlyList<OldCommit> sourceCommits = model.Commits;
 
@@ -484,10 +478,10 @@ namespace GitMind.CommitsHistory
 					.ToList();
 			}
 
-		
+
 			int commitsCount = sourceCommits.Count;
 			SetNumberOfCommit(commitsCount);
-		
+
 			for (int rowIndex = 0; rowIndex < commitsCount; rowIndex++)
 			{
 				OldCommit commit = sourceCommits[rowIndex];
@@ -498,9 +492,9 @@ namespace GitMind.CommitsHistory
 				commitViewModel.Id = commit.Id;
 				commitViewModel.Rect = new Rect(
 					0,
-					coordinateConverter.ConvertFromRow(rowIndex),
+					Converter.ToY(rowIndex),
 					Width - 35,
-					coordinateConverter.ConvertFromRow(1));
+					Converter.ToY(1));
 
 				commitViewModel.IsCurrent = commit == model.CurrentCommit;
 
@@ -511,14 +505,14 @@ namespace GitMind.CommitsHistory
 						|| commit.Branch != commit.SecondParent.Branch);
 
 					commitViewModel.BranchColumn = GetBranchColumnForBranchName(commit.Branch.Name);
-					
+
 					commitViewModel.Size = commitViewModel.IsMergePoint ? 10 : 6;
 					commitViewModel.XPoint = commitViewModel.IsMergePoint
-						? 2 + coordinateConverter.ConvertFromColumn(commitViewModel.BranchColumn)
-						: 4 + coordinateConverter.ConvertFromColumn(commitViewModel.BranchColumn);
+						? 2 + Converter.ToX(commitViewModel.BranchColumn)
+						: 4 + Converter.ToX(commitViewModel.BranchColumn);
 					commitViewModel.YPoint = commitViewModel.IsMergePoint ? 2 : 4;
 
-					commitViewModel.Brush = brushService.GetBRanchBrush(commit.Branch);
+					commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 					commitViewModel.BrushInner = commit.IsExpanded
 						? brushService.GetDarkerBrush(commitViewModel.Brush)
 						: commitViewModel.Brush;
@@ -534,7 +528,7 @@ namespace GitMind.CommitsHistory
 					commitViewModel.IsMergePoint = false;
 					commitViewModel.BranchColumn = 0;
 					commitViewModel.Size = 0;
-					commitViewModel.XPoint =0;
+					commitViewModel.XPoint = 0;
 					commitViewModel.YPoint = 0;
 					commitViewModel.Brush = Brushes.Black;
 					commitViewModel.BrushInner = Brushes.Black;
@@ -544,7 +538,7 @@ namespace GitMind.CommitsHistory
 				}
 
 				commitViewModel.GraphWidth = graphWidth;
-				
+
 
 				commitViewModel.Width = Width - 35;
 
@@ -553,7 +547,7 @@ namespace GitMind.CommitsHistory
 				commitViewModel.Subject = GetSubjectWithoutTickets(commit);
 				commitViewModel.Tags = GetTags(commit);
 				commitViewModel.Tickets = GetTickets(commit);
-				
+
 
 				commitIdToRowIndex[commit.Id] = rowIndex;
 			}
@@ -561,7 +555,7 @@ namespace GitMind.CommitsHistory
 
 
 		private void SetNumberOfCommit(int capacity)
-		{		
+		{
 			if (commits.Count > capacity)
 			{
 				// To many items, lets remove the rows no longer needed
@@ -669,7 +663,7 @@ namespace GitMind.CommitsHistory
 				int branchId = ++currentBranchId;
 				int latestRowIndex = commitIdToRowIndex[branch.LatestCommit.Id];
 				int firstRowIndex = commitIdToRowIndex[branch.FirstCommit.Id];
-				int height = coordinateConverter.ConvertFromRow(firstRowIndex - latestRowIndex);
+				int height = Converter.ToY(firstRowIndex - latestRowIndex);
 
 				OldBranchViewModel branchViewModel = new OldBranchViewModel(
 					branch.Name,
@@ -678,12 +672,12 @@ namespace GitMind.CommitsHistory
 					latestRowIndex,
 					firstRowIndex,
 					new Rect(
-						(double)coordinateConverter.ConvertFromColumn(i) + 5,
-						(double)coordinateConverter.ConvertFromRow(latestRowIndex) + CoordinateConverter.HalfRow,
+						(double)Converter.ToX(i) + 5,
+						(double)Converter.ToY(latestRowIndex) + Converter.HalfRow,
 						6,
 						height),
 					line: $"M 2,0 L 2,{height}",
-					brush: brushService.GetBRanchBrush(branch),
+					brush: brushService.GetBranchBrush(branch),
 					branchToolTip: GetBranchToolTip(branch));
 
 				branches.Add(branchViewModel);
@@ -708,13 +702,13 @@ namespace GitMind.CommitsHistory
 
 				OldBranchBuilder mainBranch = childColumn > parrentColumn ? childBranch : parentBranch;
 
-				int xx1 = coordinateConverter.ConvertFromColumn(childColumn);
-				int xx2 = coordinateConverter.ConvertFromColumn(parrentColumn);
+				int xx1 = Converter.ToX(childColumn);
+				int xx2 = Converter.ToX(parrentColumn);
 
 				int x1 = xx1 < xx2 ? 0 : xx1 - xx2 - 6;
 				int x2 = xx2 < xx1 ? 0 : xx2 - xx1 - 6;
 				int y1 = 0;
-				int y2 = coordinateConverter.ConvertFromRow(parentRowIndex - childRowIndex) + CoordinateConverter.HalfRow - 8;
+				int y2 = Converter.ToY(parentRowIndex - childRowIndex) + Converter.HalfRow - 8;
 
 				if (merge.IsMain)
 				{
@@ -728,11 +722,11 @@ namespace GitMind.CommitsHistory
 					childRowIndex,
 					new Rect(
 						(double)Math.Min(xx1, xx2) + 10,
-						(double)coordinateConverter.ConvertFromRow(childRowIndex) + CoordinateConverter.HalfRow,
+						(double)Converter.ToY(childRowIndex) + Converter.HalfRow,
 						 Math.Abs(xx1 - xx2) + 2,
 						y2 + 2),
 					line: $"M {x1},{y1} L {x2},{y2}",
-					brush: brushService.GetBRanchBrush(mainBranch),
+					brush: brushService.GetBranchBrush(mainBranch),
 					stroke: merge.IsMain ? 2 : 1,
 					strokeDash: merge.IsVirtual ? "4,2" : "");
 
@@ -777,11 +771,11 @@ namespace GitMind.CommitsHistory
 			double xpos = position.X - 9;
 			double ypos = position.Y - 5;
 
-			int column = coordinateConverter.ConvertToColumn(xpos);
-			int x = coordinateConverter.ConvertFromColumn(column);
+			int column = Converter.ToColumn(xpos);
+			int x = Converter.ToX(column);
 
-			int row = coordinateConverter.ConvertToRow(ypos);
-			int y = coordinateConverter.ConvertFromRow(row) + 10;
+			int row = Converter.ToRow(ypos);
+			int y = Converter.ToY(row) + 10;
 
 			double absx = Math.Abs(xpos - x);
 			double absy = Math.Abs(ypos - y);
@@ -794,7 +788,7 @@ namespace GitMind.CommitsHistory
 
 
 
-		private class LogItemsSource : OldItemsSource
+		private class LogItemsSource : VirtualItemsSource
 		{
 			private readonly OldHistoryViewModel instance;
 
@@ -803,7 +797,7 @@ namespace GitMind.CommitsHistory
 				this.instance = instance;
 			}
 
-			protected override Rect VirtualExtent => instance.VirtualExtent;
+			protected override Rect VirtualArea => instance.VirtualExtent;
 
 			protected override IEnumerable<int> GetItemIds(Rect viewArea)
 				=> instance.GetItemIds(viewArea);

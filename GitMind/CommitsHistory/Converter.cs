@@ -4,39 +4,38 @@ using System.Windows;
 
 namespace GitMind.CommitsHistory
 {
-	internal class CoordinateConverter : ICoordinateConverter
+	internal static class Converter
 	{
-
 		private static readonly int RowHeight = 17;
 		private static readonly int ColumnSize = 20;
 		public static readonly int HalfRow = RowHeight / 2;
 
 
-		public int ConvertToRow(double y)
+		public static int ToRow(double y)
 		{
 			return (int)y / RowHeight;
 		}
 
 
-		public int ConvertFromRow(int row)
+		public static int ToY(int row)
 		{
 			return row * RowHeight;
 		}
 
 
-		public int ConvertToColumn(double x)
+		public static int ToColumn(double x)
 		{
 			return (int)((x + 3) / ColumnSize);
 		}
 
 
-		public int ConvertFromColumn(int column)
+		public static int ToX(int column)
 		{
 			return ColumnSize * column;
 		}
 
 
-		public int GetTopRowIndex(Rect rectangle, int commitsCount)
+		public static int ToTopRowIndex(Rect rectangle, int commitsCount)
 		{
 			int firstIndex = (int)Math.Floor(rectangle.Top / RowHeight);
 			firstIndex = Math.Max(firstIndex, 0);
@@ -45,7 +44,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public int GetBottomRowIndex(Rect rectangle, int commitsCount)
+		public static int ToBottomRowIndex(Rect rectangle, int commitsCount)
 		{
 			int lastIndex = (int)Math.Ceiling(rectangle.Bottom / RowHeight);
 			lastIndex = Math.Min(lastIndex, commitsCount - 1);
@@ -53,11 +52,9 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public int GetRowExtent(int commitsCount)
+		public static int ToRowExtent(int commitsCount)
 		{
 			return commitsCount * RowHeight;
-		}
-
-		
+		}	
 	}
 }

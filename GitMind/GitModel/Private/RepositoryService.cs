@@ -153,7 +153,9 @@ namespace GitMind.GitModel.Private
 					branch.FirstCommitId,
 					branch.ParentCommitId,
 					branch.Commits.Select(c => c.Id).ToList(),
-					branch.ParentBranchId));
+					branch.ParentBranchId,
+					branch.IsActive,
+					branch.IsMultiBranch));
 			}
 			t.Log("Branches: " + rBranches.Count);
 
@@ -162,9 +164,7 @@ namespace GitMind.GitModel.Private
 
 
 		private static void SetBranchHierarchy(IReadOnlyList<MBranch> branches)
-		{
-
-			
+		{	
 			foreach (MBranch xBranch in branches)
 			{
 				if (xBranch.ParentCommitId != null && xBranch.ParentCommit.BranchId != xBranch.Id)

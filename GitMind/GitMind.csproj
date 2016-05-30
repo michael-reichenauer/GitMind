@@ -71,13 +71,12 @@
     <Compile Include="CommitsHistory\CommitDetailViewModel.cs" />
     <Compile Include="CommitsHistory\CommitFile.cs" />
     <Compile Include="CommitsHistory\CommitViewModel.cs" />
-    <Compile Include="CommitsHistory\CoordinateConverter.cs" />
+    <Compile Include="CommitsHistory\Converter.cs" />
     <Compile Include="CommitsHistory\DiffService.cs" />
     <Compile Include="CommitsHistory\IBrushService.cs" />
-    <Compile Include="CommitsHistory\ICoordinateConverter.cs" />
     <Compile Include="CommitsHistory\IDiffService.cs" />
     <Compile Include="CommitsHistory\MergeViewModel.cs" />
-    <Compile Include="CommitsHistory\RepositoryItems.cs" />
+    <Compile Include="CommitsHistory\RepositoryVirtualItemsSource.cs" />
     <Compile Include="CommitsHistory\RepositoryViewModel.cs" />
     <Compile Include="CommitsHistory\ViewModelService.cs" />
     <Compile Include="DataModel\Old\ActiveBranch.cs" />
@@ -155,7 +154,7 @@
     <Compile Include="Utils\Sorter.cs" />
     <Compile Include="Utils\Timing.cs" />
     <Compile Include="Utils\UI\ViewModel.cs" />
-    <Compile Include="VirtualCanvas\OldItemsSource.cs" />
+    <Compile Include="VirtualCanvas\VirtualItemsSource.cs" />
     <Compile Include="VirtualCanvas\ArithmeticConverter.cs" />
     <Compile Include="VirtualCanvas\ISpatialItemsSource.cs" />
     <Compile Include="VirtualCanvas\LinkedListExtensions.cs" />
