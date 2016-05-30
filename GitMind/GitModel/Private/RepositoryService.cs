@@ -9,7 +9,7 @@ namespace GitMind.GitModel.Private
 {
 	internal class RepositoryService : IRepositoryService
 	{
-		public Repository XGetModel(IGitRepo gitRepo)
+		public Repository GetRepository(IGitRepo gitRepo)
 		{
 			IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
 			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
@@ -267,15 +267,19 @@ namespace GitMind.GitModel.Private
 										.FirstAncestors()
 										.TakeWhile(c => c.SubBranchId == branch.Id && c.Id != branch.ParentCommitId)))
 								.Distinct()
-							.OrderBy(c => c.CommitDate));
+							.OrderByDescending(c => c.CommitDate));
 
 					if (mBranch.Commits.Any(c => c.BranchId != null))
 					{
-						var x = mBranch.Commits.Where(c => c.BranchId != null).ToList();
 						Log.Error($"Commits belong to multiple branches {mBranch}");
 					}
 
 					mBranch.Commits.ForEach(c => c.BranchId = id);
+
+					mBranch.LatestCommitId = mBranch.Commits.Any() 
+						? mBranch.Commits.First().Id : mBranch.ParentCommitId;
+					mBranch.FirstCommitId = mBranch.Commits.Any()
+					? mBranch.Commits.Last().Id : mBranch.ParentCommitId;
 
 					mBranch.MRepository.Branches.Add(mBranch);
 				}

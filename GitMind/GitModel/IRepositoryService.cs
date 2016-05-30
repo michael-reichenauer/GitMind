@@ -5,6 +5,6 @@ namespace GitMind.GitModel
 {
 	internal interface IRepositoryService
 	{
-		Repository XGetModel(IGitRepo gitRepo);
+		Repository GetRepository(IGitRepo gitRepo);
 	}
 }

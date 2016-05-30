@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using GitMind.GitModel;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -16,8 +15,9 @@ namespace GitMind.CommitsHistory
 
 		public List<BranchViewModel> Branches { get; } = new List<BranchViewModel>();
 		public List<MergeViewModel> Merges { get; } = new List<MergeViewModel>();
-		public KeyedList<string, CommitViewModel> Commits { get; } = 
-			new KeyedList<string, CommitViewModel>(c => c.Id);
+		public List<CommitViewModel> Commits { get; } = new List<CommitViewModel>();
+		public Dictionary<string, CommitViewModel> CommitsById { get; } =
+			new Dictionary<string, CommitViewModel>();
 
 
 		public RepositoryViewModel()
@@ -45,7 +45,7 @@ namespace GitMind.CommitsHistory
 					width = value;
 					Commits.ForEach(commit => commit.WindowWidth = width);
 				}
-				
+
 			}
 		}
 

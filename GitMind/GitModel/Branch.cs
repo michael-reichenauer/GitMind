@@ -60,5 +60,7 @@ namespace GitMind.GitModel
 				yield return current;
 			}
 		}
+
+		public override string ToString() => Name;
 	}
 }

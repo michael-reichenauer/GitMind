@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.CommitsHistory;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
@@ -19,7 +20,9 @@ namespace GitMind.DataModel.Old
 
 		private readonly IGitService gitService;
 		private readonly IGitCacheService gitCacheService;
-		private IRepositoryService xModelService = new RepositoryService();
+		private IRepositoryService repositoryService = new RepositoryService();
+		private IViewModelService viewModelService = new ViewModelService(new BrushService());
+
 
 		public OldModelService()
 			: this(new GitService(), new GitCacheService())
@@ -50,6 +53,8 @@ namespace GitMind.DataModel.Old
 					gitCacheService.UpdateAsync(null, gitRepo.Value).RunInBackground();
 				}
 			}
+
+
 
 			List<ActiveBranch> activeBranches = activeBranchNames
 				.Select(name => new ActiveBranch(name, null)).ToList();
@@ -163,7 +168,10 @@ namespace GitMind.DataModel.Old
 
 			return Task.Run(() =>
 			{
-				xModelService.XGetModel(gitRepo);
+				Repository repository = repositoryService.GetRepository(gitRepo);
+
+				RepositoryViewModel repositoryViewModel = new RepositoryViewModel();
+				viewModelService.Update(repositoryViewModel, repository);
 
 				if (!activeBranches.Any())
 				{
