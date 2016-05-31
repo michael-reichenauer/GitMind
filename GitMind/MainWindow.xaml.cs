@@ -10,6 +10,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.CommitsHistory;
+using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.Settings;
@@ -24,7 +26,9 @@ namespace GitMind
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private readonly OldHistoryViewModel historyViewModel;
+		//private readonly OldHistoryViewModel historyViewModel;
+		private readonly RepositoryViewModel repositoryViewModel;
+		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IStatusRefreshService refreshService;
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly IInstaller installer = new Installer();
@@ -57,10 +61,11 @@ namespace GitMind
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
 
-			historyViewModel = new OldHistoryViewModel();
+			//historyViewModel = new OldHistoryViewModel();
+			repositoryViewModel = new RepositoryViewModel();
 
 			mainWindowViewModel = new MainWindowViewModel(
-				historyViewModel, diffService, latestVersionService, this, () => RefreshAsync(true));
+				repositoryViewModel, diffService, latestVersionService, this, () => RefreshAsync(true));
 
 			refreshService = new StatusRefreshService(mainWindowViewModel);
 
@@ -68,7 +73,7 @@ namespace GitMind
 
 			DataContext = mainWindowViewModel;
 
-			ItemsListBox.ItemsSource = historyViewModel.ItemsSource;
+			ItemsListBox.ItemsSource = repositoryViewModel.VirtualItemsSource;
 
 			StartBackgroundTasks();
 
@@ -154,7 +159,7 @@ namespace GitMind
 			SetWorkingFolder();
 			Log.Debug($"Current working folder {Environment.CurrentDirectory}");
 
-			historyViewModel.SetBranches(specifiedBranchNames);
+			//historyViewModel.SetBranches(specifiedBranchNames);
 		}
 
 
@@ -226,10 +231,13 @@ namespace GitMind
 			mainWindowViewModel.WorkingFolder =
 				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 
-			Task loadTask = historyViewModel.LoadAsync(this);
-			mainWindowViewModel.Busy.Add(loadTask);
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync();
 
-			await loadTask;
+			mainWindowViewModel.Busy.Add(repositoryTask);
+
+			Repository repository = await repositoryTask;
+			repositoryViewModel.Update(repository);
+			
 			LoadedTime = DateTime.Now;
 
 			autoRefreshTime.Tick += FetchAndRefreshAsync;
@@ -278,10 +286,10 @@ namespace GitMind
 		private async Task RefreshInternalAsync(bool isShift)
 		{
 			await refreshService.UpdateStatusAsync();
-			await historyViewModel.RefreshAsync(isShift);
+			//await historyViewModel.RefreshAsync(isShift);
 		}
 
-		protected override async void OnPreviewMouseUp(MouseButtonEventArgs e)
+		protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
 		{
 			// Log.Debug($"Canvas offset {canvas.Offset}");
 
@@ -291,7 +299,7 @@ namespace GitMind
 
 			bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
-			await historyViewModel.ClickedAsync(position, isControl);
+			//await historyViewModel.ClickedAsync(position, isControl);
 
 			base.OnPreviewMouseUp(e);
 		}
@@ -301,7 +309,7 @@ namespace GitMind
 		{
 			base.OnRenderSizeChanged(sizeInfo);
 			// Log.Warn($"Size: {sizeInfo.NewSize.Width}");
-			historyViewModel.Width = sizeInfo.NewSize.Width;
+			repositoryViewModel.Width = (int)sizeInfo.NewSize.Width;
 		}
 
 

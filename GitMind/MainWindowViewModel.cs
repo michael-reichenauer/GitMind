@@ -25,13 +25,13 @@ namespace GitMind
 
 
 		internal MainWindowViewModel(
-			IOldHistoryViewModel historyViewModelViewModel,
+			RepositoryViewModel repositoryViewModel,
 			IDiffService diffService,
 			ILatestVersionService latestVersionService,
 			Window owner,
 			Func<Task> refreshAsync)
 		{
-			HistoryViewModel = historyViewModelViewModel;
+			HistoryViewModel = repositoryViewModel;
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
@@ -83,13 +83,14 @@ namespace GitMind
 
 		private void SetSearchBoxValue(string text)
 		{
-			HistoryViewModel.SetFilter(text);
+			//HistoryViewModel.SetFilter(text);
+			throw new NotImplementedException();
 		}
 
 
 		public BusyIndicator Busy => BusyIndicator();
 
-		public IOldHistoryViewModel HistoryViewModel { get; }
+		public RepositoryViewModel HistoryViewModel { get; }
 
 
 		public string VersionText
@@ -225,25 +226,26 @@ namespace GitMind
 		}
 
 
-		private async void SelectWorkingFolder()
+		private void SelectWorkingFolder()
 		{
-			List<string> activeBranches = new List<string>();
-			HistoryViewModel.SetBranches(activeBranches);
+			throw new NotImplementedException();
+			//List<string> activeBranches = new List<string>();
+			//HistoryViewModel.SetBranches(activeBranches);
 
-			var dialog = new System.Windows.Forms.FolderBrowserDialog();
-			dialog.Description = "Select a working folder.";
-			dialog.ShowNewFolderButton = false;
-			dialog.SelectedPath = Environment.CurrentDirectory;
-			if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
-			{
-				return;
-			}
+			//var dialog = new System.Windows.Forms.FolderBrowserDialog();
+			//dialog.Description = "Select a working folder.";
+			//dialog.ShowNewFolderButton = false;
+			//dialog.SelectedPath = Environment.CurrentDirectory;
+			//if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+			//{
+			//	return;
+			//}
 
-			Environment.CurrentDirectory = dialog.SelectedPath;
+			//Environment.CurrentDirectory = dialog.SelectedPath;
 
-			await HistoryViewModel.LoadAsync(owner);
+			//await HistoryViewModel.LoadAsync(owner);
 
-			WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
+			//WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 		}
 	}
 }

@@ -88,7 +88,7 @@ namespace GitMind.CommitsHistory
 					commit.IsMergePoint && commit.Branch != commit.SecondParent.Branch;
 
 				commitViewModel.BranchColumn = IndexOf(branches, commit.Branch);
-
+				
 				commitViewModel.Size = commitViewModel.IsMergePoint ? 10 : 6;
 				commitViewModel.XPoint = commitViewModel.IsMergePoint
 					? 2 + Converter.ToX(commitViewModel.BranchColumn)
@@ -96,6 +96,7 @@ namespace GitMind.CommitsHistory
 				commitViewModel.YPoint = commitViewModel.IsMergePoint ? 2 : 4;
 
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
+				commitViewModel.BrushInner = commitViewModel.Brush;
 
 				//commitViewModel.BrushInner = commit.IsExpanded
 				//	? brushService.GetDarkerBrush(commitViewModel.Brush)
@@ -135,7 +136,7 @@ namespace GitMind.CommitsHistory
 				int height = Converter.ToY(branch.FirstRowIndex - branch.LatestRowIndex);
 
 				branch.Rect = new Rect(
-					(double)Converter.ToX(index) + 5,
+					(double)Converter.ToX(branch.BranchColumn) + 5,
 					(double)Converter.ToY(branch.LatestRowIndex) + Converter.HalfRow,
 					6,
 					height);

@@ -31,13 +31,15 @@ namespace GitMind.CommitsHistory
 		public RepositoryViewModel(IViewModelService viewModelService)
 		{
 			this.viewModelService = viewModelService;
-			ItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
+			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
 		}
 
 
 		public void Update(Repository repository)
 		{
 			viewModelService.Update(this, repository);
+			Commits.ForEach(commit => commit.WindowWidth = Width);
+			VirtualItemsSource.DataChanged(width);
 		}
 
 
@@ -46,9 +48,7 @@ namespace GitMind.CommitsHistory
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
 
-	
-
-		public RepositoryVirtualItemsSource ItemsSource { get; }
+		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
 		public ObservableCollection<Branch> ActiveBranches { get; }
 			= new ObservableCollection<Branch>();
@@ -71,8 +71,8 @@ namespace GitMind.CommitsHistory
 				{
 					width = value;
 					Commits.ForEach(commit => commit.WindowWidth = width);
+					VirtualItemsSource.DataChanged(width);
 				}
-
 			}
 		}
 

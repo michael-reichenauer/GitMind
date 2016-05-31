@@ -26,9 +26,15 @@ namespace GitMind.CommitsHistory
 		}
 
 
+		public void DataChanged()
+		{
+			TriggerInvalidated();
+		}
+
 		public void DataChanged(double width)
 		{
 			virtualArea = new Rect(0, 0, width, Converter.ToRowExtent(commits.Count));
+			TriggerInvalidated();
 		}
 
 
