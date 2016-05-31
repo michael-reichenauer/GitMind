@@ -203,11 +203,14 @@ namespace GitMind.CommitsHistory
 				merge.ChildRow = childRow;
 				merge.ParentRow = parentRow;
 
+				double y = (double)Converter.ToY(childRow);
+
 				merge.Rect = new Rect(
 					(double)Math.Min(childX, parentX) + 10,
-					(double)Converter.ToY(childRow) + Converter.HalfRow,
+					y + Converter.HalfRow,
 					Math.Abs(childX - parentX) + 2,
 					y2 + 2);
+				merge.Width = merge.Rect.Width;
 
 				merge.Line = $"M {x1},{y1} L {x2},{y2}";
 				merge.Brush = mainBranch.Brush;

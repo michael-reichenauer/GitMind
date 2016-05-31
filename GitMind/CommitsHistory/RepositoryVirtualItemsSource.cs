@@ -55,16 +55,16 @@ namespace GitMind.CommitsHistory
 			viewArea.Intersect(VirtualArea);
 
 			int viewAreaTopIndex = Converter.ToTopRowIndex(viewArea, commits.Count);
-			int vareaBottomIndex = Converter.ToBottomRowIndex(viewArea, commits.Count);
+			int viewAreaBottomIndex = Converter.ToBottomRowIndex(viewArea, commits.Count);
 
-			if (vareaBottomIndex > viewAreaTopIndex)
+			if (viewAreaBottomIndex > viewAreaTopIndex)
 			{
 				// Return visible branches
 				for (int i = 0; i < branches.Count; i++)
 				{
 					BranchViewModel branch = branches[i];
 					if (IsVisable(
-						viewAreaTopIndex, vareaBottomIndex, branch.LatestRowIndex, branch.FirstRowIndex))
+						viewAreaTopIndex, viewAreaBottomIndex, branch.LatestRowIndex, branch.FirstRowIndex))
 					{
 						yield return i + branchBaseIndex;
 					}
@@ -75,14 +75,14 @@ namespace GitMind.CommitsHistory
 				{
 					MergeViewModel merge = merges[i];
 					if (IsVisable(
-						viewAreaTopIndex, vareaBottomIndex, merge.ChildRow, merge.ParentRow))
+						viewAreaTopIndex, viewAreaBottomIndex, merge.ChildRow, merge.ParentRow))
 					{
 						yield return i + mergeBaseIndex;
 					}
 				}
 
 				// Return visible commits
-				for (int i = viewAreaTopIndex; i <= vareaBottomIndex; i++)
+				for (int i = viewAreaTopIndex; i <= viewAreaBottomIndex; i++)
 				{
 					if (i >= 0 && i < commits.Count)
 					{
