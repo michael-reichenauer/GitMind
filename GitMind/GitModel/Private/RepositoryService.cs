@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.Utils;
 
 
@@ -9,15 +11,50 @@ namespace GitMind.GitModel.Private
 {
 	internal class RepositoryService : IRepositoryService
 	{
-		public Repository GetRepository(IGitRepo gitRepo)
+		private readonly IGitService gitService;
+
+
+		public RepositoryService()
+			: this( new GitService())
+		{			
+		}
+
+		public RepositoryService(IGitService gitService)
 		{
-			IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
-			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
-			IReadOnlyList<SpecifiedBranch> specifiedBranches = new SpecifiedBranch[0];
+			this.gitService = gitService;
+		}
 
+
+		public async Task<Repository> GetRepositoryAsync()
+		{
+			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
+
+			return await GetRepositoryAsync(gitRepo.Value);
+		}
+
+
+		public Task<Repository> GetRepositoryAsync(IGitRepo gitRepo)
+		{
+			return Task.Run(() =>
+			{
+				IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
+				IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
+				IReadOnlyList<SpecifiedBranch> specifiedBranches = new SpecifiedBranch[0];
+
+				MRepository mRepository = new MRepository();
+
+				return GetRepository(mRepository, gitBranches, gitCommits, specifiedBranches);
+			});
+		}
+
+
+		private Repository GetRepository(
+			MRepository mRepository, 
+			IReadOnlyList<GitBranch> gitBranches, 
+			IReadOnlyList<GitCommit> gitCommits,
+			IReadOnlyList<SpecifiedBranch> specifiedBranches)
+		{
 			Timing t = new Timing();
-			MRepository mRepository = new MRepository();
-
 			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, specifiedBranches, mRepository);
 			t.Log("Added commits");
 
@@ -778,11 +815,6 @@ namespace GitMind.GitModel.Private
 
 		private string TryExtractBranchNameFromSubject(MCommit mCommit, MRepository mRepository)
 		{
-			//if (xCommit.ShortId == "68e784")
-			//{
-
-			//}
-
 			if (mCommit.SecondParentId != null)
 			{
 				// This is a merge commit, and the subject might contain the target (this current) branch 

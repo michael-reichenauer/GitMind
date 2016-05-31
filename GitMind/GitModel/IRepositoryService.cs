@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using GitMind.Git;
 
 
@@ -5,6 +6,7 @@ namespace GitMind.GitModel
 {
 	internal interface IRepositoryService
 	{
-		Repository GetRepository(IGitRepo gitRepo);
+		Task<Repository> GetRepositoryAsync(IGitRepo gitRepo);
+		Task<Repository> GetRepositoryAsync();
 	}
 }

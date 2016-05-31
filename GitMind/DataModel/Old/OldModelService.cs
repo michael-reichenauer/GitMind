@@ -168,11 +168,6 @@ namespace GitMind.DataModel.Old
 
 			return Task.Run(() =>
 			{
-				Repository repository = repositoryService.GetRepository(gitRepo);
-
-				RepositoryViewModel repositoryViewModel = new RepositoryViewModel();
-				viewModelService.Update(repositoryViewModel, repository);
-
 				if (!activeBranches.Any())
 				{
 					activeBranches = new[] { new ActiveBranch(gitRepo.GetCurrentBranch().Name, null) };

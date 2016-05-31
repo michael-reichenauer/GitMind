@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 using GitMind.GitModel;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -9,6 +10,8 @@ namespace GitMind.CommitsHistory
 {
 	internal class RepositoryViewModel : ViewModel
 	{
+		private readonly IViewModelService viewModelService;
+
 		public Repository Repository { get; set; }
 		private int width = 0;
 		private int graphWidth = 0;
@@ -21,12 +24,31 @@ namespace GitMind.CommitsHistory
 
 
 		public RepositoryViewModel()
+			: this(new ViewModelService())
+		{		
+		}
+
+		public RepositoryViewModel(IViewModelService viewModelService)
 		{
-			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
+			this.viewModelService = viewModelService;
+			ItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
 		}
 
 
-		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
+		public void Update(Repository repository)
+		{
+			viewModelService.Update(this, repository);
+		}
+
+
+		public ICommand ShowBranchCommand => Command<string>(ShowBranch);
+		public ICommand HideBranchCommand => Command<string>(HideBranch);
+		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
+
+
+	
+
+		public RepositoryVirtualItemsSource ItemsSource { get; }
 
 		public ObservableCollection<Branch> ActiveBranches { get; }
 			= new ObservableCollection<Branch>();
@@ -34,6 +56,11 @@ namespace GitMind.CommitsHistory
 
 		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);
 
+		public int DetailsSize
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		public int Width
 		{
@@ -79,6 +106,27 @@ namespace GitMind.CommitsHistory
 				CommitDetail.Subject = commit.Subject;
 			}
 		}
+
+
+
+		private void ShowBranch(string obj)
+		{
+			throw new System.NotImplementedException();
+		}
+
+
+		private void HideBranch(string obj)
+		{
+			throw new System.NotImplementedException();
+		}
+
+
+		private void ToggleDetails()
+		{
+			DetailsSize = DetailsSize > 0 ? 0 : 150;
+		}
+
+
 
 	}
 }

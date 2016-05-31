@@ -14,6 +14,11 @@ namespace GitMind.CommitsHistory
 		private readonly IBrushService brushService;
 
 
+		public ViewModelService()
+			: this(new BrushService())
+		{			
+		}
+
 		public ViewModelService(IBrushService brushService)
 		{
 			this.brushService = brushService;
@@ -39,8 +44,10 @@ namespace GitMind.CommitsHistory
 			t.Log("Branches");
 			IEnumerable<Commit> commits = GetCommits(branches);
 			t.Log("Commits");
+			List<Commit> list = commits.ToList();
+			t.Log("Commits2");
 
-			UpdateCommits(commits, branches, repositoryViewModel);
+			UpdateCommits(list, branches, repositoryViewModel);
 			t.Log("Updated Commits");
 			UpdateBranches(branches, repositoryViewModel);
 			t.Log("Updated Branches");
@@ -77,8 +84,6 @@ namespace GitMind.CommitsHistory
 
 				// commitViewModel.IsCurrent = commit == model.CurrentCommit;
 
-				//if (string.IsNullOrWhiteSpace(filterText))
-				//{
 				commitViewModel.IsMergePoint = 
 					commit.IsMergePoint && commit.Branch != commit.SecondParent.Branch;
 
@@ -100,30 +105,10 @@ namespace GitMind.CommitsHistory
 				commitViewModel.CommitBranchName = commit.Branch.Name;
 				//commitViewModel.ToolTip = GetCommitToolTip(commit);
 				commitViewModel.SubjectBrush = GetSubjectBrush(commit);
-				//}
-				//else
-				//{
-				//	commitViewModel.SubjectBrush = brushService.SubjectBrush;
-				//	commitViewModel.IsMergePoint = false;
-				//	commitViewModel.BranchColumn = 0;
-				//	commitViewModel.Size = 0;
-				//	commitViewModel.XPoint = 0;
-				//	commitViewModel.YPoint = 0;
-				//	commitViewModel.Brush = Brushes.Black;
-				//	commitViewModel.BrushInner = Brushes.Black;
-				//	commitViewModel.CommitBranchText = "";
-				//	commitViewModel.CommitBranchName = "";
-				//	commitViewModel.ToolTip = "";
-				//}
-
-
-
-
+			
 				//commitViewModel.Subject = GetSubjectWithoutTickets(commit);
 				//commitViewModel.Tags = GetTags(commit);
 				//commitViewModel.Tickets = GetTickets(commit);
-
-
 				//commitIdToRowIndex[commit.Id] = rowIndex;
 			}
 
@@ -263,6 +248,22 @@ namespace GitMind.CommitsHistory
 		//		|| c.Id.StartsWith(filterText, StringComparison.CurrentCultureIgnoreCase))
 		//		.Select(c => model.GetCommit(c.Id))
 		//		.ToList();
+
+		//}
+		//else
+		//{
+		//	commitViewModel.SubjectBrush = brushService.SubjectBrush;
+		//	commitViewModel.IsMergePoint = false;
+		//	commitViewModel.BranchColumn = 0;
+		//	commitViewModel.Size = 0;
+		//	commitViewModel.XPoint = 0;
+		//	commitViewModel.YPoint = 0;
+		//	commitViewModel.Brush = Brushes.Black;
+		//	commitViewModel.BrushInner = Brushes.Black;
+		//	commitViewModel.CommitBranchText = "";
+		//	commitViewModel.CommitBranchName = "";
+		//	commitViewModel.ToolTip = "";
+		//}
 		//}
 
 		public Brush GetSubjectBrush(Commit commit)
@@ -280,72 +281,7 @@ namespace GitMind.CommitsHistory
 			return subjectBrush;
 		}
 
-		//private void SetNumberOfBranches(int capacity, List<BranchViewModel> branches)
-		//{
-		//	if (branches.Count > capacity)
-		//	{
-		//		// To many branches, lets remove the branches no longer needed
-		//		branches.RemoveRange(capacity, branches.Count - capacity);
-		//		return;
-		//	}
-
-		//	if (branches.Count < capacity)
-		//	{
-		//		// To few items, lets create the rows needed
-		//		int lowIndex = branches.Count;
-		//		for (int i = lowIndex; i < capacity; i++)
-		//		{
-		//			branches.Add(new BranchViewModel(i));
-		//		}
-		//	}
-		//}
-
-		//private void SetNumberOfMerges(int capacity, List<MergeViewModel> merges)
-		//{
-		//	if (merges.Count > capacity)
-		//	{
-		//		// To many branches, lets remove the branches no longer needed
-		//		merges.RemoveRange(capacity, merges.Count - capacity);
-		//		return;
-		//	}
-
-		//	if (merges.Count < capacity)
-		//	{
-		//		// To few items, lets create the rows needed
-		//		int lowIndex = merges.Count;
-		//		for (int i = lowIndex; i < capacity; i++)
-		//		{
-		//			merges.Add(new MergeViewModel(i));
-		//		}
-		//	}
-		//}
-
-
-		//private void SetNumberOfCommit(int capacity, IList<CommitViewModel> commits)
-		//{
-		//	if (commits.Count > capacity)
-		//	{
-		//		// To many items, lets remove the rows no longer needed
-		//		for (int i = commits.Count - 1; i > capacity; i--)
-		//		{
-		//			commits.RemoveAt(i);
-		//		}
-
-		//		return;
-		//	}
-
-		//	if (commits.Count < capacity)
-		//	{
-		//		// To few items, lets create the rows needed
-		//		int lowIndex = commits.Count;
-		//		for (int i = lowIndex; i < capacity; i++)
-		//		{
-		//			commits.Add(new CommitViewModel(i, null, null));
-		//		}
-		//	}
-		//}
-
-
+	
 		private static CommitViewModel GetCommitViewMode(
 			RepositoryViewModel repositoryViewModel, int index, Commit commit)
 		{
