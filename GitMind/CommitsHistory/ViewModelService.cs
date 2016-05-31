@@ -131,9 +131,6 @@ namespace GitMind.CommitsHistory
 		}
 
 
-
-
-
 		private void UpdateBranches(
 			IEnumerable<Branch> sourceBranches,
 			RepositoryViewModel repositoryViewModel)
@@ -370,14 +367,17 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		private static void RemoveUnusedCommits(RepositoryViewModel repositoryViewModel, int rowIndex)
+		private static void RemoveUnusedCommits(RepositoryViewModel repositoryViewModel, int newCount)
 		{
-			for (int i = repositoryViewModel.Commits.Count - 1; i >= rowIndex; i--)
+			int count = repositoryViewModel.Commits.Count;
+			for (int i = count - 1; i >= newCount; i--)
 			{
-				repositoryViewModel.CommitsById.Remove(repositoryViewModel.Commits[i].Id);
+				CommitViewModel commit = repositoryViewModel.Commits[i];
+				repositoryViewModel.CommitsById.Remove(commit.Id);
 				repositoryViewModel.Commits.RemoveAt(i);
 			}
 		}
+
 
 		private void SetNumberOfItems<T>(List<T> items, int count, Func<int, T> factory)
 		{
