@@ -14,7 +14,7 @@ namespace GitMind.DataModel.Old
 		public BranchPriority()
 		{
 			branchNameComparer = new BranchNameComparer();
-			branchComparer = new BranchComparer(branchNameComparer);
+			branchComparer = new OldBranchComparer(branchNameComparer);
 		}
 
 

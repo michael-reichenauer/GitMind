@@ -38,22 +38,32 @@ namespace GitMind.CommitsHistory
 
 		public void Toggle(RepositoryViewModel repositoryViewModel, Commit commit)
 		{
+			BranchViewModel clickedBranch = repositoryViewModel
+				.Branches.First(b => b.Branch == commit.Branch);
+
 			BranchViewModel branch = repositoryViewModel.Branches
 				.FirstOrDefault(b => b.Branch == commit.SecondParent.Branch);
 
 			IReadOnlyList<Branch> specifiedBranches;
+			IEnumerable<Branch> branches = repositoryViewModel.Branches.Select(b => b.Branch);
 
 			if (branch != null)
 			{
 				// Close branch
+
+				if (clickedBranch.BranchColumn > branch.BranchColumn)
+				{
+					branch = clickedBranch;
+				}
+
+				IEnumerable<Branch> descendants = GetBranchAndDescendants(branches, branch.Branch);
 				specifiedBranches = repositoryViewModel.Branches
-					.Where(b => b != branch)
+					.Where(b => b.Name == "master" || !descendants.Contains(b.Branch))
 					.Select(b => b.Branch).ToList();
 			}
 			else
 			{
-				specifiedBranches = repositoryViewModel.Branches
-					.Select(b => b.Branch).Concat(new[] { commit.SecondParent.Branch }).ToList();
+				specifiedBranches = branches.Concat(new[] { commit.SecondParent.Branch }).ToList();
 			}
 
 			Update(repositoryViewModel, specifiedBranches);
@@ -82,9 +92,25 @@ namespace GitMind.CommitsHistory
 
 		private static IEnumerable<Branch> GetBranchesIncludingParents(IEnumerable<Branch> branches)
 		{
-			return branches
+			List<Branch> branchesWithParents = branches
 				.Concat(branches.SelectMany(branch => branch.Parents()))
-				.Distinct();
+				.Distinct()
+				.ToList();
+
+			Sorter.Sort(branchesWithParents, new BranchComparer());
+			return branchesWithParents;
+		}
+
+	
+
+		private static IEnumerable<Branch> GetBranchAndDescendants(
+		IEnumerable<Branch> branches, Branch branch)
+		{
+			IEnumerable<Branch> children = branches
+				.Where(b => b.HasParentBranch && b.ParentBranch == branch);
+
+			return 
+				new[] { branch }.Concat(children.SelectMany(b => GetBranchAndDescendants(branches, b)));
 		}
 
 
@@ -201,9 +227,9 @@ namespace GitMind.CommitsHistory
 
 			int index = 0;
 			foreach (CommitViewModel childCommit in mergePoints)
-			{			
+			{
 				CommitViewModel parentCommit = commitsById[childCommit.Commit.SecondParent.Id];
-				AddMerge(index++, merges, branches, childCommit, parentCommit);		
+				AddMerge(index++, merges, branches, childCommit, parentCommit);
 			}
 
 			foreach (Commit childCommit in branchStarts)
@@ -235,7 +261,7 @@ namespace GitMind.CommitsHistory
 			int parentRow = parentCommit.RowIndex;
 			int childColumn = childBranch.BranchColumn;
 			int parentColumn = parentBranch.BranchColumn;
-			bool isBranchStart = childCommit.Commit.HasFirstParent 
+			bool isBranchStart = childCommit.Commit.HasFirstParent
 				&& childCommit.Commit.FirstParent.Branch != childCommit.Commit.Branch;
 
 			BranchViewModel mainBranch = childColumn > parentColumn ? childBranch : parentBranch;

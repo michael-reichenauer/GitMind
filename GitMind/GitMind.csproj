@@ -64,6 +64,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AcceptingExceptionsAttribute.cs" />
+    <Compile Include="CommitsHistory\BranchComparer.cs" />
     <Compile Include="CommitsHistory\BranchName.cs" />
     <Compile Include="CommitsHistory\BranchViewModel.cs" />
     <Compile Include="CommitsHistory\BrushService.cs" />
@@ -82,7 +83,7 @@
     <Compile Include="CommitsHistory\ViewModelService.cs" />
     <Compile Include="DataModel\Old\ActiveBranch.cs" />
     <Compile Include="DataModel\Old\OldBranchBuilder.cs" />
-    <Compile Include="DataModel\Old\BranchComparer.cs" />
+    <Compile Include="DataModel\Old\OldBranchComparer.cs" />
     <Compile Include="DataModel\Old\BranchNameComparer.cs" />
     <Compile Include="GitModel\Branch.cs" />
     <Compile Include="GitModel\Commit.cs" />

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace GitMind.DataModel.Old
 {
-	internal class BranchComparer : IComparer<OldBranchBuilder>
+	internal class OldBranchComparer : IComparer<OldBranchBuilder>
 	{
 		private readonly IComparer<string> nameComparer;
 
 
-		public BranchComparer(IComparer<string> nameComparer)
+		public OldBranchComparer(IComparer<string> nameComparer)
 		{
 			this.nameComparer = nameComparer;
 		}
