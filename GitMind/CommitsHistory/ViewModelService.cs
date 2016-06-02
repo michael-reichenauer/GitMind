@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.GitModel;
@@ -17,7 +16,7 @@ namespace GitMind.CommitsHistory
 
 		public ViewModelService()
 			: this(new BrushService())
-		{			
+		{
 		}
 
 		public ViewModelService(IBrushService brushService)
@@ -54,7 +53,7 @@ namespace GitMind.CommitsHistory
 			else
 			{
 				specifiedBranches = repositoryViewModel.Branches
-					.Select(b => b.Branch).Concat(new []{commit.SecondParent.Branch }).ToList();
+					.Select(b => b.Branch).Concat(new[] { commit.SecondParent.Branch }).ToList();
 			}
 
 			Update(repositoryViewModel, specifiedBranches);
@@ -118,11 +117,11 @@ namespace GitMind.CommitsHistory
 
 				// commitViewModel.IsCurrent = commit == model.CurrentCommit;
 
-				commitViewModel.IsMergePoint = 
+				commitViewModel.IsMergePoint =
 					commit.IsMergePoint && commit.Branch != commit.SecondParent.Branch;
 
 				commitViewModel.BranchColumn = IndexOf(branches, commit.Branch);
-				
+
 				commitViewModel.Size = commitViewModel.IsMergePoint ? 10 : 6;
 				commitViewModel.XPoint = commitViewModel.IsMergePoint
 					? 2 + Converter.ToX(commitViewModel.BranchColumn)
@@ -136,7 +135,7 @@ namespace GitMind.CommitsHistory
 				commitViewModel.CommitBranchName = commit.Branch.Name;
 				//commitViewModel.ToolTip = GetCommitToolTip(commit);
 				commitViewModel.SubjectBrush = GetSubjectBrush(commit);
-			
+
 				//commitViewModel.Subject = GetSubjectWithoutTickets(commit);
 				//commitViewModel.Tags = GetTags(commit);
 				//commitViewModel.Tickets = GetTickets(commit);
@@ -190,64 +189,87 @@ namespace GitMind.CommitsHistory
 			var merges = repositoryViewModel.Merges;
 
 			var mergePoints = commits
-				.Where(c => c.IsMergePoint && sourceBranches.Contains(c.Commit.SecondParent.Branch)
-				|| c.Commit.HasFirstParent && c.Commit.Branch != c.Commit.FirstParent.Branch).ToList();
-			SetNumberOfItems(merges, mergePoints.Count(), _ => new MergeViewModel());
+				.Where(c => c.IsMergePoint && sourceBranches.Contains(c.Commit.SecondParent.Branch))
+				.ToList();
+
+			var branchStarts = branches.Where(b =>
+				b.Branch.HasParentBranch && sourceBranches.Contains(b.Branch.ParentCommit.Branch))
+				.Select(b => b.Branch.FirstCommit)
+				.ToList();
+
+			SetNumberOfItems(merges, mergePoints.Count + branchStarts.Count, _ => new MergeViewModel());
 
 			int index = 0;
-			foreach (CommitViewModel commit in mergePoints)
-			{
-				MergeViewModel merge = merges[index++];
-
-				CommitViewModel parentCommit = commit.Commit.HasSecondParent 
-					? commitsById[commit.Commit.SecondParent.Id] : commitsById[commit.Commit.FirstParent.Id];
-				BranchViewModel childBranch = branches
-					.First(b => b.Branch == commit.Commit.Branch);
-				BranchViewModel parentBranch = branches
-					.First(b => b.Branch == parentCommit.Commit.Branch);
-
-				commit.BrushInner = brushService.GetDarkerBrush(commit.Brush);
-
-				int childRow = commit.RowIndex;
-				int parentRow = parentCommit.RowIndex;
-				int childColumn = childBranch.BranchColumn;
-				int parentColumn = parentBranch.BranchColumn;
-				bool isBranchStart = !commit.Commit.HasSecondParent;
-
-				BranchViewModel mainBranch = childColumn > parentColumn ? childBranch : parentBranch;
-
-				int childX = Converter.ToX(childColumn);
-				int parentX = Converter.ToX(parentColumn);
-
-				int x1 = childX < parentX ? 0 : childX - parentX - 6;
-				int y1 = 0;
-				int x2 = parentX < childX ? 0 : parentX - childX - 6;
-				int y2 = Converter.ToY(parentRow - childRow) + Converter.HalfRow - 8;
-
-				if (isBranchStart)
-				{
-					y1 = y1 + 2;
-					x1 = x1 + 2;
-				}
-
-				merge.ChildRow = childRow;
-				merge.ParentRow = parentRow;
-
-				double y = (double)Converter.ToY(childRow);
-
-				merge.Rect = new Rect(
-					(double)Math.Min(childX, parentX) + 10,
-					y + Converter.HalfRow,
-					Math.Abs(childX - parentX) + 2,
-					y2 + 2);
-				merge.Width = merge.Rect.Width;
-
-				merge.Line = $"M {x1},{y1} L {x2},{y2}";
-				merge.Brush = mainBranch.Brush;
-				merge.Stroke = isBranchStart ? 2 : 1;
-				merge.StrokeDash = "";
+			foreach (CommitViewModel childCommit in mergePoints)
+			{			
+				CommitViewModel parentCommit = commitsById[childCommit.Commit.SecondParent.Id];
+				AddMerge(index++, merges, branches, childCommit, parentCommit);		
 			}
 
+			foreach (Commit childCommit in branchStarts)
+			{
+				CommitViewModel parentCommit = commitsById[childCommit.FirstParent.Id];
+
+				AddMerge(index++, merges, branches, commitsById[childCommit.Id], parentCommit);
+			}
+		}
+
+
+		private void AddMerge(
+			int index,
+			IReadOnlyList<MergeViewModel> merges,
+			IReadOnlyCollection<BranchViewModel> branches,
+			CommitViewModel childCommit,
+			CommitViewModel parentCommit)
+		{
+			MergeViewModel merge = merges[index];
+
+			BranchViewModel childBranch = branches
+				.First(b => b.Branch == childCommit.Commit.Branch);
+			BranchViewModel parentBranch = branches
+				.First(b => b.Branch == parentCommit.Commit.Branch);
+
+			childCommit.BrushInner = brushService.GetDarkerBrush(childCommit.Brush);
+
+			int childRow = childCommit.RowIndex;
+			int parentRow = parentCommit.RowIndex;
+			int childColumn = childBranch.BranchColumn;
+			int parentColumn = parentBranch.BranchColumn;
+			bool isBranchStart = childCommit.Commit.HasFirstParent 
+				&& childCommit.Commit.FirstParent.Branch != childCommit.Commit.Branch;
+
+			BranchViewModel mainBranch = childColumn > parentColumn ? childBranch : parentBranch;
+
+			int childX = Converter.ToX(childColumn);
+			int parentX = Converter.ToX(parentColumn);
+
+			int x1 = childX < parentX ? 0 : childX - parentX - 6;
+			int y1 = 0;
+			int x2 = parentX < childX ? 0 : parentX - childX - 6;
+			int y2 = Converter.ToY(parentRow - childRow) + Converter.HalfRow - 8;
+
+			if (isBranchStart)
+			{
+				y1 = y1 + 2;
+				x1 = x1 + 2;
+			}
+
+			merge.ChildRow = childRow;
+			merge.ParentRow = parentRow;
+
+			double y = (double)Converter.ToY(childRow);
+
+			merge.Rect = new Rect(
+				(double)Math.Min(childX, parentX) + 10,
+				y + Converter.HalfRow,
+				Math.Abs(childX - parentX) + 2,
+				y2 + 2);
+			merge.Width = merge.Rect.Width;
+
+			merge.Line = $"M {x1},{y1} L {x2},{y2}";
+			merge.Brush = mainBranch.Brush;
+			merge.Stroke = isBranchStart ? 2 : 1;
+			merge.StrokeDash = "";
 		}
 
 
@@ -315,7 +337,7 @@ namespace GitMind.CommitsHistory
 			return subjectBrush;
 		}
 
-	
+
 
 
 		private void SetNumberOfItems<T>(List<T> items, int count, Func<int, T> factory)
