@@ -289,7 +289,7 @@ namespace GitMind
 			//await historyViewModel.RefreshAsync(isShift);
 		}
 
-		protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
+		protected override async void OnPreviewMouseUp(MouseButtonEventArgs e)
 		{
 			// Log.Debug($"Canvas offset {canvas.Offset}");
 
@@ -299,7 +299,7 @@ namespace GitMind
 
 			bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
-			//await historyViewModel.ClickedAsync(position, isControl);
+			await repositoryViewModel.ClickedAsync(position, isControl);
 
 			base.OnPreviewMouseUp(e);
 		}

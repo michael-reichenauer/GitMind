@@ -118,14 +118,12 @@ namespace GitMind.CommitsHistory
 			{
 				// An item in the branch range
 				int branchId = id - branchBaseIndex;
-
 				return branches[branchId];
 			}
 			else
 			{
 				// An item in the merge range
 				int mergeId = id - mergeBaseIndex;
-
 				return merges[mergeId];
 			}
 

@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -108,6 +111,39 @@ namespace GitMind.CommitsHistory
 		}
 
 
+		public async Task ToggleAsync(int column, int rowIndex, bool isControl)
+		{
+			// Log.Debug($"Clicked at {column},{rowIndex}");
+			if (rowIndex < 0 || rowIndex >= Commits.Count || column < 0 || column >= Branches.Count)
+			{
+				// Not within supported area
+				return;
+			}
+
+			CommitViewModel commitViewModel = Commits[rowIndex];
+
+			if (commitViewModel.IsMergePoint && commitViewModel.BranchColumn == column)
+			{
+				// User clicked on a merge point (toggle between expanded and collapsed)
+				Log.Debug($"Clicked at {column},{rowIndex}, {commitViewModel}");
+
+				viewModelService.Toggle(this, commitViewModel.Commit);
+				VirtualItemsSource.DataChanged(width);
+			}
+
+			//if (isControl && commitViewModel.Commit.Id == commitViewModel.Commit.Branch.LatestCommit.Id
+			//	&& activeBrancheNames.Count > 1)
+			//{
+			//	// User clicked on latest commit point on a branch, which will close the branch 
+			//	activeBrancheNames.Remove(commitViewModel.Commit.Branch.Name);
+
+			//	UpdateUIModel();
+			//}
+
+			await Task.Delay(1);
+		}
+
+
 
 		private void ShowBranch(string obj)
 		{
@@ -127,6 +163,25 @@ namespace GitMind.CommitsHistory
 		}
 
 
+		public async Task ClickedAsync(Point position, bool isControl)
+		{
+			double xpos = position.X - 9;
+			double ypos = position.Y - 5;
+
+			int column = Converter.ToColumn(xpos);
+			int x = Converter.ToX(column);
+
+			int row = Converter.ToRow(ypos);
+			int y = Converter.ToY(row) + 10;
+
+			double absx = Math.Abs(xpos - x);
+			double absy = Math.Abs(ypos - y);
+
+			if ((absx < 10) && (absy < 10))
+			{
+				await ToggleAsync(column, row, isControl);
+			}
+		}
 
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.GitModel;
@@ -33,6 +34,30 @@ namespace GitMind.CommitsHistory
 			Branch branch50 = repository.Branches.First(b => b.Name == "releases/ACS/5_00" && b.IsActive);
 			Update(repositoryViewModel, new[] { branch, branch50 });
 			t.Log("Updated repository");
+		}
+
+
+		public void Toggle(RepositoryViewModel repositoryViewModel, Commit commit)
+		{
+			BranchViewModel branch = repositoryViewModel.Branches
+				.FirstOrDefault(b => b.Branch == commit.SecondParent.Branch);
+
+			IReadOnlyList<Branch> specifiedBranches;
+
+			if (branch != null)
+			{
+				// Close branch
+				specifiedBranches = repositoryViewModel.Branches
+					.Where(b => b != branch)
+					.Select(b => b.Branch).ToList();
+			}
+			else
+			{
+				specifiedBranches = repositoryViewModel.Branches
+					.Select(b => b.Branch).Concat(new []{commit.SecondParent.Branch }).ToList();
+			}
+
+			Update(repositoryViewModel, specifiedBranches);
 		}
 
 
@@ -77,10 +102,19 @@ namespace GitMind.CommitsHistory
 			IEnumerable<Branch> branches,
 			RepositoryViewModel repositoryViewModel)
 		{
+			List<CommitViewModel> commits = repositoryViewModel.Commits;
+			var commitsById = repositoryViewModel.CommitsById;
+
+			SetNumberOfItems(commits, sourceCommits.Count(), i => new CommitViewModel(i, null, null));
+			commitsById.Clear();
+
 			int rowIndex = 0;
 			foreach (Commit commit in sourceCommits)
 			{
-				CommitViewModel commitViewModel = GetCommitViewMode(repositoryViewModel, rowIndex++, commit);
+				CommitViewModel commitViewModel = commits[rowIndex++];
+				commitViewModel.Commit = commit;
+				commitsById[commit.Id] = commitViewModel;
+				//	commitViewModel.Commit = commit;
 
 				// commitViewModel.IsCurrent = commit == model.CurrentCommit;
 
@@ -98,10 +132,6 @@ namespace GitMind.CommitsHistory
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
 
-				//commitViewModel.BrushInner = commit.IsExpanded
-				//	? brushService.GetDarkerBrush(commitViewModel.Brush)
-				//	: commitViewModel.Brush;
-
 				commitViewModel.CommitBranchText = "Hide branch: " + commit.Branch.Name;
 				commitViewModel.CommitBranchName = commit.Branch.Name;
 				//commitViewModel.ToolTip = GetCommitToolTip(commit);
@@ -112,8 +142,6 @@ namespace GitMind.CommitsHistory
 				//commitViewModel.Tickets = GetTickets(commit);
 				//commitIdToRowIndex[commit.Id] = rowIndex;
 			}
-
-			RemoveUnusedCommits(repositoryViewModel, rowIndex);
 		}
 
 
@@ -177,6 +205,8 @@ namespace GitMind.CommitsHistory
 					.First(b => b.Branch == commit.Commit.Branch);
 				BranchViewModel parentBranch = branches
 					.First(b => b.Branch == parentCommit.Commit.Branch);
+
+				commit.BrushInner = brushService.GetDarkerBrush(commit.Brush);
 
 				int childRow = commit.RowIndex;
 				int parentRow = parentCommit.RowIndex;
@@ -286,37 +316,6 @@ namespace GitMind.CommitsHistory
 		}
 
 	
-		private static CommitViewModel GetCommitViewMode(
-			RepositoryViewModel repositoryViewModel, int index, Commit commit)
-		{
-			CommitViewModel commitViewModel;
-			if (repositoryViewModel.Commits.Count < index)
-			{
-				commitViewModel = repositoryViewModel.Commits[index];
-			}
-			else
-			{
-				commitViewModel = new CommitViewModel(index, null, null);
-				repositoryViewModel.Commits.Add(commitViewModel);
-			}
-
-			repositoryViewModel.CommitsById[commit.Id] = commitViewModel;
-			commitViewModel.Commit = commit;
-
-			return commitViewModel;
-		}
-
-
-		private static void RemoveUnusedCommits(RepositoryViewModel repositoryViewModel, int newCount)
-		{
-			int count = repositoryViewModel.Commits.Count;
-			for (int i = count - 1; i >= newCount; i--)
-			{
-				CommitViewModel commit = repositoryViewModel.Commits[i];
-				repositoryViewModel.CommitsById.Remove(commit.Id);
-				repositoryViewModel.Commits.RemoveAt(i);
-			}
-		}
 
 
 		private void SetNumberOfItems<T>(List<T> items, int count, Func<int, T> factory)
