@@ -159,7 +159,7 @@ namespace GitMind.CommitsHistory
 
 				commitViewModel.CommitBranchText = "Hide branch: " + commit.Branch.Name;
 				commitViewModel.CommitBranchName = commit.Branch.Name;
-				//commitViewModel.ToolTip = GetCommitToolTip(commit);
+				commitViewModel.ToolTip = GetCommitToolTip(commit);
 				commitViewModel.SubjectBrush = GetSubjectBrush(commit);
 
 				//commitViewModel.Subject = GetSubjectWithoutTickets(commit);
@@ -297,6 +297,23 @@ namespace GitMind.CommitsHistory
 			merge.Stroke = isBranchStart ? 2 : 1;
 			merge.StrokeDash = "";
 		}
+
+
+		private static string GetCommitToolTip(Commit commit)
+		{
+			string name = commit.Branch.IsMultiBranch ? "MultiBranch" : commit.Branch.Name;
+			string toolTip = $"Commit id: {commit.ShortId}\nBranch: {name}";
+			//if (commit.Branch.LocalAheadCount > 0)
+			//{
+			//	toolTip += $"\nAhead: {commit.Branch.LocalAheadCount}";
+			//}
+			//if (commit.Branch.RemoteAheadCount > 0)
+			//{
+			//	toolTip += $"\nBehind: {commit.Branch.RemoteAheadCount}";
+			//}
+			return toolTip;
+		}
+
 
 
 		private static Branch GetMasterBranch(Repository repository)

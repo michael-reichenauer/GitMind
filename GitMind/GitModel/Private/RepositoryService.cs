@@ -803,7 +803,7 @@ namespace GitMind.GitModel.Private
 				Subject = gitCommit.Subject,
 				Author = gitCommit.Author,
 				AuthorDate = gitCommit.DateTime.ToShortDateString() +
-					"T" + gitCommit.DateTime.ToShortTimeString(),
+					" " + gitCommit.DateTime.ToShortTimeString(),
 				CommitDate = gitCommit.CommitDate.ToShortDateString() +
 					 "T" + gitCommit.CommitDate.ToShortTimeString(),
 				ParentIds = gitCommit.ParentIds.ToList(),
