@@ -7,17 +7,13 @@ namespace GitMind.Git
 			string latestCommitId,
 			bool isCurrent,
 			string trackingBranchName,
-			string latestTrackingCommitId,
-			bool isRemote,
-			bool isAnonyous)
+			bool isRemote)
 		{
 			Name = name;
 			LatestCommitId = latestCommitId;
 			IsCurrent = isCurrent;
 			TrackingBranchName = trackingBranchName;
-			LatestTrackingCommitId = latestTrackingCommitId;
 			IsRemote = isRemote;
-			IsAnonyous = isAnonyous;
 		}
 
 
@@ -25,9 +21,7 @@ namespace GitMind.Git
 		public string LatestCommitId { get; }
 		public bool IsCurrent { get; }
 		public string TrackingBranchName { get; }
-		public string LatestTrackingCommitId { get; }
 		public bool IsRemote { get; }
-		public bool IsAnonyous { get; }
 
 		public override string ToString() => Name;
 	}

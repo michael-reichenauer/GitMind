@@ -131,11 +131,11 @@ namespace GitMind.Git.Private
 				{
 					Name = b.Name,
 					LatestCommitId = b.LatestCommitId,
-					LatestTrackingCommitId = b.LatestTrackingCommitId,
+					LatestTrackingCommitId = null,
 					TrackingBranchName = b.TrackingBranchName,
 					IsCurrent = b.IsCurrent,
 					IsRemote = b.IsRemote,
-					IsAnonyous = b.IsAnonyous
+					IsAnonyous = false
 				})
 				.ToList();
 		}
@@ -149,9 +149,9 @@ namespace GitMind.Git.Private
 					Id = c.Id,
 					Author = c.Author,
 					ParentIds = c.ParentIds.ToList(),
-					DateTime = c.DateTime,
+					DateTime = c.AuthorDate,
 					CommitDate = c.CommitDate,
-					BranchName = c.BranchName,
+					BranchName = null,
 					Subject = c.Subject
 				})
 				.ToList();
@@ -179,8 +179,7 @@ namespace GitMind.Git.Private
 				c.Author,
 				c.ParentIds,
 				c.DateTime,
-				c.CommitDate,
-				c.BranchName))
+				c.CommitDate))
 				.ToList();
 		}
 
@@ -192,10 +191,8 @@ namespace GitMind.Git.Private
 					b.Name,
 					b.LatestCommitId,
 					b.IsCurrent,
-					b.TrackingBranchName,
-					b.LatestTrackingCommitId,
-					b.IsRemote,
-					b.IsAnonyous))
+					b.TrackingBranchName,			
+					b.IsRemote))
 				.ToList();
 		}
 

@@ -787,7 +787,7 @@ namespace GitMind.GitModel.Private
 				LatestCommitId = latestCommitId,
 				IsMultiBranch = false,
 				IsActive = true,
-				IsRemote = gitBranch.IsRemote || gitBranch.LatestTrackingCommitId != null
+				IsRemote = gitBranch.IsRemote
 			};
 		}
 
@@ -802,8 +802,8 @@ namespace GitMind.GitModel.Private
 				ShortId = gitCommit.ShortId,
 				Subject = gitCommit.Subject,
 				Author = gitCommit.Author,
-				AuthorDate = gitCommit.DateTime.ToShortDateString() +
-					" " + gitCommit.DateTime.ToShortTimeString(),
+				AuthorDate = gitCommit.AuthorDate.ToShortDateString() +
+					" " + gitCommit.AuthorDate.ToShortTimeString(),
 				CommitDate = gitCommit.CommitDate.ToShortDateString() +
 					 "T" + gitCommit.CommitDate.ToShortTimeString(),
 				ParentIds = gitCommit.ParentIds.ToList(),

@@ -14,8 +14,8 @@ namespace GitMind.Git.Private
 		private static readonly string GitPath = "C:\\Program Files\\Git\\bin\\git.exe";
 		private static readonly string Origin = "origin/";
 		private static readonly char[] IdSplitter = " ".ToCharArray();
-		private static readonly char[] LogSplitter = "|".ToCharArray();
-		private static readonly string[] NoParent = new string[0];
+		private static readonly char[] LogRowSplitter = "|".ToCharArray();
+		private static readonly string[] NoParents = new string[0];
 	
 
 		private readonly ICmd cmd;
@@ -256,8 +256,6 @@ namespace GitMind.Git.Private
 		}
 
 
-
-
 		public async Task<R<IReadOnlyList<GitTag>>> GetTagsAsync(string path)
 		{
 			List<GitTag> tags = new List<GitTag>();
@@ -272,6 +270,7 @@ namespace GitMind.Git.Private
 				string tagName = line.Substring(51);
 				if (tagName.EndsWith("^{}"))
 				{
+					// For soem reason some tag names end in strange characters
 					tagName = tagName.Substring(0, tagName.Length - 3);
 				}
 
@@ -346,39 +345,14 @@ namespace GitMind.Git.Private
 					trackingBranchName = newLine.Substring(1, index - 1);
 				}
 
-				if (!isRemote)
+				if (isRemote && branchName.StartsWith(Origin))
 				{
-					// Is local branch, which might have a tracking branch, if so this item will be updated
-					// once the corresponding remote branch is reached
-					GitBranch branch = new GitBranch(
-						branchName, latestCommitId, isCurrent, trackingBranchName, null, false, false);
-					branches.Add(branch);
+					branchName = branchName.Substring(Origin.Length);
 				}
-				else
-				{
-					// This is a remote branch, lets check if a corresponding local branch is tracking
-					GitBranch branch = branches.FirstOrDefault(b => b.TrackingBranchName == branchName);
-					if (branch != null)
-					{
-						// There is a local branch tracking this remote branch, update the local branch info
-						// With info about the remote tracking branch name and latest commit id
-						branches.Remove(branch);
-						branch = new GitBranch(
-							branch.Name, branch.LatestCommitId, branch.IsCurrent, branchName, latestCommitId, false, false);
-					}
-					else
-					{
-						// A remote branch with no local branch tracking it
-						if (branchName.StartsWith(Origin))
-						{
-							branchName = branchName.Substring(Origin.Length);
-						}
-
-						branch = new GitBranch(branchName, latestCommitId, false, null, null, true, false);
-					}
-
-					branches.Add(branch);
-				}
+	
+				GitBranch branch = new GitBranch(
+					branchName, latestCommitId, isCurrent, trackingBranchName, isRemote);
+				branches.Add(branch);		
 			}
 
 			return branches;
@@ -387,62 +361,59 @@ namespace GitMind.Git.Private
 
 		public async Task<R<IReadOnlyList<GitCommit>>> GetCommitsAsync(string path)
 		{
-			IDictionary<string, string> branchNames = ParseCommitBranchNames(path);
 			Log.Debug("Getting log ...");
 			string args = "log --all --pretty=\"%H|%ai|%ci|%an|%P|%s\"";
 
-			Timing timing = new Timing();
+			Timing t = new Timing();
 			R<IReadOnlyList<string>> logResult = await GitAsync(path, args);
-			timing.Log("Get log");
+			t.Log("Get commits");
 
 			if (logResult.IsFaulted) return logResult.Error;
 
-			IReadOnlyList<string> lines = logResult.Value;
+			IReadOnlyList<string> logLines = logResult.Value;
 
-			List<GitCommit> logItems = new List<GitCommit>(lines.Count);
+			List<GitCommit> commits = new List<GitCommit>(logLines.Count);
 
-			for (int i = 0; i < lines.Count; i++)
+			foreach (string line in logLines)
 			{
-				string[] parts = lines[i].Split(LogSplitter);
+				string[] parts = line.Split(LogRowSplitter);
 
-				if (parts.Length < 5)
+				if (parts.Length < 6)
 				{
 					return GitCommandError.With("Unknown log format");
 				}
-
-				string subject;
-				if (parts.Length == 5)
-				{
-					subject = parts[5];
-				}
-				else
-				{
-					subject = string.Join("|", parts.Skip(5));
-				}
-
-				string CommitId = parts[0];
-				string shortId = CommitId.Substring(0, 6);
-
-				string branchName = null;
-				if (branchNames.TryGetValue(shortId, out branchName))
-				{
-					// Log.Debug($"Commit {shortId} - {branchName}");
-				}
-
+		
 				var gitCommit = new GitCommit(
-					CommitId,
-					subject,
-					parts[3],
-					string.IsNullOrEmpty(parts[4]) ? NoParent : parts[4].Split(IdSplitter),
-					DateTime.Parse(parts[1]),
-					DateTime.Parse(parts[2]),
-					branchName);
+					id: parts[0],
+					subject: GetSubject(parts),
+					author: parts[3],
+					parentIds: GetParentIds(parts),
+					authorDate: DateTime.Parse(parts[1]),
+					commitDate: DateTime.Parse(parts[2]));
 
-				logItems.Add(gitCommit);
+				commits.Add(gitCommit);
 			}
 
-			timing.Log("Parsing");
-			return logItems;
+			t.Log("Parsing commits");
+			return commits;
+		}
+
+
+		private static string[] GetParentIds(string[] logRowParts)
+		{
+			return string.IsNullOrEmpty(logRowParts[4]) ? NoParents : logRowParts[4].Split(IdSplitter);
+		}
+
+
+		private static string GetSubject(string[] logRowParts)
+		{
+			string subject = logRowParts[5];
+			if (logRowParts.Length > 6)
+			{
+				// The subject contains one or more "|", so join these parts into original subject
+				logRowParts.Skip(5).ForEach(part => subject += "|" + part);
+			}
+			return subject;
 		}
 
 

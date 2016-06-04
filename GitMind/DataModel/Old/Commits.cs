@@ -39,9 +39,9 @@ namespace GitMind.DataModel.Old
 				children,
 				gitCommit.Subject,
 				gitCommit.Author,
-				gitCommit.DateTime,
+				gitCommit.AuthorDate,
 				gitCommit.CommitDate,
-				gitCommit.BranchName);
+				null);
 
 			commitIdToCommit[commit.Id] = commit;
 
