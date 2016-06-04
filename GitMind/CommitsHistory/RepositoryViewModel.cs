@@ -111,12 +111,12 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public async Task ToggleAsync(int column, int rowIndex, bool isControl)
+		public void Clicked(int column, int rowIndex, bool isControl)
 		{
 			// Log.Debug($"Clicked at {column},{rowIndex}");
 			if (rowIndex < 0 || rowIndex >= Commits.Count || column < 0 || column >= Branches.Count)
 			{
-				// Not within supported area
+				// Click is not within supported area
 				return;
 			}
 
@@ -127,20 +127,9 @@ namespace GitMind.CommitsHistory
 				// User clicked on a merge point (toggle between expanded and collapsed)
 				Log.Debug($"Clicked at {column},{rowIndex}, {commitViewModel}");
 
-				viewModelService.Toggle(this, commitViewModel.Commit);
+				viewModelService.ToggleMergePoint(this, commitViewModel.Commit);
 				VirtualItemsSource.DataChanged(width);
 			}
-
-			//if (isControl && commitViewModel.Commit.Id == commitViewModel.Commit.Branch.LatestCommit.Id
-			//	&& activeBrancheNames.Count > 1)
-			//{
-			//	// User clicked on latest commit point on a branch, which will close the branch 
-			//	activeBrancheNames.Remove(commitViewModel.Commit.Branch.Name);
-
-			//	UpdateUIModel();
-			//}
-
-			await Task.Delay(1);
 		}
 
 
@@ -163,7 +152,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public async Task ClickedAsync(Point position, bool isControl)
+		public void Clicked(Point position, bool isControl)
 		{
 			double xpos = position.X - 9;
 			double ypos = position.Y - 5;
@@ -179,7 +168,7 @@ namespace GitMind.CommitsHistory
 
 			if ((absx < 10) && (absy < 10))
 			{
-				await ToggleAsync(column, row, isControl);
+				Clicked(column, row, isControl);
 			}
 		}
 

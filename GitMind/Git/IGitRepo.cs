@@ -5,7 +5,8 @@ namespace GitMind.Git
 {
 	internal interface IGitRepo
 	{
-		string CurrentCommitId { get; }
+		GitCommit CurrentCommit { get; }
+		GitBranch CurrentBranch { get; }
 
 		GitCommit GetCommit(string commitId);
 

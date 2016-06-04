@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -51,8 +52,8 @@ namespace GitMind.GitModel.Private
 		public string MergeTargetBranchNameFromSubject { get; set; }
 		public string Subject { get; set; }
 		public string Author { get; set; }
-		public string AuthorDate { get; set; }
-		public string CommitDate { get; set; }
+		public DateTime AuthorDate { get; set; }
+		public DateTime CommitDate { get; set; }
 
 		public string FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : null;
 		public MCommit FirstParent => ParentIds.Count > 0 ? mRepository.Commits[ParentIds[0]] : null;

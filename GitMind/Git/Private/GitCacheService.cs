@@ -108,7 +108,8 @@ namespace GitMind.Git.Private
 				ToGitBranches(repositoryDto.Branches),
 				ToGitCommits(repositoryDto.Commits),
 				ToGitTags(repositoryDto.Tags),
-				repositoryDto.CurrentCommitId);
+				null,
+				null);
 		}
 
 
@@ -119,7 +120,7 @@ namespace GitMind.Git.Private
 				Branches = ToBranches(gitRepo.GetAllBranches()),
 				Commits = ToCommits(gitRepo.GetAllCommts()),
 				Tags = ToTags(gitRepo.GetAllTags()),
-				CurrentCommitId = gitRepo.CurrentCommitId
+				CurrentCommitId = gitRepo.CurrentCommit.Id
 			};
 		}
 

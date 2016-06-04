@@ -9,7 +9,7 @@ namespace GitMind.GitModel.Private
 		public KeyedList<string, MSubBranch> SubBranches = new KeyedList<string, MSubBranch>(b => b.Id);	
 		public KeyedList<string, MBranch> Branches = new KeyedList<string, MBranch>(b => b.Id);
 
-		public string CurrentCommitId { get; set; }
-		public string CurrentBranchId { get; set; }
+		public MCommit CurrentCommit { get; set; }
+		public MBranch CurrentBranch { get; set; }
 	}
 }

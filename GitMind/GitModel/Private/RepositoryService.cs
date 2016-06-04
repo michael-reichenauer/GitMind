@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -43,7 +44,13 @@ namespace GitMind.GitModel.Private
 
 				MRepository mRepository = new MRepository();
 
-				return GetRepository(mRepository, gitBranches, gitCommits, specifiedBranches);
+				return GetRepository(
+					mRepository, 
+					gitBranches, 
+					gitCommits, 
+					specifiedBranches, 
+					gitRepo.CurrentBranch, 
+					gitRepo.CurrentCommit);
 			});
 		}
 
@@ -52,7 +59,9 @@ namespace GitMind.GitModel.Private
 			MRepository mRepository, 
 			IReadOnlyList<GitBranch> gitBranches, 
 			IReadOnlyList<GitCommit> gitCommits,
-			IReadOnlyList<SpecifiedBranch> specifiedBranches)
+			IReadOnlyList<SpecifiedBranch> specifiedBranches,
+			GitBranch currentBranch,
+			GitCommit currentCommit)
 		{
 			Timing t = new Timing();
 			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, specifiedBranches, mRepository);
@@ -74,6 +83,10 @@ namespace GitMind.GitModel.Private
 
 			SetBranchHierarchy(subBranches, mRepository);
 			t.Log("SetBranchHierarchy");
+
+			mRepository.CurrentBranch = mRepository.Branches
+				.First(b => b.IsActive && b.Name == currentBranch.Name);
+			mRepository.CurrentCommit = mRepository.Commits[currentCommit.Id];
 
 			Repository repository = ToRepository(mRepository);
 			t.Log($"Branches: {repository.Branches.Count} commits: {repository.Commits.Count}");
@@ -158,45 +171,72 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
 			KeyedList<string, Commit> rCommits = new KeyedList<string, Commit>(c => c.Id);
-
+			Branch currentBranch = null;
+			Commit currentCommit = null;
 			Repository repository = new Repository(
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
-				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits));
+				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
+				new Lazy<Branch>(() => currentBranch),
+				new Lazy<Commit>(() => currentCommit));
 
-			foreach (MCommit commit in mRepository.Commits)
+			foreach (MCommit mCommit in mRepository.Commits)
 			{
-				rCommits.Add(new Commit(
-					repository,
-					commit.Id,
-					commit.ShortId,
-					commit.Subject,
-					commit.Author,
-					commit.AuthorDate,
-					commit.CommitDate,
-					commit.ParentIds.ToList(),
-					commit.ChildIds.ToList(),
-					commit.BranchId));
+				Commit commit = ToCommit(repository, mCommit);
+				rCommits.Add(commit);
+				if (mCommit == mRepository.CurrentCommit)
+				{
+					currentCommit = commit;
+				}
 			}
 
 			t.Log("Commits: " + rCommits.Count);
 
-			foreach (MBranch branch in mRepository.Branches)
+			foreach (MBranch mBranch in mRepository.Branches)
 			{
-				rBranches.Add(new Branch(
-					repository,
-					branch.Id,
-					branch.Name,
-					branch.LatestCommitId,
-					branch.FirstCommitId,
-					branch.ParentCommitId,
-					branch.Commits.Select(c => c.Id).ToList(),
-					branch.ParentBranchId,
-					branch.IsActive,
-					branch.IsMultiBranch));
+				Branch branch = ToBranch(repository, mBranch);
+				rBranches.Add(branch);
+
+				if (mBranch == mRepository.CurrentBranch)
+				{
+					currentBranch = branch;
+				}
 			}
+
 			t.Log("Branches: " + rBranches.Count);
 
 			return repository;
+		}
+
+
+		private static Branch ToBranch(Repository repository, MBranch branch)
+		{
+			return new Branch(
+				repository,
+				branch.Id,
+				branch.Name,
+				branch.LatestCommitId,
+				branch.FirstCommitId,
+				branch.ParentCommitId,
+				branch.Commits.Select(c => c.Id).ToList(),
+				branch.ParentBranchId,
+				branch.IsActive,
+				branch.IsMultiBranch);
+		}
+
+
+		private static Commit ToCommit(Repository repository, MCommit commit)
+		{
+			return new Commit(
+				repository,
+				commit.Id,
+				commit.ShortId,
+				commit.Subject,
+				commit.Author,
+				commit.AuthorDate,
+				commit.CommitDate,
+				commit.ParentIds.ToList(),
+				commit.ChildIds.ToList(),
+				commit.BranchId);
 		}
 
 
@@ -802,10 +842,8 @@ namespace GitMind.GitModel.Private
 				ShortId = gitCommit.ShortId,
 				Subject = gitCommit.Subject,
 				Author = gitCommit.Author,
-				AuthorDate = gitCommit.AuthorDate.ToShortDateString() +
-					" " + gitCommit.AuthorDate.ToShortTimeString(),
-				CommitDate = gitCommit.CommitDate.ToShortDateString() +
-					 "T" + gitCommit.CommitDate.ToShortTimeString(),
+				AuthorDate = gitCommit.AuthorDate,
+				CommitDate = gitCommit.CommitDate,
 				ParentIds = gitCommit.ParentIds.ToList(),
 				MergeSourceBranchNameFromSubject = branchNames.SourceBranchName,
 				MergeTargetBranchNameFromSubject = branchNames.TargetBranchName,

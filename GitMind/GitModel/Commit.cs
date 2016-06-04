@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 
@@ -17,8 +18,8 @@ namespace GitMind.GitModel
 			string shortId, 
 			string subject,
 			string author,
-			string authorDate,
-			string commitDate,
+			DateTime authorDate,
+			DateTime commitDate,
 			IReadOnlyList<string> parentIds,
 			IReadOnlyList<string> childIds,
 			string branchId)
@@ -31,7 +32,8 @@ namespace GitMind.GitModel
 			ShortId = shortId;
 			Subject = subject;
 			Author = author;
-			AuthorDate = authorDate;
+			AuthorDate = authorDate;			
+			AuthorDateText = authorDate.ToShortDateString() + " " + authorDate.ToShortTimeString();
 			CommitDate = commitDate;
 		}
 
@@ -40,8 +42,9 @@ namespace GitMind.GitModel
 		public string ShortId { get; }
 		public string Subject { get; }
 		public string Author { get; }
-		public string AuthorDate { get; }
-		public string CommitDate { get; }
+		public DateTime AuthorDate { get; }
+		public string AuthorDateText { get; }
+		public DateTime CommitDate { get; }
 		public bool HasFirstParent => parentIds.Count > 0;
 		public bool HasSecondParent => parentIds.Count > 1;
 		public Commit FirstParent => repository.Commits[parentIds[0]];

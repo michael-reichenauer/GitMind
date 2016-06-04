@@ -23,11 +23,13 @@ namespace GitMind.Git.Private
 		public GitRepo(
 			IReadOnlyList<GitBranch> branches, 
 			IReadOnlyList<GitCommit> commits, 
-			IReadOnlyList<GitTag> tags, 
-			string currentCommitId)
+			IReadOnlyList<GitTag> tags,
+			GitCommit currentCommit,
+			GitBranch currentBranch)
 		{
 			this.tags = tags;
-			CurrentCommitId = currentCommitId;
+			CurrentCommit = currentCommit;
+			CurrentBranch = currentBranch;
 
 			SetGitBranches(branches);
 
@@ -37,19 +39,13 @@ namespace GitMind.Git.Private
 		}
 
 
-		public string CurrentCommitId { get; }
+		public GitCommit CurrentCommit { get; }
 
+		public GitBranch CurrentBranch { get; }
 
-		public IEnumerable<GitCommit> GetAllCommts()
-		{
-			return commits.Values;
-		}
+		public IEnumerable<GitCommit> GetAllCommts() => commits.Values;
 
-
-		public IReadOnlyList<string> GetCommitChildren(string commitId)
-		{
-			return GetChildren(commitId);
-		}
+		public IReadOnlyList<string> GetCommitChildren(string commitId) => GetChildren(commitId);
 
 
 		public GitCommit GetCommit(string commitId)
@@ -76,19 +72,13 @@ namespace GitMind.Git.Private
 		}
 
 
-		public IReadOnlyList<GitTag> GetAllTags()
-		{
-			return tags;
-		}
+		public IReadOnlyList<GitTag> GetAllTags() => tags;
 
 
 		public GitBranch GetCurrentBranch()
 		{
 			return branches.First(branch => branch.IsCurrent);
 		}
-
-
-		
 
 
 		public IReadOnlyList<GitBranch> GetAllBranches()

@@ -29,44 +29,49 @@ namespace GitMind.CommitsHistory
 		{
 			Timing t = new Timing();
 			Branch branch = GetMasterBranch(repository);
+			Branch currentBranch = repository.CurrentBranch;
 
-			Branch branch50 = repository.Branches.First(b => b.Name == "releases/ACS/5_00" && b.IsActive);
-			Update(repositoryViewModel, new[] { branch, branch50 });
+			Branch[] branches = branch != currentBranch 
+				? new[] { branch, currentBranch } : new[] { branch };
+
+			Update(repositoryViewModel, branches);
 			t.Log("Updated repository");
 		}
 
 
-		public void Toggle(RepositoryViewModel repositoryViewModel, Commit commit)
+		public void ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit)
 		{
+			List<Branch> currentlyShownBranches = repositoryViewModel.Branches.Select(b => b.Branch).ToList();
+
+			bool isShowing = currentlyShownBranches.Contains(commit.SecondParent.Branch);
+
 			BranchViewModel clickedBranch = repositoryViewModel
 				.Branches.First(b => b.Branch == commit.Branch);
 
-			BranchViewModel branch = repositoryViewModel.Branches
-				.FirstOrDefault(b => b.Branch == commit.SecondParent.Branch);
-
-			IReadOnlyList<Branch> specifiedBranches;
-			IEnumerable<Branch> branches = repositoryViewModel.Branches.Select(b => b.Branch);
-
-			if (branch != null)
+			if (!isShowing)
 			{
-				// Close branch
-
-				if (clickedBranch.BranchColumn > branch.BranchColumn)
-				{
-					branch = clickedBranch;
-				}
-
-				IEnumerable<Branch> descendants = GetBranchAndDescendants(branches, branch.Branch);
-				specifiedBranches = repositoryViewModel.Branches
-					.Where(b => b.Name == "master" || !descendants.Contains(b.Branch))
-					.Select(b => b.Branch).ToList();
+				// Showing the specified branch
+				currentlyShownBranches.Add(commit.SecondParent.Branch);
 			}
 			else
 			{
-				specifiedBranches = branches.Concat(new[] { commit.SecondParent.Branch }).ToList();
+				// Closing shown branch
+				BranchViewModel otherBranch = repositoryViewModel.Branches
+					.First(b => b.Branch == commit.SecondParent.Branch);
+
+				if (clickedBranch.BranchColumn > otherBranch.BranchColumn)
+				{
+					// Closing the branch that was clicked on since that is to the right
+					otherBranch = clickedBranch;
+				}
+
+				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
+					currentlyShownBranches, otherBranch.Branch);
+
+				currentlyShownBranches.RemoveAll(b => b.Name != "master" && closingBranches.Contains(b));
 			}
 
-			Update(repositoryViewModel, specifiedBranches);
+			Update(repositoryViewModel, currentlyShownBranches);
 		}
 
 

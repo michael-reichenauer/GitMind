@@ -7,6 +7,6 @@ namespace GitMind.CommitsHistory
 	internal interface IViewModelService
 	{
 		void Update(RepositoryViewModel repositoryViewModel, Repository repository);
-		void Toggle(RepositoryViewModel repositoryViewModel, Commit commit);
+		void ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit);
 	}
 }
