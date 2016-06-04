@@ -111,13 +111,13 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public void Clicked(int column, int rowIndex, bool isControl)
+		public int Clicked(int column, int rowIndex, bool isControl)
 		{
 			// Log.Debug($"Clicked at {column},{rowIndex}");
 			if (rowIndex < 0 || rowIndex >= Commits.Count || column < 0 || column >= Branches.Count)
 			{
 				// Click is not within supported area
-				return;
+				return rowIndex;
 			}
 
 			CommitViewModel commitViewModel = Commits[rowIndex];
@@ -127,9 +127,13 @@ namespace GitMind.CommitsHistory
 				// User clicked on a merge point (toggle between expanded and collapsed)
 				Log.Debug($"Clicked at {column},{rowIndex}, {commitViewModel}");
 
-				viewModelService.ToggleMergePoint(this, commitViewModel.Commit);
+				int diff = viewModelService.ToggleMergePoint(this, commitViewModel.Commit);
 				VirtualItemsSource.DataChanged(width);
+
+				return rowIndex + diff;
 			}
+
+			return rowIndex;
 		}
 
 
@@ -152,7 +156,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public void Clicked(Point position, bool isControl)
+		public Point Clicked(Point position, bool isControl)
 		{
 			double xpos = position.X - 9;
 			double ypos = position.Y - 5;
@@ -168,8 +172,14 @@ namespace GitMind.CommitsHistory
 
 			if ((absx < 10) && (absy < 10))
 			{
-				Clicked(column, row, isControl);
+				int newRow = Clicked(column, row, isControl);
+				if (newRow != row)
+				{
+					return new Point(position.X, Converter.ToY(newRow) + 10);
+				}
 			}
+
+			return position;
 		}
 
 	}

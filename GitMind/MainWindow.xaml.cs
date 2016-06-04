@@ -297,9 +297,19 @@ namespace GitMind
 
 			Point position = new Point(viewPoint.X + canvas.Offset.X, viewPoint.Y + canvas.Offset.Y);
 
+			Log.Debug($"viewPoint: {viewPoint}, canvas.Offset: {canvas.Offset}, position: {position}");
+
 			bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
-			repositoryViewModel.Clicked(position, isControl);
+			Point newPosition = repositoryViewModel.Clicked(position, isControl);
+		
+			if (newPosition != position)
+			{
+				var cx = newPosition.X - position.X;
+				var cy = newPosition.Y - position.Y;
+				Log.Debug($"canvas.Offset.Y + cy {canvas.Offset.Y + cy}");
+				canvas.Offset = new Point(canvas.Offset.X + cx , Math.Max(canvas.Offset.Y + cy, 0));
+			}
 
 			base.OnPreviewMouseUp(e);
 		}

@@ -39,7 +39,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public void ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit)
+		public int ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit)
 		{
 			List<Branch> currentlyShownBranches = repositoryViewModel.Branches.Select(b => b.Branch).ToList();
 
@@ -48,6 +48,7 @@ namespace GitMind.CommitsHistory
 			BranchViewModel clickedBranch = repositoryViewModel
 				.Branches.First(b => b.Branch == commit.Branch);
 
+			Commit stableCommit = commit;
 			if (!isShowing)
 			{
 				// Showing the specified branch
@@ -63,6 +64,7 @@ namespace GitMind.CommitsHistory
 				{
 					// Closing the branch that was clicked on since that is to the right
 					otherBranch = clickedBranch;
+					stableCommit = commit.SecondParent;
 				}
 
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
@@ -71,7 +73,13 @@ namespace GitMind.CommitsHistory
 				currentlyShownBranches.RemoveAll(b => b.Name != "master" && closingBranches.Contains(b));
 			}
 
+			int row = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
 			Update(repositoryViewModel, currentlyShownBranches);
+
+			int newRowIndex = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
+			Log.Debug($"Row {row}->{newRowIndex} for {stableCommit}");
+
+			return newRowIndex - row;
 		}
 
 
