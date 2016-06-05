@@ -6,19 +6,24 @@ using GitMind.Utils.UI;
 
 namespace GitMind.CommitsHistory
 {
-	internal class BranchViewModel : ViewModel
+	internal class BranchViewModel : ViewModel, IVirtualItem
 	{
 		public string Type => "Branch";
 
 
-		public BranchViewModel(int branchColumn)
+		public BranchViewModel(string id, int virtualId)
 		{
-			BranchColumn = branchColumn;
+			Id = id;
+			VirtualId = virtualId;
 		}
+
+
+		public int VirtualId { get; }
+		public string Id { get; } 
 
 		public Branch Branch { get; set; }
 
-		public int BranchColumn { get; }
+		public int BranchColumn { get; set; }
 
 		public string Name
 		{

@@ -8,5 +8,6 @@ namespace GitMind.CommitsHistory
 	{
 		void Update(RepositoryViewModel repositoryViewModel, Repository repository);
 		int ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit);
+		void SetFilter(RepositoryViewModel repositoryViewModel, string filterText);
 	}
 }

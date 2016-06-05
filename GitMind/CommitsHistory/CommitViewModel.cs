@@ -8,7 +8,7 @@ using GitMind.Utils.UI;
 
 namespace GitMind.CommitsHistory
 {
-	internal class CommitViewModel : ViewModel
+	internal class CommitViewModel : ViewModel, IVirtualItem
 	{
 		private readonly Func<string, Task> hideBranchAsync;
 		private readonly Func<string, Task> showDiffAsync;
@@ -16,14 +16,19 @@ namespace GitMind.CommitsHistory
 		private int windowWidth;
 
 		public CommitViewModel(
-			int rowIndex,
-			Func<string, Task> hideBranchAsync,
+			string id, 
+			int virtualId, 
+			Func<string, Task> hideBranchAsync, 
 			Func<string, Task> showDiffAsync)
 		{
-			RowIndex = rowIndex;
+			Id = id;
+			VirtualId = virtualId;
 			this.hideBranchAsync = hideBranchAsync;
 			this.showDiffAsync = showDiffAsync;
 		}
+
+		public string Id { get; }
+		public int VirtualId { get; }
 
 		public string Type => "Commit";
 
@@ -40,9 +45,9 @@ namespace GitMind.CommitsHistory
 			}
 		}
 
-		public int RowIndex { get; }
+		public int RowIndex { get; set; }
 
-		public string Id => Commit.Id;
+		
 		public string ShortId => Commit.ShortId;
 		public string Author => Commit.Author;
 		public string Date => Commit.AuthorDateText;
@@ -100,7 +105,7 @@ namespace GitMind.CommitsHistory
 		public double Width
 		{
 			get { return Get(); }
-			private set { Set(value); }
+			set { Set(value); }
 		}
 
 		public int GraphWidth
@@ -136,7 +141,7 @@ namespace GitMind.CommitsHistory
 		public Rect Rect
 		{
 			get { return Get(); }
-			private set { Set(value); }
+			set { Set(value); }
 		}
 
 		public string CommitBranchText
@@ -162,9 +167,7 @@ namespace GitMind.CommitsHistory
 				if (windowWidth != value)
 				{
 					windowWidth = value;
-					Width = windowWidth - 35;
-					Rect = new Rect(0, Converter.ToY(RowIndex), Width, Converter.ToY(1));
-					
+					Width = windowWidth - 35;		
 				}
 			}
 		}

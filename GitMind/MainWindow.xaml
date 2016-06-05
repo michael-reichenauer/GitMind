@@ -31,7 +31,7 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
-			<RowDefinition Height="{Binding HistoryViewModel.DetailsSize}"/>
+			<RowDefinition Height="{Binding RepositoryViewModel.DetailsSize}"/>
 		</Grid.RowDefinitions>
 
 		<!--First row (title bar) -->
@@ -315,10 +315,10 @@
 				Padding="4"
 				x:Name="ItemsListBox" 
 				Style="{DynamicResource ListBoxScrollbarStyle}" 
-				SelectedIndex="{Binding HistoryViewModel.SelectedIndex}" 
+				SelectedIndex="{Binding RepositoryViewModel.SelectedIndex}" 
 			>
 				<ListBox.InputBindings>
-					<KeyBinding Key="Space" Command="{Binding HistoryViewModel.ToggleDetailsCommand}" />
+					<KeyBinding Key="Space" Command="{Binding RepositoryViewModel.ToggleDetailsCommand}" />
 				</ListBox.InputBindings>
 
 				<ListBox.ContextMenu>
@@ -332,7 +332,7 @@
 						<!--Show Branch menu item -->
 						<MenuItem 
 							Header="Show Branch" 
-							ItemsSource="{Binding HistoryViewModel.AllBranches}" 								
+							ItemsSource="{Binding RepositoryViewModel.AllBranches}" 								
 							Padding="0" 
 							Margin="0" 
 							BorderBrush="DarkSlateBlue" 
@@ -348,7 +348,7 @@
 									<Setter Property="Padding" Value="0"/>
 									<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
 									<Setter Property="BorderThickness" Value="0"/>
-									<Setter Property="Command" Value="{Binding DataContext.HistoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
+									<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
 									<Setter Property="CommandParameter" Value="{Binding Text}"/>
 								</Style>
 							</MenuItem.ItemContainerStyle>
@@ -509,7 +509,7 @@
 									<Setter.Value>
 										<DataTemplate>
 											
-											<Grid Background="Black">
+											<Grid Background="Transparent">
 												<Grid.ColumnDefinitions>
 													<ColumnDefinition Width="{Binding GraphWidth}"/>
 													<ColumnDefinition Width="*"/>
@@ -732,7 +732,7 @@
 						<Label 
 							Grid.Column="1" Grid.Row="0"
 							Style="{StaticResource TextLabelStyle}" 
-							Content="{Binding HistoryViewModel.CommitDetail.Id}"/>
+							Content="{Binding RepositoryViewModel.CommitDetail.Id}"/>
 						<Label 
 							Grid.Column="0" Grid.Row="1" 
 							Style="{StaticResource HeaderLabelStyle}" 
@@ -740,29 +740,29 @@
 						<Label 
 							Grid.Column="1" Grid.Row="1"
 							Style="{StaticResource TextLabelStyle}" 
-							Content="{Binding HistoryViewModel.CommitDetail.Branch}"/>
+							Content="{Binding RepositoryViewModel.CommitDetail.Branch}"/>
 						<Label 
 							Grid.Column="0" Grid.Row="2"
-							Visibility="{Binding Path=HistoryViewModel.CommitDetail.IsTags, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Visibility="{Binding Path=RepositoryViewModel.CommitDetail.IsTags, Converter={StaticResource PropertyToVisibilityConverter}}"
 							Style="{StaticResource HeaderLabelStyle}" 
 							Content="Tags:"/>
 						<Label 
 							Grid.Column="1" Grid.Row="2"
-							Visibility="{Binding Path=HistoryViewModel.CommitDetail.IsTags, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Visibility="{Binding Path=RepositoryViewModel.CommitDetail.IsTags, Converter={StaticResource PropertyToVisibilityConverter}}"
 							Style="{StaticResource TextLabelStyle}" 
 							Foreground="MediumSeaGreen"
-							Content="{Binding HistoryViewModel.CommitDetail.Tags}"/>
+							Content="{Binding RepositoryViewModel.CommitDetail.Tags}"/>
 						<Label 
 							Grid.Column="0" Grid.Row="3"
-							Visibility="{Binding Path=HistoryViewModel.CommitDetail.IsTickets, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Visibility="{Binding Path=RepositoryViewModel.CommitDetail.IsTickets, Converter={StaticResource PropertyToVisibilityConverter}}"
 							Style="{StaticResource HeaderLabelStyle}" 
 							Content="Tickets:"/>				
 						<Label 
 							Grid.Column="1" Grid.Row="3"
-							Visibility="{Binding Path=HistoryViewModel.CommitDetail.IsTickets, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Visibility="{Binding Path=RepositoryViewModel.CommitDetail.IsTickets, Converter={StaticResource PropertyToVisibilityConverter}}"
 							Style="{StaticResource TextLabelStyle}" 
 							Foreground="Red"
-							Content="{Binding HistoryViewModel.CommitDetail.Tickets}"/>			
+							Content="{Binding RepositoryViewModel.CommitDetail.Tickets}"/>			
 						<Label 
 							Grid.Column="0" Grid.Row="4"
 							Style="{StaticResource HeaderLabelStyle}" 
@@ -772,7 +772,7 @@
 							<TextBlock			
 								Foreground="{StaticResource TextBrush}"
 								Padding="3,1"
-								Text="{Binding HistoryViewModel.CommitDetail.Subject}"
+								Text="{Binding RepositoryViewModel.CommitDetail.Subject}"
 								TextWrapping="Wrap"
 							/>
 						</ScrollViewer>
@@ -791,7 +791,7 @@
 				
 					<ListBox
 						Background="Transparent"
-						ItemsSource="{Binding HistoryViewModel.CommitDetail.Files}"
+						ItemsSource="{Binding RepositoryViewModel.CommitDetail.Files}"
 						Style="{DynamicResource ListBoxScrollbarStyle}"		
 						HorizontalContentAlignment="Stretch"
 					>

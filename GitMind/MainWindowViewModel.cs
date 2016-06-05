@@ -31,7 +31,7 @@ namespace GitMind
 			Window owner,
 			Func<Task> refreshAsync)
 		{
-			HistoryViewModel = repositoryViewModel;
+			RepositoryViewModel = repositoryViewModel;
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
@@ -83,14 +83,13 @@ namespace GitMind
 
 		private void SetSearchBoxValue(string text)
 		{
-			//HistoryViewModel.SetFilter(text);
-			throw new NotImplementedException();
+			RepositoryViewModel.SetFilter(text);
 		}
 
 
 		public BusyIndicator Busy => BusyIndicator();
 
-		public RepositoryViewModel HistoryViewModel { get; }
+		public RepositoryViewModel RepositoryViewModel { get; }
 
 
 		public string VersionText
@@ -230,7 +229,7 @@ namespace GitMind
 		{
 			throw new NotImplementedException();
 			//List<string> activeBranches = new List<string>();
-			//HistoryViewModel.SetBranches(activeBranches);
+			//RepositoryViewModel.SetBranches(activeBranches);
 
 			//var dialog = new System.Windows.Forms.FolderBrowserDialog();
 			//dialog.Description = "Select a working folder.";
@@ -243,7 +242,7 @@ namespace GitMind
 
 			//Environment.CurrentDirectory = dialog.SelectedPath;
 
-			//await HistoryViewModel.LoadAsync(owner);
+			//await RepositoryViewModel.LoadAsync(owner);
 
 			//WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 		}

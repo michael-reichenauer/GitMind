@@ -77,6 +77,7 @@
     <Compile Include="CommitsHistory\IBrushService.cs" />
     <Compile Include="CommitsHistory\IDiffService.cs" />
     <Compile Include="CommitsHistory\IViewModelService.cs" />
+    <Compile Include="CommitsHistory\IVirtualItem.cs" />
     <Compile Include="CommitsHistory\MergeViewModel.cs" />
     <Compile Include="CommitsHistory\RepositoryVirtualItemsSource.cs" />
     <Compile Include="CommitsHistory\RepositoryViewModel.cs" />

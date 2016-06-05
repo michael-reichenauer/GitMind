@@ -5,8 +5,18 @@ using GitMind.Utils.UI;
 
 namespace GitMind.CommitsHistory
 {
-	internal class MergeViewModel : ViewModel
+	internal class MergeViewModel : ViewModel, IVirtualItem
 	{
+		public MergeViewModel(string id, int virtualId)
+		{
+			Id = id;
+			VirtualId = virtualId;
+		}
+
+
+		public string Id { get; }
+		public int VirtualId { get; }
+
 		public string Type => "Merge";
 
 		public int ChildRow
@@ -56,5 +66,7 @@ namespace GitMind.CommitsHistory
 			get { return Get(); }
 			set { Set(value); }
 		}
+
+		public override string ToString() => Id;
 	}
 }

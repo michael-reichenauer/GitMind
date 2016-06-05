@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Windows;
+using GitMind.Utils;
 using GitMind.VirtualCanvas;
 
 
@@ -7,9 +9,9 @@ namespace GitMind.CommitsHistory
 {
 	internal class RepositoryVirtualItemsSource : VirtualItemsSource
 	{
-		private static readonly int branchBaseIndex = 1000000;
-		private static readonly int mergeBaseIndex = 2000000;
-
+		private readonly KeyedList<string, IVirtualItem> items =
+			new KeyedList<string, IVirtualItem>(item => item.Id);
+		
 		private readonly IReadOnlyList<BranchViewModel> branches;
 		private readonly IReadOnlyList<MergeViewModel> merges;
 		private readonly IReadOnlyList<CommitViewModel> commits;
@@ -23,6 +25,20 @@ namespace GitMind.CommitsHistory
 			this.branches = branches;
 			this.merges = merges;
 			this.commits = commits;
+		}
+
+
+		public T GetOrAdd<T>(string id, Func<string, int, T> itemFactory) where T: IVirtualItem
+		{
+			IVirtualItem item;
+			if (!items.TryGetValue(id, out item))
+			{
+				int virtualId = items.Count;
+				item = itemFactory(id, virtualId);
+				items.Add(item);
+			}
+
+			return (T)item;
 		}
 
 
@@ -66,7 +82,7 @@ namespace GitMind.CommitsHistory
 					if (IsVisable(
 						viewAreaTopIndex, viewAreaBottomIndex, branch.LatestRowIndex, branch.FirstRowIndex))
 					{
-						yield return i + branchBaseIndex;
+						yield return branch.VirtualId;
 					}
 				}
 
@@ -77,7 +93,7 @@ namespace GitMind.CommitsHistory
 					if (IsVisable(
 						viewAreaTopIndex, viewAreaBottomIndex, merge.ChildRow, merge.ParentRow))
 					{
-						yield return i + mergeBaseIndex;
+						yield return merge.VirtualId;
 					}
 				}
 
@@ -86,7 +102,8 @@ namespace GitMind.CommitsHistory
 				{
 					if (i >= 0 && i < commits.Count)
 					{
-						yield return i;
+						var commit = commits[i];
+						yield return commit.VirtualId;
 					}
 				}
 			}
@@ -99,32 +116,12 @@ namespace GitMind.CommitsHistory
 		/// Branches are in the branchBaseIndex->mergeBaseIndex-1 range
 		/// Merges are mergeBaseIndex-> ... range
 		/// </summary>
-		protected override object GetItem(int id)
+		protected override object GetItem(int virtualId)
 		{
-			if (commits.Count == 0)
+			if (virtualId < items.Count)
 			{
-				// No items yet
-				return null;
-			}
-
-			if (id < branchBaseIndex)
-			{
-				if (commits.Count > 0 && id >= 0 && id < commits.Count)
-				{
-					return commits[id];
-				}
-			}
-			else if (id < mergeBaseIndex)
-			{
-				// An item in the branch range
-				int branchId = id - branchBaseIndex;
-				return branches[branchId];
-			}
-			else
-			{
-				// An item in the merge range
-				int mergeId = id - mergeBaseIndex;
-				return merges[mergeId];
+				IVirtualItem virtualItem = items[virtualId];
+				return virtualItem;
 			}
 
 			return null;

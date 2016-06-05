@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -53,8 +52,6 @@ namespace GitMind
 				Application.Current.Shutdown(0);
 				return;
 			}
-
-			Application.Current.DispatcherUnhandledException += UnhandledExceptionHandler;
 
 			InitializeComponent();
 
@@ -237,7 +234,7 @@ namespace GitMind
 
 			Repository repository = await repositoryTask;
 			repositoryViewModel.Update(repository);
-			
+
 			LoadedTime = DateTime.Now;
 
 			autoRefreshTime.Tick += FetchAndRefreshAsync;
@@ -297,18 +294,17 @@ namespace GitMind
 
 			Point position = new Point(viewPoint.X + canvas.Offset.X, viewPoint.Y + canvas.Offset.Y);
 
-			Log.Debug($"viewPoint: {viewPoint}, canvas.Offset: {canvas.Offset}, position: {position}");
-
 			bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
 			Point newPosition = repositoryViewModel.Clicked(position, isControl);
-		
+
 			if (newPosition != position)
 			{
-				var cx = newPosition.X - position.X;
-				var cy = newPosition.Y - position.Y;
-				Log.Debug($"canvas.Offset.Y + cy {canvas.Offset.Y + cy}");
-				canvas.Offset = new Point(canvas.Offset.X + cx , Math.Max(canvas.Offset.Y + cy, 0));
+				// The canvas need to be adjusted to make items stable
+				double cx = newPosition.X - position.X;
+				double cy = newPosition.Y - position.Y;
+				canvas.Offset = new Point(
+					Math.Max(canvas.Offset.X + cx, 0), Math.Max(canvas.Offset.Y + cy, 0));
 			}
 
 			base.OnPreviewMouseUp(e);
@@ -380,33 +376,9 @@ namespace GitMind
 			////}
 		}
 
-		private void UnhandledExceptionHandler(object sender, DispatcherUnhandledExceptionEventArgs e)
-		{
-			Log.Error("Unhandled Error: " + e.Exception);
-
-			MessageBox.Show(
-				Application.Current.MainWindow,
-				"Unhandled Error: " + e.Exception,
-				"GitMind - Unhandled Exception",
-				MessageBoxButton.OK,
-				MessageBoxImage.Error);
-
-			if (Debugger.IsAttached)
-			{
-				Debugger.Break();
-			}
-			else
-			{
-				Application.Current.Shutdown(-1);
-			}
-
-			e.Handled = true;
-		}
-
-
 		private void MoudeDobleClick(object sender, MouseButtonEventArgs e)
 		{
-			mainWindowViewModel.HistoryViewModel.ToggleDetailsCommand.Execute(null);
+			mainWindowViewModel.RepositoryViewModel.ToggleDetailsCommand.Execute(null);
 		}
 	}
 }

@@ -31,7 +31,7 @@ namespace GitMind.CommitsHistory
 			Branch branch = GetMasterBranch(repository);
 			Branch currentBranch = repository.CurrentBranch;
 
-			Branch[] branches = branch != currentBranch 
+			Branch[] branches = branch != currentBranch
 				? new[] { branch, currentBranch } : new[] { branch };
 
 			Update(repositoryViewModel, branches);
@@ -41,7 +41,7 @@ namespace GitMind.CommitsHistory
 
 		public int ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit)
 		{
-			List<Branch> currentlyShownBranches = repositoryViewModel.Branches.Select(b => b.Branch).ToList();
+			List<Branch> currentlyShownBranches = GetCurrentlyShownBranches(repositoryViewModel);
 
 			bool isShowing = currentlyShownBranches.Contains(commit.SecondParent.Branch);
 
@@ -83,27 +83,87 @@ namespace GitMind.CommitsHistory
 		}
 
 
+		public void SetFilter(RepositoryViewModel repositoryViewModel, string filterText)
+		{
+			if (string.IsNullOrEmpty(filterText))
+			{
+				Update(repositoryViewModel, repositoryViewModel.SpecifiedBranches);
+			}
+			else
+			{
+				Timing t = new Timing();
+				IReadOnlyList<Commit> commits = GetCommits(repositoryViewModel.Repository, filterText);
+				t.Log("Get commits");
+				Log.Debug($"Filtered commits {commits.Count}");
+				//var branches = commits.Select(c => c.Branch).Distinct().ToList();
+				Branch[] branches = new Branch[0];
+				t.Log("Get branches");
+				Log.Debug($"Filtered branches {branches.Count()}");
+
+				UpdateCommits(commits, branches, repositoryViewModel);
+				t.Log("Updated Commits");
+
+			
+				UpdateBranches(branches, repositoryViewModel);
+				t.Log("Updated branches");
+				UpdateMerges(branches, repositoryViewModel);
+				t.Log("Updated Merges");
+			}
+		}
+
+		private IReadOnlyList<Commit> GetCommits(Repository repository, string filterText)
+		{
+			return repository.Commits
+				.Where(c =>
+					StartsWith(c.Id, filterText)
+					|| Contains(c.Subject, filterText)
+					|| Contains(c.Author, filterText)
+					|| Contains(c.AuthorDateText, filterText)
+				)
+				.OrderByDescending(c => c.CommitDate)
+				.ToList();
+		}
+
+
+		private static bool Contains(string text, string subText )
+		{
+			return text?.IndexOf(subText, StringComparison.OrdinalIgnoreCase) != -1;
+		}
+
+		private static bool StartsWith(string text, string subText)
+		{
+			return text != null && text.StartsWith(subText, StringComparison.OrdinalIgnoreCase);
+		}
+
+
 		private void Update(
 			RepositoryViewModel repositoryViewModel, IReadOnlyList<Branch> specifiedBranches)
 		{
-			Timing t = new Timing();
-			IEnumerable<Branch> branches = GetBranchesIncludingParents(specifiedBranches);
-			t.Log("Branches");
-			IEnumerable<Commit> commits = GetCommits(branches);
-			t.Log("Commits");
-			List<Commit> list = commits.ToList();
-			t.Log("Commits2");
+			specifiedBranches.ForEach(branch => Log.Debug($"Update with {branch}"));
 
-			UpdateCommits(list, branches, repositoryViewModel);
+			Timing t = new Timing();
+			IReadOnlyList<Branch> branches = GetBranchesIncludingParents(specifiedBranches);
+			t.Log("Branches");
+			IReadOnlyList<Commit> commits = GetCommits(branches);
+			t.Log($"Commits count {commits.Count}");
+
+			UpdateCommits(commits, branches, repositoryViewModel);
 			t.Log("Updated Commits");
 			UpdateBranches(branches, repositoryViewModel);
 			t.Log("Updated Branches");
 			UpdateMerges(branches, repositoryViewModel);
 			t.Log("Updated Merges");
+			repositoryViewModel.SpecifiedBranches = specifiedBranches;
 		}
 
 
-		private static IEnumerable<Branch> GetBranchesIncludingParents(IEnumerable<Branch> branches)
+		private static List<Branch> GetCurrentlyShownBranches(RepositoryViewModel repositoryViewModel)
+		{
+			return repositoryViewModel.Branches.Select(b => b.Branch).ToList();
+		}
+
+
+		private static IReadOnlyList<Branch> GetBranchesIncludingParents(IEnumerable<Branch> branches)
 		{
 			List<Branch> branchesWithParents = branches
 				.Concat(branches.SelectMany(branch => branch.Parents()))
@@ -114,7 +174,7 @@ namespace GitMind.CommitsHistory
 			return branchesWithParents;
 		}
 
-	
+
 
 		private static IEnumerable<Branch> GetBranchAndDescendants(
 		IEnumerable<Branch> branches, Branch branch)
@@ -122,16 +182,17 @@ namespace GitMind.CommitsHistory
 			IEnumerable<Branch> children = branches
 				.Where(b => b.HasParentBranch && b.ParentBranch == branch);
 
-			return 
+			return
 				new[] { branch }.Concat(children.SelectMany(b => GetBranchAndDescendants(branches, b)));
 		}
 
 
-		private static IEnumerable<Commit> GetCommits(IEnumerable<Branch> branches)
+		private static IReadOnlyList<Commit> GetCommits(IEnumerable<Branch> branches)
 		{
 			return branches
 				.SelectMany(branch => branch.Commits)
-				.OrderByDescending(commit => commit.CommitDate);
+				.OrderByDescending(commit => commit.CommitDate)
+				.ToList();
 		}
 
 
@@ -143,16 +204,20 @@ namespace GitMind.CommitsHistory
 			List<CommitViewModel> commits = repositoryViewModel.Commits;
 			var commitsById = repositoryViewModel.CommitsById;
 
-			SetNumberOfItems(commits, sourceCommits.Count(), i => new CommitViewModel(i, null, null));
+			//SetNumberOfItems(commits, sourceCommits.Count(), i => new CommitViewModel(i, null, null));
+			commits.Clear();
 			commitsById.Clear();
 
-			int rowIndex = 0;
 			foreach (Commit commit in sourceCommits)
 			{
-				CommitViewModel commitViewModel = commits[rowIndex++];
-				commitViewModel.Commit = commit;
+				CommitViewModel commitViewModel = repositoryViewModel.VirtualItemsSource.GetOrAdd(
+					commit.Id, (id, virtualId) => new CommitViewModel(id, virtualId, null, null));
+				commitViewModel.RowIndex = commits.Count;
+
+				commits.Add(commitViewModel);
 				commitsById[commit.Id] = commitViewModel;
-				//	commitViewModel.Commit = commit;
+
+				commitViewModel.Commit = commit;
 
 				// commitViewModel.IsCurrent = commit == model.CurrentCommit;
 
@@ -166,6 +231,9 @@ namespace GitMind.CommitsHistory
 					? 2 + Converter.ToX(commitViewModel.BranchColumn)
 					: 4 + Converter.ToX(commitViewModel.BranchColumn);
 				commitViewModel.YPoint = commitViewModel.IsMergePoint ? 2 : 4;
+				commitViewModel.Width = repositoryViewModel.Width - 35;
+				commitViewModel.Rect = new Rect(
+					0, Converter.ToY(commitViewModel.RowIndex), commitViewModel.Width, Converter.ToY(1));
 
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
@@ -178,7 +246,6 @@ namespace GitMind.CommitsHistory
 				//commitViewModel.Subject = GetSubjectWithoutTickets(commit);
 				//commitViewModel.Tags = GetTags(commit);
 				//commitViewModel.Tickets = GetTickets(commit);
-				//commitIdToRowIndex[commit.Id] = rowIndex;
 			}
 		}
 
@@ -189,12 +256,18 @@ namespace GitMind.CommitsHistory
 		{
 			var branches = repositoryViewModel.Branches;
 			var commits = repositoryViewModel.CommitsById;
-			SetNumberOfItems(branches, sourceBranches.Count(), i => new BranchViewModel(i));
+			//SetNumberOfItems(branches, sourceBranches.Count(), i => new BranchViewModel(i));
 
+			branches.Clear();
 			int index = 0;
 			foreach (Branch sourceBranch in sourceBranches)
 			{
-				BranchViewModel branch = branches[index++];
+				BranchViewModel branch = repositoryViewModel.VirtualItemsSource.GetOrAdd(
+					sourceBranch.Id, (id, virtualId) => new BranchViewModel(id, virtualId));
+				branches.Add(branch);
+
+				branch.BranchColumn = index++;
+
 				branch.Branch = sourceBranch;
 				branch.Name = sourceBranch.Name;
 				branch.LatestRowIndex = commits[sourceBranch.LatestCommit.Id].RowIndex;
@@ -236,32 +309,40 @@ namespace GitMind.CommitsHistory
 				.Select(b => b.Branch.FirstCommit)
 				.ToList();
 
-			SetNumberOfItems(merges, mergePoints.Count + branchStarts.Count, _ => new MergeViewModel());
-
-			int index = 0;
+			//SetNumberOfItems(merges, mergePoints.Count + branchStarts.Count, _ => new MergeViewModel());
+			merges.Clear();
 			foreach (CommitViewModel childCommit in mergePoints)
 			{
 				CommitViewModel parentCommit = commitsById[childCommit.Commit.SecondParent.Id];
-				AddMerge(index++, merges, branches, childCommit, parentCommit);
+				string mergeId = childCommit.ShortId + "-" + parentCommit.ShortId;
+
+				MergeViewModel merge = repositoryViewModel.VirtualItemsSource.GetOrAdd(
+					mergeId, (id, virtualId) => new MergeViewModel(id, virtualId));
+
+				AddMerge(merge, merges, branches, childCommit, parentCommit);
 			}
 
 			foreach (Commit childCommit in branchStarts)
 			{
 				CommitViewModel parentCommit = commitsById[childCommit.FirstParent.Id];
+				string mergeId = childCommit.ShortId + "-" + parentCommit.ShortId;
 
-				AddMerge(index++, merges, branches, commitsById[childCommit.Id], parentCommit);
+				MergeViewModel merge = repositoryViewModel.VirtualItemsSource.GetOrAdd(
+					mergeId, (id, virtualId) => new MergeViewModel(id, virtualId));
+
+				AddMerge(merge, merges, branches, commitsById[childCommit.Id], parentCommit);
 			}
 		}
 
 
 		private void AddMerge(
-			int index,
-			IReadOnlyList<MergeViewModel> merges,
+			MergeViewModel merge,
+			List<MergeViewModel> merges,
 			IReadOnlyCollection<BranchViewModel> branches,
 			CommitViewModel childCommit,
 			CommitViewModel parentCommit)
 		{
-			MergeViewModel merge = merges[index];
+			merges.Add(merge);
 
 			BranchViewModel childBranch = branches
 				.First(b => b.Branch == childCommit.Commit.Branch);
@@ -396,7 +477,8 @@ namespace GitMind.CommitsHistory
 
 
 
-		private void SetNumberOfItems<T>(List<T> items, int count, Func<int, T> factory)
+		private void SetNumberOfItems<T>(
+			List<T> items, int count, Func<int, T> factory)
 		{
 			if (items.Count > count)
 			{

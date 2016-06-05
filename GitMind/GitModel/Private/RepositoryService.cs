@@ -173,6 +173,7 @@ namespace GitMind.GitModel.Private
 			KeyedList<string, Commit> rCommits = new KeyedList<string, Commit>(c => c.Id);
 			Branch currentBranch = null;
 			Commit currentCommit = null;
+
 			Repository repository = new Repository(
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
 				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),

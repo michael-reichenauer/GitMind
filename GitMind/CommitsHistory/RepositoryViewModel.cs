@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using GitMind.GitModel;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -15,36 +15,38 @@ namespace GitMind.CommitsHistory
 	{
 		private readonly IViewModelService viewModelService;
 
-		public Repository Repository { get; set; }
+		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
+		private string settingFilterText = "";
+		private string filterText = "";
+
 		private int width = 0;
 		private int graphWidth = 0;
 
 		public List<BranchViewModel> Branches { get; } = new List<BranchViewModel>();
 		public List<MergeViewModel> Merges { get; } = new List<MergeViewModel>();
 		public List<CommitViewModel> Commits { get; } = new List<CommitViewModel>();
+		
+
 		public Dictionary<string, CommitViewModel> CommitsById { get; } =
 			new Dictionary<string, CommitViewModel>();
 
 
 		public RepositoryViewModel()
 			: this(new ViewModelService())
-		{		
+		{
 		}
 
 		public RepositoryViewModel(IViewModelService viewModelService)
 		{
 			this.viewModelService = viewModelService;
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
+
+			filterTriggerTimer.Tick += FilterTrigger;
+			filterTriggerTimer.Interval = TimeSpan.FromMilliseconds(300);
 		}
 
 
-		public void Update(Repository repository)
-		{
-			viewModelService.Update(this, repository);
-			Commits.ForEach(commit => commit.WindowWidth = Width);
-			VirtualItemsSource.DataChanged(width);
-		}
-
+		public Repository Repository { get; private set; } 
 
 		public ICommand ShowBranchCommand => Command<string>(ShowBranch);
 		public ICommand HideBranchCommand => Command<string>(HideBranch);
@@ -93,6 +95,14 @@ namespace GitMind.CommitsHistory
 			}
 		}
 
+		public void Update(Repository repository)
+		{
+			Repository = repository;
+			viewModelService.Update(this, repository);
+			Commits.ForEach(commit => commit.WindowWidth = Width);
+			VirtualItemsSource.DataChanged(width);
+		}
+
 
 		public int SelectedIndex
 		{
@@ -109,11 +119,31 @@ namespace GitMind.CommitsHistory
 				CommitDetail.Subject = commit.Subject;
 			}
 		}
+		public IReadOnlyList<Branch> SpecifiedBranches { get; set; }
+
+
+		public void SetFilter(string text)
+		{
+			filterTriggerTimer.Stop();
+			settingFilterText = (text ?? "").Trim();
+			filterTriggerTimer.Start();
+		}
+
+
+		private void FilterTrigger(object sender, EventArgs e)
+		{
+			filterTriggerTimer.Stop();
+			filterText = settingFilterText;
+
+			Log.Debug($"Filter: {filterText}");
+			viewModelService.SetFilter(this, filterText);
+
+			VirtualItemsSource.DataChanged(width);
+		}
 
 
 		public int Clicked(int column, int rowIndex, bool isControl)
 		{
-			// Log.Debug($"Clicked at {column},{rowIndex}");
 			if (rowIndex < 0 || rowIndex >= Commits.Count || column < 0 || column >= Branches.Count)
 			{
 				// Click is not within supported area
@@ -125,9 +155,8 @@ namespace GitMind.CommitsHistory
 			if (commitViewModel.IsMergePoint && commitViewModel.BranchColumn == column)
 			{
 				// User clicked on a merge point (toggle between expanded and collapsed)
-				Log.Debug($"Clicked at {column},{rowIndex}, {commitViewModel}");
-
 				int diff = viewModelService.ToggleMergePoint(this, commitViewModel.Commit);
+
 				VirtualItemsSource.DataChanged(width);
 
 				return rowIndex + diff;
