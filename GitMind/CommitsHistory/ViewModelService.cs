@@ -73,13 +73,13 @@ namespace GitMind.CommitsHistory
 				currentlyShownBranches.RemoveAll(b => b.Name != "master" && closingBranches.Contains(b));
 			}
 
-			int row = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
+			int currentRow = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
 			Update(repositoryViewModel, currentlyShownBranches);
 
-			int newRowIndex = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
-			Log.Debug($"Row {row}->{newRowIndex} for {stableCommit}");
+			int newRow = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
+			Log.Debug($"Row {currentRow}->{newRow} for {stableCommit}");
 
-			return newRowIndex - row;
+			return currentRow - newRow;
 		}
 
 

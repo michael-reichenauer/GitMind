@@ -59,7 +59,7 @@ namespace GitMind
 				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
 
 			//historyViewModel = new OldHistoryViewModel();
-			repositoryViewModel = new RepositoryViewModel();
+			repositoryViewModel = new RepositoryViewModel(ScrollRows);
 
 			mainWindowViewModel = new MainWindowViewModel(
 				repositoryViewModel, diffService, latestVersionService, this, () => RefreshAsync(true));
@@ -296,18 +296,16 @@ namespace GitMind
 
 			bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
-			Point newPosition = repositoryViewModel.Clicked(position, isControl);
-
-			if (newPosition != position)
-			{
-				// The canvas need to be adjusted to make items stable
-				double cx = newPosition.X - position.X;
-				double cy = newPosition.Y - position.Y;
-				canvas.Offset = new Point(
-					Math.Max(canvas.Offset.X + cx, 0), Math.Max(canvas.Offset.Y + cy, 0));
-			}
+			repositoryViewModel.Clicked(position, isControl);
 
 			base.OnPreviewMouseUp(e);
+		}
+
+
+		private void ScrollRows(int rows)
+		{
+			int offsetY = Converter.ToY(rows);
+			canvas.Offset = new Point(canvas.Offset.X, Math.Max(canvas.Offset.Y - offsetY, 0));
 		}
 
 

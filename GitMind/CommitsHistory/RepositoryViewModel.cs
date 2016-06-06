@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -14,6 +15,7 @@ namespace GitMind.CommitsHistory
 	internal class RepositoryViewModel : ViewModel
 	{
 		private readonly IViewModelService viewModelService;
+		private readonly Action<int> scrollRows;
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string settingFilterText = "";
@@ -31,14 +33,17 @@ namespace GitMind.CommitsHistory
 			new Dictionary<string, CommitViewModel>();
 
 
-		public RepositoryViewModel()
-			: this(new ViewModelService())
+		public RepositoryViewModel(Action<int> setFirstVisibleRow)
+			: this(new ViewModelService(), setFirstVisibleRow)
 		{
 		}
 
-		public RepositoryViewModel(IViewModelService viewModelService)
+		public RepositoryViewModel(
+			IViewModelService viewModelService,
+			Action<int> scrollRows)
 		{
 			this.viewModelService = viewModelService;
+			this.scrollRows = scrollRows;
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
 
 			filterTriggerTimer.Tick += FilterTrigger;
@@ -100,32 +105,33 @@ namespace GitMind.CommitsHistory
 			Repository = repository;
 			viewModelService.Update(this, repository);
 			Commits.ForEach(commit => commit.WindowWidth = Width);
+
 			VirtualItemsSource.DataChanged(width);
+
+			if (Commits.Any())
+			{
+				// ### Does not yet work but deselects the first branch at least
+				SelectedItem = Commits[0];
+			}
 		}
 
 
-		public int SelectedIndex
+		public object SelectedIndex
 		{
 			get { return Get(); }
 			set
 			{
 				if (Set(value).IsSet)
 				{
-					CommitViewModel commit = Commits[value];
-					Log.Debug($"Setting value index: {value}, commit {commit}");
-
-					CommitDetail.Id = commit.Id;
-					CommitDetail.Branch = commit.Commit.Branch.Name;
-					CommitDetail.Tickets = commit.Tickets;
-					CommitDetail.Tags = commit.Tags;
-					CommitDetail.Subject = commit.Subject;
+					Log.Debug($"Setting value index: {value}");
 				}
 			}
 		}
 
+
 		public object SelectedItem
 		{
-			get { return Get(); }
+			get { return Get().Value; }
 			set
 			{
 				if (Set(value).IsSet)
@@ -152,18 +158,26 @@ namespace GitMind.CommitsHistory
 			filterText = settingFilterText;
 
 			Log.Debug($"Filter: {filterText}");
+
+			CommitViewModel selectedBefore = (CommitViewModel)SelectedItem;
+			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
+
 			viewModelService.SetFilter(this, filterText);
+			int indexAfter = Commits.FindIndex(c => c == selectedBefore);
+
+			Log.Debug($"Selected {indexBefore}->{indexAfter} for commit {selectedBefore}");
+			scrollRows(indexBefore - indexAfter);
 
 			VirtualItemsSource.DataChanged(width);
 		}
 
 
-		public int Clicked(int column, int rowIndex, bool isControl)
+		public void Clicked(int column, int rowIndex, bool isControl)
 		{
 			if (rowIndex < 0 || rowIndex >= Commits.Count || column < 0 || column >= Branches.Count)
 			{
 				// Click is not within supported area
-				return rowIndex;
+				return;
 			}
 
 			CommitViewModel commitViewModel = Commits[rowIndex];
@@ -171,14 +185,11 @@ namespace GitMind.CommitsHistory
 			if (commitViewModel.IsMergePoint && commitViewModel.BranchColumn == column)
 			{
 				// User clicked on a merge point (toggle between expanded and collapsed)
-				int diff = viewModelService.ToggleMergePoint(this, commitViewModel.Commit);
+				int rowsChange = viewModelService.ToggleMergePoint(this, commitViewModel.Commit);
 
+				scrollRows(rowsChange);
 				VirtualItemsSource.DataChanged(width);
-
-				return rowIndex + diff;
 			}
-
-			return rowIndex;
 		}
 
 
@@ -201,7 +212,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public Point Clicked(Point position, bool isControl)
+		public void Clicked(Point position, bool isControl)
 		{
 			double xpos = position.X - 9;
 			double ypos = position.Y - 5;
@@ -217,15 +228,9 @@ namespace GitMind.CommitsHistory
 
 			if ((absx < 10) && (absy < 10))
 			{
-				int newRow = Clicked(column, row, isControl);
-				if (newRow != row)
-				{
-					return new Point(position.X, Converter.ToY(newRow) + 10);
-				}
+				Clicked(column, row, isControl);
+				
 			}
-
-			return position;
 		}
-
 	}
 }
