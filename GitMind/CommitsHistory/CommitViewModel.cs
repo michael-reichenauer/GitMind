@@ -10,21 +10,15 @@ namespace GitMind.CommitsHistory
 {
 	internal class CommitViewModel : ViewModel, IVirtualItem
 	{
-		private readonly Func<string, Task> hideBranchAsync;
-		private readonly Func<string, Task> showDiffAsync;
 		private Commit commit;
 		private int windowWidth;
 
 		public CommitViewModel(
 			string id, 
-			int virtualId, 
-			Func<string, Task> hideBranchAsync, 
-			Func<string, Task> showDiffAsync)
+			int virtualId)
 		{
 			Id = id;
 			VirtualId = virtualId;
-			this.hideBranchAsync = hideBranchAsync;
-			this.showDiffAsync = showDiffAsync;
 		}
 
 		public string Id { get; }
@@ -156,7 +150,7 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
-		public Command HideBranchCommand => Command(HideBranchAsync);
+		public Command HideBranchCommand => Command(HideBranch);
 		public Command ShowDiffCommand => Command(ShowDiffAsync);
 
 		public int WindowWidth
@@ -173,18 +167,16 @@ namespace GitMind.CommitsHistory
 		}
 
 
+
 		public override string ToString() => $"{ShortId} {Subject} {Date}";
 
 
-		private async void HideBranchAsync()
-		{
-			await hideBranchAsync(CommitBranchName);
-		}
+		public Action HideBranch { get; set; }
+		
 
-
-		private async void ShowDiffAsync()
+		private void ShowDiffAsync()
 		{
-			await showDiffAsync(Id);
+			//await showDiffAsync(Id);
 		}
 	}
 }
