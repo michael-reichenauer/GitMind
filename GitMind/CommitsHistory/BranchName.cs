@@ -1,13 +1,18 @@
+using GitMind.GitModel;
+
+
 namespace GitMind.CommitsHistory
 {
-	public class BranchName
+	internal class BranchName
 	{
-		public string Text { get; set; }
-
-
-		public BranchName(string text)
+		public BranchName(Branch branch)
 		{
-			Text = text;
+			Branch = branch;
 		}
+
+
+		public Branch Branch { get; }
+
+		public string Text => Branch.Name;
 	}
 }

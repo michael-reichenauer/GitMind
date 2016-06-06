@@ -350,7 +350,7 @@
 									<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
 									<Setter Property="BorderThickness" Value="0"/>
 									<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
-									<Setter Property="CommandParameter" Value="{Binding Text}"/>
+									<Setter Property="CommandParameter" Value="{Binding Branch}"/>
 								</Style>
 							</MenuItem.ItemContainerStyle>
 						</MenuItem>

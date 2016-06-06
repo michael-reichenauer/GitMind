@@ -78,6 +78,39 @@ namespace GitMind.CommitsHistory
 			return currentRow - newRow;
 		}
 
+		public void ShowBranch(RepositoryViewModel repositoryViewModel, Branch branch)
+		{
+			List<Branch> currentlyShownBranches = GetCurrentlyShownBranches(repositoryViewModel);
+
+			bool isShowing = currentlyShownBranches.Contains(branch);
+
+			if (!isShowing)
+			{
+				// Showing the specified branch
+				currentlyShownBranches.Add(branch);
+				Update(repositoryViewModel, currentlyShownBranches);
+
+				var x = repositoryViewModel.Branches.FirstOrDefault(b => b.Branch == branch);
+				if (x != null)
+				{
+					var y = x.LatestRowIndex;
+					repositoryViewModel.ScrollRows(repositoryViewModel.Commits.Count);
+					repositoryViewModel.ScrollRows(-(y - 10));
+				}
+
+				repositoryViewModel.VirtualItemsSource.DataChanged(repositoryViewModel.Width);
+
+			}
+
+
+			//int currentRow = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
+			//Update(repositoryViewModel, currentlyShownBranches);
+
+			//int newRow = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
+			//Log.Debug($"Row {currentRow}->{newRow} for {stableCommit}");
+
+			//return currentRow - newRow;
+		}
 
 		public void HideBranch(RepositoryViewModel repositoryViewModel, Branch branch)
 		{
@@ -111,7 +144,14 @@ namespace GitMind.CommitsHistory
 		{
 			if (string.IsNullOrEmpty(filterText))
 			{
-				Update(repositoryViewModel, repositoryViewModel.SpecifiedBranches);
+				List<Branch> branches = repositoryViewModel.SpecifiedBranches.ToList();
+				var commit = repositoryViewModel.SelectedItem as CommitViewModel;
+				if (commit != null && !branches.Contains(commit.Commit.Branch))
+				{
+					branches.Add(commit.Commit.Branch);
+				}
+
+				Update(repositoryViewModel, branches);
 			}
 			else
 			{
@@ -181,6 +221,12 @@ namespace GitMind.CommitsHistory
 			t.Log("Updated Merges");
 
 			repositoryViewModel.SpecifiedBranches = specifiedBranches;
+
+			repositoryViewModel.AllBranches.Clear();
+			repositoryViewModel.Repository.Branches
+				.Where(b => b.IsActive)
+				.OrderBy(b => b.Name)
+				.ForEach(b => repositoryViewModel.AllBranches.Add(new BranchName(b)));
 		}
 
 
@@ -241,6 +287,7 @@ namespace GitMind.CommitsHistory
 			//SetNumberOfItems(commits, sourceCommits.Count(), i => new CommitViewModel(i, null, null));
 			commits.Clear();
 			commitsById.Clear();
+			int graphWidth = repositoryViewModel.GraphWidth;
 
 			foreach (Commit commit in sourceCommits)
 			{
@@ -267,7 +314,8 @@ namespace GitMind.CommitsHistory
 					? 2 + Converter.ToX(commitViewModel.BranchColumn)
 					: 4 + Converter.ToX(commitViewModel.BranchColumn);
 				commitViewModel.YPoint = commitViewModel.IsMergePoint ? 2 : 4;
-				commitViewModel.GraphWidth = repositoryViewModel.GraphWidth;
+				
+				commitViewModel.GraphWidth = graphWidth;
 				commitViewModel.Width = repositoryViewModel.Width - 35;
 				commitViewModel.Rect = new Rect(
 					0, Converter.ToY(commitViewModel.RowIndex), commitViewModel.Width, Converter.ToY(1));

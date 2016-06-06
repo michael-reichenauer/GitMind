@@ -14,8 +14,9 @@ namespace GitMind.CommitsHistory
 {
 	internal class RepositoryViewModel : ViewModel
 	{
+		
 		private readonly IViewModelService viewModelService;
-		private readonly Action<int> scrollRows;
+	
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string settingFilterText = "";
@@ -42,26 +43,27 @@ namespace GitMind.CommitsHistory
 			IViewModelService viewModelService,
 			Action<int> scrollRows)
 		{
+			ScrollRows = scrollRows;
 			this.viewModelService = viewModelService;
-			this.scrollRows = scrollRows;
+	
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
 
 			filterTriggerTimer.Tick += FilterTrigger;
 			filterTriggerTimer.Interval = TimeSpan.FromMilliseconds(300);
 		}
 
-
+		public Action<int> ScrollRows { get; }
 		public Repository Repository { get; private set; } 
 
-		public ICommand ShowBranchCommand => Command<string>(ShowBranch);
+		public ICommand ShowBranchCommand => Command<Branch>(ShowBranch);
 		public ICommand HideBranchCommand => Command<string>(HideBranch);
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
-		public ObservableCollection<Branch> ActiveBranches { get; }
-			= new ObservableCollection<Branch>();
+		public ObservableCollection<BranchName> AllBranches { get; }
+			= new ObservableCollection<BranchName>();
 
 
 		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);
@@ -166,7 +168,7 @@ namespace GitMind.CommitsHistory
 			int indexAfter = Commits.FindIndex(c => c == selectedBefore);
 
 			Log.Debug($"Selected {indexBefore}->{indexAfter} for commit {selectedBefore}");
-			scrollRows(indexBefore - indexAfter);
+			ScrollRows(indexBefore - indexAfter);
 
 			VirtualItemsSource.DataChanged(width);
 		}
@@ -187,16 +189,15 @@ namespace GitMind.CommitsHistory
 				// User clicked on a merge point (toggle between expanded and collapsed)
 				int rowsChange = viewModelService.ToggleMergePoint(this, commitViewModel.Commit);
 
-				scrollRows(rowsChange);
+				ScrollRows(rowsChange);
 				VirtualItemsSource.DataChanged(width);
 			}
 		}
 
 
-
-		private void ShowBranch(string obj)
+		private void ShowBranch(Branch branch)
 		{
-			throw new System.NotImplementedException();
+			viewModelService.ShowBranch(this, branch);
 		}
 
 
