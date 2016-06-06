@@ -103,7 +103,7 @@ namespace GitMind.CommitsHistory
 		public void Update(Repository repository)
 		{
 			Repository = repository;
-			viewModelService.Update(this, repository);
+			viewModelService.Update(this);
 			Commits.ForEach(commit => commit.WindowWidth = Width);
 
 			VirtualItemsSource.DataChanged(width);
