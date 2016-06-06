@@ -316,6 +316,7 @@
 				x:Name="ItemsListBox" 
 				Style="{DynamicResource ListBoxScrollbarStyle}" 
 				SelectedIndex="{Binding RepositoryViewModel.SelectedIndex}" 
+				SelectedItem="{Binding RepositoryViewModel.SelectedItem}"
 			>
 				<ListBox.InputBindings>
 					<KeyBinding Key="Space" Command="{Binding RepositoryViewModel.ToggleDetailsCommand}" />

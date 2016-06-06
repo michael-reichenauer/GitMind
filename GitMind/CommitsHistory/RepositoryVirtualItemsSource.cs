@@ -76,9 +76,8 @@ namespace GitMind.CommitsHistory
 			if (viewAreaBottomIndex > viewAreaTopIndex)
 			{
 				// Return visible branches
-				for (int i = 0; i < branches.Count; i++)
+				foreach (BranchViewModel branch in branches)
 				{
-					BranchViewModel branch = branches[i];
 					if (IsVisable(
 						viewAreaTopIndex, viewAreaBottomIndex, branch.LatestRowIndex, branch.FirstRowIndex))
 					{
@@ -87,11 +86,9 @@ namespace GitMind.CommitsHistory
 				}
 
 				// Return visible merges
-				for (int i = 0; i < merges.Count; i++)
+				foreach (MergeViewModel merge in merges)
 				{
-					MergeViewModel merge = merges[i];
-					if (IsVisable(
-						viewAreaTopIndex, viewAreaBottomIndex, merge.ChildRow, merge.ParentRow))
+					if (IsVisable(viewAreaTopIndex, viewAreaBottomIndex, merge.ChildRow, merge.ParentRow))
 					{
 						yield return merge.VirtualId;
 					}
@@ -120,8 +117,7 @@ namespace GitMind.CommitsHistory
 		{
 			if (virtualId < items.Count)
 			{
-				IVirtualItem virtualItem = items[virtualId];
-				return virtualItem;
+				return items[virtualId];
 			}
 
 			return null;

@@ -100,12 +100,12 @@ namespace GitMind.CommitsHistory
 				t.Log("Get branches");
 				Log.Debug($"Filtered branches {branches.Count()}");
 
-				UpdateCommits(commits, branches, repositoryViewModel);
-				t.Log("Updated Commits");
-
-			
 				UpdateBranches(branches, commits, repositoryViewModel);
 				t.Log("Updated branches");
+
+				UpdateCommits(commits, branches, repositoryViewModel);
+				t.Log("Updated Commits");
+			
 				UpdateMerges(branches, repositoryViewModel);
 				t.Log("Updated Merges");
 			}

@@ -109,16 +109,32 @@ namespace GitMind.CommitsHistory
 			get { return Get(); }
 			set
 			{
-				Log.Debug($"Setting value {value}");
-				CommitViewModel commit = Commits[value];
+				if (Set(value).IsSet)
+				{
+					CommitViewModel commit = Commits[value];
+					Log.Debug($"Setting value index: {value}, commit {commit}");
 
-				CommitDetail.Id = commit.Id;
-				CommitDetail.Branch = commit.Commit.Branch.Name;
-				CommitDetail.Tickets = commit.Tickets;
-				CommitDetail.Tags = commit.Tags;
-				CommitDetail.Subject = commit.Subject;
+					CommitDetail.Id = commit.Id;
+					CommitDetail.Branch = commit.Commit.Branch.Name;
+					CommitDetail.Tickets = commit.Tickets;
+					CommitDetail.Tags = commit.Tags;
+					CommitDetail.Subject = commit.Subject;
+				}
 			}
 		}
+
+		public object SelectedItem
+		{
+			get { return Get(); }
+			set
+			{
+				if (Set(value).IsSet)
+				{
+					Log.Debug($"Setting value item: {value}");
+				}
+			}
+		}
+
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; }
 
 

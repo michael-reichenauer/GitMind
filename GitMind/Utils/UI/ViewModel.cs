@@ -52,11 +52,10 @@ namespace GitMind.Utils.UI
 		}
 
 
-		protected IPropertySetter Set<T>(T value, [CallerMemberName] string memberName = "")
+		protected PropertySetter Set<T>(T value, [CallerMemberName] string memberName = "")
 		{
 			Property property = Get(memberName);
-			property.Value = value;
-			return property;
+			return property.Set(value);
 		}
 
 
