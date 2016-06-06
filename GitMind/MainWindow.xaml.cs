@@ -290,13 +290,16 @@ namespace GitMind
 		{
 			// Log.Debug($"Canvas offset {canvas.Offset}");
 
-			Point viewPoint = e.GetPosition(ItemsListBox);
+			if (e.ChangedButton == MouseButton.Left)
+			{
+				Point viewPoint = e.GetPosition(ItemsListBox);
 
-			Point position = new Point(viewPoint.X + canvas.Offset.X, viewPoint.Y + canvas.Offset.Y);
+				Point position = new Point(viewPoint.X + canvas.Offset.X, viewPoint.Y + canvas.Offset.Y);
 
-			bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
+				bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
-			repositoryViewModel.Clicked(position, isControl);
+				repositoryViewModel.Clicked(position, isControl);
+			}	
 
 			base.OnPreviewMouseUp(e);
 		}
