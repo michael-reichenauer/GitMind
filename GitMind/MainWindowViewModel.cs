@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using GitMind.CommitsHistory;
+using GitMind.GitModel;
 using GitMind.Installation;
 using GitMind.Settings;
 using GitMind.Utils;
@@ -18,6 +19,7 @@ namespace GitMind
 {
 	internal class MainWindowViewModel : ViewModel
 	{
+		private readonly IRepositoryService repositoryService;
 		private readonly IDiffService diffService;
 		private readonly ILatestVersionService latestVersionService;
 		private readonly Window owner;
@@ -26,12 +28,14 @@ namespace GitMind
 
 		internal MainWindowViewModel(
 			RepositoryViewModel repositoryViewModel,
+			IRepositoryService repositoryService,
 			IDiffService diffService,
 			ILatestVersionService latestVersionService,
 			Window owner,
 			Func<Task> refreshAsync)
 		{
 			RepositoryViewModel = repositoryViewModel;
+			this.repositoryService = repositoryService;
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
@@ -225,26 +229,28 @@ namespace GitMind
 		}
 
 
-		private void SelectWorkingFolder()
+		private async void SelectWorkingFolder()
 		{
-			throw new NotImplementedException();
-			//List<string> activeBranches = new List<string>();
-			//RepositoryViewModel.SetBranches(activeBranches);
+			var dialog = new System.Windows.Forms.FolderBrowserDialog();
+			dialog.Description = "Select a working folder.";
+			dialog.ShowNewFolderButton = false;
+			dialog.SelectedPath = Environment.CurrentDirectory;
+			if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+			{
+				return;
+			}
 
-			//var dialog = new System.Windows.Forms.FolderBrowserDialog();
-			//dialog.Description = "Select a working folder.";
-			//dialog.ShowNewFolderButton = false;
-			//dialog.SelectedPath = Environment.CurrentDirectory;
-			//if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
-			//{
-			//	return;
-			//}
+			Environment.CurrentDirectory = dialog.SelectedPath;
 
-			//Environment.CurrentDirectory = dialog.SelectedPath;
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync();
 
-			//await RepositoryViewModel.LoadAsync(owner);
+			Busy.Add(repositoryTask);
 
-			//WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
+			Repository repository = await repositoryTask;
+
+			RepositoryViewModel.Update(repository, new string[0]);
+
+			WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 		}
 	}
 }

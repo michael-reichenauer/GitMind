@@ -102,10 +102,10 @@ namespace GitMind.CommitsHistory
 			}
 		}
 
-		public void Update(Repository repository)
+		public void Update(Repository repository, IReadOnlyList<string> specifiedBranchNames)
 		{
 			Repository = repository;
-			viewModelService.Update(this);
+			viewModelService.Update(this, specifiedBranchNames);
 			Commits.ForEach(commit => commit.WindowWidth = Width);
 
 			VirtualItemsSource.DataChanged(width);

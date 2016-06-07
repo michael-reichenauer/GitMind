@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,7 +40,7 @@ namespace GitMind
 		private ZoomableCanvas canvas;
 		private readonly MainWindowViewModel mainWindowViewModel;
 		private DateTime LoadedTime = DateTime.MaxValue;
-
+		private List<string> specifiedBranchNames = new List<string>();
 
 		public MainWindow()
 		{
@@ -62,7 +61,7 @@ namespace GitMind
 			repositoryViewModel = new RepositoryViewModel(ScrollRows);
 
 			mainWindowViewModel = new MainWindowViewModel(
-				repositoryViewModel, diffService, latestVersionService, this, () => RefreshAsync(true));
+				repositoryViewModel, repositoryService, diffService, latestVersionService, this, () => RefreshAsync(true));
 
 			refreshService = new StatusRefreshService(mainWindowViewModel);
 
@@ -139,8 +138,6 @@ namespace GitMind
 				args = new string[0];
 			}
 
-			List<string> specifiedBranchNames = new List<string>();
-
 			if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path2))
 			{
 				Environment.CurrentDirectory = TestRepo.Path2;
@@ -155,8 +152,6 @@ namespace GitMind
 
 			SetWorkingFolder();
 			Log.Debug($"Current working folder {Environment.CurrentDirectory}");
-
-			//historyViewModel.SetBranches(specifiedBranchNames);
 		}
 
 
@@ -233,7 +228,7 @@ namespace GitMind
 			mainWindowViewModel.Busy.Add(repositoryTask);
 
 			Repository repository = await repositoryTask;
-			repositoryViewModel.Update(repository);
+			repositoryViewModel.Update(repository, specifiedBranchNames);
 
 			LoadedTime = DateTime.Now;
 
@@ -299,7 +294,7 @@ namespace GitMind
 				bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
 				repositoryViewModel.Clicked(position, isControl);
-			}	
+			}
 
 			base.OnPreviewMouseUp(e);
 		}
@@ -377,9 +372,13 @@ namespace GitMind
 			////}
 		}
 
-		private void MoudeDobleClick(object sender, MouseButtonEventArgs e)
+		private void MouseDobleClick(object sender, MouseButtonEventArgs e)
 		{
-			mainWindowViewModel.RepositoryViewModel.ToggleDetailsCommand.Execute(null);
+			Point viewPoint = e.GetPosition(ItemsListBox);
+			if (viewPoint.X > repositoryViewModel.GraphWidth)
+			{
+				mainWindowViewModel.RepositoryViewModel.ToggleDetailsCommand.Execute(null);
+			}
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Markup;
 using System.Windows.Media;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -25,11 +26,28 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public void Update(RepositoryViewModel repositoryViewModel)
+		public void Update(
+			RepositoryViewModel repositoryViewModel,
+			IReadOnlyList<string> specifiedBranchNames)
 		{
-			Branch currentBranch = repositoryViewModel.Repository.CurrentBranch;
+			List<Branch> branches = new List<Branch>();
+	
+			foreach (string name in specifiedBranchNames)
+			{
+				Branch branch = repositoryViewModel.Repository.Branches
+					.FirstOrDefault(b => b.Name == name && b.IsActive);
+				if (branch != null)
+				{
+					branches.Add(branch);
+				}
+			}
 
-			Branch[] branches = { currentBranch };
+			if (!branches.Any())
+			{
+				Branch currentBranch = repositoryViewModel.Repository.CurrentBranch;
+
+				branches.Add(currentBranch);
+			}
 
 			Update(repositoryViewModel, branches);
 		}
@@ -119,7 +137,7 @@ namespace GitMind.CommitsHistory
 			bool isShowing = currentlyShownBranches.Contains(branch);
 
 			if (isShowing)
-			{			
+			{
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, branch);
 
@@ -127,7 +145,7 @@ namespace GitMind.CommitsHistory
 
 				repositoryViewModel.SelectedIndex = 3;
 				Update(repositoryViewModel, currentlyShownBranches);
-			
+
 
 				repositoryViewModel.VirtualItemsSource.DataChanged(repositoryViewModel.Width);
 			}
@@ -316,7 +334,7 @@ namespace GitMind.CommitsHistory
 					? 2 + Converter.ToX(commitViewModel.BranchColumn)
 					: 4 + Converter.ToX(commitViewModel.BranchColumn);
 				commitViewModel.YPoint = commitViewModel.IsMergePoint ? 2 : 4;
-				
+
 				commitViewModel.GraphWidth = graphWidth;
 				commitViewModel.Width = repositoryViewModel.Width - 35;
 				commitViewModel.Rect = new Rect(
@@ -376,10 +394,17 @@ namespace GitMind.CommitsHistory
 
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 
-				//	branchToolTip: GetBranchToolTip(branch));
+				branch.BranchToolTip =  GetBranchToolTip(branch);
 			}
 
 			repositoryViewModel.GraphWidth = Converter.ToX(maxColumn + 1);
+		}
+
+
+		private string GetBranchToolTip(BranchViewModel branch)
+		{
+			string name = branch.Branch.IsMultiBranch ? "MultiBranch" : branch.Branch.Name;
+			return $"Branch: {name}";
 		}
 
 

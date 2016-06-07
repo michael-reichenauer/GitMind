@@ -421,7 +421,8 @@
 						<Setter Property="Canvas.Left" Value="{Binding Rect.Left}"/>
 						
 						<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
-						<EventSetter Event="MouseDoubleClick" Handler="MoudeDobleClick" />
+						<EventSetter Event="MouseDoubleClick" Handler="MouseDobleClick" />
+						
 						<Setter Property="Width">
 							<Setter.Value>
 								<MultiBinding 
@@ -474,9 +475,10 @@
 												<Grid.ToolTip>
 													<ToolTip  												
 														Background="Black"
-														BorderBrush="{Binding Brush}">
+														BorderBrush="{Binding Brush}"
+														BorderThickness="2">
 														<StackPanel>
-															<TextBlock Text="{Binding BranchToolTip}" Foreground="LightSteelBlue"/>
+															<TextBlock Text="{Binding BranchToolTip}" Foreground="Lavender"/>
 														</StackPanel>
 													</ToolTip>
 												</Grid.ToolTip>
@@ -638,7 +640,7 @@
 															BorderThickness="2"
 															BorderBrush="{Binding Brush}">
 																<StackPanel>
-																	<TextBlock Text="{Binding ToolTip}" Foreground="LightSteelBlue"/>
+																	<TextBlock Text="{Binding ToolTip}" Foreground="Lavender"/>
 																</StackPanel>
 															</ToolTip>
 														</Ellipse.ToolTip>
@@ -677,7 +679,7 @@
 													Grid.Column="2"
 													Margin="5,0"
 													Text="{Binding Author}"
-													 Foreground="LightSteelBlue"
+													 Foreground="Lavender"
 													HorizontalAlignment="Left"
 													VerticalAlignment="Center"/>
 
@@ -686,14 +688,14 @@
 													Grid.Column="3"
 													Margin="5,0"
 													Text="{Binding Date}"
-													 Foreground="LightSteelBlue"
+													 Foreground="Lavender"
 													HorizontalAlignment="Left"
 													VerticalAlignment="Center"/>
 
 													<Grid.ContextMenu>
 														<ContextMenu 
 															Background="Transparent" 
-															Foreground="LightSteelBlue"
+															Foreground="Lavender"
 															BorderBrush="DarkSlateBlue"
 															BorderThickness="0">
 
