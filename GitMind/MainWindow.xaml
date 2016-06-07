@@ -371,7 +371,8 @@
 
 				<ListBox.ItemContainerStyle>
 					<Style TargetType="ListBoxItem">
-
+						
+						<Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"/>
 						<Setter Property="Canvas.Top" Value="{Binding Rect.Top}"/>
 						<Setter Property="Canvas.Left" Value="{Binding Rect.Left}"/>
 						<EventSetter Event="MouseDoubleClick" Handler="MoudeDobleClick" />
@@ -510,7 +511,7 @@
 									<Setter.Value>
 										<DataTemplate>
 											
-											<Grid Background="Transparent">
+											<Grid Background="Black" ZIndex="0">
 												<Grid.ColumnDefinitions>
 													<ColumnDefinition Width="{Binding GraphWidth}"/>
 													<ColumnDefinition Width="*"/>

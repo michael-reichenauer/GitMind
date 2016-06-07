@@ -9,7 +9,7 @@ namespace GitMind.CommitsHistory
 	internal class BranchViewModel : ViewModel, IVirtualItem
 	{
 		public string Type => "Branch";
-
+		public int ZIndex => 200;
 
 		public BranchViewModel(string id, int virtualId)
 		{

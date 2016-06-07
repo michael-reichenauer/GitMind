@@ -138,6 +138,7 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
+		public int ZIndex => 0;
 		public string CommitBranchText
 		{
 			get { return Get(); }

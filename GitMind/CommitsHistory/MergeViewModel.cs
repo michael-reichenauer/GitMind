@@ -18,6 +18,7 @@ namespace GitMind.CommitsHistory
 		public int VirtualId { get; }
 
 		public string Type => "Merge";
+		public int ZIndex => 100;
 
 		public int ChildRow
 		{
