@@ -124,8 +124,10 @@ namespace GitMind.CommitsHistory
 					currentlyShownBranches, branch);
 
 				currentlyShownBranches.RemoveAll(b => b.Name != "master" && closingBranches.Contains(b));
-				
+
+				repositoryViewModel.SelectedIndex = 3;
 				Update(repositoryViewModel, currentlyShownBranches);
+			
 
 				repositoryViewModel.VirtualItemsSource.DataChanged(repositoryViewModel.Width);
 			}

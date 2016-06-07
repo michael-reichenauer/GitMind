@@ -51,12 +51,15 @@
 				<StackPanel 
 					Grid.Column="0" 
 					Orientation="Horizontal">
+					
+					<!-- Application icon -->
 					<Image 
 						Source="Application.ico" 
 						Width="15"
 						Height="15"
 						Margin="5,0">
 
+						<!-- Version tool tip on application icon -->
 						<Image.ToolTip>
 							<ToolTip
 							Placement="Bottom"
@@ -315,8 +318,8 @@
 				Padding="4"
 				x:Name="ItemsListBox" 
 				Style="{DynamicResource ListBoxScrollbarStyle}" 
-				SelectedIndex="{Binding RepositoryViewModel.SelectedIndex}" 
-				SelectedItem="{Binding RepositoryViewModel.SelectedItem}"
+				SelectedIndex="{Binding RepositoryViewModel.SelectedIndex, Mode=TwoWay}" 
+				SelectedItem="{Binding RepositoryViewModel.SelectedItem, Mode=TwoWay}"
 			>
 				<ListBox.InputBindings>
 					<KeyBinding Key="Space" Command="{Binding RepositoryViewModel.ToggleDetailsCommand}" />
@@ -373,8 +376,51 @@
 					<Style TargetType="ListBoxItem">
 						
 						<Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"/>
+						
+						<!-- Style for list items (selected/hoover) -->
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="ListBoxItem">
+									<Border
+										Name="ItemBorder"
+										CornerRadius="0" 
+										BorderBrush="Transparent"
+										BorderThickness="1" 
+										Margin="0"
+										Background="Transparent">
+										<ContentPresenter />
+									</Border>
+									<ControlTemplate.Triggers>
+										<Trigger Property="IsSelected" Value="True">
+											<Setter 
+												TargetName="ItemBorder" 
+												Property="BorderBrush" 
+												Value="{StaticResource SelectedItemBorderBrush}" />
+											<Setter 
+												TargetName="ItemBorder" 
+												Property="Background" 
+												Value="{StaticResource SelectedItemBackgroundBrush}" />
+										</Trigger>
+										<MultiTrigger>
+											<MultiTrigger.Conditions>
+												<Condition Property="IsMouseOver" Value="True" />
+												<Condition Property="IsSelected" Value="False" />
+											</MultiTrigger.Conditions>
+											<Setter 
+												TargetName="ItemBorder" 
+												Property="BorderBrush" 
+												Value="{StaticResource HoverItemBrush}" />
+										</MultiTrigger>
+									</ControlTemplate.Triggers>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>			
+						
+
 						<Setter Property="Canvas.Top" Value="{Binding Rect.Top}"/>
 						<Setter Property="Canvas.Left" Value="{Binding Rect.Left}"/>
+						
+						<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
 						<EventSetter Event="MouseDoubleClick" Handler="MoudeDobleClick" />
 						<Setter Property="Width">
 							<Setter.Value>
@@ -412,8 +458,7 @@
 								
 							<!-- Branch line -->
 							<DataTrigger Binding="{Binding Type}" Value="Branch">
-								<Setter Property="IsEnabled" Value="false"/>
-								<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
+								<Setter Property="IsEnabled" Value="true"/>
 								<Setter Property="Focusable" Value="False"/>
 								<Setter Property="Background" Value="Transparent"/>
 								<Setter Property="ContentTemplate">
@@ -510,8 +555,9 @@
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
+	
 											
-											<Grid Background="Black" ZIndex="0">
+											<Grid Background="Transparent">
 												<Grid.ColumnDefinitions>
 													<ColumnDefinition Width="{Binding GraphWidth}"/>
 													<ColumnDefinition Width="*"/>
@@ -560,10 +606,10 @@
 														HorizontalAlignment="Left"
 														VerticalAlignment="Center">
 
-															<TextBlock.ToolTip>
-																<ToolTip
+														<TextBlock.ToolTip>
+															<ToolTip
 																Placement="Bottom"
-																 HorizontalOffset="-15" 
+																HorizontalOffset="-15" 
 																VerticalOffset="5"
 																Background="Black"
 																BorderThickness="2"
