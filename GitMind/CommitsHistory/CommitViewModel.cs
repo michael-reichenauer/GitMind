@@ -45,7 +45,7 @@ namespace GitMind.CommitsHistory
 		public string ShortId => Commit.ShortId;
 		public string Author => Commit.Author;
 		public string Date => Commit.AuthorDateText;
-		public string Subject => Commit.Subject;
+		public string Subject => Commit.ShortId + " " + Commit.Subject;
 
 		public string Tags
 		{

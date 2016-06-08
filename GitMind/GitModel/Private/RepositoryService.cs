@@ -80,6 +80,7 @@ namespace GitMind.GitModel.Private
 
 			subBranches = subBranches.Concat(multiBranches).ToList();
 			t.Log("Set multi branch commits");
+			Log.Debug($"Unset commits after multi {commits.Count(c => !c.HasBranchName)}");
 
 			SetBranchHierarchy(subBranches, mRepository);
 			t.Log("SetBranchHierarchy");
@@ -91,7 +92,7 @@ namespace GitMind.GitModel.Private
 			Repository repository = ToRepository(mRepository);
 			t.Log($"Branches: {repository.Branches.Count} commits: {repository.Commits.Count}");
 
-			Log.Debug($"Unset commits after multi {commits.Count(c => !c.HasBranchName)}");
+			
 			commits.Where(c => string.IsNullOrEmpty(c.BranchName))
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.FirstParentId}"));
 
@@ -383,21 +384,23 @@ namespace GitMind.GitModel.Private
 				bool isFound = false;
 				foreach (MCommit current in xCommit.FirstAncestors())
 				{
+					string currentBranchName = GetBranchName(current);
+
 					if (current.HasBranchName && current.BranchName != branchName)
 					{
 						// found commit with branch name already set 
 						break;
 					}
 
-					string currentBranchName = GetBranchName(current);
-					if (string.IsNullOrEmpty(currentBranchName) || currentBranchName == branchName)
-					{
-						last = current;
-					}
+					//if (string.IsNullOrEmpty(currentBranchName) || currentBranchName == branchName)
+					//{
+						
+					//}
 
 					if (currentBranchName == branchName)
 					{
 						isFound = true;
+						last = current;
 					}
 				}
 
@@ -436,7 +439,6 @@ namespace GitMind.GitModel.Private
 				{
 					current.BranchName = branchName;
 					current.SubBranchId = subBranchId;
-
 				}
 			}
 		}
@@ -463,6 +465,14 @@ namespace GitMind.GitModel.Private
 			foreach (MCommit root in roots)
 			{
 				string branchName = "Multibranch_" + root.ShortId;
+
+				if (root.Children.Any() &&
+				    root.Children.All(c => c.HasBranchName && c.BranchName == root.Children.ElementAt(0).BranchName))
+				{
+					// All children have the same branch name thus this branch is just a continuation of them
+					branchName = root.Children.ElementAt(0).BranchName;
+				}
+				
 
 				MSubBranch subBranch = new MSubBranch(xmodel)
 				{
@@ -656,7 +666,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private string GetBranchName(MCommit mCommit)
+		private static string GetBranchName(MCommit mCommit)
 		{
 			if (!string.IsNullOrEmpty(mCommit.BranchName))
 			{

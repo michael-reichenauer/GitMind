@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -30,14 +31,23 @@ namespace GitMind.GitModel.Private
 		public IEnumerable<MCommit> Children => ChildIds.Select(id => mRepository.Commits[id]);
 		public IEnumerable<MCommit> FirstChildren => FirstChildIds.Select(id => mRepository.Commits[id]);
 
-		public string branchName;
+		private string branchName;
 		public string BranchName
 		{
 			get { return branchName; }
 			set
 			{
-				branchName = value;
+				if (ShortId == "c336d1")
+				{
 
+				}
+				branchName = value;
+				if (branchName != null && BranchNameFromSubject != null 
+					&& branchName != BranchNameFromSubject
+					&& -1 == BranchNameFromSubject.IndexOf("trunk", StringComparison.OrdinalIgnoreCase))
+				{
+					//Log.Warn($"Setting branch name {branchName} != '{BranchNameFromSubject}' from subject for {this}");
+				}
 				//if (ShortId == "afe62f")
 				//{
 				//	Log.Warn($"Setting branch name {branchName} != '{BranchNameFromSubject}' from subject");
