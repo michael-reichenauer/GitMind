@@ -23,7 +23,9 @@ namespace GitMind.GitModel
 			IReadOnlyList<string> commitIds,
 			string parentBranchId,
 			bool isActive,
-			bool isMultiBranch)
+			bool isMultiBranch,
+			int localAheadCount,
+			int remoteAheadCount)
 		{
 			this.repository = repository;
 			this.latestCommitId = latestCommitId;
@@ -35,6 +37,8 @@ namespace GitMind.GitModel
 			Name = name;
 			IsActive = isActive;
 			IsMultiBranch = isMultiBranch;
+			LocalAheadCount = localAheadCount;
+			RemoteAheadCount = remoteAheadCount;
 		}
 
 
@@ -42,6 +46,8 @@ namespace GitMind.GitModel
 		public string Name { get; }
 		public bool IsActive { get; }
 		public bool IsMultiBranch { get; }
+		public int LocalAheadCount { get; }
+		public int RemoteAheadCount { get; }
 		public Commit LatestCommit => repository.Commits[latestCommitId];
 		public Commit FirstCommit => repository.Commits[firstCommitId];
 		public Commit ParentCommit => repository.Commits[parentCommitId];

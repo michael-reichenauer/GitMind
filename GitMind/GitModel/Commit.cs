@@ -13,16 +13,18 @@ namespace GitMind.GitModel
 		private readonly string branchId;
 
 		public Commit(
-			Repository repository,
+			Repository repository, 
 			string id, 
 			string shortId, 
-			string subject,
-			string author,
-			DateTime authorDate,
-			DateTime commitDate,
-			IReadOnlyList<string> parentIds,
-			IReadOnlyList<string> childIds,
-			string branchId)
+			string subject, 
+			string author, 
+			DateTime authorDate, 
+			DateTime commitDate, 
+			IReadOnlyList<string> parentIds, 
+			IReadOnlyList<string> childIds, 
+			string branchId, 
+			bool isLocalAhead, 
+			bool isRemoteAhead)
 		{
 			this.repository = repository;
 			this.parentIds = parentIds;
@@ -35,6 +37,8 @@ namespace GitMind.GitModel
 			AuthorDate = authorDate;			
 			AuthorDateText = authorDate.ToShortDateString() + " " + authorDate.ToShortTimeString();
 			CommitDate = commitDate;
+			IsLocalAhead = isLocalAhead;
+			IsRemoteAhead = isRemoteAhead;
 		}
 
 
@@ -45,6 +49,8 @@ namespace GitMind.GitModel
 		public DateTime AuthorDate { get; }
 		public string AuthorDateText { get; }
 		public DateTime CommitDate { get; }
+		public bool IsLocalAhead { get; }
+		public bool IsRemoteAhead { get; }
 		public bool HasFirstParent => parentIds.Count > 0;
 		public bool HasSecondParent => parentIds.Count > 1;
 		public Commit FirstParent => repository.Commits[parentIds[0]];

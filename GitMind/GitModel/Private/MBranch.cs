@@ -43,6 +43,8 @@ namespace GitMind.GitModel.Private
 		public MCommit LatestCommit => MRepository.Commits[LatestCommitId];
 		public MCommit ParentCommit => MRepository.Commits[ParentCommitId];
 		public MBranch ParentBranch => MRepository.Branches[ParentBranchId];
+		public int LocalAheadCount { get; set; }
+		public int RemoteAheadCount { get; set; }
 
 		public override string ToString() => $"{Name}";
 	}

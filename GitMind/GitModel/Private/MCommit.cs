@@ -70,7 +70,11 @@ namespace GitMind.GitModel.Private
 		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
 		public MCommit SecondParent => ParentIds.Count > 1 ? mRepository.Commits[ParentIds[1]] : null;
 
-
+		public bool IsLocalAheadMarker { get; set; }
+		public bool IsRemoteAheadMarker { get; set; }
+		public bool IsLocalAhead => IsLocalAheadMarker && !IsSynced;
+		public bool IsRemoteAhead => IsRemoteAheadMarker && !IsSynced;
+		public bool IsSynced => IsLocalAheadMarker && IsRemoteAheadMarker;
 
 		public IEnumerable<MCommit> FirstAncestors()
 		{

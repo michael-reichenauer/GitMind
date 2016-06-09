@@ -187,7 +187,7 @@ namespace GitMind.CommitsHistory
 				UpdateBranches(branches, commits, repositoryViewModel);
 				t.Log("Updated branches");
 
-				UpdateCommits(commits, branches, repositoryViewModel);
+				UpdateCommits(commits, repositoryViewModel);
 				t.Log("Updated Commits");
 
 				UpdateMerges(branches, repositoryViewModel);
@@ -234,7 +234,7 @@ namespace GitMind.CommitsHistory
 			UpdateBranches(branches, commits, repositoryViewModel);
 			t.Log("Updated Branches");
 
-			UpdateCommits(commits, branches, repositoryViewModel);
+			UpdateCommits(commits, repositoryViewModel);
 			t.Log("Updated Commits");
 
 			UpdateMerges(branches, repositoryViewModel);
@@ -298,7 +298,6 @@ namespace GitMind.CommitsHistory
 
 		private void UpdateCommits(
 			IEnumerable<Commit> sourceCommits,
-			IEnumerable<Branch> branches,
 			RepositoryViewModel repositoryViewModel)
 		{
 			List<CommitViewModel> commits = repositoryViewModel.Commits;
@@ -619,15 +618,19 @@ namespace GitMind.CommitsHistory
 
 		public Brush GetSubjectBrush(Commit commit)
 		{
-			Brush subjectBrush = brushService.SubjectBrush;
-			//if (commit.IsLocalAhead)
-			//{
-			//	subjectBrush = brushService.LocalAheadBrush;
-			//}
-			//else if (commit.IsRemoteAhead)
-			//{
-			//	subjectBrush = brushService.RemoteAheadBrush;
-			//}
+			Brush subjectBrush;
+			if (commit.IsLocalAhead)
+			{
+				subjectBrush = brushService.LocalAheadBrush;
+			}
+			else if (commit.IsRemoteAhead)
+			{
+				subjectBrush = brushService.RemoteAheadBrush;
+			}
+			else
+			{
+				subjectBrush = brushService.SubjectBrush;
+			}
 
 			return subjectBrush;
 		}

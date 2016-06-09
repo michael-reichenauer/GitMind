@@ -19,7 +19,8 @@ namespace GitMind.CommitsHistory
 
 		public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightSkyBlue;
 
-		public SolidColorBrush RemoteAheadBrush { get; } = Brushes.Gray;
+		//public SolidColorBrush RemoteAheadBrush { get; } = Brushes.Gray;
+		public SolidColorBrush RemoteAheadBrush { get; } = Brushes.LightSteelBlue;
 
 
 		public Brush GetBranchBrush(IBranch branch)
