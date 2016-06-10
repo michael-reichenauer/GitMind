@@ -70,7 +70,7 @@
     <Compile Include="CommitsHistory\BrushService.cs" />
     <Compile Include="CommitsHistory\CommitDetail.cs" />
     <Compile Include="CommitsHistory\CommitDetailViewModel.cs" />
-    <Compile Include="CommitsHistory\CommitFile.cs" />
+    <Compile Include="GitModel\CommitFile.cs" />
     <Compile Include="CommitsHistory\CommitViewModel.cs" />
     <Compile Include="CommitsHistory\Converter.cs" />
     <Compile Include="CommitsHistory\DiffService.cs" />
@@ -88,6 +88,7 @@
     <Compile Include="DataModel\Old\BranchNameComparer.cs" />
     <Compile Include="GitModel\Branch.cs" />
     <Compile Include="GitModel\Commit.cs" />
+    <Compile Include="GitModel\CommitFiles.cs" />
     <Compile Include="GitModel\Private\BranchNameParser.cs" />
     <Compile Include="DataModel\Old\BranchPriority.cs" />
     <Compile Include="DataModel\Old\OldCommit.cs" />
@@ -98,6 +99,9 @@
     <Compile Include="GitModel\Private\MCommit.cs" />
     <Compile Include="GitModel\Private\MSubBranch.cs" />
     <Compile Include="GitModel\Repository.cs" />
+    <Compile Include="GitModel\Tag.cs" />
+    <Compile Include="Git\GitCommitFiles.cs" />
+    <Compile Include="Git\GitFile.cs" />
     <Compile Include="Utils\IReadOnlyKeyedList.cs" />
     <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="GitModel\Private\MRepository.cs" />

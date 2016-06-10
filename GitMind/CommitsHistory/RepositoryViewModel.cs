@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.GitModel;
@@ -14,13 +15,13 @@ namespace GitMind.CommitsHistory
 {
 	internal class RepositoryViewModel : ViewModel
 	{
-		
+		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
 		private readonly IViewModelService viewModelService;
-	
+
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string settingFilterText = "";
-		private string filterText = "";
+		
 
 		private int width = 0;
 		private int graphWidth = 0;
@@ -49,7 +50,7 @@ namespace GitMind.CommitsHistory
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
 
 			filterTriggerTimer.Tick += FilterTrigger;
-			filterTriggerTimer.Interval = TimeSpan.FromMilliseconds(300);
+			filterTriggerTimer.Interval = FilterDelay;
 		}
 
 		public Action<int> ScrollRows { get; }
@@ -67,6 +68,8 @@ namespace GitMind.CommitsHistory
 
 
 		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);
+
+		public string FilterText { get; private set; } = "";
 
 		public int DetailsSize
 		{
@@ -125,7 +128,6 @@ namespace GitMind.CommitsHistory
 			{
 				if (Set(value).IsSet)
 				{
-					Log.Debug($"Setting value index: {value}");
 				}
 			}
 		}
@@ -140,8 +142,6 @@ namespace GitMind.CommitsHistory
 			{
 				if (Set(value).IsSet)
 				{
-					Log.Debug($"Setting value item: {value}");
-
 					CommitViewModel commit = value as CommitViewModel;
 					if (commit != null)
 					{
@@ -150,6 +150,8 @@ namespace GitMind.CommitsHistory
 						CommitDetail.Tickets = commit.Tickets;
 						CommitDetail.Tags = commit.Tags;
 						CommitDetail.Subject = commit.Subject;
+						CommitDetail.Files.Clear();
+						commit.Commit.Files.ForEach(f => CommitDetail.Files.Add(f));
 					}
 				}
 			}
@@ -163,26 +165,37 @@ namespace GitMind.CommitsHistory
 		public void SetFilter(string text)
 		{
 			filterTriggerTimer.Stop();
+			Log.Debug($"Filter: {text}");
 			settingFilterText = (text ?? "").Trim();
 			filterTriggerTimer.Start();
 		}
 
 
-		private void FilterTrigger(object sender, EventArgs e)
+		private async void FilterTrigger(object sender, EventArgs e)
 		{
 			filterTriggerTimer.Stop();
-			filterText = settingFilterText;
+			string filterText = settingFilterText;
+			FilterText = filterText;
 
-			Log.Debug($"Filter: {filterText}");
+			Log.Debug($"Filter triggered for: {FilterText}");
 
 			CommitViewModel selectedBefore = (CommitViewModel)SelectedItem;
 			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
 
-			viewModelService.SetFilter(this, filterText);
+			await viewModelService.SetFilterAsync(this);
+			if (filterText != FilterText)
+			{
+				Log.Warn($"Filter has changed {filterText} ->" + $"{FilterText}");
+				return;
+			}
+
 			int indexAfter = Commits.FindIndex(c => c == selectedBefore);
 
 			Log.Debug($"Selected {indexBefore}->{indexAfter} for commit {selectedBefore}");
-			ScrollRows(indexBefore - indexAfter);
+			if (indexBefore != -1 && indexAfter != -1)
+			{
+				ScrollRows(indexBefore - indexAfter);
+			}
 
 			VirtualItemsSource.DataChanged(width);
 		}

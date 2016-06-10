@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -16,8 +15,8 @@ namespace GitMind.GitModel.Private
 
 
 		public RepositoryService()
-			: this( new GitService())
-		{			
+			: this(new GitService())
+		{
 		}
 
 		public RepositoryService(IGitService gitService)
@@ -45,19 +44,19 @@ namespace GitMind.GitModel.Private
 				MRepository mRepository = new MRepository();
 
 				return GetRepository(
-					mRepository, 
-					gitBranches, 
-					gitCommits, 
-					specifiedBranches, 
-					gitRepo.CurrentBranch, 
+					mRepository,
+					gitBranches,
+					gitCommits,
+					specifiedBranches,
+					gitRepo.CurrentBranch,
 					gitRepo.CurrentCommit);
 			});
 		}
 
 
 		private Repository GetRepository(
-			MRepository mRepository, 
-			IReadOnlyList<GitBranch> gitBranches, 
+			MRepository mRepository,
+			IReadOnlyList<GitBranch> gitBranches,
 			IReadOnlyList<GitCommit> gitCommits,
 			IReadOnlyList<SpecifiedBranch> specifiedBranches,
 			GitBranch currentBranch,
@@ -95,7 +94,7 @@ namespace GitMind.GitModel.Private
 			Repository repository = ToRepository(mRepository);
 			t.Log($"Branches: {repository.Branches.Count} commits: {repository.Commits.Count}");
 
-			
+
 			commits.Where(c => string.IsNullOrEmpty(c.BranchName))
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.FirstParentId}"));
 
@@ -116,7 +115,7 @@ namespace GitMind.GitModel.Private
 				MSubBranch remoteBranch = branchGroup.First(b => b.IsRemote);
 
 				SetAheadBehindCommits(branch, localBranch, remoteBranch);
-			}		
+			}
 		}
 
 
@@ -157,7 +156,7 @@ namespace GitMind.GitModel.Private
 				foreach (MCommit parent in commit.Parents)
 				{
 					MarkIsLocalAhead(parent, branchId);
-				}	
+				}
 			}
 		}
 
@@ -170,7 +169,7 @@ namespace GitMind.GitModel.Private
 				foreach (MCommit parent in commit.Parents)
 				{
 					MarkIsRemoteAhead(parent, branchId);
-				}				
+				}
 			}
 		}
 
@@ -186,7 +185,7 @@ namespace GitMind.GitModel.Private
 
 
 		private IReadOnlyList<MSubBranch> AddSubBranches(
-			IReadOnlyList<GitBranch> gitBranches, MRepository mRepository,  IReadOnlyList<MCommit> commits)
+			IReadOnlyList<GitBranch> gitBranches, MRepository mRepository, IReadOnlyList<MCommit> commits)
 		{
 			Timing t = new Timing();
 			IReadOnlyList<MSubBranch> activeBranches = AddActiveBranches(gitBranches, mRepository);
@@ -203,14 +202,14 @@ namespace GitMind.GitModel.Private
 
 
 		private void SetCommitBranchNames(
-			IReadOnlyList<MSubBranch> branches, 
-			IReadOnlyList<MCommit> commits, 
+			IReadOnlyList<MSubBranch> branches,
+			IReadOnlyList<MCommit> commits,
 			MRepository mRepository)
 		{
 			Timing t = new Timing();
 			SetMasterBranchCommits(branches, mRepository);
 			t.Log("Set master branch commits");
-		
+
 			SetBranchCommits(branches, mRepository);
 			t.Log("Set branch commits");
 
@@ -223,7 +222,7 @@ namespace GitMind.GitModel.Private
 
 
 		private IReadOnlyList<MCommit> AddCommits(
-			IReadOnlyList<GitCommit> gitCommits, 
+			IReadOnlyList<GitCommit> gitCommits,
 			IReadOnlyList<SpecifiedBranch> specifiedBranches,
 			MRepository mRepository)
 		{
@@ -243,7 +242,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static Repository ToRepository(MRepository mRepository)
+		private Repository ToRepository(MRepository mRepository)
 		{
 			Timing t = new Timing();
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
@@ -251,11 +250,14 @@ namespace GitMind.GitModel.Private
 			Branch currentBranch = null;
 			Commit currentCommit = null;
 
+			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask = GetCommitsFilesAsync();
+
 			Repository repository = new Repository(
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
 				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
-				new Lazy<Commit>(() => currentCommit));
+				new Lazy<Commit>(() => currentCommit),
+				new CommitFiles(commitsFilesTask));
 
 			foreach (MCommit mCommit in mRepository.Commits)
 			{
@@ -283,6 +285,39 @@ namespace GitMind.GitModel.Private
 			t.Log("Branches: " + rBranches.Count);
 
 			return repository;
+		}
+
+
+		private async Task<IDictionary<string, IEnumerable<CommitFile>>> GetCommitsFilesAsync()
+		{
+			Timing t = new Timing();
+			R<IReadOnlyList<GitCommitFiles>> commitsFiles = await gitService.GetCommitsFilesAsync(null);
+			t.Log("Got commit files");
+
+			Dictionary<string, IEnumerable<CommitFile>> files = 
+				new Dictionary<string, IEnumerable<CommitFile>>();
+
+			if (commitsFiles.IsFaulted)
+			{
+				Log.Warn($"Failed to get commits files {commitsFiles.Error}");
+				return files;
+			}
+			int fileCount = 0;
+			foreach (GitCommitFiles f in commitsFiles.Value)
+			{
+				List<CommitFile> filesInCommit = f.Files.Select(ToCommitFile).ToList();
+				fileCount += filesInCommit.Count;
+				files[f.Id] = filesInCommit;
+			}
+
+			t.Log($"Parsed commit files for {files.Count} commits with {fileCount} files");
+			return files;
+		}
+
+
+		private static CommitFile ToCommitFile(GitFile gitFile)
+		{
+			return new CommitFile(gitFile.File, "?");
 		}
 
 
@@ -323,7 +358,7 @@ namespace GitMind.GitModel.Private
 
 
 		private static void SetBranchHierarchy(IReadOnlyList<MBranch> branches)
-		{	
+		{
 			foreach (MBranch xBranch in branches)
 			{
 				if (xBranch.ParentCommitId != null && xBranch.ParentCommit.BranchId != xBranch.Id)
@@ -388,7 +423,7 @@ namespace GitMind.GitModel.Private
 						Log.Warn($"Branch with no commits {subBranch}");
 					}
 				}
-			}	
+			}
 		}
 
 		private static void GroupSubBranches(IReadOnlyList<MSubBranch> branches)
@@ -420,7 +455,7 @@ namespace GitMind.GitModel.Private
 						groupByBranch
 							.SelectMany(branch =>
 								new[] { branch.LatestCommit }
-									.Where(c => c.SubBranchId == branch.Id && c.Id != branch.ParentCommitId) 
+									.Where(c => c.SubBranchId == branch.Id && c.Id != branch.ParentCommitId)
 								.Concat(
 									branch.LatestCommit
 										.FirstAncestors()
@@ -435,7 +470,7 @@ namespace GitMind.GitModel.Private
 
 					mBranch.Commits.ForEach(c => c.BranchId = id);
 
-					mBranch.LatestCommitId = mBranch.Commits.Any() 
+					mBranch.LatestCommitId = mBranch.Commits.Any()
 						? mBranch.Commits.First().Id : mBranch.ParentCommitId;
 					mBranch.FirstCommitId = mBranch.Commits.Any()
 					? mBranch.Commits.Last().Id : mBranch.ParentCommitId;
@@ -451,8 +486,8 @@ namespace GitMind.GitModel.Private
 			// All commits, which do have a name, but first parent commit does not have a name
 			IEnumerable<MCommit> commitsWithBranchName =
 				commits.Where(commit =>
-					commit.HasBranchName 
-					&& commit.HasFirstParent 
+					commit.HasBranchName
+					&& commit.HasFirstParent
 					&& !commit.FirstParent.HasBranchName);
 
 			foreach (MCommit xCommit in commitsWithBranchName)
@@ -474,7 +509,7 @@ namespace GitMind.GitModel.Private
 
 					//if (string.IsNullOrEmpty(currentBranchName) || currentBranchName == branchName)
 					//{
-						
+
 					//}
 
 					if (currentBranchName == branchName)
@@ -547,17 +582,17 @@ namespace GitMind.GitModel.Private
 				string branchName = "Multibranch_" + root.ShortId;
 
 				if (root.Children.Any() &&
-				    root.Children.All(c => c.HasBranchName && c.BranchName == root.Children.ElementAt(0).BranchName))
+						root.Children.All(c => c.HasBranchName && c.BranchName == root.Children.ElementAt(0).BranchName))
 				{
 					// All children have the same branch name thus this branch is just a continuation of them
 					branchName = root.Children.ElementAt(0).BranchName;
 				}
-				
+
 
 				MSubBranch subBranch = new MSubBranch(xmodel)
 				{
 					Id = Guid.NewGuid().ToString(),
-					Name = branchName,		
+					Name = branchName,
 					LatestCommitId = root.Id,
 					IsMultiBranch = true,
 					IsActive = false,
@@ -581,7 +616,7 @@ namespace GitMind.GitModel.Private
 			// top of a branch and there is no existing branch at this commit
 			IEnumerable<MCommit> topCommits = commits.Where(commit =>
 				!commit.FirstChildIds.Any()
-				&& !mRepository.SubBranches.Any(b =>b.LatestCommitId == commit.Id));
+				&& !mRepository.SubBranches.Any(b => b.LatestCommitId == commit.Id));
 
 			IEnumerable<MCommit> pullMergeTopCommits = commits
 				.Where(commit =>
@@ -664,7 +699,7 @@ namespace GitMind.GitModel.Private
 
 			if (xmodel.Commits[id].ShortId == "afe62f")
 			{
-				
+
 			}
 
 			foreach (MSubBranch b in xmodel.SubBranches)
@@ -672,7 +707,7 @@ namespace GitMind.GitModel.Private
 				if (b.Name != subBranch.Name
 					&& !(subBranch.IsActive && !b.IsActive)
 					&& !(subBranch.IsMultiBranch)
-					&& ( b.LatestCommitId == id))
+					&& (b.LatestCommitId == id))
 				{
 					MCommit c = xmodel.Commits[id];
 					//Log.Warn($"Commit {c} in branch {xBranch} same as other branch {b}");
@@ -910,11 +945,11 @@ namespace GitMind.GitModel.Private
 		private MSubBranch ToBranch(GitBranch gitBranch, MRepository mRepository)
 		{
 			string latestCommitId = gitBranch.LatestCommitId;
-			
+
 			return new MSubBranch(mRepository)
 			{
 				Id = Guid.NewGuid().ToString(),
-				Name = gitBranch.Name,			
+				Name = gitBranch.Name,
 				LatestCommitId = latestCommitId,
 				IsMultiBranch = false,
 				IsActive = true,

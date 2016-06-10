@@ -9,7 +9,7 @@ namespace GitMind.CommitsHistory
 	{
 		void Update(RepositoryViewModel repositoryViewModel, IReadOnlyList<string> specifiedBranchNames);
 		int ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit);
-		void SetFilter(RepositoryViewModel repositoryViewModel, string filterText);
+		Task SetFilterAsync(RepositoryViewModel repositoryViewModel);
 		void ShowBranch(RepositoryViewModel repositoryViewModel, Branch branch);
 	}
 }

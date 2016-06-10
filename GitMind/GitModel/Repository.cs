@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GitMind.Utils;
 
 
@@ -16,8 +17,10 @@ namespace GitMind.GitModel
 			Lazy<IReadOnlyKeyedList<string, Branch>> branches, 
 			Lazy<IReadOnlyKeyedList<string, Commit>> commits,
 			Lazy<Branch> currentBranch,
-			Lazy<Commit> currentCommit)
+			Lazy<Commit> currentCommit,
+			CommitFiles commitFiles)
 		{
+			CommitFiles = commitFiles;
 			this.branches = branches;
 			this.commits = commits;
 			this.currentBranch = currentBranch;
@@ -28,19 +31,6 @@ namespace GitMind.GitModel
 		public IReadOnlyKeyedList<string, Commit> Commits => commits.Value;
 		public Branch CurrentBranch => currentBranch.Value;
 		public Commit CurrentCommit => currentCommit.Value;
-	}
-
-
-	internal class Tag
-	{
-		public string Name { get; set; }
-		public string CommitId { get; set; }
-
-
-		public Tag(string name, string commitId)
-		{
-			Name = name;
-			CommitId = commitId;
-		}
+		public CommitFiles CommitFiles { get; }
 	}
 }

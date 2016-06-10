@@ -133,6 +133,56 @@ namespace GitMind.Git.Private
 		}
 
 
+		public async Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(string path)
+		{
+			Log.Debug("Getting all commits files ...");
+			string args = "log --all --name-status -m --pretty=\"%H\"";
+
+			Timing t = new Timing();
+			R<IReadOnlyList<string>> logResult = await GitAsync(path, args);
+			t.Log("Get commits files");
+
+			if (logResult.IsFaulted) return logResult.Error;
+
+			IReadOnlyList<string> logLines = logResult.Value;
+
+			List<GitCommitFiles> commitsFiles = new List<GitCommitFiles>();
+
+			string commitId = null;
+			List<GitFile> files = new List<GitFile>();
+			foreach (string line in logLines)
+			{
+				if (line.StartsWith("M\t", StringComparison.Ordinal))
+				{
+					files.Add(new GitFile(line.Substring(2), true, false, false));
+				}
+				else if (line.StartsWith("A\t", StringComparison.Ordinal))
+				{
+					files.Add(new GitFile(line.Substring(2), false, true, false));
+				}
+				else if (line.StartsWith("D\t", StringComparison.Ordinal))
+				{
+					files.Add(new GitFile(line.Substring(2), false, false, true));
+				}
+				else if (line.Length > 5)
+				{
+					// A commit id
+					if (commitId != null)
+					{
+						// Got all files in the commit
+						commitsFiles.Add(new GitCommitFiles(commitId, files));
+						files = new List<GitFile>();
+					}
+
+					// Next commit id
+					commitId = line.Trim();
+				}
+			}
+
+			t.Log("Parsing all commits files");
+			return commitsFiles;
+		}
+
 		public async Task<R<CommitDiff>> GetCommitDiffAsync(string commitId)
 		{
 			string args;
@@ -262,7 +312,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<R<IReadOnlyList<GitTag>>> GetTagsAsync(string path)
+		private async Task<R<IReadOnlyList<GitTag>>> GetTagsAsync(string path)
 		{
 			List<GitTag> tags = new List<GitTag>();
 
@@ -288,7 +338,7 @@ namespace GitMind.Git.Private
 
 
 
-		public async Task<R<IReadOnlyList<GitBranch>>> GetBranchesAsync(string path)
+		private async Task<R<IReadOnlyList<GitBranch>>> GetBranchesAsync(string path)
 		{
 			List<GitBranch> branches = new List<GitBranch>();
 
@@ -365,8 +415,9 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<R<IReadOnlyList<GitCommit>>> GetCommitsAsync(string path)
+		private async Task<R<IReadOnlyList<GitCommit>>> GetCommitsAsync(string path)
 		{
+			// git log --all --name-status --pretty="%H|%ai|%ci|%an|%P|%s"
 			Log.Debug("Getting log ...");
 			string args = "log --all --pretty=\"%H|%ai|%ci|%an|%P|%s\"";
 
@@ -403,6 +454,7 @@ namespace GitMind.Git.Private
 			t.Log("Parsing commits");
 			return commits;
 		}
+
 
 
 		private static string[] GetParentIds(string[] logRowParts)

@@ -47,7 +47,7 @@ namespace GitMind.CommitsHistory
 		public static int ToBottomRowIndex(Rect rectangle, int commitsCount)
 		{
 			int lastIndex = (int)Math.Ceiling(rectangle.Bottom / RowHeight);
-			lastIndex = Math.Min(lastIndex, commitsCount - 1);
+			lastIndex = Math.Min(lastIndex, commitsCount);
 			return lastIndex;
 		}
 

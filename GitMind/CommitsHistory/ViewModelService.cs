@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
@@ -160,8 +161,9 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public void SetFilter(RepositoryViewModel repositoryViewModel, string filterText)
+		public async Task SetFilterAsync(RepositoryViewModel repositoryViewModel)
 		{
+			string filterText = repositoryViewModel.FilterText;
 			if (string.IsNullOrEmpty(filterText))
 			{
 				List<Branch> branches = repositoryViewModel.SpecifiedBranches.ToList();
@@ -176,42 +178,48 @@ namespace GitMind.CommitsHistory
 			else
 			{
 				Timing t = new Timing();
-				List<Commit> commits = GetCommits(repositoryViewModel.Repository, filterText);
-				t.Log("Get commits");
-				Log.Debug($"Filtered commits {commits.Count}");
+				List<Commit> commits = await GetFilteredCommitsAsync(
+					repositoryViewModel.Repository, filterText);
+				t.Log($"Got filtered {commits.Count} commits");
+
+				if (filterText != repositoryViewModel.FilterText)
+				{
+					Log.Warn($"Filter has changed {filterText} ->" + $"{repositoryViewModel.FilterText}");
+					return;
+				}
+	
 				//var branches = commits.Select(c => c.Branch).Distinct().ToList();
 				Branch[] branches = new Branch[0];
-				t.Log("Get branches");
-				Log.Debug($"Filtered branches {branches.Count()}");
-
 				UpdateBranches(branches, commits, repositoryViewModel);
-				t.Log("Updated branches");
-
 				UpdateCommits(commits, repositoryViewModel);
-				t.Log("Updated Commits");
-
 				UpdateMerges(branches, repositoryViewModel);
-				t.Log("Updated Merges");
 			}
 		}
 
-		private List<Commit> GetCommits(Repository repository, string filterText)
+		private static Task<List<Commit>> GetFilteredCommitsAsync(
+			Repository repository, string filterText)
 		{
-			return repository.Commits
+			return Task.Run(() => repository.Commits
 				.Where(c =>
-					StartsWith(c.Id, filterText)
+					Contains(c.Id, filterText)
 					|| Contains(c.Subject, filterText)
 					|| Contains(c.Author, filterText)
 					|| Contains(c.AuthorDateText, filterText)
+					|| c.Files.Any(f => Contains(f.Name, filterText))
 				)
 				.OrderByDescending(c => c.CommitDate)
-				.ToList();
+				.ToList());
 		}
 
 
 		private static bool Contains(string text, string subText)
 		{
-			return text?.IndexOf(subText, StringComparison.OrdinalIgnoreCase) != -1;
+			if (text == null || subText == null)
+			{
+				return false;
+			}
+
+			return text.IndexOf(subText, StringComparison.OrdinalIgnoreCase) != -1;
 		}
 
 		private static bool StartsWith(string text, string subText)
