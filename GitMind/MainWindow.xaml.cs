@@ -138,9 +138,9 @@ namespace GitMind
 				args = new string[0];
 			}
 
-			if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path2))
+			if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path))
 			{
-				Environment.CurrentDirectory = TestRepo.Path2;
+				Environment.CurrentDirectory = TestRepo.Path;
 			}
 			else if (args.Length > 1)
 			{

@@ -131,6 +131,8 @@ namespace GitMind.CommitsHistory
 		}
 
 
+
+
 		public object SelectedItem
 		{
 			get { return Get().Value; }
@@ -139,9 +141,21 @@ namespace GitMind.CommitsHistory
 				if (Set(value).IsSet)
 				{
 					Log.Debug($"Setting value item: {value}");
+
+					CommitViewModel commit = value as CommitViewModel;
+					if (commit != null)
+					{
+						CommitDetail.Id = commit.Id;
+						CommitDetail.Branch = commit.Commit.Branch.Name;
+						CommitDetail.Tickets = commit.Tickets;
+						CommitDetail.Tags = commit.Tags;
+						CommitDetail.Subject = commit.Subject;
+					}
 				}
 			}
 		}
+
+
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; }
 
