@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Git;
@@ -12,31 +13,137 @@ namespace GitMind.GitModel.Private
 	internal class RepositoryService : IRepositoryService
 	{
 		private readonly IGitService gitService;
+		private readonly ICacheService cacheService;
 
 
 		public RepositoryService()
-			: this(new GitService())
+			: this(new GitService(), new CacheService())
 		{
 		}
 
-		public RepositoryService(IGitService gitService)
+		public RepositoryService(IGitService gitService, ICacheService cacheService)
 		{
 			this.gitService = gitService;
+			this.cacheService = cacheService;
 		}
 
 
 		public async Task<Repository> GetRepositoryAsync()
 		{
-			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask =
-				GetCommitsFilesAsync();
+			MRepository mRepository = new MRepository();
+			mRepository.Time = DateTime.Now;
+			mRepository.CommitsFilesTask = GetCommitsFilesAsync();
+
+			//StoreCommitFilesAsync(mRepository.CommitsFilesTask).RunInBackground();
+
+			Timing t = new Timing();
 			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
-		
-			return await GetRepositoryAsync(gitRepo.Value, commitsFilesTask);
+			t.Log("Got gitRepo");
+			await UpdateAsync(mRepository, gitRepo.Value);
+			t.Log("Updated mRepository");
+			Repository repository = ToRepository(mRepository);
+			t.Log($"Created repository: {repository.Branches.Count} commits: {repository.Commits.Count}");
+
+			cacheService.Cache(mRepository).RunInBackground();
+			return repository;
 		}
 
 
-		private Task<Repository> GetRepositoryAsync(IGitRepo gitRepo,
+		private async Task StoreCommitFilesAsync(
 			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
+		{
+			IDictionary<string, IEnumerable<CommitFile>> filesById =
+				await commitsFilesTask.ConfigureAwait(false);
+			Timing t = new Timing();
+			List<string> lines = filesById
+				.Select(cf => cf.Key + "|" + string.Join(";", cf.Value.Select(f => f.Name)))
+				.ToList();
+			t.Log("Created lines");
+			string filePath = "c:\\temp\\commitfiles.txt";
+			File.WriteAllLines(filePath, lines);
+			t.Log($"Wrote lines {lines.Count} to disk");
+
+
+			string[] readLines = File.ReadAllLines(filePath);
+			t.Log($"Read lines {readLines.Length} from disk");
+			var charArray1 = "|".ToCharArray();
+			var charArray2 = ";".ToCharArray();
+
+			Dictionary<string, IEnumerable<CommitFile>> filesById2 = 
+				new Dictionary<string, IEnumerable<CommitFile>>();
+
+			readLines.ForEach(l =>
+			{
+				string[] keyValue = l.Split(charArray1);
+				string id = keyValue[0];
+				string[] files = keyValue[0].Split(charArray2);
+				filesById2[id] = files.Select(f => new CommitFile(f, "s")).ToList();
+			});
+
+			t.Log($"Created filesById2 with {filesById2.Count} items");
+
+			await StoreCommitFiles2Async(commitsFilesTask);
+		}
+
+		private async Task StoreCommitFiles2Async(
+			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
+		{
+			Log.Debug("------- Alternative store --------");
+			IDictionary<string, IEnumerable<CommitFile>> filesById =
+				await commitsFilesTask.ConfigureAwait(false);
+
+			Dictionary<string, List<string>> commitsByFile =			
+				new Dictionary<string, List<string>>();
+			Timing t2 = new Timing();
+			foreach (KeyValuePair<string, IEnumerable<CommitFile>> pair in filesById)
+			{
+				string id = pair.Key;
+				foreach (CommitFile commitFile in pair.Value)
+				{
+					List<string> commits;
+					if (!commitsByFile.TryGetValue(commitFile.Name, out commits))
+					{
+						commits = new List<string>();
+						commitsByFile[commitFile.Name] = commits;
+					}
+
+					commits.Add(id.Substring(0, 6));
+				}
+			}
+			t2.Log($"File count {commitsByFile.Count}");
+
+			Timing t = new Timing();
+
+			List<string> lines = commitsByFile
+				.Select(cf => cf.Key + "|" + string.Join(";", cf.Value))
+				.ToList();
+
+			t.Log("Created lines");
+			string filePath = "c:\\temp\\commitfiles2.txt";
+			File.WriteAllLines(filePath, lines);
+			t.Log($"Wrote lines {lines.Count} to disk");
+
+
+			string[] readLines = File.ReadAllLines(filePath);
+			t.Log($"Read lines {readLines.Length} from disk");
+			var charArray1 = "|".ToCharArray();
+			var charArray2 = ";".ToCharArray();
+
+			Dictionary<string, IEnumerable<string>> filesById2 =
+				new Dictionary<string, IEnumerable<string>>();
+
+			readLines.ForEach(l =>
+			{
+				string[] keyValue = l.Split(charArray1);
+				string id = keyValue[0];
+				string[] files = keyValue[0].Split(charArray2);
+				filesById2[id] = files.Select(f => f).ToList();
+			});
+
+			t.Log($"Created filesById2 with {filesById2.Count} items");
+		}
+
+		private Task UpdateAsync(MRepository mRepository, IGitRepo gitRepo)
 		{
 			return Task.Run(() =>
 			{
@@ -44,28 +151,24 @@ namespace GitMind.GitModel.Private
 				IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
 				IReadOnlyList<SpecifiedBranch> specifiedBranches = new SpecifiedBranch[0];
 
-				MRepository mRepository = new MRepository();
-
-				return GetRepository(
+				Update(
 					mRepository,
 					gitBranches,
 					gitCommits,
 					specifiedBranches,
 					gitRepo.CurrentBranch,
-					gitRepo.CurrentCommit,
-					commitsFilesTask);
+					gitRepo.CurrentCommit);
 			});
 		}
 
 
-		private Repository GetRepository(
+		private void Update(
 			MRepository mRepository,
 			IReadOnlyList<GitBranch> gitBranches,
 			IReadOnlyList<GitCommit> gitCommits,
 			IReadOnlyList<SpecifiedBranch> specifiedBranches,
 			GitBranch currentBranch,
-			GitCommit currentCommit,
-			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
+			GitCommit currentCommit)
 		{
 			Timing t = new Timing();
 			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, specifiedBranches, mRepository);
@@ -92,18 +195,12 @@ namespace GitMind.GitModel.Private
 			SetAheadBehind(mRepository);
 			t.Log("SetAheadBehind");
 
-			mRepository.CurrentBranch = mRepository.Branches
-				.First(b => b.IsActive && b.Name == currentBranch.Name);
-			mRepository.CurrentCommit = mRepository.Commits[currentCommit.Id];
-
-			Repository repository = ToRepository(mRepository, commitsFilesTask);
-			t.Log($"Branches: {repository.Branches.Count} commits: {repository.Commits.Count}");
-
+			mRepository.CurrentBranchId = mRepository.Branches
+				.First(b => b.IsActive && b.Name == currentBranch.Name).Id;
+			mRepository.CurrentCommitId = mRepository.Commits[currentCommit.Id].Id;
 
 			commits.Where(c => string.IsNullOrEmpty(c.BranchName))
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.FirstParentId}"));
-
-			return repository;
 		}
 
 
@@ -247,9 +344,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private Repository ToRepository(
-			MRepository mRepository,
-			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
+		private Repository ToRepository(MRepository mRepository)
 		{
 			Timing t = new Timing();
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
@@ -258,11 +353,12 @@ namespace GitMind.GitModel.Private
 			Commit currentCommit = null;
 
 			Repository repository = new Repository(
+				mRepository.Time,
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
 				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
-				new CommitFiles(commitsFilesTask));
+				new CommitFiles(mRepository.CommitsFilesTask));
 
 			foreach (MCommit mCommit in mRepository.Commits)
 			{
@@ -375,7 +471,7 @@ namespace GitMind.GitModel.Private
 					MBranch parentBranch = xBranch.ParentBranch;
 					if (!parentBranch.ChildBranches.Contains(xBranch))
 					{
-						parentBranch.ChildBranches.Add(xBranch);
+						parentBranch.ChildBrancheIds.Add(xBranch.Id);
 					}
 				}
 				else
@@ -445,8 +541,9 @@ namespace GitMind.GitModel.Private
 				{
 					string id = Guid.NewGuid().ToString();
 					MSubBranch subBranch = groupByBranch.First();
-					MBranch mBranch = new MBranch(subBranch.MRepository)
+					MBranch mBranch = new MBranch
 					{
+						Repository = subBranch.Repository,
 						Id = id,
 						Name = subBranch.Name,
 						IsMultiBranch = subBranch.IsMultiBranch,
@@ -455,10 +552,10 @@ namespace GitMind.GitModel.Private
 						ParentCommitId = subBranch.ParentCommitId
 					};
 
-					mBranch.SubBranches.AddRange(groupByBranch);
+					mBranch.SubBrancheIds.AddRange(groupByBranch.Select(b => b.Id));
 					mBranch.SubBranches.ForEach(b => b.BranchId = id);
 
-					mBranch.Commits.AddRange(
+					mBranch.CommitIds.AddRange(
 						groupByBranch
 							.SelectMany(branch =>
 								new[] { branch.LatestCommit }
@@ -468,7 +565,8 @@ namespace GitMind.GitModel.Private
 										.FirstAncestors()
 										.TakeWhile(c => c.SubBranchId == branch.Id && c.Id != branch.ParentCommitId)))
 								.Distinct()
-							.OrderByDescending(c => c.CommitDate));
+							.OrderByDescending(c => c.CommitDate)
+							.Select(c => c.Id));
 
 					if (mBranch.Commits.Any(c => c.BranchId != null))
 					{
@@ -482,7 +580,7 @@ namespace GitMind.GitModel.Private
 					mBranch.FirstCommitId = mBranch.Commits.Any()
 					? mBranch.Commits.Last().Id : mBranch.ParentCommitId;
 
-					mBranch.MRepository.Branches.Add(mBranch);
+					mBranch.Repository.Branches.Add(mBranch);
 				}
 			}
 		}
@@ -596,8 +694,9 @@ namespace GitMind.GitModel.Private
 				}
 
 
-				MSubBranch subBranch = new MSubBranch(xmodel)
+				MSubBranch subBranch = new MSubBranch
 				{
+					Repository = xmodel,
 					Id = Guid.NewGuid().ToString(),
 					Name = branchName,
 					LatestCommitId = root.Id,
@@ -637,8 +736,9 @@ namespace GitMind.GitModel.Private
 
 			foreach (MCommit xCommit in topCommits)
 			{
-				MSubBranch subBranch = new MSubBranch(mRepository)
+				MSubBranch subBranch = new MSubBranch
 				{
+					Repository = mRepository,
 					Id = Guid.NewGuid().ToString(),
 					LatestCommitId = xCommit.Id,
 					IsMultiBranch = false,
@@ -953,8 +1053,9 @@ namespace GitMind.GitModel.Private
 		{
 			string latestCommitId = gitBranch.LatestCommitId;
 
-			return new MSubBranch(mRepository)
+			return new MSubBranch
 			{
+				Repository = mRepository,
 				Id = Guid.NewGuid().ToString(),
 				Name = gitBranch.Name,
 				LatestCommitId = latestCommitId,
@@ -969,8 +1070,9 @@ namespace GitMind.GitModel.Private
 		{
 			MergeBranchNames branchNames = ParseMergeNamesFromSubject(gitCommit);
 
-			return new MCommit(mRepository)
+			return new MCommit
 			{
+				Repository = mRepository,
 				Id = gitCommit.Id,
 				ShortId = gitCommit.ShortId,
 				Subject = gitCommit.Subject,

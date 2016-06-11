@@ -108,8 +108,8 @@
     <Compile Include="GitModel\Private\RepositoryService.cs" />
     <Compile Include="ExceptionHandling.cs" />
     <Compile Include="FatalExceptionsExtensions.cs" />
-    <Compile Include="Git\Private\GitCacheService.cs" />
-    <Compile Include="Git\IGitCacheService.cs" />
+    <Compile Include="GitModel\Private\CacheService.cs" />
+    <Compile Include="GitModel\Private\ICacheService.cs" />
     <Compile Include="Installation\Private\CommandLine.cs" />
     <Compile Include="Installation\ICommandLine.cs" />
     <Compile Include="Utils\AsyncSemaphore.cs" />

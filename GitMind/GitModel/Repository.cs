@@ -14,12 +14,14 @@ namespace GitMind.GitModel
 
 
 		public Repository(
+			DateTime time,
 			Lazy<IReadOnlyKeyedList<string, Branch>> branches, 
 			Lazy<IReadOnlyKeyedList<string, Commit>> commits,
 			Lazy<Branch> currentBranch,
 			Lazy<Commit> currentCommit,
 			CommitFiles commitFiles)
 		{
+			Time = time;
 			CommitFiles = commitFiles;
 			this.branches = branches;
 			this.commits = commits;
@@ -31,6 +33,7 @@ namespace GitMind.GitModel
 		public IReadOnlyKeyedList<string, Commit> Commits => commits.Value;
 		public Branch CurrentBranch => currentBranch.Value;
 		public Commit CurrentCommit => currentCommit.Value;
+		public DateTime Time { get; }
 		public CommitFiles CommitFiles { get; }
 	}
 }

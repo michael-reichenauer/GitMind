@@ -4,12 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.Utils;
 
 
-namespace GitMind.Git.Private
+namespace GitMind.GitModel.Private
 {
-	internal class GitCacheService : IGitCacheService
+	internal class CacheService : ICacheService
 	{
 		private const int CurrentMajorVersion = 1;
 		private const int CurrentMinorVersion = 0;
@@ -17,6 +19,42 @@ namespace GitMind.Git.Private
 		private readonly JsonSerializer serializer = new JsonSerializer();
 		private readonly TaskThrottler TaskThrottler = new TaskThrottler(1);
 		private bool isUpdateing;
+
+
+		public async Task Cache(MRepository repository)
+		{
+			await TaskThrottler.Run(() => Task.Run(() =>
+			{
+				Log.Debug("Caching repository ...");
+				string cachePath = GetCachePath(null);
+				Timing t = new Timing();
+				repository.PrepareForSerialization();
+				t.Log("PrepareForSerialization");
+
+				Serialize(cachePath, repository);
+
+				t.Log($"Wrote jason data for {repository.Commits.Count} commits");
+			}));
+
+			var r = await GetFromCache();
+		}
+
+		public async Task<MRepository> GetFromCache()
+		{
+			return await TaskThrottler.Run(() => Task.Run(() =>
+			{
+				Log.Debug("Reading cached repository ...");
+				string cachePath = GetCachePath(null);
+				Timing t = new Timing();
+					
+				MRepository repository = Deserailize<MRepository>(cachePath);
+				t.Log($"Read jason data for {repository.CommitList.Count} commits");
+
+				repository.CompleteDeserialization();
+				t.Log("CompleteDeserialization");
+				return repository;
+			}));
+		}
 
 
 		public async Task UpdateAsync(string path, IGitRepo gitRepo)
@@ -62,7 +100,7 @@ namespace GitMind.Git.Private
 					if (File.Exists(cachePath))
 					{
 						Timing t = new Timing();
-						RepositoryDto repositoryDto = Deserailize(cachePath);
+						RepositoryDto repositoryDto = Deserailize<RepositoryDto>(cachePath);
 
 						t.Log("Read json data");
 
@@ -82,22 +120,22 @@ namespace GitMind.Git.Private
 		}
 
 
-		private void Serialize(string cachePath, RepositoryDto repositoryDto)
+		private void Serialize<T>(string cachePath, T data)
 		{
 			// string tempPath = cachePath + Guid.NewGuid();
 
 			using (Stream stream = File.Create(cachePath))
 			{
-				serializer.Serialize(repositoryDto, stream);
+				serializer.Serialize(data, stream);
 			}
 		}
 
 
-		private RepositoryDto Deserailize(string cachePath)
+		private T Deserailize<T>(string cachePath)
 		{
 			using (Stream stream = File.OpenRead(cachePath))
 			{
-				return serializer.Deserialize<RepositoryDto>(stream);
+				return serializer.Deserialize<T>(stream);
 			}
 		}
 
