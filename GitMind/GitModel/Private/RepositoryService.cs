@@ -27,13 +27,16 @@ namespace GitMind.GitModel.Private
 
 		public async Task<Repository> GetRepositoryAsync()
 		{
+			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask =
+				GetCommitsFilesAsync();
 			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
-
-			return await GetRepositoryAsync(gitRepo.Value);
+		
+			return await GetRepositoryAsync(gitRepo.Value, commitsFilesTask);
 		}
 
 
-		public Task<Repository> GetRepositoryAsync(IGitRepo gitRepo)
+		private Task<Repository> GetRepositoryAsync(IGitRepo gitRepo,
+			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
 		{
 			return Task.Run(() =>
 			{
@@ -49,7 +52,8 @@ namespace GitMind.GitModel.Private
 					gitCommits,
 					specifiedBranches,
 					gitRepo.CurrentBranch,
-					gitRepo.CurrentCommit);
+					gitRepo.CurrentCommit,
+					commitsFilesTask);
 			});
 		}
 
@@ -60,7 +64,8 @@ namespace GitMind.GitModel.Private
 			IReadOnlyList<GitCommit> gitCommits,
 			IReadOnlyList<SpecifiedBranch> specifiedBranches,
 			GitBranch currentBranch,
-			GitCommit currentCommit)
+			GitCommit currentCommit,
+			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
 		{
 			Timing t = new Timing();
 			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, specifiedBranches, mRepository);
@@ -91,7 +96,7 @@ namespace GitMind.GitModel.Private
 				.First(b => b.IsActive && b.Name == currentBranch.Name);
 			mRepository.CurrentCommit = mRepository.Commits[currentCommit.Id];
 
-			Repository repository = ToRepository(mRepository);
+			Repository repository = ToRepository(mRepository, commitsFilesTask);
 			t.Log($"Branches: {repository.Branches.Count} commits: {repository.Commits.Count}");
 
 
@@ -242,15 +247,15 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private Repository ToRepository(MRepository mRepository)
+		private Repository ToRepository(
+			MRepository mRepository,
+			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
 		{
 			Timing t = new Timing();
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
 			KeyedList<string, Commit> rCommits = new KeyedList<string, Commit>(c => c.Id);
 			Branch currentBranch = null;
 			Commit currentCommit = null;
-
-			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask = GetCommitsFilesAsync();
 
 			Repository repository = new Repository(
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
@@ -291,23 +296,25 @@ namespace GitMind.GitModel.Private
 		private async Task<IDictionary<string, IEnumerable<CommitFile>>> GetCommitsFilesAsync()
 		{
 			Timing t = new Timing();
-			R<IReadOnlyList<GitCommitFiles>> commitsFiles = await gitService.GetCommitsFilesAsync(null);
+			R<IReadOnlyList<GitCommitFiles>> gitCommitFilesList = 
+				await gitService.GetCommitsFilesAsync(null);
 			t.Log("Got commit files");
 
 			Dictionary<string, IEnumerable<CommitFile>> files = 
 				new Dictionary<string, IEnumerable<CommitFile>>();
 
-			if (commitsFiles.IsFaulted)
+			if (gitCommitFilesList.IsFaulted)
 			{
-				Log.Warn($"Failed to get commits files {commitsFiles.Error}");
+				Log.Warn($"Failed to get commits files {gitCommitFilesList.Error}");
 				return files;
 			}
+
 			int fileCount = 0;
-			foreach (GitCommitFiles f in commitsFiles.Value)
+			foreach (GitCommitFiles gitCommitFiles in gitCommitFilesList.Value)
 			{
-				List<CommitFile> filesInCommit = f.Files.Select(ToCommitFile).ToList();
+				List<CommitFile> filesInCommit = gitCommitFiles.Files.Select(ToCommitFile).ToList();
 				fileCount += filesInCommit.Count;
-				files[f.Id] = filesInCommit;
+				files[gitCommitFiles.Id] = filesInCommit;
 			}
 
 			t.Log($"Parsed commit files for {files.Count} commits with {fileCount} files");

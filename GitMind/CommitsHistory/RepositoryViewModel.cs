@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.GitModel;
@@ -23,7 +22,7 @@ namespace GitMind.CommitsHistory
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string settingFilterText = "";
-		
+
 
 		private int width = 0;
 		private int graphWidth = 0;
@@ -31,7 +30,7 @@ namespace GitMind.CommitsHistory
 		public List<BranchViewModel> Branches { get; } = new List<BranchViewModel>();
 		public List<MergeViewModel> Merges { get; } = new List<MergeViewModel>();
 		public List<CommitViewModel> Commits { get; } = new List<CommitViewModel>();
-		
+
 
 		public Dictionary<string, CommitViewModel> CommitsById { get; } =
 			new Dictionary<string, CommitViewModel>();
@@ -60,7 +59,7 @@ namespace GitMind.CommitsHistory
 		}
 
 		public Action<int> ScrollRows { get; }
-		public Repository Repository { get; private set; } 
+		public Repository Repository { get; private set; }
 
 		public ICommand ShowBranchCommand => Command<Branch>(ShowBranch);
 		public ICommand HideBranchCommand => Command<string>(HideBranch);
@@ -267,7 +266,7 @@ namespace GitMind.CommitsHistory
 			if ((absx < 10) && (absy < 10))
 			{
 				Clicked(column, row, isControl);
-				
+
 			}
 		}
 	}
