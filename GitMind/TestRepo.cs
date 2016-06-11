@@ -20,6 +20,6 @@ namespace GitMind
 		public static readonly string Path4 = @"d:\My Work\GitMind";
 		public static readonly string Path5 = @"d:\My Work\TestGit4";
 
-		public static readonly string Path = Path6;
+		public static readonly string Path = Path2;
 	}
 }

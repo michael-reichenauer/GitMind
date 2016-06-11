@@ -14,6 +14,7 @@ using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.Settings;
 using GitMind.Utils;
+using GitMind.Utils.UI;
 using GitMind.VirtualCanvas;
 
 
@@ -58,10 +59,16 @@ namespace GitMind
 				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
 
 			//historyViewModel = new OldHistoryViewModel();
-			repositoryViewModel = new RepositoryViewModel(ScrollRows);
+			repositoryViewModel = new RepositoryViewModel(
+				ScrollRows, new Lazy<BusyIndicator>(() => mainWindowViewModel.Busy));
 
 			mainWindowViewModel = new MainWindowViewModel(
-				repositoryViewModel, repositoryService, diffService, latestVersionService, this, () => RefreshAsync(true));
+				repositoryViewModel, 
+				repositoryService, 
+				diffService,
+				latestVersionService, 
+				this, 
+				() => RefreshAsync(true));
 
 			refreshService = new StatusRefreshService(mainWindowViewModel);
 

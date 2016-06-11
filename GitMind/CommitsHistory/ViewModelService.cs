@@ -179,7 +179,7 @@ namespace GitMind.CommitsHistory
 			{
 				Timing t = new Timing();
 				List<Commit> commits = await GetFilteredCommitsAsync(
-					repositoryViewModel.Repository, filterText);
+					repositoryViewModel, filterText);
 				t.Log($"Got filtered {commits.Count} commits");
 
 				if (filterText != repositoryViewModel.FilterText)
@@ -197,24 +197,45 @@ namespace GitMind.CommitsHistory
 		}
 
 		private static Task<List<Commit>> GetFilteredCommitsAsync(
-			Repository repository, string filterText)
+			RepositoryViewModel repositoryViewModel, string filterText)
 		{
-			return Task.Run(() => repository.Commits
-				.Where(c =>
-					Contains(c.Id, filterText)
-					|| Contains(c.Subject, filterText)
-					|| Contains(c.Author, filterText)
-					|| Contains(c.AuthorDateText, filterText)
-					|| c.Files.Any(f => Contains(f.Name, filterText))
-				)
-				.OrderByDescending(c => c.CommitDate)
-				.ToList());
+			IEnumerable<Commit> commits = null;
+			string filteredText = repositoryViewModel.FilteredText;
+
+			if (StartsWith(filterText, filteredText))
+			{
+				// The previous used filter text is a sub string of the new search, lets just search
+				// these commits
+				commits = repositoryViewModel.Commits.Select(c => c.Commit).ToList();
+			}
+			else
+			{
+				Repository repository = repositoryViewModel.Repository;
+
+				commits = repository.Commits;
+			}
+
+			Log.Debug($"Searching in {commits.Count()} commits");
+
+			return Task.Run(() =>
+			{		
+				return commits
+					.Where(c =>
+						Contains(c.Id, filterText)
+						|| Contains(c.Subject, filterText)
+						|| Contains(c.Author, filterText)
+						|| Contains(c.AuthorDateText, filterText)
+						|| c.Files.Any(f => Contains(f.Name, filterText))
+					)
+					.OrderByDescending(c => c.CommitDate)
+					.ToList();
+			});
 		}
 
 
 		private static bool Contains(string text, string subText)
 		{
-			if (text == null || subText == null)
+			if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(subText))
 			{
 				return false;
 			}
@@ -224,7 +245,12 @@ namespace GitMind.CommitsHistory
 
 		private static bool StartsWith(string text, string subText)
 		{
-			return text != null && text.StartsWith(subText, StringComparison.OrdinalIgnoreCase);
+			if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(subText))
+			{
+				return false;
+			}
+
+			return  text.StartsWith(subText, StringComparison.OrdinalIgnoreCase);
 		}
 
 

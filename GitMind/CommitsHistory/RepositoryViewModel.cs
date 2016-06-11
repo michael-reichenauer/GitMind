@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -15,8 +16,9 @@ namespace GitMind.CommitsHistory
 {
 	internal class RepositoryViewModel : ViewModel
 	{
-		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
+		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(200);
 		private readonly IViewModelService viewModelService;
+		private readonly Lazy<BusyIndicator> busyIndicator;
 
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
@@ -35,18 +37,22 @@ namespace GitMind.CommitsHistory
 			new Dictionary<string, CommitViewModel>();
 
 
-		public RepositoryViewModel(Action<int> setFirstVisibleRow)
-			: this(new ViewModelService(), setFirstVisibleRow)
+		public RepositoryViewModel(
+			Action<int> setFirstVisibleRow,
+			Lazy<BusyIndicator> busyIndicator)
+			: this(new ViewModelService(), setFirstVisibleRow, busyIndicator)
 		{
 		}
 
 		public RepositoryViewModel(
 			IViewModelService viewModelService,
-			Action<int> scrollRows)
+			Action<int> scrollRows,
+			Lazy<BusyIndicator> busyIndicator)
 		{
 			ScrollRows = scrollRows;
 			this.viewModelService = viewModelService;
-	
+			this.busyIndicator = busyIndicator;
+
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
 
 			filterTriggerTimer.Tick += FilterTrigger;
@@ -70,6 +76,7 @@ namespace GitMind.CommitsHistory
 		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);
 
 		public string FilterText { get; private set; } = "";
+		public string FilteredText { get; private set; } = "";
 
 		public int DetailsSize
 		{
@@ -182,13 +189,16 @@ namespace GitMind.CommitsHistory
 			CommitViewModel selectedBefore = (CommitViewModel)SelectedItem;
 			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
 
-			await viewModelService.SetFilterAsync(this);
+			Task setFilterTask = viewModelService.SetFilterAsync(this);
+			busyIndicator.Value.Add(setFilterTask);
+
+			await setFilterTask;
 			if (filterText != FilterText)
 			{
 				Log.Warn($"Filter has changed {filterText} ->" + $"{FilterText}");
 				return;
 			}
-
+			FilteredText = filterText;
 			int indexAfter = Commits.FindIndex(c => c == selectedBefore);
 
 			Log.Debug($"Selected {indexBefore}->{indexAfter} for commit {selectedBefore}");
