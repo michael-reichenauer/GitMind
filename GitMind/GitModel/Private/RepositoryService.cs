@@ -30,118 +30,30 @@ namespace GitMind.GitModel.Private
 
 		public async Task<Repository> GetRepositoryAsync()
 		{
-			MRepository mRepository = new MRepository();
-			mRepository.Time = DateTime.Now;
-			mRepository.CommitsFilesTask = GetCommitsFilesAsync();
-
-			//StoreCommitFilesAsync(mRepository.CommitsFilesTask).RunInBackground();
-
 			Timing t = new Timing();
-			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
-			t.Log("Got gitRepo");
-			await UpdateAsync(mRepository, gitRepo.Value);
-			t.Log("Updated mRepository");
+			MRepository mRepository = await cacheService.TryGetAsync();
+			t.Log("cacheService.TryGetAsync");
+
+			if (mRepository == null)
+			{
+				Log.Debug("No cached repository");
+				mRepository = new MRepository();
+				mRepository.Time = DateTime.Now;
+				mRepository.CommitsFilesTask = GetCommitsFilesAsync();
+
+				R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
+				t.Log("Got gitRepo");
+				await UpdateAsync(mRepository, gitRepo.Value);
+				t.Log("Updated mRepository");
+				cacheService.CacheAsync(mRepository).RunInBackground();
+			}
+
 			Repository repository = ToRepository(mRepository);
 			t.Log($"Created repository: {repository.Branches.Count} commits: {repository.Commits.Count}");
 
-			cacheService.Cache(mRepository).RunInBackground();
 			return repository;
 		}
 
-
-		private async Task StoreCommitFilesAsync(
-			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
-		{
-			IDictionary<string, IEnumerable<CommitFile>> filesById =
-				await commitsFilesTask.ConfigureAwait(false);
-			Timing t = new Timing();
-			List<string> lines = filesById
-				.Select(cf => cf.Key + "|" + string.Join(";", cf.Value.Select(f => f.Name)))
-				.ToList();
-			t.Log("Created lines");
-			string filePath = "c:\\temp\\commitfiles.txt";
-			File.WriteAllLines(filePath, lines);
-			t.Log($"Wrote lines {lines.Count} to disk");
-
-
-			string[] readLines = File.ReadAllLines(filePath);
-			t.Log($"Read lines {readLines.Length} from disk");
-			var charArray1 = "|".ToCharArray();
-			var charArray2 = ";".ToCharArray();
-
-			Dictionary<string, IEnumerable<CommitFile>> filesById2 = 
-				new Dictionary<string, IEnumerable<CommitFile>>();
-
-			readLines.ForEach(l =>
-			{
-				string[] keyValue = l.Split(charArray1);
-				string id = keyValue[0];
-				string[] files = keyValue[0].Split(charArray2);
-				filesById2[id] = files.Select(f => new CommitFile(f, "s")).ToList();
-			});
-
-			t.Log($"Created filesById2 with {filesById2.Count} items");
-
-			await StoreCommitFiles2Async(commitsFilesTask);
-		}
-
-		private async Task StoreCommitFiles2Async(
-			Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
-		{
-			Log.Debug("------- Alternative store --------");
-			IDictionary<string, IEnumerable<CommitFile>> filesById =
-				await commitsFilesTask.ConfigureAwait(false);
-
-			Dictionary<string, List<string>> commitsByFile =			
-				new Dictionary<string, List<string>>();
-			Timing t2 = new Timing();
-			foreach (KeyValuePair<string, IEnumerable<CommitFile>> pair in filesById)
-			{
-				string id = pair.Key;
-				foreach (CommitFile commitFile in pair.Value)
-				{
-					List<string> commits;
-					if (!commitsByFile.TryGetValue(commitFile.Name, out commits))
-					{
-						commits = new List<string>();
-						commitsByFile[commitFile.Name] = commits;
-					}
-
-					commits.Add(id.Substring(0, 6));
-				}
-			}
-			t2.Log($"File count {commitsByFile.Count}");
-
-			Timing t = new Timing();
-
-			List<string> lines = commitsByFile
-				.Select(cf => cf.Key + "|" + string.Join(";", cf.Value))
-				.ToList();
-
-			t.Log("Created lines");
-			string filePath = "c:\\temp\\commitfiles2.txt";
-			File.WriteAllLines(filePath, lines);
-			t.Log($"Wrote lines {lines.Count} to disk");
-
-
-			string[] readLines = File.ReadAllLines(filePath);
-			t.Log($"Read lines {readLines.Length} from disk");
-			var charArray1 = "|".ToCharArray();
-			var charArray2 = ";".ToCharArray();
-
-			Dictionary<string, IEnumerable<string>> filesById2 =
-				new Dictionary<string, IEnumerable<string>>();
-
-			readLines.ForEach(l =>
-			{
-				string[] keyValue = l.Split(charArray1);
-				string id = keyValue[0];
-				string[] files = keyValue[0].Split(charArray2);
-				filesById2[id] = files.Select(f => f).ToList();
-			});
-
-			t.Log($"Created filesById2 with {filesById2.Count} items");
-		}
 
 		private Task UpdateAsync(MRepository mRepository, IGitRepo gitRepo)
 		{

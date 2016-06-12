@@ -254,17 +254,20 @@ namespace GitMind
 		private async void ZoomableCanvas_Loaded(object sender, RoutedEventArgs e)
 		{
 			// Store the canvas in a local variable since x:Name doesn't work.
+			Timing t = new Timing();
 			canvas = (ZoomableCanvas)sender;
 
 			mainWindowViewModel.WorkingFolder =
 				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
-
+			t.Log("Got working folder");
 			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync();
 
 			mainWindowViewModel.Busy.Add(repositoryTask);
 
 			Repository repository = await repositoryTask;
+			t.Log("Got repository");
 			repositoryViewModel.Update(repository, specifiedBranchNames);
+			t.Log("Updated repositoryViewModel");
 
 			LoadedTime = DateTime.Now;
 

@@ -11,6 +11,8 @@ namespace GitMind.GitModel.Private
 	[DataContract]
 	public class MRepository
 	{
+		public static string CurrentVersion = "1";
+
 		public MRepository()
 		{
 			CommitList = new List<MCommit>();
@@ -24,7 +26,7 @@ namespace GitMind.GitModel.Private
 
 
 		[DataMember]
-		public string Version { get; set; } = "1";
+		public string Version { get; set; } = CurrentVersion;
 
 		[DataMember]
 		public DateTime Time { get; set; }
