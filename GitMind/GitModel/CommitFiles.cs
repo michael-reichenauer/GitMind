@@ -1,46 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GitMind.Utils;
 
 
 namespace GitMind.GitModel
 {
 	internal class CommitFiles
 	{
-		private readonly object syncRoot = new object();
-		private IDictionary<string, IEnumerable<CommitFile>> filesById;
+		private readonly Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask;
+		public static CommitFile[] InProgress =
+			{ new CommitFile("      Retrieving files, please retry in a while ... ", "M") };
 
 		public CommitFiles(Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
 		{
-			commitsFilesTask.ContinueWith(t =>
-			{
-				try
-				{
-					lock (syncRoot)
-					{
-						filesById = t.Result;
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Error($"Failed to get all commits files {e}");
-				}
-			})
-			.RunInBackground();
+			this.commitsFilesTask = commitsFilesTask;
 		}
 
 
-		public IEnumerable<CommitFile> this[string commitId] 
+		public IEnumerable<CommitFile> this[string commitId]
 		{
 			get
 			{
-				IDictionary<string, IEnumerable<CommitFile>> byId;
-				lock (syncRoot)
+				if (commitsFilesTask.Status != TaskStatus.RanToCompletion)
 				{
-					byId = filesById;
+					return InProgress;
 				}
+
+				IDictionary<string, IEnumerable<CommitFile>> byId = commitsFilesTask.Result;
 
 				IEnumerable<CommitFile> commitFiles;
 				if (byId == null || !byId.TryGetValue(commitId, out commitFiles))

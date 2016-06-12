@@ -225,7 +225,8 @@ namespace GitMind.CommitsHistory
 						|| Contains(c.Subject, filterText)
 						|| Contains(c.Author, filterText)
 						|| Contains(c.AuthorDateText, filterText)
-						|| c.Files.Any(f => Contains(f.Name, filterText))
+						|| c.Files != CommitFiles.InProgress 
+							&& c.Files.Any(f => Contains(f.Name, filterText))
 					)
 					.OrderByDescending(c => c.CommitDate)
 					.ToList();
