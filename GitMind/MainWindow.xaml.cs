@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -45,6 +46,8 @@ namespace GitMind
 
 		public MainWindow()
 		{
+			AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
+
 			ExceptionHandling.Init();
 
 			if (!IsStartProgram())
@@ -82,6 +85,32 @@ namespace GitMind
 
 			Activate();
 		}
+
+
+		static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+		{
+			Assembly executingAssembly = Assembly.GetExecutingAssembly();
+			string name = executingAssembly.FullName.Split(',')[0];
+			string resolveName = args.Name.Split(',')[0];
+			string resourceName = $"{name}.Dependencies.{resolveName}.dll";
+			Log.Warn($"Resolving {resolveName} from {resourceName} ...");
+
+			// Load the assembly from the resources
+			using (Stream stream = executingAssembly.GetManifestResourceStream(resourceName))
+			{
+				if (stream == null)
+				{
+					throw new InvalidOperationException("Failed to load assembly " + resolveName);
+				}
+
+				long bytestreamMaxLength = stream.Length;
+				byte[] buffer = new byte[bytestreamMaxLength];
+				stream.Read(buffer, 0, (int)bytestreamMaxLength);
+				Log.Warn($"Resolved {resolveName}");
+				return Assembly.Load(buffer);
+			}
+		}
+
 
 
 		private bool IsStartProgram()

@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.Utils;
+using Newtonsoft.Json;
+//using JsonSerializer = GitMind.Utils.JsonSerializer;
 
 
 namespace GitMind.GitModel.Private
@@ -16,7 +18,7 @@ namespace GitMind.GitModel.Private
 		private const int CurrentMajorVersion = 1;
 		private const int CurrentMinorVersion = 0;
 
-		private readonly JsonSerializer serializer = new JsonSerializer();
+		//private readonly JsonSerializer serializer = new JsonSerializer();
 		private readonly TaskThrottler TaskThrottler = new TaskThrottler(1);
 		private bool isUpdateing;
 
@@ -46,8 +48,8 @@ namespace GitMind.GitModel.Private
 				Log.Debug("Reading cached repository ...");
 				string cachePath = GetCachePath(null);
 				Timing t = new Timing();
-					
-				MRepository repository = Deserailize<MRepository>(cachePath);
+
+				MRepository repository = Deserialize<MRepository>(cachePath);
 				t.Log($"Read jason data for {repository.CommitList.Count} commits");
 
 				repository.CompleteDeserialization();
@@ -68,19 +70,19 @@ namespace GitMind.GitModel.Private
 			{
 				isUpdateing = true;
 
-				await TaskThrottler.Run(() =>Task.Run(() =>
-				{
-					string cachePath = GetCachePath(path);
-					Timing t = new Timing();
+				await TaskThrottler.Run(() => Task.Run(() =>
+				 {
+					 string cachePath = GetCachePath(path);
+					 Timing t = new Timing();
 
-					RepositoryDto repositoryDto = ToRepo(gitRepo);
+					 RepositoryDto repositoryDto = ToRepo(gitRepo);
 
-					t.Log("copied data");
+					 t.Log("copied data");
 
-					Serialize(cachePath, repositoryDto);
+					 Serialize(cachePath, repositoryDto);
 
-					t.Log("wrote jason data");
-				}));
+					 t.Log("wrote jason data");
+				 }));
 			}
 			finally
 			{
@@ -100,7 +102,7 @@ namespace GitMind.GitModel.Private
 					if (File.Exists(cachePath))
 					{
 						Timing t = new Timing();
-						RepositoryDto repositoryDto = Deserailize<RepositoryDto>(cachePath);
+						RepositoryDto repositoryDto = Deserialize<RepositoryDto>(cachePath);
 
 						t.Log("Read json data");
 
@@ -122,20 +124,26 @@ namespace GitMind.GitModel.Private
 
 		private void Serialize<T>(string cachePath, T data)
 		{
-			// string tempPath = cachePath + Guid.NewGuid();
-
-			using (Stream stream = File.Create(cachePath))
+			// string tempPath = cachePath + Guid.NewGuid();	
+			using (FileStream fs = File.Open(cachePath, FileMode.OpenOrCreate))
+			using (StreamWriter sw = new StreamWriter(fs))
+			using (JsonWriter jw = new JsonTextWriter(sw))
 			{
-				serializer.Serialize(data, stream);
+				jw.Formatting = Formatting.Indented;
+
+				JsonSerializer serializer = new JsonSerializer();
+				serializer.Serialize(jw, data);
 			}
 		}
 
 
-		private T Deserailize<T>(string cachePath)
+		private T Deserialize<T>(string cachePath)
 		{
-			using (Stream stream = File.OpenRead(cachePath))
+			using (StreamReader file = File.OpenText(cachePath))
 			{
-				return serializer.Deserialize<T>(stream);
+				JsonSerializer serializer = new JsonSerializer();
+				T deserialize = (T)serializer.Deserialize(file, typeof(T));
+				return deserialize;
 			}
 		}
 
@@ -230,7 +238,7 @@ namespace GitMind.GitModel.Private
 					b.Name,
 					b.LatestCommitId,
 					b.IsCurrent,
-					b.TrackingBranchName,			
+					b.TrackingBranchName,
 					b.IsRemote))
 				.ToList();
 		}

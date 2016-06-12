@@ -22,18 +22,22 @@ namespace GitMind.GitModel.Private
 			Branches = new KeyedList<string, MBranch>(b => b.Id);
 		}
 
+
+		[DataMember]
+		public string Version { get; set; } = "1";
+
 		[DataMember]
 		public DateTime Time { get; set; }
+		[DataMember]
+		public string CurrentCommitId { get; set; }
+		[DataMember]
+		public string CurrentBranchId { get; set; }
 		[DataMember]
 		public List<MCommit> CommitList { get; set; }
 		[DataMember]
 		public List<MSubBranch> SubBrancheList { get; set; }
 		[DataMember]
 		public List<MBranch> BrancheList { get; set; }
-		[DataMember]
-		public string CurrentCommitId { get; set; }
-		[DataMember]
-		public string CurrentBranchId { get; set; }
 
 
 		public KeyedList<string, MCommit> Commits;

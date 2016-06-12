@@ -6,7 +6,7 @@ using System.Text;
 
 namespace GitMind.Utils
 {
-	public class JsonSerializer
+	public class JsonSerializerX
 	{
 		private static readonly DataContractJsonSerializerSettings
 			Settings = new DataContractJsonSerializerSettings

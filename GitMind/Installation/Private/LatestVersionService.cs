@@ -16,7 +16,7 @@ namespace GitMind.Installation.Private
 			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
 		private static readonly string UserAgent = "GitMind";
 
-		private readonly JsonSerializer serializer = new JsonSerializer();
+		private readonly JsonSerializerX serializer = new JsonSerializerX();
 		private readonly ICmd cmd = new Cmd();
 
 
