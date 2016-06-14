@@ -62,7 +62,7 @@ namespace GitMind.CommitsHistory
 		public Repository Repository { get; private set; }
 
 		public ICommand ShowBranchCommand => Command<Branch>(ShowBranch);
-		public ICommand HideBranchCommand => Command<string>(HideBranch);
+		//public ICommand HideBranchCommand => Command<string>(HideBranch);
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
 
@@ -119,11 +119,6 @@ namespace GitMind.CommitsHistory
 			Commits.ForEach(commit => commit.WindowWidth = Width);
 
 			VirtualItemsSource.DataChanged(width);
-
-			if (Commits.Any())
-			{
-				SelectedIndex = Commits[0].VirtualId;
-			}
 
 			t.Log("Updated repository view model");
 		}
@@ -255,10 +250,10 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		private void HideBranch(string obj)
-		{
-			throw new System.NotImplementedException();
-		}
+		//private void HideBranch(string obj)
+		//{
+		//	throw new System.NotImplementedException();
+		//}
 
 
 		private void ToggleDetails()

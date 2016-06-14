@@ -9,7 +9,7 @@ namespace GitMind.GitModel
 	{
 		private readonly Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask;
 		public static CommitFile[] InProgress =
-			{ new CommitFile("      Retrieving files, please retry in a while ... ", "M") };
+			{ new CommitFile("", "      Retrieving files, please retry in a while ... ", "M") };
 
 		public CommitFiles(Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
 		{

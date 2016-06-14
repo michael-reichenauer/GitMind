@@ -305,31 +305,35 @@ namespace GitMind.GitModel.Private
 				await gitService.GetCommitsFilesAsync(null);
 			t.Log("Got commit files");
 
-			Dictionary<string, IEnumerable<CommitFile>> files =
+			var commitFiles = await Task.Run(() =>
+			{
+				Dictionary<string, IEnumerable<CommitFile>> files =
 				new Dictionary<string, IEnumerable<CommitFile>>();
 
-			if (gitCommitFilesList.IsFaulted)
-			{
-				Log.Warn($"Failed to get commits files {gitCommitFilesList.Error}");
+				if (gitCommitFilesList.IsFaulted)
+				{
+					Log.Warn($"Failed to get commits files {gitCommitFilesList.Error}");
+					return files;
+				}
+
+				foreach (GitCommitFiles gitCommitFiles in gitCommitFilesList.Value)
+				{
+					List<CommitFile> filesInCommit = gitCommitFiles.Files
+					.Select(f => ToCommitFile(gitCommitFiles.Id, f)).ToList();
+					files[gitCommitFiles.Id] = filesInCommit;
+				}
+
 				return files;
-			}
-
-			int fileCount = 0;
-			foreach (GitCommitFiles gitCommitFiles in gitCommitFilesList.Value)
-			{
-				List<CommitFile> filesInCommit = gitCommitFiles.Files.Select(ToCommitFile).ToList();
-				fileCount += filesInCommit.Count;
-				files[gitCommitFiles.Id] = filesInCommit;
-			}
-
-			t.Log($"Parsed commit files for {files.Count} commits with {fileCount} files");
-			return files;
+			});
+			
+			t.Log($"Parsed commit files for {commitFiles.Count} commits");
+			return commitFiles;
 		}
 
 
-		private static CommitFile ToCommitFile(GitFile gitFile)
+		private static CommitFile ToCommitFile(string id, GitFile gitFile)
 		{
-			return new CommitFile(gitFile.File, "?");
+			return new CommitFile(id, gitFile.File, "?");
 		}
 
 

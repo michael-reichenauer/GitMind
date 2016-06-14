@@ -17,19 +17,6 @@ namespace GitMind.CommitsHistory
 			Func<string, Task> showDiffAsync)
 		{
 			this.showDiffAsync = showDiffAsync;
-
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
-			Files.Add(new CommitFile("file.txt", "1"));
 		}
 
 		public OldCommit Commit { get; set; }

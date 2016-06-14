@@ -42,7 +42,7 @@ namespace GitMind
 		private ZoomableCanvas canvas;
 		private readonly MainWindowViewModel mainWindowViewModel;
 		private DateTime LoadedTime = DateTime.MaxValue;
-		private List<string> specifiedBranchNames = new List<string>();
+		private readonly List<string> specifiedBranchNames = new List<string>();
 
 		public MainWindow()
 		{

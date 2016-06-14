@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -10,6 +11,8 @@ namespace GitMind.CommitsHistory
 {
 	internal class CommitViewModel : ViewModel, IVirtualItem
 	{
+		private readonly IDiffService diffService = new DiffService();
+
 		private Commit commit;
 		private int windowWidth;
 
@@ -176,9 +179,9 @@ namespace GitMind.CommitsHistory
 		public Action HideBranch { get; set; }
 		
 
-		private void ShowDiffAsync()
+		private async void ShowDiffAsync()
 		{
-			//await showDiffAsync(Id);
+			await diffService.ShowDiffAsync(Id);
 		}
 	}
 }

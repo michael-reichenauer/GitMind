@@ -847,6 +847,8 @@
 						Style="{DynamicResource ListBoxScrollbarStyle}"		
 						HorizontalContentAlignment="Stretch"
 					>
+					
+						
 					<ListBox.ItemTemplate>
 						<DataTemplate DataType="{x:Type gitModel:CommitFile}">
 							<StackPanel Orientation="Horizontal">
@@ -854,6 +856,20 @@
 									Padding="0"
 									Content="{Binding Name}" 
 									Foreground="{StaticResource TextBrush}"/>
+								
+								<StackPanel.ContextMenu>
+									<ContextMenu 
+										Background="Transparent" 
+										Foreground="Lavender"
+										BorderBrush="DarkSlateBlue"
+										BorderThickness="0">
+
+										<MenuItem 
+											Header="Show Diff ..."
+											Command="{Binding ShowDiffCommand}"
+											CommandParameter="{Binding Id}"/>
+									</ContextMenu>
+								</StackPanel.ContextMenu>		
 							</StackPanel>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
