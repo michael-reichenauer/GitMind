@@ -268,6 +268,7 @@ namespace GitMind
 			t.Log("Got repository");
 			repositoryViewModel.Update(repository, specifiedBranchNames);
 			t.Log("Updated repositoryViewModel");
+			ItemsListBox.Focus();
 
 			LoadedTime = DateTime.Now;
 

@@ -123,14 +123,14 @@ namespace GitMind.CommitsHistory
 			if (Commits.Any())
 			{
 				// ### Does not yet work but deselects the first branch at least
-				SelectedItem = Commits[0];
+				SelectedIndex = Commits[0].VirtualId;
 			}
 
 			t.Log("Updated repository view model");
 		}
 
 
-		public object SelectedIndex
+		public int SelectedIndex
 		{
 			get { return Get(); }
 			set
