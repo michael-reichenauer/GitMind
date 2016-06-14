@@ -100,7 +100,7 @@ namespace GitMind.CommitsHistory
 		public double Width
 		{
 			get { return Get(); }
-			set { Set(value); }
+			set { Set(value - 2); }
 		}
 
 		public int GraphWidth

@@ -231,18 +231,18 @@ namespace GitMind
 
 		private async void SelectWorkingFolder()
 		{
-			var dialog = new System.Windows.Forms.FolderBrowserDialog();
+			var dialog = new FolderBrowserDialog();
 			dialog.Description = "Select a working folder.";
 			dialog.ShowNewFolderButton = false;
 			dialog.SelectedPath = Environment.CurrentDirectory;
-			if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+			if (dialog.ShowDialog() != DialogResult.OK)
 			{
 				return;
 			}
 
 			Environment.CurrentDirectory = dialog.SelectedPath;
 
-			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync();
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true);
 
 			Busy.Add(repositoryTask);
 

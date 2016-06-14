@@ -7,6 +7,6 @@ namespace GitMind.GitModel
 {
 	internal interface IRepositoryService
 	{
-		Task<Repository> GetRepositoryAsync();
+		Task<Repository> GetRepositoryAsync(bool useCache);
 	}
 }

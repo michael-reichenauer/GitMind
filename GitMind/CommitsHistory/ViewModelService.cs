@@ -255,7 +255,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		private void Update(
+		public void Update(
 			RepositoryViewModel repositoryViewModel, IReadOnlyList<Branch> specifiedBranches)
 		{
 			specifiedBranches.ForEach(branch => Log.Debug($"Update with {branch}"));
@@ -297,14 +297,27 @@ namespace GitMind.CommitsHistory
 			Branch masterBranch = GetMasterBranch(repositoryViewModel.Repository);
 			Branch[] masterBranches = { masterBranch };
 
+			List<Branch> branchesInRepo = new List<Branch>();
+			foreach (Branch branch in branches)
+			{
+				Branch branchInRepo = repositoryViewModel.Repository.Branches
+					.FirstOrDefault(b => b.Id == branch.Id);
+
+				if (branchInRepo != null)
+				{
+					branchesInRepo.Add(branchInRepo);
+				}
+			}
+
 			List<Branch> branchesWithParents = masterBranches.
-				Concat(branches
-					.Concat(branches.SelectMany(branch => branch.Parents())))
+				Concat(branchesInRepo
+					.Concat(branchesInRepo.SelectMany(branch => branch.Parents())))
 				.Distinct()
 				.ToList();
 
 			// Sort branches to make parent braches shown left of its child branches
 			Sorter.Sort(branchesWithParents, new BranchComparer());
+			branchesWithParents.ForEach(branch => Log.Debug($"Branches with parent with {branch}"));
 
 			return branchesWithParents;
 		}

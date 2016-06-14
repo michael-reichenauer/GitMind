@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Git;
@@ -28,11 +27,15 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task<Repository> GetRepositoryAsync()
+		public async Task<Repository> GetRepositoryAsync(bool useCache)
 		{
 			Timing t = new Timing();
-			MRepository mRepository = await cacheService.TryGetAsync();
-			t.Log("cacheService.TryGetAsync");
+			MRepository mRepository = null;
+			if (useCache)
+			{
+				mRepository = await cacheService.TryGetAsync();
+				t.Log("cacheService.TryGetAsync");
+			}
 
 			if (mRepository == null)
 			{
@@ -298,11 +301,11 @@ namespace GitMind.GitModel.Private
 		private async Task<IDictionary<string, IEnumerable<CommitFile>>> GetCommitsFilesAsync()
 		{
 			Timing t = new Timing();
-			R<IReadOnlyList<GitCommitFiles>> gitCommitFilesList = 
+			R<IReadOnlyList<GitCommitFiles>> gitCommitFilesList =
 				await gitService.GetCommitsFilesAsync(null);
 			t.Log("Got commit files");
 
-			Dictionary<string, IEnumerable<CommitFile>> files = 
+			Dictionary<string, IEnumerable<CommitFile>> files =
 				new Dictionary<string, IEnumerable<CommitFile>>();
 
 			if (gitCommitFilesList.IsFaulted)
@@ -445,12 +448,10 @@ namespace GitMind.GitModel.Private
 
 				foreach (var groupByBranch in groupedByParentCommitId)
 				{
-					string id = Guid.NewGuid().ToString();
 					MSubBranch subBranch = groupByBranch.First();
 					MBranch mBranch = new MBranch
 					{
 						Repository = subBranch.Repository,
-						Id = id,
 						Name = subBranch.Name,
 						IsMultiBranch = subBranch.IsMultiBranch,
 						IsActive = subBranch.IsActive,
@@ -458,8 +459,10 @@ namespace GitMind.GitModel.Private
 						ParentCommitId = subBranch.ParentCommitId
 					};
 
+					mBranch.Id = subBranch.Name + "-" + subBranch.ParentCommitId;
+
 					mBranch.SubBrancheIds.AddRange(groupByBranch.Select(b => b.Id));
-					mBranch.SubBranches.ForEach(b => b.BranchId = id);
+					mBranch.SubBranches.ForEach(b => b.BranchId = mBranch.Id);
 
 					mBranch.CommitIds.AddRange(
 						groupByBranch
@@ -479,7 +482,7 @@ namespace GitMind.GitModel.Private
 						Log.Error($"Commits belong to multiple branches {mBranch}");
 					}
 
-					mBranch.Commits.ForEach(c => c.BranchId = id);
+					mBranch.Commits.ForEach(c => c.BranchId = mBranch.Id);
 
 					mBranch.LatestCommitId = mBranch.Commits.Any()
 						? mBranch.Commits.First().Id : mBranch.ParentCommitId;

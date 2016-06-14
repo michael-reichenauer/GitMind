@@ -111,18 +111,35 @@ namespace GitMind.CommitsHistory
 			}
 		}
 
-		public void Update(Repository repository, IReadOnlyList<string> specifiedBranchNames)
+		public void Update(Repository repository, IReadOnlyList<Branch> specifiedBranch)
 		{
 			Timing t = new Timing();
 			Repository = repository;
-			viewModelService.Update(this, specifiedBranchNames);
-			Commits.ForEach(commit => commit.WindowWidth = Width - 2);
+			viewModelService.Update(this, specifiedBranch);
+			Commits.ForEach(commit => commit.WindowWidth = Width);
 
 			VirtualItemsSource.DataChanged(width);
 
 			if (Commits.Any())
 			{
-				// ### Does not yet work but deselects the first branch at least
+				SelectedIndex = Commits[0].VirtualId;
+			}
+
+			t.Log("Updated repository view model");
+		}
+
+
+		public void Update(Repository repository, IReadOnlyList<string> specifiedBranchNames)
+		{
+			Timing t = new Timing();
+			Repository = repository;
+			viewModelService.Update(this, specifiedBranchNames);
+			Commits.ForEach(commit => commit.WindowWidth = Width);
+
+			VirtualItemsSource.DataChanged(width);
+
+			if (Commits.Any())
+			{
 				SelectedIndex = Commits[0].VirtualId;
 			}
 
@@ -140,8 +157,6 @@ namespace GitMind.CommitsHistory
 				}
 			}
 		}
-
-
 
 
 		public object SelectedItem

@@ -57,6 +57,7 @@ namespace GitMind
 			}
 
 			InitializeComponent();
+			autoRefreshTime.Tick += FetchAndRefreshAsync;
 
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
@@ -260,7 +261,7 @@ namespace GitMind
 			mainWindowViewModel.WorkingFolder =
 				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 			t.Log("Got working folder");
-			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync();
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true);
 
 			mainWindowViewModel.Busy.Add(repositoryTask);
 
@@ -271,9 +272,8 @@ namespace GitMind
 			ItemsListBox.Focus();
 
 			LoadedTime = DateTime.Now;
-
-			autoRefreshTime.Tick += FetchAndRefreshAsync;
-			autoRefreshTime.Interval = TimeSpan.FromSeconds(2);
+		
+			autoRefreshTime.Interval = TimeSpan.FromSeconds(0);
 			autoRefreshTime.Start();
 		}
 
@@ -317,7 +317,14 @@ namespace GitMind
 
 		private async Task RefreshInternalAsync(bool isShift)
 		{
-			await refreshService.UpdateStatusAsync();
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(false);
+
+			mainWindowViewModel.Busy.Add(repositoryTask);
+
+			Repository repository = await repositoryTask;
+			repositoryViewModel.Update(repository, repositoryViewModel.SpecifiedBranches);
+
+			//await refreshService.UpdateStatusAsync();
 			//await historyViewModel.RefreshAsync(isShift);
 		}
 

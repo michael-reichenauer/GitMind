@@ -11,5 +11,9 @@ namespace GitMind.CommitsHistory
 		int ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit);
 		Task SetFilterAsync(RepositoryViewModel repositoryViewModel);
 		void ShowBranch(RepositoryViewModel repositoryViewModel, Branch branch);
+
+
+		void Update(
+			RepositoryViewModel repositoryViewModel, IReadOnlyList<Branch> specifiedBranches);
 	}
 }
