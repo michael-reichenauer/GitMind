@@ -24,6 +24,8 @@ namespace GitMind.GitModel.Private
 
 		public async Task<MRepository> TryGetAsync()
 		{
+			//await Task.Yield();
+			//return null;
 			MRepository repository = await TryReadRepositoryAsync();
 			if (repository != null)
 			{

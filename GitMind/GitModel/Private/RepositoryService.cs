@@ -118,29 +118,21 @@ namespace GitMind.GitModel.Private
 
 		private void SetAheadBehind(MRepository repository)
 		{
-			var branches = repository.SubBranches.Where(b => b.IsActive)
-				.GroupBy(b => b.BranchId)
-				.Where(g => g.Count() == 2 && g.Any(b => !b.IsRemote) && g.Any(b => b.IsRemote));
+			//var branches = repository.SubBranches.Where(b => b.IsActive)
+			//	.GroupBy(b => b.BranchId)
+			//	.Where(g => g.Count() == 2 && g.Any(b => !b.IsRemote) && g.Any(b => b.IsRemote));
 
-			foreach (var branchGroup in branches)
+			Timing t = new Timing();
+			var localBranches = repository.SubBranches.Where(b => b.IsActive && !b.IsRemote);
+			localBranches.ForEach(branch => MarkIsLocalAhead(branch.LatestCommit));
+			t.Log("Local commits");
+
+			var remoteBranches = repository.SubBranches.Where(b => b.IsActive && b.IsRemote);
+			remoteBranches.ForEach(branch => MarkIsRemoteAhead(branch.LatestCommit));
+			t.Log("Remote commits");
+
+			foreach (MBranch branch in repository.Branches)
 			{
-				MBranch branch = repository.Branches[branchGroup.Key];
-				MSubBranch localBranch = branchGroup.First(b => !b.IsRemote);
-				MSubBranch remoteBranch = branchGroup.First(b => b.IsRemote);
-
-				SetAheadBehindCommits(branch, localBranch, remoteBranch);
-			}
-		}
-
-
-		private void SetAheadBehindCommits(
-			MBranch branch, MSubBranch localBranch, MSubBranch remoteBranch)
-		{
-			if (localBranch.LatestCommitId != remoteBranch.LatestCommitId)
-			{
-				MarkIsLocalAhead(localBranch.LatestCommit, branch.Id);
-				MarkIsRemoteAhead(remoteBranch.LatestCommit, branch.Id);
-
 				int localAheadCount = 0;
 				int remoteAheadCount = 0;
 				foreach (MCommit commit in branch.Commits)
@@ -159,30 +151,32 @@ namespace GitMind.GitModel.Private
 				branch.RemoteAheadCount = remoteAheadCount;
 			}
 
+			t.Log("Summery of local and remote commits");
 		}
 
-		private void MarkIsLocalAhead(MCommit commit, string branchId)
+
+		private void MarkIsLocalAhead(MCommit commit)
 		{
-			if (!commit.IsLocalAheadMarker && commit.BranchId == branchId)
+			if (!commit.IsLocalAheadMarker)
 			{
 				commit.IsLocalAheadMarker = true;
 
 				foreach (MCommit parent in commit.Parents)
 				{
-					MarkIsLocalAhead(parent, branchId);
+					MarkIsLocalAhead(parent);
 				}
 			}
 		}
 
-		private void MarkIsRemoteAhead(MCommit commit, string branchId)
+		private void MarkIsRemoteAhead(MCommit commit)
 		{
-			if (!commit.IsRemoteAheadMarker && commit.BranchId == branchId)
+			if (!commit.IsRemoteAheadMarker)
 			{
 				commit.IsRemoteAheadMarker = true;
 
 				foreach (MCommit parent in commit.Parents)
 				{
-					MarkIsRemoteAhead(parent, branchId);
+					MarkIsRemoteAhead(parent);
 				}
 			}
 		}

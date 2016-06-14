@@ -91,7 +91,7 @@ namespace GitMind.CommitsHistory
 				if (width != value)
 				{
 					width = value;
-					Commits.ForEach(commit => commit.WindowWidth = width);
+					Commits.ForEach(commit => commit.WindowWidth = width - 2);
 					VirtualItemsSource.DataChanged(width);
 				}
 			}
@@ -116,7 +116,7 @@ namespace GitMind.CommitsHistory
 			Timing t = new Timing();
 			Repository = repository;
 			viewModelService.Update(this, specifiedBranchNames);
-			Commits.ForEach(commit => commit.WindowWidth = Width);
+			Commits.ForEach(commit => commit.WindowWidth = Width - 2);
 
 			VirtualItemsSource.DataChanged(width);
 

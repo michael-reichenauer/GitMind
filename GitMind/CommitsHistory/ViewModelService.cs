@@ -438,7 +438,18 @@ namespace GitMind.CommitsHistory
 		private string GetBranchToolTip(BranchViewModel branch)
 		{
 			string name = branch.Branch.IsMultiBranch ? "MultiBranch" : branch.Branch.Name;
-			return $"Branch: {name}";
+			string toolTip = $"Branch: {name}";
+
+			if (branch.Branch.LocalAheadCount > 0)
+			{
+				toolTip += $"\nAhead: {branch.Branch.LocalAheadCount}";
+			}
+			if (branch.Branch.RemoteAheadCount > 0)
+			{
+				toolTip += $"\nBehind: {branch.Branch.RemoteAheadCount}";
+			}
+
+			return toolTip;
 		}
 
 
@@ -591,14 +602,16 @@ namespace GitMind.CommitsHistory
 		{
 			string name = commit.Branch.IsMultiBranch ? "MultiBranch" : commit.Branch.Name;
 			string toolTip = $"Commit id: {commit.ShortId}\nBranch: {name}";
-			//if (commit.Branch.LocalAheadCount > 0)
-			//{
-			//	toolTip += $"\nAhead: {commit.Branch.LocalAheadCount}";
-			//}
-			//if (commit.Branch.RemoteAheadCount > 0)
-			//{
-			//	toolTip += $"\nBehind: {commit.Branch.RemoteAheadCount}";
-			//}
+
+			if (commit.Branch.LocalAheadCount > 0)
+			{
+				toolTip += $"\nAhead: {commit.Branch.LocalAheadCount}";
+			}
+			if (commit.Branch.RemoteAheadCount > 0)
+			{
+				toolTip += $"\nBehind: {commit.Branch.RemoteAheadCount}";
+			}
+
 			return toolTip;
 		}
 
