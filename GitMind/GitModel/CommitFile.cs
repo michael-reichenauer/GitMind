@@ -19,4 +19,4 @@ namespace GitMind.GitModel
 			Status = status;
 		}
 	}
-}
+}	

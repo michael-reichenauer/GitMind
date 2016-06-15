@@ -30,6 +30,8 @@ namespace GitMind.GitModel.Private
 		public int LocalAheadCount { get; set; }
 		[DataMember]
 		public int RemoteAheadCount { get; set; }
+		[DataMember]
+		public bool IsLocalAndRemote { get; set; }
 
 		[DataMember]
 		public List<string> SubBrancheIds { get; set; } = new List<string>();
@@ -51,6 +53,7 @@ namespace GitMind.GitModel.Private
 		public MCommit LatestCommit => Repository.Commits[LatestCommitId];
 		public MCommit ParentCommit => Repository.Commits[ParentCommitId];
 		public MBranch ParentBranch => Repository.Branches[ParentBranchId];
+
 
 		public override string ToString() => $"{Name}";
 	}

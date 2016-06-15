@@ -121,9 +121,12 @@ namespace GitMind.GitModel.Private
 
 		private void SetAheadBehind(MRepository repository)
 		{
-			//var branches = repository.SubBranches.Where(b => b.IsActive)
-			//	.GroupBy(b => b.BranchId)
-			//	.Where(g => g.Count() == 2 && g.Any(b => !b.IsRemote) && g.Any(b => b.IsRemote));
+			var bothLocalAndRemotebranches = repository.SubBranches.Where(b => b.IsActive)
+				.GroupBy(b => b.BranchId)
+				.Where(g => g.Count() == 2 && g.Any(b => !b.IsRemote) && g.Any(b => b.IsRemote))
+				.Select(g => repository.Branches.First(b => b.Id == g.Key));
+
+			bothLocalAndRemotebranches.ForEach(b => b.IsLocalAndRemote = true);
 
 			Timing t = new Timing();
 			var localBranches = repository.SubBranches.Where(b => b.IsActive && !b.IsRemote);
@@ -300,34 +303,37 @@ namespace GitMind.GitModel.Private
 
 		private async Task<IDictionary<string, IEnumerable<CommitFile>>> GetCommitsFilesAsync()
 		{
-			Timing t = new Timing();
-			R<IReadOnlyList<GitCommitFiles>> gitCommitFilesList =
-				await gitService.GetCommitsFilesAsync(null);
-			t.Log("Got commit files");
+			await Task.Yield();
+			return new Dictionary<string, IEnumerable<CommitFile>>();
 
-			var commitFiles = await Task.Run(() =>
-			{
-				Dictionary<string, IEnumerable<CommitFile>> files =
-				new Dictionary<string, IEnumerable<CommitFile>>();
+			//Timing t = new Timing();
+			//R<IReadOnlyList<GitCommitFiles>> gitCommitFilesList =
+			//	await gitService.GetCommitsFilesAsync(null);
+			//t.Log("Got commit files");
 
-				if (gitCommitFilesList.IsFaulted)
-				{
-					Log.Warn($"Failed to get commits files {gitCommitFilesList.Error}");
-					return files;
-				}
+			//var commitFiles = await Task.Run(() =>
+			//{
+			//	Dictionary<string, IEnumerable<CommitFile>> files =
+			//	new Dictionary<string, IEnumerable<CommitFile>>();
 
-				foreach (GitCommitFiles gitCommitFiles in gitCommitFilesList.Value)
-				{
-					List<CommitFile> filesInCommit = gitCommitFiles.Files
-					.Select(f => ToCommitFile(gitCommitFiles.Id, f)).ToList();
-					files[gitCommitFiles.Id] = filesInCommit;
-				}
+			//	if (gitCommitFilesList.IsFaulted)
+			//	{
+			//		Log.Warn($"Failed to get commits files {gitCommitFilesList.Error}");
+			//		return files;
+			//	}
 
-				return files;
-			});
-			
-			t.Log($"Parsed commit files for {commitFiles.Count} commits");
-			return commitFiles;
+			//	foreach (GitCommitFiles gitCommitFiles in gitCommitFilesList.Value)
+			//	{
+			//		List<CommitFile> filesInCommit = gitCommitFiles.Files
+			//		.Select(f => ToCommitFile(gitCommitFiles.Id, f)).ToList();
+			//		files[gitCommitFiles.Id] = filesInCommit;
+			//	}
+
+			//	return files;
+			//});
+
+			//t.Log($"Parsed commit files for {commitFiles.Count} commits");
+			//return commitFiles;
 		}
 
 

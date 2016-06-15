@@ -65,7 +65,7 @@ namespace GitMind.GitModel.Private
 		public IEnumerable<MCommit> Parents => ParentIds.Select(id => Repository.Commits[id]);
 		public IEnumerable<MCommit> Children => ChildIds.Select(id => Repository.Commits[id]);
 		public IEnumerable<MCommit> FirstChildren => FirstChildIds.Select(id => Repository.Commits[id]);
-
+		public MBranch Branch => Repository.Branches[BranchId];
 
 		//public string BranchName
 		//{
@@ -96,8 +96,8 @@ namespace GitMind.GitModel.Private
 		public MCommit FirstParent => ParentIds.Count > 0 ? Repository.Commits[ParentIds[0]] : null;
 		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
 		public MCommit SecondParent => ParentIds.Count > 1 ? Repository.Commits[ParentIds[1]] : null;
-		public bool IsLocalAhead => IsLocalAheadMarker && !IsSynced;
-		public bool IsRemoteAhead => IsRemoteAheadMarker && !IsSynced;
+		public bool IsLocalAhead => Branch.IsLocalAndRemote && IsLocalAheadMarker && !IsSynced;
+		public bool IsRemoteAhead => Branch.IsLocalAndRemote && IsRemoteAheadMarker && !IsSynced;
 		public bool IsSynced => IsLocalAheadMarker && IsRemoteAheadMarker;
 
 		public IEnumerable<MCommit> FirstAncestors()
