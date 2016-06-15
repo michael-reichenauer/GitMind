@@ -45,6 +45,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
@@ -253,10 +257,13 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Dependencies\protobuf-net.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>copy /Y /B "$(SolutionDir)packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll" "$(ProjectDir)\Dependencies\Newtonsoft.Json.dll"</PreBuildEvent>
+    <PreBuildEvent>copy /Y /B "$(SolutionDir)packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll" "$(ProjectDir)\Dependencies\Newtonsoft.Json.dll"
+copy /Y /B "$(SolutionDir)packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll" "$(ProjectDir)\Dependencies\protobuf-net.dll"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

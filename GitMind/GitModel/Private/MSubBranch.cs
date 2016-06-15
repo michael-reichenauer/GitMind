@@ -1,30 +1,31 @@
 using System.Runtime.Serialization;
+using ProtoBuf;
 
 
 namespace GitMind.GitModel.Private
 {
-	[DataContract]
+	[DataContract, ProtoContract]
 	public class MSubBranch
 	{
-		[DataMember]
+		[DataMember, ProtoMember(1)]
 		public string Id { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(2)]
 		public string BranchId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(3)]
 		public string Name { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(4)]
 		public string LatestCommitId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(5)]
 		public string FirstCommitId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(6)]
 		public string ParentCommitId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(7)]
 		public bool IsMultiBranch { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(8)]
 		public bool IsActive { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(9)]
 		public bool IsAnonymous { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(10)]
 		public bool IsRemote { get; set; }
 
 

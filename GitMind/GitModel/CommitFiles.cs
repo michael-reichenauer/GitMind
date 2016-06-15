@@ -7,11 +7,11 @@ namespace GitMind.GitModel
 {
 	internal class CommitFiles
 	{
-		private readonly Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask;
+		private readonly Task<IDictionary<string, IList<CommitFile>>> commitsFilesTask;
 		public static CommitFile[] InProgress =
 			{ new CommitFile("", "      Retrieving files, please retry in a while ... ", "M") };
 
-		public CommitFiles(Task<IDictionary<string, IEnumerable<CommitFile>>> commitsFilesTask)
+		public CommitFiles(Task<IDictionary<string, IList<CommitFile>>> commitsFilesTask)
 		{
 			this.commitsFilesTask = commitsFilesTask;
 		}
@@ -26,9 +26,9 @@ namespace GitMind.GitModel
 					return InProgress;
 				}
 
-				IDictionary<string, IEnumerable<CommitFile>> byId = commitsFilesTask.Result;
+				IDictionary<string, IList<CommitFile>> byId = commitsFilesTask.Result;
 
-				IEnumerable<CommitFile> commitFiles;
+				IList<CommitFile> commitFiles;
 				if (byId == null || !byId.TryGetValue(commitId, out commitFiles))
 				{
 					return Enumerable.Empty<CommitFile>();

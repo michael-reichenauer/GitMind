@@ -4,11 +4,12 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using GitMind.Utils;
+using ProtoBuf;
 
 
 namespace GitMind.GitModel.Private
 {
-	[DataContract]
+	[DataContract, ProtoContract]
 	public class MRepository
 	{
 		public static string CurrentVersion = "2";
@@ -25,20 +26,20 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		[DataMember]
+		[DataMember, ProtoMember(1)]
 		public string Version { get; set; } = CurrentVersion;
 
-		[DataMember]
+		[DataMember, ProtoMember(2)]
 		public DateTime Time { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(3)]
 		public string CurrentCommitId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(4)]
 		public string CurrentBranchId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(5)]
 		public List<MCommit> CommitList { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(6)]
 		public List<MSubBranch> SubBrancheList { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(7)]
 		public List<MBranch> BrancheList { get; set; }
 
 
@@ -46,7 +47,7 @@ namespace GitMind.GitModel.Private
 		public KeyedList<string, MSubBranch> SubBranches;
 		public KeyedList<string, MBranch> Branches;
 
-		internal Task<IDictionary<string, IEnumerable<CommitFile>>> CommitsFilesTask { get; set; }
+		internal Task<IDictionary<string, IList<CommitFile>>> CommitsFilesTask { get; set; }
 
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];

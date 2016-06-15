@@ -1,43 +1,44 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using ProtoBuf;
 
 
 namespace GitMind.GitModel.Private
 {
-	[DataContract]
+	[DataContract, ProtoContract]
 	public class MBranch
 	{
-		[DataMember]
+		[DataMember, ProtoMember(1)]
 		public string Id { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(2)]
 		public string Name { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(3)]
 		public string LatestCommitId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(4)]
 		public string FirstCommitId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(5)]
 		public string ParentCommitId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(6)]
 		public string ParentBranchId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(7)]
 		public bool IsMultiBranch { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(8)]
 		public bool IsActive { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(9)]
 		public bool IsAnonymous { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(10)]
 		public int LocalAheadCount { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(11)]
 		public int RemoteAheadCount { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(12)]
 		public bool IsLocalAndRemote { get; set; }
 
-		[DataMember]
+		[DataMember, ProtoMember(13)]
 		public List<string> SubBrancheIds { get; set; } = new List<string>();
-		[DataMember]
+		[DataMember, ProtoMember(14)]
 		public List<string> CommitIds { get; set; } = new List<string>();
-		[DataMember]
+		[DataMember, ProtoMember(15)]
 		public List<string> ChildBrancheIds { get; set; } = new List<string>();
 
 		public MRepository Repository { get; set; }

@@ -209,7 +209,8 @@ namespace GitMind
 			{
 				autoRefreshTime.Interval = TimeSpan.FromMinutes(10);
 
-				await RefreshAsync(true);
+				await Task.Yield();
+				//await RefreshAsync(true);
 			}
 			catch (Exception ex) when (ex.IsNotFatal())
 			{
@@ -273,7 +274,7 @@ namespace GitMind
 
 			LoadedTime = DateTime.Now;
 		
-			autoRefreshTime.Interval = TimeSpan.FromSeconds(0);
+			autoRefreshTime.Interval = TimeSpan.FromMilliseconds(300);
 			autoRefreshTime.Start();
 		}
 

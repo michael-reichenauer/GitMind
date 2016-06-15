@@ -1,16 +1,24 @@
-using GitMind.CommitsHistory;
-using GitMind.Utils.UI;
+using ProtoBuf;
 
 
 namespace GitMind.GitModel
 {
-	internal class CommitFile
+	[ProtoContract]
+	public class CommitFile
 	{
 		//private readonly IDiffService diffService = new DiffService();
 
-		public string Id { get; }
-		public string Name { get; }
-		public string Status { get; }
+		[ProtoMember(1)]
+		public string Id { get; set; }
+		[ProtoMember(2)]
+		public string Name { get; set; }
+		[ProtoMember(3)]
+		public string Status { get; set; }
+
+
+		public CommitFile()
+		{		
+		}
 
 		public CommitFile(string id, string name, string status)
 		{
@@ -19,4 +27,4 @@ namespace GitMind.GitModel
 			Status = status;
 		}
 	}
-}	
+}

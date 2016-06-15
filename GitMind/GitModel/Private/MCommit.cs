@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using ProtoBuf;
 
 
 namespace GitMind.GitModel.Private
 {
-	[DataContract]
+	[DataContract, ProtoContract]
 	public class MCommit
 	{
 		public MCommit()
@@ -16,47 +17,47 @@ namespace GitMind.GitModel.Private
 			FirstChildIds = new List<string>();
 		}
 
-		[DataMember]
+		[DataMember, ProtoMember(1)]
 		public string Id { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(2)]
 		public string BranchId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(3)]
 		public string ShortId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(4)]
 		public string Subject { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(5)]
 		public string Author { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(6)]
 		public DateTime AuthorDate { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(7)]
 		public DateTime CommitDate { get; set; }
 
-		[DataMember]
+		[DataMember, ProtoMember(8)]
 		public List<string> ParentIds { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(9)]
 		public List<string> ChildIds { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(10)]
 		public List<string> FirstChildIds { get; set; } 
 
-		[DataMember]
-		public string BranchName { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(11)]
+		public string BranchXName { get; set; }
+		[DataMember, ProtoMember(12)]
 		public string BranchNameSpecified { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(13)]
 		public string BranchNameFromSubject { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(14)]
 		public string MergeSourceBranchNameFromSubject { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(15)]
 		public string MergeTargetBranchNameFromSubject { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(16)]
 		public string SubBranchId { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(17)]
 		public bool IsLocalAheadMarker { get; set; }
-		[DataMember]
+		[DataMember, ProtoMember(18)]
 		public bool IsRemoteAheadMarker { get; set; }
 
 
-		public bool HasBranchName => !string.IsNullOrEmpty(BranchName);
+		public bool HasBranchName => !string.IsNullOrEmpty(BranchXName);
 		public bool HasFirstParent => ParentIds.Count > 0;
 		public bool HasSecondParent => ParentIds.Count > 1;
 		public bool HasSingleFirstChild => ChildIds.Count == 1;
