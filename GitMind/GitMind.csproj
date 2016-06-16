@@ -105,6 +105,7 @@
     <Compile Include="GitModel\IRepositoryService.cs" />
     <Compile Include="GitModel\Private\MBranch.cs" />
     <Compile Include="GitModel\Private\MCommit.cs" />
+    <Compile Include="GitModel\Private\MCommitFiles.cs" />
     <Compile Include="GitModel\Private\MSubBranch.cs" />
     <Compile Include="GitModel\Repository.cs" />
     <Compile Include="GitModel\Tag.cs" />
