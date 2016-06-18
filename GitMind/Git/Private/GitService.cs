@@ -133,14 +133,17 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(string path)
+		public async Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(
+			string path, DateTime? dateTime, int max, int skip)
 		{
-			Log.Debug("Getting all commits files ...");
-			string args = "log --all --name-status -m --pretty=\"%H\"";
 
-			Timing t = new Timing();
+			string args = $"log --all --name-status -m --pretty=\"%H\" --max-count={max} --skip={skip}";
+			if (dateTime.HasValue)
+			{
+				args += " --since=\"" + dateTime.Value.ToString("o") + "\"";
+			}
+
 			R<IReadOnlyList<string>> logResult = await GitAsync(path, args);
-			t.Log("Get commits files");
 
 			if (logResult.IsFaulted) return logResult.Error;
 
@@ -179,7 +182,6 @@ namespace GitMind.Git.Private
 				}
 			}
 
-			t.Log("Parsing all commits files");
 			return commitsFiles;
 		}
 

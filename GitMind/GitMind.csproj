@@ -96,7 +96,7 @@
     <Compile Include="DataModel\Old\BranchNameComparer.cs" />
     <Compile Include="GitModel\Branch.cs" />
     <Compile Include="GitModel\Commit.cs" />
-    <Compile Include="GitModel\CommitFiles.cs" />
+    <Compile Include="GitModel\CommitsFiles.cs" />
     <Compile Include="GitModel\Private\BranchNameParser.cs" />
     <Compile Include="DataModel\Old\BranchPriority.cs" />
     <Compile Include="DataModel\Old\OldCommit.cs" />

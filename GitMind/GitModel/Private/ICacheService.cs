@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
@@ -7,5 +8,6 @@ namespace GitMind.GitModel.Private
 	{
 		Task CacheAsync(MRepository repository);
 		Task<MRepository> TryGetAsync();
+		Task CacheCommitFilesAsync(List<CommitFiles> commitsFilesTask);
 	}
 }

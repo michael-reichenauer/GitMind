@@ -10,14 +10,18 @@ namespace GitMind.GitModel.Private
 {
 	internal class CacheService : ICacheService
 	{
-		private readonly TaskThrottler TaskThrottler = new TaskThrottler(10);
+		private readonly TaskThrottler TaskThrottler = new TaskThrottler(1);
 
 
 		public async Task CacheAsync(MRepository repository)
 		{
 			await WriteRepository(repository);
+		}
 
-			await WriteCommitFilesAsync(repository);
+
+		public async Task CacheCommitFilesAsync(List<CommitFiles> commitsFiles)
+		{
+			await WriteCommitFilesAsync(commitsFiles);
 		}
 
 
@@ -28,7 +32,8 @@ namespace GitMind.GitModel.Private
 			MRepository repository = await TryReadRepositoryAsync();
 			if (repository != null)
 			{
-				repository.CommitsFilesTask = ReadCommitFilesAsync();
+				repository.CommitsFiles = new CommitsFiles();
+				ReadCommitFilesAsync(repository.CommitsFiles).RunInBackground();
 			}
 
 			return repository;
@@ -51,20 +56,17 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async Task WriteCommitFilesAsync(MRepository repository)
+		private async Task WriteCommitFilesAsync(IReadOnlyList<CommitFiles> commitsFiles)
 		{
-			MCommitFiles commitFiles = new MCommitFiles();
-			commitFiles.CommitsFiles = await repository.CommitsFilesTask;
-
 			await TaskThrottler.Run(() => Task.Run(() =>
 			{
 				Log.Debug("Caching commit files  ...");
 				string cachePath = GetCachePath(null) + ".files";
 				Timing t = new Timing();
 
-				Serialize(cachePath, commitFiles);
+				SerializeCommitsFiles(cachePath, commitsFiles);
 
-				t.Log($"Wrote commit files for {commitFiles.CommitsFiles.Count} commits");
+				t.Log($"Wrote commit files for {commitsFiles.Count} commits");
 			}));
 		}
 
@@ -99,31 +101,17 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task<IDictionary<string, IList<CommitFile>>> ReadCommitFilesAsync()
+		public async Task ReadCommitFilesAsync(CommitsFiles commitsFiles)
 		{
-			return await TaskThrottler.Run(() => Task.Run(() =>
+			await TaskThrottler.Run(() => Task.Run(() =>
 			{
 				Log.Debug("Reading cached commit files ...");
 				string cachePath = GetCachePath(null) + ".files";
 				Timing t = new Timing();
 
-				MCommitFiles commitsFiles = Deserialize<MCommitFiles>(cachePath);
-				if (commitsFiles == null)
-				{
-					Log.Debug("No cached commitsFiles");
-					return new Dictionary<string, IList<CommitFile>>();
-				}
-
-				if (commitsFiles.Version != MRepository.CurrentVersion)
-				{
-					Log.Warn(
-						$"Cached version differs {commitsFiles.Version} != Current {MRepository.CurrentVersion}");
-					return new Dictionary<string, IList<CommitFile>>();
-				}
-
-				t.Log($"Read commits file for {commitsFiles.CommitsFiles.Count} commits");
-
-				return commitsFiles.CommitsFiles;
+				DeserializeCommitsFiles(cachePath, commitsFiles);
+			
+				t.Log($"Read commits file for {commitsFiles.Count} commits");
 			}));
 		}
 
@@ -153,7 +141,18 @@ namespace GitMind.GitModel.Private
 					File.Delete(tempPath2);
 				}
 			}).RunInBackground();
+		}
 
+
+		private void SerializeCommitsFiles(string cachePath, IReadOnlyList<CommitFiles> commitsFiles)
+		{
+			using (var file = File.Open(cachePath, FileMode.Append))
+			{
+				foreach (CommitFiles commitFiles in commitsFiles)
+				{
+					Serializer.SerializeWithLengthPrefix(file, commitFiles, PrefixStyle.Fixed32);
+				}
+			}
 		}
 
 
@@ -179,6 +178,38 @@ namespace GitMind.GitModel.Private
 			}	
 		}
 
+
+		private void DeserializeCommitsFiles(string cachePath, CommitsFiles commitsFiles)
+		{
+			try
+			{
+				if (!File.Exists(cachePath))
+				{
+					Log.Debug("No commits files cache");
+					return;
+				}
+
+				using (var file = File.OpenRead(cachePath))
+				{
+					while (true)
+					{
+						CommitFiles commitFiles = Serializer.DeserializeWithLengthPrefix<CommitFiles>(
+							file, PrefixStyle.Fixed32);
+						if (commitFiles == null)
+						{
+							return;
+						}
+
+						commitsFiles.Add(commitFiles);
+					}			
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to read cache {e}");
+				return;
+			}
+		}
 
 
 		private static string GetCachePath(string path)

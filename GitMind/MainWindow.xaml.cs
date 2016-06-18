@@ -209,8 +209,8 @@ namespace GitMind
 			{
 				autoRefreshTime.Interval = TimeSpan.FromMinutes(10);
 
-				await Task.Yield();
-				//await RefreshAsync(true);
+				//await Task.Yield();
+				await RefreshAsync(true);
 			}
 			catch (Exception ex) when (ex.IsNotFatal())
 			{
@@ -311,6 +311,8 @@ namespace GitMind
 
 		private async Task RefreshAsync(bool isShift)
 		{
+			//await Task.Yield();
+			//return;
 			Task refreshTask = RefreshInternalAsync(isShift);
 			mainWindowViewModel.Busy.Add(refreshTask);
 			await refreshTask;
@@ -318,7 +320,8 @@ namespace GitMind
 
 		private async Task RefreshInternalAsync(bool isShift)
 		{
-			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(false);
+			Task<Repository> repositoryTask = repositoryService.UpdateRepositoryAsync(
+				repositoryViewModel.Repository);
 
 			mainWindowViewModel.Busy.Add(repositoryTask);
 

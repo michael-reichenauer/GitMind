@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GitMind.Git.Private;
@@ -22,6 +23,8 @@ namespace GitMind.Git
 		Task<R<CommitDiff>> GetCommitDiffAsync(string commitId);
 
 		Task<R<GitStatus>> GetStatusAsync(string path);
-		Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(string path);
+
+		Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(
+			string path, DateTime? dateTime, int max, int skip);
 	}
 }

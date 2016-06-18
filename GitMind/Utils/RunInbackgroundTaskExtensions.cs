@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 
@@ -16,7 +17,7 @@ namespace GitMind.Utils
 
 		private static void LogFailedTask(Task task)
 		{
-			Asserter.FailFast($"RunInBackground task failed: {task.Exception?.InnerExceptions}");			
+			Asserter.FailFast($"RunInBackground task failed: {task.Exception}");
 		}
 	}
 }

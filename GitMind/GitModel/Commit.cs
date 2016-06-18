@@ -58,7 +58,7 @@ namespace GitMind.GitModel
 		public IEnumerable<Commit> Children => childIds.Select(id => repository.Commits[id]);
 		public Branch Branch => repository.Branches[branchId];
 		public bool IsMergePoint => parentIds.Count > 1;
-		public IEnumerable<CommitFile> Files => repository.CommitFiles[Id];
+		public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
 
 		public override string ToString() => $"{ShortId} {Subject} {CommitDate}";
 	}

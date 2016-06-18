@@ -47,7 +47,7 @@ namespace GitMind.GitModel.Private
 		public KeyedList<string, MSubBranch> SubBranches;
 		public KeyedList<string, MBranch> Branches;
 
-		internal Task<IDictionary<string, IList<CommitFile>>> CommitsFilesTask { get; set; }
+		internal CommitsFiles CommitsFiles { get; set; }
 
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];

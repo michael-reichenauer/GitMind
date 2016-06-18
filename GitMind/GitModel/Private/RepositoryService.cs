@@ -42,19 +42,48 @@ namespace GitMind.GitModel.Private
 				Log.Debug("No cached repository");
 				mRepository = new MRepository();
 				mRepository.Time = DateTime.Now;
-				mRepository.CommitsFilesTask = GetCommitsFilesAsync();
+				mRepository.CommitsFiles = new CommitsFiles();
+
+				AddCommitsFilesAsync(mRepository.CommitsFiles, null).RunInBackground();
 
 				R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
 				t.Log("Got gitRepo");
 				await UpdateAsync(mRepository, gitRepo.Value);
 				t.Log("Updated mRepository");
-				cacheService.CacheAsync(mRepository).RunInBackground();
+				cacheService.CacheAsync(mRepository).RunInBackground();				
 			}
 
 			Repository repository = ToRepository(mRepository);
 			t.Log($"Created repository: {repository.Branches.Count} commits: {repository.Commits.Count}");
 
 			return repository;
+		}
+
+
+		public async Task<Repository> UpdateRepositoryAsync(Repository repository)
+		{
+			Log.Debug($"Updating repository from time: {repository.Time}");
+
+			AddCommitsFilesAsync(repository.CommitsFiles, repository.Time).RunInBackground();
+
+			MRepository mRepository = new MRepository();
+			mRepository.Time = DateTime.Now;
+			mRepository.CommitsFiles = repository.CommitsFiles;
+
+			Timing t = new Timing();
+			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
+			t.Log("Got gitRepo");
+			await UpdateAsync(mRepository, gitRepo.Value);
+			t.Log("Updated mRepository");
+			cacheService.CacheAsync(mRepository).RunInBackground();
+
+			Repository updated = ToRepository(mRepository);
+			t.Log($"Created repository: {updated.Branches.Count} commits: {updated.Commits.Count}");
+
+
+			Log.Debug($"Updated to repository with time: {updated.Time}");
+
+			return updated;
 		}
 
 
@@ -188,7 +217,6 @@ namespace GitMind.GitModel.Private
 		}
 
 
-
 		private static void SetBranchHierarchy(
 			IReadOnlyList<MSubBranch> subBranches, MRepository mRepository)
 		{
@@ -264,13 +292,16 @@ namespace GitMind.GitModel.Private
 			Branch currentBranch = null;
 			Commit currentCommit = null;
 
+			//CommitFiles commitFiles = new CommitFiles();
+			//commitFiles.AddFiles(mRepository.CommitsFilesTask);
+
 			Repository repository = new Repository(
 				mRepository.Time,
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
 				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
-				new CommitFiles(mRepository.CommitsFilesTask));
+				mRepository.CommitsFiles);
 
 			foreach (MCommit mCommit in mRepository.Commits)
 			{
@@ -301,45 +332,58 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async Task<IDictionary<string, IList<CommitFile>>> GetCommitsFilesAsync()
+		private async Task AddCommitsFilesAsync(CommitsFiles commitsFiles, DateTime? dateTime)
 		{
 			//await Task.Yield();
 			//return new Dictionary<string, IEnumerable<CommitFile>>();
-
+			Log.Debug("Getting commit files ...");
+	
 			Timing t = new Timing();
-			R<IReadOnlyList<GitCommitFiles>> gitCommitFilesList =
-				await gitService.GetCommitsFilesAsync(null);
-			t.Log("Got commit files");
 
-			var commitFiles = await Task.Run(() =>
+			int maxCount = 2000;
+			int skip = 0;
+			while (true)
 			{
-				Dictionary<string, IList<CommitFile>> files =
-				new Dictionary<string, IList<CommitFile>>();
+				List<CommitFiles> currentCommitsFiles = new List<CommitFiles>();
+				R<IReadOnlyList<GitCommitFiles>> gitCommitFilesList =
+					await gitService.GetCommitsFilesAsync(null, dateTime, maxCount, skip);
+				skip += (maxCount - 10);
 
 				if (gitCommitFilesList.IsFaulted)
 				{
 					Log.Warn($"Failed to get commits files {gitCommitFilesList.Error}");
-					return files;
+					break;
 				}
 
-				foreach (GitCommitFiles gitCommitFiles in gitCommitFilesList.Value)
+				if (gitCommitFilesList.Value.Count == 0)
 				{
-					List<CommitFile> filesInCommit = gitCommitFiles.Files
-					.Select(f => ToCommitFile(gitCommitFiles.Id, f)).ToList();
-					files[gitCommitFiles.Id] = filesInCommit;
+					break;
 				}
 
-				return files;
-			});
+				await Task.Run(() =>
+				{
+					foreach (GitCommitFiles gitCommitFiles in gitCommitFilesList.Value)
+					{
+						List<CommitFile> files = gitCommitFiles.Files.Select(ToCommitFile).ToList();
+						CommitFiles commitFiles = new CommitFiles(gitCommitFiles.Id, files);
 
-			t.Log($"Parsed commit files for {commitFiles.Count} commits");
-			return commitFiles;
+						if (commitsFiles.Add(commitFiles))
+						{
+							currentCommitsFiles.Add(commitFiles);
+						}
+					}
+				});
+
+				cacheService.CacheCommitFilesAsync(currentCommitsFiles).RunInBackground();
+			}
+
+			t.Log($"Total {commitsFiles.Count}");
 		}
 
 
-		private static CommitFile ToCommitFile(string id, GitFile gitFile)
+		private static CommitFile ToCommitFile(GitFile gitFile)
 		{
-			return new CommitFile(id, gitFile.File, "?");
+			return new CommitFile(gitFile.File, "?");
 		}
 
 
