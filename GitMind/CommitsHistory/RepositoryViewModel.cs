@@ -170,7 +170,8 @@ namespace GitMind.CommitsHistory
 						CommitDetail.Tags = commit.Tags;
 						CommitDetail.Subject = commit.Subject;
 						CommitDetail.Files.Clear();
-						commit.Commit.Files.ForEach(f => CommitDetail.Files.Add(f));
+						commit.Commit.Files.ForEach(f => CommitDetail.Files.Add(
+							new CommitFileViewModel { Id = commit.Id, Name = f.Name, Status = f.Status}));
 					}
 				}
 			}

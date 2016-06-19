@@ -21,8 +21,8 @@ namespace GitMind.CommitsHistory
 
 		public OldCommit Commit { get; set; }
 
-		public ObservableCollection<CommitFile> Files { get; }
-			= new ObservableCollection<CommitFile>();
+		public ObservableCollection<CommitFileViewModel> Files { get; }
+			= new ObservableCollection<CommitFileViewModel>();
 	
 		public string Id
 		{

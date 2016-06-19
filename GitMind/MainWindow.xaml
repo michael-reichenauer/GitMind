@@ -850,7 +850,7 @@
 					
 						
 					<ListBox.ItemTemplate>
-						<DataTemplate DataType="{x:Type gitModel:CommitFile}">
+						<DataTemplate DataType="{x:Type commitsHistory:CommitFileViewModel}">
 							<StackPanel Orientation="Horizontal">
 								<Label 
 									Padding="0"

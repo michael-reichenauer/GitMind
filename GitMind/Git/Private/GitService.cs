@@ -185,6 +185,36 @@ namespace GitMind.Git.Private
 			return commitsFiles;
 		}
 
+
+		public async Task<R<CommitDiff>> GetCommitFileDiffAsync(string commitId, string name)
+		{
+			string args;
+
+			int index = commitId.IndexOf("_");
+			if (index > 0)
+			{
+				commitId = commitId.Substring(0, index);
+			}
+
+			args = $"diff --unified=10000 -M {commitId}^ {commitId} {name}";
+		
+
+			R<IReadOnlyList<string>> diff = await GitAsync(null, args);
+			if (diff.IsFaulted) return diff.Error;
+
+			IReadOnlyList<string> diffLInes = diff.Value;
+
+
+			R<IReadOnlyList<string>> linesNew = await GetAddFileLinesAsync();
+			if (linesNew.IsFaulted) return linesNew.Error;
+
+			diffLInes = diffLInes.Concat(linesNew.Value).ToList();
+			
+
+			return await gitDiffParser.ParseAsync(commitId, diffLInes);
+		}
+
+
 		public async Task<R<CommitDiff>> GetCommitDiffAsync(string commitId)
 		{
 			string args;

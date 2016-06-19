@@ -30,15 +30,9 @@ namespace GitMind.CommitsHistory
 
 		public async Task ShowDiffAsync(string commitId)
 		{
-			string p4mergeExe = "C:\\Program Files\\Perforce\\p4merge.exe";
-
-			if (!File.Exists(p4mergeExe))
+			string p4mergeExe;
+			if (!IsDiffSupported(out p4mergeExe))
 			{
-				MessageBox.Show(
-					"Could not locate compatible diff tool.\nPlease install Perforce p4merge.",
-						ProgramPaths.ProgramName,
-						MessageBoxButton.OK,
-						MessageBoxImage.Warning);
 				return;
 			}
 
@@ -51,6 +45,44 @@ namespace GitMind.CommitsHistory
 					cmd.Run(p4mergeExe, $"\"{commitDiff.Value.LeftPath}\" \"{commitDiff.Value.RightPath}\"");
 				});
 			}
+		}
+
+
+		public async Task ShowFileDiffAsync(string commitId, string name)
+		{
+			string p4mergeExe;
+			if (!IsDiffSupported(out p4mergeExe))
+			{
+				return;
+			}
+
+			R<CommitDiff> commitDiff = await gitService.GetCommitFileDiffAsync(commitId, name);
+
+			if (commitDiff.HasValue)
+			{
+				await Task.Run(() =>
+				{
+					cmd.Run(p4mergeExe, $"\"{commitDiff.Value.LeftPath}\" \"{commitDiff.Value.RightPath}\"");
+				});
+			}
+		}
+
+
+		private static bool IsDiffSupported(out string p4mergeExe)
+		{
+			p4mergeExe = "C:\\Program Files\\Perforce\\p4merge.exe";
+
+			if (!File.Exists(p4mergeExe))
+			{
+				MessageBox.Show(
+					"Could not locate compatible diff tool.\nPlease install Perforce p4merge.",
+					ProgramPaths.ProgramName,
+					MessageBoxButton.OK,
+					MessageBoxImage.Warning);
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

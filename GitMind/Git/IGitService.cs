@@ -26,5 +26,8 @@ namespace GitMind.Git
 
 		Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(
 			string path, DateTime? dateTime, int max, int skip);
+
+
+		Task<R<CommitDiff>> GetCommitFileDiffAsync(string commitId, string name);
 	}
 }
