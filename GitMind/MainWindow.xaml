@@ -850,13 +850,23 @@
 						
 					<ListBox.ItemTemplate>
 						<DataTemplate DataType="{x:Type commitsHistory:CommitFileViewModel}">
-							<StackPanel Orientation="Horizontal">
-								<Label 
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="20" />
+								</Grid.ColumnDefinitions>
+								<Label
+									Grid.Column="0"
 									Padding="0"
 									Content="{Binding Name}" 
 									Foreground="{StaticResource TextBrush}"/>
+								<Label
+									Grid.Column="1"
+									Padding="0"
+									Content="{Binding Status}" 
+									Foreground="{StaticResource TextBrush}"/>
 								
-								<StackPanel.ContextMenu>
+								<Grid.ContextMenu>
 									<ContextMenu 
 										Background="Transparent" 
 										Foreground="Lavender"
@@ -867,11 +877,11 @@
 											Header="Show Diff ..."
 											Command="{Binding ShowDiffCommand}"/>
 									</ContextMenu>
-								</StackPanel.ContextMenu>	
-								<StackPanel.InputBindings>
+								</Grid.ContextMenu>	
+								<Grid.InputBindings>
 									<MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowDiffCommand}" />
-								</StackPanel.InputBindings>			
-							</StackPanel>
+								</Grid.InputBindings>			
+							</Grid>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
 				</ListBox>

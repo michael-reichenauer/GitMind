@@ -50,7 +50,7 @@ namespace GitMind.GitModel.Private
 				t.Log("Got gitRepo");
 				await UpdateAsync(mRepository, gitRepo.Value);
 				t.Log("Updated mRepository");
-				cacheService.CacheAsync(mRepository).RunInBackground();				
+				cacheService.CacheAsync(mRepository).RunInBackground();
 			}
 
 			Repository repository = ToRepository(mRepository);
@@ -337,7 +337,7 @@ namespace GitMind.GitModel.Private
 			//await Task.Yield();
 			//return new Dictionary<string, IEnumerable<CommitFile>>();
 			Log.Debug("Getting commit files ...");
-	
+
 			Timing t = new Timing();
 
 			int maxCount = 2000;
@@ -383,7 +383,13 @@ namespace GitMind.GitModel.Private
 
 		private static CommitFile ToCommitFile(GitFile gitFile)
 		{
-			return new CommitFile(gitFile.File, "?");
+			string status = gitFile.IsAdded ? "A"
+				: gitFile.IsDeleted ? "D"
+				: gitFile.IsModified ? "M"
+				: gitFile.IsRenamed ? "R"
+				: "";
+
+			return new CommitFile(gitFile.File, status);
 		}
 
 

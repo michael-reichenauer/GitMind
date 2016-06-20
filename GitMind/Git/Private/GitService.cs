@@ -157,16 +157,21 @@ namespace GitMind.Git.Private
 			{
 				if (line.StartsWith("M\t", StringComparison.Ordinal))
 				{
-					files.Add(new GitFile(line.Substring(2), true, false, false));
+					files.Add(new GitFile(line.Substring(2), true, false, false, false));
 				}
 				else if (line.StartsWith("A\t", StringComparison.Ordinal))
 				{
-					files.Add(new GitFile(line.Substring(2), false, true, false));
+					files.Add(new GitFile(line.Substring(2), false, true, false, false));
 				}
 				else if (line.StartsWith("D\t", StringComparison.Ordinal))
 				{
-					files.Add(new GitFile(line.Substring(2), false, false, true));
+					files.Add(new GitFile(line.Substring(2), false, false, true, false));
 				}
+				else if (line.StartsWith("R\t", StringComparison.Ordinal))
+				{
+					files.Add(new GitFile(line.Substring(2), false, false, false, true));
+				}
+
 				else if (line.Length > 5)
 				{
 					// A commit id
@@ -196,7 +201,7 @@ namespace GitMind.Git.Private
 				commitId = commitId.Substring(0, index);
 			}
 
-			args = $"diff --unified=10000 -M {commitId}^ {commitId} {name}";
+			args = $"diff --unified=10000 {commitId}^ {commitId} {name}";
 		
 
 			R<IReadOnlyList<string>> diff = await GitAsync(null, args);
