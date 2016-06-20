@@ -60,13 +60,13 @@ namespace GitMind.GitModel.Private
 		{
 			await TaskThrottler.Run(() => Task.Run(() =>
 			{
-				Log.Debug("Caching commit files  ...");
+				//Log.Debug("Caching commit files  ...");
 				string cachePath = GetCachePath(null) + ".files";
 				Timing t = new Timing();
 
 				SerializeCommitsFiles(cachePath, commitsFiles);
 
-				t.Log($"Wrote commit files for {commitsFiles.Count} commits");
+				//t.Log($"Wrote commit files for {commitsFiles.Count} commits");
 			}));
 		}
 

@@ -55,6 +55,8 @@ namespace GitMind.GitModel.Private
 		public bool IsLocalAheadMarker { get; set; }
 		[DataMember, ProtoMember(18)]
 		public bool IsRemoteAheadMarker { get; set; }
+		[DataMember, ProtoMember(19)]
+		public string Tags { get; set; }
 
 
 		public bool HasBranchName => !string.IsNullOrEmpty(BranchXName);
@@ -100,6 +102,8 @@ namespace GitMind.GitModel.Private
 		public bool IsLocalAhead => Branch.IsLocalAndRemote && IsLocalAheadMarker && !IsSynced;
 		public bool IsRemoteAhead => Branch.IsLocalAndRemote && IsRemoteAheadMarker && !IsSynced;
 		public bool IsSynced => IsLocalAheadMarker && IsRemoteAheadMarker;
+
+
 
 		public IEnumerable<MCommit> FirstAncestors()
 		{

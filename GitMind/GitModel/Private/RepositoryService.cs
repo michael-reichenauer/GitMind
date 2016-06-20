@@ -44,9 +44,9 @@ namespace GitMind.GitModel.Private
 				mRepository.Time = DateTime.Now;
 				mRepository.CommitsFiles = new CommitsFiles();
 
+				R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
 				AddCommitsFilesAsync(mRepository.CommitsFiles, null).RunInBackground();
 
-				R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
 				t.Log("Got gitRepo");
 				await UpdateAsync(mRepository, gitRepo.Value);
 				t.Log("Updated mRepository");
@@ -94,12 +94,14 @@ namespace GitMind.GitModel.Private
 				IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
 				IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
 				IReadOnlyList<SpecifiedBranch> specifiedBranches = new SpecifiedBranch[0];
+				IReadOnlyList<GitTag> tags = gitRepo.GetAllTags();
 
 				Update(
 					mRepository,
 					gitBranches,
 					gitCommits,
 					specifiedBranches,
+					tags,
 					gitRepo.CurrentBranch,
 					gitRepo.CurrentCommit);
 			});
@@ -107,16 +109,20 @@ namespace GitMind.GitModel.Private
 
 
 		private void Update(
-			MRepository mRepository,
+			MRepository mRepository, 
 			IReadOnlyList<GitBranch> gitBranches,
-			IReadOnlyList<GitCommit> gitCommits,
-			IReadOnlyList<SpecifiedBranch> specifiedBranches,
-			GitBranch currentBranch,
+			IReadOnlyList<GitCommit> gitCommits, 
+			IReadOnlyList<SpecifiedBranch> specifiedBranches, 
+			IReadOnlyList<GitTag> tags,
+			GitBranch currentBranch, 
 			GitCommit currentCommit)
 		{
 			Timing t = new Timing();
 			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, specifiedBranches, mRepository);
 			t.Log("Added commits");
+
+			AddTags(tags, mRepository);
+			t.Log("Added tags");
 
 			IReadOnlyList<MSubBranch> subBranches = AddSubBranches(gitBranches, mRepository, commits);
 			t.Log("Add sub branches");
@@ -145,6 +151,27 @@ namespace GitMind.GitModel.Private
 
 			commits.Where(c => string.IsNullOrEmpty(c.BranchXName))
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.FirstParentId}"));
+		}
+
+
+		private void AddTags(IReadOnlyList<GitTag> tags, MRepository mRepository)
+		{
+			foreach (GitTag tag in tags)
+			{
+				MCommit commit;
+				if (mRepository.Commits.TryGetValue(tag.CommitId, out commit))
+				{
+					string tagText = $"[{tag.TagName}] ";
+					if (commit.Tags != null && -1 == commit.Tags.IndexOf(tag.TagName, StringComparison.Ordinal))
+					{
+						commit.Tags += tagText;
+					}
+					else
+					{
+						commit.Tags = tagText;
+					}
+				}
+			}
 		}
 
 
@@ -421,6 +448,7 @@ namespace GitMind.GitModel.Private
 				commit.Author,
 				commit.AuthorDate,
 				commit.CommitDate,
+				commit.Tags,
 				commit.ParentIds.ToList(),
 				commit.ChildIds.ToList(),
 				commit.BranchId,
