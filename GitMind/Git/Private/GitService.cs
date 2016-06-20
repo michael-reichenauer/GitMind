@@ -257,9 +257,11 @@ namespace GitMind.Git.Private
 
 		public async Task FetchAsync(string path)
 		{
+			Log.Debug("Fetching repository ...");
 			string args = "fetch";
 
 			R<IReadOnlyList<string>> fetchResult = await GitAsync(path, args);
+			Log.Debug("Fetched repository");
 
 			fetchResult.OnError(e =>
 			{

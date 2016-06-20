@@ -383,10 +383,10 @@ namespace GitMind.GitModel.Private
 
 		private static CommitFile ToCommitFile(GitFile gitFile)
 		{
-			string status = gitFile.IsAdded ? "A"
-				: gitFile.IsDeleted ? "D"
-				: gitFile.IsModified ? "M"
-				: gitFile.IsRenamed ? "R"
+			string status = gitFile.IsAdded ? "a"
+				: gitFile.IsDeleted ? "d"
+				: gitFile.IsModified ? "m"
+				: gitFile.IsRenamed ? "r"
 				: "";
 
 			return new CommitFile(gitFile.File, status);

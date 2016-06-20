@@ -12,7 +12,7 @@ namespace GitMind.GitModel
 			new ConcurrentDictionary<string, IList<CommitFile>>();
 
 		public static CommitFile[] InProgress =
-			{ new CommitFile("      Retrieving files, please retry in a while ... ", "M") };
+			{ new CommitFile("      Retrieving files, please retry in a while ... ", "") };
 		private static readonly List<CommitFile> EmptyFileList = Enumerable.Empty<CommitFile>().ToList();
 
 

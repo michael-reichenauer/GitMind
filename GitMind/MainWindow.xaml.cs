@@ -9,6 +9,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.CommitsHistory;
+using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Installation;
@@ -34,6 +36,7 @@ namespace GitMind
 		private readonly IInstaller installer = new Installer();
 		private readonly ICommandLine commandLine = new CommandLine();
 		private readonly IDiffService diffService = new DiffService();
+		private readonly IGitService gitService = new GitService();
 
 		private static Mutex programMutex;
 		private readonly DispatcherTimer autoRefreshTime = new DispatcherTimer();
@@ -320,12 +323,10 @@ namespace GitMind
 
 		private async Task RefreshInternalAsync(bool isShift)
 		{
-			Task<Repository> repositoryTask = repositoryService.UpdateRepositoryAsync(
+			await gitService.FetchAsync(null);
+			Repository repository = await repositoryService.UpdateRepositoryAsync(
 				repositoryViewModel.Repository);
 
-			mainWindowViewModel.Busy.Add(repositoryTask);
-
-			Repository repository = await repositoryTask;
 			repositoryViewModel.Update(repository, repositoryViewModel.SpecifiedBranches);
 
 			//await refreshService.UpdateStatusAsync();
