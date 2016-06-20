@@ -21,6 +21,7 @@ namespace GitMind.GitModel
 			DateTime authorDate, 
 			DateTime commitDate, 
 			string tags,
+			string tickets,
 			IReadOnlyList<string> parentIds, 
 			IReadOnlyList<string> childIds, 
 			string branchId, 
@@ -39,6 +40,7 @@ namespace GitMind.GitModel
 			AuthorDateText = authorDate.ToShortDateString() + " " + authorDate.ToShortTimeString();
 			CommitDate = commitDate;
 			Tags = tags;
+			Tickets = tickets;
 			IsLocalAhead = isLocalAhead;
 			IsRemoteAhead = isRemoteAhead;
 		}
@@ -52,6 +54,7 @@ namespace GitMind.GitModel
 		public string AuthorDateText { get; }
 		public DateTime CommitDate { get; }
 		public string Tags { get; }
+		public string Tickets { get; }
 		public bool IsLocalAhead { get; }
 		public bool IsRemoteAhead { get; }
 		public bool HasFirstParent => parentIds.Count > 0;

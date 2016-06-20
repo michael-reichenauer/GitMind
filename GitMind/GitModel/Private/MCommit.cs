@@ -57,6 +57,8 @@ namespace GitMind.GitModel.Private
 		public bool IsRemoteAheadMarker { get; set; }
 		[DataMember, ProtoMember(19)]
 		public string Tags { get; set; }
+		[DataMember, ProtoMember(20)]
+		public string Tickets { get; set; }
 
 
 		public bool HasBranchName => !string.IsNullOrEmpty(BranchXName);

@@ -449,6 +449,7 @@ namespace GitMind.GitModel.Private
 				commit.AuthorDate,
 				commit.CommitDate,
 				commit.Tags,
+				commit.Tickets,
 				commit.ParentIds.ToList(),
 				commit.ChildIds.ToList(),
 				commit.BranchId,
@@ -1020,13 +1021,14 @@ namespace GitMind.GitModel.Private
 
 
 
-		private IReadOnlyList<MCommit> AddCommits(IReadOnlyList<GitCommit> gitCommits, MRepository xmodel)
+		private IReadOnlyList<MCommit> AddCommits(
+			IReadOnlyList<GitCommit> gitCommits, MRepository repository)
 		{
 			return gitCommits.Select(
 				c =>
 				{
-					MCommit mCommit = ToCommit(c, xmodel);
-					xmodel.Commits.Add(mCommit);
+					MCommit mCommit = ToCommit(c, repository);
+					repository.Commits.Add(mCommit);
 					return mCommit;
 				})
 				.ToList();
@@ -1072,14 +1074,42 @@ namespace GitMind.GitModel.Private
 				Repository = mRepository,
 				Id = gitCommit.Id,
 				ShortId = gitCommit.ShortId,
-				Subject = gitCommit.Subject,
+				Subject = GetSubjectWithoutTickets(gitCommit),
 				Author = gitCommit.Author,
 				AuthorDate = gitCommit.AuthorDate,
 				CommitDate = gitCommit.CommitDate,
+				Tickets = GetTickets(gitCommit),
 				ParentIds = gitCommit.ParentIds.ToList(),
 				MergeSourceBranchNameFromSubject = branchNames.SourceBranchName,
 				MergeTargetBranchNameFromSubject = branchNames.TargetBranchName,
 			};
+		}
+
+
+		private string GetTickets(GitCommit commit)
+		{
+			if (commit.Subject.StartsWith("#"))
+			{
+				int index = commit.Subject.IndexOf(" ");
+				if (index > 1)
+				{
+					return commit.Subject.Substring(0, index) + " ";
+				}
+				if (index > 0)
+				{
+					index = commit.Subject.IndexOf(" ", index + 1);
+					return commit.Subject.Substring(0, index) + " ";
+				}
+			}
+
+			return "";
+		}
+
+
+		private string GetSubjectWithoutTickets(GitCommit commit)
+		{
+			string tickets = GetTickets(commit);
+			return commit.Subject.Substring(tickets.Length);
 		}
 
 

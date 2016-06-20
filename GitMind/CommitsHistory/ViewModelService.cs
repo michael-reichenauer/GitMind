@@ -395,9 +395,7 @@ namespace GitMind.CommitsHistory
 				commitViewModel.ToolTip = GetCommitToolTip(commit);
 				commitViewModel.SubjectBrush = GetSubjectBrush(commit);
 				commitViewModel.Tags = commit.Tags;
-
-				//commitViewModel.Subject = GetSubjectWithoutTickets(commit);
-				//commitViewModel.Tickets = GetTickets(commit);
+				commitViewModel.Tickets = commit.Tickets;
 			}
 		}
 
