@@ -106,8 +106,7 @@
 							</TextBlock>
 						</Hyperlink>
 					</TextBlock>
-
-					
+				
 
 					<!-- Commit status  -->
 					<TextBlock>
@@ -866,10 +865,12 @@
 
 										<MenuItem 
 											Header="Show Diff ..."
-											Command="{Binding ShowDiffCommand}"
-											CommandParameter="{Binding Id}"/>
+											Command="{Binding ShowDiffCommand}"/>
 									</ContextMenu>
-								</StackPanel.ContextMenu>		
+								</StackPanel.ContextMenu>	
+								<StackPanel.InputBindings>
+									<MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowDiffCommand}" />
+								</StackPanel.InputBindings>			
 							</StackPanel>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
