@@ -221,10 +221,12 @@ namespace GitMind.CommitsHistory
 			{		
 				return commits
 					.Where(c =>
-						Contains(c.Id, filterText)
+						StartsWith(c.Id, filterText)
 						|| Contains(c.Subject, filterText)
 						|| Contains(c.Author, filterText)
 						|| Contains(c.AuthorDateText, filterText)
+						|| Contains(c.Tickets, filterText)
+						|| Contains(c.Tags, filterText)
 						|| c.Files != CommitsFiles.InProgress 
 							&& c.Files.Any(f => Contains(f.Name, filterText))
 					)
