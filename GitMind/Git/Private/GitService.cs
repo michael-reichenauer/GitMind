@@ -190,6 +190,27 @@ namespace GitMind.Git.Private
 			return commitsFiles;
 		}
 
+		public async Task<R<GitCommitFiles>> GetCommitsFilesForCommitAsync(string path, string commitId)
+		{
+			string args = $"diff-tree -M -m --root --no-commit-id --name-only -r {commitId}";
+
+			R<IReadOnlyList<string>> logResult = await GitAsync(path, args);
+
+			if (logResult.IsFaulted) return logResult.Error;
+
+			IReadOnlyList<string> logLines = logResult.Value;
+
+			List<GitFile> files = new List<GitFile>();
+			foreach (string line in logLines)
+			{
+
+				files.Add(new GitFile(line.Trim(), true, false, false, false));	
+			}
+
+			return new GitCommitFiles(commitId, files);
+		}
+
+
 
 		public async Task<R<CommitDiff>> GetCommitFileDiffAsync(string commitId, string name)
 		{

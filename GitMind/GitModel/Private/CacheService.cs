@@ -33,7 +33,7 @@ namespace GitMind.GitModel.Private
 			if (repository != null)
 			{
 				repository.CommitsFiles = new CommitsFiles();
-				ReadCommitFilesAsync(repository.CommitsFiles).RunInBackground();
+				//ReadCommitFilesAsync(repository.CommitsFiles).RunInBackground();
 			}
 
 			return repository;

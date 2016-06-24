@@ -170,13 +170,28 @@ namespace GitMind.CommitsHistory
 						CommitDetail.Tags = commit.Tags;
 						CommitDetail.Subject = commit.Subject;
 						CommitDetail.Files.Clear();
-						commit.Commit.Files.ForEach(f => CommitDetail.Files.Add(
-							new CommitFileViewModel { Id = commit.Id, Name = f.Name, Status = f.Status}));
+
+						SetFilesAsync(commit.Commit).RunInBackground();
 					}
 				}
 			}
 		}
 
+
+		private async Task SetFilesAsync(Commit commit)
+		{
+			IEnumerable<CommitFile> files = await commit.FilesTask;
+			if (CommitDetail.Id == commit.Id)
+			{
+				Log.Debug($"Setting {files.Count()} files for {commit.Id}  ");
+				files.ForEach(f => CommitDetail.Files.Add(
+					new CommitFileViewModel { Id = commit.Id, Name = f.Name, Status = f.Status }));
+			}
+			else
+			{
+				Log.Debug($"No longer selected {commit.Id} (now {CommitDetail.Id}is selected)");
+			}	
+		}
 
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; }

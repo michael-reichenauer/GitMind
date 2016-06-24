@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 
 namespace GitMind.GitModel
@@ -64,7 +65,9 @@ namespace GitMind.GitModel
 		public IEnumerable<Commit> Children => childIds.Select(id => repository.Commits[id]);
 		public Branch Branch => repository.Branches[branchId];
 		public bool IsMergePoint => parentIds.Count > 1;
-		public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
+
+		//public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
+		public Task<IEnumerable<CommitFile>> FilesTask => repository.CommitsFiles.GetAsync(Id);
 
 		public override string ToString() => $"{ShortId} {Subject} {CommitDate}";
 	}

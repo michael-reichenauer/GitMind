@@ -64,7 +64,7 @@ namespace GitMind.GitModel.Private
 		{
 			Log.Debug($"Updating repository from time: {repository.Time}");
 
-			AddCommitsFilesAsync(repository.CommitsFiles, repository.Time).RunInBackground();
+			//AddCommitsFilesAsync(repository.CommitsFiles, repository.Time).RunInBackground();
 
 			MRepository mRepository = new MRepository();
 			mRepository.Time = DateTime.Now;
@@ -297,7 +297,7 @@ namespace GitMind.GitModel.Private
 		{
 			Timing t = new Timing();
 			IReadOnlyList<MCommit> commits = AddCommits(gitCommits, mRepository);
-			t.Log("added commits");
+			t.Log($"added {commits.Count}commits");
 
 			SetChildren(commits);
 			t.Log("Set children");
