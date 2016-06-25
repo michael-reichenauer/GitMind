@@ -19,6 +19,7 @@ using GitMind.Settings;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.VirtualCanvas;
+using Converter = GitMind.CommitsHistory.Converter;
 
 
 namespace GitMind
