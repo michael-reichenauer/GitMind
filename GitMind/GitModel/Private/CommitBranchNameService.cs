@@ -8,6 +8,20 @@ namespace GitMind.GitModel.Private
 	internal class CommitBranchNameService : ICommitBranchNameService
 	{
 		public void SetCommitBranchNames(
+				IReadOnlyList<MCommit> commits,
+				IReadOnlyList<SpecifiedBranch> specifiedBranches,
+				MRepository mRepository)
+		{
+			Timing t = new Timing();
+			SetSpecifiedCommitBranchNames(specifiedBranches, mRepository);
+			t.Log("Set specified branch names");
+
+			SetSubjectCommitBranchNames(commits, mRepository);
+			t.Log("Parse subject branch names");
+		}
+
+
+		public void SetCommitBranchNames(
 			IReadOnlyList<MSubBranch> branches,
 			IReadOnlyList<MCommit> commits,
 			MRepository mRepository)
@@ -25,6 +39,66 @@ namespace GitMind.GitModel.Private
 			SetBranchCommitsOfParents(commits);
 			t.Log("Set same branch name as parent with name");
 		}
+
+
+		private void SetSpecifiedCommitBranchNames(
+			IReadOnlyList<SpecifiedBranch> commitBranches,
+			MRepository xmodel)
+		{
+			foreach (SpecifiedBranch commitBranch in commitBranches)
+			{
+				MCommit mCommit;
+				if (xmodel.Commits.TryGetValue(commitBranch.CommitId, out mCommit))
+				{
+					mCommit.BranchNameSpecified = commitBranch.BranchName;
+					mCommit.BranchXName = commitBranch.BranchName;
+					mCommit.SubBranchId = commitBranch.SubBranchId;
+				}
+			}
+		}
+
+
+
+		private void SetSubjectCommitBranchNames(
+			IReadOnlyList<MCommit> commits, MRepository repository)
+		{
+			foreach (MCommit xCommit in commits)
+			{
+				xCommit.BranchNameFromSubject = TryExtractBranchNameFromSubject(xCommit, repository);
+			}
+		}
+
+
+		private string TryExtractBranchNameFromSubject(MCommit mCommit, MRepository mRepository)
+		{
+			if (mCommit.SecondParentId != null)
+			{
+				// This is a merge commit, and the subject might contain the target (this current) branch 
+				// name in the subject like e.g. "Merge <source-branch> into <target-branch>"
+				string branchName = mCommit.MergeTargetBranchNameFromSubject;
+				if (branchName != null)
+				{
+					return branchName;
+				}
+			}
+
+			// If a child of this commit is a merge commit merged from this commit, lets try to get
+			// the source branch name of that commit. I.e. a child commit might have a subject like
+			// e.g. "Merge <source-branch> ..." That source branch would thus be the name of the branch
+			// of this commit.
+			foreach (string childId in mCommit.ChildIds)
+			{
+				MCommit child = mRepository.Commits[childId];
+				if (child.SecondParentId == mCommit.Id
+						&& !string.IsNullOrEmpty(child.MergeSourceBranchNameFromSubject))
+				{
+					return child.MergeSourceBranchNameFromSubject;
+				}
+			}
+
+			return null;
+		}
+
 
 
 		public string GetBranchName(MCommit mCommit)

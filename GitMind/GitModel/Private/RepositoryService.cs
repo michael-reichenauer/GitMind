@@ -143,9 +143,11 @@ namespace GitMind.GitModel.Private
 			GitCommit currentCommit)
 		{
 			Timing t = new Timing();
-			IReadOnlyList<MCommit> commits = commitsService.AddCommits(
-				gitCommits, specifiedBranches, mRepository);
+			IReadOnlyList<MCommit> commits = commitsService.AddCommits(gitCommits, mRepository);
 			t.Log("Added commits");
+
+			commitBranchNameService.SetCommitBranchNames(commits, specifiedBranches, mRepository);
+			t.Log("Add commit branch names");
 
 			tagService.AddTags(tags, mRepository);
 			t.Log("Added tags");
