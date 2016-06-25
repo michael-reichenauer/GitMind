@@ -367,7 +367,7 @@
 							Loaded="ZoomableCanvas_Loaded"
 							RealizationLimit="1000" 
 							RealizationRate="20"
-							RealizationPriority="Background"
+							RealizationPriority="Normal"
 							ApplyTransform="false"/>
 					</ItemsPanelTemplate>
 				</ListBox.ItemsPanel>
