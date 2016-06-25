@@ -136,7 +136,6 @@ namespace GitMind.Git.Private
 		public async Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(
 			string path, DateTime? dateTime, int max, int skip)
 		{
-
 			string args = $"log --all --name-status -m --pretty=\"%H\" --max-count={max} --skip={skip}";
 			if (dateTime.HasValue)
 			{

@@ -7,15 +7,15 @@ namespace GitMind.GitModel.Private
 	{
 		void SetCommitBranchNames(
 			IReadOnlyList<MCommit> commits,
-			IReadOnlyList<SpecifiedBranch> specifiedBranches,
-			MRepository mRepository);
+			IReadOnlyList<SpecifiedBranchName> specifiedBranches,
+			MRepository repository);
 
 		void SetCommitBranchNames(
 			IReadOnlyList<MSubBranch> branches, 
 			IReadOnlyList<MCommit> commits, 
-			MRepository mRepository);
+			MRepository repository);
 
-		string GetBranchName(MCommit mCommit);
-		void SetBranchCommits(IReadOnlyList<MSubBranch> branches, MRepository xmodel);
+		string GetBranchName(MCommit commit);
+		void SetBranchCommits(IReadOnlyList<MSubBranch> branches, MRepository repository);
 	}
 }

@@ -10,11 +10,11 @@ namespace GitMind.GitModel.Private
 	{
 		public IReadOnlyList<MCommit> AddCommits(
 			IReadOnlyList<GitCommit> gitCommits,	
-			MRepository mRepository)
+			MRepository repository)
 		{
 			Timing t = new Timing();
-			IReadOnlyList<MCommit> commits = AddGitCommits(gitCommits, mRepository);
-			t.Log($"added {commits.Count}commits");
+			IReadOnlyList<MCommit> commits = AddGitCommits(gitCommits, repository);
+			t.Log($"added {commits.Count} commits");
 
 			SetChildren(commits);
 			t.Log("Set children");
@@ -27,11 +27,11 @@ namespace GitMind.GitModel.Private
 			IReadOnlyList<GitCommit> gitCommits, MRepository repository)
 		{
 			return gitCommits.Select(
-				c =>
+				gitCommit =>
 				{
-					MCommit mCommit = ToCommit(c, repository);
-					repository.Commits.Add(mCommit);
-					return mCommit;
+					MCommit commit = ToCommit(gitCommit, repository);
+					repository.Commits.Add(commit);
+					return commit;
 				})
 				.ToList();
 		}

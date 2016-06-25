@@ -70,7 +70,7 @@ namespace GitMind.GitModel.Private
 				mRepository.CommitsFiles = new CommitsFiles();
 
 				R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
-				AddCommitsFilesAsync(mRepository.CommitsFiles, null).RunInBackground();
+				//AddCommitsFilesAsync(mRepository.CommitsFiles, null).RunInBackground();
 
 				t.Log("Got gitRepo");
 				await UpdateAsync(mRepository, gitRepo.Value);
@@ -118,7 +118,7 @@ namespace GitMind.GitModel.Private
 			{
 				IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
 				IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
-				IReadOnlyList<SpecifiedBranch> specifiedBranches = new SpecifiedBranch[0];
+				IReadOnlyList<SpecifiedBranchName> specifiedBranches = new SpecifiedBranchName[0];
 				IReadOnlyList<GitTag> tags = gitRepo.GetAllTags();
 
 				Update(
@@ -137,7 +137,7 @@ namespace GitMind.GitModel.Private
 			MRepository mRepository,
 			IReadOnlyList<GitBranch> gitBranches,
 			IReadOnlyList<GitCommit> gitCommits,
-			IReadOnlyList<SpecifiedBranch> specifiedBranches,
+			IReadOnlyList<SpecifiedBranchName> specifiedBranches,
 			IReadOnlyList<GitTag> tags,
 			GitBranch currentBranch,
 			GitCommit currentCommit)

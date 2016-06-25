@@ -8,7 +8,7 @@ namespace GitMind.GitModel.Private
 	{
 		IReadOnlyList<MCommit> AddCommits(
 			IReadOnlyList<GitCommit> gitCommits,
-			MRepository mRepository);
+			MRepository repository);
 
 
 	}

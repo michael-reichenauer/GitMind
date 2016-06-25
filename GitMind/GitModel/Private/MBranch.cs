@@ -55,7 +55,6 @@ namespace GitMind.GitModel.Private
 		public MCommit ParentCommit => Repository.Commits[ParentCommitId];
 		public MBranch ParentBranch => Repository.Branches[ParentBranchId];
 
-
 		public override string ToString() => $"{Name}";
 	}
 }
