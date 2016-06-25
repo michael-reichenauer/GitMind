@@ -37,18 +37,21 @@ namespace GitMind.CommitsHistory
 
 
 		public RepositoryViewModel(
-			Action<int> setFirstVisibleRow,
+			Action<int> scroll,
+			Action<int> scrollTo,
 			Lazy<BusyIndicator> busyIndicator)
-			: this(new ViewModelService(), setFirstVisibleRow, busyIndicator)
+			: this(new ViewModelService(), scroll, scrollTo, busyIndicator)
 		{
 		}
 
 		public RepositoryViewModel(
 			IViewModelService viewModelService,
 			Action<int> scrollRows,
+			Action<int> scrollTo,
 			Lazy<BusyIndicator> busyIndicator)
 		{
 			ScrollRows = scrollRows;
+			ScrollTo = scrollTo;
 			this.viewModelService = viewModelService;
 			this.busyIndicator = busyIndicator;
 
@@ -59,6 +62,7 @@ namespace GitMind.CommitsHistory
 		}
 
 		public Action<int> ScrollRows { get; }
+		public Action<int> ScrollTo { get; }
 		public Repository Repository { get; private set; }
 
 		public ICommand ShowBranchCommand => Command<Branch>(ShowBranch);
@@ -233,6 +237,10 @@ namespace GitMind.CommitsHistory
 			if (indexBefore != -1 && indexAfter != -1)
 			{
 				ScrollRows(indexBefore - indexAfter);
+			}
+			else
+			{
+				ScrollTo(0);
 			}
 
 			VirtualItemsSource.DataChanged(width);

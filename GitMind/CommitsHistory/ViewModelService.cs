@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Markup;
 using System.Windows.Media;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -32,7 +31,7 @@ namespace GitMind.CommitsHistory
 			IReadOnlyList<string> specifiedBranchNames)
 		{
 			List<Branch> branches = new List<Branch>();
-	
+
 			foreach (string name in specifiedBranchNames)
 			{
 				Branch branch = repositoryViewModel.Repository.Branches
@@ -88,10 +87,14 @@ namespace GitMind.CommitsHistory
 				currentlyShownBranches.RemoveAll(b => b.Name != "master" && closingBranches.Contains(b));
 			}
 
-			int currentRow = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
+			CommitViewModel stableCommitViewModel = repositoryViewModel.CommitsById[stableCommit.Id];
+
+			int currentRow = stableCommitViewModel.RowIndex;
+			//	repositoryViewModel.SelectedItem = stableCommitViewModel;
+			repositoryViewModel.SelectedIndex = currentRow;
 			Update(repositoryViewModel, currentlyShownBranches);
 
-			int newRow = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
+			int newRow = stableCommitViewModel.RowIndex;
 			Log.Debug($"Row {currentRow}->{newRow} for {stableCommit}");
 
 			return currentRow - newRow;
@@ -187,7 +190,7 @@ namespace GitMind.CommitsHistory
 					Log.Warn($"Filter has changed {filterText} ->" + $"{repositoryViewModel.FilterText}");
 					return;
 				}
-	
+
 				//var branches = commits.Select(c => c.Branch).Distinct().ToList();
 				Branch[] branches = new Branch[0];
 				UpdateBranches(branches, commits, repositoryViewModel);
@@ -218,7 +221,7 @@ namespace GitMind.CommitsHistory
 			Log.Debug($"Searching in {commits.Count()} commits");
 
 			return Task.Run(() =>
-			{		
+			{
 				return commits
 					.Where(c =>
 						StartsWith(c.Id, filterText)
@@ -250,7 +253,7 @@ namespace GitMind.CommitsHistory
 				return false;
 			}
 
-			return  text.StartsWith(subText, StringComparison.OrdinalIgnoreCase);
+			return text.StartsWith(subText, StringComparison.OrdinalIgnoreCase);
 		}
 
 
@@ -438,7 +441,7 @@ namespace GitMind.CommitsHistory
 
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 
-				branch.BranchToolTip =  GetBranchToolTip(branch);
+				branch.BranchToolTip = GetBranchToolTip(branch);
 			}
 
 			repositoryViewModel.GraphWidth = Converter.ToX(maxColumn + 1);

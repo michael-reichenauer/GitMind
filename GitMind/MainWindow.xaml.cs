@@ -67,7 +67,7 @@ namespace GitMind
 
 			//historyViewModel = new OldHistoryViewModel();
 			repositoryViewModel = new RepositoryViewModel(
-				ScrollRows, new Lazy<BusyIndicator>(() => mainWindowViewModel.Busy));
+				ScrollRows, ScrollTo, new Lazy<BusyIndicator>(() => mainWindowViewModel.Busy));
 
 			mainWindowViewModel = new MainWindowViewModel(
 				repositoryViewModel, 
@@ -356,6 +356,12 @@ namespace GitMind
 		{
 			int offsetY = Converter.ToY(rows);
 			canvas.Offset = new Point(canvas.Offset.X, Math.Max(canvas.Offset.Y - offsetY, 0));
+		}
+
+		private void ScrollTo(int rows)
+		{
+			int offsetY = Converter.ToY(rows);
+			canvas.Offset = new Point(canvas.Offset.X, Math.Max(offsetY, 0));
 		}
 
 
