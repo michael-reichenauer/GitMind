@@ -115,16 +115,21 @@ namespace GitMind.CommitsHistory
 			}
 		}
 
+
 		public void Update(Repository repository, IReadOnlyList<Branch> specifiedBranch)
 		{
 			Timing t = new Timing();
 			Repository = repository;
-			viewModelService.Update(this, specifiedBranch);
-			Commits.ForEach(commit => commit.WindowWidth = Width);
+			if (string.IsNullOrEmpty(FilterText))
+			{
+				Log.Debug("Not updating while in filter mode");
+				viewModelService.Update(this, specifiedBranch);
+				Commits.ForEach(commit => commit.WindowWidth = Width);
 
-			VirtualItemsSource.DataChanged(width);
+				VirtualItemsSource.DataChanged(width);
 
-			t.Log("Updated repository view model");
+				t.Log("Updated repository view model");
+			}
 		}
 
 
@@ -194,7 +199,7 @@ namespace GitMind.CommitsHistory
 			else
 			{
 				Log.Debug($"No longer selected {commit.Id} (now {CommitDetail.Id}is selected)");
-			}	
+			}
 		}
 
 
