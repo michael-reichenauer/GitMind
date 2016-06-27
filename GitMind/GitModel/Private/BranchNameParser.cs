@@ -91,6 +91,10 @@ namespace GitMind.GitModel.Private
 				{
 					int intoIndex = subject.IndexOf(IntoText, sourceBranchNameEnd);
 					int ofIndex = subject.IndexOf(OfText, sourceBranchNameEnd);
+					if (ofIndex > -1 && !subject.StartsWith("Merge branch '"))
+					{
+						ofIndex = -1;
+					}
 
 					if (intoIndex > 0 && subject.Length > intoIndex + IntoText.Length)
 					{

@@ -7,37 +7,82 @@ namespace GitMind.GitModel.Private
 {
 	internal class CommitBranchNameService : ICommitBranchNameService
 	{
-		public void SetCommitBranchNames(
-			IReadOnlyList<MCommit> commits,
-			IReadOnlyList<SpecifiedBranchName> specifiedBranches,
+		public void SetSpecifiedCommitBranchNames(
+			IReadOnlyList<SpecifiedBranchName> specifiedNames,
 			MRepository repository)
-	{
-			Timing t = new Timing();
-			SetSpecifiedCommitBranchNames(specifiedBranches, repository);
-			t.Log("Set specified branch names");
-
-			SetSubjectCommitBranchNames(commits, repository);
-			t.Log("Parse subject branch names");
+		{
+			foreach (SpecifiedBranchName specifiedName in specifiedNames)
+			{
+				MCommit commit;
+				if (repository.Commits.TryGetValue(specifiedName.CommitId, out commit))
+				{
+					commit.BranchNameSpecified = specifiedName.BranchName;
+					commit.BranchXName = specifiedName.BranchName;
+				}
+			}
 		}
 
 
-		public void SetCommitBranchNames(
-			IReadOnlyList<MSubBranch> branches,
-			IReadOnlyList<MCommit> commits,
-			MRepository repository)
+		public void SetPullMergeCommitBranchNames(IReadOnlyList<MCommit> commits)
 		{
-			Timing t = new Timing();
-			SetMasterBranchCommits(branches, repository);
-			t.Log("Set master branch commits");
+			IEnumerable<MCommit> pullMergeCommits = commits
+				.Where(IsPullMergeCommit);
 
-			SetBranchCommits(branches, repository);
-			t.Log("Set branch commits");
+			foreach (MCommit commit in pullMergeCommits)
+			{
+				if (!commit.HasBranchName)
+				{
+					commit.BranchXName = commit.MergeSourceBranchNameFromSubject;
+					if (!commit.SecondParent.HasBranchName)
+					{
+						commit.SecondParent.BranchXName = commit.MergeSourceBranchNameFromSubject;
+					}
+				}
+			}
+		}
 
+
+		public void SetSubjectCommitBranchNames(IReadOnlyList<MCommit> commits, MRepository repository)
+		{
+			foreach (MCommit commit in commits)
+			{
+				commit.BranchNameFromSubject = TryExtractBranchNameFromSubject(commit, repository);
+			}
+		}
+
+
+		public void SetMasterBranchCommits(IReadOnlyList<MSubBranch> branches, MRepository repository)
+		{
+			// Local master
+			MSubBranch master = branches.FirstOrDefault(b => b.Name == "master" && !b.IsRemote);
+			if (master != null)
+			{
+				SetBranchNameWithPriority(repository, master.LatestCommitId, master);
+			}
+
+			// Remote master
+			master = branches.FirstOrDefault(b => b.Name == "master" && b.IsRemote);
+			if (master != null)
+			{
+				SetBranchNameWithPriority(repository, master.LatestCommitId, master);
+			}
+		}
+
+
+		public void SetNeighborCommitNames(IReadOnlyList<MCommit> commits)
+		{
 			SetEmptyParentCommits(commits);
-			t.Log("Set empty parent commits");
-
 			SetBranchCommitsOfParents(commits);
-			t.Log("Set same branch name as parent with name");
+		}
+
+
+
+		private static bool IsPullMergeCommit(MCommit commit)
+		{
+			return 
+				commit.HasSecondParent
+				&& commit.MergeSourceBranchNameFromSubject != null
+				&& commit.MergeSourceBranchNameFromSubject == commit.MergeTargetBranchNameFromSubject;
 		}
 
 
@@ -60,54 +105,16 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void SetSpecifiedCommitBranchNames(
-			IReadOnlyList<SpecifiedBranchName> specifiedNames,
-			MRepository repository)
+		public void SetBranchTipCommitsNames(IReadOnlyList<MSubBranch> branches, MRepository repository)
 		{
-			foreach (SpecifiedBranchName specifiedName in specifiedNames)
-			{
-				MCommit commit;
-				if (repository.Commits.TryGetValue(specifiedName.CommitId, out commit))
-				{
-					commit.BranchNameSpecified = specifiedName.BranchName;
-					commit.BranchXName = specifiedName.BranchName;
-				}
-			}
-		}
+			IEnumerable<MSubBranch> lBranches = branches.Where(b => !b.LatestCommit.HasBranchName);
 
-		private void SetSubjectCommitBranchNames(
-			IReadOnlyList<MCommit> commits, MRepository repository)
-		{
-			foreach (MCommit xCommit in commits)
+			foreach (MSubBranch branch in lBranches)
 			{
-				xCommit.BranchNameFromSubject = TryExtractBranchNameFromSubject(xCommit, repository);
-			}
-		}
-
-
-		public void SetBranchCommits(IReadOnlyList<MSubBranch> branches, MRepository repository)
-		{
-			foreach (MSubBranch xBranch in branches.ToList())
-			{
-				string id = xBranch.LatestCommitId;
-				SetBranchName(repository, id, xBranch);
-			}
-		}
-
-		private void SetMasterBranchCommits(IReadOnlyList<MSubBranch> branches, MRepository repository)
-		{
-			// Local master
-			MSubBranch master = branches.FirstOrDefault(b => b.Name == "master" && !b.IsRemote);
-			if (master != null)
-			{
-				SetBranchNameWithPriority(repository, master.LatestCommitId, master);
-			}
-
-			// Remote master
-			master = branches.FirstOrDefault(b => b.Name == "master" && b.IsRemote);
-			if (master != null)
-			{
-				SetBranchNameWithPriority(repository, master.LatestCommitId, master);
+				MCommit commit = branch.LatestCommit;
+				
+				commit.BranchXName = branch.Name;
+				commit.SubBranchId = branch.SubBranchId;		
 			}
 		}
 
@@ -115,88 +122,120 @@ namespace GitMind.GitModel.Private
 		private static void SetBranchNameWithPriority(
 			MRepository repository, string commitId, MSubBranch subBranch)
 		{
+			List<string> pullMergeTopCommits = new List<string>();
+
 			while (commitId != null)
 			{
 				MCommit commit = repository.Commits[commitId];
 
-				if (commit.BranchXName == subBranch.Name)
+				if (commit.BranchXName == subBranch.Name && commit.SubBranchId != null)
 				{
 					break;
 				}
 
+				if (commit.HasBranchName && commit.BranchXName != subBranch.Name)
+				{
+					Log.Warn($"commit already has branch {commit.BranchXName} != {subBranch.Name}");
+					break;
+				}
+
+				if (IsPullMergeCommit(commit))
+				{
+					pullMergeTopCommits.Add(commit.FirstParentId);
+				}
+
 				commit.BranchXName = subBranch.Name;
-				commit.SubBranchId = subBranch.Id;
+				commit.SubBranchId = subBranch.SubBranchId;
 				commitId = commit.FirstParentId;
 			}
+
+			pullMergeTopCommits.ForEach(id => SetBranchNameWithPriority(repository, id, subBranch));
 		}
 
-		private void SetBranchName(MRepository repository, string commitId, MSubBranch subBranch)
-		{
-			if (string.IsNullOrEmpty(commitId))
-			{
-				return;
-			}
 
-			foreach (MSubBranch b in repository.SubBranches)
-			{
-				if (b.Name != subBranch.Name
-						&& !(subBranch.IsActive && !b.IsActive)
-						&& !(subBranch.IsMultiBranch)
-						&& (b.LatestCommitId == commitId))
-				{
-					MCommit commit = repository.Commits[commitId];
-					//Log.Warn($"Commit {commit} in branch {subBranch} same as other branch {b}");
-					return;
-				}
-			}
+		//private void SetBranchName(MRepository repository, string commitId, MSubBranch subBranch)
+		//{
+		//	if (string.IsNullOrEmpty(commitId))
+		//	{
+		//		return;
+		//	}
+
+		//	foreach (MSubBranch b in repository.SubBranches)
+		//	{
+		//		if (b.Name != subBranch.Name
+		//				&& !(subBranch.IsActive && !b.IsActive)
+		//				&& !(subBranch.IsMultiBranch)
+		//				&& (b.LatestCommitId == commitId))
+		//		{
+		//			MCommit commit = repository.Commits[commitId];
+		//			//Log.Warn($"Commit {commit} in branch {subBranch} same as other branch {b}");
+		//			return;
+		//		}
+		//	}
+
+		//	string currentId = commitId;
+		//	while (currentId != null)
+		//	{
+		//		MCommit commit = repository.Commits[currentId];
+
+		//		if (!string.IsNullOrEmpty(commit.BranchXName))
+		//		{
+		//			break;
+		//		}
+
+		//		string branchName = GetBranchName(commit);
+
+		//		if (branchName != null && branchName != subBranch.Name
+		//			&& !(subBranch.IsMultiBranch && currentId == commitId))
+		//		{
+		//			break;
+		//		}
+
+		//		if (branchName != subBranch.Name 
+		//			&& 0 != repository.SubBranches.Count(b => b != subBranch && b.LatestCommit == commit))
+		//		{
+		//			// Some other branch has this commit as its latest commit 
+		//			break;
+		//		}
+
+		//		if (branchName != subBranch.Name && commit.ChildIds.Count > 1
+		//			&& !(subBranch.IsMultiBranch && currentId == commitId))
+		//		{
+		//			if (0 != commit.FirstChildren.Count(
+		//				child => GetBranchName(child) != subBranch.Name))
+		//			{
+		//				//Log.Warn($"Found commit which belongs to multiple different branches: {xCommit}");
+		//				break;
+		//			}
+		//		}
+
+		//		//if (branchName != subBranch.Name &&
+		//		//		!(subBranch.IsMultiBranch && currentId == commitId))
+		//		//{
+		//		//	// for multi branches, first commit is a branch root
+		//		//	if (commit.ChildIds.Count > 1)
+		//		//	{
+		//		//		if (0 != commit.FirstChildren.Count(
+		//		//			child => GetBranchName(child) != subBranch.Name))
+		//		//		{
+		//		//			//Log.Warn($"Found commit which belongs to multiple different branches: {xCommit}");
+		//		//			break;
+		//		//		}
+
+		//		//		if (0 != repository.SubBranches.Count(b => b != subBranch && b.LatestCommit == commit))
+		//		//		{
+		//		//			break;
+		//		//		}
+		//		//	}
+		//		//}
+
+		//		commit.BranchXName = subBranch.Name;
+		//		commit.SubBranchId = subBranch.Id;
+		//		currentId = commit.FirstParentId;
+		//	}
+		//}
 
 
-			string currentId = commitId;
-			while (currentId != null)
-			{
-				MCommit commit = repository.Commits[currentId];
-
-				if (!string.IsNullOrEmpty(commit.BranchXName))
-				{
-					break;
-				}
-
-				string branchName = GetBranchName(commit);
-				if (branchName != subBranch.Name &&
-						!(subBranch.IsMultiBranch && currentId == commitId))
-				{
-					// for multi branches, first commit is a branch root
-					if (commit.ChildIds.Count > 1)
-					{
-						if (0 != commit.FirstChildren.Count(
-							child => GetBranchName(child) != subBranch.Name))
-						{
-							//Log.Warn($"Found commit which belongs to multiple different branches: {xCommit}");
-							break;
-						}
-
-						if (0 != repository.SubBranches.Count(b => b != subBranch && b.LatestCommit == commit))
-						{
-							break;
-						}
-					}
-				}
-
-				commit.BranchXName = subBranch.Name;
-				commit.SubBranchId = subBranch.Id;
-				currentId = commit.FirstParentId;
-			}
-		}
-
-	
-
-		private bool IsPullMergeCommit(MCommit commit, MSubBranch subBranch)
-		{
-			return
-				commit.HasSecondParent
-				&& (commit.MergeSourceBranchNameFromSubject == subBranch.Name
-						|| GetBranchName(commit.SecondParent) == subBranch.Name);
-		}
 
 
 		private void SetEmptyParentCommits(IReadOnlyList<MCommit> commits)
@@ -224,11 +263,6 @@ namespace GitMind.GitModel.Private
 						// found commit with branch name already set 
 						break;
 					}
-
-					//if (string.IsNullOrEmpty(currentBranchName) || currentBranchName == branchName)
-					//{
-
-					//}
 
 					if (currentBranchName == branchName)
 					{

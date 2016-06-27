@@ -15,7 +15,8 @@ namespace GitMind.GitModel.Private
 
 		public async Task CacheAsync(MRepository repository)
 		{
-			await WriteRepository(repository);
+			await Task.Yield();
+			//await WriteRepository(repository);
 		}
 
 

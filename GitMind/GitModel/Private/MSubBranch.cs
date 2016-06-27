@@ -8,7 +8,7 @@ namespace GitMind.GitModel.Private
 	public class MSubBranch
 	{
 		[DataMember, ProtoMember(1)]
-		public string Id { get; set; }
+		public string SubBranchId { get; set; }
 		[DataMember, ProtoMember(2)]
 		public string BranchId { get; set; }
 		[DataMember, ProtoMember(3)]

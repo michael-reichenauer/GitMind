@@ -278,8 +278,8 @@ namespace GitMind
 
 			LoadedTime = DateTime.Now;
 		
-			autoRefreshTime.Interval = TimeSpan.FromMilliseconds(300);
-			autoRefreshTime.Start();
+			//autoRefreshTime.Interval = TimeSpan.FromMilliseconds(300);
+			//autoRefreshTime.Start();
 		}
 
 

@@ -21,7 +21,7 @@ namespace GitMind.GitModel.Private
 			BrancheList = new List<MBranch>();
 
 			Commits = new KeyedList<string, MCommit>(c => c.Id);
-			SubBranches = new KeyedList<string, MSubBranch>(b => b.Id);
+			SubBranches = new KeyedList<string, MSubBranch>(b => b.SubBranchId);
 			Branches = new KeyedList<string, MBranch>(b => b.Id);
 		}
 
@@ -62,7 +62,7 @@ namespace GitMind.GitModel.Private
 		public void CompleteDeserialization()
 		{
 			Commits = new KeyedList<string, MCommit>(c => c.Id);
-			SubBranches = new KeyedList<string, MSubBranch>(b => b.Id);
+			SubBranches = new KeyedList<string, MSubBranch>(b => b.SubBranchId);
 			Branches = new KeyedList<string, MBranch>(b => b.Id);
 
 			CommitList.ForEach(c => { c.Repository = this; Commits.Add(c); });

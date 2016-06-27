@@ -14,8 +14,9 @@ namespace GitMind.GitModel.Private
 
 		public BranchService()
 			: this(new CommitBranchNameService())
-		{			
+		{
 		}
+
 
 		public BranchService(ICommitBranchNameService commitBranchNameService)
 		{
@@ -23,119 +24,20 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public IReadOnlyList<MSubBranch> AddSubBranches(
-			IReadOnlyList<GitBranch> gitBranches,
-			MRepository mRepository,
-			IReadOnlyList<MCommit> commits)
-		{
-			Timing t = new Timing();
-			IReadOnlyList<MSubBranch> activeBranches = AddActiveBranches(gitBranches, mRepository);
-			t.Log("Added branches");
-			Log.Debug($"Active sub branches {activeBranches.Count} ({mRepository.SubBranches.Count})");
-
-			IReadOnlyList<MSubBranch> inactiveBranches = AddInactiveBranches(commits, mRepository);
-			IReadOnlyList<MSubBranch> branches = activeBranches.Concat(inactiveBranches).ToList();
-			t.Log("Inactive subbranches");
-			Log.Debug($"Inactive sub branches {inactiveBranches.Count} ({mRepository.SubBranches.Count})");
-			//branches2.ForEach(b => Log.Debug($"   Branch {b}"));
-			return branches;
-		}
-
-
-		public IReadOnlyList<MSubBranch> AddMultiBranches(
-			IReadOnlyList<MCommit> commits, 
-			IReadOnlyList<MSubBranch> branches, 
-			MRepository xmodel)
-		{
-			IEnumerable<MCommit> roots =
-				commits.Where(c =>
-					string.IsNullOrEmpty(c.BranchXName)
-					&& c.FirstChildIds.Count > 1);
-
-			// The commits where multiple branches are starting and the commits has no branch name
-			IEnumerable<MCommit> roots2 = branches
-				.GroupBy(b => b.LatestCommitId)
-				.Where(group => @group.Count() > 1)
-				.Select(group => xmodel.Commits[@group.Key])
-				.Where(c => string.IsNullOrEmpty(c.BranchXName));
-
-			roots = roots.Concat(roots2);
-
-			List<MSubBranch> multiBranches = new List<MSubBranch>();
-			foreach (MCommit root in roots)
-			{
-				string branchName = "Multibranch_" + root.ShortId;
-
-				if (root.Children.Any() &&
-				    root.Children.All(c => c.HasBranchName && c.BranchXName == root.Children.ElementAt(0).BranchXName))
-				{
-					// All children have the same branch name thus this branch is just a continuation of them
-					branchName = root.Children.ElementAt(0).BranchXName;
-				}
-
-				MSubBranch subBranch = new MSubBranch
-				{
-					Repository = xmodel,
-					Id = Guid.NewGuid().ToString(),
-					Name = branchName,
-					LatestCommitId = root.Id,
-					IsMultiBranch = true,
-					IsActive = false,
-					IsAnonymous = true
-				};
-
-				xmodel.SubBranches.Add(subBranch);
-				multiBranches.Add(subBranch);
-			}
-
-			return multiBranches;
-		}
-
-
-		public void SetBranchHierarchy(
-			IReadOnlyList<MSubBranch> subBranches, MRepository mRepository)
-		{
-			SetParentCommitId(subBranches);
-			GroupSubBranches(subBranches);
-			SetBranchHierarchy(mRepository.Branches);
-		}
-
-
-	
-
-
-		private IReadOnlyList<MSubBranch> AddActiveBranches(
-			IReadOnlyList<GitBranch> gitBranches, MRepository xmodel)
+		public IReadOnlyList<MSubBranch> AddActiveBranches(
+			IReadOnlyList<GitBranch> gitBranches, MRepository repository)
 		{
 			return gitBranches.Select(gitBranch =>
 			{
-				MSubBranch subBranch = ToBranch(gitBranch, xmodel);
-				xmodel.SubBranches.Add(subBranch);
+				MSubBranch subBranch = ToBranch(gitBranch, repository);
+				repository.SubBranches.Add(subBranch);
 				return subBranch;
 			})
-				.ToList();
+			.ToList();
 		}
 
-
-
-		private MSubBranch ToBranch(GitBranch gitBranch, MRepository mRepository)
-		{
-			string latestCommitId = gitBranch.LatestCommitId;
-
-			return new MSubBranch
-			{
-				Repository = mRepository,
-				Id = Guid.NewGuid().ToString(),
-				Name = gitBranch.Name,
-				LatestCommitId = latestCommitId,
-				IsMultiBranch = false,
-				IsActive = true,
-				IsRemote = gitBranch.IsRemote
-			};
-		}
-
-		private IReadOnlyList<MSubBranch> AddInactiveBranches(
-		IReadOnlyList<MCommit> commits, MRepository mRepository)
+		public IReadOnlyList<MSubBranch> AddInactiveBranches(
+			IReadOnlyList<MCommit> commits, MRepository repository)
 		{
 			List<MSubBranch> branches = new List<MSubBranch>();
 
@@ -143,95 +45,209 @@ namespace GitMind.GitModel.Private
 			// top of a branch and there is no existing branch at this commit
 			IEnumerable<MCommit> topCommits = commits.Where(commit =>
 				!commit.FirstChildIds.Any()
-				&& !mRepository.SubBranches.Any(b => b.LatestCommitId == commit.Id));
+				&& !repository.SubBranches.Any(b => b.LatestCommitId == commit.Id));
 
-			IEnumerable<MCommit> pullMergeTopCommits = commits
-				.Where(commit =>
-					commit.HasSecondParent
-					&& commit.MergeSourceBranchNameFromSubject != null
-					&& commit.MergeSourceBranchNameFromSubject == commit.MergeTargetBranchNameFromSubject)
-				.Select(c => c.SecondParent);
+			//IEnumerable<MCommit> pullMergeTopCommits = commits
+			//	.Where(commit =>
+			//		commit.HasSecondParent
+			//		&& commit.MergeSourceBranchNameFromSubject != null
+			//		&& commit.MergeSourceBranchNameFromSubject == commit.MergeTargetBranchNameFromSubject)
+			//	.Select(c => c.SecondParent);
 
-			topCommits = topCommits.Concat(pullMergeTopCommits).Distinct();
+			//topCommits = topCommits.Concat(pullMergeTopCommits).Distinct();
 
-
-			foreach (MCommit xCommit in topCommits)
+			foreach (MCommit commit in topCommits)
 			{
 				MSubBranch subBranch = new MSubBranch
 				{
-					Repository = mRepository,
-					Id = Guid.NewGuid().ToString(),
-					LatestCommitId = xCommit.Id,
+					Repository = repository,
+					SubBranchId = Guid.NewGuid().ToString(),
+					LatestCommitId = commit.Id,
 					IsMultiBranch = false,
 					IsActive = false
 				};
 
-				string branchName = TryFindBranchName(xCommit);
+				string branchName = TryFindBranchName(commit);
 				if (string.IsNullOrEmpty(branchName))
 				{
-					branchName = "Branch_" + xCommit.ShortId;
+					branchName = "Branch_" + commit.ShortId;
 					subBranch.IsAnonymous = true;
 				}
 
 				subBranch.Name = branchName;
 
-				mRepository.SubBranches.Add(subBranch);
+				repository.SubBranches.Add(subBranch);
 				branches.Add(subBranch);
 			}
-
 
 			return branches;
 		}
 
 
-		private string TryFindBranchName(MCommit mCommit)
+		public IReadOnlyList<MSubBranch> AddMultiBranches(
+			IReadOnlyList<MCommit> commits, 
+			//IReadOnlyList<MSubBranch> branches, 
+			MRepository repository)
 		{
-			string branchName = commitBranchNameService.GetBranchName(mCommit);
+			// Commits, which do not have branch names
+			IEnumerable<MCommit> roots = commits.Where(c => !c.HasBranchName);
+
+			//// The commits where multiple branches are starting and the commits has no branch name
+			//IEnumerable<MCommit> roots2 = branches
+			//	.GroupBy(b => b.LatestCommitId)
+			//	.Where(group => group.Count() > 1)
+			//	.Select(group => repository.Commits[group.Key])
+			//	.Where(c => string.IsNullOrEmpty(c.BranchXName));
+
+		
+			//roots = roots.Concat(roots2);
+
+			List<MSubBranch> multiBranches = new List<MSubBranch>();
+			foreach (MCommit root in roots)
+			{
+				string branchName = "Multibranch_" + root.ShortId;
+				bool isMultiBranch = true;
+
+				if (root.Children.Any() &&
+				    root.Children.All(c => c.HasBranchName && c.BranchXName == root.Children.ElementAt(0).BranchXName))
+				{
+					// All children have the same branch name thus this branch is just a continuation of them
+					MCommit commit = root.Children.ElementAt(0);
+					branchName = commit.BranchXName;
+					isMultiBranch = branchName.StartsWith("Multibranch_");
+					//Log.Warn($"Multi branch with all same parents {branchName}");
+				}
+
+				MSubBranch subBranch = new MSubBranch
+				{
+					Repository = repository,
+					SubBranchId = Guid.NewGuid().ToString(),
+					Name = branchName,
+					LatestCommitId = root.Id,
+					IsMultiBranch = isMultiBranch,
+					IsActive = false,
+					IsAnonymous = true
+				};
+
+				repository.SubBranches.Add(subBranch);
+				multiBranches.Add(subBranch);
+
+				root.BranchXName = branchName;
+				root.SubBranchId = subBranch.SubBranchId;
+			}
+
+			return multiBranches;
+		}
+
+
+		public IReadOnlyList<MSubBranch> AddMissingInactiveBranches(
+			IReadOnlyList<MCommit> commits, MRepository repository)
+		{
+			List<MSubBranch> branches = new List<MSubBranch>();
+
+			// Commits, which do have branch names but no sub branch id
+			IEnumerable<MCommit> topCommits = commits
+				.Where(c => c.HasBranchName && c.SubBranchId == null).ToList();
+
+			foreach (MCommit commit in topCommits)
+			{
+				MSubBranch subBranch = new MSubBranch
+				{
+					Repository = repository,
+					SubBranchId = Guid.NewGuid().ToString(),
+					LatestCommitId = commit.Id,
+					IsMultiBranch = false,
+					IsActive = false
+				};
+	
+				subBranch.Name = commit.BranchXName;
+				commit.SubBranchId = subBranch.SubBranchId;
+
+				repository.SubBranches.Add(subBranch);
+				branches.Add(subBranch);
+			}
+
+			return branches;
+		}
+
+
+		public void SetBranchHierarchy(
+			IReadOnlyList<MSubBranch> subBranches, MRepository repository)
+		{
+			SetParentCommitId(subBranches);
+
+			GroupSubBranches(subBranches);
+			SetBranchHierarchy(repository.Branches);
+		}
+
+
+		private void SetSubBranchId(IReadOnlyList<MSubBranch> subBranches)
+		{
+			foreach (MSubBranch branch in subBranches)
+			{
+				//SetSubBranchId(branch.LatestCommit, branch);
+
+				foreach (var commit in branch.LatestCommit.FirstAncestors()
+					.Where(c => c.SubBranchId == null && c.BranchXName == branch.Name))
+				{
+					commit.SubBranchId = branch.SubBranchId;
+				}
+			}
+		}
+
+
+		//private void SetSubBranchId(MCommit commit, MSubBranch branch)
+		//{
+		//	if (commit.SubBranchId != null || commit.BranchXName != branch.Name
+
+		//	{
+		//		return;
+		//	}
+		//	commit.SubBranchId = branch.Id;
+		//	foreach (MCommit parent in commit.Parents)
+		//	{
+		//		SetSubBranchId(parent, branch);
+		//	}
+		//}
+
+
+		private static MSubBranch ToBranch(GitBranch gitBranch, MRepository mRepository)
+		{
+			return new MSubBranch
+			{
+				Repository = mRepository,
+				SubBranchId = Guid.NewGuid().ToString(),
+				Name = gitBranch.Name,
+				LatestCommitId = gitBranch.LatestCommitId,
+				IsMultiBranch = false,
+				IsActive = true,
+				IsRemote = gitBranch.IsRemote
+			};
+		}
+
+	
+
+
+		private string TryFindBranchName(MCommit root)
+		{
+			string branchName = commitBranchNameService.GetBranchName(root);
 
 			if (branchName == null)
 			{
 				// Could not find a branch name from the commit, lets try it ancestors
-				foreach (MCommit commit in mCommit.FirstAncestors()
+				foreach (MCommit commit in root.FirstAncestors()
 					.TakeWhile(c => c.HasSingleFirstChild))
 				{
-					string name = commitBranchNameService.GetBranchName(commit);
-					if (name != null)
+					branchName = commitBranchNameService.GetBranchName(commit);
+					if (branchName != null)
 					{
-						return name;
+						return branchName;
 					}
 				}
 			}
 
 			return branchName;
 		}
-
-
-		private static void SetBranchHierarchy(IReadOnlyList<MBranch> branches)
-		{
-			foreach (MBranch xBranch in branches)
-			{
-				if (xBranch.ParentCommitId != null && xBranch.ParentCommit.BranchId != xBranch.Id)
-				{
-					xBranch.ParentBranchId = xBranch.ParentCommit.BranchId;
-
-					MBranch parentBranch = xBranch.ParentBranch;
-					if (!parentBranch.ChildBranches.Contains(xBranch))
-					{
-						parentBranch.ChildBrancheIds.Add(xBranch.Id);
-					}
-				}
-				else
-				{
-					Log.Debug($"Branch {xBranch} has no parent branch");
-				}
-			}
-
-			//foreach (XBranch xBranch in branches.Where(b => b.ParentBranchId == null))
-			//{
-			//	LogBranchHierarchy(xBranch, 0);
-			//}
-		}
-
 
 
 		private static void SetParentCommitId(IReadOnlyList<MSubBranch> subBranches)
@@ -288,18 +304,18 @@ namespace GitMind.GitModel.Private
 
 					mBranch.Id = subBranch.Name + "-" + subBranch.ParentCommitId;
 
-					mBranch.SubBrancheIds.AddRange(groupByBranch.Select(b => b.Id));
+					mBranch.SubBrancheIds.AddRange(groupByBranch.Select(b => b.SubBranchId));
 					mBranch.SubBranches.ForEach(b => b.BranchId = mBranch.Id);
 
 					mBranch.CommitIds.AddRange(
 						groupByBranch
 							.SelectMany(branch =>
 								new[] { branch.LatestCommit }
-									.Where(c => c.SubBranchId == branch.Id && c.Id != branch.ParentCommitId)
+									.Where(c => c.SubBranchId == branch.SubBranchId && c.Id != branch.ParentCommitId)
 									.Concat(
 										branch.LatestCommit
 											.FirstAncestors()
-											.TakeWhile(c => c.SubBranchId == branch.Id && c.Id != branch.ParentCommitId)))
+											.TakeWhile(c => c.SubBranchId == branch.SubBranchId && c.Id != branch.ParentCommitId)))
 							.Distinct()
 							.OrderByDescending(c => c.CommitDate)
 							.Select(c => c.Id));
@@ -321,6 +337,33 @@ namespace GitMind.GitModel.Private
 					mBranch.Repository.Branches.Add(mBranch);
 				}
 			}
+		}
+
+
+		private static void SetBranchHierarchy(IReadOnlyList<MBranch> branches)
+		{
+			foreach (MBranch branch in branches)
+			{
+				if (branch.ParentCommitId != null && branch.ParentCommit.BranchId != branch.Id)
+				{
+					branch.ParentBranchId = branch.ParentCommit.BranchId;
+
+					MBranch parentBranch = branch.ParentBranch;
+					if (!parentBranch.ChildBranches.Contains(branch))
+					{
+						parentBranch.ChildBrancheIds.Add(branch.Id);
+					}
+				}
+				else
+				{
+					Log.Debug($"Branch {branch} has no parent branch");
+				}
+			}
+
+			//foreach (XBranch xBranch in branches.Where(b => b.ParentBranchId == null))
+			//{
+			//	LogBranchHierarchy(xBranch, 0);
+			//}
 		}
 
 

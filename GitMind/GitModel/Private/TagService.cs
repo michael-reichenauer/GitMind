@@ -7,12 +7,12 @@ namespace GitMind.GitModel.Private
 {
 	internal class TagService : ITagService
 	{
-		public void AddTags(IReadOnlyList<GitTag> tags, MRepository mRepository)
+		public void AddTags(IReadOnlyList<GitTag> tags, MRepository repository)
 		{
 			foreach (GitTag tag in tags)
 			{
 				MCommit commit;
-				if (mRepository.Commits.TryGetValue(tag.CommitId, out commit))
+				if (repository.Commits.TryGetValue(tag.CommitId, out commit))
 				{
 					string tagText = $"[{tag.TagName}] ";
 					if (commit.Tags != null && -1 == commit.Tags.IndexOf(tag.TagName, StringComparison.Ordinal))

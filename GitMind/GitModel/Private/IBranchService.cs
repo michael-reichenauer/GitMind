@@ -6,16 +6,21 @@ namespace GitMind.GitModel.Private
 {
 	internal interface IBranchService
 	{
-		IReadOnlyList<MSubBranch> AddSubBranches(
-			IReadOnlyList<GitBranch> gitBranches, 
-			MRepository mRepository, 
-			IReadOnlyList<MCommit> commits);
+		IReadOnlyList<MSubBranch> AddActiveBranches(
+			IReadOnlyList<GitBranch> gitBranches, MRepository repository);
 
-		void SetBranchHierarchy(IReadOnlyList<MSubBranch> subBranches, MRepository mRepository);
+		IReadOnlyList<MSubBranch> AddInactiveBranches(
+			IReadOnlyList<MCommit> commits, MRepository repository);
 
 		IReadOnlyList<MSubBranch> AddMultiBranches(
 			IReadOnlyList<MCommit> commits, 
-			IReadOnlyList<MSubBranch> branches,
-			MRepository xmodel);
+			//IReadOnlyList<MSubBranch> branches,
+			MRepository repository);
+
+		IReadOnlyList<MSubBranch> AddMissingInactiveBranches(
+			IReadOnlyList<MCommit> commits, MRepository repository);
+
+		void SetBranchHierarchy(IReadOnlyList<MSubBranch> subBranches, MRepository mRepository);
+	
 	}
 }

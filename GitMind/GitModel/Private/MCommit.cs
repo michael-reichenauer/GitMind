@@ -49,6 +49,7 @@ namespace GitMind.GitModel.Private
 		public string MergeSourceBranchNameFromSubject { get; set; }
 		[DataMember, ProtoMember(15)]
 		public string MergeTargetBranchNameFromSubject { get; set; }
+
 		[DataMember, ProtoMember(16)]
 		public string SubBranchId { get; set; }
 		[DataMember, ProtoMember(17)]

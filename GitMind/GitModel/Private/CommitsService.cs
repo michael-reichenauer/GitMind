@@ -92,7 +92,9 @@ namespace GitMind.GitModel.Private
 				return BranchNameParser.NoMerge;
 			}
 
-			return BranchNameParser.ParseBranchNamesFromSubject(gitCommit.Subject);
+			MergeBranchNames names = BranchNameParser.ParseBranchNamesFromSubject(gitCommit.Subject);
+
+			return names;
 		}
 
 
