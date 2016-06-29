@@ -229,7 +229,8 @@ namespace GitMind.CommitsHistory
 						|| Contains(c.Author, filterText)
 						|| Contains(c.AuthorDateText, filterText)
 						|| Contains(c.Tickets, filterText)
-						|| Contains(c.Tags, filterText))
+						|| Contains(c.Tags, filterText)
+						|| Contains(c.Branch.Name, filteredText))
 					.OrderByDescending(c => c.CommitDate)
 					.ToList();
 			});
@@ -313,9 +314,10 @@ namespace GitMind.CommitsHistory
 
 			List<Branch> branchesWithParents = masterBranches.
 				Concat(branchesInRepo
-					.Concat(branchesInRepo.SelectMany(branch => branch.Parents())))
+					.Concat(branchesInRepo.SelectMany(branch => branch.Parents().Take(10))))
 				.Distinct()
 				.ToList();
+
 
 			// Sort branches to make parent braches shown left of its child branches
 			Sorter.Sort(branchesWithParents, new BranchComparer());
