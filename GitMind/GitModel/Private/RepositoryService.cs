@@ -27,7 +27,7 @@ namespace GitMind.GitModel.Private
 					new CommitsService(),
 					new BranchService(),
 					new CommitBranchNameService(),
-					new AheadBehindService(), 
+					new AheadBehindService(),
 					new TagService())
 		{
 		}
@@ -143,15 +143,24 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			IReadOnlyList<MCommit> commits = commitsService.AddCommits(gitCommits, repository);
 			t.Log($"Added {commits.Count} commits");
+			Log.Debug($"Has 1 branch name {repository.Commits.Count(c => c.HasBranchName)}");
+			Log.Debug($"Has 1 branch sub id {repository.Commits.Count(c => c.SubBranchId != null)}");
 
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			t.Log($"Set {gitSpecifiedNames.Count} specified branch names");
+			Log.Debug($"Has 2 branch name {repository.Commits.Count(c => c.HasBranchName)}");
+			Log.Debug($"Has 2 branch sub id {repository.Commits.Count(c => c.SubBranchId != null)}");
 
 			commitBranchNameService.SetPullMergeCommitBranchNames(commits);
 			t.Log("Set pull merge commit branch names");
+			Log.Debug($"Has 2 branch name {repository.Commits.Count(c => c.HasBranchName)}");
+			Log.Debug($"Has 2 branch sub id {repository.Commits.Count(c => c.SubBranchId != null)}");
 
 			commitBranchNameService.SetSubjectCommitBranchNames(commits, repository);
 			t.Log("Set commit subject branch names");
+			Log.Debug($"Has 3 branch name {repository.Commits.Count(c => c.HasBranchName)}");
+			Log.Debug($"Has 3 branch sub id {repository.Commits.Count(c => c.SubBranchId != null)}");
+
 
 			IReadOnlyList<MSubBranch> activeBranches = branchService.AddActiveBranches(gitBranches, repository);
 			t.Log($"Added {activeBranches.Count} active branches");
@@ -160,30 +169,47 @@ namespace GitMind.GitModel.Private
 			t.Log($"Added {inactiveBranches.Count} inactive branches");
 
 			IReadOnlyList<MSubBranch> subBranches = activeBranches.Concat(inactiveBranches).ToList();
+			Log.Debug($"Has 4 branch name {repository.Commits.Count(c => c.HasBranchName)}");
+			Log.Debug($"Has 4 branch sub id {repository.Commits.Count(c => c.SubBranchId != null)}");
 
 			commitBranchNameService.SetMasterBranchCommits(subBranches, repository);
 			t.Log("Set master branch names");
+			Log.Debug($"Has 5 branch name {repository.Commits.Count(c => c.HasBranchName)}");
+			Log.Debug($"Has 5 branch sub id {repository.Commits.Count(c => c.SubBranchId != null)}");
 
 			commitBranchNameService.SetBranchTipCommitsNames(subBranches, repository);
 			t.Log("Set branch tip commit branch names");
+			Log.Debug($"Has 6 branch name {repository.Commits.Count(c => c.HasBranchName)}");
+			Log.Debug($"Has 6 branch sub id {repository.Commits.Count(c => c.SubBranchId != null)}");
 
 			commitBranchNameService.SetNeighborCommitNames(commits);
 			t.Log("Set neighbor commit names");
+			Log.Debug($"Has 7 branch name {repository.Commits.Count(c => c.HasBranchName)}");
+			Log.Debug($"Has 7 branch sub id {repository.Commits.Count(c => c.SubBranchId != null)}");
+
+
+			IReadOnlyList<MSubBranch> missingInactiveBranches = branchService.AddMissingInactiveBranches(commits, repository);
+			t.Log($"Added {missingInactiveBranches.Count} missing XXX inactive branches");
+			subBranches = subBranches.Concat(missingInactiveBranches).ToList();
+			Log.Debug($"Has 8 branch name {repository.Commits.Count(c => c.HasBranchName)}");
+			Log.Debug($"Has 8 branch sub id {repository.Commits.Count(c => c.SubBranchId != null)}");
+
+
 
 			IReadOnlyList<MSubBranch> multiBranches = branchService.AddMultiBranches(commits, repository);
 			t.Log($"Added {multiBranches.Count(B => B.IsMultiBranch)} multi branches");
-		
+			Log.Debug($"Has 9 branch name {repository.Commits.Count(c => c.HasBranchName)}");
+			Log.Debug($"Has 9 branch sub id {repository.Commits.Count(c => c.SubBranchId != null)}");
+
+
+			Log.Debug($"Unset commits after multi {commits.Count(c => !c.HasBranchName)}");
+
+
 			subBranches = subBranches.Concat(multiBranches).ToList();
 			t.Log($"Total {subBranches.Count} sub branches");
 
-			IReadOnlyList<MSubBranch> missingInactiveBranches = branchService.AddMissingInactiveBranches(commits, repository);
-			t.Log($"Added {missingInactiveBranches.Count} missing inactive branches");
-			subBranches = subBranches.Concat(missingInactiveBranches).ToList();
+			// throw new InvalidDataException("Stop !!!!!!!!!!!!!!!");
 
-			commitBranchNameService.SetNeighborCommitNames(commits);
-			t.Log("Set neighbor commit names after multi branches");
-
-			Log.Debug($"Unset commits after multi {commits.Count(c => !c.HasBranchName)}");
 
 			branchService.SetBranchHierarchy(subBranches, repository);
 			t.Log($"SetBranchHierarchy with {repository.Branches.Count} branches");

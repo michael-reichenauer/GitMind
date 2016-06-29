@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using System.Linq;
-using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -8,22 +8,24 @@ namespace GitMind.GitModel.Private
 	{
 		public void SetAheadBehind(MRepository repository)
 		{
-			var bothLocalAndRemotebranches = repository.SubBranches.Where(b => b.IsActive)
+			// Getting all branches, which are active and have both local and remote tracking branches.
+			IEnumerable<MSubBranch> activeSubBranches = repository.SubBranches.Where(b => b.IsActive);
+			IEnumerable<MBranch> bothLocalAndRemotebranches = activeSubBranches
 				.GroupBy(b => b.BranchId)
-				.Where(g => g.Count() == 2 && g.Any(b => !b.IsRemote) && g.Any(b => b.IsRemote))
+				.Where(g => g.Count() == 2 && g.Any(b => b.IsLocal) && g.Any(b => b.IsRemote))
 				.Select(g => repository.Branches.First(b => b.Id == g.Key));
 
 			bothLocalAndRemotebranches.ForEach(b => b.IsLocalAndRemote = true);
 
-			Timing t = new Timing();
-			var localBranches = repository.SubBranches.Where(b => b.IsActive && !b.IsRemote);
-			localBranches.ForEach(branch => MarkIsLocalAhead(branch.LatestCommit));
-			t.Log("Local commits");
+			// Mark all commits in local branches as local commit
+			var localSubBranches = repository.SubBranches.Where(b => b.IsActive && b.IsLocal);
+			localSubBranches.ForEach(branch => MarkIsLocalAhead(branch.LatestCommit));
 
-			var remoteBranches = repository.SubBranches.Where(b => b.IsActive && b.IsRemote);
-			remoteBranches.ForEach(branch => MarkIsRemoteAhead(branch.LatestCommit));
-			t.Log("Remote commits");
+			// Mark all commits in remote branches as remote commits
+			var remoteSubBranches = repository.SubBranches.Where(b => b.IsActive && b.IsRemote);
+			remoteSubBranches.ForEach(branch => MarkIsRemoteAhead(branch.LatestCommit));
 
+			// Count all commits in all branches to get the local and remote ahead count for a branch 
 			foreach (MBranch branch in repository.Branches)
 			{
 				int localAheadCount = 0;
@@ -43,12 +45,10 @@ namespace GitMind.GitModel.Private
 				branch.LocalAheadCount = localAheadCount;
 				branch.RemoteAheadCount = remoteAheadCount;
 			}
-
-			t.Log("Summery of local and remote commits");
 		}
 
 
-		private void MarkIsLocalAhead(MCommit commit)
+		private static void MarkIsLocalAhead(MCommit commit)
 		{
 			if (!commit.IsLocalAheadMarker)
 			{
@@ -62,7 +62,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void MarkIsRemoteAhead(MCommit commit)
+		private static void MarkIsRemoteAhead(MCommit commit)
 		{
 			if (!commit.IsRemoteAheadMarker)
 			{

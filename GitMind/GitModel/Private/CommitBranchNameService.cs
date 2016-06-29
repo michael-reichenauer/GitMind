@@ -72,14 +72,14 @@ namespace GitMind.GitModel.Private
 		public void SetNeighborCommitNames(IReadOnlyList<MCommit> commits)
 		{
 			SetEmptyParentCommits(commits);
+
 			SetBranchCommitsOfParents(commits);
 		}
 
-
-
+		
 		private static bool IsPullMergeCommit(MCommit commit)
 		{
-			return 
+			return
 				commit.HasSecondParent
 				&& commit.MergeSourceBranchNameFromSubject != null
 				&& commit.MergeSourceBranchNameFromSubject == commit.MergeTargetBranchNameFromSubject;
@@ -112,7 +112,7 @@ namespace GitMind.GitModel.Private
 			foreach (MSubBranch branch in lBranches)
 			{
 				MCommit commit = branch.LatestCommit;
-				
+
 				commit.BranchXName = branch.Name;
 				commit.SubBranchId = branch.SubBranchId;		
 			}
@@ -151,91 +151,6 @@ namespace GitMind.GitModel.Private
 
 			pullMergeTopCommits.ForEach(id => SetBranchNameWithPriority(repository, id, subBranch));
 		}
-
-
-		//private void SetBranchName(MRepository repository, string commitId, MSubBranch subBranch)
-		//{
-		//	if (string.IsNullOrEmpty(commitId))
-		//	{
-		//		return;
-		//	}
-
-		//	foreach (MSubBranch b in repository.SubBranches)
-		//	{
-		//		if (b.Name != subBranch.Name
-		//				&& !(subBranch.IsActive && !b.IsActive)
-		//				&& !(subBranch.IsMultiBranch)
-		//				&& (b.LatestCommitId == commitId))
-		//		{
-		//			MCommit commit = repository.Commits[commitId];
-		//			//Log.Warn($"Commit {commit} in branch {subBranch} same as other branch {b}");
-		//			return;
-		//		}
-		//	}
-
-		//	string currentId = commitId;
-		//	while (currentId != null)
-		//	{
-		//		MCommit commit = repository.Commits[currentId];
-
-		//		if (!string.IsNullOrEmpty(commit.BranchXName))
-		//		{
-		//			break;
-		//		}
-
-		//		string branchName = GetBranchName(commit);
-
-		//		if (branchName != null && branchName != subBranch.Name
-		//			&& !(subBranch.IsMultiBranch && currentId == commitId))
-		//		{
-		//			break;
-		//		}
-
-		//		if (branchName != subBranch.Name 
-		//			&& 0 != repository.SubBranches.Count(b => b != subBranch && b.LatestCommit == commit))
-		//		{
-		//			// Some other branch has this commit as its latest commit 
-		//			break;
-		//		}
-
-		//		if (branchName != subBranch.Name && commit.ChildIds.Count > 1
-		//			&& !(subBranch.IsMultiBranch && currentId == commitId))
-		//		{
-		//			if (0 != commit.FirstChildren.Count(
-		//				child => GetBranchName(child) != subBranch.Name))
-		//			{
-		//				//Log.Warn($"Found commit which belongs to multiple different branches: {xCommit}");
-		//				break;
-		//			}
-		//		}
-
-		//		//if (branchName != subBranch.Name &&
-		//		//		!(subBranch.IsMultiBranch && currentId == commitId))
-		//		//{
-		//		//	// for multi branches, first commit is a branch root
-		//		//	if (commit.ChildIds.Count > 1)
-		//		//	{
-		//		//		if (0 != commit.FirstChildren.Count(
-		//		//			child => GetBranchName(child) != subBranch.Name))
-		//		//		{
-		//		//			//Log.Warn($"Found commit which belongs to multiple different branches: {xCommit}");
-		//		//			break;
-		//		//		}
-
-		//		//		if (0 != repository.SubBranches.Count(b => b != subBranch && b.LatestCommit == commit))
-		//		//		{
-		//		//			break;
-		//		//		}
-		//		//	}
-		//		//}
-
-		//		commit.BranchXName = subBranch.Name;
-		//		commit.SubBranchId = subBranch.Id;
-		//		currentId = commit.FirstParentId;
-		//	}
-		//}
-
-
 
 
 		private void SetEmptyParentCommits(IReadOnlyList<MCommit> commits)
@@ -287,31 +202,33 @@ namespace GitMind.GitModel.Private
 			}
 		}
 
-
 		private static void SetBranchCommitsOfParents(IReadOnlyList<MCommit> commits)
 		{
-			IEnumerable<MCommit> commitsWithBranchName =
-				commits.Where(commit =>
-					commit.HasBranchName
-					&& commit.HasFirstParent
-					&& !commit.FirstParent.HasBranchName);
-
-			foreach (MCommit xCommit in commitsWithBranchName)
+			bool found;
+			do
 			{
-				string branchName = xCommit.BranchXName;
-				string subBranchId = xCommit.SubBranchId;
-
-				foreach (MCommit current in xCommit.FirstAncestors()
-					.TakeWhile(c => c.FirstChildIds.Count <= 1 && !c.HasBranchName))
+				found = false;
+				foreach (MCommit commit in commits)
 				{
-					current.BranchXName = branchName;
-					current.SubBranchId = subBranchId;
+					if (!commit.HasBranchName && commit.FirstChildren.Any())
+					{
+						MCommit firstChild = commit.FirstChildren.ElementAt(0);
+						if (firstChild.HasBranchName)
+						{
+							if (commit.FirstChildren.All(c => c.BranchXName == firstChild.BranchXName))
+							{
+								commit.BranchXName = firstChild.BranchXName;
+								commit.SubBranchId = firstChild.SubBranchId;
+								found = true;
+							}
+						}
+					}
 				}
-			}
+			} while (found);
 		}
 
 
-		private string TryExtractBranchNameFromSubject(MCommit commit, MRepository repository)
+		private static string TryExtractBranchNameFromSubject(MCommit commit, MRepository repository)
 		{
 			if (commit.SecondParentId != null)
 			{

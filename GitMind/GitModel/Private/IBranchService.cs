@@ -13,14 +13,11 @@ namespace GitMind.GitModel.Private
 			IReadOnlyList<MCommit> commits, MRepository repository);
 
 		IReadOnlyList<MSubBranch> AddMultiBranches(
-			IReadOnlyList<MCommit> commits, 
-			//IReadOnlyList<MSubBranch> branches,
-			MRepository repository);
+			IReadOnlyList<MCommit> commits, MRepository repository);
 
 		IReadOnlyList<MSubBranch> AddMissingInactiveBranches(
 			IReadOnlyList<MCommit> commits, MRepository repository);
 
 		void SetBranchHierarchy(IReadOnlyList<MSubBranch> subBranches, MRepository mRepository);
-	
 	}
 }
