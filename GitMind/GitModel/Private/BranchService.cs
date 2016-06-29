@@ -358,10 +358,10 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			foreach (MBranch xBranch in branches.Where(b => b.ParentBranchId == null))
-			{
-				LogBranchHierarchy(xBranch, 0);
-			}
+			//foreach (MBranch xBranch in branches.Where(b => b.ParentBranchId == null))
+			//{
+			//	LogBranchHierarchy(xBranch, 0);
+			//}
 		}
 
 
