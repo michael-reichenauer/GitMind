@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -62,6 +63,7 @@ namespace GitMind.GitModel.Private
 
 				branch.LocalAheadCount = localAheadCount;
 				branch.RemoteAheadCount = remoteAheadCount;
+				Log.Debug($"{branch} {branch.LocalAheadCount}, {branch.RemoteAheadCount}");
 			}
 		}
 
