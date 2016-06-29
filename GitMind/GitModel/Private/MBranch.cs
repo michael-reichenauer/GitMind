@@ -35,7 +35,7 @@ namespace GitMind.GitModel.Private
 		public bool IsLocalAndRemote { get; set; }
 
 		[DataMember, ProtoMember(13)]
-		public List<string> SubBrancheIds { get; set; } = new List<string>();
+		public List<string> SubBranchIds { get; set; } = new List<string>();
 		[DataMember, ProtoMember(14)]
 		public List<string> CommitIds { get; set; } = new List<string>();
 		[DataMember, ProtoMember(15)]
@@ -44,7 +44,7 @@ namespace GitMind.GitModel.Private
 		public MRepository Repository { get; set; }
 
 		public IEnumerable<MSubBranch> SubBranches => 
-			SubBrancheIds.Select(id => Repository.SubBranches[id]);
+			SubBranchIds.Select(id => Repository.SubBranches[id]);
 		public IEnumerable<MCommit> Commits =>
 			CommitIds.Select(id => Repository.Commits[id]);
 		public IEnumerable<MBranch> ChildBranches =>

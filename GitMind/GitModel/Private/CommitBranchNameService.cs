@@ -25,8 +25,7 @@ namespace GitMind.GitModel.Private
 
 		public void SetPullMergeCommitBranchNames(IReadOnlyList<MCommit> commits)
 		{
-			IEnumerable<MCommit> pullMergeCommits = commits
-				.Where(IsPullMergeCommit);
+			IEnumerable<MCommit> pullMergeCommits = commits.Where(IsPullMergeCommit);
 
 			foreach (MCommit commit in pullMergeCommits)
 			{

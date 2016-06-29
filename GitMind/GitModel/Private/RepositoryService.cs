@@ -16,6 +16,7 @@ namespace GitMind.GitModel.Private
 		private readonly ICommitsService commitsService;
 		private readonly IBranchService branchService;
 		private readonly ICommitBranchNameService commitBranchNameService;
+		private readonly IBranchHierarchyService branchHierarchyService;
 		private readonly IAheadBehindService aheadBehindService;
 		private readonly ITagService tagService;
 
@@ -27,6 +28,7 @@ namespace GitMind.GitModel.Private
 					new CommitsService(),
 					new BranchService(),
 					new CommitBranchNameService(),
+					new BranchHierarchyService(),
 					new AheadBehindService(),
 					new TagService())
 		{
@@ -39,6 +41,7 @@ namespace GitMind.GitModel.Private
 			ICommitsService commitsService,
 			IBranchService branchService,
 			ICommitBranchNameService commitBranchNameService,
+			IBranchHierarchyService branchHierarchyService,
 			IAheadBehindService aheadBehindService,
 			ITagService tagService)
 		{
@@ -47,6 +50,7 @@ namespace GitMind.GitModel.Private
 			this.commitsService = commitsService;
 			this.branchService = branchService;
 			this.commitBranchNameService = commitBranchNameService;
+			this.branchHierarchyService = branchHierarchyService;
 			this.aheadBehindService = aheadBehindService;
 			this.tagService = tagService;
 		}
@@ -153,6 +157,7 @@ namespace GitMind.GitModel.Private
 			commitBranchNameService.SetSubjectCommitBranchNames(commits, repository);
 			t.Log("Set commit subject branch names");
 
+
 			IReadOnlyList<MSubBranch> activeBranches = branchService.AddActiveBranches(gitBranches, repository);
 			t.Log($"Added {activeBranches.Count} active branches");
 
@@ -169,8 +174,10 @@ namespace GitMind.GitModel.Private
 
 			commitBranchNameService.SetNeighborCommitNames(commits);
 			t.Log("Set neighbor commit names");
+
 		
-			IReadOnlyList<MSubBranch> missingInactiveBranches = branchService.AddMissingInactiveBranches(commits, repository);
+			IReadOnlyList<MSubBranch> missingInactiveBranches = branchService.AddMissingInactiveBranches(
+				commits, repository);
 			t.Log($"Added {missingInactiveBranches.Count} missing inactive branches");
 			subBranches = subBranches.Concat(missingInactiveBranches).ToList();
 			
@@ -183,10 +190,9 @@ namespace GitMind.GitModel.Private
 			subBranches = subBranches.Concat(multiBranches).ToList();
 			t.Log($"Total {subBranches.Count} sub branches");
 
-			// throw new InvalidDataException("Stop !!!!!!!!!!!!!!!");
+		
 
-
-			branchService.SetBranchHierarchy(subBranches, repository);
+			branchHierarchyService.SetBranchHierarchy(subBranches, repository);
 			t.Log($"SetBranchHierarchy with {repository.Branches.Count} branches");
 
 			aheadBehindService.SetAheadBehind(repository);

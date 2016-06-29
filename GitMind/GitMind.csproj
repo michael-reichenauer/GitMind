@@ -100,6 +100,7 @@
     <Compile Include="GitModel\CommitFiles.cs" />
     <Compile Include="GitModel\CommitsFiles.cs" />
     <Compile Include="GitModel\Private\AheadBehindService.cs" />
+    <Compile Include="GitModel\Private\BranchHierarchyService.cs" />
     <Compile Include="GitModel\Private\BranchNameParser.cs" />
     <Compile Include="DataModel\Old\BranchPriority.cs" />
     <Compile Include="DataModel\Old\OldCommit.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="GitModel\Private\CommitsService.cs" />
     <Compile Include="GitModel\Private\Converter.cs" />
     <Compile Include="GitModel\Private\IAheadBehindService.cs" />
+    <Compile Include="GitModel\Private\IBranchHierarchyService.cs" />
     <Compile Include="GitModel\Private\ICommitBranchNameService.cs" />
     <Compile Include="GitModel\Private\IBranchService.cs" />
     <Compile Include="GitModel\Private\ICommitsService.cs" />
