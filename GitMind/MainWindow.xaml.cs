@@ -277,9 +277,9 @@ namespace GitMind
 			ItemsListBox.Focus();
 
 			LoadedTime = DateTime.Now;
-		
-			//autoRefreshTime.Interval = TimeSpan.FromMilliseconds(300);
-			//autoRefreshTime.Start();
+
+			autoRefreshTime.Interval = TimeSpan.FromMilliseconds(300);
+			autoRefreshTime.Start();
 		}
 
 
@@ -324,13 +324,15 @@ namespace GitMind
 
 		private async Task RefreshInternalAsync(bool isShift)
 		{
+			await refreshService.UpdateStatusAsync();
+
 			await gitService.FetchAsync(null);
 			Repository repository = await repositoryService.UpdateRepositoryAsync(
 				repositoryViewModel.Repository);
 
 			repositoryViewModel.Update(repository, repositoryViewModel.SpecifiedBranches);
 
-			//await refreshService.UpdateStatusAsync();
+			
 			//await historyViewModel.RefreshAsync(isShift);
 		}
 

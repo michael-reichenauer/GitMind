@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using GitMind.Utils;
 using ProtoBuf;
 
@@ -12,7 +11,7 @@ namespace GitMind.GitModel.Private
 	[DataContract, ProtoContract]
 	public class MRepository
 	{
-		public static string CurrentVersion = "2";
+		public static string CurrentVersion = "3";
 
 		public MRepository()
 		{

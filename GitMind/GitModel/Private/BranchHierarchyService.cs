@@ -49,8 +49,8 @@ namespace GitMind.GitModel.Private
 
 					branch.Id = subBranch.Name + "-" + subBranch.ParentCommitId;
 
-					branch.SubBranchIds.AddRange(GetSubBranchIds(groupByBranch));
-					branch.SubBranches.ForEach(b => b.BranchId = branch.Id);
+					//branch.SubBranchIds.AddRange(GetSubBranchIds(groupByBranch));
+					//branch.SubBranches.ForEach(b => b.BranchId = branch.Id);
 
 					branch.CommitIds.AddRange(GetCommitIdsInBranch(groupByBranch));
 
