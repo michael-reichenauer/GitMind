@@ -191,7 +191,8 @@ namespace GitMind.Git.Private
 
 		public async Task<R<GitCommitFiles>> GetCommitsFilesForCommitAsync(string path, string commitId)
 		{
-			string args = $"diff-tree -M -m --root --no-commit-id --name-only -r {commitId}";
+			// -m shows diffs for merge commits
+			string args = $"diff-tree --find-renames -m --root --no-commit-id --name-only -r {commitId}";
 
 			R<IReadOnlyList<string>> logResult = await GitAsync(path, args);
 
@@ -213,6 +214,7 @@ namespace GitMind.Git.Private
 
 		public async Task<R<CommitDiff>> GetCommitFileDiffAsync(string commitId, string name)
 		{
+			// -m shows diffs for merge commits
 			string args;
 
 			int index = commitId.IndexOf("_");
@@ -221,7 +223,7 @@ namespace GitMind.Git.Private
 				commitId = commitId.Substring(0, index);
 			}
 
-			args = $"diff --unified=10000 {commitId}^ {commitId} {name}";
+			args = $"diff -m --root --unified=10000 {commitId}^ {commitId} -- {name}";
 		
 
 			R<IReadOnlyList<string>> diff = await GitAsync(null, args);

@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using GitMind.DataModel.Old;
-using GitMind.GitModel;
 using GitMind.Utils.UI;
 
 
@@ -23,7 +22,7 @@ namespace GitMind.CommitsHistory
 
 		public ObservableCollection<CommitFileViewModel> Files { get; }
 			= new ObservableCollection<CommitFileViewModel>();
-	
+
 		public string Id
 		{
 			get { return Get(); }
