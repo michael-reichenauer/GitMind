@@ -40,7 +40,15 @@
     <ApplicationIcon>Application.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
@@ -64,37 +72,84 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AcceptingExceptionsAttribute.cs" />
-    <Compile Include="BranchName.cs" />
+    <Compile Include="CommitsHistory\BranchComparer.cs" />
+    <Compile Include="CommitsHistory\BranchName.cs" />
+    <Compile Include="CommitsHistory\BranchViewModel.cs" />
     <Compile Include="CommitsHistory\BrushService.cs" />
-    <Compile Include="CommitsHistory\CoordinateConverter.cs" />
+    <Compile Include="CommitsHistory\CommitDetail.cs" />
+    <Compile Include="CommitsHistory\CommitDetailViewModel.cs" />
+    <Compile Include="CommitsHistory\CommitFileViewModel.cs" />
+    <Compile Include="GitModel\CommitFile.cs" />
+    <Compile Include="CommitsHistory\CommitViewModel.cs" />
+    <Compile Include="CommitsHistory\Converter.cs" />
     <Compile Include="CommitsHistory\DiffService.cs" />
     <Compile Include="CommitsHistory\IBrushService.cs" />
-    <Compile Include="CommitsHistory\ICoordinateConverter.cs" />
     <Compile Include="CommitsHistory\IDiffService.cs" />
-    <Compile Include="DataModel\Private\ActiveBranch.cs" />
-    <Compile Include="DataModel\Private\BranchBuilder.cs" />
-    <Compile Include="DataModel\Private\BranchComparer.cs" />
-    <Compile Include="DataModel\Private\BranchNameComparer.cs" />
-    <Compile Include="DataModel\Private\BranchNameParser.cs" />
-    <Compile Include="DataModel\Private\BranchPriority.cs" />
-    <Compile Include="DataModel\Private\Commit.cs" />
-    <Compile Include="DataModel\Private\CommitComparer.cs" />
-    <Compile Include="DataModel\Private\Commits.cs" />
+    <Compile Include="CommitsHistory\IViewModelService.cs" />
+    <Compile Include="CommitsHistory\IVirtualItem.cs" />
+    <Compile Include="CommitsHistory\MergeViewModel.cs" />
+    <Compile Include="CommitsHistory\RepositoryVirtualItemsSource.cs" />
+    <Compile Include="CommitsHistory\RepositoryViewModel.cs" />
+    <Compile Include="CommitsHistory\ViewModelService.cs" />
+    <Compile Include="DataModel\Old\ActiveBranch.cs" />
+    <Compile Include="DataModel\Old\OldBranchBuilder.cs" />
+    <Compile Include="DataModel\Old\OldBranchComparer.cs" />
+    <Compile Include="DataModel\Old\BranchNameComparer.cs" />
+    <Compile Include="GitModel\Branch.cs" />
+    <Compile Include="GitModel\Commit.cs" />
+    <Compile Include="GitModel\CommitFiles.cs" />
+    <Compile Include="GitModel\CommitsFiles.cs" />
+    <Compile Include="GitModel\Private\AheadBehindService.cs" />
+    <Compile Include="GitModel\Private\BranchHierarchyService.cs" />
+    <Compile Include="GitModel\Private\BranchNameParser.cs" />
+    <Compile Include="DataModel\Old\BranchPriority.cs" />
+    <Compile Include="DataModel\Old\OldCommit.cs" />
+    <Compile Include="DataModel\Old\CommitComparer.cs" />
+    <Compile Include="DataModel\Old\Commits.cs" />
+    <Compile Include="GitModel\IRepositoryService.cs" />
+    <Compile Include="GitModel\Private\CommitBranchNameService.cs" />
+    <Compile Include="GitModel\Private\BranchService.cs" />
+    <Compile Include="GitModel\Private\CommitsService.cs" />
+    <Compile Include="GitModel\Private\Converter.cs" />
+    <Compile Include="GitModel\Private\IAheadBehindService.cs" />
+    <Compile Include="GitModel\Private\IBranchHierarchyService.cs" />
+    <Compile Include="GitModel\Private\ICommitBranchNameService.cs" />
+    <Compile Include="GitModel\Private\IBranchService.cs" />
+    <Compile Include="GitModel\Private\ICommitsService.cs" />
+    <Compile Include="GitModel\Private\ITagService.cs" />
+    <Compile Include="GitModel\Private\MBranch.cs" />
+    <Compile Include="GitModel\Private\MCommit.cs" />
+    <Compile Include="GitModel\Private\MCommitFiles.cs" />
+    <Compile Include="GitModel\Private\MSubBranch.cs" />
+    <Compile Include="GitModel\Private\SpecifiedBranchName.cs" />
+    <Compile Include="GitModel\Private\TagService.cs" />
+    <Compile Include="GitModel\Repository.cs" />
+    <Compile Include="GitModel\Tag.cs" />
+    <Compile Include="Git\GitCommitFiles.cs" />
+    <Compile Include="Git\GitFile.cs" />
+    <Compile Include="Utils\IReadOnlyKeyedList.cs" />
+    <Compile Include="Utils\KeyedList.cs" />
+    <Compile Include="GitModel\Private\MRepository.cs" />
+    <Compile Include="GitModel\Private\RepositoryService.cs" />
     <Compile Include="ExceptionHandling.cs" />
     <Compile Include="FatalExceptionsExtensions.cs" />
+    <Compile Include="GitModel\Private\CacheService.cs" />
+    <Compile Include="GitModel\Private\ICacheService.cs" />
     <Compile Include="Installation\Private\CommandLine.cs" />
     <Compile Include="Installation\ICommandLine.cs" />
+    <Compile Include="Utils\AsyncSemaphore.cs" />
+    <Compile Include="Utils\EnumerableExtensions.cs" />
     <Compile Include="Utils\Error.cs" />
     <Compile Include="Git\Private\GitDiffParser.cs" />
     <Compile Include="Git\Private\IGitDiffParser.cs" />
-    <Compile Include="DataModel\Private\ModelBuilder.cs" />
-    <Compile Include="DataModel\IModelService.cs" />
-    <Compile Include="DataModel\IBranch.cs" />
-    <Compile Include="DataModel\Private\Merge.cs" />
-    <Compile Include="DataModel\Private\MergeBranchNames.cs" />
-    <Compile Include="DataModel\Model.cs" />
-    <Compile Include="DataModel\Private\ModelService.cs" />
-    <Compile Include="DataModel\Tag.cs" />
+    <Compile Include="DataModel\Old\ModelBuilder.cs" />
+    <Compile Include="DataModel\Old\IOldModelService.cs" />
+    <Compile Include="DataModel\Old\IBranch.cs" />
+    <Compile Include="DataModel\Old\OldMerge.cs" />
+    <Compile Include="GitModel\Private\MergeBranchNames.cs" />
+    <Compile Include="DataModel\Old\OldModel.cs" />
+    <Compile Include="DataModel\Old\OldModelService.cs" />
+    <Compile Include="DataModel\Old\OldTag.cs" />
     <Compile Include="Installation\IInstaller.cs" />
     <Compile Include="Installation\ILatestVersionService.cs" />
     <Compile Include="Installation\Private\LatestVersionService.cs" />
@@ -106,21 +161,22 @@
     <Compile Include="StatusRefreshService.cs" />
     <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\JsonSerializer.cs" />
-    <Compile Include="Utils\Result.cs" />
+    <Compile Include="Utils\R.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
+    <Compile Include="Utils\TaskThrottler.cs" />
     <Compile Include="Utils\UI\BusyIndicator.cs" />
-    <Compile Include="Utils\UI\IPropertySetter.cs" />
+    <Compile Include="Utils\UI\MyWpfExtensions.cs" />
     <Compile Include="Utils\UI\Property.cs" />
     <Compile Include="Utils\UI\Command.cs" />
     <Compile Include="Git\CommitDiff.cs" />
-    <Compile Include="CommitsHistory\BranchViewModel.cs" />
+    <Compile Include="CommitsHistory\OldBranchViewModel.cs" />
     <Compile Include="Git\GitBranch.cs" />
     <Compile Include="Git\Private\GitRepo.cs" />
     <Compile Include="Git\IGitRepo.cs" />
-    <Compile Include="CommitsHistory\HistoryViewModel.cs" />
-    <Compile Include="CommitsHistory\IHistoryViewModel.cs" />
-    <Compile Include="CommitsHistory\MergeViewModel.cs" />
-    <Compile Include="CommitsHistory\CommitViewModel.cs" />
+    <Compile Include="CommitsHistory\OldHistoryViewModel.cs" />
+    <Compile Include="CommitsHistory\IOldHistoryViewModel.cs" />
+    <Compile Include="CommitsHistory\OldMergeViewModel.cs" />
+    <Compile Include="CommitsHistory\OldCommitViewModel.cs" />
     <Compile Include="Git\GitTag.cs" />
     <Compile Include="Git\IGitService.cs" />
     <Compile Include="Git\Private\GitStatus.cs" />
@@ -128,9 +184,10 @@
     <Compile Include="TestRepo.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />
-    <Compile Include="Utils\Timestamp.cs" />
+    <Compile Include="Utils\Timing.cs" />
+    <Compile Include="Utils\UI\PropertySetter.cs" />
     <Compile Include="Utils\UI\ViewModel.cs" />
-    <Compile Include="VirtualCanvas\ItemsSource.cs" />
+    <Compile Include="VirtualCanvas\VirtualItemsSource.cs" />
     <Compile Include="VirtualCanvas\ArithmeticConverter.cs" />
     <Compile Include="VirtualCanvas\ISpatialItemsSource.cs" />
     <Compile Include="VirtualCanvas\LinkedListExtensions.cs" />
@@ -166,6 +223,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Styles\ListBoxStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\Theme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -185,10 +246,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Dependencies\Newtonsoft.Json.dll" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -212,8 +275,14 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Dependencies\protobuf-net.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>copy /Y /B "$(SolutionDir)packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll" "$(ProjectDir)\Dependencies\Newtonsoft.Json.dll"
+copy /Y /B "$(SolutionDir)packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll" "$(ProjectDir)\Dependencies\protobuf-net.dll"</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

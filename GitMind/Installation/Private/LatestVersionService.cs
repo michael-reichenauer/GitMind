@@ -16,7 +16,7 @@ namespace GitMind.Installation.Private
 			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
 		private static readonly string UserAgent = "GitMind";
 
-		private readonly JsonSerializer serializer = new JsonSerializer();
+		private readonly JsonSerializerX serializer = new JsonSerializerX();
 		private readonly ICmd cmd = new Cmd();
 
 
@@ -34,7 +34,7 @@ namespace GitMind.Installation.Private
 
 		private async Task<Version> GetLatestRemoteVersionAsync()
 		{
-			Result<LatestInfo> latestInfo = await GetLatestInfoAsync();
+			R<LatestInfo> latestInfo = await GetLatestInfoAsync();
 
 			if (latestInfo.IsFaulted) return new Version(0, 0, 0, 0);
 
@@ -42,7 +42,7 @@ namespace GitMind.Installation.Private
 		}
 
 
-		private async Task<Result<LatestInfo>> GetLatestInfoAsync()
+		private async Task<R<LatestInfo>> GetLatestInfoAsync()
 		{
 			try
 			{
@@ -67,7 +67,7 @@ namespace GitMind.Installation.Private
 			{
 				Log.Debug($"Downloading remote setup {latestUri} ...");
 
-				Result<LatestInfo> latestInfo = await GetLatestInfoAsync();
+				R<LatestInfo> latestInfo = await GetLatestInfoAsync();
 				if (latestInfo.IsFaulted) return false;
 
 				if (latestInfo.Value.assets != null)

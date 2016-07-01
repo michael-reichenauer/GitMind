@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Michael Reichenauer")]
 [assembly: AssemblyProduct("GitMind")]
-[assembly: AssemblyCopyright("Copyright © Michael Reichenauer 2015")]
+[assembly: AssemblyCopyright("Copyright © Michael Reichenauer 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -50,7 +50,7 @@ using System.Windows;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("0.23.*")]
+[assembly: AssemblyVersion("0.40.*")]
 
 [assembly: InternalsVisibleTo("GitMindTest")]
 

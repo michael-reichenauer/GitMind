@@ -6,7 +6,7 @@ namespace GitMind.Git.Private
 {
 	internal class GitRepo : IGitRepo
 	{
-		private readonly GitCommit currentCommit;
+		private readonly IReadOnlyList<GitTag> tags;
 		private static readonly IReadOnlyList<GitTag> noTags = new List<GitTag>();
 
 		private readonly Dictionary<string, GitCommit> commits = new Dictionary<string, GitCommit>();
@@ -23,11 +23,13 @@ namespace GitMind.Git.Private
 		public GitRepo(
 			IReadOnlyList<GitBranch> branches, 
 			IReadOnlyList<GitCommit> commits, 
-			IReadOnlyList<GitTag> tags, 
-			GitCommit currentCommit)
+			IReadOnlyList<GitTag> tags,
+			GitCommit currentCommit,
+			GitBranch currentBranch)
 		{
-			//this.status = status;
-			this.currentCommit = currentCommit;
+			this.tags = tags;
+			CurrentCommit = currentCommit;
+			CurrentBranch = currentBranch;
 
 			SetGitBranches(branches);
 
@@ -37,16 +39,13 @@ namespace GitMind.Git.Private
 		}
 
 
-		public IEnumerable<GitCommit> GetAllCommts()
-		{
-			return commits.Values;
-		}
+		public GitCommit CurrentCommit { get; }
 
+		public GitBranch CurrentBranch { get; }
 
-		public IReadOnlyList<string> GetCommitChildren(string commitId)
-		{
-			return GetChildren(commitId);
-		}
+		public IEnumerable<GitCommit> GetAllCommts() => commits.Values;
+
+		public IReadOnlyList<string> GetCommitChildren(string commitId) => GetChildren(commitId);
 
 
 		public GitCommit GetCommit(string commitId)
@@ -73,15 +72,12 @@ namespace GitMind.Git.Private
 		}
 
 
+		public IReadOnlyList<GitTag> GetAllTags() => tags;
+
+
 		public GitBranch GetCurrentBranch()
 		{
 			return branches.First(branch => branch.IsCurrent);
-		}
-
-
-		public GitCommit GetCurrentCommit()
-		{
-			return currentCommit;
 		}
 
 

@@ -1,19 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.CommitsHistory;
+using GitMind.Git;
+using GitMind.Git.Private;
+using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.Settings;
 using GitMind.Utils;
+using GitMind.Utils.UI;
 using GitMind.VirtualCanvas;
+using Application = System.Windows.Application;
+using Converter = GitMind.CommitsHistory.Converter;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 
 namespace GitMind
@@ -23,12 +33,15 @@ namespace GitMind
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private readonly HistoryViewModel historyViewModel;
+		//private readonly OldHistoryViewModel historyViewModel;
+		private readonly RepositoryViewModel repositoryViewModel;
+		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IStatusRefreshService refreshService;
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly IInstaller installer = new Installer();
 		private readonly ICommandLine commandLine = new CommandLine();
 		private readonly IDiffService diffService = new DiffService();
+		private readonly IGitService gitService = new GitService();
 
 		private static Mutex programMutex;
 		private readonly DispatcherTimer autoRefreshTime = new DispatcherTimer();
@@ -37,10 +50,12 @@ namespace GitMind
 		private ZoomableCanvas canvas;
 		private readonly MainWindowViewModel mainWindowViewModel;
 		private DateTime LoadedTime = DateTime.MaxValue;
-
+		private readonly List<string> specifiedBranchNames = new List<string>();
 
 		public MainWindow()
 		{
+			AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
+
 			ExceptionHandling.Init();
 
 			if (!IsStartProgram())
@@ -49,30 +64,64 @@ namespace GitMind
 				return;
 			}
 
-			Application.Current.DispatcherUnhandledException += UnhandledExceptionHandler;
-
 			InitializeComponent();
+			autoRefreshTime.Tick += FetchAndRefreshAsync;
 
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
 
-			historyViewModel = new HistoryViewModel();
+			repositoryViewModel = new RepositoryViewModel(
+				ScrollRows, ScrollTo, new Lazy<BusyIndicator>(() => mainWindowViewModel.Busy));
 
 			mainWindowViewModel = new MainWindowViewModel(
-				historyViewModel, diffService, latestVersionService, this, () => RefreshAsync(true));
+				repositoryViewModel,
+				repositoryService,
+				diffService,
+				latestVersionService,
+				this,
+				() => RefreshAsync(true));
 
 			refreshService = new StatusRefreshService(mainWindowViewModel);
 
-			InitDataModel();
+			if (!InitDataModel())
+			{
+				Application.Current.Shutdown(0);
+			}
 
 			DataContext = mainWindowViewModel;
 
-			ItemsListBox.ItemsSource = historyViewModel.ItemsSource;
+			ItemsListBox.ItemsSource = repositoryViewModel.VirtualItemsSource;
 
 			StartBackgroundTasks();
 
 			Activate();
 		}
+
+
+		static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+		{
+			Assembly executingAssembly = Assembly.GetExecutingAssembly();
+			string name = executingAssembly.FullName.Split(',')[0];
+			string resolveName = args.Name.Split(',')[0];
+			string resourceName = $"{name}.Dependencies.{resolveName}.dll";
+			Log.Warn($"Resolving {resolveName} from {resourceName} ...");
+
+			// Load the assembly from the resources
+			using (Stream stream = executingAssembly.GetManifestResourceStream(resourceName))
+			{
+				if (stream == null)
+				{
+					throw new InvalidOperationException("Failed to load assembly " + resolveName);
+				}
+
+				long bytestreamMaxLength = stream.Length;
+				byte[] buffer = new byte[bytestreamMaxLength];
+				stream.Read(buffer, 0, (int)bytestreamMaxLength);
+				Log.Warn($"Resolved {resolveName}");
+				return Assembly.Load(buffer);
+			}
+		}
+
 
 
 		private bool IsStartProgram()
@@ -118,7 +167,7 @@ namespace GitMind
 		}
 
 
-		public void InitDataModel()
+		public bool InitDataModel()
 		{
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
@@ -136,11 +185,9 @@ namespace GitMind
 				args = new string[0];
 			}
 
-			List<string> specifiedBranchNames = new List<string>();
-
-			if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path2))
+			if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path))
 			{
-				Environment.CurrentDirectory = TestRepo.Path2;
+				Environment.CurrentDirectory = TestRepo.Path;
 			}
 			else if (args.Length > 1)
 			{
@@ -151,9 +198,9 @@ namespace GitMind
 			}
 
 			SetWorkingFolder();
+			
 			Log.Debug($"Current working folder {Environment.CurrentDirectory}");
-
-			historyViewModel.SetBranches(specifiedBranchNames);
+			return true;
 		}
 
 
@@ -174,6 +221,7 @@ namespace GitMind
 			{
 				autoRefreshTime.Interval = TimeSpan.FromMinutes(10);
 
+				//await Task.Yield();
 				await RefreshAsync(true);
 			}
 			catch (Exception ex) when (ex.IsNotFatal())
@@ -200,7 +248,7 @@ namespace GitMind
 
 		private void SetWorkingFolder()
 		{
-			Result<string> workingFolder = ProgramPaths.GetWorkingFolderPath(
+			R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(
 				Environment.CurrentDirectory);
 
 			if (!workingFolder.HasValue)
@@ -220,19 +268,47 @@ namespace GitMind
 		private async void ZoomableCanvas_Loaded(object sender, RoutedEventArgs e)
 		{
 			// Store the canvas in a local variable since x:Name doesn't work.
+			Timing t = new Timing();
 			canvas = (ZoomableCanvas)sender;
 
-			mainWindowViewModel.WorkingFolder =
-				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
+			R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory);
 
-			Task loadTask = historyViewModel.LoadAsync(this);
-			mainWindowViewModel.Busy.Add(loadTask);
+			while (!workingFolder.HasValue)
+			{
+				Log.Warn($"Not a valid working folder {Environment.CurrentDirectory}");
 
-			await loadTask;
+				var dialog = new FolderBrowserDialog();
+				dialog.Description = "Select a working folder with a valid git repository.";
+				dialog.ShowNewFolderButton = false;
+				dialog.SelectedPath = Environment.CurrentDirectory;
+				if (dialog.ShowDialog(this.GetIWin32Window()) != System.Windows.Forms.DialogResult.OK)
+				{
+					Log.Warn("User canceled selecting a Working folder");
+					Application.Current.Shutdown(0);
+					return;
+				}
+
+				workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
+			}
+
+			ProgramSettings.SetLatestUsedWorkingFolderPath(workingFolder.Value);
+			Environment.CurrentDirectory = workingFolder.Value;
+			mainWindowViewModel.WorkingFolder = workingFolder.Value;
+				
+			t.Log("Got working folder");
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true);
+
+			mainWindowViewModel.Busy.Add(repositoryTask);
+
+			Repository repository = await repositoryTask;
+			t.Log("Got repository");
+			repositoryViewModel.Update(repository, specifiedBranchNames);
+			t.Log("Updated repositoryViewModel");
+			ItemsListBox.Focus();
+
 			LoadedTime = DateTime.Now;
 
-			autoRefreshTime.Tick += FetchAndRefreshAsync;
-			autoRefreshTime.Interval = TimeSpan.FromSeconds(2);
+			autoRefreshTime.Interval = TimeSpan.FromMilliseconds(300);
 			autoRefreshTime.Start();
 		}
 
@@ -269,6 +345,8 @@ namespace GitMind
 
 		private async Task RefreshAsync(bool isShift)
 		{
+			//await Task.Yield();
+			//return;
 			Task refreshTask = RefreshInternalAsync(isShift);
 			mainWindowViewModel.Busy.Add(refreshTask);
 			await refreshTask;
@@ -277,22 +355,46 @@ namespace GitMind
 		private async Task RefreshInternalAsync(bool isShift)
 		{
 			await refreshService.UpdateStatusAsync();
-			await historyViewModel.RefreshAsync(isShift);
+
+			await gitService.FetchAsync(null);
+			Repository repository = await repositoryService.UpdateRepositoryAsync(
+				repositoryViewModel.Repository);
+
+			repositoryViewModel.Update(repository, repositoryViewModel.SpecifiedBranches);
+
+
+			//await historyViewModel.RefreshAsync(isShift);
 		}
 
-		protected override async void OnPreviewMouseUp(MouseButtonEventArgs e)
+		protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
 		{
 			// Log.Debug($"Canvas offset {canvas.Offset}");
 
-			Point viewPoint = e.GetPosition(ItemsListBox);
+			if (e.ChangedButton == MouseButton.Left)
+			{
+				Point viewPoint = e.GetPosition(ItemsListBox);
 
-			Point position = new Point(viewPoint.X + canvas.Offset.X, viewPoint.Y + canvas.Offset.Y);
+				Point position = new Point(viewPoint.X + canvas.Offset.X, viewPoint.Y + canvas.Offset.Y);
 
-			bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
+				bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
-			await historyViewModel.ClickedAsync(position, isControl);
+				repositoryViewModel.Clicked(position, isControl);
+			}
 
 			base.OnPreviewMouseUp(e);
+		}
+
+
+		private void ScrollRows(int rows)
+		{
+			int offsetY = Converter.ToY(rows);
+			canvas.Offset = new Point(canvas.Offset.X, Math.Max(canvas.Offset.Y - offsetY, 0));
+		}
+
+		private void ScrollTo(int rows)
+		{
+			int offsetY = Converter.ToY(rows);
+			canvas.Offset = new Point(canvas.Offset.X, Math.Max(offsetY, 0));
 		}
 
 
@@ -300,7 +402,7 @@ namespace GitMind
 		{
 			base.OnRenderSizeChanged(sizeInfo);
 			// Log.Warn($"Size: {sizeInfo.NewSize.Width}");
-			historyViewModel.Width = sizeInfo.NewSize.Width;
+			repositoryViewModel.Width = (int)sizeInfo.NewSize.Width;
 		}
 
 
@@ -361,27 +463,13 @@ namespace GitMind
 			////}
 		}
 
-		private void UnhandledExceptionHandler(object sender, DispatcherUnhandledExceptionEventArgs e)
+		private void MouseDobleClick(object sender, MouseButtonEventArgs e)
 		{
-			Log.Error("Unhandled Error: " + e.Exception);
-
-			MessageBox.Show(
-				Application.Current.MainWindow,
-				"Unhandled Error: " + e.Exception,
-				"GitMind - Unhandled Exception",
-				MessageBoxButton.OK,
-				MessageBoxImage.Error);
-
-			if (Debugger.IsAttached)
+			Point viewPoint = e.GetPosition(ItemsListBox);
+			if (viewPoint.X > repositoryViewModel.GraphWidth)
 			{
-				Debugger.Break();
+				mainWindowViewModel.RepositoryViewModel.ToggleDetailsCommand.Execute(null);
 			}
-			else
-			{
-				Application.Current.Shutdown(-1);
-			}
-
-			e.Handled = true;
 		}
 	}
 }

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 using GitMind.DataModel;
+using GitMind.DataModel.Old;
+using GitMind.GitModel;
 
 
 namespace GitMind.CommitsHistory
@@ -17,10 +19,11 @@ namespace GitMind.CommitsHistory
 
 		public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightSkyBlue;
 
-		public SolidColorBrush RemoteAheadBrush { get; } = Brushes.Gray;
+		//public SolidColorBrush RemoteAheadBrush { get; } = Brushes.Gray;
+		public SolidColorBrush RemoteAheadBrush { get; } = Brushes.LightSteelBlue;
 
 
-		public Brush GetBRanchBrush(IBranch branch)
+		public Brush GetBranchBrush(IBranch branch)
 		{
 			if (branch.Name == "master")
 			{
@@ -35,6 +38,23 @@ namespace GitMind.CommitsHistory
 			int branchBrushId = Math.Abs(branch.Name.GetHashCode()) % brushes.Value.Count;
 			return brushes.Value[branchBrushId];
 		}
+
+		public Brush GetBranchBrush(Branch branch)
+		{
+			if (branch.Name == "master")
+			{
+				return MasterBranchBrush;
+			}
+
+			if (branch.IsMultiBranch)
+			{
+				return MultiBranchBrush;
+			}
+
+			int branchBrushId = Math.Abs(branch.Name.GetHashCode()) % brushes.Value.Count;
+			return brushes.Value[branchBrushId];
+		}
+
 
 
 		public Brush GetDarkerBrush(Brush brush)

@@ -5,6 +5,8 @@
 	xmlns:virtualCanvas="clr-namespace:GitMind.VirtualCanvas"
 	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
 	xmlns:gitMind="clr-namespace:GitMind"
+	xmlns:commitsHistory="clr-namespace:GitMind.CommitsHistory"
+	xmlns:gitModel="clr-namespace:GitMind.GitModel"
 	Title="GitMind"
 	Height="800"
 	Width="1050" 
@@ -16,8 +18,8 @@
 	Icon="Application.ico">
 
 	<Window.InputBindings>
-		<KeyBinding Command="{Binding EscapeCommand}" Key="Escape"/>
-		<KeyBinding Command="{Binding RefreshCommand}" Key="F5"/>
+		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
+		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
 	</Window.InputBindings>
 
 	<Window.Resources>
@@ -30,8 +32,8 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
+			<RowDefinition Height="{Binding RepositoryViewModel.DetailsSize}"/>
 		</Grid.RowDefinitions>
-	
 
 		<!--First row (title bar) -->
 		<Border 
@@ -50,12 +52,15 @@
 				<StackPanel 
 					Grid.Column="0" 
 					Orientation="Horizontal">
+					
+					<!-- Application icon -->
 					<Image 
 						Source="Application.ico" 
 						Width="15"
 						Height="15"
 						Margin="5,0">
 
+						<!-- Version tool tip on application icon -->
 						<Image.ToolTip>
 							<ToolTip
 							Placement="Bottom"
@@ -70,7 +75,7 @@
 							</ToolTip>
 						</Image.ToolTip>
 					</Image>
-	
+
 					<!-- Working folder (need hyperlink to get "hand" mouse over, but hyperlink command does not work -->
 					<TextBlock>
 						 <Hyperlink TextDecorations="None">
@@ -101,8 +106,7 @@
 							</TextBlock>
 						</Hyperlink>
 					</TextBlock>
-
-					
+				
 
 					<!-- Commit status  -->
 					<TextBlock>
@@ -114,7 +118,7 @@
 								Foreground="BurlyWood"
 								HorizontalAlignment="Left"
 								VerticalAlignment="Center">
-								
+
 								<TextBlock.InputBindings>
 									<MouseBinding 
 										Command="{Binding ShowDiffCommand}" 
@@ -214,8 +218,8 @@
 										<StackPanel>
 											<TextBlock Text="Send feedback..." Foreground="LightSteelBlue"/>
 										</StackPanel>
-										</ToolTip>
-									</TextBlock.ToolTip>
+									</ToolTip>
+								</TextBlock.ToolTip>
 								</TextBlock>
 							</Hyperlink>
 					</TextBlock>
@@ -248,11 +252,11 @@
 								Margin="10,0,5,0"	
 								FontWeight="ExtraBold"
 								Text="_">
-									<TextBlock.InputBindings>
-										<MouseBinding 
+								<TextBlock.InputBindings>
+									<MouseBinding 
 										Command="{Binding MinimizeCommand}" 
 										MouseAction="LeftClick" />
-									</TextBlock.InputBindings>
+								</TextBlock.InputBindings>
 								</TextBlock>
 							</Hyperlink>
 					</TextBlock>
@@ -285,11 +289,11 @@
 								Margin="10,5,5,0"		
 								FontWeight="Bold"
 								Text="X">
-									<TextBlock.InputBindings>
-										<MouseBinding 
+								<TextBlock.InputBindings>
+									<MouseBinding 
 										Command="{Binding CloseCommand}" 
 										MouseAction="LeftClick" />
-									</TextBlock.InputBindings>
+								</TextBlock.InputBindings>
 								</TextBlock>
 							</Hyperlink>
 					</TextBlock>
@@ -302,14 +306,24 @@
 		Background="Black"  
 		
 		-->
-		<DockPanel Grid.Row="1" >
+		
+		<Border 
+			BorderThickness="1" 
+			BorderBrush="DarkSlateBlue" 
+			Grid.Row="1">
+		<DockPanel>
 
 			<ListBox 
 				IsTextSearchEnabled="False"
 				Padding="4"
 				x:Name="ItemsListBox" 
 				Style="{DynamicResource ListBoxScrollbarStyle}" 
+				SelectedIndex="{Binding RepositoryViewModel.SelectedIndex, Mode=TwoWay}" 
+				SelectedItem="{Binding RepositoryViewModel.SelectedItem, Mode=TwoWay}"
 			>
+				<ListBox.InputBindings>
+					<KeyBinding Key="Space" Command="{Binding RepositoryViewModel.ToggleDetailsCommand}" />
+				</ListBox.InputBindings>
 
 				<ListBox.ContextMenu>
 					<!-- Background="Black" -->
@@ -322,7 +336,7 @@
 						<!--Show Branch menu item -->
 						<MenuItem 
 							Header="Show Branch" 
-							ItemsSource="{Binding LogViewModel.AllBranches}" 								
+							ItemsSource="{Binding RepositoryViewModel.AllBranches}" 								
 							Padding="0" 
 							Margin="0" 
 							BorderBrush="DarkSlateBlue" 
@@ -338,8 +352,8 @@
 									<Setter Property="Padding" Value="0"/>
 									<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
 									<Setter Property="BorderThickness" Value="0"/>
-									<Setter Property="Command" Value="{Binding DataContext.LogViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
-									<Setter Property="CommandParameter" Value="{Binding Text}"/>
+									<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
+									<Setter Property="CommandParameter" Value="{Binding Branch}"/>
 								</Style>
 							</MenuItem.ItemContainerStyle>
 						</MenuItem>
@@ -353,17 +367,62 @@
 							Loaded="ZoomableCanvas_Loaded"
 							RealizationLimit="1000" 
 							RealizationRate="20"
-							RealizationPriority="Background"
+							RealizationPriority="Normal"
 							ApplyTransform="false"/>
 					</ItemsPanelTemplate>
 				</ListBox.ItemsPanel>
 
 				<ListBox.ItemContainerStyle>
 					<Style TargetType="ListBoxItem">
+						
+						<Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"/>
+						
+						<!-- Style for list items (selected/hoover) -->
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="ListBoxItem">
+									<Border
+										Name="ItemBorder"
+										CornerRadius="0" 
+										BorderBrush="Transparent"
+										BorderThickness="1" 
+										Margin="0"
+										Background="Transparent">
+										<ContentPresenter />
+									</Border>
+									<ControlTemplate.Triggers>
+										<Trigger Property="IsSelected" Value="True">
+											<Setter 
+												TargetName="ItemBorder" 
+												Property="BorderBrush" 
+												Value="{StaticResource SelectedItemBorderBrush}" />
+											<Setter 
+												TargetName="ItemBorder" 
+												Property="Background" 
+												Value="{StaticResource SelectedItemBackgroundBrush}" />
+										</Trigger>
+										<MultiTrigger>
+											<MultiTrigger.Conditions>
+												<Condition Property="IsMouseOver" Value="True" />
+												<Condition Property="IsSelected" Value="False" />
+											</MultiTrigger.Conditions>
+											<Setter 
+												TargetName="ItemBorder" 
+												Property="BorderBrush" 
+												Value="{StaticResource HoverItemBrush}" />
+										</MultiTrigger>
+									</ControlTemplate.Triggers>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>			
+						
 
 						<Setter Property="Canvas.Top" Value="{Binding Rect.Top}"/>
 						<Setter Property="Canvas.Left" Value="{Binding Rect.Left}"/>
-
+						
+						<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
+						<EventSetter Event="MouseDoubleClick" Handler="MouseDobleClick" />
+						
 						<Setter Property="Width">
 							<Setter.Value>
 								<MultiBinding 
@@ -400,8 +459,7 @@
 								
 							<!-- Branch line -->
 							<DataTrigger Binding="{Binding Type}" Value="Branch">
-								<Setter Property="IsEnabled" Value="false"/>
-								<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
+								<Setter Property="IsEnabled" Value="true"/>
 								<Setter Property="Focusable" Value="False"/>
 								<Setter Property="Background" Value="Transparent"/>
 								<Setter Property="ContentTemplate">
@@ -417,9 +475,10 @@
 												<Grid.ToolTip>
 													<ToolTip  												
 														Background="Black"
-														BorderBrush="{Binding Brush}">
+														BorderBrush="{Binding Brush}"
+														BorderThickness="2">
 														<StackPanel>
-															<TextBlock Text="{Binding BranchToolTip}" Foreground="LightSteelBlue"/>
+															<TextBlock Text="{Binding BranchToolTip}" Foreground="Lavender"/>
 														</StackPanel>
 													</ToolTip>
 												</Grid.ToolTip>
@@ -498,7 +557,9 @@
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
-											<Grid Background="Black">
+	
+											
+											<Grid Background="Transparent">
 												<Grid.ColumnDefinitions>
 													<ColumnDefinition Width="{Binding GraphWidth}"/>
 													<ColumnDefinition Width="*"/>
@@ -536,7 +597,7 @@
 														<ColumnDefinition Width="15"/>
 														<ColumnDefinition Width="*"/>
 														<ColumnDefinition Width="130"/>
-														<ColumnDefinition Width="110"/>
+														<ColumnDefinition Width="105"/>
 													</Grid.ColumnDefinitions>
 
 
@@ -550,16 +611,16 @@
 														<TextBlock.ToolTip>
 															<ToolTip
 																Placement="Bottom"
-																 HorizontalOffset="-15" 
+																HorizontalOffset="-15" 
 																VerticalOffset="5"
 																Background="Black"
 																BorderThickness="2"
 																BorderBrush="{Binding Brush}">
-																<StackPanel>
-																	<TextBlock Text="{Binding ToolTip}" Foreground="LightSteelBlue"/>
-																</StackPanel>
-															</ToolTip>
-														</TextBlock.ToolTip>
+																	<StackPanel>
+																		<TextBlock Text="{Binding ToolTip}" Foreground="Lavender"/>
+																	</StackPanel>
+																</ToolTip>
+															</TextBlock.ToolTip>
 												</TextBlock>
 
 												<Ellipse
@@ -579,7 +640,7 @@
 															BorderThickness="2"
 															BorderBrush="{Binding Brush}">
 																<StackPanel>
-																	<TextBlock Text="{Binding ToolTip}" Foreground="LightSteelBlue"/>
+																	<TextBlock Text="{Binding ToolTip}" Foreground="Lavender"/>
 																</StackPanel>
 															</ToolTip>
 														</Ellipse.ToolTip>
@@ -608,6 +669,7 @@
 														<TextBlock 
 														Text="{Binding Subject}"
 														Foreground="{Binding SubjectBrush}"
+														FontSize="12"
 														HorizontalAlignment="Left"
 														VerticalAlignment="Center"/>
 													</StackPanel>
@@ -618,7 +680,7 @@
 													Grid.Column="2"
 													Margin="5,0"
 													Text="{Binding Author}"
-													 Foreground="LightSteelBlue"
+													Foreground="{Binding SubjectBrush}"
 													HorizontalAlignment="Left"
 													VerticalAlignment="Center"/>
 
@@ -627,14 +689,14 @@
 													Grid.Column="3"
 													Margin="5,0"
 													Text="{Binding Date}"
-													 Foreground="LightSteelBlue"
+													Foreground="{Binding SubjectBrush}"
 													HorizontalAlignment="Left"
 													VerticalAlignment="Center"/>
 
 													<Grid.ContextMenu>
 														<ContextMenu 
 															Background="Transparent" 
-															Foreground="LightSteelBlue"
+															Foreground="Lavender"
 															BorderBrush="DarkSlateBlue"
 															BorderThickness="0">
 
@@ -672,6 +734,159 @@
 			</ListBox>
 
 		</DockPanel>
+		</Border> 
+		
+		<!-- Commit details -->
+	
+			<Grid
+				Grid.Row="2">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="1*" />
+				</Grid.ColumnDefinitions>
+				
+				<!-- The commit details list -->
+				<Border 
+					CornerRadius="0" 
+					BorderThickness="1" 
+					BorderBrush="DarkSlateBlue" 
+					Grid.Column="0">
+				
+					<Grid>
+						<Grid.Resources>
+							<Style x:Key="HeaderLabelStyle" TargetType="Label">
+								<Setter Property="Padding" Value="3,1" />
+								<Setter Property="FontWeight" Value="Bold" />
+								<Setter Property="Foreground" Value="{StaticResource TextLowBrush}" />
+							</Style>
+							<Style x:Key="TextLabelStyle" TargetType="Label">
+								<Setter Property="Padding" Value="3,1" />					
+								<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+							</Style>
+						</Grid.Resources>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="60" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="auto"/>
+						</Grid.RowDefinitions>
+						<Label 
+							Grid.Column="0" Grid.Row="0"
+							Style="{StaticResource HeaderLabelStyle}"
+							Content="Id:"/>
+						<Label 
+							Grid.Column="1" Grid.Row="0"
+							Style="{StaticResource TextLabelStyle}" 
+							Content="{Binding RepositoryViewModel.CommitDetail.Id}"/>
+						<Label 
+							Grid.Column="0" Grid.Row="1" 
+							Style="{StaticResource HeaderLabelStyle}" 
+							Content="Branch:"/>
+						<Label 
+							Grid.Column="1" Grid.Row="1"
+							Style="{StaticResource TextLabelStyle}" 
+							Content="{Binding RepositoryViewModel.CommitDetail.Branch}"/>
+						<Label 
+							Grid.Column="0" Grid.Row="2"
+							Visibility="{Binding Path=RepositoryViewModel.CommitDetail.IsTags, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Style="{StaticResource HeaderLabelStyle}" 
+							Content="Tags:"/>
+						<Label 
+							Grid.Column="1" Grid.Row="2"
+							Visibility="{Binding Path=RepositoryViewModel.CommitDetail.IsTags, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Style="{StaticResource TextLabelStyle}" 
+							Foreground="MediumSeaGreen"
+							Content="{Binding RepositoryViewModel.CommitDetail.Tags}"/>
+						<Label 
+							Grid.Column="0" Grid.Row="3"
+							Visibility="{Binding Path=RepositoryViewModel.CommitDetail.IsTickets, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Style="{StaticResource HeaderLabelStyle}" 
+							Content="Tickets:"/>				
+						<Label 
+							Grid.Column="1" Grid.Row="3"
+							Visibility="{Binding Path=RepositoryViewModel.CommitDetail.IsTickets, Converter={StaticResource PropertyToVisibilityConverter}}"
+							Style="{StaticResource TextLabelStyle}" 
+							Foreground="Red"
+							Content="{Binding RepositoryViewModel.CommitDetail.Tickets}"/>			
+						<Label 
+							Grid.Column="0" Grid.Row="4"
+							Style="{StaticResource HeaderLabelStyle}" 
+							Content="Subject:"/>
+						<ScrollViewer Grid.Column="1" Grid.Row="4" 
+							VerticalScrollBarVisibility="Auto">
+							<TextBlock			
+								Foreground="{StaticResource TextBrush}"
+								Padding="3,1"
+								Text="{Binding RepositoryViewModel.CommitDetail.Subject}"
+								TextWrapping="Wrap"
+							/>
+						</ScrollViewer>
+					</Grid>
+					
+				</Border>
+						
+				
+				<!-- The commit files list -->
+				<Border 
+					
+					CornerRadius="0" 
+					BorderThickness="1" 
+					BorderBrush="DarkSlateBlue" 
+					Grid.Column="1">
+				
+					<ListBox
+						Background="Transparent"
+						ItemsSource="{Binding RepositoryViewModel.CommitDetail.Files}"
+						Style="{DynamicResource ListBoxScrollbarStyle}"		
+						HorizontalContentAlignment="Stretch"
+					>
+					
+						
+					<ListBox.ItemTemplate>
+						<DataTemplate DataType="{x:Type commitsHistory:CommitFileViewModel}">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="20" />
+								</Grid.ColumnDefinitions>
+								<Label
+									Grid.Column="0"
+									Padding="0"
+									Content="{Binding Name}" 
+									Foreground="{StaticResource TextBrush}"/>
+								<Label
+									Grid.Column="1"
+									Padding="0"
+									Content="{Binding Status}" 
+									Foreground="{StaticResource TextBrush}"/>
+								
+								<Grid.ContextMenu>
+									<ContextMenu 
+										Background="Transparent" 
+										Foreground="Lavender"
+										BorderBrush="DarkSlateBlue"
+										BorderThickness="0">
 
+										<MenuItem 
+											Header="Show Diff ..."
+											Command="{Binding ShowDiffCommand}"/>
+									</ContextMenu>
+								</Grid.ContextMenu>	
+								<Grid.InputBindings>
+									<MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowDiffCommand}" />
+								</Grid.InputBindings>			
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+				</Border>
+			</Grid>
+		
 	</Grid>
 </Window>

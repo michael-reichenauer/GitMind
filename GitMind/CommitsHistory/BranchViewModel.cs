@@ -1,41 +1,47 @@
 using System.Windows;
 using System.Windows.Media;
+using GitMind.GitModel;
 using GitMind.Utils.UI;
 
 
 namespace GitMind.CommitsHistory
 {
-	internal class BranchViewModel : ViewModel
+	internal class BranchViewModel : ViewModel, IVirtualItem
 	{
-		public BranchViewModel(
-			string name,
-			int branchId,
-			int branchColumn,
-			int latestRowIndex,
-			int firstRowIndex,
-			Rect rect,
-			string line,
-			Brush brush,
-			string branchToolTip)
+		public string Type => "Branch";
+		public int ZIndex => 200;
+
+		public BranchViewModel(string id, int virtualId)
 		{
-			Name = name;
-			BranchId = branchId;
-			LatestRowIndex = latestRowIndex;
-			FirstRowIndex = firstRowIndex;
-			Rect = rect;
-			Width =rect.Width;
-			Line = line;
-			Brush = brush;
-			BranchToolTip = branchToolTip;
-			BranchColumn = branchColumn;
+			Id = id;
+			VirtualId = virtualId;
 		}
 
-		public string Type => "Branch";
-		public string Name { get; }
-		public int BranchId { get; }
-		public int BranchColumn { get; }
-		public int LatestRowIndex { get; }
-		public int FirstRowIndex { get; }
+
+		public int VirtualId { get; }
+		public string Id { get; } 
+
+		public Branch Branch { get; set; }
+
+		public int BranchColumn { get; set; }
+
+		public string Name
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public int LatestRowIndex
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public int FirstRowIndex
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		public Rect Rect
 		{
@@ -48,9 +54,26 @@ namespace GitMind.CommitsHistory
 			get { return Get(); }
 			set { Set(value); }
 		}
-		public string Line { get; }
-		public Brush Brush { get; }
-		public string BranchToolTip { get; }
+
+		public string Line
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public Brush Brush
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public string BranchToolTip
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+
 
 		public override string ToString() => $"{Name}";
 	}

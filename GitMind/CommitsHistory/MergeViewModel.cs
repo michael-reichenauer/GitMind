@@ -5,33 +5,33 @@ using GitMind.Utils.UI;
 
 namespace GitMind.CommitsHistory
 {
-	internal class MergeViewModel : ViewModel
+	internal class MergeViewModel : ViewModel, IVirtualItem
 	{
-		public MergeViewModel(
-			int mergeId,
-			int parentRowIndex,
-			int childRowIndex,
-			Rect rect,
-			string line,
-			Brush brush,
-			int stroke,
-			string strokeDash)
+		public MergeViewModel(string id, int virtualId)
 		{
-			MergeId = mergeId;
-			ParentRowIndex = parentRowIndex;
-			ChildRowIndex = childRowIndex;
-			Rect = rect;
-			Width = rect.Width;
-			Line = line;
-			Brush = brush;
-			Stroke = stroke;
-			StrokeDash = strokeDash;
+			Id = id;
+			VirtualId = virtualId;
 		}
 
+
+		public string Id { get; }
+		public int VirtualId { get; }
+
 		public string Type => "Merge";
-		public int MergeId { get; }
-		public int ParentRowIndex { get; }
-		public int ChildRowIndex { get; }
+		public int ZIndex => 100;
+
+		public int ChildRow
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public int ParentRow
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
 		public Rect Rect
 		{
 			get { return Get(); }
@@ -43,9 +43,31 @@ namespace GitMind.CommitsHistory
 			get { return Get(); }
 			set { Set(value); }
 		}
-		public string Line { get; }
-		public Brush Brush { get; }
-		public int Stroke { get; }
-		public string StrokeDash { get; }	
+
+		public string Line
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public Brush Brush
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public int Stroke
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public string StrokeDash
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public override string ToString() => Id;
 	}
 }

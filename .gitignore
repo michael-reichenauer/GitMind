@@ -4,6 +4,9 @@
 GitMindSetup.exe
 version.txt
 
+# External dependencies (from e.g. NuGet packages)
+/GitMind/Dependencies/
+
 # User-specific files
 *.suo
 *.user
@@ -213,3 +216,4 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+

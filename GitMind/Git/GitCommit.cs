@@ -7,25 +7,23 @@ namespace GitMind.Git
 	public class GitCommit
 	{
 		public static readonly GitCommit None = new GitCommit(
-			"000000", "", "", new string[0], DateTime.MinValue, DateTime.MinValue, null);
+			"000000", "", "", new string[0], DateTime.MinValue, DateTime.MinValue);
 
 		public GitCommit(
 			string id,
 			string subject,
 			string author,
 			IReadOnlyList<string> parentIds,
-			DateTime dateTime,
-			DateTime commitDate,
-			string branchName)
+			DateTime authorDate,
+			DateTime commitDate)
 		{
 			Id = id;
 			ShortId = id.Length > 6 ? id.Substring(0, 6) : id;
 			Subject = subject;
 			Author = author;
 			ParentIds = parentIds;
-			DateTime = dateTime;
+			AuthorDate = authorDate;
 			CommitDate = commitDate;
-			BranchName = branchName;
 		}
 
 
@@ -33,11 +31,10 @@ namespace GitMind.Git
 		public string ShortId { get; }
 		public string Author { get; }
 		public IReadOnlyList<string> ParentIds { get; }
-		public DateTime DateTime { get; }
+		public DateTime AuthorDate { get; }
 		public DateTime CommitDate { get; }
-		public string BranchName { get; }
 		public string Subject { get; }
 
-		public override string ToString() => $"{ShortId} {DateTime} ({ParentIds.Count}) {Subject}";
+		public override string ToString() => $"{ShortId} {AuthorDate} ({ParentIds.Count}) {Subject}";
 	}
 }

@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Media;
 using GitMind.CommitsHistory;
+using GitMind.GitModel;
 using GitMind.Installation;
 using GitMind.Settings;
 using GitMind.Utils;
@@ -17,6 +18,7 @@ namespace GitMind
 {
 	internal class MainWindowViewModel : ViewModel
 	{
+		private readonly IRepositoryService repositoryService;
 		private readonly IDiffService diffService;
 		private readonly ILatestVersionService latestVersionService;
 		private readonly Window owner;
@@ -24,20 +26,22 @@ namespace GitMind
 
 
 		internal MainWindowViewModel(
-			IHistoryViewModel historyViewModelViewModel,
+			RepositoryViewModel repositoryViewModel,
+			IRepositoryService repositoryService,
 			IDiffService diffService,
 			ILatestVersionService latestVersionService,
 			Window owner,
 			Func<Task> refreshAsync)
 		{
-			HistoryViewModel = historyViewModelViewModel;
+			RepositoryViewModel = repositoryViewModel;
+			this.repositoryService = repositoryService;
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
 			this.refreshAsync = refreshAsync;
 		}
 
-		
+
 		public string StatusText
 		{
 			get { return Get(); }
@@ -61,7 +65,7 @@ namespace GitMind
 		{
 			get { return Get(); }
 			set { Set(value); }
-		} 
+		}
 
 		public string WorkingFolder
 		{
@@ -82,13 +86,13 @@ namespace GitMind
 
 		private void SetSearchBoxValue(string text)
 		{
-			HistoryViewModel.SetFilter(text);
+			RepositoryViewModel.SetFilter(text);
 		}
 
 
 		public BusyIndicator Busy => BusyIndicator();
 
-		public IHistoryViewModel HistoryViewModel { get; }
+		public RepositoryViewModel RepositoryViewModel { get; }
 
 
 		public string VersionText
@@ -147,7 +151,7 @@ namespace GitMind
 
 		private void Minimize()
 		{
-			Application.Current.MainWindow.WindowState = WindowState.Minimized; 
+			Application.Current.MainWindow.WindowState = WindowState.Minimized;
 		}
 
 
@@ -226,21 +230,43 @@ namespace GitMind
 
 		private async void SelectWorkingFolder()
 		{
-			List<string> activeBranches = new List<string>();
-			HistoryViewModel.SetBranches(activeBranches);
-
-			var dialog = new System.Windows.Forms.FolderBrowserDialog();
-			dialog.Description = "Select a working folder.";
-			dialog.ShowNewFolderButton = false;
-			dialog.SelectedPath = Environment.CurrentDirectory;
-			if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+			string selectedPath;
+			while (true)
 			{
-				return;
+				var dialog = new FolderBrowserDialog();
+				dialog.Description = "Select a working folder with a valid git repository.";
+				dialog.ShowNewFolderButton = false;
+				dialog.SelectedPath = Environment.CurrentDirectory;
+				if (dialog.ShowDialog(owner.GetIWin32Window()) != DialogResult.OK)
+				{
+					Log.Warn("User canceled selecting a Working folder");
+					return;
+				}
+
+				R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
+				if (workingFolder.HasValue)
+				{
+					Log.Warn($"User selected valid {workingFolder.Value}");
+					selectedPath = workingFolder.Value;
+					break;
+				}
+				else
+				{
+					Log.Warn($"User selected an invalid working folder: {dialog.SelectedPath}");
+				}
 			}
 
-			Environment.CurrentDirectory = dialog.SelectedPath;
+			Log.Debug($"Setting working folder {selectedPath}");
+			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
+			Environment.CurrentDirectory = selectedPath;
 
-			await HistoryViewModel.LoadAsync(owner);
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true);
+
+			Busy.Add(repositoryTask);
+
+			Repository repository = await repositoryTask;
+
+			RepositoryViewModel.Update(repository, new string[0]);
 
 			WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 		}

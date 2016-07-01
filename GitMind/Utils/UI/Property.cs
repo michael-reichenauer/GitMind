@@ -4,7 +4,7 @@ using System.Windows.Media;
 
 namespace GitMind.Utils.UI
 {
-	internal class Property : IPropertySetter
+	internal class Property
 	{
 		private readonly string propertyName;
 		private readonly ViewModel viewModel;
@@ -38,14 +38,21 @@ namespace GitMind.Utils.UI
 		public static implicit operator double(Property instance) => (double?)instance.Value ?? 0;
 		public static implicit operator Rect(Property instance) => (Rect?)instance.Value ?? Rect.Empty;
 		public static implicit operator Brush(Property instance) => (Brush)instance.Value;
-		
 
-		public void Notify(params string[] otherPropertyNames)
+
+		public PropertySetter Set(object value)
 		{
-			foreach (string otherPropertyName in otherPropertyNames)
+			bool isSet = false;
+			if (propertyValue != value)
 			{
-				viewModel.OnPropertyChanged(otherPropertyName);
+				propertyValue = value;
+				isSet = true;
+
+				viewModel.OnPropertyChanged(propertyName);
+
 			}
+
+			return new PropertySetter(isSet, viewModel);
 		}
 	}
 
