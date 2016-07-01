@@ -226,13 +226,12 @@ namespace GitMind.Git.Private
 
 			if (hasParentCommit)
 			{
-				args = $"diff -m --root --unified=10000 {commitId}^ {commitId} -- {name}";
+				args = $"diff -m --unified=10000 {commitId}^ {commitId} -- {name}";
 			}
 			else
 			{
 				args = $"diff -m --root --unified=10000 {commitId} -- {name}";
 			}
-		
 		
 
 			R<IReadOnlyList<string>> diff = await GitAsync(null, args);

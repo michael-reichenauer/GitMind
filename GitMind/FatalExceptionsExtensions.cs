@@ -49,14 +49,7 @@ namespace System
 		{
 			Exception exception = e;
 			Type exceptionType = e.GetType();
-			AggregateException aggregateException = exception as AggregateException;
-
-			if (aggregateException != null)
-			{
-				exception = aggregateException.InnerException;
-				exceptionType = exception.GetType();
-			}
-
+			
 			if (FatalTypes.Contains(exceptionType))
 			{
 				StackTrace stackTrace = new StackTrace(1, true);
