@@ -63,7 +63,6 @@ namespace GitMind.GitModel.Private
 
 				branch.LocalAheadCount = localAheadCount;
 				branch.RemoteAheadCount = remoteAheadCount;
-				Log.Debug($"{branch} {branch.LocalAheadCount}, {branch.RemoteAheadCount}");
 			}
 		}
 

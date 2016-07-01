@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Input;
+using System.Windows.Media;
 using GitMind.CommitsHistory;
 using GitMind.GitModel;
 using GitMind.Installation;
@@ -42,7 +41,7 @@ namespace GitMind
 			this.refreshAsync = refreshAsync;
 		}
 
-		
+
 		public string StatusText
 		{
 			get { return Get(); }
@@ -66,7 +65,7 @@ namespace GitMind
 		{
 			get { return Get(); }
 			set { Set(value); }
-		} 
+		}
 
 		public string WorkingFolder
 		{
@@ -152,7 +151,7 @@ namespace GitMind
 
 		private void Minimize()
 		{
-			Application.Current.MainWindow.WindowState = WindowState.Minimized; 
+			Application.Current.MainWindow.WindowState = WindowState.Minimized;
 		}
 
 
@@ -231,16 +230,34 @@ namespace GitMind
 
 		private async void SelectWorkingFolder()
 		{
-			var dialog = new FolderBrowserDialog();
-			dialog.Description = "Select a working folder.";
-			dialog.ShowNewFolderButton = false;
-			dialog.SelectedPath = Environment.CurrentDirectory;
-			if (dialog.ShowDialog() != DialogResult.OK)
+			string selectedPath;
+			while (true)
 			{
-				return;
+				var dialog = new FolderBrowserDialog();
+				dialog.Description = "Select a working folder with a valid git repository.";
+				dialog.ShowNewFolderButton = false;
+				dialog.SelectedPath = Environment.CurrentDirectory;
+				if (dialog.ShowDialog(owner.GetIWin32Window()) != DialogResult.OK)
+				{
+					Log.Warn("User canceled selecting a Working folder");
+					return;
+				}
+
+				R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
+				if (workingFolder.HasValue)
+				{
+					Log.Warn($"User selected valid {workingFolder.Value}");
+					selectedPath = workingFolder.Value;
+					break;
+				}
+				else
+				{
+					Log.Warn($"User selected an invalid working folder: {dialog.SelectedPath}");
+				}
 			}
 
-			Environment.CurrentDirectory = dialog.SelectedPath;
+			Log.Debug($"Setting working folder {selectedPath}");
+			Environment.CurrentDirectory = selectedPath;
 
 			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true);
 

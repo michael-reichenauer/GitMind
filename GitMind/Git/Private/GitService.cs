@@ -82,7 +82,7 @@ namespace GitMind.Git.Private
 
 		public R<string> GetCurrentRootPath(string path)
 		{
-			string args = "rev-parse --show-toplevel";
+			string args = $"--git-dir=\"{path}\\.git\" --work-tree=\"{path}\" rev-parse --show-toplevel";
 
 			CmdResult result = cmd.Run("git", args);
 

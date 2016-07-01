@@ -101,7 +101,7 @@ namespace GitMind.GitModel.Private
 
 			Timing t = new Timing();
 			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
-			t.Log("Got gitRepo");
+			t.Log($"Got gitRepo for {Environment.CurrentDirectory}");
 			await UpdateAsync(mRepository, gitRepo.Value);
 			t.Log("Updated mRepository");
 			cacheService.CacheAsync(mRepository).RunInBackground();

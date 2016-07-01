@@ -6,7 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.CommitsHistory;
 using GitMind.Git;
@@ -19,7 +21,9 @@ using GitMind.Settings;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.VirtualCanvas;
+using Application = System.Windows.Application;
 using Converter = GitMind.CommitsHistory.Converter;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 
 namespace GitMind
@@ -66,21 +70,23 @@ namespace GitMind
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
 
-			//historyViewModel = new OldHistoryViewModel();
 			repositoryViewModel = new RepositoryViewModel(
 				ScrollRows, ScrollTo, new Lazy<BusyIndicator>(() => mainWindowViewModel.Busy));
 
 			mainWindowViewModel = new MainWindowViewModel(
-				repositoryViewModel, 
-				repositoryService, 
+				repositoryViewModel,
+				repositoryService,
 				diffService,
-				latestVersionService, 
-				this, 
+				latestVersionService,
+				this,
 				() => RefreshAsync(true));
 
 			refreshService = new StatusRefreshService(mainWindowViewModel);
 
-			InitDataModel();
+			if (!InitDataModel())
+			{
+				Application.Current.Shutdown(0);
+			}
 
 			DataContext = mainWindowViewModel;
 
@@ -161,7 +167,7 @@ namespace GitMind
 		}
 
 
-		public void InitDataModel()
+		public bool InitDataModel()
 		{
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
@@ -191,8 +197,12 @@ namespace GitMind
 				}
 			}
 
+			Environment.CurrentDirectory = "c:\\";
+
 			SetWorkingFolder();
+			
 			Log.Debug($"Current working folder {Environment.CurrentDirectory}");
+			return true;
 		}
 
 
@@ -263,8 +273,29 @@ namespace GitMind
 			Timing t = new Timing();
 			canvas = (ZoomableCanvas)sender;
 
-			mainWindowViewModel.WorkingFolder =
-				ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
+			R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory);
+
+			while (!workingFolder.HasValue)
+			{
+				Log.Warn($"Not a valid working folder {Environment.CurrentDirectory}");
+
+				var dialog = new FolderBrowserDialog();
+				dialog.Description = "Select a working folder with a valid git repository.";
+				dialog.ShowNewFolderButton = false;
+				dialog.SelectedPath = Environment.CurrentDirectory;
+				if (dialog.ShowDialog(this.GetIWin32Window()) != System.Windows.Forms.DialogResult.OK)
+				{
+					Log.Warn("User canceled selecting a Working folder");
+					Application.Current.Shutdown(0);
+					return;
+				}
+
+				workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
+			}
+
+			Environment.CurrentDirectory = workingFolder.Value;
+			mainWindowViewModel.WorkingFolder = workingFolder.Value;
+				
 			t.Log("Got working folder");
 			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true);
 
@@ -332,7 +363,7 @@ namespace GitMind
 
 			repositoryViewModel.Update(repository, repositoryViewModel.SpecifiedBranches);
 
-			
+
 			//await historyViewModel.RefreshAsync(isShift);
 		}
 

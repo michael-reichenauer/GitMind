@@ -165,6 +165,7 @@
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
     <Compile Include="Utils\TaskThrottler.cs" />
     <Compile Include="Utils\UI\BusyIndicator.cs" />
+    <Compile Include="Utils\UI\MyWpfExtensions.cs" />
     <Compile Include="Utils\UI\Property.cs" />
     <Compile Include="Utils\UI\Command.cs" />
     <Compile Include="Git\CommitDiff.cs" />
