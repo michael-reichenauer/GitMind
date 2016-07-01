@@ -257,6 +257,7 @@ namespace GitMind
 			}
 
 			Log.Debug($"Setting working folder {selectedPath}");
+			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
 			Environment.CurrentDirectory = selectedPath;
 
 			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true);

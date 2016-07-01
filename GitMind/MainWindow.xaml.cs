@@ -291,6 +291,7 @@ namespace GitMind
 				workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
 			}
 
+			ProgramSettings.SetLatestUsedWorkingFolderPath(workingFolder.Value);
 			Environment.CurrentDirectory = workingFolder.Value;
 			mainWindowViewModel.WorkingFolder = workingFolder.Value;
 				
