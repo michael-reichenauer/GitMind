@@ -164,9 +164,9 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public async Task SetFilterAsync(RepositoryViewModel repositoryViewModel)
+		public async Task SetFilterAsync(RepositoryViewModel repositoryViewModel, string filterText)
 		{
-			string filterText = repositoryViewModel.FilterText;
+
 			if (string.IsNullOrEmpty(filterText))
 			{
 				List<Branch> branches = repositoryViewModel.SpecifiedBranches.ToList();

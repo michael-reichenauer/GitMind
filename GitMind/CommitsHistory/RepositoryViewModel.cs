@@ -15,7 +15,7 @@ namespace GitMind.CommitsHistory
 {
 	internal class RepositoryViewModel : ViewModel
 	{
-		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(200);
+		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
 		private readonly IViewModelService viewModelService;
 		private readonly Lazy<BusyIndicator> busyIndicator;
 
@@ -120,15 +120,18 @@ namespace GitMind.CommitsHistory
 		{
 			Timing t = new Timing();
 			Repository = repository;
-			if (string.IsNullOrEmpty(FilterText))
+			if (string.IsNullOrEmpty(FilterText) && string.IsNullOrEmpty(settingFilterText))
 			{
-				Log.Debug("Not updating while in filter mode");
 				viewModelService.Update(this, specifiedBranch);
 				Commits.ForEach(commit => commit.WindowWidth = Width);
 
 				VirtualItemsSource.DataChanged(width);
 
 				t.Log("Updated repository view model");
+			}
+			else
+			{
+				Log.Debug("Not updating while in filter mode");
 			}
 		}
 
@@ -232,7 +235,7 @@ namespace GitMind.CommitsHistory
 			CommitViewModel selectedBefore = (CommitViewModel)SelectedItem;
 			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
 
-			Task setFilterTask = viewModelService.SetFilterAsync(this);
+			Task setFilterTask = viewModelService.SetFilterAsync(this, filterText);
 			busyIndicator.Value.Add(setFilterTask);
 
 			await setFilterTask;
