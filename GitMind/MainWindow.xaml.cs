@@ -197,8 +197,6 @@ namespace GitMind
 				}
 			}
 
-			Environment.CurrentDirectory = "c:\\";
-
 			SetWorkingFolder();
 			
 			Log.Debug($"Current working folder {Environment.CurrentDirectory}");
