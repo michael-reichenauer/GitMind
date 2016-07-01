@@ -10,6 +10,8 @@ namespace GitMind.CommitsHistory
 
 		public string Id { get; set; }
 
+		public bool HasParentCommit { get; set; }
+
 		public string Name
 		{
 			get { return Get(); }
@@ -26,7 +28,7 @@ namespace GitMind.CommitsHistory
 
 		private void ShowDiffAsync()
 		{
-			diffService.ShowFileDiffAsync(Id, Name).RunInBackground();
+			diffService.ShowFileDiffAsync(Id, Name, HasParentCommit).RunInBackground();
 		}
 	}
 }

@@ -194,7 +194,13 @@ namespace GitMind.CommitsHistory
 			{
 				Log.Debug($"Setting {files.Count()} files for {commit.Id}  ");
 				files.ForEach(f => CommitDetail.Files.Add(
-					new CommitFileViewModel { Id = commit.Id, Name = f.Name, Status = f.Status }));
+					new CommitFileViewModel
+					{
+						Id = commit.Id,
+						HasParentCommit = commit.HasFirstParent,
+						Name = f.Name,
+						Status = f.Status
+					}));
 			}
 			else
 			{

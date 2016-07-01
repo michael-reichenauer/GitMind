@@ -48,7 +48,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public async Task ShowFileDiffAsync(string commitId, string name)
+		public async Task ShowFileDiffAsync(string commitId, string name, bool hasParentCommit)
 		{
 			string p4mergeExe;
 			if (!IsDiffSupported(out p4mergeExe))
@@ -56,7 +56,8 @@ namespace GitMind.CommitsHistory
 				return;
 			}
 
-			R<CommitDiff> commitDiff = await gitService.GetCommitFileDiffAsync(commitId, name);
+			R<CommitDiff> commitDiff = await gitService.GetCommitFileDiffAsync(
+				commitId, name, hasParentCommit);
 
 			if (commitDiff.HasValue)
 			{
