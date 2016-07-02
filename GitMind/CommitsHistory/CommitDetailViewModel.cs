@@ -1,7 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using GitMind.DataModel.Old;
 using GitMind.Utils.UI;
 
 
@@ -18,7 +17,6 @@ namespace GitMind.CommitsHistory
 			this.showDiffAsync = showDiffAsync;
 		}
 
-		public OldCommit Commit { get; set; }
 
 		public ObservableCollection<CommitFileViewModel> Files { get; }
 			= new ObservableCollection<CommitFileViewModel>();
@@ -60,7 +58,7 @@ namespace GitMind.CommitsHistory
 
 		public Command ShowDiffCommand => Command(ShowDiffAsync);
 
-		public override string ToString() => $"{Commit.ShortId} {Subject}";
+		public override string ToString() => $"{Id} {Subject}";
 
 
 		private async void ShowDiffAsync()
