@@ -114,13 +114,19 @@ namespace GitMind.GitModel.Private
 		}
 
 
+		public Task SetSpecifiedCommitBranchAsync(string commitId, string branchName)
+		{
+			return gitService.SetSpecifiedCommitBranchAsync(commitId, branchName);
+		}
+
+
 		private Task UpdateAsync(MRepository mRepository, IGitRepo gitRepo)
 		{
 			return Task.Run(() =>
 			{
 				IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
 				IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
-				IReadOnlyList<SpecifiedBranchName> specifiedBranches = new SpecifiedBranchName[0];
+				IReadOnlyList<GitSpecifiedNames> specifiedBranches = gitRepo.GetSpecifiedNameses();
 				IReadOnlyList<GitTag> tags = gitRepo.GetAllTags();
 
 				Update(
@@ -139,7 +145,7 @@ namespace GitMind.GitModel.Private
 			MRepository repository,
 			IReadOnlyList<GitBranch> gitBranches,
 			IReadOnlyList<GitCommit> gitCommits,
-			IReadOnlyList<SpecifiedBranchName> gitSpecifiedNames,
+			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames,
 			IReadOnlyList<GitTag> gitTags,
 			GitBranch currentBranch,
 			GitCommit currentCommit)

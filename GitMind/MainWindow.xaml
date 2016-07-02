@@ -482,50 +482,7 @@
 														</StackPanel>
 													</ToolTip>
 												</Grid.ToolTip>
-
-												<!--<Grid.ContextMenu>
-													<ContextMenu 
-														Background="Transparent" 
-														Foreground="LightSteelBlue"
-														BorderBrush="DarkSlateBlue"
-														BorderThickness="0">
-
-														<MenuItem 
-															Header="{Binding BranchToolTip}" IsEnabled="False">
-														</MenuItem>
-														
-														--><!--Show Branch menu item --><!--
-														<MenuItem 
-															Header="Set Parent" 
-															ItemsSource="{Binding AllBranches}" 								
-															Padding="0" 
-															Margin="0" 
-															BorderBrush="DarkSlateBlue" 
-															BorderThickness="0">
-
-															<MenuItem.ItemContainerStyle>
-																<Style TargetType="MenuItem">
-																	<Setter Property="Header" Value="{Binding Text}"/>
-																	<Setter Property="Background" Value="Black"/>
-																	<Setter Property="Foreground" Value="LightSteelBlue"/>
-																	<Setter Property="Margin" Value="0"/>
-																	<Setter Property="Padding" Value="0"/>
-																	<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
-																	<Setter Property="BorderThickness" Value="0"/>
-																	<Setter Property="Command" Value="{Binding DataContext.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
-																	<Setter Property="CommandParameter" Value="{Binding Text}"/>
-																</Style>
-															</MenuItem.ItemContainerStyle>
-														</MenuItem>--><!--
-
-														<MenuItem 
-															Header="Hide Branch"
-															Command="{Binding HideBranchCommand}"
-														</MenuItem>
-
-													</ContextMenu>
-												</Grid.ContextMenu>-->
-												
+			
 											</Grid>
 										</DataTemplate>
 									</Setter.Value>
@@ -552,13 +509,12 @@
 								</Setter>
 							</DataTrigger>
 
-							<!-- Commit row  Background="Black" -->
+							<!-- Commit row -->
 							<DataTrigger Binding="{Binding Type}" Value="Commit">
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
-	
-											
+										
 											<Grid Background="Transparent">
 												<Grid.ColumnDefinitions>
 													<ColumnDefinition Width="{Binding GraphWidth}"/>
@@ -582,14 +538,7 @@
 																</Ellipse>
 															</ControlTemplate>
 														</Button.Template>
-													</Button>
-
-													<!--<Path
-														IsEnabled="{Binding LineEnabled}"
-														Data="{Binding Line}"
-														Stroke="{Binding Brush}"
-														StrokeThickness="2"/>-->
-													
+													</Button>								
 												</Canvas>
 
 												<Grid Grid.Column="1">
@@ -599,6 +548,30 @@
 														<ColumnDefinition Width="130"/>
 														<ColumnDefinition Width="105"/>
 													</Grid.ColumnDefinitions>
+													
+													<Grid.ContextMenu>
+														<ContextMenu 
+															Background="Transparent" 
+															Foreground="Lavender"
+															BorderBrush="DarkSlateBlue"
+															BorderThickness="0">
+
+															<MenuItem 
+																Header="Show Diff ..."
+																Command="{Binding ShowDiffCommand}"
+																CommandParameter="{Binding Id}"/>
+
+															<MenuItem 
+																Header="{Binding CommitBranchText}"
+																Command="{Binding HideBranchCommand}"
+																CommandParameter="{Binding CommitBranchName}"/>
+
+															<MenuItem 
+																Header="Set Commit Branch"
+																Command="{Binding SetCommitBranchCommand}"/>
+
+														</ContextMenu>
+													</Grid.ContextMenu>
 
 
 													<!-- Commit Id tip margin -->
@@ -693,31 +666,7 @@
 													HorizontalAlignment="Left"
 													VerticalAlignment="Center"/>
 
-													<Grid.ContextMenu>
-														<ContextMenu 
-															Background="Transparent" 
-															Foreground="Lavender"
-															BorderBrush="DarkSlateBlue"
-															BorderThickness="0">
-
-															<MenuItem 
-																Header="Show Diff ..."
-																Command="{Binding ShowDiffCommand}"
-																CommandParameter="{Binding Id}"/>
-
-															<MenuItem 
-																Header="{Binding CommitBranchText}"
-																Command="{Binding HideBranchCommand}"
-																CommandParameter="{Binding CommitBranchName}"/>
-
-
-															<!--<MenuItem 
-																Header="Set Commit Branch"
-																Command="{Binding SetCommitBranchCommand}"/>-->
-
-
-														</ContextMenu>
-													</Grid.ContextMenu>
+					
 												</Grid>
 											</Grid>
 										</DataTemplate>

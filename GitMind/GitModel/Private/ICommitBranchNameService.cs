@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GitMind.Git;
 
 
 namespace GitMind.GitModel.Private
@@ -12,7 +13,7 @@ namespace GitMind.GitModel.Private
 		void SetBranchTipCommitsNames(IReadOnlyList<MSubBranch> branches, MRepository repository);
 
 		void SetSpecifiedCommitBranchNames(
-			IReadOnlyList<SpecifiedBranchName> specifiedNames, MRepository repository);
+			IReadOnlyList<GitSpecifiedNames> specifiedNames, MRepository repository);
 
 		void SetPullMergeCommitBranchNames(IReadOnlyList<MCommit> commits);
 

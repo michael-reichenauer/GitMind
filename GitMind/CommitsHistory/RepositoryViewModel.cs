@@ -23,7 +23,6 @@ namespace GitMind.CommitsHistory
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string settingFilterText = "";
 
-
 		private int width = 0;
 		private int graphWidth = 0;
 
@@ -66,7 +65,7 @@ namespace GitMind.CommitsHistory
 		public Repository Repository { get; private set; }
 
 		public ICommand ShowBranchCommand => Command<Branch>(ShowBranch);
-		//public ICommand HideBranchCommand => Command<string>(HideBranch);
+
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
 
@@ -111,7 +110,6 @@ namespace GitMind.CommitsHistory
 					graphWidth = value;
 					Commits.ForEach(commit => commit.GraphWidth = graphWidth);
 				}
-
 			}
 		}
 
@@ -317,7 +315,6 @@ namespace GitMind.CommitsHistory
 			if ((absx < 10) && (absy < 10))
 			{
 				Clicked(column, row, isControl);
-
 			}
 		}
 	}

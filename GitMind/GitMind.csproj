@@ -79,6 +79,9 @@
     <Compile Include="CommitsHistory\CommitDetail.cs" />
     <Compile Include="CommitsHistory\CommitDetailViewModel.cs" />
     <Compile Include="CommitsHistory\CommitFileViewModel.cs" />
+    <Compile Include="CommitsHistory\SetBranchPrompt.xaml.cs">
+      <DependentUpon>SetBranchPrompt.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GitModel\CommitFile.cs" />
     <Compile Include="CommitsHistory\CommitViewModel.cs" />
     <Compile Include="CommitsHistory\Converter.cs" />
@@ -119,6 +122,7 @@
     <Compile Include="GitModel\Tag.cs" />
     <Compile Include="Git\GitCommitFiles.cs" />
     <Compile Include="Git\GitFile.cs" />
+    <Compile Include="Git\GitSpecifiedNames.cs" />
     <Compile Include="Utils\IReadOnlyKeyedList.cs" />
     <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="GitModel\Private\MRepository.cs" />
@@ -183,6 +187,10 @@
     <Compile Include="Utils\MicroDiContainer.cs" />
     <Compile Include="VirtualCanvas\VirtualPanel.cs" />
     <Compile Include="VirtualCanvas\ZoomableCanvas.cs" />
+    <Page Include="CommitsHistory\SetBranchPrompt.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

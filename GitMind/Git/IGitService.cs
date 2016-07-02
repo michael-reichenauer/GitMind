@@ -30,5 +30,6 @@ namespace GitMind.Git
 
 		Task<R<CommitDiff>> GetCommitFileDiffAsync(string commitId, string name, bool hasParentCommit);
 		Task<R<GitCommitFiles>> GetCommitsFilesForCommitAsync(string path, string commitId);
+		Task SetSpecifiedCommitBranchAsync(string commitId, string branchName);
 	}
 }

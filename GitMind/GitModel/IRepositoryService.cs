@@ -8,6 +8,9 @@ namespace GitMind.GitModel
 	internal interface IRepositoryService
 	{
 		Task<Repository> GetRepositoryAsync(bool useCache);
+
 		Task<Repository> UpdateRepositoryAsync(Repository repository);
+
+		Task SetSpecifiedCommitBranchAsync(string commitId, string branchName);
 	}
 }

@@ -7,6 +7,7 @@ namespace GitMind.Git.Private
 	internal class GitRepo : IGitRepo
 	{
 		private readonly IReadOnlyList<GitTag> tags;
+		private readonly IReadOnlyList<GitSpecifiedNames> specifiedNames;
 		private static readonly IReadOnlyList<GitTag> noTags = new List<GitTag>();
 
 		private readonly Dictionary<string, GitCommit> commits = new Dictionary<string, GitCommit>();
@@ -24,10 +25,12 @@ namespace GitMind.Git.Private
 			IReadOnlyList<GitBranch> branches, 
 			IReadOnlyList<GitCommit> commits, 
 			IReadOnlyList<GitTag> tags,
+			IReadOnlyList<GitSpecifiedNames> specifiedNames,
 			GitCommit currentCommit,
 			GitBranch currentBranch)
 		{
 			this.tags = tags;
+			this.specifiedNames = specifiedNames;
 			CurrentCommit = currentCommit;
 			CurrentBranch = currentBranch;
 
@@ -44,6 +47,9 @@ namespace GitMind.Git.Private
 		public GitBranch CurrentBranch { get; }
 
 		public IEnumerable<GitCommit> GetAllCommts() => commits.Values;
+
+		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNameses() => specifiedNames;
+
 
 		public IReadOnlyList<string> GetCommitChildren(string commitId) => GetChildren(commitId);
 
