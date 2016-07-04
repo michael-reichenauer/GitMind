@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using ProtoBuf;
 
@@ -27,6 +28,8 @@ namespace GitMind.GitModel.Private
 		public bool IsAnonymous { get; set; }
 		[DataMember, ProtoMember(10)]
 		public bool IsRemote { get; set; }
+		[DataMember, ProtoMember(11)]
+		public List<string> ChildBranchNames { get; set; } = new List<string>();
 
 
 		public MRepository Repository { get; set; }

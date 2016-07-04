@@ -33,6 +33,8 @@ namespace GitMind.GitModel.Private
 		public int RemoteAheadCount { get; set; }
 		[DataMember, ProtoMember(12)]
 		public bool IsLocalAndRemote { get; set; }
+		[DataMember, ProtoMember(13)]
+		public List<string> ChildBranchNames { get; set; } = new List<string>();
 
 		//[DataMember, ProtoMember(13)]
 		//public List<string> SubBranchIds { get; set; } = new List<string>();

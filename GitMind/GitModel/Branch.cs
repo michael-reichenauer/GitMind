@@ -22,6 +22,7 @@ namespace GitMind.GitModel
 			string parentCommitId,
 			IReadOnlyList<string> commitIds,
 			string parentBranchId,
+			IReadOnlyList<string> childBranchNames,
 			bool isActive,
 			bool isMultiBranch,
 			int localAheadCount,
@@ -35,6 +36,7 @@ namespace GitMind.GitModel
 			this.parentBranchId = parentBranchId;
 			Id = id;
 			Name = name;
+			ChildBranchNames = childBranchNames;
 			IsActive = isActive;
 			IsMultiBranch = isMultiBranch;
 			LocalAheadCount = localAheadCount;
@@ -44,6 +46,7 @@ namespace GitMind.GitModel
 
 		public string Id { get; }
 		public string Name { get; }
+		public IReadOnlyList<string> ChildBranchNames { get; }
 		public bool IsActive { get; }
 		public bool IsMultiBranch { get; }
 		public int LocalAheadCount { get; }

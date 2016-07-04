@@ -66,6 +66,9 @@ namespace GitMind.GitModel.Private
 						? branch.Commits.Last().Id
 						: branch.ParentCommitId;
 
+					branch.ChildBranchNames = groupByBranch
+						.SelectMany(b => b.ChildBranchNames).Distinct().ToList();
+
 					branch.Repository.Branches.Add(branch);
 				}
 			}

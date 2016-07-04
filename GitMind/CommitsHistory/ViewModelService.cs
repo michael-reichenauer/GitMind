@@ -464,6 +464,15 @@ namespace GitMind.CommitsHistory
 				toolTip += $"\nBehind: {branch.Branch.RemoteAheadCount}";
 			}
 
+			if (branch.Branch.ChildBranchNames.Count > 1)
+			{
+				toolTip += $"\nMulti branch of:";
+				foreach (string branchName in branch.Branch.ChildBranchNames)
+				{
+					toolTip += $"\n   {branchName}";
+				}
+			}
+
 			return toolTip;
 		}
 
