@@ -67,6 +67,8 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
+		public Brush HoverBrush => Brush;
+
 		public string BranchToolTip
 		{
 			get { return Get(); }

@@ -13,12 +13,12 @@ namespace GitMind.CommitsHistory
 			VirtualId = virtualId;
 		}
 
-
+		public int ZIndex => 100;
 		public string Id { get; }
 		public int VirtualId { get; }
 
 		public string Type => "Merge";
-		public int ZIndex => 100;
+
 
 		public int ChildRow
 		{
@@ -55,7 +55,7 @@ namespace GitMind.CommitsHistory
 			get { return Get(); }
 			set { Set(value); }
 		}
-
+	
 		public int Stroke
 		{
 			get { return Get(); }

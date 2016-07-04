@@ -15,6 +15,9 @@ namespace GitMind.CommitsHistory
 
 		private Commit commit;
 		private int windowWidth;
+		private static readonly SolidColorBrush HoverBrushColor = 
+			(SolidColorBrush)(new BrushConverter().ConvertFrom("#996495ED"));
+
 
 		public CommitViewModel(
 			string id,
@@ -24,6 +27,9 @@ namespace GitMind.CommitsHistory
 			VirtualId = virtualId;
 		}
 
+
+
+		public int ZIndex => 0;
 		public string Id { get; }
 		public int VirtualId { get; }
 
@@ -129,6 +135,8 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
+		public Brush HoverBrush => HoverBrushColor;
+
 		public Brush BrushInner
 		{
 			get { return Get(); }
@@ -141,7 +149,7 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
-		public int ZIndex => 0;
+
 		public string CommitBranchText
 		{
 			get { return Get(); }

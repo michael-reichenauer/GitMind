@@ -409,7 +409,7 @@
 											<Setter 
 												TargetName="ItemBorder" 
 												Property="BorderBrush" 
-												Value="{StaticResource HoverItemBrush}" />
+												Value="{Binding HoverBrush}" />
 										</MultiTrigger>
 									</ControlTemplate.Triggers>
 								</ControlTemplate>
