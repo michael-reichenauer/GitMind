@@ -76,36 +76,28 @@
 						</Image.ToolTip>
 					</Image>
 
-					<!-- Working folder (need hyperlink to get "hand" mouse over, but hyperlink command does not work -->
-					<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 	
-								Margin="3,5"
-								HorizontalAlignment="Left"
-								VerticalAlignment="Center"
-								Foreground="LightSteelBlue"
-								Text="{Binding WorkingFolder}">
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding SelectWorkingFolderCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								<TextBlock.ToolTip>
-									<ToolTip
-										Placement="Bottom"					
-										VerticalOffset="5"
-										Background="Black"
-										BorderThickness="2"
-										BorderBrush="DarkOrchid">
-										<StackPanel Orientation="Horizontal">
-											<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
-											<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
-										</StackPanel>
-									</ToolTip>
-								</TextBlock.ToolTip>
-							</TextBlock>
-						</Hyperlink>
+					<!-- Working folder -->
+					<TextBlock 	
+						Margin="3,5"
+						HorizontalAlignment="Left"
+						VerticalAlignment="Center"
+						Foreground="LightSteelBlue"
+						Text="{Binding WorkingFolder}">
+						<TextBlock.ToolTip>
+							<ToolTip
+								Placement="Bottom"					
+								VerticalOffset="5"
+								Background="Black"
+								BorderThickness="2"
+								BorderBrush="DarkOrchid">
+								<StackPanel Orientation="Horizontal">
+									<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
+									<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
+								</StackPanel>
+							</ToolTip>
+						</TextBlock.ToolTip>
 					</TextBlock>
+					
 				
 
 					<!-- Commit status  -->
@@ -196,7 +188,6 @@
 					
 		
 					<!-- Hamburger button -->
-
 					<Button
 						Style="{StaticResource BaseButtonStyle}"
 						FontFamily="Segoe MDL2 Assets"
@@ -208,33 +199,45 @@
 								Name="HamburgerContextMenu"
 								Foreground="LightSteelBlue"
 								BorderBrush="DarkSlateBlue"
-								BorderThickness="0">
+								BorderThickness="5">
 
 								<!--Show Branch menu item -->
 								<MenuItem 
 									Header="Show Branch" 
-									ItemsSource="{Binding RepositoryViewModel.AllBranches}" 								
-									Padding="0" 
-									Margin="0" 
-									BorderBrush="DarkSlateBlue" 
-									BorderThickness="0">
-
+									ItemsSource="{Binding RepositoryViewModel.AllBranches}" 	
+			
+>
 									<MenuItem.ItemContainerStyle>
-										<!--<Setter Property="Background" Value="Black"/>-->
 										<Style TargetType="MenuItem">
 											<Setter Property="Header" Value="{Binding Text}"/>
-											<Setter Property="Background" Value="Black"/>
-											<Setter Property="Foreground" Value="LightSteelBlue"/>
-											<Setter Property="Margin" Value="0"/>
-											<Setter Property="Padding" Value="0"/>
-											<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
-											<Setter Property="BorderThickness" Value="0"/>
 											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
 											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
+											<Setter Property="Background" Value="Black"/>
+											<Setter Property="BorderThickness" Value="0"/>	
+											<Setter Property="Foreground" Value="LightSteelBlue"/>
 										</Style>
 									</MenuItem.ItemContainerStyle>
 								</MenuItem>
 						
+									<!--Hide Branch menu item -->
+								<MenuItem 
+									Header="Hide Branch" 
+									ItemsSource="{Binding RepositoryViewModel.ActiveBranches}" 	
+		
+>
+									<MenuItem.ItemContainerStyle>
+										<Style TargetType="MenuItem">
+											<Setter Property="Header" Value="{Binding Text}"/>
+											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.HideBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
+											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
+											<Setter Property="Background" Value="Black"/>
+											<Setter Property="BorderThickness" Value="0"/>	
+											<Setter Property="Foreground" Value="LightSteelBlue"/>
+										</Style>
+									</MenuItem.ItemContainerStyle>
+								</MenuItem>
+								
+								<MenuItem Header="Select Working Folder ..." Command="{Binding SelectWorkingFolderCommand}"/>
 								
 							</ContextMenu>
 						</Button.ContextMenu>
@@ -303,47 +306,11 @@
 				SelectedIndex="{Binding RepositoryViewModel.SelectedIndex, Mode=TwoWay}" 
 				SelectedItem="{Binding RepositoryViewModel.SelectedItem, Mode=TwoWay}"
 			>
-				<ListBox.InputBindings>
-					<KeyBinding Key="Space" Command="{Binding RepositoryViewModel.ToggleDetailsCommand}" />
-				</ListBox.InputBindings>
+					<ListBox.InputBindings>
+						<KeyBinding Key="Space" Command="{Binding RepositoryViewModel.ToggleDetailsCommand}" />
+					</ListBox.InputBindings>
 
-				<ListBox.ContextMenu>
-					<!-- Background="Black" -->
-					<ContextMenu 
-					
-						Foreground="LightSteelBlue"
-						BorderBrush="DarkSlateBlue"
-						BorderThickness="0">
-
-						<!--Show Branch menu item -->
-						<MenuItem 
-							Header="Show Branch" 
-							ItemsSource="{Binding RepositoryViewModel.AllBranches}" 								
-							Padding="0" 
-							Margin="0" 
-							BorderBrush="DarkSlateBlue" 
-							BorderThickness="0">
-
-							<MenuItem.ItemContainerStyle>
-								<!--<Setter Property="Background" Value="Black"/>-->
-								<Style TargetType="MenuItem">
-									<Setter Property="Header" Value="{Binding Text}"/>
-									<Setter Property="Background" Value="Black"/>
-									<Setter Property="Foreground" Value="LightSteelBlue"/>
-									<Setter Property="Margin" Value="0"/>
-									<Setter Property="Padding" Value="0"/>
-									<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
-									<Setter Property="BorderThickness" Value="0"/>
-									<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
-									<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-								</Style>
-							</MenuItem.ItemContainerStyle>
-						</MenuItem>
-					</ContextMenu>
-				</ListBox.ContextMenu>
-				
-
-				<ListBox.ItemsPanel>
+					<ListBox.ItemsPanel>
 					<ItemsPanelTemplate>
 						<virtualCanvas:ZoomableCanvas 
 							Loaded="ZoomableCanvas_Loaded"
@@ -582,11 +549,6 @@
 																Header="Show Diff ..."
 																Command="{Binding ShowDiffCommand}"
 																CommandParameter="{Binding Id}"/>
-
-															<MenuItem 
-																Header="{Binding CommitBranchText}"
-																Command="{Binding HideBranchCommand}"
-																CommandParameter="{Binding CommitBranchName}"/>
 
 															<MenuItem 
 																Header="Set Commit Branch"

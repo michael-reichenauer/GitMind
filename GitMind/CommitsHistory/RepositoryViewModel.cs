@@ -75,6 +75,9 @@ namespace GitMind.CommitsHistory
 		public ObservableCollection<BranchName> AllBranches { get; }
 			= new ObservableCollection<BranchName>();
 
+		public ObservableCollection<BranchName> ActiveBranches { get; }
+		= new ObservableCollection<BranchName>();
+
 
 		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);
 

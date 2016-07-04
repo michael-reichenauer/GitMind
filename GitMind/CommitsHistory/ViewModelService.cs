@@ -286,6 +286,13 @@ namespace GitMind.CommitsHistory
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.AllBranches.Add(
 					new BranchName(b, repositoryViewModel.ShowBranchCommand)));
+
+			repositoryViewModel.ActiveBranches.Clear();
+			branches
+				.Where(b => b.Name != "master")
+				.OrderBy(b => b.Name)
+				.ForEach(b => repositoryViewModel.ActiveBranches.Add(
+					new BranchName(b, repositoryViewModel.ShowBranchCommand)));
 		}
 
 

@@ -18,15 +18,29 @@
 								IsItemsHost="True"
 								KeyboardNavigation.DirectionalNavigation="Cycle"/>
 					</Border>
-					<ControlTemplate.Triggers>
+					<!--<ControlTemplate.Triggers>
 						<Trigger Property="HasDropShadow" Value="true">
 							<Setter TargetName="Border" Property="Padding" Value="0,3,0,3"/>
 							<Setter TargetName="Border" Property="CornerRadius" Value="4"/>
 						</Trigger>
-					</ControlTemplate.Triggers>
+					</ControlTemplate.Triggers>-->
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
+		
+		
+	</Style>
+
+	<Style TargetType="MenuItem">
+		<Setter Property="BorderThickness" Value="0" />
+		<Setter Property="BorderBrush" Value="DarkSlateBlue" />
+	
+		<Style.Triggers>
+			<Trigger Property="IsMouseOver" Value="True" >
+				<Setter Property="Foreground" Value="LightSteelBlue" />
+				<Setter Property="Background" Value="Black" />
+			</Trigger>
+		</Style.Triggers>
 	</Style>
 
 </ResourceDictionary>
