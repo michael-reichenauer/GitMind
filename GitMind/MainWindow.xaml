@@ -465,7 +465,7 @@
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
-											<Grid>
+											<Grid Background="Transparent">
 												<Path 
 													Data="{Binding Line}"
 													Stroke="{Binding Brush}"
@@ -482,6 +482,46 @@
 														</StackPanel>
 													</ToolTip>
 												</Grid.ToolTip>
+												
+												<Grid.ContextMenu>
+													<!-- Background="Black" -->
+													<ContextMenu 
+					
+														Foreground="LightSteelBlue"
+														BorderBrush="DarkSlateBlue"
+														BorderThickness="0">
+
+														<!--Show Branch menu item -->
+														<MenuItem 
+															Header="Show Child Branch" 
+															ItemsSource="{Binding ChildBranches}" 								
+															Padding="0" 
+															Margin="0" 
+															BorderBrush="DarkSlateBlue" 
+															BorderThickness="0">
+
+															<MenuItem.ItemContainerStyle>
+																<!--<Setter Property="Background" Value="Black"/>-->
+																<Style TargetType="MenuItem">
+																	<Setter Property="Header" Value="{Binding Text}"/>
+																	<Setter Property="Background" Value="Black"/>
+																	<Setter Property="Foreground" Value="LightSteelBlue"/>
+																	<Setter Property="Margin" Value="0"/>
+																	<Setter Property="Padding" Value="0"/>
+																	<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
+																	<Setter Property="BorderThickness" Value="0"/>
+																	<Setter Property="Command" Value="{Binding ShowBranchCommand}"/>
+																	<Setter Property="CommandParameter" Value="{Binding Branch}"/>
+																</Style>
+															</MenuItem.ItemContainerStyle>
+														</MenuItem>
+														
+														<MenuItem 
+															Header="{Binding HideBranchText}"
+															Command="{Binding HideBranchCommand}"
+															CommandParameter="{Binding Branch}"/>
+													</ContextMenu>
+												</Grid.ContextMenu>	
 			
 											</Grid>
 										</DataTemplate>

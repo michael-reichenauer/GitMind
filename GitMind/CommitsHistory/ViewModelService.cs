@@ -284,7 +284,8 @@ namespace GitMind.CommitsHistory
 			repositoryViewModel.Repository.Branches
 				.Where(b => b.IsActive)
 				.OrderBy(b => b.Name)
-				.ForEach(b => repositoryViewModel.AllBranches.Add(new BranchName(b)));
+				.ForEach(b => repositoryViewModel.AllBranches.Add(
+					new BranchName(b, repositoryViewModel.ShowBranchCommand)));
 		}
 
 
@@ -419,7 +420,11 @@ namespace GitMind.CommitsHistory
 			foreach (Branch sourceBranch in sourceBranches)
 			{
 				BranchViewModel branch = repositoryViewModel.VirtualItemsSource.GetOrAdd(
-					sourceBranch.Id, (id, virtualId) => new BranchViewModel(id, virtualId));
+					sourceBranch.Id, (id, virtualId) => new BranchViewModel(
+						id, 
+						virtualId, 
+						repositoryViewModel.ShowBranchCommand,
+						repositoryViewModel.HideBranchCommand));
 
 				branch.Branch = sourceBranch;
 				branch.Name = sourceBranch.Name;
@@ -434,12 +439,12 @@ namespace GitMind.CommitsHistory
 				branches.Add(branch);
 
 				branch.Rect = new Rect(
-					(double)Converter.ToX(branch.BranchColumn) + 6,
+					(double)Converter.ToX(branch.BranchColumn) + 5,
 					(double)Converter.ToY(branch.LatestRowIndex) + Converter.HalfRow,
-					4,
+					6,
 					height);
 				branch.Width = branch.Rect.Width;
-				branch.Line = $"M 1,0 L 1,{height}";
+				branch.Line = $"M 2,0 L 2,{height}";
 
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 

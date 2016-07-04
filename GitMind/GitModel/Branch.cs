@@ -58,7 +58,16 @@ namespace GitMind.GitModel
 		public bool HasParentBranch => parentBranchId != null;
 		public Branch ParentBranch => repository.Branches[parentBranchId];
 
-
+		public IEnumerable<Branch> GetChildBranches()
+		{
+			foreach (Branch branch in repository.Branches
+				.Where(b => b.HasParentBranch && b.ParentBranch == this)
+				.Distinct()
+				.OrderByDescending(b => b.ParentCommit.CommitDate))
+			{
+				yield return branch;
+			}
+		}
 
 		public IEnumerable<Branch> Parents()
 		{

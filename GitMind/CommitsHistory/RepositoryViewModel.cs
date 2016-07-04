@@ -65,6 +65,7 @@ namespace GitMind.CommitsHistory
 		public Repository Repository { get; private set; }
 
 		public ICommand ShowBranchCommand => Command<Branch>(ShowBranch);
+		public ICommand HideBranchCommand => Command<Branch>(HideBranch);
 
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
@@ -286,10 +287,10 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		//private void HideBranch(string obj)
-		//{
-		//	throw new System.NotImplementedException();
-		//}
+		private void HideBranch(Branch branch)
+		{
+			viewModelService.HideBranch(this, branch);
+		}
 
 
 		private void ToggleDetails()
