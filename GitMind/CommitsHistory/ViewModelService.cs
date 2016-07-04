@@ -439,12 +439,12 @@ namespace GitMind.CommitsHistory
 				branches.Add(branch);
 
 				branch.Rect = new Rect(
-					(double)Converter.ToX(branch.BranchColumn) + 5,
+					(double)Converter.ToX(branch.BranchColumn) + 6,
 					(double)Converter.ToY(branch.LatestRowIndex) + Converter.HalfRow,
-					6,
+					4,
 					height);
 				branch.Width = branch.Rect.Width;
-				branch.Line = $"M 2,0 L 2,{height}";
+				branch.Line = $"M 1,0 L 1,{height}";
 
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 

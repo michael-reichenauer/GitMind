@@ -471,6 +471,13 @@ namespace GitMind
 				mainWindowViewModel.RepositoryViewModel.ToggleDetailsCommand.Execute(null);
 			}
 		}
+
+
+		private void HamburgerButton_OnClick(object sender, RoutedEventArgs e)
+		{
+			HamburgerContextMenu.PlacementTarget = this;
+			HamburgerContextMenu.IsOpen = true;
+		}
 	}
 }
 

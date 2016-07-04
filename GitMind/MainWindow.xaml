@@ -46,7 +46,7 @@
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="Auto"/>
-					<ColumnDefinition Width="263"/>
+					<ColumnDefinition Width="258"/>
 				</Grid.ColumnDefinitions>
 
 				<StackPanel 
@@ -192,38 +192,54 @@
 						</Button.ToolTip>
 					</Button>-->
 
-					<!-- Feedback button  -->
-						<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 
-								Name="FeedbackButton"
-								Background="Black"
-								Foreground="LightSteelBlue"
-								Margin="10,5,5,0"	
-								FontWeight="Bold"
-								Text="@">
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding FeedbackCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								<TextBlock.ToolTip>
-									<ToolTip
-										Placement="Bottom"
-										HorizontalOffset="-15" 
-										VerticalOffset="5"
-										Background="Black"
-										BorderThickness="2"
-										BorderBrush="DarkOrchid">
-										<StackPanel>
-											<TextBlock Text="Send feedback..." Foreground="LightSteelBlue"/>
-										</StackPanel>
-									</ToolTip>
-								</TextBlock.ToolTip>
-								</TextBlock>
-							</Hyperlink>
-					</TextBlock>
+			
 					
+		
+					<!-- Hamburger button -->
+
+					<Button
+						Style="{StaticResource BaseButtonStyle}"
+						FontFamily="Segoe MDL2 Assets"
+						Content="&#xE700;"
+						Click="HamburgerButton_OnClick">
+						
+						<Button.ContextMenu>		
+							<ContextMenu 
+								Name="HamburgerContextMenu"
+								Foreground="LightSteelBlue"
+								BorderBrush="DarkSlateBlue"
+								BorderThickness="0">
+
+								<!--Show Branch menu item -->
+								<MenuItem 
+									Header="Show Branch" 
+									ItemsSource="{Binding RepositoryViewModel.AllBranches}" 								
+									Padding="0" 
+									Margin="0" 
+									BorderBrush="DarkSlateBlue" 
+									BorderThickness="0">
+
+									<MenuItem.ItemContainerStyle>
+										<!--<Setter Property="Background" Value="Black"/>-->
+										<Style TargetType="MenuItem">
+											<Setter Property="Header" Value="{Binding Text}"/>
+											<Setter Property="Background" Value="Black"/>
+											<Setter Property="Foreground" Value="LightSteelBlue"/>
+											<Setter Property="Margin" Value="0"/>
+											<Setter Property="Padding" Value="0"/>
+											<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
+											<Setter Property="BorderThickness" Value="0"/>
+											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
+											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
+										</Style>
+									</MenuItem.ItemContainerStyle>
+								</MenuItem>
+						
+								
+							</ContextMenu>
+						</Button.ContextMenu>
+					</Button>
+							
 				</StackPanel>
 
 
@@ -233,7 +249,7 @@
 					<TextBox
 						IsEnabled="true"
 						BorderBrush="DarkSlateBlue"
-						Width="185"
+						Width="165"
 						Height="20"
 						Margin="3,0"
 						Background="Black"
@@ -242,61 +258,27 @@
 						HorizontalAlignment="Right"
 						VerticalAlignment="Center"/>
 
-					<!-- Minimize button-->
-					<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 
-								Name="MinimizeButton"
-								Background="Black"
-								Foreground="LightSteelBlue"
-								Margin="10,0,5,0"	
-								FontWeight="ExtraBold"
-								Text="_">
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding MinimizeCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								</TextBlock>
-							</Hyperlink>
-					</TextBlock>
+					<!-- Minimize button-->			
+					<Button 
+						Style="{StaticResource BaseButtonStyle}"
+						FontFamily="Segoe MDL2 Assets"
+						Content="&#xE738;"
+						Command="{Binding MinimizeCommand}"/>
 					
-						<!-- Maximize button-->
-					<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 
-								Name="MaximizeButton"
-								Background="Black"
-								Foreground="LightSteelBlue"
-								Margin="10,4,5,0"							
-								Text="[]">
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding ToggleMaximizeCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								</TextBlock>
-							</Hyperlink>
-					</TextBlock>
+					<!-- Maximize button-->
+					<Button 
+						Style="{StaticResource BaseButtonStyle}"
+						FontFamily="Segoe MDL2 Assets"
+						Content="&#xE15B;"
+						Command="{Binding ToggleMaximizeCommand}"/>		
 					
 					<!-- Close Button -->
-						<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 
-								Name="CloseButton"
-								Background="Black"
-								Foreground="LightSteelBlue"
-								Margin="10,5,5,0"		
-								FontWeight="Bold"
-								Text="X">
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding CloseCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								</TextBlock>
-							</Hyperlink>
-					</TextBlock>
+					<Button 
+						Style="{StaticResource BaseButtonStyle}"
+						FontFamily="Segoe MDL2 Assets"
+						Content="&#xE711;"
+						Command="{Binding CloseCommand}"/>
+						
 				</StackPanel>
 			</Grid>
 		</Border>
@@ -666,25 +648,25 @@
 
 														<!-- Tag -->
 														<TextBlock 
-														Text="{Binding Tags}"
-														Foreground="MediumSeaGreen"
-														HorizontalAlignment="Left"
-														VerticalAlignment="Center"/>
+															Text="{Binding Tags}"
+															Foreground="MediumSeaGreen"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center"/>
 
 														<!-- Tickets -->
 														<TextBlock 
-														Text="{Binding Tickets}"
-														Foreground="Red"
-														HorizontalAlignment="Left"
-														VerticalAlignment="Center"/>
+															Text="{Binding Tickets}"
+															Foreground="Red"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center"/>
 
 														<!-- Subject -->
 														<TextBlock 
-														Text="{Binding Subject}"
-														Foreground="{Binding SubjectBrush}"
-														FontSize="12"
-														HorizontalAlignment="Left"
-														VerticalAlignment="Center"/>
+															Text="{Binding Subject}"
+															Foreground="{Binding SubjectBrush}"
+															FontSize="12"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center"/>
 													</StackPanel>
 
 

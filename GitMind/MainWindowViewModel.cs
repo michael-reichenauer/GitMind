@@ -41,6 +41,7 @@ namespace GitMind
 			this.refreshAsync = refreshAsync;
 		}
 
+	
 
 		public string StatusText
 		{

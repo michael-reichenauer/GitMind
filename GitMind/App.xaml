@@ -14,6 +14,7 @@
 				
 				<ResourceDictionary Source="Styles\ListBoxScrollbarStyle.xaml"/>
 				<ResourceDictionary Source="Styles\ContextMenuStyle.xaml"/>
+				<ResourceDictionary Source="Styles\ButtonStyle.xaml"/>
 				<ResourceDictionary Source="Styles\ListBoxStyle.xaml"/>
 				<!--<ResourceDictionary Source="Styles\Theme.xaml"/>-->
 
