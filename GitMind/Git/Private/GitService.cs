@@ -231,8 +231,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<R<CommitDiff>> GetCommitFileDiffAsync(
-			string commitId, string name, bool hasParentCommit)
+		public async Task<R<CommitDiff>> GetCommitFileDiffAsync(string commitId, string name)
 		{
 			// -m shows diffs for merge commits
 			string args;
@@ -243,15 +242,7 @@ namespace GitMind.Git.Private
 				commitId = commitId.Substring(0, index);
 			}
 
-			if (hasParentCommit)
-			{
-				args = $"diff -m --unified=10000 {commitId}^ {commitId} -- {name}";
-			}
-			else
-			{
-				args = $"diff -m --root --unified=10000 {commitId} -- {name}";
-			}
-		
+			args = $"diff-tree --unified=10000 --find-renames -m --root --no-commit-id -p -r {commitId} -- {name}";
 
 			R<IReadOnlyList<string>> diff = await GitAsync(null, args);
 			if (diff.IsFaulted) return diff.Error;
@@ -280,7 +271,7 @@ namespace GitMind.Git.Private
 					commitId = commitId.Substring(0, index);
 				}
 
-				args = $"diff --unified=5 -M {commitId}^ {commitId}";
+				args = $"diff-tree --unified=5 --find-renames -m --root --no-commit-id -p -r {commitId}";
 			}
 			else
 			{

@@ -7,6 +7,6 @@ namespace GitMind.CommitsHistory
 	{
 		Task ShowDiffAsync(string commitId);
 
-		Task ShowFileDiffAsync(string commitId, string name, bool hasParentCommit);
+		Task ShowFileDiffAsync(string commitId, string name);
 	}
 }
