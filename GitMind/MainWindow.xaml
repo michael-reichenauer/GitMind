@@ -89,7 +89,7 @@
 								VerticalOffset="5"
 								Background="Black"
 								BorderThickness="2"
-								BorderBrush="DarkOrchid">
+								BorderBrush="{Binding BranchBrush}">
 								<StackPanel Orientation="Horizontal">
 									<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
 									<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>

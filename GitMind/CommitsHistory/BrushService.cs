@@ -38,6 +38,17 @@ namespace GitMind.CommitsHistory
 		}
 
 
+		public Brush GetBranchBrush(string branchName)
+		{
+			if (branchName == "master")
+			{
+				return MasterBranchBrush;
+			}
+
+			int branchBrushId = Math.Abs(branchName.GetHashCode()) % brushes.Value.Count;
+			return brushes.Value[branchBrushId];
+		}
+
 
 		public Brush GetDarkerBrush(Brush brush)
 		{

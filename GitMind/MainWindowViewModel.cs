@@ -71,6 +71,13 @@ namespace GitMind
 			set { Set(value); }
 		}
 
+		public Brush BranchBrush
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+
 		public string WorkingFolder
 		{
 			get { return Get(); }

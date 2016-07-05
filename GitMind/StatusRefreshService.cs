@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using GitMind.CommitsHistory;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.Utils;
@@ -12,20 +13,23 @@ namespace GitMind
 	{
 		private readonly MainWindowViewModel mainWindowViewModel;
 		private readonly IGitService gitService;
+		private readonly IBrushService brushService;
 
 
 		public StatusRefreshService(MainWindowViewModel mainWindowViewModel)
-			: this(mainWindowViewModel, new GitService())
+			: this(mainWindowViewModel, new GitService(), new BrushService())
 		{			
 		}
 
 
 		public StatusRefreshService(
 			MainWindowViewModel mainWindowViewModel,
-			IGitService gitService)
+			IGitService gitService,
+			IBrushService brushService)
 		{
 			this.mainWindowViewModel = mainWindowViewModel;
 			this.gitService = gitService;
+			this.brushService = brushService;
 		}
 
 
@@ -62,6 +66,7 @@ namespace GitMind
 				if (currentBranchName.IsFaulted) return;
 
 				mainWindowViewModel.BranchName = currentBranchName.Value;
+				mainWindowViewModel.BranchBrush = brushService.GetBranchBrush(currentBranchName.Value);
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{

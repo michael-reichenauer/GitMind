@@ -12,5 +12,6 @@ namespace GitMind.CommitsHistory
 
 		Brush GetDarkerBrush(Brush brush);
 		Brush GetBranchBrush(Branch branch);
+		Brush GetBranchBrush(string branchName);
 	}
 }
