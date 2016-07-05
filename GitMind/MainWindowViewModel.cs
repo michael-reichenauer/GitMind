@@ -55,6 +55,9 @@ namespace GitMind
 			set { Set(value); }
 		}
 
+		public bool IsInFilterMode => !string.IsNullOrEmpty(SearchBox);
+	
+
 		public bool IsNewVersionVisible
 		{
 			get { return Get(); }
@@ -79,7 +82,7 @@ namespace GitMind
 			get { return Get(); }
 			set
 			{
-				Set(value);
+				Set(value).Notify(nameof(IsInFilterMode));
 				SetSearchBoxValue(value);
 			}
 		}
@@ -136,7 +139,11 @@ namespace GitMind
 
 		private void Escape()
 		{
-			if (!string.IsNullOrWhiteSpace(SearchBox))
+			if (RepositoryViewModel.DetailsSize > 0)
+			{
+				RepositoryViewModel.DetailsSize = 0;
+			}
+			else if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
 			}
@@ -174,9 +181,6 @@ namespace GitMind
 			{
 				Application.Current.MainWindow.WindowState = WindowState.Maximized;
 			}
-
-			// Application.Current.MainWindow. = this.Size;
-			//this.MaximumSize = this.Size;
 		}
 
 		private void CloseWindow()
@@ -236,7 +240,7 @@ namespace GitMind
 			try
 			{
 				Process proc = new Process();
-				proc.StartInfo.FileName = "https://github.com/michael-reichenauer/GitMind/wiki";
+				proc.StartInfo.FileName = "https://github.com/michael-reichenauer/GitMind/wiki/Help";
 				proc.Start();
 			}
 			catch (Exception ex) when (ex.IsNotFatal())

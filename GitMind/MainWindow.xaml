@@ -193,25 +193,37 @@
 						FontFamily="Segoe MDL2 Assets"
 						Content="&#xE700;"
 						Click="HamburgerButton_OnClick">
-						
+					
+						<Button.ToolTip>
+							<ToolTip
+								Placement="Bottom"					
+								VerticalOffset="5"
+								Background="Black"
+								BorderThickness="1"
+								BorderBrush="#FF6495ED">
+									<TextBlock Text="Customize and control" Foreground="Lavender"/>
+							</ToolTip>
+						</Button.ToolTip>
+
 						<Button.ContextMenu>		
 							<ContextMenu 
 								Name="HamburgerContextMenu"
 								Foreground="LightSteelBlue"
 								BorderBrush="DarkSlateBlue"
-								BorderThickness="5">
+								BorderThickness="2">
 
 								<!--Show Branch menu item -->
 								<MenuItem 
-									Header="Show Branch" 
-									ItemsSource="{Binding RepositoryViewModel.AllBranches}">
+									Header="Show branch" 
+									ItemsSource="{Binding RepositoryViewModel.AllBranches}"
+									BorderBrush="DarkSlateBlue">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
 											<TextBlock 
 												Text="&#xE94D;"
 												FontFamily="Segoe MDL2 Assets"
 												Foreground="LightSteelBlue"
-												 VerticalAlignment="Center">
+												VerticalAlignment="Center">
 											</TextBlock>
 										</Border>
 									</MenuItem.Icon>
@@ -222,7 +234,8 @@
 											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
 											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
 											<Setter Property="Background" Value="Black"/>
-											<Setter Property="BorderThickness" Value="0"/>	
+											<Setter Property="BorderThickness" Value="0"/>
+											<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
 											<Setter Property="Foreground" Value="LightSteelBlue"/>
 										</Style>
 									</MenuItem.ItemContainerStyle>
@@ -230,7 +243,7 @@
 						
 									<!--Hide Branch menu item -->
 								<MenuItem 
-									Header="Hide Branch" 
+									Header="Hide branch" 
 									ItemsSource="{Binding RepositoryViewModel.ActiveBranches}">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
@@ -256,7 +269,7 @@
 								</MenuItem>
 
 								<MenuItem 
-									Header="Open Working Folder ..." 
+									Header="Open working folder ..." 
 									Command="{Binding SelectWorkingFolderCommand}">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
@@ -273,7 +286,7 @@
 								<Separator Background="DarkSlateBlue"/>
 								
 								<MenuItem 
-									Header="Specify Branch for Commit ..." 
+									Header="Specify branch for commit ..." 
 									Command="{Binding SpecifyCommitBranchCommand}">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
@@ -290,7 +303,7 @@
 								<Separator Background="DarkSlateBlue"/>
 
 								<MenuItem 
-									Header="Send Feedback ..." 
+									Header="Send feedback ..." 
 									Command="{Binding FeedbackCommand}">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
@@ -305,7 +318,7 @@
 								</MenuItem>
 
 								<MenuItem 
-									Header="View Help ..." 
+									Header="View help ..." 
 									Command="{Binding HelpCommand}">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
@@ -349,15 +362,39 @@
 							Text="{Binding SearchBox, UpdateSourceTrigger=PropertyChanged}"
 							Foreground="Lavender"
 							HorizontalAlignment="Right"
-							VerticalAlignment="Center"/>
+							VerticalAlignment="Center">
+								<TextBox.ToolTip>
+									<ToolTip
+										Placement="Bottom"					
+										VerticalOffset="5"
+										Background="Black"
+										BorderThickness="1"
+										BorderBrush="#FF6495ED">
+											<TextBlock Text="Type words to search for" Foreground="Lavender"/>
+									</ToolTip>
+								</TextBox.ToolTip>
+							</TextBox>
 					
 						<Button 
+							IsEnabled="{Binding IsInFilterMode}"
 							Style="{StaticResource BaseButtonStyle}"
 							FontFamily="Segoe MDL2 Assets"
 							FontSize="7"
 							Content="&#xE711;"
 							Padding="5,3"
-							Command="{Binding ClearFilterCommand}"/>
+							Command="{Binding ClearFilterCommand}">
+								<Button.ToolTip>
+									<ToolTip
+										Placement="Bottom"					
+										VerticalOffset="5"
+										Background="Black"
+										BorderThickness="1"
+										BorderBrush="#FF6495ED">
+											<TextBlock Text="Clear filter (Esc)" Foreground="Lavender"/>
+									</ToolTip>
+								</Button.ToolTip>
+							</Button>
+							
 						</StackPanel>
 					</Border>
 
