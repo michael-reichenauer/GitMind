@@ -147,13 +147,13 @@ namespace GitMind
 
 		private void Escape()
 		{
-			if (RepositoryViewModel.DetailsSize > 0)
-			{
-				RepositoryViewModel.DetailsSize = 0;
-			}
-			else if (!string.IsNullOrWhiteSpace(SearchBox))
+			if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
+			}
+			else if (RepositoryViewModel.DetailsSize > 0)
+			{
+				RepositoryViewModel.DetailsSize = 0;
 			}
 			else
 			{
