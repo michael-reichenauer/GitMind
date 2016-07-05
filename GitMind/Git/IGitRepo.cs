@@ -18,10 +18,12 @@ namespace GitMind.Git
 
 		IReadOnlyList<GitTag> GetTags(string commitId);
 
+		IReadOnlyList<GitSpecifiedNames> GetSpecifiedNameses();
+
 		IReadOnlyList<string> GetCommitChildren(string commitId);
 
 		GitBranch GetCurrentBranch();
-		
+
 
 		IReadOnlyList<GitBranch> GetAllBranches();
 

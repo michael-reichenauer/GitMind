@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Git;
 using GitMind.Utils;
 
 
@@ -8,10 +9,10 @@ namespace GitMind.GitModel.Private
 	internal class CommitBranchNameService : ICommitBranchNameService
 	{
 		public void SetSpecifiedCommitBranchNames(
-			IReadOnlyList<SpecifiedBranchName> specifiedNames,
+			IReadOnlyList<GitSpecifiedNames> specifiedNames,
 			MRepository repository)
 		{
-			foreach (SpecifiedBranchName specifiedName in specifiedNames)
+			foreach (GitSpecifiedNames specifiedName in specifiedNames)
 			{
 				MCommit commit;
 				if (repository.Commits.TryGetValue(specifiedName.CommitId, out commit))

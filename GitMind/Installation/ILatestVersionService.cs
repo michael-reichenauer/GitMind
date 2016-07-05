@@ -7,5 +7,6 @@ namespace GitMind.Installation
 	{
 		Task<bool> IsNewVersionAvailableAsync();
 		Task<bool> InstallLatestVersionAsync();
+		Task<bool> RunLatestVersionAsync();
 	}
 }

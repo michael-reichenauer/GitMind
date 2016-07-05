@@ -26,6 +26,7 @@ namespace GitMind.GitModel
 			IReadOnlyList<string> parentIds, 
 			IReadOnlyList<string> childIds, 
 			string branchId, 
+			string specifiedBranchName,
 			bool isLocalAhead, 
 			bool isRemoteAhead)
 		{
@@ -42,6 +43,7 @@ namespace GitMind.GitModel
 			CommitDate = commitDate;
 			Tags = tags;
 			Tickets = tickets;
+			SpecifiedBranchName = specifiedBranchName;
 			IsLocalAhead = isLocalAhead;
 			IsRemoteAhead = isRemoteAhead;
 		}
@@ -56,6 +58,7 @@ namespace GitMind.GitModel
 		public DateTime CommitDate { get; }
 		public string Tags { get; }
 		public string Tickets { get; }
+		public string SpecifiedBranchName { get; }
 		public bool IsLocalAhead { get; }
 		public bool IsRemoteAhead { get; }
 		public bool HasFirstParent => parentIds.Count > 0;

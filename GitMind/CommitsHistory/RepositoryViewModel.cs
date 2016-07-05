@@ -23,7 +23,6 @@ namespace GitMind.CommitsHistory
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string settingFilterText = "";
 
-
 		private int width = 0;
 		private int graphWidth = 0;
 
@@ -66,7 +65,8 @@ namespace GitMind.CommitsHistory
 		public Repository Repository { get; private set; }
 
 		public ICommand ShowBranchCommand => Command<Branch>(ShowBranch);
-		//public ICommand HideBranchCommand => Command<string>(HideBranch);
+		public ICommand HideBranchCommand => Command<Branch>(HideBranch);
+
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
 
@@ -74,6 +74,9 @@ namespace GitMind.CommitsHistory
 
 		public ObservableCollection<BranchName> AllBranches { get; }
 			= new ObservableCollection<BranchName>();
+
+		public ObservableCollection<BranchName> ActiveBranches { get; }
+		= new ObservableCollection<BranchName>();
 
 
 		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);
@@ -111,7 +114,6 @@ namespace GitMind.CommitsHistory
 					graphWidth = value;
 					Commits.ForEach(commit => commit.GraphWidth = graphWidth);
 				}
-
 			}
 		}
 
@@ -232,7 +234,7 @@ namespace GitMind.CommitsHistory
 
 			Log.Debug($"Filter triggered for: {FilterText}");
 
-			CommitViewModel selectedBefore = (CommitViewModel)SelectedItem;
+			CommitViewModel selectedBefore = SelectedItem as CommitViewModel;
 			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
 
 			Task setFilterTask = viewModelService.SetFilterAsync(this, filterText);
@@ -288,10 +290,10 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		//private void HideBranch(string obj)
-		//{
-		//	throw new System.NotImplementedException();
-		//}
+		private void HideBranch(Branch branch)
+		{
+			viewModelService.HideBranch(this, branch);
+		}
 
 
 		private void ToggleDetails()
@@ -317,7 +319,6 @@ namespace GitMind.CommitsHistory
 			if ((absx < 10) && (absy < 10))
 			{
 				Clicked(column, row, isControl);
-
 			}
 		}
 	}

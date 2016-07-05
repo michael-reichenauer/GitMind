@@ -1,9 +1,8 @@
 using System;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using GitMind.Git.Private;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.Utils.UI;
 
 
@@ -12,18 +11,25 @@ namespace GitMind.CommitsHistory
 	internal class CommitViewModel : ViewModel, IVirtualItem
 	{
 		private readonly IDiffService diffService = new DiffService();
+		private readonly IRepositoryService repositoryService = new RepositoryService();
 
 		private Commit commit;
 		private int windowWidth;
+		private static readonly SolidColorBrush HoverBrushColor = 
+			(SolidColorBrush)(new BrushConverter().ConvertFrom("#996495ED"));
+
 
 		public CommitViewModel(
-			string id, 
+			string id,
 			int virtualId)
 		{
 			Id = id;
 			VirtualId = virtualId;
 		}
 
+
+
+		public int ZIndex => 0;
 		public string Id { get; }
 		public int VirtualId { get; }
 
@@ -44,11 +50,10 @@ namespace GitMind.CommitsHistory
 
 		public int RowIndex { get; set; }
 
-		
+
 		public string ShortId => Commit.ShortId;
 		public string Author => Commit.Author;
 		public string Date => Commit.AuthorDateText;
-		//public string Subject => Commit.ShortId + " " + Commit.Subject;
 		public string Subject => Commit.Subject;
 
 		public string Tags
@@ -130,6 +135,8 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
+		public Brush HoverBrush => HoverBrushColor;
+
 		public Brush BrushInner
 		{
 			get { return Get(); }
@@ -142,7 +149,7 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
-		public int ZIndex => 0;
+
 		public string CommitBranchText
 		{
 			get { return Get(); }
@@ -156,7 +163,11 @@ namespace GitMind.CommitsHistory
 		}
 
 		public Command HideBranchCommand => Command(HideBranch);
+
 		public Command ShowDiffCommand => Command(ShowDiffAsync);
+
+		public Command SetCommitBranchCommand => Command(SetCommitBranchAsync);
+
 
 		public int WindowWidth
 		{
@@ -166,18 +177,30 @@ namespace GitMind.CommitsHistory
 				if (windowWidth != value)
 				{
 					windowWidth = value;
-					Width = windowWidth - 35;		
+					Width = windowWidth - 35;
 				}
 			}
 		}
-
 
 
 		public override string ToString() => $"{ShortId} {Subject} {Date}";
 
 
 		public Action HideBranch { get; set; }
-		
+
+
+		private async void SetCommitBranchAsync()
+		{
+			var dialog = new SetBranchPrompt();
+			dialog.PromptText = Commit.SpecifiedBranchName;
+
+			if (dialog.ShowDialog() == true)
+			{
+				string branchName = dialog.PromptText?.Trim();
+				await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName);
+			}
+		}
+
 
 		private async void ShowDiffAsync()
 		{

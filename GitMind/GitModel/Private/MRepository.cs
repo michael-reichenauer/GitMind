@@ -11,7 +11,7 @@ namespace GitMind.GitModel.Private
 	[DataContract, ProtoContract]
 	public class MRepository
 	{
-		public static string CurrentVersion = "3";
+		public static string CurrentVersion = "4";
 
 		public MRepository()
 		{

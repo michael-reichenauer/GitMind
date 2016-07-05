@@ -49,6 +49,7 @@ namespace GitMind.Installation.Private
 				using (HttpClient httpClient = GetHttpClient())
 				{
 					string latestInfoText = await httpClient.GetStringAsync(latestUri);
+				
 
 					return serializer.Deserialize<LatestInfo>(latestInfoText);
 				}
@@ -91,6 +92,22 @@ namespace GitMind.Installation.Private
 						return true;
 					}
 				}
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				Log.Error($"Failed to install new version {e}");
+			}
+
+			return false;
+		}
+
+		public async Task<bool> RunLatestVersionAsync()
+		{
+			await Task.Yield();
+			try
+			{
+				cmd.Start(ProgramPaths.GetInstallFilePath(), null);
+				return true;			
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{

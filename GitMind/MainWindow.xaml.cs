@@ -233,8 +233,8 @@ namespace GitMind
 
 		private async void NewVersionAsync(object sender, EventArgs e)
 		{
-			//mainWindowViewModel.IsNewVersionVisible = await
-			//	latestVersionService.IsNewVersionAvailableAsync();
+			mainWindowViewModel.IsNewVersionVisible = await
+				latestVersionService.IsNewVersionAvailableAsync();
 
 			if (await latestVersionService.IsNewVersionAvailableAsync())
 			{
@@ -411,7 +411,7 @@ namespace GitMind
 			Point position = e.GetPosition(ItemsListBox);
 			//Log.Debug($"Position {position}");
 			if (e.LeftButton == MouseButtonState.Pressed
-				&& position.Y < 0 && position.X < (canvas.ActualWidth - 260))
+				&& position.Y < 0 && position.X < (canvas.ActualWidth - 280))
 			{
 				DragMove();
 			}
@@ -470,6 +470,13 @@ namespace GitMind
 			{
 				mainWindowViewModel.RepositoryViewModel.ToggleDetailsCommand.Execute(null);
 			}
+		}
+
+
+		private void HamburgerButton_OnClick(object sender, RoutedEventArgs e)
+		{
+			HamburgerContextMenu.PlacementTarget = this;
+			HamburgerContextMenu.IsOpen = true;
 		}
 	}
 }

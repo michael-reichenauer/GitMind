@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Git;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -127,19 +128,13 @@ namespace GitMind.GitModel.Private
 
 						string branchName = "Branch_" + commit.ShortId;
 						bool isMultiBranch = false;
+						List<string> childBranchNames = commit.FirstChildren
+							.Select(c => c.BranchXName).Distinct().ToList();
 
-						if (commit.FirstChildren.Count() > 1)
+						if (childBranchNames.Count > 1)
 						{
-							MCommit firstChild = commit.FirstChildren.ElementAt(0);
-
-							if (!commit.FirstChildren.All(
-								c => c.HasBranchName && c.BranchXName == firstChild.BranchXName))
-							{
-								// Not all children have the same name (or none have a name)
-
-								branchName = "Multibranch_" + commit.ShortId;
-								isMultiBranch = true;
-							}
+							branchName = "Multibranch_" + commit.ShortId;
+							isMultiBranch = true;					
 						}
 						else
 						{
@@ -158,7 +153,8 @@ namespace GitMind.GitModel.Private
 							LatestCommitId = commit.Id,
 							IsMultiBranch = isMultiBranch,
 							IsActive = false,
-							IsAnonymous = true
+							IsAnonymous = true,
+							ChildBranchNames = childBranchNames
 						};
 
 						repository.SubBranches.Add(subBranch);

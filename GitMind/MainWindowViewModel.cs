@@ -41,6 +41,7 @@ namespace GitMind
 			this.refreshAsync = refreshAsync;
 		}
 
+	
 
 		public string StatusText
 		{
@@ -53,6 +54,9 @@ namespace GitMind
 			get { return Get(); }
 			set { Set(value); }
 		}
+
+		public bool IsInFilterMode => !string.IsNullOrEmpty(SearchBox);
+
 
 		public bool IsNewVersionVisible
 		{
@@ -67,6 +71,13 @@ namespace GitMind
 			set { Set(value); }
 		}
 
+		public Brush BranchBrush
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+
 		public string WorkingFolder
 		{
 			get { return Get(); }
@@ -78,7 +89,7 @@ namespace GitMind
 			get { return Get(); }
 			set
 			{
-				Set(value);
+				Set(value).Notify(nameof(IsInFilterMode));
 				SetSearchBoxValue(value);
 			}
 		}
@@ -112,9 +123,11 @@ namespace GitMind
 
 		public Command ShowDiffCommand => Command(ShowDiff);
 
-		public Command InstallLatestVersionCommand => Command(InstallLatestVersion);
+		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
 		public Command FeedbackCommand => Command(Feedback);
+
+		public Command HelpCommand => Command(OpenHelp);
 
 		public Command MinimizeCommand => Command(Minimize);
 
@@ -124,12 +137,23 @@ namespace GitMind
 
 		public Command EscapeCommand => Command(Escape);
 
+		public Command ClearFilterCommand => Command(ClearFilter);
+
+		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
+
+		public Command ToggleCommitDetailsCommand => Command(ToggleCommitDetail);
+
+
 
 		private void Escape()
 		{
 			if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
+			}
+			else if (RepositoryViewModel.DetailsSize > 0)
+			{
+				RepositoryViewModel.DetailsSize = 0;
 			}
 			else
 			{
@@ -165,9 +189,6 @@ namespace GitMind
 			{
 				Application.Current.MainWindow.WindowState = WindowState.Maximized;
 			}
-
-			// Application.Current.MainWindow. = this.Size;
-			//this.MaximumSize = this.Size;
 		}
 
 		private void CloseWindow()
@@ -175,35 +196,15 @@ namespace GitMind
 			Application.Current.Shutdown(0);
 		}
 
-		private async void InstallLatestVersion()
+		private async void RunLatestVersion()
 		{
-			//if (MessageBoxResult.OK != MessageBox.Show(
-			//	Application.Current.MainWindow,
-			//	"There is a new version of GitMind.\n\n" +
-			//	"Would you like to download and install the new version?",
-			//	"GitMind",
-			//	MessageBoxButton.OKCancel,
-			//	MessageBoxImage.Question))
-			//{
-			//	return;
-			//}
-
-			bool isInstalling = await latestVersionService.InstallLatestVersionAsync();
+			bool isInstalling = await latestVersionService.RunLatestVersionAsync();
 
 			if (isInstalling)
 			{
 				// Newer version is being installed and will run, close this instance
 				Application.Current.Shutdown(0);
-			}
-			else
-			{
-				MessageBox.Show(
-					Application.Current.MainWindow,
-					"Failed to install newer version.",
-					"GitMind",
-					MessageBoxButton.OK,
-					MessageBoxImage.Error);
-			}
+			}		
 		}
 
 
@@ -218,6 +219,29 @@ namespace GitMind
 			catch (Exception ex) when (ex.IsNotFatal())
 			{
 				Log.Error($"Failed to open feedback link {ex}");
+			}
+		}
+
+
+		private void OpenHelp()
+		{
+			try
+			{
+				Process proc = new Process();
+				proc.StartInfo.FileName = "https://github.com/michael-reichenauer/GitMind/wiki/Help";
+				proc.Start();
+			}
+			catch (Exception ex) when (ex.IsNotFatal())
+			{
+				Log.Error($"Failed to open help link {ex}");
+			}
+		}
+
+		private void ClearFilter()
+		{
+			if (!string.IsNullOrWhiteSpace(SearchBox))
+			{
+				SearchBox = "";
 			}
 		}
 
@@ -269,6 +293,32 @@ namespace GitMind
 			RepositoryViewModel.Update(repository, new string[0]);
 
 			WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
+		}
+
+
+		private async void SpecifyCommitBranch()
+		{
+			var commit = RepositoryViewModel.SelectedItem as CommitViewModel;
+			if (commit != null)
+			{
+				await commit.SetCommitBranchCommand.ExecuteAsync(null);
+			}
+		}
+
+		private void ToggleCommitDetail()
+		{
+			var commit = RepositoryViewModel.SelectedItem as CommitViewModel;
+			if (commit != null)
+			{
+				if (RepositoryViewModel.DetailsSize == 0)
+				{
+					RepositoryViewModel.DetailsSize = 100;
+				}
+				else
+				{
+					RepositoryViewModel.DetailsSize = 0;
+				}		
+			}
 		}
 	}
 }

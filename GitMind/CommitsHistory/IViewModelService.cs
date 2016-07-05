@@ -15,5 +15,8 @@ namespace GitMind.CommitsHistory
 
 		void Update(
 			RepositoryViewModel repositoryViewModel, IReadOnlyList<Branch> specifiedBranches);
+
+
+		void HideBranch(RepositoryViewModel repositoryViewModel, Branch branch);
 	}
 }

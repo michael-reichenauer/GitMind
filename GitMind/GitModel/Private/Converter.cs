@@ -15,8 +15,9 @@ namespace GitMind.GitModel.Private
 				branch.LatestCommitId,
 				branch.FirstCommitId,
 				branch.ParentCommitId,
-				branch.Commits.Select(c => c.Id).ToList(),
+				branch.Commits.Select(c => c.Id).ToList(),			
 				branch.ParentBranchId,
+				branch.ChildBranchNames.ToList(),
 				branch.IsActive,
 				branch.IsMultiBranch,
 				branch.LocalAheadCount,
@@ -40,6 +41,7 @@ namespace GitMind.GitModel.Private
 				commit.ParentIds.ToList(),
 				commit.ChildIds.ToList(),
 				commit.BranchId,
+				commit.BranchNameSpecified,
 				commit.IsLocalAhead,
 				commit.IsRemoteAhead);
 		}

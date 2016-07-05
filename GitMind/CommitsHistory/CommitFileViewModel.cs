@@ -28,7 +28,7 @@ namespace GitMind.CommitsHistory
 
 		private void ShowDiffAsync()
 		{
-			diffService.ShowFileDiffAsync(Id, Name, HasParentCommit).RunInBackground();
+			diffService.ShowFileDiffAsync(Id, Name).RunInBackground();
 		}
 	}
 }

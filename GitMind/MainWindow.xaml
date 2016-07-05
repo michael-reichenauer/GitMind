@@ -19,6 +19,7 @@
 
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
+		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
 	</Window.InputBindings>
 
@@ -46,7 +47,7 @@
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="Auto"/>
-					<ColumnDefinition Width="263"/>
+					<ColumnDefinition Width="258"/>
 				</Grid.ColumnDefinitions>
 
 				<StackPanel 
@@ -76,36 +77,28 @@
 						</Image.ToolTip>
 					</Image>
 
-					<!-- Working folder (need hyperlink to get "hand" mouse over, but hyperlink command does not work -->
-					<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 	
-								Margin="3,5"
-								HorizontalAlignment="Left"
-								VerticalAlignment="Center"
-								Foreground="LightSteelBlue"
-								Text="{Binding WorkingFolder}">
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding SelectWorkingFolderCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								<TextBlock.ToolTip>
-									<ToolTip
-										Placement="Bottom"					
-										VerticalOffset="5"
-										Background="Black"
-										BorderThickness="2"
-										BorderBrush="DarkOrchid">
-										<StackPanel Orientation="Horizontal">
-											<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
-											<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
-										</StackPanel>
-									</ToolTip>
-								</TextBlock.ToolTip>
-							</TextBlock>
-						</Hyperlink>
+					<!-- Working folder -->
+					<TextBlock 	
+						Margin="3,5"
+						HorizontalAlignment="Left"
+						VerticalAlignment="Center"
+						Foreground="LightSteelBlue"
+						Text="{Binding WorkingFolder}">
+						<TextBlock.ToolTip>
+							<ToolTip
+								Placement="Bottom"					
+								VerticalOffset="5"
+								Background="Black"
+								BorderThickness="2"
+								BorderBrush="{Binding BranchBrush}">
+								<StackPanel Orientation="Horizontal">
+									<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
+									<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
+								</StackPanel>
+							</ToolTip>
+						</TextBlock.ToolTip>
 					</TextBlock>
+					
 				
 
 					<!-- Commit status  -->
@@ -130,7 +123,7 @@
 										VerticalOffset="5"
 										Background="Black"
 										BorderThickness="2"
-										BorderBrush="DarkOrchid">
+										BorderBrush="{Binding BranchBrush}">
 										<StackPanel Orientation="Horizontal">
 											<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
 											<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
@@ -164,139 +157,281 @@
 
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
 
-				<!-- Latest version button -->
-				<!--<Button 
-						Name="GetLatestVersionButton"
+					<!-- Latest version button -->
+					<Button 
 						Visibility="{Binding Path=IsNewVersionVisible, Converter={StaticResource PropertyToVisibilityConverter}}"
-						Background="Black"  
-						BorderBrush="Black"
+						Style="{StaticResource BaseButtonStyle}"
 						Foreground="Green"
-						Margin="10,0,0,0"
-						
-						Content="New Version"
-						Command="{Binding InstallLatestVersionCommand}">
+						Content="&#xE118;"
+						FontWeight="Bold"
+						FontFamily="Segoe MDL2 Assets"
+						Command="{Binding RunLatestVersionCommand}">
 
 						<Button.ToolTip>
 							<ToolTip
-								Placement="Bottom"
-								HorizontalOffset="-15" 
-								VerticalOffset="5"
-								Background="Black"
-								BorderBrush="Green">
+								Placement="Bottom"					
+										VerticalOffset="5"
+										Background="Black"
+										BorderThickness="1"
+										BorderBrush="#FF6495ED">
 								<StackPanel>
 									<TextBlock 
-										Text="New version is available, click to download and start installer ..." 
+										Text="New version is available, click to run new version ..." 
 										Foreground="LightSteelBlue"/>
 								</StackPanel>
 							</ToolTip>
 						</Button.ToolTip>
-					</Button>-->
+					</Button>
 
-					<!-- Feedback button  -->
-						<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 
-								Name="FeedbackButton"
+					<!-- Hamburger button -->
+					<Button
+						Style="{StaticResource BaseButtonStyle}"
+						FontFamily="Segoe MDL2 Assets"
+						Content="&#xE700;"
+						Click="HamburgerButton_OnClick">
+					
+						<Button.ToolTip>
+							<ToolTip
+								Placement="Bottom"					
+								VerticalOffset="5"
 								Background="Black"
+								BorderThickness="1"
+								BorderBrush="#FF6495ED">
+								<TextBlock Text="Customize and control" Foreground="LightSteelBlue"/>
+							</ToolTip>
+						</Button.ToolTip>
+
+						<Button.ContextMenu>		
+							<ContextMenu 
+								Name="HamburgerContextMenu"
 								Foreground="LightSteelBlue"
-								Margin="10,5,5,0"	
-								FontWeight="Bold"
-								Text="@">
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding FeedbackCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								<TextBlock.ToolTip>
-									<ToolTip
-										Placement="Bottom"
-										HorizontalOffset="-15" 
-										VerticalOffset="5"
-										Background="Black"
-										BorderThickness="2"
-										BorderBrush="DarkOrchid">
-										<StackPanel>
-											<TextBlock Text="Send feedback..." Foreground="LightSteelBlue"/>
-										</StackPanel>
-									</ToolTip>
-								</TextBlock.ToolTip>
-								</TextBlock>
-							</Hyperlink>
-					</TextBlock>
+								BorderBrush="DarkSlateBlue"
+								BorderThickness="2">
+
+								<!--Show Branch menu item -->
+								<MenuItem 
+									Header="Show branch" 
+									ItemsSource="{Binding RepositoryViewModel.AllBranches}"
+									BorderBrush="DarkSlateBlue">
+									<MenuItem.Icon>
+										<Border Background="Transparent" Padding="2">
+											<TextBlock 
+												Text="&#xE103;"
+												FontFamily="Segoe MDL2 Assets"
+												Foreground="LightSteelBlue"
+												VerticalAlignment="Center">
+											</TextBlock>
+										</Border>
+									</MenuItem.Icon>
+									
+									<MenuItem.ItemContainerStyle>
+										<Style TargetType="MenuItem">
+											<Setter Property="Header" Value="{Binding Text}"/>
+											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
+											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
+											<Setter Property="Background" Value="Black"/>
+											<Setter Property="BorderThickness" Value="0"/>
+											<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
+											<Setter Property="Foreground" Value="LightSteelBlue"/>
+
+										</Style>
+									</MenuItem.ItemContainerStyle>
+								</MenuItem>
+						
+									<!--Hide Branch menu item -->
+								<MenuItem 
+									Header="Hide branch" 
+									ItemsSource="{Binding RepositoryViewModel.ActiveBranches}">
+									<MenuItem.Icon>
+										<Border Background="Transparent" Padding="2">
+											<TextBlock 
+												Text="&#xE94F;"
+												FontFamily="Segoe MDL2 Assets"
+												Foreground="LightSteelBlue"
+												 VerticalAlignment="Center">
+											</TextBlock>
+										</Border>
+									</MenuItem.Icon>
+									
+									<MenuItem.ItemContainerStyle>
+										<Style TargetType="MenuItem">
+											<Setter Property="Header" Value="{Binding Text}"/>
+											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.HideBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
+											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
+											<Setter Property="Background" Value="Black"/>
+											<Setter Property="BorderThickness" Value="0"/>	
+											<Setter Property="Foreground" Value="LightSteelBlue"/>
+										</Style>
+									</MenuItem.ItemContainerStyle>
+								</MenuItem>
+								<Separator Background="DarkSlateBlue"/>
+								<MenuItem 
+									Header="Toggle commit details                Space" 
+									Command="{Binding ToggleCommitDetailsCommand}">
+									<MenuItem.Icon>
+										<Border Background="Transparent" Padding="2">
+											<TextBlock 
+												Text="&#xE12A;"
+												FontFamily="Segoe MDL2 Assets"
+												Foreground="LightSteelBlue"
+												 VerticalAlignment="Center">
+											</TextBlock>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+								<Separator Background="DarkSlateBlue"/>
+
+								<MenuItem 
+									Header="Open working folder ..." 
+									Command="{Binding SelectWorkingFolderCommand}">
+									<MenuItem.Icon>
+										<Border Background="Transparent" Padding="2">
+											<TextBlock 
+												Text="&#xE8DA;"
+												FontFamily="Segoe MDL2 Assets"
+												Foreground="LightSteelBlue"
+												VerticalAlignment="Center">
+											</TextBlock>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+
+								<Separator Background="DarkSlateBlue"/>
+								
+								<MenuItem 
+									Header="Specify branch for commit ..." 
+									Command="{Binding SpecifyCommitBranchCommand}">
+									<MenuItem.Icon>
+										<Border Background="Transparent" Padding="2">
+											<TextBlock 
+												Text="&#xE8B1;"
+												FontFamily="Segoe MDL2 Assets"
+												Foreground="LightSteelBlue"
+												VerticalAlignment="Center">
+											</TextBlock>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+
+								<Separator Background="DarkSlateBlue"/>
+
+								<MenuItem 
+									Header="Send feedback ..." 
+									Command="{Binding FeedbackCommand}">
+									<MenuItem.Icon>
+										<Border Background="Transparent" Padding="2">
+											<TextBlock 
+												Text="&#xE89C;"
+												FontFamily="Segoe MDL2 Assets"
+												Foreground="LightSteelBlue"
+												VerticalAlignment="Center">
+											</TextBlock>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+
+								<MenuItem 
+									Header="View help ...                                 F1" 
+									Command="{Binding HelpCommand}">
+									<MenuItem.Icon>
+										<Border Background="Transparent" Padding="2">
+											<TextBlock 
+												Text="&#xE897;"
+												FontFamily="Segoe MDL2 Assets"
+												Foreground="LightSteelBlue"
+												VerticalAlignment="Center">
+											</TextBlock>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+				
+							</ContextMenu>
+						</Button.ContextMenu>
+					</Button>
 					
 				</StackPanel>
 
 
 				<StackPanel Grid.Column="2" Orientation="Horizontal">
-
 					<!-- Search box  -->
-					<TextBox
-						IsEnabled="true"
-						BorderBrush="DarkSlateBlue"
-						Width="185"
-						Height="20"
-						Margin="3,0"
-						Background="Black"
-						Text="{Binding SearchBox, UpdateSourceTrigger=PropertyChanged}"
-						Foreground="Lavender"
-						HorizontalAlignment="Right"
-						VerticalAlignment="Center"/>
+					<Border 
+						BorderThickness="1" 
+						BorderBrush="DarkSlateBlue" Margin="2">
+						<StackPanel Orientation="Horizontal">
+						<TextBlock 
+							FontFamily="Segoe MDL2 Assets"
+							Foreground="LightSteelBlue"
+							FontSize="9"
+							Text="&#xE11A;"
+							Padding="4,6,2,6"/>
+						<TextBox
+							BorderThickness="0" 
+							IsEnabled="true"			
+							Width="120"
+							Height="20"
+							Margin="3,0"
+							Background="Black"
+							Text="{Binding SearchBox, UpdateSourceTrigger=PropertyChanged}"
+							Foreground="Lavender"
+							HorizontalAlignment="Right"
+							VerticalAlignment="Center">
+								<TextBox.ToolTip>
+									<ToolTip
+										Placement="Bottom"					
+										VerticalOffset="5"
+										Background="Black"
+										BorderThickness="1"
+										BorderBrush="#FF6495ED">
+										<TextBlock Text="Type words to search for" Foreground="LightSteelBlue"/>
+									</ToolTip>
+								</TextBox.ToolTip>
+							</TextBox>
+					
+						<Button 
+							IsEnabled="{Binding IsInFilterMode}"
+							Style="{StaticResource BaseButtonStyle}"
+							FontFamily="Segoe MDL2 Assets"
+							FontSize="7"
+							Content="&#xE711;"
+							Padding="5,3"
+							Command="{Binding ClearFilterCommand}">
+								<Button.ToolTip>
+									<ToolTip
+										Placement="Bottom"					
+										VerticalOffset="5"
+										Background="Black"
+										BorderThickness="1"
+										BorderBrush="#FF6495ED">
+										<TextBlock Text="Clear filter (Esc)" Foreground="LightSteelBlue"/>
+									</ToolTip>
+								</Button.ToolTip>
+							</Button>
+							
+						</StackPanel>
+					</Border>
 
 					<!-- Minimize button-->
-					<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 
-								Name="MinimizeButton"
-								Background="Black"
-								Foreground="LightSteelBlue"
-								Margin="10,0,5,0"	
-								FontWeight="ExtraBold"
-								Text="_">
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding MinimizeCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								</TextBlock>
-							</Hyperlink>
-					</TextBlock>
+					<Button 
+						Style="{StaticResource BaseButtonStyle}"
+						FontFamily="Segoe MDL2 Assets"
+						Content="&#xE738;"
+						Padding="8,6,8,0"
+						Command="{Binding MinimizeCommand}"/>
 					
-						<!-- Maximize button-->
-					<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 
-								Name="MaximizeButton"
-								Background="Black"
-								Foreground="LightSteelBlue"
-								Margin="10,4,5,0"							
-								Text="[]">
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding ToggleMaximizeCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								</TextBlock>
-							</Hyperlink>
-					</TextBlock>
+					<!-- Maximize button-->
+					<Button 
+						Style="{StaticResource BaseButtonStyle}"
+						FontFamily="Segoe MDL2 Assets"
+						Content="&#xE15B;"
+						Command="{Binding ToggleMaximizeCommand}"/>		
 					
 					<!-- Close Button -->
-						<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 
-								Name="CloseButton"
-								Background="Black"
-								Foreground="LightSteelBlue"
-								Margin="10,5,5,0"		
-								FontWeight="Bold"
-								Text="X">
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding CloseCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								</TextBlock>
-							</Hyperlink>
-					</TextBlock>
+					<Button 
+						Style="{StaticResource BaseButtonStyle}"
+						FontFamily="Segoe MDL2 Assets"
+						Content="&#xE711;"
+						Command="{Binding CloseCommand}"/>
+						
 				</StackPanel>
 			</Grid>
 		</Border>
@@ -321,47 +456,11 @@
 				SelectedIndex="{Binding RepositoryViewModel.SelectedIndex, Mode=TwoWay}" 
 				SelectedItem="{Binding RepositoryViewModel.SelectedItem, Mode=TwoWay}"
 			>
-				<ListBox.InputBindings>
-					<KeyBinding Key="Space" Command="{Binding RepositoryViewModel.ToggleDetailsCommand}" />
-				</ListBox.InputBindings>
+					<ListBox.InputBindings>
+						<KeyBinding Key="Space" Command="{Binding RepositoryViewModel.ToggleDetailsCommand}" />
+					</ListBox.InputBindings>
 
-				<ListBox.ContextMenu>
-					<!-- Background="Black" -->
-					<ContextMenu 
-					
-						Foreground="LightSteelBlue"
-						BorderBrush="DarkSlateBlue"
-						BorderThickness="0">
-
-						<!--Show Branch menu item -->
-						<MenuItem 
-							Header="Show Branch" 
-							ItemsSource="{Binding RepositoryViewModel.AllBranches}" 								
-							Padding="0" 
-							Margin="0" 
-							BorderBrush="DarkSlateBlue" 
-							BorderThickness="0">
-
-							<MenuItem.ItemContainerStyle>
-								<!--<Setter Property="Background" Value="Black"/>-->
-								<Style TargetType="MenuItem">
-									<Setter Property="Header" Value="{Binding Text}"/>
-									<Setter Property="Background" Value="Black"/>
-									<Setter Property="Foreground" Value="LightSteelBlue"/>
-									<Setter Property="Margin" Value="0"/>
-									<Setter Property="Padding" Value="0"/>
-									<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
-									<Setter Property="BorderThickness" Value="0"/>
-									<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
-									<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-								</Style>
-							</MenuItem.ItemContainerStyle>
-						</MenuItem>
-					</ContextMenu>
-				</ListBox.ContextMenu>
-				
-
-				<ListBox.ItemsPanel>
+					<ListBox.ItemsPanel>
 					<ItemsPanelTemplate>
 						<virtualCanvas:ZoomableCanvas 
 							Loaded="ZoomableCanvas_Loaded"
@@ -409,7 +508,7 @@
 											<Setter 
 												TargetName="ItemBorder" 
 												Property="BorderBrush" 
-												Value="{StaticResource HoverItemBrush}" />
+												Value="{Binding HoverBrush}" />
 										</MultiTrigger>
 									</ControlTemplate.Triggers>
 								</ControlTemplate>
@@ -455,8 +554,7 @@
 						<Setter Property="Background" Value="Transparent"/>
 
 						<Style.Triggers>
-					
-								
+											
 							<!-- Branch line -->
 							<DataTrigger Binding="{Binding Type}" Value="Branch">
 								<Setter Property="IsEnabled" Value="true"/>
@@ -465,7 +563,7 @@
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
-											<Grid>
+											<Grid Background="Transparent">
 												<Path 
 													Data="{Binding Line}"
 													Stroke="{Binding Brush}"
@@ -482,28 +580,26 @@
 														</StackPanel>
 													</ToolTip>
 												</Grid.ToolTip>
-
-												<!--<Grid.ContextMenu>
+												
+												<Grid.ContextMenu>
+													<!-- Background="Black" -->
 													<ContextMenu 
-														Background="Transparent" 
+					
 														Foreground="LightSteelBlue"
 														BorderBrush="DarkSlateBlue"
 														BorderThickness="0">
 
+														<!--Show Branch menu item -->
 														<MenuItem 
-															Header="{Binding BranchToolTip}" IsEnabled="False">
-														</MenuItem>
-														
-														--><!--Show Branch menu item --><!--
-														<MenuItem 
-															Header="Set Parent" 
-															ItemsSource="{Binding AllBranches}" 								
+															Header="Show Child Branch" 
+															ItemsSource="{Binding ChildBranches}" 								
 															Padding="0" 
 															Margin="0" 
 															BorderBrush="DarkSlateBlue" 
 															BorderThickness="0">
 
 															<MenuItem.ItemContainerStyle>
+																<!--<Setter Property="Background" Value="Black"/>-->
 																<Style TargetType="MenuItem">
 																	<Setter Property="Header" Value="{Binding Text}"/>
 																	<Setter Property="Background" Value="Black"/>
@@ -512,20 +608,15 @@
 																	<Setter Property="Padding" Value="0"/>
 																	<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
 																	<Setter Property="BorderThickness" Value="0"/>
-																	<Setter Property="Command" Value="{Binding DataContext.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
-																	<Setter Property="CommandParameter" Value="{Binding Text}"/>
+																	<Setter Property="Command" Value="{Binding ShowBranchCommand}"/>
+																	<Setter Property="CommandParameter" Value="{Binding Branch}"/>
 																</Style>
 															</MenuItem.ItemContainerStyle>
-														</MenuItem>--><!--
-
-														<MenuItem 
-															Header="Hide Branch"
-															Command="{Binding HideBranchCommand}"
 														</MenuItem>
-
+														
 													</ContextMenu>
-												</Grid.ContextMenu>-->
-												
+												</Grid.ContextMenu>	
+			
 											</Grid>
 										</DataTemplate>
 									</Setter.Value>
@@ -552,13 +643,12 @@
 								</Setter>
 							</DataTrigger>
 
-							<!-- Commit row  Background="Black" -->
+							<!-- Commit row -->
 							<DataTrigger Binding="{Binding Type}" Value="Commit">
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
-	
-											
+										
 											<Grid Background="Transparent">
 												<Grid.ColumnDefinitions>
 													<ColumnDefinition Width="{Binding GraphWidth}"/>
@@ -582,14 +672,7 @@
 																</Ellipse>
 															</ControlTemplate>
 														</Button.Template>
-													</Button>
-
-													<!--<Path
-														IsEnabled="{Binding LineEnabled}"
-														Data="{Binding Line}"
-														Stroke="{Binding Brush}"
-														StrokeThickness="2"/>-->
-													
+													</Button>								
 												</Canvas>
 
 												<Grid Grid.Column="1">
@@ -599,29 +682,21 @@
 														<ColumnDefinition Width="130"/>
 														<ColumnDefinition Width="105"/>
 													</Grid.ColumnDefinitions>
+													
+													<Grid.ContextMenu>
+														<ContextMenu 
+															Background="Transparent" 
+															Foreground="Lavender"
+															BorderBrush="DarkSlateBlue"
+															BorderThickness="0">
 
+															<MenuItem 
+																Header="Show Diff ..."
+																Command="{Binding ShowDiffCommand}"
+																CommandParameter="{Binding Id}"/>
 
-													<!-- Commit Id tip margin -->
-													<TextBlock 
-														Grid.Column="0"
-														Text="       "
-														HorizontalAlignment="Left"
-														VerticalAlignment="Center">
-
-														<TextBlock.ToolTip>
-															<ToolTip
-																Placement="Bottom"
-																HorizontalOffset="-15" 
-																VerticalOffset="5"
-																Background="Black"
-																BorderThickness="2"
-																BorderBrush="{Binding Brush}">
-																	<StackPanel>
-																		<TextBlock Text="{Binding ToolTip}" Foreground="Lavender"/>
-																	</StackPanel>
-																</ToolTip>
-															</TextBlock.ToolTip>
-												</TextBlock>
+															</ContextMenu>
+													</Grid.ContextMenu>
 
 												<Ellipse
 													Margin="0,1,3,0"
@@ -653,25 +728,25 @@
 
 														<!-- Tag -->
 														<TextBlock 
-														Text="{Binding Tags}"
-														Foreground="MediumSeaGreen"
-														HorizontalAlignment="Left"
-														VerticalAlignment="Center"/>
+															Text="{Binding Tags}"
+															Foreground="MediumSeaGreen"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center"/>
 
 														<!-- Tickets -->
 														<TextBlock 
-														Text="{Binding Tickets}"
-														Foreground="Red"
-														HorizontalAlignment="Left"
-														VerticalAlignment="Center"/>
+															Text="{Binding Tickets}"
+															Foreground="Red"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center"/>
 
 														<!-- Subject -->
 														<TextBlock 
-														Text="{Binding Subject}"
-														Foreground="{Binding SubjectBrush}"
-														FontSize="12"
-														HorizontalAlignment="Left"
-														VerticalAlignment="Center"/>
+															Text="{Binding Subject}"
+															Foreground="{Binding SubjectBrush}"
+															FontSize="12"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center"/>
 													</StackPanel>
 
 
@@ -693,31 +768,7 @@
 													HorizontalAlignment="Left"
 													VerticalAlignment="Center"/>
 
-													<Grid.ContextMenu>
-														<ContextMenu 
-															Background="Transparent" 
-															Foreground="Lavender"
-															BorderBrush="DarkSlateBlue"
-															BorderThickness="0">
-
-															<MenuItem 
-																Header="Show Diff ..."
-																Command="{Binding ShowDiffCommand}"
-																CommandParameter="{Binding Id}"/>
-
-															<MenuItem 
-																Header="{Binding CommitBranchText}"
-																Command="{Binding HideBranchCommand}"
-																CommandParameter="{Binding CommitBranchName}"/>
-
-
-															<!--<MenuItem 
-																Header="Set Commit Branch"
-																Command="{Binding SetCommitBranchCommand}"/>-->
-
-
-														</ContextMenu>
-													</Grid.ContextMenu>
+					
 												</Grid>
 											</Grid>
 										</DataTemplate>

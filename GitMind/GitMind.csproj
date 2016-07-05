@@ -79,6 +79,9 @@
     <Compile Include="CommitsHistory\CommitDetail.cs" />
     <Compile Include="CommitsHistory\CommitDetailViewModel.cs" />
     <Compile Include="CommitsHistory\CommitFileViewModel.cs" />
+    <Compile Include="CommitsHistory\SetBranchPrompt.xaml.cs">
+      <DependentUpon>SetBranchPrompt.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GitModel\CommitFile.cs" />
     <Compile Include="CommitsHistory\CommitViewModel.cs" />
     <Compile Include="CommitsHistory\Converter.cs" />
@@ -91,10 +94,6 @@
     <Compile Include="CommitsHistory\RepositoryVirtualItemsSource.cs" />
     <Compile Include="CommitsHistory\RepositoryViewModel.cs" />
     <Compile Include="CommitsHistory\ViewModelService.cs" />
-    <Compile Include="DataModel\Old\ActiveBranch.cs" />
-    <Compile Include="DataModel\Old\OldBranchBuilder.cs" />
-    <Compile Include="DataModel\Old\OldBranchComparer.cs" />
-    <Compile Include="DataModel\Old\BranchNameComparer.cs" />
     <Compile Include="GitModel\Branch.cs" />
     <Compile Include="GitModel\Commit.cs" />
     <Compile Include="GitModel\CommitFiles.cs" />
@@ -102,10 +101,6 @@
     <Compile Include="GitModel\Private\AheadBehindService.cs" />
     <Compile Include="GitModel\Private\BranchHierarchyService.cs" />
     <Compile Include="GitModel\Private\BranchNameParser.cs" />
-    <Compile Include="DataModel\Old\BranchPriority.cs" />
-    <Compile Include="DataModel\Old\OldCommit.cs" />
-    <Compile Include="DataModel\Old\CommitComparer.cs" />
-    <Compile Include="DataModel\Old\Commits.cs" />
     <Compile Include="GitModel\IRepositoryService.cs" />
     <Compile Include="GitModel\Private\CommitBranchNameService.cs" />
     <Compile Include="GitModel\Private\BranchService.cs" />
@@ -127,6 +122,7 @@
     <Compile Include="GitModel\Tag.cs" />
     <Compile Include="Git\GitCommitFiles.cs" />
     <Compile Include="Git\GitFile.cs" />
+    <Compile Include="Git\GitSpecifiedNames.cs" />
     <Compile Include="Utils\IReadOnlyKeyedList.cs" />
     <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="GitModel\Private\MRepository.cs" />
@@ -142,14 +138,7 @@
     <Compile Include="Utils\Error.cs" />
     <Compile Include="Git\Private\GitDiffParser.cs" />
     <Compile Include="Git\Private\IGitDiffParser.cs" />
-    <Compile Include="DataModel\Old\ModelBuilder.cs" />
-    <Compile Include="DataModel\Old\IOldModelService.cs" />
-    <Compile Include="DataModel\Old\IBranch.cs" />
-    <Compile Include="DataModel\Old\OldMerge.cs" />
     <Compile Include="GitModel\Private\MergeBranchNames.cs" />
-    <Compile Include="DataModel\Old\OldModel.cs" />
-    <Compile Include="DataModel\Old\OldModelService.cs" />
-    <Compile Include="DataModel\Old\OldTag.cs" />
     <Compile Include="Installation\IInstaller.cs" />
     <Compile Include="Installation\ILatestVersionService.cs" />
     <Compile Include="Installation\Private\LatestVersionService.cs" />
@@ -169,14 +158,9 @@
     <Compile Include="Utils\UI\Property.cs" />
     <Compile Include="Utils\UI\Command.cs" />
     <Compile Include="Git\CommitDiff.cs" />
-    <Compile Include="CommitsHistory\OldBranchViewModel.cs" />
     <Compile Include="Git\GitBranch.cs" />
     <Compile Include="Git\Private\GitRepo.cs" />
     <Compile Include="Git\IGitRepo.cs" />
-    <Compile Include="CommitsHistory\OldHistoryViewModel.cs" />
-    <Compile Include="CommitsHistory\IOldHistoryViewModel.cs" />
-    <Compile Include="CommitsHistory\OldMergeViewModel.cs" />
-    <Compile Include="CommitsHistory\OldCommitViewModel.cs" />
     <Compile Include="Git\GitTag.cs" />
     <Compile Include="Git\IGitService.cs" />
     <Compile Include="Git\Private\GitStatus.cs" />
@@ -203,6 +187,10 @@
     <Compile Include="Utils\MicroDiContainer.cs" />
     <Compile Include="VirtualCanvas\VirtualPanel.cs" />
     <Compile Include="VirtualCanvas\ZoomableCanvas.cs" />
+    <Page Include="CommitsHistory\SetBranchPrompt.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -215,6 +203,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Styles\ButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\ContextMenuStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -280,7 +272,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>copy /Y /B "$(SolutionDir)packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll" "$(ProjectDir)\Dependencies\Newtonsoft.Json.dll"
+    <PreBuildEvent>mkdir "$(ProjectDir)\Dependencies" 2&gt; NUL
+copy /Y /B "$(SolutionDir)packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll" "$(ProjectDir)\Dependencies\Newtonsoft.Json.dll"
 copy /Y /B "$(SolutionDir)packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll" "$(ProjectDir)\Dependencies\protobuf-net.dll"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

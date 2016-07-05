@@ -48,6 +48,9 @@ namespace GitMind.Git.Private
 			if (tags.IsFaulted) return tags.Error;
 			t.Log("Get tags");
 
+			IReadOnlyList<GitSpecifiedNames> specifiedNameses = GetSpecifiedNames(path);
+			t.Log("Get specified names");
+
 			R<IReadOnlyList<GitBranch>> branches = await GetBranchesAsync(path);
 			if (branches.IsFaulted) return branches.Error;
 			t.Log("Get branches");
@@ -65,7 +68,7 @@ namespace GitMind.Git.Private
 			t.Log("Get current branch");
 
 			return new GitRepo(
-				branches.Value, commits.Value, tags.Value, currentCommit.Value, currentBranch);
+				branches.Value, commits.Value, tags.Value, specifiedNameses, currentCommit.Value, currentBranch);
 		}
 
 
@@ -211,9 +214,24 @@ namespace GitMind.Git.Private
 		}
 
 
+		public Task SetSpecifiedCommitBranchAsync(string commitId, string branchName)
+		{
+			try
+			{
+				string file =
+					Path.Combine(Environment.CurrentDirectory, ".git", "gitmind.specified");
+				File.AppendAllText(file, $"{commitId} {branchName}\n");
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to add specified branch name for {commitId} {branchName}, {e}");
+			}
 
-		public async Task<R<CommitDiff>> GetCommitFileDiffAsync(
-			string commitId, string name, bool hasParentCommit)
+			return Task.FromResult(true);
+		}
+
+
+		public async Task<R<CommitDiff>> GetCommitFileDiffAsync(string commitId, string name)
 		{
 			// -m shows diffs for merge commits
 			string args;
@@ -224,16 +242,7 @@ namespace GitMind.Git.Private
 				commitId = commitId.Substring(0, index);
 			}
 
-			if (hasParentCommit)
-			{
-				args = $"diff -m --root --unified=10000 {commitId}^ {commitId} -- {name}";
-			}
-			else
-			{
-				args = $"diff -m --root --unified=10000 {commitId} -- {name}";
-			}
-		
-		
+			args = $"diff-tree --unified=10000 --find-renames -m --root --no-commit-id -p -r {commitId} -- {name}";
 
 			R<IReadOnlyList<string>> diff = await GitAsync(null, args);
 			if (diff.IsFaulted) return diff.Error;
@@ -262,7 +271,7 @@ namespace GitMind.Git.Private
 					commitId = commitId.Substring(0, index);
 				}
 
-				args = $"diff --unified=5 -M {commitId}^ {commitId}";
+				args = $"diff-tree --unified=5 --find-renames -m --root --no-commit-id -p -r {commitId}";
 			}
 			else
 			{
@@ -545,22 +554,28 @@ namespace GitMind.Git.Private
 		}
 
 
-		private IDictionary<string, string> ParseCommitBranchNames(string path)
+		private IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string path)
 		{
-			Dictionary<string, string> branchNames = new Dictionary<string, string>();
+			List<GitSpecifiedNames> branchNames = new List<GitSpecifiedNames>();
 
-			path = path ?? Environment.CurrentDirectory;
-			string filePath = path + "\\.gitmind";
-			if (File.Exists(filePath))
+			try
 			{
-				string[] lines = File.ReadAllLines(filePath);
-				foreach (string line in lines)
+				string filePath = Path.Combine(Environment.CurrentDirectory, ".git", "gitmind.specified");
+				if (File.Exists(filePath))
 				{
-					string[] parts = line.Split(" ".ToCharArray());
-					branchNames[parts[0]] = parts[1];
+					string[] lines = File.ReadAllLines(filePath);
+					foreach (string line in lines)
+					{
+						string[] parts = line.Split(" ".ToCharArray());
+						branchNames.Add(new GitSpecifiedNames(parts[0],  parts[1]?.Trim()));
+					}
 				}
 			}
-
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to read specified names {e}");
+			}
+			
 			return branchNames;
 		}
 
