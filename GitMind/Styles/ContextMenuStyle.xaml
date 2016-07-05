@@ -3,7 +3,7 @@
 										xmlns:local="clr-namespace:GitMind.Styles">
 
 	<!-- Separator -->
-	<Style TargetType="{x:Type Separator}" x:Key="SeparatorStyle">
+	<Style TargetType="{x:Type Separator}">
 		<Setter Property="Height" Value="1" />
 		<Setter Property="Background" Value="Green" />
 		<Setter Property="Template">
@@ -18,13 +18,13 @@
 	<!-- Outer menu items -->
 	<Style TargetType="{x:Type MenuItem}">
 		<Setter Property="Background" Value="Black"></Setter>
-		<Setter Property="Foreground" Value="White"></Setter>
+		<Setter Property="Foreground" Value="Lavender"></Setter>
 		<Style.Triggers>
 			<Trigger Property="IsHighlighted" Value="True">
 				<Setter Property="Background" Value="Black"></Setter>
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="False">
-				<Setter Property="Foreground" Value="LightGray"></Setter>
+				<Setter Property="Foreground" Value="Lavender"></Setter>
 			</Trigger>
 		</Style.Triggers>
 	</Style>
@@ -33,19 +33,21 @@
 	<Style TargetType="{x:Type ContextMenu}">
 		<Setter Property="OverridesDefaultStyle" Value="True" />
 		<Setter Property="SnapsToDevicePixels" Value="True" />
+
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type ContextMenu}">
 
-					<!--Here is where you change the border thickness to zero on the menu-->
-					<Border BorderThickness="0" x:Name="Border" Background="Transparent">
+					<!-- Here is where you change the border thickness to zero on the menu-->
+					<!-- MR main border -->
+					<Border BorderThickness="2" x:Name="Border" BorderBrush="DarkSlateBlue" Background="Black">
 						<StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True" />
 					</Border>
 					
 					<!-- MR main background when not selected -->
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsMouseOver" Value="true">
-							<Setter TargetName="Border" Property="Background" Value="Fuchsia" />
+							<Setter TargetName="Border" Property="Background" Value="Black" />
 						</Trigger>
 					</ControlTemplate.Triggers>
 				</ControlTemplate>
@@ -109,9 +111,9 @@
 				<Setter TargetName="Icon" Property="Visibility" Value="Hidden" />
 			</Trigger>
 
-			<!-- MR Highlight was background now bordebrush -->
+			<!-- MR Highlight was background now border brush -->
 			<Trigger Property="IsHighlighted" Value="true">
-				<Setter TargetName="Border" Property="BorderBrush" Value="Yellow" />
+				<Setter TargetName="Border" Property="BorderBrush" Value="#996495ED" />
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="false">
 				<Setter Property="Foreground" Value="Black" />
@@ -121,8 +123,7 @@
 
 	<!-- SubmenuHeader -->
 
-	<ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}"
-										 TargetType="{x:Type MenuItem}">
+	<ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}" TargetType="{x:Type MenuItem}">
 		<Border Name="Border">
 			<Grid>
 				<Grid.ColumnDefinitions>
@@ -131,14 +132,8 @@
 					<ColumnDefinition Width="Auto" SharedSizeGroup="Shortcut" />
 					<ColumnDefinition Width="13" />
 				</Grid.ColumnDefinitions>
-				<ContentPresenter Name="Icon"
-																	Margin="6,0,6,0"
-																	VerticalAlignment="Center"
-																	ContentSource="Icon" />
-				<ContentPresenter Name="HeaderHost"
-																	Grid.Column="1"
-																	ContentSource="Header"
-																	RecognizesAccessKey="True" />
+				<ContentPresenter Name="Icon" Margin="6,0,6,0" VerticalAlignment="Center" ContentSource="Icon" />
+				<ContentPresenter Name="HeaderHost" Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" />
 				<TextBlock x:Name="InputGestureText"
 													 Grid.Column="2"
 													 Text="{TemplateBinding InputGestureText}"
@@ -161,9 +156,11 @@
 					<Border Name="SubmenuBorder"
 														SnapsToDevicePixels="True"
 														Background="Black"
-														BorderBrush="#0f3c5a"
-														BorderThickness="1">
-						<StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+														BorderBrush="DarkSlateBlue"
+														BorderThickness="2">
+						<StackPanel 
+							IsItemsHost="True" 		
+							KeyboardNavigation.DirectionalNavigation="Continue" />
 					</Border>
 				</Popup>
 			</Grid>

@@ -203,27 +203,20 @@
 						</Button.ToolTip>
 
 						<Button.ContextMenu>		
-							<ContextMenu 
-								Name="HamburgerContextMenu"
-								Foreground="LightSteelBlue"
-								BorderBrush="DarkSlateBlue"
-								BorderThickness="2">
+							<ContextMenu Name="HamburgerContextMenu">
 
 								<!--Show Branch menu item -->
 								<MenuItem 
-									Header="Show branch" 
-									ItemsSource="{Binding RepositoryViewModel.AllBranches}"
-									BorderBrush="DarkSlateBlue">
+									Header=" Show branch" 
+									ItemsSource="{Binding RepositoryViewModel.AllBranches}">
 									<MenuItem.Icon>
-										<Border Background="Transparent" Padding="2">
-											<TextBlock 
+										<TextBlock 
 												Text="&#xE3CD;"
 												FontSize="14"
 												FontFamily="pack://application:,,,/Fonts/#Material Icons"
 												Foreground="LightSteelBlue"
 												VerticalAlignment="Center">
-											</TextBlock>
-										</Border>
+										</TextBlock>
 									</MenuItem.Icon>
 									
 									<MenuItem.ItemContainerStyle>
@@ -231,11 +224,6 @@
 											<Setter Property="Header" Value="{Binding Text}"/>
 											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
 											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-											<Setter Property="Background" Value="Black"/>
-											<Setter Property="BorderThickness" Value="0"/>
-											<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
-											<Setter Property="Foreground" Value="LightSteelBlue"/>
-
 										</Style>
 									</MenuItem.ItemContainerStyle>
 								</MenuItem>
@@ -261,18 +249,15 @@
 											<Setter Property="Header" Value="{Binding Text}"/>
 											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.HideBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
 											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-											<Setter Property="Background" Value="Black"/>
-											<Setter Property="BorderThickness" Value="0"/>	
-											<Setter Property="Foreground" Value="LightSteelBlue"/>
 										</Style>
 									</MenuItem.ItemContainerStyle>
 								</MenuItem>
-								
+
 								<Separator Background="DarkSlateBlue"/>
-								
+
 								<MenuItem 
 									Header="Toggle commit details                Space" 
-									Command="{Binding ToggleCommitDetailsCommand}">
+									Command="{Binding RepositoryViewModel.ToggleDetailsCommand}">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
 											<TextBlock 
@@ -344,7 +329,7 @@
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
 											<TextBlock 
-												Text=" ?"
+												Text=" ? "
 												FontSize="13"
 												FontWeight="Bold"
 												Foreground="LightSteelBlue"
