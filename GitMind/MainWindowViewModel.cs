@@ -11,7 +11,6 @@ using GitMind.Settings;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
-using MessageBox = System.Windows.MessageBox;
 
 
 namespace GitMind
@@ -41,7 +40,7 @@ namespace GitMind
 			this.refreshAsync = refreshAsync;
 		}
 
-	
+
 
 		public string StatusText
 		{
@@ -204,7 +203,7 @@ namespace GitMind
 			{
 				// Newer version is being installed and will run, close this instance
 				Application.Current.Shutdown(0);
-			}		
+			}
 		}
 
 
@@ -317,7 +316,7 @@ namespace GitMind
 				else
 				{
 					RepositoryViewModel.DetailsSize = 0;
-				}		
+				}
 			}
 		}
 	}

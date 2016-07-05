@@ -162,7 +162,7 @@
 						Visibility="{Binding Path=IsNewVersionVisible, Converter={StaticResource PropertyToVisibilityConverter}}"
 						Style="{StaticResource BaseButtonStyle}"
 						Foreground="Green"
-						Content="&#xE118;"
+						Content="&#xE72C;"
 						FontWeight="Bold"
 						FontFamily="Segoe MDL2 Assets"
 						Command="{Binding RunLatestVersionCommand}">
@@ -176,7 +176,7 @@
 										BorderBrush="#FF6495ED">
 								<StackPanel>
 									<TextBlock 
-										Text="New version is available, click to run new version ..." 
+										Text="New version of GitMind is available, click to reload ..." 
 										Foreground="LightSteelBlue"/>
 								</StackPanel>
 							</ToolTip>
@@ -296,7 +296,7 @@
 									</MenuItem.Icon>
 								</MenuItem>
 
-								<Separator Background="DarkSlateBlue"/>
+								<!--<Separator Background="DarkSlateBlue"/>
 								
 								<MenuItem 
 									Header="Specify branch for commit ..." 
@@ -311,7 +311,7 @@
 											</TextBlock>
 										</Border>
 									</MenuItem.Icon>
-								</MenuItem>
+								</MenuItem>-->
 
 								<Separator Background="DarkSlateBlue"/>
 
