@@ -43,7 +43,7 @@
 					</Border>
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsMouseOver" Value="true">
-							<Setter TargetName="Border" Property="Background" Value="#0f3c5a" />
+							<Setter TargetName="Border" Property="Background" Value="Fuchsia" />
 						</Trigger>
 					</ControlTemplate.Triggers>
 				</ControlTemplate>
@@ -69,7 +69,7 @@
 					Height="13"
 					Visibility="Collapsed"
 					Margin="6,0,6,0"
-					Background="#0f3c5a"
+					Background="Black"
 					BorderThickness="1"
 					BorderBrush="#5082a4">
 				<Path
@@ -105,7 +105,7 @@
 				<Setter TargetName="Icon" Property="Visibility" Value="Hidden" />
 			</Trigger>
 			<Trigger Property="IsHighlighted" Value="true">
-				<Setter TargetName="Border" Property="Background" Value="#5082a4" />
+				<Setter TargetName="Border" Property="Background" Value="Yellow" />
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="false">
 				<Setter Property="Foreground" Value="Black" />
@@ -142,7 +142,7 @@
 											HorizontalAlignment="Center"
 											VerticalAlignment="Center"
 											Data="M 0 0 L 0 7 L 4 3.5 Z"
-											Fill="#0f3c5a" />
+											Fill="Black" />
 				<Popup Name="Popup"
 											 Placement="Right"
 											 HorizontalOffset="-4"
@@ -152,7 +152,7 @@
 											 PopupAnimation="Fade">
 					<Border Name="SubmenuBorder"
 														SnapsToDevicePixels="True"
-														Background="#0f3c5a"
+														Background="Red"
 														BorderBrush="#0f3c5a"
 														BorderThickness="1">
 						<StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
@@ -173,7 +173,7 @@
 				<Setter TargetName="SubmenuBorder" Property="Padding" Value="0,3,0,3" />
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="false"> 
-				<Setter Property="Foreground" Value="#0f3c5a" />
+				<Setter Property="Foreground" Value="Black" />
 			</Trigger>
 		</ControlTemplate.Triggers>
 	</ControlTemplate>
