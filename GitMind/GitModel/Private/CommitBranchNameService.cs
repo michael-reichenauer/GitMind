@@ -113,8 +113,15 @@ namespace GitMind.GitModel.Private
 			{
 				MCommit commit = branch.LatestCommit;
 
-				commit.BranchXName = branch.Name;
-				commit.SubBranchId = branch.SubBranchId;		
+				if (!commit.FirstChildren.Any())
+				{
+					commit.BranchXName = branch.Name;
+					commit.SubBranchId = branch.SubBranchId;
+				}
+				else
+				{
+					Log.Debug($"Branch latest commit has a first child {branch}");
+				}
 			}
 		}
 
