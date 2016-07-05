@@ -296,7 +296,7 @@
 									</MenuItem.Icon>
 								</MenuItem>
 
-								<Separator Background="DarkSlateBlue"/>
+								<!--<Separator Background="DarkSlateBlue"/>
 								
 								<MenuItem 
 									Header="Specify branch for commit ..." 
@@ -311,7 +311,7 @@
 											</TextBlock>
 										</Border>
 									</MenuItem.Icon>
-								</MenuItem>
+								</MenuItem>-->
 
 								<Separator Background="DarkSlateBlue"/>
 
