@@ -234,7 +234,7 @@ namespace GitMind.CommitsHistory
 
 			Log.Debug($"Filter triggered for: {FilterText}");
 
-			CommitViewModel selectedBefore = (CommitViewModel)SelectedItem;
+			CommitViewModel selectedBefore = SelectedItem as CommitViewModel;
 			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
 
 			Task setFilterTask = viewModelService.SetFilterAsync(this, filterText);

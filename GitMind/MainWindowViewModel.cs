@@ -141,6 +141,7 @@ namespace GitMind
 
 		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
 
+		public Command ToggleCommitDetailsCommand => Command(ToggleCommitDetail);
 
 
 
@@ -324,5 +325,20 @@ namespace GitMind
 			}
 		}
 
+		private void ToggleCommitDetail()
+		{
+			var commit = RepositoryViewModel.SelectedItem as CommitViewModel;
+			if (commit != null)
+			{
+				if (RepositoryViewModel.DetailsSize == 0)
+				{
+					RepositoryViewModel.DetailsSize = 100;
+				}
+				else
+				{
+					RepositoryViewModel.DetailsSize = 0;
+				}		
+			}
+		}
 	}
 }

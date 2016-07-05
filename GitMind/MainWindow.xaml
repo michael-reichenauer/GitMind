@@ -19,6 +19,7 @@
 
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
+		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
 	</Window.InputBindings>
 
@@ -201,7 +202,7 @@
 								Background="Black"
 								BorderThickness="1"
 								BorderBrush="#FF6495ED">
-									<TextBlock Text="Customize and control" Foreground="Lavender"/>
+								<TextBlock Text="Customize and control" Foreground="LightSteelBlue"/>
 							</ToolTip>
 						</Button.ToolTip>
 
@@ -268,6 +269,22 @@
 										</Style>
 									</MenuItem.ItemContainerStyle>
 								</MenuItem>
+								<Separator Background="DarkSlateBlue"/>
+								<MenuItem 
+									Header="Toggle commit details                Space" 
+									Command="{Binding ToggleCommitDetailsCommand}">
+									<MenuItem.Icon>
+										<Border Background="Transparent" Padding="2">
+											<TextBlock 
+												Text="&#xE12A;"
+												FontFamily="Segoe MDL2 Assets"
+												Foreground="LightSteelBlue"
+												 VerticalAlignment="Center">
+											</TextBlock>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+								<Separator Background="DarkSlateBlue"/>
 
 								<MenuItem 
 									Header="Open working folder ..." 
@@ -319,7 +336,7 @@
 								</MenuItem>
 
 								<MenuItem 
-									Header="View help ..." 
+									Header="View help ...                                 F1" 
 									Command="{Binding HelpCommand}">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
@@ -356,7 +373,7 @@
 						<TextBox
 							BorderThickness="0" 
 							IsEnabled="true"			
-							Width="125"
+							Width="120"
 							Height="20"
 							Margin="3,0"
 							Background="Black"
@@ -371,7 +388,7 @@
 										Background="Black"
 										BorderThickness="1"
 										BorderBrush="#FF6495ED">
-											<TextBlock Text="Type words to search for" Foreground="Lavender"/>
+										<TextBlock Text="Type words to search for" Foreground="LightSteelBlue"/>
 									</ToolTip>
 								</TextBox.ToolTip>
 							</TextBox>
@@ -391,7 +408,7 @@
 										Background="Black"
 										BorderThickness="1"
 										BorderBrush="#FF6495ED">
-											<TextBlock Text="Clear filter (Esc)" Foreground="Lavender"/>
+										<TextBlock Text="Clear filter (Esc)" Foreground="LightSteelBlue"/>
 									</ToolTip>
 								</Button.ToolTip>
 							</Button>
@@ -404,6 +421,7 @@
 						Style="{StaticResource BaseButtonStyle}"
 						FontFamily="Segoe MDL2 Assets"
 						Content="&#xE738;"
+						Padding="8,6,8,0"
 						Command="{Binding MinimizeCommand}"/>
 					
 					<!-- Maximize button-->
