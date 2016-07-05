@@ -56,7 +56,7 @@ namespace GitMind
 		}
 
 		public bool IsInFilterMode => !string.IsNullOrEmpty(SearchBox);
-	
+
 
 		public bool IsNewVersionVisible
 		{
@@ -123,7 +123,7 @@ namespace GitMind
 
 		public Command ShowDiffCommand => Command(ShowDiff);
 
-		public Command InstallLatestVersionCommand => Command(InstallLatestVersion);
+		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
 		public Command FeedbackCommand => Command(Feedback);
 
@@ -196,35 +196,15 @@ namespace GitMind
 			Application.Current.Shutdown(0);
 		}
 
-		private async void InstallLatestVersion()
+		private async void RunLatestVersion()
 		{
-			//if (MessageBoxResult.OK != MessageBox.Show(
-			//	Application.Current.MainWindow,
-			//	"There is a new version of GitMind.\n\n" +
-			//	"Would you like to download and install the new version?",
-			//	"GitMind",
-			//	MessageBoxButton.OKCancel,
-			//	MessageBoxImage.Question))
-			//{
-			//	return;
-			//}
-
-			bool isInstalling = await latestVersionService.InstallLatestVersionAsync();
+			bool isInstalling = await latestVersionService.RunLatestVersionAsync();
 
 			if (isInstalling)
 			{
 				// Newer version is being installed and will run, close this instance
 				Application.Current.Shutdown(0);
-			}
-			else
-			{
-				MessageBox.Show(
-					Application.Current.MainWindow,
-					"Failed to install newer version.",
-					"GitMind",
-					MessageBoxButton.OK,
-					MessageBoxImage.Error);
-			}
+			}		
 		}
 
 

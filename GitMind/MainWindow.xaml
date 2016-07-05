@@ -157,37 +157,32 @@
 
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
 
-				<!-- Latest version button -->
-				<!--<Button 
-						Name="GetLatestVersionButton"
+					<!-- Latest version button -->
+					<Button 
 						Visibility="{Binding Path=IsNewVersionVisible, Converter={StaticResource PropertyToVisibilityConverter}}"
-						Background="Black"  
-						BorderBrush="Black"
+						Style="{StaticResource BaseButtonStyle}"
 						Foreground="Green"
-						Margin="10,0,0,0"
-						
-						Content="New Version"
-						Command="{Binding InstallLatestVersionCommand}">
+						Content="&#xE118;"
+						FontWeight="Bold"
+						FontFamily="Segoe MDL2 Assets"
+						Command="{Binding RunLatestVersionCommand}">
 
 						<Button.ToolTip>
 							<ToolTip
-								Placement="Bottom"
-								HorizontalOffset="-15" 
-								VerticalOffset="5"
-								Background="Black"
-								BorderBrush="Green">
+								Placement="Bottom"					
+										VerticalOffset="5"
+										Background="Black"
+										BorderThickness="1"
+										BorderBrush="#FF6495ED">
 								<StackPanel>
 									<TextBlock 
-										Text="New version is available, click to download and start installer ..." 
+										Text="New version is available, click to run new version ..." 
 										Foreground="LightSteelBlue"/>
 								</StackPanel>
 							</ToolTip>
 						</Button.ToolTip>
-					</Button>-->
+					</Button>
 
-			
-					
-		
 					<!-- Hamburger button -->
 					<Button
 						Style="{StaticResource BaseButtonStyle}"
@@ -221,7 +216,7 @@
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
 											<TextBlock 
-												Text="&#xE94D;"
+												Text="&#xE103;"
 												FontFamily="Segoe MDL2 Assets"
 												Foreground="LightSteelBlue"
 												VerticalAlignment="Center">
@@ -295,7 +290,7 @@
 												Text="&#xE8DA;"
 												FontFamily="Segoe MDL2 Assets"
 												Foreground="LightSteelBlue"
-												 VerticalAlignment="Center">
+												VerticalAlignment="Center">
 											</TextBlock>
 										</Border>
 									</MenuItem.Icon>
@@ -353,12 +348,11 @@
 							</ContextMenu>
 						</Button.ContextMenu>
 					</Button>
-							
+					
 				</StackPanel>
 
 
 				<StackPanel Grid.Column="2" Orientation="Horizontal">
-
 					<!-- Search box  -->
 					<Border 
 						BorderThickness="1" 
@@ -416,7 +410,7 @@
 						</StackPanel>
 					</Border>
 
-					<!-- Minimize button-->			
+					<!-- Minimize button-->
 					<Button 
 						Style="{StaticResource BaseButtonStyle}"
 						FontFamily="Segoe MDL2 Assets"
