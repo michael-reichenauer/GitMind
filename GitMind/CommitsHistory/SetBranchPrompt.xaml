@@ -11,13 +11,16 @@
 				AllowsTransparency="True"
 				WindowStyle="None"
 				BorderBrush="DarkSlateBlue"
-				BorderThickness="2" 
+				BorderThickness="3" 
 				Foreground="Lavender"
 				Background="Black"
 				WindowStartupLocation="CenterOwner">
 	
 	<StackPanel
 		Margin="5,15">
+		<TextBlock 
+				Text="Specify Branch:" 
+				Margin="0,0,5,0"/>
 		<StackPanel 
 			Orientation="Horizontal" 
 			HorizontalAlignment="Left">

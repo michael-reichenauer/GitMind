@@ -117,6 +117,8 @@ namespace GitMind
 
 		public Command FeedbackCommand => Command(Feedback);
 
+		public Command HelpCommand => Command(OpenHelp);
+
 		public Command MinimizeCommand => Command(Minimize);
 
 		public Command CloseCommand => Command(CloseWindow);
@@ -124,6 +126,12 @@ namespace GitMind
 		public Command ToggleMaximizeCommand => Command(ToggleMaximize);
 
 		public Command EscapeCommand => Command(Escape);
+
+		public Command ClearFilterCommand => Command(ClearFilter);
+
+		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
+
+
 
 
 		private void Escape()
@@ -223,6 +231,29 @@ namespace GitMind
 		}
 
 
+		private void OpenHelp()
+		{
+			try
+			{
+				Process proc = new Process();
+				proc.StartInfo.FileName = "https://github.com/michael-reichenauer/GitMind/wiki";
+				proc.Start();
+			}
+			catch (Exception ex) when (ex.IsNotFatal())
+			{
+				Log.Error($"Failed to open help link {ex}");
+			}
+		}
+
+		private void ClearFilter()
+		{
+			if (!string.IsNullOrWhiteSpace(SearchBox))
+			{
+				SearchBox = "";
+			}
+		}
+
+
 		private async void ShowDiff()
 		{
 			await diffService.ShowDiffAsync(null);
@@ -271,5 +302,16 @@ namespace GitMind
 
 			WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
 		}
+
+
+		private async void SpecifyCommitBranch()
+		{
+			var commit = RepositoryViewModel.SelectedItem as CommitViewModel;
+			if (commit != null)
+			{
+				await commit.SetCommitBranchCommand.ExecuteAsync(null);
+			}
+		}
+
 	}
 }
