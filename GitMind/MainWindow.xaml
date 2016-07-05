@@ -237,6 +237,7 @@
 											<Setter Property="BorderThickness" Value="0"/>
 											<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
 											<Setter Property="Foreground" Value="LightSteelBlue"/>
+
 										</Style>
 									</MenuItem.ItemContainerStyle>
 								</MenuItem>
@@ -682,13 +683,8 @@
 																Command="{Binding ShowDiffCommand}"
 																CommandParameter="{Binding Id}"/>
 
-															<MenuItem 
-																Header="Set Commit Branch"
-																Command="{Binding SetCommitBranchCommand}"/>
-
-														</ContextMenu>
+															</ContextMenu>
 													</Grid.ContextMenu>
-
 
 												<Ellipse
 													Margin="0,1,3,0"
