@@ -5,7 +5,7 @@
 	<!-- Separator -->
 	<Style TargetType="{x:Type Separator}" x:Key="SeparatorStyle">
 		<Setter Property="Height" Value="1" />
-		<Setter Property="Background" Value="Black" />
+		<Setter Property="Background" Value="Green" />
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type Separator}">
@@ -41,6 +41,8 @@
 					<Border BorderThickness="0" x:Name="Border" Background="Transparent">
 						<StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True" />
 					</Border>
+					
+					<!-- MR main background when not selected -->
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsMouseOver" Value="true">
 							<Setter TargetName="Border" Property="Background" Value="Fuchsia" />
@@ -54,7 +56,9 @@
 	<!-- SubmenuItem -->
 
 	<ControlTemplate x:Key="{x:Static MenuItem.SubmenuItemTemplateKey}" TargetType="{x:Type MenuItem}">
-		<Border Name="Border">
+	
+		<!-- MR order for highlight --> 
+		<Border Name="Border" BorderThickness="1">
 			<Grid>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" SharedSizeGroup="Icon" />
@@ -104,8 +108,10 @@
 				<Setter TargetName="Check" Property="Visibility" Value="Visible" />
 				<Setter TargetName="Icon" Property="Visibility" Value="Hidden" />
 			</Trigger>
+
+			<!-- MR Highlight was background now bordebrush -->
 			<Trigger Property="IsHighlighted" Value="true">
-				<Setter TargetName="Border" Property="Background" Value="Yellow" />
+				<Setter TargetName="Border" Property="BorderBrush" Value="Yellow" />
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="false">
 				<Setter Property="Foreground" Value="Black" />
@@ -150,9 +156,11 @@
 											 AllowsTransparency="True"
 											 Focusable="False"
 											 PopupAnimation="Fade">
+					
+					<!-- MR Sub menu background -->
 					<Border Name="SubmenuBorder"
 														SnapsToDevicePixels="True"
-														Background="Red"
+														Background="Black"
 														BorderBrush="#0f3c5a"
 														BorderThickness="1">
 						<StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
@@ -173,7 +181,7 @@
 				<Setter TargetName="SubmenuBorder" Property="Padding" Value="0,3,0,3" />
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="false"> 
-				<Setter Property="Foreground" Value="Black" />
+				<Setter Property="Foreground" Value="Red" />
 			</Trigger>
 		</ControlTemplate.Triggers>
 	</ControlTemplate>
