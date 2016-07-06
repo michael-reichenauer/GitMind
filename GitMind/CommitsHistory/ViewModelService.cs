@@ -286,7 +286,7 @@ namespace GitMind.CommitsHistory
 				.Where(b => b.Name != "master")
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.ActiveBranches.Add(
-					new BranchName(b, repositoryViewModel.ShowBranchCommand)));
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
 		}
 
 

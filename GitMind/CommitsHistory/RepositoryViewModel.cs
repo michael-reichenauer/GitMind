@@ -72,11 +72,11 @@ namespace GitMind.CommitsHistory
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
-		public IReadOnlyList<BranchName2> AllBranches =>
-			BranchName2.GetBranches(Repository.Branches.Where(b => b.IsActive), ShowBranchCommand);			
+		public IReadOnlyList<BranchItem> AllBranches =>
+			BranchItem.GetBranches(Repository.Branches.Where(b => b.IsActive), ShowBranchCommand);			
 
-		public ObservableCollection<BranchName> ActiveBranches { get; }
-			= new ObservableCollection<BranchName>();
+		public ObservableCollection<BranchItem> ActiveBranches { get; }
+			= new ObservableCollection<BranchItem>();
 
 
 		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);

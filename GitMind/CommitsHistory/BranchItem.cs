@@ -9,31 +9,14 @@ using GitMind.Utils.UI;
 
 namespace GitMind.CommitsHistory
 {
-	internal class BranchName : ViewModel
+	internal class BranchItem : ViewModel
 	{
-		public BranchName(Branch branch, ICommand showBranchCommand)
-		{
-			Branch = branch;
-			ShowBranchCommand = showBranchCommand;
-		}
+		private readonly Lazy<IReadOnlyList<BranchItem>> subItems;
+		private static readonly Lazy<IReadOnlyList<BranchItem>> NoSubItems
+			= new Lazy<IReadOnlyList<BranchItem>>(() => new BranchItem[0]);
 
 
-		public Branch Branch { get; }
-
-		public ICommand ShowBranchCommand { get; }
-
-		public string Text => Branch.Name;
-	}
-
-
-	internal class BranchName2 : ViewModel
-	{
-		private readonly Lazy<IReadOnlyList<BranchName2>> subItems;
-		private static readonly Lazy<IReadOnlyList<BranchName2>> NoSubItems
-			= new Lazy<IReadOnlyList<BranchName2>>(() => new BranchName2[0]);
-
-
-		public BranchName2(
+		public BranchItem(
 			string prefix,
 			string name,
 			IEnumerable<Branch> branches,
@@ -42,11 +25,11 @@ namespace GitMind.CommitsHistory
 		{
 			Text = name;
 			ShowBranchCommand = showBranchCommand;
-			subItems = new Lazy<IReadOnlyList<BranchName2>>(
+			subItems = new Lazy<IReadOnlyList<BranchItem>>(
 				() => GetBranches(prefix, branches, level, showBranchCommand));
 		}
 
-		public BranchName2(Branch branch, ICommand showBranchCommand)
+		public BranchItem(Branch branch, ICommand showBranchCommand)
 		{
 			Text = branch.Name;
 			Branch = branch;
@@ -55,7 +38,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public IReadOnlyList<BranchName2> Children => subItems.Value;
+		public IReadOnlyList<BranchItem> Children => subItems.Value;
 
 
 		public string Text { get; }
@@ -65,30 +48,30 @@ namespace GitMind.CommitsHistory
 		public ICommand ShowBranchCommand { get; }
 
 
-		public static IReadOnlyList<BranchName2> GetBranches(
+		public static IReadOnlyList<BranchItem> GetBranches(
 			IEnumerable<Branch> branches, ICommand showBranchCommand)
 		{
 			return GetBranches("", branches, 0, showBranchCommand);
 		}
 
 
-		private static IReadOnlyList<BranchName2> GetBranches(
+		private static IReadOnlyList<BranchItem> GetBranches(
 			string prefix, IEnumerable<Branch> branches, int level, ICommand showBranchCommand)
 		{
 			Log.Warn($"Get for {prefix}");
 
-			List<BranchName2> list = new List<BranchName2>();
+			List<BranchItem> list = new List<BranchItem>();
 
 			foreach (Branch branch in branches.Where(b => b.Name.StartsWith(prefix)))
 			{
 				string[] nameParts = branch.Name.Split("/".ToCharArray());
 				if (nameParts.Length == level + 1)
 				{
-					list.Add(new BranchName2(branch, showBranchCommand));
+					list.Add(new BranchItem(branch, showBranchCommand));
 				}
 				else if (!list.Any(n => n.Text == nameParts[level]))
 				{
-					list.Add(new BranchName2(
+					list.Add(new BranchItem(
 						prefix + nameParts[level] + "/",
 						nameParts[level],
 						branches,
