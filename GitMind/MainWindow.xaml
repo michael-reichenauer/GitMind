@@ -206,7 +206,7 @@
 							<ContextMenu Name="HamburgerContextMenu">
 
 								<!--Show Branch menu item -->
-								<MenuItem 
+								<!--<MenuItem 
 									Header=" Show branch" 
 									ItemsSource="{Binding RepositoryViewModel.AllBranches}">
 									<MenuItem.Icon>
@@ -218,7 +218,7 @@
 												VerticalAlignment="Center">
 										</TextBlock>
 									</MenuItem.Icon>
-									
+
 									<MenuItem.ItemContainerStyle>
 										<Style TargetType="MenuItem">
 											<Setter Property="Header" Value="{Binding Text}"/>
@@ -226,9 +226,39 @@
 											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
 										</Style>
 									</MenuItem.ItemContainerStyle>
+								</MenuItem>-->
+
+								
+								<!--Show Branch menu item -->
+								<MenuItem 
+									Header=" Show branch"
+									ItemsSource="{Binding RepositoryViewModel.AllBranches}">
+									
+									<MenuItem.Icon>
+										<Border Background="Transparent" Padding="2">
+											<TextBlock 
+												Text="&#xE3CD;"
+												FontFamily="pack://application:,,,/Fonts/#Material Icons"
+												FontSize="14"
+												Foreground="LightSteelBlue"
+												VerticalAlignment="Center">
+											</TextBlock>
+										</Border>
+									</MenuItem.Icon>
+
+									<MenuItem.Resources>
+										<HierarchicalDataTemplate 
+											DataType="{x:Type commitsHistory:BranchName2}"
+											ItemsSource="{Binding Children}">
+											<MenuItem 
+												Header="{Binding Text}" 
+												Command="{Binding ShowBranchCommand}"
+												CommandParameter="{Binding Branch}"/>
+										</HierarchicalDataTemplate>
+									</MenuItem.Resources>
 								</MenuItem>
-						
-									<!--Hide Branch menu item -->
+											
+								<!--Hide Branch menu item -->
 								<MenuItem 
 									Header="Hide branch" 
 									ItemsSource="{Binding RepositoryViewModel.ActiveBranches}">
