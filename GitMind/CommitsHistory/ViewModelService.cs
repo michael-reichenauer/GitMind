@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -280,19 +281,12 @@ namespace GitMind.CommitsHistory
 
 			repositoryViewModel.SpecifiedBranches = specifiedBranches;
 
-			repositoryViewModel.AllBranches.Clear();
-			repositoryViewModel.Repository.Branches
-				.Where(b => b.IsActive)
-				.OrderBy(b => b.Name)
-				.ForEach(b => repositoryViewModel.AllBranches.Add(
-					new BranchName(b, repositoryViewModel.ShowBranchCommand)));
-
 			repositoryViewModel.ActiveBranches.Clear();
 			branches
 				.Where(b => b.Name != "master")
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.ActiveBranches.Add(
-					new BranchName(b, repositoryViewModel.ShowBranchCommand)));
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
 		}
 
 

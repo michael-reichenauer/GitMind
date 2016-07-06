@@ -203,44 +203,38 @@
 						</Button.ToolTip>
 
 						<Button.ContextMenu>		
-							<ContextMenu 
-								Name="HamburgerContextMenu"
-								Foreground="LightSteelBlue"
-								BorderBrush="DarkSlateBlue"
-								BorderThickness="2">
+							<ContextMenu Name="HamburgerContextMenu">
 
 								<!--Show Branch menu item -->
 								<MenuItem 
-									Header="Show branch" 
-									ItemsSource="{Binding RepositoryViewModel.AllBranches}"
-									BorderBrush="DarkSlateBlue">
+									Header=" Show branch"
+									ItemsSource="{Binding RepositoryViewModel.AllBranches}">
+									
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
 											<TextBlock 
 												Text="&#xE3CD;"
-												FontSize="14"
 												FontFamily="pack://application:,,,/Fonts/#Material Icons"
+												FontSize="14"
 												Foreground="LightSteelBlue"
 												VerticalAlignment="Center">
 											</TextBlock>
 										</Border>
 									</MenuItem.Icon>
-									
-									<MenuItem.ItemContainerStyle>
-										<Style TargetType="MenuItem">
-											<Setter Property="Header" Value="{Binding Text}"/>
-											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.ShowBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
-											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-											<Setter Property="Background" Value="Black"/>
-											<Setter Property="BorderThickness" Value="0"/>
-											<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
-											<Setter Property="Foreground" Value="LightSteelBlue"/>
 
-										</Style>
-									</MenuItem.ItemContainerStyle>
+									<MenuItem.Resources>
+										<HierarchicalDataTemplate 
+											DataType="{x:Type commitsHistory:BranchItem}"
+											ItemsSource="{Binding Children}">
+											<MenuItem 
+												Header="{Binding Text}" 
+												Command="{Binding ShowBranchCommand}"
+												CommandParameter="{Binding Branch}"/>
+										</HierarchicalDataTemplate>
+									</MenuItem.Resources>
 								</MenuItem>
-						
-									<!--Hide Branch menu item -->
+											
+								<!--Hide Branch menu item -->
 								<MenuItem 
 									Header="Hide branch" 
 									ItemsSource="{Binding RepositoryViewModel.ActiveBranches}">
@@ -261,18 +255,15 @@
 											<Setter Property="Header" Value="{Binding Text}"/>
 											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.HideBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
 											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-											<Setter Property="Background" Value="Black"/>
-											<Setter Property="BorderThickness" Value="0"/>	
-											<Setter Property="Foreground" Value="LightSteelBlue"/>
 										</Style>
 									</MenuItem.ItemContainerStyle>
 								</MenuItem>
-								
+
 								<Separator Background="DarkSlateBlue"/>
-								
+
 								<MenuItem 
 									Header="Toggle commit details                Space" 
-									Command="{Binding ToggleCommitDetailsCommand}">
+									Command="{Binding RepositoryViewModel.ToggleDetailsCommand}">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
 											<TextBlock 
@@ -344,7 +335,7 @@
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
 											<TextBlock 
-												Text=" ?"
+												Text=" ? "
 												FontSize="13"
 												FontWeight="Bold"
 												Foreground="LightSteelBlue"
@@ -432,7 +423,8 @@
 					<Button 
 						Style="{StaticResource BaseButtonStyle}"
 						FontFamily="pack://application:,,,/Fonts/#Material Icons"
-						Content="&#xE069;"
+						FontSize="14"
+						Content="&#xE3C1;"
 						Command="{Binding ToggleMaximizeCommand}"/>		
 					
 					<!-- Close Button -->
@@ -590,41 +582,24 @@
 														</StackPanel>
 													</ToolTip>
 												</Grid.ToolTip>
-												
-												<Grid.ContextMenu>
-													<!-- Background="Black" -->
-													<ContextMenu 
-					
-														Foreground="LightSteelBlue"
-														BorderBrush="DarkSlateBlue"
-														BorderThickness="0">
 
-														<!--Show Branch menu item -->
-														<MenuItem 
-															Header="Show Child Branch" 
-															ItemsSource="{Binding ChildBranches}" 								
-															Padding="0" 
-															Margin="0" 
-															BorderBrush="DarkSlateBlue" 
-															BorderThickness="0">
-
-															<MenuItem.ItemContainerStyle>
-																<!--<Setter Property="Background" Value="Black"/>-->
-																<Style TargetType="MenuItem">
-																	<Setter Property="Header" Value="{Binding Text}"/>
-																	<Setter Property="Background" Value="Black"/>
-																	<Setter Property="Foreground" Value="LightSteelBlue"/>
-																	<Setter Property="Margin" Value="0"/>
-																	<Setter Property="Padding" Value="0"/>
-																	<Setter Property="BorderBrush" Value="DarkSlateBlue"/>
-																	<Setter Property="BorderThickness" Value="0"/>
-																	<Setter Property="Command" Value="{Binding ShowBranchCommand}"/>
-																	<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-																</Style>
-															</MenuItem.ItemContainerStyle>
-														</MenuItem>
-														
-													</ContextMenu>
+													<Grid.ContextMenu>
+														<ContextMenu>
+															<MenuItem 
+																Header=" Show child branch"
+																ItemsSource="{Binding ChildBranches}">
+																<MenuItem.Resources>
+																	<HierarchicalDataTemplate 
+																		DataType="{x:Type commitsHistory:BranchItem}"
+																		ItemsSource="{Binding Children}">
+																		<MenuItem 
+																			Header="{Binding Text}" 
+																			Command="{Binding ShowBranchCommand}"
+																			CommandParameter="{Binding Branch}"/>
+																	</HierarchicalDataTemplate>
+																</MenuItem.Resources>
+															</MenuItem>
+														</ContextMenu>
 												</Grid.ContextMenu>	
 			
 											</Grid>

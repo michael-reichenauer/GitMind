@@ -35,8 +35,8 @@ namespace GitMind.CommitsHistory
 		public ICommand HideBranchCommand { get; }
 		public string Id { get; }
 
-		public IReadOnlyList<BranchName> ChildBranches =>
-			Branch.GetChildBranches().Take(50).Select(b => new BranchName(b, showBranchCommand)).ToList();		
+		public IReadOnlyList<BranchItem> ChildBranches =>
+			BranchItem.GetBranches(Branch.GetChildBranches().Take(50).ToList(), showBranchCommand);		
 
 
 		public Branch Branch { get; set; }
