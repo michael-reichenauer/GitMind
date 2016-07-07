@@ -28,17 +28,6 @@ namespace GitMind
 				Nullable<bool> typedValue = (Nullable<bool>)value;
 				bValue = typedValue ?? false;
 			}
-			//else if (value is Property<bool>)
-			//{
-			//	Property<bool> typedValue = (Property<bool>)value;
-			//	bValue = typedValue;
-			//}
-			//else if (value is Property<Nullable<bool>>)
-			//{
-			//	Property<Nullable<bool>> typedValue = (Property<Nullable<bool>>)value;
-			//	Nullable<bool> propertyValue = typedValue;
-			//	bValue = propertyValue ?? false;
-			//}
 
 			return (bValue) ? Visibility.Visible : Visibility.Collapsed;
 		}

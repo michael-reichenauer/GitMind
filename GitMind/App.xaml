@@ -8,7 +8,7 @@
 
 		<ResourceDictionary>
 
-			<local:PropertyToVisibilityConverter x:Key="PropertyToVisibilityConverter"/>
+			<local:PropertyToVisibilityConverter x:Key="VC"/>
 			
 			<ResourceDictionary.MergedDictionaries>
 				

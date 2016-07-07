@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -422,8 +421,8 @@ namespace GitMind.CommitsHistory
 			{
 				BranchViewModel branch = repositoryViewModel.VirtualItemsSource.GetOrAdd(
 					sourceBranch.Id, (id, virtualId) => new BranchViewModel(
-						id, 
-						virtualId, 
+						id,
+						virtualId,
 						repositoryViewModel.ShowBranchCommand,
 						repositoryViewModel.HideBranchCommand));
 
@@ -472,7 +471,7 @@ namespace GitMind.CommitsHistory
 
 			if (branch.Branch.ChildBranchNames.Count > 1)
 			{
-				toolTip += $"\nMulti branch of:";
+				toolTip += $"\n\nBranch could be one of:";
 				foreach (string branchName in branch.Branch.ChildBranchNames)
 				{
 					toolTip += $"\n   {branchName}";

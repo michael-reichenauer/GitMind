@@ -104,20 +104,21 @@ namespace GitMind
 			string name = executingAssembly.FullName.Split(',')[0];
 			string resolveName = args.Name.Split(',')[0];
 			string resourceName = $"{name}.Dependencies.{resolveName}.dll";
-			Log.Warn($"Resolving {resolveName} from {resourceName} ...");
+			Log.Debug($"Resolving {resolveName} from {resourceName} ...");
 
 			// Load the assembly from the resources
 			using (Stream stream = executingAssembly.GetManifestResourceStream(resourceName))
 			{
 				if (stream == null)
 				{
+					Log.Error($"Failed to load assembly {resolveName}");
 					throw new InvalidOperationException("Failed to load assembly " + resolveName);
 				}
 
 				long bytestreamMaxLength = stream.Length;
 				byte[] buffer = new byte[bytestreamMaxLength];
 				stream.Read(buffer, 0, (int)bytestreamMaxLength);
-				Log.Warn($"Resolved {resolveName}");
+				Log.Debug($"Resolved {resolveName}");
 				return Assembly.Load(buffer);
 			}
 		}

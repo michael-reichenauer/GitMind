@@ -51,6 +51,11 @@ namespace GitMind.CommitsHistory
 		public static IReadOnlyList<BranchItem> GetBranches(
 			IEnumerable<Branch> branches, ICommand showBranchCommand)
 		{
+			if (branches.Count() < 20)
+			{
+				return branches.Select(b => new BranchItem(b, showBranchCommand)).ToList();
+			}
+
 			return GetBranches("", branches, 0, showBranchCommand);
 		}
 
