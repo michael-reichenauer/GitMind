@@ -15,10 +15,10 @@ namespace GitMind.GitModel.Private
 		void SetSpecifiedCommitBranchNames(
 			IReadOnlyList<GitSpecifiedNames> specifiedNames, MRepository repository);
 
-		void SetPullMergeCommitBranchNames(IReadOnlyList<MCommit> commits);
+		//void SetPullMergeCommitBranchNames(IReadOnlyList<MCommit> commits);
 
-		void SetSubjectCommitBranchNames(
-			IReadOnlyList<MCommit> commits, MRepository repository);
+		//void SetSubjectCommitBranchNames(
+		//	IReadOnlyList<MCommit> commits, MRepository repository);
 
 		void SetNeighborCommitNames(IReadOnlyList<MCommit> commits);
 	}

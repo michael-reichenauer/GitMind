@@ -26,7 +26,12 @@ namespace GitMind.GitModel.Private
 					if (commit.Subject == null)
 					{
 						CopyToCommit(gitCommit, commit);
-						SetChildOfAllParents(commit, repository);
+						SetChildOfParents(commit, repository);
+
+						if (IsMergeCommit(commit))
+						{
+							TrySetBranchNameFromSubject(commit);
+						}
 					}
 
 					return commit;
@@ -35,7 +40,34 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static void SetChildOfAllParents(MCommit commit, MRepository repository)
+		private static void TrySetBranchNameFromSubject(MCommit commit)
+		{
+			MergeBranchNames mergeNames = BranchNameParser.ParseBranchNamesFromSubject(commit.Subject);
+
+			if (IsPullMergeCommit(mergeNames))
+			{
+				// Pull merge subjects (source branch same as target) are most likely automatically created
+				// during a pull and thus more reliable. Lets set branch name on commit and second parent 
+				commit.BranchName = mergeNames.TargetBranchName;
+				commit.SecondParent.BranchName = mergeNames.SourceBranchName;
+			}
+			else
+			{
+				// Often, merge subjects are automatically created, but sometimes manually edited and thus
+				// not as trust worthy. Lets note the names, but hope for other more trust worthy sources.
+				if (mergeNames.TargetBranchName != null)
+				{
+					commit.FromSubjectBranchName = mergeNames.TargetBranchName;
+				}
+				if (mergeNames.SourceBranchName != null)
+				{
+					commit.SecondParent.FromSubjectBranchName = mergeNames.SourceBranchName;
+				}
+			}
+		}
+
+
+		private static void SetChildOfParents(MCommit commit, MRepository repository)
 		{
 			bool isFirstParent = true;
 			foreach (string parentId in commit.ParentIds)
@@ -61,15 +93,14 @@ namespace GitMind.GitModel.Private
 					{
 						parent.FirstChildIds.Add(commit.Id);
 					}
-				}
+				}	
 			}
 		}
-
+		
 
 		private void CopyToCommit(GitCommit gitCommit, MCommit commit)
 		{
 			string tickets = GetTickets(gitCommit);
-			MergeBranchNames branchNames = ParseMergeNamesFromSubject(gitCommit);
 
 			commit.ShortId = gitCommit.ShortId;
 			commit.Subject = GetSubjectWithoutTickets(gitCommit, tickets);
@@ -78,26 +109,24 @@ namespace GitMind.GitModel.Private
 			commit.CommitDate = gitCommit.CommitDate;
 			commit.Tickets = tickets;
 			commit.ParentIds = gitCommit.ParentIds.ToList();
-			commit.MergeSourceBranchNameFromSubject = branchNames.SourceBranchName;
-			commit.MergeTargetBranchNameFromSubject = branchNames.TargetBranchName;
 		}
 
 
-		private MergeBranchNames ParseMergeNamesFromSubject(GitCommit gitCommit)
+		private static bool IsMergeCommit(MCommit commit)
 		{
-			if (gitCommit.ParentIds.Count <= 1)
-			{
-				// This is no merge commit, i.e. no branch names to parse
-				return BranchNameParser.NoMerge;
-			}
-
-			MergeBranchNames names = BranchNameParser.ParseBranchNamesFromSubject(gitCommit.Subject);
-
-			return names;
+			return commit.HasSecondParent;
 		}
 
 
-		private string GetSubjectWithoutTickets(GitCommit commit, string tickets)
+		private static bool IsPullMergeCommit(MergeBranchNames branchNames)
+		{
+			return
+				branchNames.SourceBranchName != null
+				&& branchNames.SourceBranchName == branchNames.TargetBranchName;
+		}
+
+
+		private static string GetSubjectWithoutTickets(GitCommit commit, string tickets)
 		{
 			return commit.Subject.Substring(tickets.Length);
 		}

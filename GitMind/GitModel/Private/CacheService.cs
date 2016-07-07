@@ -16,28 +16,29 @@ namespace GitMind.GitModel.Private
 		public async Task CacheAsync(MRepository repository)
 		{
 			await Task.Yield();
-			await WriteRepository(repository);
+			//await WriteRepository(repository);
 		}
 
 
 		public async Task CacheCommitFilesAsync(List<CommitFiles> commitsFiles)
 		{
-			await WriteCommitFilesAsync(commitsFiles);
+			await Task.Yield();
+			//await WriteCommitFilesAsync(commitsFiles);
 		}
 
 
 		public async Task<MRepository> TryGetAsync()
 		{
-			//await Task.Yield();
-			//return null;
-			MRepository repository = await TryReadRepositoryAsync();
-			if (repository != null)
-			{
-				repository.CommitsFiles = new CommitsFiles();
-				//ReadCommitFilesAsync(repository.CommitsFiles).RunInBackground();
-			}
+			await Task.Yield();
+			return null;
+			//MRepository repository = await TryReadRepositoryAsync();
+			//if (repository != null)
+			//{
+			//	repository.CommitsFiles = new CommitsFiles();
+			//	//ReadCommitFilesAsync(repository.CommitsFiles).RunInBackground();
+			//}
 
-			return repository;
+			//return repository;
 		}
 
 

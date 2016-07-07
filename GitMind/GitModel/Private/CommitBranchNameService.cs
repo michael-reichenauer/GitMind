@@ -24,33 +24,6 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void SetPullMergeCommitBranchNames(IReadOnlyList<MCommit> commits)
-		{
-			IEnumerable<MCommit> pullMergeCommits = commits.Where(IsPullMergeCommit);
-
-			foreach (MCommit commit in pullMergeCommits)
-			{
-				if (!commit.HasBranchName)
-				{
-					commit.BranchName = commit.MergeSourceBranchNameFromSubject;
-					if (!commit.SecondParent.HasBranchName)
-					{
-						commit.SecondParent.BranchName = commit.MergeSourceBranchNameFromSubject;
-					}
-				}
-			}
-		}
-
-
-		public void SetSubjectCommitBranchNames(IReadOnlyList<MCommit> commits, MRepository repository)
-		{
-			foreach (MCommit commit in commits)
-			{
-				commit.FromSubjectBranchName = TryExtractBranchNameFromSubject(commit, repository);
-			}
-		}
-
-
 		public void SetMasterBranchCommits(IReadOnlyList<MSubBranch> branches, MRepository repository)
 		{
 			// Local master
@@ -76,13 +49,13 @@ namespace GitMind.GitModel.Private
 			SetBranchCommitsOfParents(commits);
 		}
 
-		
+
 		private static bool IsPullMergeCommit(MCommit commit)
 		{
 			return
 				commit.HasSecondParent
-				&& commit.MergeSourceBranchNameFromSubject != null
-				&& commit.MergeSourceBranchNameFromSubject == commit.MergeTargetBranchNameFromSubject;
+				&& commit.BranchName != null
+				&& commit.BranchName == commit.SecondParent.BranchName;
 		}
 
 
@@ -228,39 +201,6 @@ namespace GitMind.GitModel.Private
 					}
 				}
 			} while (found);
-		}
-
-
-		private static string TryExtractBranchNameFromSubject(MCommit commit, MRepository repository)
-		{
-			if (commit.SecondParentId != null)
-			{
-				// This is a merge commit, and the subject of this commit might contain the
-				// target (this current) branch  name in the subject like e.g.:
-				// "Merge <source-branch> into <target-branch>"
-				string targetBranchName = commit.MergeTargetBranchNameFromSubject;
-				if (targetBranchName != null)
-				{
-					return targetBranchName;
-				}
-			}
-
-			// If a child of this commit is a merge commit merged from this commit, lets try to get
-			// the source branch name of that commit. I.e. a child commit might have a subject like e.g.:
-			// "Merge <source-branch> into <target-branch>"
-			// That source branch name would thus be the name of the branch of this commit.
-			foreach (string childId in commit.ChildIds)
-			{
-				MCommit child = repository.Commits[childId];
-				if (child.SecondParentId == commit.Id
-					&& !string.IsNullOrEmpty(child.MergeSourceBranchNameFromSubject))
-				{
-					// Found a child with a source branch name
-					return child.MergeSourceBranchNameFromSubject;
-				}
-			}
-
-			return null;
 		}
 	}
 }

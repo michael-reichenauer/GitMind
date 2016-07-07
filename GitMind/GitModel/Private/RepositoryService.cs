@@ -157,13 +157,6 @@ namespace GitMind.GitModel.Private
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			t.Log($"Set {gitSpecifiedNames.Count} specified branch names");
 
-			commitBranchNameService.SetPullMergeCommitBranchNames(commits);
-			t.Log("Set pull merge commit branch names");
-
-			commitBranchNameService.SetSubjectCommitBranchNames(commits, repository);
-			t.Log("Set commit subject branch names");
-
-
 			IReadOnlyList<MSubBranch> activeBranches = branchService.AddActiveBranches(gitBranches, repository);
 			t.Log($"Added {activeBranches.Count} active branches");
 

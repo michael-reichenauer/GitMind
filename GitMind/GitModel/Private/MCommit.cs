@@ -37,20 +37,17 @@ namespace GitMind.GitModel.Private
 		public string SpecifiedBranchName { get; set; }
 		[ProtoMember(13)]
 		public string FromSubjectBranchName { get; set; }
-		[ProtoMember(14)]
-		public string MergeSourceBranchNameFromSubject { get; set; }
-		[ProtoMember(15)]
-		public string MergeTargetBranchNameFromSubject { get; set; }
+	
 
-		[ProtoMember(16)]
+		[ProtoMember(14)]
 		public string SubBranchId { get; set; }
-		[ProtoMember(17)]
+		[ProtoMember(15)]
 		public bool IsLocalAheadMarker { get; set; }
-		[ProtoMember(18)]
+		[ProtoMember(16)]
 		public bool IsRemoteAheadMarker { get; set; }
-		[ProtoMember(19)]
+		[ProtoMember(17)]
 		public string Tags { get; set; }
-		[ProtoMember(20)]
+		[ProtoMember(18)]
 		public string Tickets { get; set; }
 
 
