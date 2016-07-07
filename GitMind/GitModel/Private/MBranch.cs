@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using ProtoBuf;
 
 
 namespace GitMind.GitModel.Private
 {
-	[ ProtoContract]
+	[ProtoContract]
 	public class MBranch
 	{
 		[ProtoMember(1)]
@@ -38,15 +37,13 @@ namespace GitMind.GitModel.Private
 
 		[ProtoMember(14)]
 		public List<string> CommitIds { get; set; } = new List<string>();
-		[ProtoMember(15)]
-		public List<string> ChildBrancheIds { get; set; } = new List<string>();
+
+
 
 		public MRepository Repository { get; set; }
 
 		public IEnumerable<MCommit> Commits =>
 			CommitIds.Select(id => Repository.Commits[id]);
-		public IEnumerable<MBranch> ChildBranches =>
-			ChildBrancheIds.Select(id => Repository.Branches[id]);
 
 		public MCommit FirstCommit => Repository.Commits[FirstCommitId];
 		public MCommit LatestCommit => Repository.Commits[LatestCommitId];

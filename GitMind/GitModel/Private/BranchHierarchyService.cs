@@ -51,9 +51,6 @@ namespace GitMind.GitModel.Private
 
 					groupByBranch.ForEach(b => b.BranchId = branch.Id);
 
-					//branch.SubBranchIds.AddRange(GetSubBranchIds(groupByBranch));
-					//branch.SubBranches.ForEach(b => b.BranchId = branch.Id);
-
 					branch.CommitIds.AddRange(GetCommitIdsInBranch(groupByBranch));
 
 					branch.Commits.ForEach(c => c.BranchId = branch.Id);
@@ -91,12 +88,6 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static IEnumerable<string> GetSubBranchIds(IGrouping<string, MSubBranch> groupByBranch)
-		{
-			return groupByBranch.Select(b => b.SubBranchId);
-		}
-
-
 		private static MBranch ToBranch(MSubBranch subBranch)
 		{
 			return new MBranch
@@ -120,34 +111,11 @@ namespace GitMind.GitModel.Private
 					&& branch.ParentCommit.BranchId != null)
 				{
 					branch.ParentBranchId = branch.ParentCommit.BranchId;
-
-					MBranch parentBranch = branch.ParentBranch;
-					if (!parentBranch.ChildBranches.Contains(branch))
-					{
-						parentBranch.ChildBrancheIds.Add(branch.Id);
-					}
 				}
 				else
 				{
 					Log.Debug($"Branch {branch} has no parent branch");
 				}
-			}
-
-			//foreach (MBranch xBranch in branches.Where(b => b.ParentBranchId == null))
-			//{
-			//	LogBranchHierarchy(xBranch, 0);
-			//}
-		}
-
-
-		private static void LogBranchHierarchy(MBranch mBranch, int indent)
-		{
-			string indentText = new string(' ', indent);
-			Log.Debug($"{indentText}{mBranch}");
-
-			foreach (MBranch childBranch in mBranch.ChildBranches.OrderBy(b => b.Name))
-			{
-				LogBranchHierarchy(childBranch, indent + 3);
 			}
 		}
 	}

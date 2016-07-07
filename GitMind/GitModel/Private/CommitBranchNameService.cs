@@ -118,10 +118,6 @@ namespace GitMind.GitModel.Private
 					commit.BranchName = branch.Name;
 					commit.SubBranchId = branch.SubBranchId;
 				}
-				else
-				{
-					Log.Debug($"Branch latest commit has a first child {branch}");
-				}
 			}
 		}
 

@@ -10,7 +10,7 @@ namespace GitMind.GitModel.Private
 	[ProtoContract]
 	public class MRepository
 	{
-		public static string CurrentVersion = "4";
+		public static string CurrentVersion = "5";
 
 
 		[ProtoMember(1)]
