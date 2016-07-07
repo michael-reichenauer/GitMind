@@ -24,7 +24,7 @@ namespace GitMind.GitModel.Private
 				MCommit LatestCommit = subBranch.LatestCommit;
 
 				IEnumerable<MCommit> commits = subBranch.LatestCommit.FirstAncestors()
-					.TakeWhile(c => c.BranchXName == subBranch.Name);
+					.TakeWhile(c => c.BranchName == subBranch.Name);
 
 				MCommit firstCommit = commits.Any() ? commits.Last() : LatestCommit;				
 				

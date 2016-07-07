@@ -211,7 +211,7 @@ namespace GitMind.GitModel.Private
 				.First(b => b.IsActive && b.Name == currentBranch.Name).Id;
 			repository.CurrentCommitId = repository.Commits[currentCommit.Id].Id;
 
-			commits.Where(c => string.IsNullOrEmpty(c.BranchXName))
+			commits.Where(c => string.IsNullOrEmpty(c.BranchName))
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.FirstParentId}"));
 
 			t.Log("Total time");

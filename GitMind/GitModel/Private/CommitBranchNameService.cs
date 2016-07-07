@@ -17,8 +17,8 @@ namespace GitMind.GitModel.Private
 				MCommit commit;
 				if (repository.Commits.TryGetValue(specifiedName.CommitId, out commit))
 				{
-					commit.BranchNameSpecified = specifiedName.BranchName;
-					commit.BranchXName = specifiedName.BranchName;
+					commit.SpecifiedBranchName = specifiedName.BranchName;
+					commit.BranchName = specifiedName.BranchName;
 				}
 			}
 		}
@@ -32,10 +32,10 @@ namespace GitMind.GitModel.Private
 			{
 				if (!commit.HasBranchName)
 				{
-					commit.BranchXName = commit.MergeSourceBranchNameFromSubject;
+					commit.BranchName = commit.MergeSourceBranchNameFromSubject;
 					if (!commit.SecondParent.HasBranchName)
 					{
-						commit.SecondParent.BranchXName = commit.MergeSourceBranchNameFromSubject;
+						commit.SecondParent.BranchName = commit.MergeSourceBranchNameFromSubject;
 					}
 				}
 			}
@@ -46,7 +46,7 @@ namespace GitMind.GitModel.Private
 		{
 			foreach (MCommit commit in commits)
 			{
-				commit.BranchNameFromSubject = TryExtractBranchNameFromSubject(commit, repository);
+				commit.FromSubjectBranchName = TryExtractBranchNameFromSubject(commit, repository);
 			}
 		}
 
@@ -88,17 +88,17 @@ namespace GitMind.GitModel.Private
 
 		public string GetBranchName(MCommit commit)
 		{
-			if (!string.IsNullOrEmpty(commit.BranchXName))
+			if (!string.IsNullOrEmpty(commit.BranchName))
 			{
-				return commit.BranchXName;
+				return commit.BranchName;
 			}
-			else if (!string.IsNullOrEmpty(commit.BranchNameSpecified))
+			else if (!string.IsNullOrEmpty(commit.SpecifiedBranchName))
 			{
-				return commit.BranchNameSpecified;
+				return commit.SpecifiedBranchName;
 			}
-			else if (!string.IsNullOrEmpty(commit.BranchNameFromSubject))
+			else if (!string.IsNullOrEmpty(commit.FromSubjectBranchName))
 			{
-				return commit.BranchNameFromSubject;
+				return commit.FromSubjectBranchName;
 			}
 
 			return null;
@@ -115,7 +115,7 @@ namespace GitMind.GitModel.Private
 
 				if (!commit.FirstChildren.Any())
 				{
-					commit.BranchXName = branch.Name;
+					commit.BranchName = branch.Name;
 					commit.SubBranchId = branch.SubBranchId;
 				}
 				else
@@ -135,14 +135,14 @@ namespace GitMind.GitModel.Private
 			{
 				MCommit commit = repository.Commits[commitId];
 
-				if (commit.BranchXName == subBranch.Name && commit.SubBranchId != null)
+				if (commit.BranchName == subBranch.Name && commit.SubBranchId != null)
 				{
 					break;
 				}
 
-				if (commit.HasBranchName && commit.BranchXName != subBranch.Name)
+				if (commit.HasBranchName && commit.BranchName != subBranch.Name)
 				{
-					Log.Warn($"commit already has branch {commit.BranchXName} != {subBranch.Name}");
+					Log.Warn($"commit already has branch {commit.BranchName} != {subBranch.Name}");
 					break;
 				}
 
@@ -151,7 +151,7 @@ namespace GitMind.GitModel.Private
 					pullMergeTopCommits.Add(commit.FirstParentId);
 				}
 
-				commit.BranchXName = subBranch.Name;
+				commit.BranchName = subBranch.Name;
 				commit.SubBranchId = subBranch.SubBranchId;
 				commitId = commit.FirstParentId;
 			}
@@ -171,7 +171,7 @@ namespace GitMind.GitModel.Private
 
 			foreach (MCommit xCommit in commitsWithBranchName)
 			{
-				string branchName = xCommit.BranchXName;
+				string branchName = xCommit.BranchName;
 				string subBranchId = xCommit.SubBranchId;
 
 				MCommit last = xCommit;
@@ -180,7 +180,7 @@ namespace GitMind.GitModel.Private
 				{
 					string currentBranchName = GetBranchName(current);
 
-					if (current.HasBranchName && current.BranchXName != branchName)
+					if (current.HasBranchName && current.BranchName != branchName)
 					{
 						// found commit with branch name already set 
 						break;
@@ -197,7 +197,7 @@ namespace GitMind.GitModel.Private
 				{
 					foreach (MCommit current in xCommit.FirstAncestors())
 					{
-						current.BranchXName = branchName;
+						current.BranchName = branchName;
 						current.SubBranchId = subBranchId;
 
 						if (current == last)
@@ -222,9 +222,9 @@ namespace GitMind.GitModel.Private
 						MCommit firstChild = commit.FirstChildren.ElementAt(0);
 						if (firstChild.HasBranchName)
 						{
-							if (commit.FirstChildren.All(c => c.BranchXName == firstChild.BranchXName))
+							if (commit.FirstChildren.All(c => c.BranchName == firstChild.BranchName))
 							{
-								commit.BranchXName = firstChild.BranchXName;
+								commit.BranchName = firstChild.BranchName;
 								commit.SubBranchId = firstChild.SubBranchId;
 								found = true;
 							}

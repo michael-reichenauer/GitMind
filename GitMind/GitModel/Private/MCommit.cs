@@ -32,11 +32,11 @@ namespace GitMind.GitModel.Private
 		public List<string> FirstChildIds { get; set; } = new List<string>();
 
 		[ProtoMember(11)]
-		public string BranchXName { get; set; }
+		public string BranchName { get; set; }
 		[ProtoMember(12)]
-		public string BranchNameSpecified { get; set; }
+		public string SpecifiedBranchName { get; set; }
 		[ProtoMember(13)]
-		public string BranchNameFromSubject { get; set; }
+		public string FromSubjectBranchName { get; set; }
 		[ProtoMember(14)]
 		public string MergeSourceBranchNameFromSubject { get; set; }
 		[ProtoMember(15)]
@@ -54,7 +54,7 @@ namespace GitMind.GitModel.Private
 		public string Tickets { get; set; }
 
 
-		public bool HasBranchName => !string.IsNullOrEmpty(BranchXName);
+		public bool HasBranchName => !string.IsNullOrEmpty(BranchName);
 		public bool HasFirstParent => ParentIds.Count > 0;
 		public bool HasSecondParent => ParentIds.Count > 1;
 		public bool HasSingleFirstChild => ChildIds.Count == 1;

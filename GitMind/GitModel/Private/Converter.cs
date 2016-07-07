@@ -41,7 +41,7 @@ namespace GitMind.GitModel.Private
 				commit.ParentIds.ToList(),
 				commit.ChildIds.ToList(),
 				commit.BranchId,
-				commit.BranchNameSpecified,
+				commit.SpecifiedBranchName,
 				commit.IsLocalAhead,
 				commit.IsRemoteAhead);
 		}

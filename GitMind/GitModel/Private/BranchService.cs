@@ -92,7 +92,7 @@ namespace GitMind.GitModel.Private
 						MSubBranch subBranch = new MSubBranch
 						{
 							Repository = repository,
-							Name = commit.BranchXName,
+							Name = commit.BranchName,
 							SubBranchId = Guid.NewGuid().ToString(),
 							LatestCommitId = commit.Id,
 						};
@@ -129,7 +129,7 @@ namespace GitMind.GitModel.Private
 						string branchName = "Branch_" + commit.ShortId;
 						bool isMultiBranch = false;
 						List<string> childBranchNames = commit.FirstChildren
-							.Select(c => c.BranchXName).Distinct().ToList();
+							.Select(c => c.BranchName).Distinct().ToList();
 
 						if (childBranchNames.Count > 1)
 						{
@@ -160,7 +160,7 @@ namespace GitMind.GitModel.Private
 						repository.SubBranches.Add(subBranch);
 						multiBranches.Add(subBranch);
 
-						commit.BranchXName = branchName;
+						commit.BranchName = branchName;
 						commit.SubBranchId = subBranch.SubBranchId;
 
 						SetSubBranchCommits(subBranch);
@@ -180,9 +180,9 @@ namespace GitMind.GitModel.Private
 					c.SubBranchId == null
 					&& (commitBranchNameService.GetBranchName(c) == null
 					    || commitBranchNameService.GetBranchName(c) == subBranch.Name)
-					&& !c.FirstChildren.Any(fc => fc.BranchXName != subBranch.Name)))
+					&& !c.FirstChildren.Any(fc => fc.BranchName != subBranch.Name)))
 			{
-				commit.BranchXName = subBranch.Name;
+				commit.BranchName = subBranch.Name;
 				commit.SubBranchId = subBranch.SubBranchId;
 			}
 		}
