@@ -269,6 +269,13 @@ namespace GitMind.CommitsHistory
 			List<Commit> commits = GetCommits(branches);
 			t.Log($"Commits count {commits.Count}");
 
+			repositoryViewModel.ActiveBranches.Clear();
+			branches
+				.Where(b => b.Name != "master")
+				.OrderBy(b => b.Name)
+				.ForEach(b => repositoryViewModel.ActiveBranches.Add(
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
+
 			UpdateBranches(branches, commits, repositoryViewModel);
 			t.Log("Updated Branches");
 
@@ -279,13 +286,6 @@ namespace GitMind.CommitsHistory
 			t.Log("Updated Merges");
 
 			repositoryViewModel.SpecifiedBranches = specifiedBranches;
-
-			repositoryViewModel.ActiveBranches.Clear();
-			branches
-				.Where(b => b.Name != "master")
-				.OrderBy(b => b.Name)
-				.ForEach(b => repositoryViewModel.ActiveBranches.Add(
-					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
 		}
 
 
@@ -426,6 +426,7 @@ namespace GitMind.CommitsHistory
 						repositoryViewModel.ShowBranchCommand,
 						repositoryViewModel.HideBranchCommand));
 
+				branch.ActiveBranches = repositoryViewModel.ActiveBranches;
 				branch.Branch = sourceBranch;
 				branch.Name = sourceBranch.Name;
 				branch.LatestRowIndex = commits.FindIndex(c => c == sourceBranch.LatestCommit);
@@ -449,6 +450,15 @@ namespace GitMind.CommitsHistory
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 
 				branch.BranchToolTip = GetBranchToolTip(branch);
+
+				if (sourceBranch.IsMultiBranch)
+				{
+					branch.MultiBranches = branch.Branch.ChildBranchNames
+						.Select(name => new BranchNameItem(
+							branch.Branch.LatestCommit.Id, name, repositoryViewModel.SpecifyMultiBranchCommand))
+						.ToList();
+					branch.IsMultiBranch = sourceBranch.IsMultiBranch;
+				}
 			}
 
 			repositoryViewModel.GraphWidth = Converter.ToX(maxColumn + 1);

@@ -16,7 +16,16 @@ namespace GitMind.CommitsHistory
 			= new Lazy<IReadOnlyList<BranchItem>>(() => new BranchItem[0]);
 
 
-		public BranchItem(
+		public BranchItem(Branch branch, ICommand showBranchCommand)
+		{
+			Text = branch.Name;
+			Branch = branch;
+			ShowBranchCommand = showBranchCommand;
+			subItems = NoSubItems;
+		}
+
+
+		private BranchItem(
 			string prefix,
 			string name,
 			IEnumerable<Branch> branches,
@@ -27,14 +36,6 @@ namespace GitMind.CommitsHistory
 			ShowBranchCommand = showBranchCommand;
 			subItems = new Lazy<IReadOnlyList<BranchItem>>(
 				() => GetBranches(prefix, branches, level, showBranchCommand));
-		}
-
-		public BranchItem(Branch branch, ICommand showBranchCommand)
-		{
-			Text = branch.Name;
-			Branch = branch;
-			ShowBranchCommand = showBranchCommand;
-			subItems = NoSubItems;
 		}
 
 

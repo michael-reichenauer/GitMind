@@ -74,6 +74,7 @@
     <Compile Include="AcceptingExceptionsAttribute.cs" />
     <Compile Include="CommitsHistory\BranchComparer.cs" />
     <Compile Include="CommitsHistory\BranchItem.cs" />
+    <Compile Include="CommitsHistory\BranchNameItem.cs" />
     <Compile Include="CommitsHistory\BranchViewModel.cs" />
     <Compile Include="CommitsHistory\BrushService.cs" />
     <Compile Include="CommitsHistory\CommitDetail.cs" />

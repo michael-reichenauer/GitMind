@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 
@@ -18,6 +19,7 @@ namespace GitMind.CommitsHistory
 		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
 		private readonly IViewModelService viewModelService;
 		private readonly Lazy<BusyIndicator> busyIndicator;
+		private readonly IRepositoryService repositoryService = new RepositoryService();
 
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
@@ -67,13 +69,27 @@ namespace GitMind.CommitsHistory
 		public ICommand ShowBranchCommand => Command<Branch>(ShowBranch);
 		public ICommand HideBranchCommand => Command<Branch>(HideBranch);
 
+		public ICommand SpecifyMultiBranchCommand => Command<string>(SpecifyMultiBranch);
+
+
+		private async void SpecifyMultiBranch(string text)
+		{
+			string[] parts = text.Split(",".ToCharArray());
+
+			await repositoryService.SetSpecifiedCommitBranchAsync(parts[0], parts[1]);
+		}
+
+
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
-		public IReadOnlyList<BranchItem> AllBranches =>
-			BranchItem.GetBranches(Repository.Branches.Where(b => b.IsActive), ShowBranchCommand);			
+		public IReadOnlyList<BranchItem> AllBranches => BranchItem.GetBranches(
+			Repository.Branches
+			.Where(b => b.IsActive && b.Name != "master")
+			.Where(b => !ActiveBranches.Any(ab => ab.Branch.Id == b.Id)),
+			ShowBranchCommand);			
 
 		public ObservableCollection<BranchItem> ActiveBranches { get; }
 			= new ObservableCollection<BranchItem>();

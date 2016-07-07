@@ -207,7 +207,7 @@
 
 								<!--Show Branch menu item -->
 								<MenuItem 
-									Header=" Show branch"
+									Header="Show branch"
 									ItemsSource="{Binding RepositoryViewModel.AllBranches}">
 									
 									<MenuItem.Icon>
@@ -583,11 +583,26 @@
 													</ToolTip>
 												</Grid.ToolTip>
 
+												<!-- Branch line context menu -->
 													<Grid.ContextMenu>
 														<ContextMenu>
+
+															<!-- Show child branch meu item -->
 															<MenuItem 
-																Header=" Show child branch"
+																Header="Show child branch"
+																IsEnabled="{Binding HasChildren}"
 																ItemsSource="{Binding ChildBranches}">
+																<MenuItem.Icon>
+																	<Border Background="Transparent" Padding="2">
+																		<TextBlock 
+																			Text="&#xE3CD;"
+																			FontFamily="pack://application:,,,/Fonts/#Material Icons"
+																			FontSize="14"
+																			Foreground="LightSteelBlue"
+																			VerticalAlignment="Center">
+																		</TextBlock>
+																	</Border>
+																</MenuItem.Icon>
 																<MenuItem.Resources>
 																	<HierarchicalDataTemplate 
 																		DataType="{x:Type commitsHistory:BranchItem}"
@@ -599,8 +614,37 @@
 																	</HierarchicalDataTemplate>
 																</MenuItem.Resources>
 															</MenuItem>
+
+															<Separator
+																Visibility="{Binding IsMultiBranch, Converter={StaticResource VC}}"
+																Background="DarkSlateBlue"/>
+
+															<MenuItem 
+																Header="Specify multi branch" 
+																Visibility="{Binding IsMultiBranch, Converter={StaticResource VC}}"
+																ItemsSource="{Binding MultiBranches}">
+																<MenuItem.Icon>
+																	<Border Background="Transparent" Padding="2">
+																		<TextBlock 
+																			Text="&#xE5DC;"
+																			FontFamily="pack://application:,,,/Fonts/#Material Icons"
+																			FontSize="14"
+																			Foreground="LightSteelBlue"
+																			VerticalAlignment="Center">
+																		</TextBlock>
+																	</Border>
+																</MenuItem.Icon>
+																<MenuItem.ItemContainerStyle>
+																	<Style TargetType="MenuItem">
+																		<Setter Property="Header" Value="{Binding Name}"/>
+																		<Setter Property="Command" Value="{Binding ItemCommand}"/>
+																		<Setter Property="CommandParameter" Value="{Binding Branch}"/>
+																	</Style>
+																</MenuItem.ItemContainerStyle>
+															</MenuItem>
+															
 														</ContextMenu>
-												</Grid.ContextMenu>	
+													</Grid.ContextMenu>	
 			
 											</Grid>
 										</DataTemplate>
