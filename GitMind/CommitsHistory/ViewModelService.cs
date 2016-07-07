@@ -317,16 +317,27 @@ namespace GitMind.CommitsHistory
 				Concat(branchesInRepo
 					.Concat(branchesInRepo.SelectMany(branch => branch.Parents().Take(10))))
 				.Distinct()
+				.OrderBy(b => b, Compare.With<Branch>(CompareBranches))
 				.ToList();
 
-
-			// Sort branches to make parent braches shown left of its child branches
-			Sorter.Sort(branchesWithParents, new BranchComparer());
 			branchesWithParents.ForEach(branch => Log.Debug($"Branches with parent with {branch}"));
 
 			return branchesWithParents;
 		}
 
+		private static int CompareBranches(Branch x, Branch y)
+		{
+			if (y.HasParentBranch && y.ParentBranch == x)
+			{
+				return -1;
+			}
+			else if (x.HasParentBranch && x.ParentBranch == y)
+			{
+				return 1;
+			}
+
+			return 0;
+		}
 
 
 		private static IEnumerable<Branch> GetBranchAndDescendants(

@@ -72,7 +72,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AcceptingExceptionsAttribute.cs" />
-    <Compile Include="CommitsHistory\BranchComparer.cs" />
     <Compile Include="CommitsHistory\BranchItem.cs" />
     <Compile Include="CommitsHistory\BranchNameItem.cs" />
     <Compile Include="CommitsHistory\BranchViewModel.cs" />
@@ -80,6 +79,7 @@
     <Compile Include="CommitsHistory\CommitDetail.cs" />
     <Compile Include="CommitsHistory\CommitDetailViewModel.cs" />
     <Compile Include="CommitsHistory\CommitFileViewModel.cs" />
+    <Compile Include="Utils\Compare.cs" />
     <Compile Include="CommitsHistory\SetBranchPrompt.xaml.cs">
       <DependentUpon>SetBranchPrompt.xaml</DependentUpon>
     </Compile>
