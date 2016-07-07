@@ -1,50 +1,39 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using GitMind.Utils;
 using ProtoBuf;
 
 
 namespace GitMind.GitModel.Private
 {
-	[DataContract, ProtoContract]
+	[ProtoContract]
 	public class MRepository
 	{
 		public static string CurrentVersion = "4";
 
-		public MRepository()
-		{
-			CommitList = new List<MCommit>();
-			SubBrancheList = new List<MSubBranch>();
-			BrancheList = new List<MBranch>();
 
-			Commits = new KeyedList<string, MCommit>(c => c.Id);
-			SubBranches = new KeyedList<string, MSubBranch>(b => b.SubBranchId);
-			Branches = new KeyedList<string, MBranch>(b => b.Id);
-		}
-
-
-		[DataMember, ProtoMember(1)]
+		[ProtoMember(1)]
 		public string Version { get; set; } = CurrentVersion;
 
-		[DataMember, ProtoMember(2)]
+		[ProtoMember(2)]
 		public DateTime Time { get; set; }
-		[DataMember, ProtoMember(3)]
+		[ProtoMember(3)]
 		public string CurrentCommitId { get; set; }
-		[DataMember, ProtoMember(4)]
+		[ProtoMember(4)]
 		public string CurrentBranchId { get; set; }
-		[DataMember, ProtoMember(5)]
-		public List<MCommit> CommitList { get; set; }
-		[DataMember, ProtoMember(6)]
-		public List<MSubBranch> SubBrancheList { get; set; }
-		[DataMember, ProtoMember(7)]
-		public List<MBranch> BrancheList { get; set; }
+		[ProtoMember(5)]
+		public List<MCommit> CommitList { get; set; } = new List<MCommit>();
+		[ProtoMember(6)]
+		public List<MSubBranch> SubBrancheList { get; set; } = new List<MSubBranch>();
+		[ProtoMember(7)]
+		public List<MBranch> BrancheList { get; set; } = new List<MBranch>();
 
 
-		public KeyedList<string, MCommit> Commits;
-		public KeyedList<string, MSubBranch> SubBranches;
-		public KeyedList<string, MBranch> Branches;
+		public KeyedList<string, MCommit> Commits = new KeyedList<string, MCommit>(c => c.Id);
+		public KeyedList<string, MSubBranch> SubBranches
+			= new KeyedList<string, MSubBranch>(b => b.SubBranchId);
+		public KeyedList<string, MBranch> Branches = new KeyedList<string, MBranch>(b => b.Id);
 
 		internal CommitsFiles CommitsFiles { get; set; }
 

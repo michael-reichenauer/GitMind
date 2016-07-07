@@ -1,64 +1,56 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using ProtoBuf;
 
 
 namespace GitMind.GitModel.Private
 {
-	[DataContract, ProtoContract]
+	[ProtoContract]
 	public class MCommit
 	{
-		public MCommit()
-		{
-			ParentIds = new List<string>();
-			ChildIds = new List<string>();
-			FirstChildIds = new List<string>();
-		}
-
-		[DataMember, ProtoMember(1)]
+		[ProtoMember(1)]
 		public string Id { get; set; }
-		[DataMember, ProtoMember(2)]
+		[ProtoMember(2)]
 		public string BranchId { get; set; }
-		[DataMember, ProtoMember(3)]
+		[ProtoMember(3)]
 		public string ShortId { get; set; }
-		[DataMember, ProtoMember(4)]
+		[ProtoMember(4)]
 		public string Subject { get; set; }
-		[DataMember, ProtoMember(5)]
+		[ProtoMember(5)]
 		public string Author { get; set; }
-		[DataMember, ProtoMember(6)]
+		[ProtoMember(6)]
 		public DateTime AuthorDate { get; set; }
-		[DataMember, ProtoMember(7)]
+		[ProtoMember(7)]
 		public DateTime CommitDate { get; set; }
 
-		[DataMember, ProtoMember(8)]
-		public List<string> ParentIds { get; set; }
-		[DataMember, ProtoMember(9)]
-		public List<string> ChildIds { get; set; }
-		[DataMember, ProtoMember(10)]
-		public List<string> FirstChildIds { get; set; } 
+		[ProtoMember(8)]
+		public List<string> ParentIds { get; set; } = new List<string>();
+		[ProtoMember(9)]
+		public List<string> ChildIds { get; set; } = new List<string>();
+		[ProtoMember(10)]
+		public List<string> FirstChildIds { get; set; } = new List<string>();
 
-		[DataMember, ProtoMember(11)]
+		[ProtoMember(11)]
 		public string BranchXName { get; set; }
-		[DataMember, ProtoMember(12)]
+		[ProtoMember(12)]
 		public string BranchNameSpecified { get; set; }
-		[DataMember, ProtoMember(13)]
+		[ProtoMember(13)]
 		public string BranchNameFromSubject { get; set; }
-		[DataMember, ProtoMember(14)]
+		[ProtoMember(14)]
 		public string MergeSourceBranchNameFromSubject { get; set; }
-		[DataMember, ProtoMember(15)]
+		[ProtoMember(15)]
 		public string MergeTargetBranchNameFromSubject { get; set; }
 
-		[DataMember, ProtoMember(16)]
+		[ProtoMember(16)]
 		public string SubBranchId { get; set; }
-		[DataMember, ProtoMember(17)]
+		[ProtoMember(17)]
 		public bool IsLocalAheadMarker { get; set; }
-		[DataMember, ProtoMember(18)]
+		[ProtoMember(18)]
 		public bool IsRemoteAheadMarker { get; set; }
-		[DataMember, ProtoMember(19)]
+		[ProtoMember(19)]
 		public string Tags { get; set; }
-		[DataMember, ProtoMember(20)]
+		[ProtoMember(20)]
 		public string Tickets { get; set; }
 
 
@@ -72,29 +64,6 @@ namespace GitMind.GitModel.Private
 		public IEnumerable<MCommit> Children => ChildIds.Select(id => Repository.Commits[id]);
 		public IEnumerable<MCommit> FirstChildren => FirstChildIds.Select(id => Repository.Commits[id]);
 		public MBranch Branch => Repository.Branches[BranchId];
-
-		//public string BranchName
-		//{
-		//	get { return branchName; }
-		//	set
-		//	{
-		//		if (ShortId == "c336d1")
-		//		{
-
-		//		}
-		//		branchName = value;
-		//		if (branchName != null && BranchNameFromSubject != null 
-		//			&& branchName != BranchNameFromSubject
-		//			&& -1 == BranchNameFromSubject.IndexOf("trunk", StringComparison.OrdinalIgnoreCase))
-		//		{
-		//			//Log.Warn($"Setting branch name {branchName} != '{BranchNameFromSubject}' from subject for {this}");
-		//		}
-		//		//if (ShortId == "afe62f")
-		//		//{
-		//		//	Log.Warn($"Setting branch name {branchName} != '{BranchNameFromSubject}' from subject");
-		//		//}
-		//	}
-		//}
 
 
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using GitMind.GitModel;
-using GitMind.Utils;
 using GitMind.Utils.UI;
 
 
@@ -64,8 +63,6 @@ namespace GitMind.CommitsHistory
 		private static IReadOnlyList<BranchItem> GetBranches(
 			string prefix, IEnumerable<Branch> branches, int level, ICommand showBranchCommand)
 		{
-			Log.Warn($"Get for {prefix}");
-
 			List<BranchItem> list = new List<BranchItem>();
 
 			foreach (Branch branch in branches.Where(b => b.Name.StartsWith(prefix)))
