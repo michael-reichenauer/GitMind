@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Git;
-using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -37,15 +36,14 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public IReadOnlyList<MSubBranch> AddInactiveBranches(
-			IReadOnlyList<MCommit> commits, MRepository repository)
+		public IReadOnlyList<MSubBranch> AddInactiveBranches(MRepository repository)
 		{
 			List<MSubBranch> branches = new List<MSubBranch>();
 
 			// Commits which has no child, which has this commit as a first parent, i.e. it is the 
 			// top of a branch and there is no existing branch at this commit
-			IEnumerable<MCommit> topCommits = commits.Where(commit =>
-				!commit.FirstChildIds.Any()
+			IEnumerable<MCommit> topCommits = repository.CommitList.Where(commit =>
+				!commit.FirstChildren.Any()
 				&& !repository.SubBranches.Any(b => b.LatestCommitId == commit.Id));
 
 			foreach (MCommit commit in topCommits)
@@ -74,8 +72,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public IReadOnlyList<MSubBranch> AddMissingInactiveBranches(
-			IReadOnlyList<MCommit> commits, MRepository repository)
+		public IReadOnlyList<MSubBranch> AddMissingInactiveBranches(MRepository repository)
 		{
 			List<MSubBranch> branches = new List<MSubBranch>();
 
@@ -83,7 +80,7 @@ namespace GitMind.GitModel.Private
 			do
 			{
 				isFound = false;
-				foreach (MCommit commit in commits)
+				foreach (MCommit commit in repository.CommitList)
 				{
 					if (commit.HasBranchName && commit.SubBranchId == null)
 					{
@@ -111,8 +108,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public IReadOnlyList<MSubBranch> AddMultiBranches(
-			IReadOnlyList<MCommit> commits, MRepository repository)
+		public IReadOnlyList<MSubBranch> AddMultiBranches(MRepository repository)
 		{
 			List<MSubBranch> multiBranches = new List<MSubBranch>();
 
@@ -120,7 +116,7 @@ namespace GitMind.GitModel.Private
 			do
 			{
 				isFound = false;
-				foreach (MCommit commit in commits)
+				foreach (MCommit commit in repository.CommitList)
 				{
 					if (!commit.HasBranchName)
 					{
@@ -128,13 +124,11 @@ namespace GitMind.GitModel.Private
 
 						string branchName = "Branch_" + commit.ShortId;
 						bool isMultiBranch = false;
-						List<string> childBranchNames = commit.FirstChildren
-							.Select(c => c.BranchName).Distinct().ToList();
 
-						if (childBranchNames.Count > 1)
+						if (commit.FirstChildren.Count() > 1)
 						{
 							branchName = "Multibranch_" + commit.ShortId;
-							isMultiBranch = true;					
+							isMultiBranch = true;
 						}
 						else
 						{
@@ -154,7 +148,6 @@ namespace GitMind.GitModel.Private
 							IsMultiBranch = isMultiBranch,
 							IsActive = false,
 							IsAnonymous = true,
-							ChildBranchNames = childBranchNames
 						};
 
 						repository.SubBranches.Add(subBranch);
@@ -179,7 +172,7 @@ namespace GitMind.GitModel.Private
 				.TakeWhile(c =>
 					c.SubBranchId == null
 					&& (commitBranchNameService.GetBranchName(c) == null
-					    || commitBranchNameService.GetBranchName(c) == subBranch.Name)
+							|| commitBranchNameService.GetBranchName(c) == subBranch.Name)
 					&& !c.FirstChildren.Any(fc => fc.BranchName != subBranch.Name)))
 			{
 				commit.BranchName = subBranch.Name;
@@ -188,11 +181,11 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static MSubBranch ToBranch(GitBranch gitBranch, MRepository mRepository)
+		private static MSubBranch ToBranch(GitBranch gitBranch, MRepository repository)
 		{
 			return new MSubBranch
 			{
-				Repository = mRepository,
+				Repository = repository,
 				SubBranchId = Guid.NewGuid().ToString(),
 				Name = gitBranch.Name,
 				LatestCommitId = gitBranch.LatestCommitId,

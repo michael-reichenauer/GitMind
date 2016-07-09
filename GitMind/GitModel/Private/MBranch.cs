@@ -24,30 +24,26 @@ namespace GitMind.GitModel.Private
 		public bool IsMultiBranch { get; set; }
 		[ProtoMember(8)]
 		public bool IsActive { get; set; }
-		[ProtoMember(9)]
-		public bool IsAnonymous { get; set; }
-		[ProtoMember(10)]
+		[ProtoMember(9)]	
 		public int LocalAheadCount { get; set; }
-		[ProtoMember(11)]
+		[ProtoMember(10)]
 		public int RemoteAheadCount { get; set; }
-		[ProtoMember(12)]
+		[ProtoMember(11)]
 		public bool IsLocalAndRemote { get; set; }
-		[ProtoMember(13)]
+		[ProtoMember(12)]
 		public List<string> ChildBranchNames { get; set; } = new List<string>();
-
-		[ProtoMember(14)]
+		[ProtoMember(13)]
 		public List<string> CommitIds { get; set; } = new List<string>();
 
 
 
 		public MRepository Repository { get; set; }
 
-		public IEnumerable<MCommit> Commits =>
-			CommitIds.Select(id => Repository.Commits[id]);
+		public IEnumerable<MCommit> Commits => CommitIds.Select(id => Repository.Commits(id));
 
-		public MCommit FirstCommit => Repository.Commits[FirstCommitId];
-		public MCommit LatestCommit => Repository.Commits[LatestCommitId];
-		public MCommit ParentCommit => Repository.Commits[ParentCommitId];
+		public MCommit FirstCommit => Repository.Commits(FirstCommitId);
+		public MCommit LatestCommit => Repository.Commits(LatestCommitId);
+		public MCommit ParentCommit => Repository.Commits(ParentCommitId);
 		public MBranch ParentBranch => Repository.Branches[ParentBranchId];
 
 		public override string ToString() => $"{Name}";

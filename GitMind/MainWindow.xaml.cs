@@ -346,11 +346,11 @@ namespace GitMind
 
 		private async Task RefreshAsync(bool isShift)
 		{
-			//await Task.Yield();
-			//return;
-			Task refreshTask = RefreshInternalAsync(isShift);
-			mainWindowViewModel.Busy.Add(refreshTask);
-			await refreshTask;
+			await Task.Yield();
+			return;
+			//Task refreshTask = RefreshInternalAsync(isShift);
+			//mainWindowViewModel.Busy.Add(refreshTask);
+			//await refreshTask;
 		}
 
 		private async Task RefreshInternalAsync(bool isShift)
@@ -362,9 +362,6 @@ namespace GitMind
 				repositoryViewModel.Repository);
 
 			repositoryViewModel.Update(repository, repositoryViewModel.SpecifiedBranches);
-
-
-			//await historyViewModel.RefreshAsync(isShift);
 		}
 
 		protected override void OnPreviewMouseUp(MouseButtonEventArgs e)

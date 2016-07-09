@@ -35,7 +35,7 @@ namespace GitMind.GitModel.Private
 			//if (repository != null)
 			//{
 			//	repository.CommitsFiles = new CommitsFiles();
-			//	//ReadCommitFilesAsync(repository.CommitsFiles).RunInBackground();
+			//	// ReadCommitFilesAsync(repository.CommitsFiles).RunInBackground();
 			//}
 
 			//return repository;
@@ -53,7 +53,7 @@ namespace GitMind.GitModel.Private
 				t.Log("PrepareForSerialization");
 
 				Serialize(cachePath, repository);
-				t.Log($"Wrote repository with {repository.Commits.Count} commits");
+				t.Log($"Wrote repository with {repository.CommitList.Count} commits");
 			}));
 		}
 

@@ -124,43 +124,38 @@ namespace GitMind.GitModel.Private
 		{
 			return Task.Run(() =>
 			{
-				IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
-				IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
-				IReadOnlyList<GitSpecifiedNames> specifiedBranches = gitRepo.GetSpecifiedNameses();
-				IReadOnlyList<GitTag> tags = gitRepo.GetAllTags();
+				////IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
+				//IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
+				//IReadOnlyList<GitSpecifiedNames> specifiedBranches = gitRepo.GetSpecifiedNameses();
+				//IReadOnlyList<GitTag> tags = gitRepo.GetAllTags();
 
-				Update(
-					mRepository,
-					gitBranches,
-					gitCommits,
-					specifiedBranches,
-					tags,
-					gitRepo.CurrentBranch,
-					gitRepo.CurrentCommit);
+				Update(mRepository, gitRepo);
 			});
 		}
 
 
-		private void Update(
-			MRepository repository,
-			IReadOnlyList<GitBranch> gitBranches,
-			IReadOnlyList<GitCommit> gitCommits,
-			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames,
-			IReadOnlyList<GitTag> gitTags,
-			GitBranch currentBranch,
-			GitCommit currentCommit)
+		private void Update(MRepository repository, IGitRepo gitRepo)
 		{
 			Timing t = new Timing();
-			IReadOnlyList<MCommit> commits = commitsService.AddCommits(gitCommits, repository);
-			t.Log($"Added {commits.Count} commits");
-			
+			//IReadOnlyList<MCommit> commits = commitsService.AddCommits(gitCommits, repository);
+			//t.Log($"Added {commits.Count} commits");
+
+			//repository.CommitProvider = commitId => commitsService.GetCommit(commitId, repository, gitRepo);
+
+			commitsService.AddBranchCommits(gitRepo, repository);
+			t.Log($"Added {repository.CommitList.Count} commits referenced by active branches ");
+
+			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
+			IReadOnlyList<MSubBranch> activeBranches = branchService.AddActiveBranches(gitBranches, repository);
+			t.Log($"Added {activeBranches.Count} active branches");
+	
+
+			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames = gitRepo.GetSpecifiedNameses();
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			t.Log($"Set {gitSpecifiedNames.Count} specified branch names");
 
-			IReadOnlyList<MSubBranch> activeBranches = branchService.AddActiveBranches(gitBranches, repository);
-			t.Log($"Added {activeBranches.Count} active branches");
 
-			IReadOnlyList<MSubBranch> inactiveBranches = branchService.AddInactiveBranches(commits, repository);
+			IReadOnlyList<MSubBranch> inactiveBranches = branchService.AddInactiveBranches(repository);
 			t.Log($"Added {inactiveBranches.Count} inactive branches");
 
 			IReadOnlyList<MSubBranch> subBranches = activeBranches.Concat(inactiveBranches).ToList();
@@ -171,25 +166,24 @@ namespace GitMind.GitModel.Private
 			commitBranchNameService.SetBranchTipCommitsNames(subBranches, repository);
 			t.Log("Set branch tip commit branch names");	
 
-			commitBranchNameService.SetNeighborCommitNames(commits);
+			commitBranchNameService.SetNeighborCommitNames(repository);
 			t.Log("Set neighbor commit names");
 
 		
 			IReadOnlyList<MSubBranch> missingInactiveBranches = branchService.AddMissingInactiveBranches(
-				commits, repository);
+				repository);
 			t.Log($"Added {missingInactiveBranches.Count} missing inactive branches");
 			subBranches = subBranches.Concat(missingInactiveBranches).ToList();
 			
-			IReadOnlyList<MSubBranch> multiBranches = branchService.AddMultiBranches(commits, repository);
+			IReadOnlyList<MSubBranch> multiBranches = branchService.AddMultiBranches(repository);
 			t.Log($"Added {multiBranches.Count(B => B.IsMultiBranch)} multi branches");
 
-			Log.Debug($"Unset commits after multi {commits.Count(c => !c.HasBranchName)}");
-			Log.Debug($"Unset commits id after multi {commits.Count(c => c.SubBranchId == null)}");
+			Log.Debug($"Unset commits after multi {repository.CommitList.Count(c => !c.HasBranchName)}");
+			Log.Debug($"Unset commits id after multi {repository.CommitList.Count(c => c.SubBranchId == null)}");
 
 			subBranches = subBranches.Concat(multiBranches).ToList();
 			t.Log($"Total {subBranches.Count} sub branches");
-
-		
+	
 
 			branchHierarchyService.SetBranchHierarchy(subBranches, repository);
 			t.Log($"SetBranchHierarchy with {repository.Branches.Count} branches");
@@ -197,14 +191,14 @@ namespace GitMind.GitModel.Private
 			aheadBehindService.SetAheadBehind(repository);
 			t.Log("SetAheadBehind");
 
-			tagService.AddTags(gitTags, repository);
+			tagService.AddTags(gitRepo.GetAllTags(), repository);
 			t.Log("Added tags");
 
 			repository.CurrentBranchId = repository.Branches
-				.First(b => b.IsActive && b.Name == currentBranch.Name).Id;
-			repository.CurrentCommitId = repository.Commits[currentCommit.Id].Id;
+				.First(b => b.IsActive && b.Name == gitRepo.CurrentBranch.Name).Id;
+			repository.CurrentCommitId = repository.Commits(gitRepo.CurrentCommit.Id).Id;
 
-			commits.Where(c => string.IsNullOrEmpty(c.BranchName))
+			repository.CommitList.Where(c => string.IsNullOrEmpty(c.BranchName))
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.FirstParentId}"));
 
 			t.Log("Total time");
@@ -228,7 +222,7 @@ namespace GitMind.GitModel.Private
 				new Lazy<Commit>(() => currentCommit),
 				mRepository.CommitsFiles);
 
-			foreach (MCommit mCommit in mRepository.Commits)
+			foreach (MCommit mCommit in mRepository.CommitList)
 			{
 				Commit commit = Converter.ToCommit(repository, mCommit);
 				rCommits.Add(commit);

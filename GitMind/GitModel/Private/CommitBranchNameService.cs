@@ -15,7 +15,7 @@ namespace GitMind.GitModel.Private
 			foreach (GitSpecifiedNames specifiedName in specifiedNames)
 			{
 				MCommit commit;
-				if (repository.Commits.TryGetValue(specifiedName.CommitId, out commit))
+				if (repository.TryGetCommit(specifiedName.CommitId, out commit))
 				{
 					commit.SpecifiedBranchName = specifiedName.BranchName;
 					commit.BranchName = specifiedName.BranchName;
@@ -42,11 +42,11 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void SetNeighborCommitNames(IReadOnlyList<MCommit> commits)
+		public void SetNeighborCommitNames(MRepository repository)
 		{
-			SetEmptyParentCommits(commits);
+			SetEmptyParentCommits(repository.CommitList);
 
-			SetBranchCommitsOfParents(commits);
+			SetBranchCommitsOfParents(repository.CommitList);
 		}
 
 
@@ -102,7 +102,7 @@ namespace GitMind.GitModel.Private
 
 			while (commitId != null)
 			{
-				MCommit commit = repository.Commits[commitId];
+				MCommit commit = repository.Commits(commitId);
 
 				if (commit.BranchName == subBranch.Name && commit.SubBranchId != null)
 				{

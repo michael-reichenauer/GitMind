@@ -7,40 +7,82 @@ namespace GitMind.GitModel.Private
 {
 	internal class CommitsService : ICommitsService
 	{
-		public IReadOnlyList<MCommit> AddCommits(
-			IReadOnlyList<GitCommit> gitCommits,
-			MRepository repository)
+		public void AddBranchCommits(IGitRepo gitRepo, MRepository repository)
 		{
-			return gitCommits.Select(
-				gitCommit =>
+			IEnumerable<string> rootCommitIds = gitRepo.GetAllBranches().Select(b => b.LatestCommitId);
+			Dictionary<string, string> branchNameByCommitId = new Dictionary<string, string>();
+			Dictionary<string, string> subjectBranchNameByCommitId = new Dictionary<string, string>();
+			Dictionary<string, object> added = new Dictionary<string, object>();
+
+			Stack<string> commitIds = new Stack<string>();
+			rootCommitIds.ForEach(id => commitIds.Push(id));
+			rootCommitIds.ForEach(id => added[id] = null);
+
+			while (commitIds.Any())
+			{
+				string commitId = commitIds.Pop();
+
+				MCommit commit;
+				if (!repository.TryGetCommit(commitId, out commit))
 				{
-					MCommit commit;
-					if (!repository.Commits.TryGetValue(gitCommit.Id, out commit))
+					commit = AddCommit(commitId, gitRepo, repository);
+
+					if (IsMergeCommit(commit))
 					{
-						commit = new MCommit();
-						commit.Id = gitCommit.Id;
-						commit.Repository = repository;
-						repository.Commits.Add(commit);
+						TrySetBranchNameFromSubject(commit, branchNameByCommitId, subjectBranchNameByCommitId);
 					}
 
-					if (commit.Subject == null)
-					{
-						CopyToCommit(gitCommit, commit);
-						SetChildOfParents(commit, repository);
+					AddParents(commit, commitIds, added);
+				}
 
-						if (IsMergeCommit(commit))
-						{
-							TrySetBranchNameFromSubject(commit);
-						}
-					}
+				string branchName;
+				if (branchNameByCommitId.TryGetValue(commitId, out branchName))
+				{
+					// Branch name set by a child commit (pull merge commit)
+					commit.BranchName = branchName;
+				}
 
-					return commit;
-				})
-				.ToList();
+				string subjectBranchName;
+				if (subjectBranchNameByCommitId.TryGetValue(commitId, out subjectBranchName))
+				{
+					// Subject branch name set by a child commit (merge commit)
+					commit.FromSubjectBranchName = subjectBranchName;
+				}
+			}
 		}
 
 
-		private static void TrySetBranchNameFromSubject(MCommit commit)
+		private MCommit AddCommit(string commitId, IGitRepo gitRepo, MRepository repository)
+		{
+			GitCommit gitCommit = gitRepo.GetCommit(commitId);
+
+			MCommit commit = new MCommit();
+			commit.Repository = repository;
+
+			CopyToCommit(gitCommit, commit);
+			SetChildOfParents(commit);
+			repository.AddCommit(commit);
+			return commit;
+		}
+
+
+		private static void AddParents(MCommit commit, Stack<string> commitIds, Dictionary<string, object> added)
+		{
+			commit.ParentIds.ForEach(parentId =>
+			{
+				if (!added.ContainsKey(parentId))
+				{
+					commitIds.Push(parentId);
+					added[parentId] = null;
+				}
+			});
+		}
+
+
+		private static void TrySetBranchNameFromSubject(
+			MCommit commit, 
+			IDictionary<string, string> branchNameByCommitId,
+			IDictionary<string, string> subjectBranchNameByCommitId)
 		{
 			MergeBranchNames mergeNames = BranchNameParser.ParseBranchNamesFromSubject(commit.Subject);
 
@@ -49,7 +91,7 @@ namespace GitMind.GitModel.Private
 				// Pull merge subjects (source branch same as target) are most likely automatically created
 				// during a pull and thus more reliable. Lets set branch name on commit and second parent 
 				commit.BranchName = mergeNames.TargetBranchName;
-				commit.SecondParent.BranchName = mergeNames.SourceBranchName;
+				branchNameByCommitId[commit.SecondParentId] = mergeNames.SourceBranchName;
 			}
 			else
 			{
@@ -59,49 +101,44 @@ namespace GitMind.GitModel.Private
 				{
 					commit.FromSubjectBranchName = mergeNames.TargetBranchName;
 				}
+
 				if (mergeNames.SourceBranchName != null)
 				{
-					commit.SecondParent.FromSubjectBranchName = mergeNames.SourceBranchName;
+					subjectBranchNameByCommitId[commit.SecondParentId] = mergeNames.SourceBranchName;
 				}
 			}
 		}
 
 
-		private static void SetChildOfParents(MCommit commit, MRepository repository)
+		private static void SetChildOfParents(MCommit commit)
 		{
 			bool isFirstParent = true;
 			foreach (string parentId in commit.ParentIds)
 			{
-				MCommit parent;
-				if (!repository.Commits.TryGetValue(parentId, out parent))
+				IList<string> childIds = commit.Repository.ChildIds(parentId);
+				if (!childIds.Contains(commit.Id))
 				{
-					parent = new MCommit();
-					parent.Id = parentId;
-					parent.Repository = repository;
-					repository.Commits.Add(parent);
-				}
-
-				if (!parent.Children.Contains(commit))
-				{
-					parent.ChildIds.Add(commit.Id);
+					childIds.Add(commit.Id);
 				}
 
 				if (isFirstParent)
 				{
 					isFirstParent = false;
-					if (!parent.FirstChildren.Contains(commit))
+					IList<string> firstChildIds = commit.Repository.FirstChildIds(parentId);
+					if (!firstChildIds.Contains(commit.Id))
 					{
-						parent.FirstChildIds.Add(commit.Id);
+						firstChildIds.Add(commit.Id);
 					}
-				}	
+				}
 			}
 		}
-		
+
 
 		private void CopyToCommit(GitCommit gitCommit, MCommit commit)
 		{
 			string tickets = GetTickets(gitCommit);
 
+			commit.Id = gitCommit.Id;
 			commit.ShortId = gitCommit.ShortId;
 			commit.Subject = GetSubjectWithoutTickets(gitCommit, tickets);
 			commit.Author = gitCommit.Author;

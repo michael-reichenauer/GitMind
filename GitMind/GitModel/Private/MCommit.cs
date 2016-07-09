@@ -26,53 +26,46 @@ namespace GitMind.GitModel.Private
 
 		[ProtoMember(8)]
 		public List<string> ParentIds { get; set; } = new List<string>();
+	
 		[ProtoMember(9)]
-		public List<string> ChildIds { get; set; } = new List<string>();
-		[ProtoMember(10)]
-		public List<string> FirstChildIds { get; set; } = new List<string>();
-
-		[ProtoMember(11)]
 		public string BranchName { get; set; }
-		[ProtoMember(12)]
+		[ProtoMember(10)]
 		public string SpecifiedBranchName { get; set; }
-		[ProtoMember(13)]
-		public string FromSubjectBranchName { get; set; }
 	
 
-		[ProtoMember(14)]
+		[ProtoMember(11)]
 		public string SubBranchId { get; set; }
-		[ProtoMember(15)]
+		[ProtoMember(12)]
 		public bool IsLocalAheadMarker { get; set; }
-		[ProtoMember(16)]
+		[ProtoMember(13)]
 		public bool IsRemoteAheadMarker { get; set; }
-		[ProtoMember(17)]
+		[ProtoMember(14)]
 		public string Tags { get; set; }
-		[ProtoMember(18)]
+		[ProtoMember(15)]
 		public string Tickets { get; set; }
 
+		public string FromSubjectBranchName { get; set; }
 
 		public bool HasBranchName => !string.IsNullOrEmpty(BranchName);
 		public bool HasFirstParent => ParentIds.Count > 0;
 		public bool HasSecondParent => ParentIds.Count > 1;
-		public bool HasSingleFirstChild => ChildIds.Count == 1;
+		public bool HasSingleFirstChild => Repository.FirstChildIds(Id).Count == 1;
 
 		public MRepository Repository { get; set; }
-		public IEnumerable<MCommit> Parents => ParentIds.Select(id => Repository.Commits[id]);
-		public IEnumerable<MCommit> Children => ChildIds.Select(id => Repository.Commits[id]);
-		public IEnumerable<MCommit> FirstChildren => FirstChildIds.Select(id => Repository.Commits[id]);
+		public IEnumerable<MCommit> Parents => ParentIds.Select(id => Repository.Commits(id));
+		public IEnumerable<MCommit> Children => Repository.ChildIds(Id).Select(id => Repository.Commits(id));
+		public IEnumerable<string> FirstChildIds => Repository.FirstChildIds(Id);
+		public IEnumerable<MCommit> FirstChildren => Repository.FirstChildIds(Id).Select(id => Repository.Commits(id));
 		public MBranch Branch => Repository.Branches[BranchId];
 
 
-
 		public string FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : null;
-		public MCommit FirstParent => ParentIds.Count > 0 ? Repository.Commits[ParentIds[0]] : null;
+		public MCommit FirstParent => ParentIds.Count > 0 ? Repository.Commits(ParentIds[0]) : null;
 		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
-		public MCommit SecondParent => ParentIds.Count > 1 ? Repository.Commits[ParentIds[1]] : null;
+		public MCommit SecondParent => ParentIds.Count > 1 ? Repository.Commits(ParentIds[1]) : null;
 		public bool IsLocalAhead => Branch.IsLocalAndRemote && IsLocalAheadMarker && !IsSynced;
 		public bool IsRemoteAhead => Branch.IsLocalAndRemote && IsRemoteAheadMarker && !IsSynced;
 		public bool IsSynced => IsLocalAheadMarker && IsRemoteAheadMarker;
-
-
 
 		public IEnumerable<MCommit> FirstAncestors()
 		{

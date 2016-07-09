@@ -28,7 +28,6 @@ namespace GitMind.GitModel.Private
 
 				MCommit firstCommit = commits.Any() ? commits.Last() : LatestCommit;				
 				
-				subBranch.FirstCommitId = firstCommit.Id;
 				subBranch.ParentCommitId = firstCommit.FirstParentId;
 			}
 		}
@@ -63,9 +62,6 @@ namespace GitMind.GitModel.Private
 						? branch.Commits.Last().Id
 						: branch.ParentCommitId;
 
-					branch.ChildBranchNames = groupByBranch
-						.SelectMany(b => b.ChildBranchNames).Distinct().ToList();
-
 					branch.Repository.Branches.Add(branch);
 				}
 			}
@@ -96,7 +92,6 @@ namespace GitMind.GitModel.Private
 				Name = subBranch.Name,
 				IsMultiBranch = subBranch.IsMultiBranch,
 				IsActive = subBranch.IsActive,
-				IsAnonymous = subBranch.IsAnonymous,
 				ParentCommitId = subBranch.ParentCommitId
 			};
 		}
@@ -111,6 +106,12 @@ namespace GitMind.GitModel.Private
 					&& branch.ParentCommit.BranchId != null)
 				{
 					branch.ParentBranchId = branch.ParentCommit.BranchId;
+
+					if (branch.ParentBranch.IsMultiBranch 
+						&& branch.ParentCommitId == branch.ParentBranch.LatestCommitId)
+					{
+						branch.ParentBranch.ChildBranchNames.Add(branch.Name);
+					}
 				}
 				else
 				{
