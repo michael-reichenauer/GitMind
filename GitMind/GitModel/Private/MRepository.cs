@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GitMind.Utils;
 using ProtoBuf;
 
 
@@ -11,7 +10,7 @@ namespace GitMind.GitModel.Private
 	public class MRepository
 	{
 		public static string CurrentVersion = "6";
-	
+
 		[ProtoMember(1)]
 		public string Version { get; set; } = CurrentVersion;
 
@@ -65,10 +64,10 @@ namespace GitMind.GitModel.Private
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
 
-	
+
 		public void CompleteDeserialization()
 		{
-			Commits.ForEach(c => c.Value.Repository = this );
+			Commits.ForEach(c => c.Value.Repository = this);
 			SubBranches.ForEach(b => b.Value.Repository = this);
 			Branches.ForEach(b => b.Value.Repository = this);
 		}

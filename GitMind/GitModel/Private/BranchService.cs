@@ -23,23 +23,18 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public IReadOnlyList<MSubBranch> AddActiveBranches(
-			IReadOnlyList<GitBranch> gitBranches, MRepository repository)
+		public void AddActiveBranches(IReadOnlyList<GitBranch> gitBranches, MRepository repository)
 		{
-			return gitBranches.Select(gitBranch =>
+			foreach (GitBranch gitBranch in gitBranches)
 			{
 				MSubBranch subBranch = ToBranch(gitBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
-				return subBranch;
-			})
-			.ToList();
+			}
 		}
 
 
-		public IReadOnlyList<MSubBranch> AddInactiveBranches(MRepository repository)
+		public void AddInactiveBranches(MRepository repository)
 		{
-			List<MSubBranch> branches = new List<MSubBranch>();
-
 			// Commits which has no child, which has this commit as a first parent, i.e. it is the 
 			// top of a branch and there is no existing branch at this commit
 			IEnumerable<MCommit> topCommits = repository.Commits
@@ -67,17 +62,12 @@ namespace GitMind.GitModel.Private
 				subBranch.Name = branchName;
 
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
-				branches.Add(subBranch);
 			}
-
-			return branches;
 		}
 
 
-		public IReadOnlyList<MSubBranch> AddMissingInactiveBranches(MRepository repository)
+		public void AddMissingInactiveBranches(MRepository repository)
 		{
-			List<MSubBranch> branches = new List<MSubBranch>();
-
 			bool isFound;
 			do
 			{
@@ -97,23 +87,17 @@ namespace GitMind.GitModel.Private
 						};
 
 						repository.SubBranches[subBranch.SubBranchId] = subBranch;
-						branches.Add(subBranch);
-
 						commit.Value.SubBranchId = subBranch.SubBranchId;
 
 						SetSubBranchCommits(subBranch);
 					}
 				}
 			} while (isFound);
-
-			return branches;
 		}
 
 
-		public IReadOnlyList<MSubBranch> AddMultiBranches(MRepository repository)
+		public void AddMultiBranches(MRepository repository)
 		{
-			List<MSubBranch> multiBranches = new List<MSubBranch>();
-
 			bool isFound;
 			do
 			{
@@ -153,7 +137,6 @@ namespace GitMind.GitModel.Private
 						};
 
 						repository.SubBranches[subBranch.SubBranchId] = subBranch;
-						multiBranches.Add(subBranch);
 
 						commit.Value.BranchName = branchName;
 						commit.Value.SubBranchId = subBranch.SubBranchId;
@@ -163,8 +146,6 @@ namespace GitMind.GitModel.Private
 				}
 
 			} while (isFound);
-
-			return multiBranches;
 		}
 
 

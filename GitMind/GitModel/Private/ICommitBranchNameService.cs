@@ -8,9 +8,9 @@ namespace GitMind.GitModel.Private
 	{
 		string GetBranchName(MCommit commit);
 
-		void SetMasterBranchCommits(IReadOnlyList<MSubBranch> branches, MRepository repository);
+		void SetMasterBranchCommits(MRepository repository);
 
-		void SetBranchTipCommitsNames(IReadOnlyList<MSubBranch> branches, MRepository repository);
+		void SetBranchTipCommitsNames(MRepository repository);
 
 		void SetSpecifiedCommitBranchNames(
 			IReadOnlyList<GitSpecifiedNames> specifiedNames, MRepository repository);

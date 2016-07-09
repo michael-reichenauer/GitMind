@@ -24,17 +24,19 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void SetMasterBranchCommits(IReadOnlyList<MSubBranch> branches, MRepository repository)
+		public void SetMasterBranchCommits(MRepository repository)
 		{
 			// Local master
-			MSubBranch master = branches.FirstOrDefault(b => b.Name == "master" && !b.IsRemote);
+			MSubBranch master = repository.SubBranches
+				.FirstOrDefault(b => b.Value.Name == "master" && !b.Value.IsRemote).Value;
 			if (master != null)
 			{
 				SetBranchNameWithPriority(repository, master.LatestCommitId, master);
 			}
 
 			// Remote master
-			master = branches.FirstOrDefault(b => b.Name == "master" && b.IsRemote);
+			master = repository.SubBranches
+				.FirstOrDefault(b => b.Value.Name == "master" && b.Value.IsRemote).Value;
 			if (master != null)
 			{
 				SetBranchNameWithPriority(repository, master.LatestCommitId, master);
@@ -78,9 +80,10 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void SetBranchTipCommitsNames(IReadOnlyList<MSubBranch> branches, MRepository repository)
+		public void SetBranchTipCommitsNames(MRepository repository)
 		{
-			IEnumerable<MSubBranch> lBranches = branches.Where(b => !b.LatestCommit.HasBranchName);
+			IEnumerable<MSubBranch> lBranches = repository.SubBranches
+				.Where(b => !b.Value.LatestCommit.HasBranchName).Select(b => b.Value);
 
 			foreach (MSubBranch branch in lBranches)
 			{
