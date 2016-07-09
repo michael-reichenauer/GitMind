@@ -29,7 +29,7 @@ namespace GitMind.GitModel.Private
 
 		private static IEnumerable<MSubBranch> GetActiveSubBranches(MRepository repository)
 		{
-			return repository.SubBranches.Where(b => b.IsActive);
+			return repository.SubBranches.Where(b => b.Value.IsActive).Select(b => b.Value);
 		}
 
 
@@ -39,17 +39,17 @@ namespace GitMind.GitModel.Private
 			return activeSubBranches
 				.GroupBy(b => b.BranchId)
 				.Where(g => g.Count() == 2 && g.Any(b => b.IsLocal) && g.Any(b => b.IsRemote))
-				.Select(g => repository.Branches.First(b => b.Id == g.Key));
+				.Select(g => repository.Branches.First(b => b.Value.Id == g.Key).Value);
 		}
 
 
 		private static void CountLocalAndRemoteCommits(MRepository repository)
 		{
-			foreach (MBranch branch in repository.Branches)
+			foreach (var branch in repository.Branches)
 			{
 				int localAheadCount = 0;
 				int remoteAheadCount = 0;
-				foreach (MCommit commit in branch.Commits)
+				foreach (MCommit commit in branch.Value.Commits)
 				{
 					if (commit.IsLocalAhead)
 					{
@@ -61,23 +61,23 @@ namespace GitMind.GitModel.Private
 					}
 				}
 
-				branch.LocalAheadCount = localAheadCount;
-				branch.RemoteAheadCount = remoteAheadCount;
+				branch.Value.LocalAheadCount = localAheadCount;
+				branch.Value.RemoteAheadCount = remoteAheadCount;
 			}
 		}
 
 
 		private static void MarkRemoteCommits(MRepository repository)
 		{
-			var remoteSubBranches = repository.SubBranches.Where(b => b.IsActive && b.IsRemote);
-			remoteSubBranches.ForEach(branch => MarkIsRemoteAhead(branch.LatestCommit));
+			var remoteSubBranches = repository.SubBranches.Where(b => b.Value.IsActive && b.Value.IsRemote);
+			remoteSubBranches.ForEach(branch => MarkIsRemoteAhead(branch.Value.LatestCommit));
 		}
 
 
 		private static void MarkLocalCommits(MRepository repository)
 		{
-			var localSubBranches = repository.SubBranches.Where(b => b.IsActive && b.IsLocal);
-			localSubBranches.ForEach(branch => MarkIsLocalAhead(branch.LatestCommit));
+			var localSubBranches = repository.SubBranches.Where(b => b.Value.IsActive && b.Value.IsLocal);
+			localSubBranches.ForEach(branch => MarkIsLocalAhead(branch.Value.LatestCommit));
 		}
 
 

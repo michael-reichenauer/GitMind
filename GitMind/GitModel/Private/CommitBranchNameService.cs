@@ -15,7 +15,7 @@ namespace GitMind.GitModel.Private
 			foreach (GitSpecifiedNames specifiedName in specifiedNames)
 			{
 				MCommit commit;
-				if (repository.TryGetCommit(specifiedName.CommitId, out commit))
+				if (repository.Commits.TryGetValue(specifiedName.CommitId, out commit))
 				{
 					commit.SpecifiedBranchName = specifiedName.BranchName;
 					commit.BranchName = specifiedName.BranchName;
@@ -44,9 +44,9 @@ namespace GitMind.GitModel.Private
 
 		public void SetNeighborCommitNames(MRepository repository)
 		{
-			SetEmptyParentCommits(repository.CommitList);
+			SetEmptyParentCommits(repository);
 
-			SetBranchCommitsOfParents(repository.CommitList);
+			SetBranchCommitsOfParents(repository);
 		}
 
 
@@ -102,7 +102,7 @@ namespace GitMind.GitModel.Private
 
 			while (commitId != null)
 			{
-				MCommit commit = repository.Commits(commitId);
+				MCommit commit = repository.Commits[commitId];
 
 				if (commit.BranchName == subBranch.Name && commit.SubBranchId != null)
 				{
@@ -129,14 +129,16 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void SetEmptyParentCommits(IReadOnlyList<MCommit> commits)
+		private void SetEmptyParentCommits(MRepository repository)
 		{
 			// All commits, which do have a name, but first parent commit does not have a name
 			IEnumerable<MCommit> commitsWithBranchName =
-				commits.Where(commit =>
-					commit.HasBranchName
-					&& commit.HasFirstParent
-					&& !commit.FirstParent.HasBranchName);
+				repository.Commits
+				.Where(commit =>
+					commit.Value.HasBranchName
+					&& commit.Value.HasFirstParent
+					&& !commit.Value.FirstParent.HasBranchName)
+				.Select(c => c.Value);
 
 			foreach (MCommit xCommit in commitsWithBranchName)
 			{
@@ -178,23 +180,23 @@ namespace GitMind.GitModel.Private
 			}
 		}
 
-		private static void SetBranchCommitsOfParents(IReadOnlyList<MCommit> commits)
+		private static void SetBranchCommitsOfParents(MRepository repository)
 		{
 			bool found;
 			do
 			{
 				found = false;
-				foreach (MCommit commit in commits)
+				foreach (var commit in repository.Commits)
 				{
-					if (!commit.HasBranchName && commit.FirstChildren.Any())
+					if (!commit.Value.HasBranchName && commit.Value.FirstChildren.Any())
 					{
-						MCommit firstChild = commit.FirstChildren.ElementAt(0);
+						MCommit firstChild = commit.Value.FirstChildren.ElementAt(0);
 						if (firstChild.HasBranchName)
 						{
-							if (commit.FirstChildren.All(c => c.BranchName == firstChild.BranchName))
+							if (commit.Value.FirstChildren.All(c => c.BranchName == firstChild.BranchName))
 							{
-								commit.BranchName = firstChild.BranchName;
-								commit.SubBranchId = firstChild.SubBranchId;
+								commit.Value.BranchName = firstChild.BranchName;
+								commit.Value.SubBranchId = firstChild.SubBranchId;
 								found = true;
 							}
 						}

@@ -49,11 +49,9 @@ namespace GitMind.GitModel.Private
 				Log.Debug("Caching repository ...");
 				string cachePath = GetCachePath(null);
 				Timing t = new Timing();
-				repository.PrepareForSerialization();
-				t.Log("PrepareForSerialization");
 
 				Serialize(cachePath, repository);
-				t.Log($"Wrote repository with {repository.CommitList.Count} commits");
+				t.Log($"Wrote repository with {repository.Commits.Count} commits");
 			}));
 		}
 
@@ -87,7 +85,7 @@ namespace GitMind.GitModel.Private
 					Log.Debug("No cached repository");
 					return null;
 				}
-				t.Log($"Read repository for {repository.CommitList.Count} commits");
+				t.Log($"Read repository for {repository.Commits.Count} commits");
 
 				if (repository.Version != MRepository.CurrentVersion)
 				{

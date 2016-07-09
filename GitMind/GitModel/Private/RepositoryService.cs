@@ -143,7 +143,7 @@ namespace GitMind.GitModel.Private
 			//repository.CommitProvider = commitId => commitsService.GetCommit(commitId, repository, gitRepo);
 
 			commitsService.AddBranchCommits(gitRepo, repository);
-			t.Log($"Added {repository.CommitList.Count} commits referenced by active branches ");
+			t.Log($"Added {repository.Commits.Count} commits referenced by active branches ");
 
 			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
 			IReadOnlyList<MSubBranch> activeBranches = branchService.AddActiveBranches(gitBranches, repository);
@@ -178,8 +178,8 @@ namespace GitMind.GitModel.Private
 			IReadOnlyList<MSubBranch> multiBranches = branchService.AddMultiBranches(repository);
 			t.Log($"Added {multiBranches.Count(B => B.IsMultiBranch)} multi branches");
 
-			Log.Debug($"Unset commits after multi {repository.CommitList.Count(c => !c.HasBranchName)}");
-			Log.Debug($"Unset commits id after multi {repository.CommitList.Count(c => c.SubBranchId == null)}");
+			Log.Debug($"Unset commits after multi {repository.Commits.Count(c => !c.Value.HasBranchName)}");
+			Log.Debug($"Unset commits id after multi {repository.Commits.Count(c => c.Value.SubBranchId == null)}");
 
 			subBranches = subBranches.Concat(multiBranches).ToList();
 			t.Log($"Total {subBranches.Count} sub branches");
@@ -195,11 +195,11 @@ namespace GitMind.GitModel.Private
 			t.Log("Added tags");
 
 			repository.CurrentBranchId = repository.Branches
-				.First(b => b.IsActive && b.Name == gitRepo.CurrentBranch.Name).Id;
-			repository.CurrentCommitId = repository.Commits(gitRepo.CurrentCommit.Id).Id;
+				.First(b => b.Value.IsActive && b.Value.Name == gitRepo.CurrentBranch.Name).Value.Id;
+			repository.CurrentCommitId = repository.Commits[gitRepo.CurrentCommit.Id].Id;
 
-			repository.CommitList.Where(c => string.IsNullOrEmpty(c.BranchName))
-				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.FirstParentId}"));
+			repository.Commits.Where(c => string.IsNullOrEmpty(c.Value.BranchName))
+				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.Value.FirstParentId}"));
 
 			t.Log("Total time");
 		}
@@ -222,11 +222,11 @@ namespace GitMind.GitModel.Private
 				new Lazy<Commit>(() => currentCommit),
 				mRepository.CommitsFiles);
 
-			foreach (MCommit mCommit in mRepository.CommitList)
+			foreach (var mCommit in mRepository.Commits)
 			{
-				Commit commit = Converter.ToCommit(repository, mCommit);
+				Commit commit = Converter.ToCommit(repository, mCommit.Value);
 				rCommits.Add(commit);
-				if (mCommit == mRepository.CurrentCommit)
+				if (mCommit.Value == mRepository.CurrentCommit)
 				{
 					currentCommit = commit;
 				}
@@ -234,12 +234,12 @@ namespace GitMind.GitModel.Private
 
 			t.Log("Commits: " + rCommits.Count);
 
-			foreach (MBranch mBranch in mRepository.Branches)
+			foreach (var mBranch in mRepository.Branches)
 			{
-				Branch branch = Converter.ToBranch(repository, mBranch);
+				Branch branch = Converter.ToBranch(repository, mBranch.Value);
 				rBranches.Add(branch);
 
-				if (mBranch == mRepository.CurrentBranch)
+				if (mBranch.Value == mRepository.CurrentBranch)
 				{
 					currentBranch = branch;
 				}

@@ -27,7 +27,6 @@ namespace GitMind.Git
 
 		IReadOnlyList<GitBranch> GetAllBranches();
 
-		IEnumerable<GitCommit> GetAllCommts();
 		IReadOnlyList<GitTag> GetAllTags();
 	}
 }

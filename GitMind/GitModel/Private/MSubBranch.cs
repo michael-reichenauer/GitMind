@@ -31,8 +31,8 @@ namespace GitMind.GitModel.Private
 
 		public MRepository Repository { get; set; }
 		
-		public MCommit LatestCommit => Repository.Commits(LatestCommitId);
-		public MCommit ParentCommit => Repository.Commits(ParentCommitId);
+		public MCommit LatestCommit => Repository.Commits[LatestCommitId];
+		public MCommit ParentCommit => Repository.Commits[ParentCommitId];
 		public bool IsLocal => !IsRemote;
 
 		public override string ToString() => $"{Name} ({IsRemote})";

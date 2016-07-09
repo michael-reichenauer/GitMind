@@ -39,11 +39,11 @@ namespace GitMind.GitModel.Private
 
 		public MRepository Repository { get; set; }
 
-		public IEnumerable<MCommit> Commits => CommitIds.Select(id => Repository.Commits(id));
+		public IEnumerable<MCommit> Commits => CommitIds.Select(id => Repository.Commits[id]);
 
-		public MCommit FirstCommit => Repository.Commits(FirstCommitId);
-		public MCommit LatestCommit => Repository.Commits(LatestCommitId);
-		public MCommit ParentCommit => Repository.Commits(ParentCommitId);
+		public MCommit FirstCommit => Repository.Commits[FirstCommitId];
+		public MCommit LatestCommit => Repository.Commits[LatestCommitId];
+		public MCommit ParentCommit => Repository.Commits[ParentCommitId];
 		public MBranch ParentBranch => Repository.Branches[ParentBranchId];
 
 		public override string ToString() => $"{Name}";

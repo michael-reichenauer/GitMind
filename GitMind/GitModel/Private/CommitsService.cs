@@ -23,7 +23,7 @@ namespace GitMind.GitModel.Private
 				string commitId = commitIds.Pop();
 
 				MCommit commit;
-				if (!repository.TryGetCommit(commitId, out commit))
+				if (!repository.Commits.TryGetValue(commitId, out commit))
 				{
 					commit = AddCommit(commitId, gitRepo, repository);
 
@@ -61,7 +61,7 @@ namespace GitMind.GitModel.Private
 
 			CopyToCommit(gitCommit, commit);
 			SetChildOfParents(commit);
-			repository.AddCommit(commit);
+			repository.Commits[commitId] = commit;
 			return commit;
 		}
 

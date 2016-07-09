@@ -13,7 +13,7 @@ namespace GitMind.GitModel.Private
 
 			GroupSubBranches(subBranches);
 
-			SetBranchHierarchy(repository.Branches);
+			SetBranchHierarchy(repository);
 		}
 
 
@@ -62,7 +62,7 @@ namespace GitMind.GitModel.Private
 						? branch.Commits.Last().Id
 						: branch.ParentCommitId;
 
-					branch.Repository.Branches.Add(branch);
+					branch.Repository.Branches[branch.Id] = branch;
 				}
 			}
 		}
@@ -97,20 +97,20 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static void SetBranchHierarchy(IReadOnlyList<MBranch> branches)
+		private static void SetBranchHierarchy(MRepository repository)
 		{
-			foreach (MBranch branch in branches)
+			foreach (var branch in repository.Branches)
 			{
-				if (branch.ParentCommitId != null
-					&& branch.ParentCommit.BranchId != branch.Id
-					&& branch.ParentCommit.BranchId != null)
+				if (branch.Value.ParentCommitId != null
+					&& branch.Value.ParentCommit.BranchId != branch.Value.Id
+					&& branch.Value.ParentCommit.BranchId != null)
 				{
-					branch.ParentBranchId = branch.ParentCommit.BranchId;
+					branch.Value.ParentBranchId = branch.Value.ParentCommit.BranchId;
 
-					if (branch.ParentBranch.IsMultiBranch 
-						&& branch.ParentCommitId == branch.ParentBranch.LatestCommitId)
+					if (branch.Value.ParentBranch.IsMultiBranch 
+						&& branch.Value.ParentCommitId == branch.Value.ParentBranch.LatestCommitId)
 					{
-						branch.ParentBranch.ChildBranchNames.Add(branch.Name);
+						branch.Value.ParentBranch.ChildBranchNames.Add(branch.Value.Name);
 					}
 				}
 				else

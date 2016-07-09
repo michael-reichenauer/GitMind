@@ -46,8 +46,6 @@ namespace GitMind.Git.Private
 
 		public GitBranch CurrentBranch { get; }
 
-		public IEnumerable<GitCommit> GetAllCommts() => commits.Values;
-
 		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNameses() => specifiedNames;
 
 
