@@ -133,6 +133,27 @@ namespace GitMind.GitModel.Private
 			commitsService.AddBranchCommits(gitRepo, repository);
 			t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
+			Log.Debug($"Unset commits after multi {repository.Commits.Count(c => !c.Value.HasBranchName)}");
+			Log.Debug($"Unset commits id after multi {repository.Commits.Count(c => c.Value.SubBranchId == null)}");
+
+		
+
+			UpdateX(repository, gitRepo);
+			t.Log("UpdateX time");
+
+			repository.Commits.ForEach(c => c.Value.SubBranchId = null);
+			repository.SubBranches.Clear();
+
+			UpdateX(repository, gitRepo);
+			t.Log("UpdateX2 time");
+
+			t.Log("Total time");
+		}
+
+
+		private void UpdateX(MRepository repository, IGitRepo gitRepo)
+		{
+			Timing t = new Timing();
 			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
 			branchService.AddActiveBranches(gitBranches, repository);
 			t.Log($"Added {repository.SubBranches.Count} active branches");
@@ -141,22 +162,22 @@ namespace GitMind.GitModel.Private
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			t.Log($"Set {gitSpecifiedNames.Count} specified branch names");
 
+			commitBranchNameService.SetMasterBranchCommits(repository);
+			t.Log("Set master branch names");
+
 			branchService.AddInactiveBranches(repository);
 			t.Log($"Added inactive branches, total: {repository.SubBranches.Count}");
-			
-			commitBranchNameService.SetMasterBranchCommits(repository);
-			t.Log("Set master branch names");		
 
 			commitBranchNameService.SetBranchTipCommitsNames(repository);
-			t.Log("Set branch tip commit branch names");	
+			t.Log("Set branch tip commit branch names");
 
 			commitBranchNameService.SetNeighborCommitNames(repository);
 			t.Log("Set neighbor commit names");
 
-		
+
 			branchService.AddMissingInactiveBranches(repository);
 			t.Log($"Added missing inactive branches, total: {repository.SubBranches.Count}");
-			
+
 			branchService.AddMultiBranches(repository);
 			t.Log($"Added multi branches, total: {repository.SubBranches.Count}");
 
@@ -179,10 +200,7 @@ namespace GitMind.GitModel.Private
 
 			repository.Commits.Where(c => string.IsNullOrEmpty(c.Value.BranchName))
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.Value.FirstParentId}"));
-
-			t.Log("Total time");
 		}
-
 
 
 		private static Repository ToRepository(MRepository mRepository)

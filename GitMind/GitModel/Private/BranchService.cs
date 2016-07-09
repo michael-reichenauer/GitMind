@@ -37,10 +37,13 @@ namespace GitMind.GitModel.Private
 		{
 			// Commits which has no child, which has this commit as a first parent, i.e. it is the 
 			// top of a branch and there is no existing branch at this commit
+			List<string> activeBranches = repository.SubBranches
+				.Where(b => b.Value.IsActive).Select(b => b.Value.LatestCommitId)
+				.ToList();
 			IEnumerable<MCommit> topCommits = repository.Commits
 				.Where(commit =>
-					!commit.Value.FirstChildren.Any()
-					&& !repository.SubBranches.Any(b => b.Value.LatestCommitId == commit.Value.Id))
+					!commit.Value.FirstChildIds.Any()
+					&& !activeBranches.Contains(commit.Value.Id))
 				.Select(c => c.Value);
 
 			foreach (MCommit commit in topCommits)
@@ -172,7 +175,6 @@ namespace GitMind.GitModel.Private
 				SubBranchId = Guid.NewGuid().ToString(),
 				Name = gitBranch.Name,
 				LatestCommitId = gitBranch.LatestCommitId,
-				IsMultiBranch = false,
 				IsActive = true,
 				IsRemote = gitBranch.IsRemote
 			};

@@ -31,7 +31,7 @@ namespace GitMind.GitModel.Private
 				.FirstOrDefault(b => b.Value.Name == "master" && !b.Value.IsRemote).Value;
 			if (master != null)
 			{
-				SetBranchNameWithPriority(repository, master.LatestCommitId, master);
+				SetMasterBranchCommits(repository, master);
 			}
 
 			// Remote master
@@ -39,7 +39,7 @@ namespace GitMind.GitModel.Private
 				.FirstOrDefault(b => b.Value.Name == "master" && b.Value.IsRemote).Value;
 			if (master != null)
 			{
-				SetBranchNameWithPriority(repository, master.LatestCommitId, master);
+				SetMasterBranchCommits(repository,  master);
 			}
 		}
 
@@ -51,14 +51,6 @@ namespace GitMind.GitModel.Private
 			SetBranchCommitsOfParents(repository);
 		}
 
-
-		private static bool IsPullMergeCommit(MCommit commit)
-		{
-			return
-				commit.HasSecondParent
-				&& commit.BranchName != null
-				&& commit.BranchName == commit.SecondParent.BranchName;
-		}
 
 
 		public string GetBranchName(MCommit commit)
@@ -98,18 +90,21 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static void SetBranchNameWithPriority(
-			MRepository repository, string commitId, MSubBranch subBranch)
+		private static void SetMasterBranchCommits(MRepository repository, MSubBranch subBranch)
 		{
-			List<string> pullMergeTopCommits = new List<string>();
-
+			string commitId = subBranch.LatestCommitId;
 			while (commitId != null)
 			{
 				MCommit commit = repository.Commits[commitId];
 
-				if (commit.BranchName == subBranch.Name && commit.SubBranchId != null)
+				if (commit.BranchName == subBranch.Name 
+					&& commit.SubBranchId != null)
 				{
-					break;
+					// Do not break if commit is the tip
+					if (!(commit.Id == subBranch.LatestCommitId && commit.SubBranchId == subBranch.SubBranchId))
+					{
+						break;
+					}
 				}
 
 				if (commit.HasBranchName && commit.BranchName != subBranch.Name)
@@ -118,17 +113,10 @@ namespace GitMind.GitModel.Private
 					break;
 				}
 
-				if (IsPullMergeCommit(commit))
-				{
-					pullMergeTopCommits.Add(commit.FirstParentId);
-				}
-
 				commit.BranchName = subBranch.Name;
 				commit.SubBranchId = subBranch.SubBranchId;
 				commitId = commit.FirstParentId;
 			}
-
-			pullMergeTopCommits.ForEach(id => SetBranchNameWithPriority(repository, id, subBranch));
 		}
 
 
