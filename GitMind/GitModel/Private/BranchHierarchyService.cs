@@ -9,15 +9,11 @@ namespace GitMind.GitModel.Private
 	{
 		public void SetBranchHierarchy(MRepository repository)
 		{
-			Timing t = new Timing();
 			SetParentCommitId(repository);
-			t.Log("SetParentCommitId");
 
 			GroupSubBranches(repository);
-			t.Log("GroupSubBranches");
 
 			SetBranchHierarchyImpl(repository);
-			t.Log("SetBranchHierarchyImpl");
 		}
 
 
@@ -79,17 +75,10 @@ namespace GitMind.GitModel.Private
 						branch.Id = branchId;
 						branch.Repository.Branches[branch.Id] = branch;
 					}
-					
-					if (subBranch.ParentCommitId == null)
-					{
-						
-					}
 
 					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);		
 				}
 			}
-		
-			t.Log("Grouped branches");
 
 			foreach (var commit in repository.Commits)
 			{
@@ -101,8 +90,6 @@ namespace GitMind.GitModel.Private
 					repository.Branches[branchId].TempCommitIds.Add(commit.Value.Id);
 				}
 			}
-
-			t.Log("Added new commits");
 
 			foreach (var branch in repository.Branches.Values)
 			{
@@ -118,26 +105,7 @@ namespace GitMind.GitModel.Private
 					branch.CommitIds = commits.Select(c => c.Id).ToList();
 				}		
 			}
-
-			t.Log("Sorted and found first and latest commits");
 		}
-
-
-		//private static IEnumerable<string> GetCommitIdsInBranch(
-		//	IGrouping<string, KeyValuePair<string, MSubBranch>> groupByBranch)
-		//{
-		//	return groupByBranch
-		//		.SelectMany(sb =>
-		//			new[] { sb.Value.LatestCommit }
-		//				.Where(c => c.SubBranchId == sb.Value.SubBranchId && c.Id != sb.Value.ParentCommitId)
-		//				.Concat(
-		//					sb.Value.LatestCommit
-		//						.FirstAncestors()
-		//						.TakeWhile(c => c.SubBranchId == sb.Value.SubBranchId && c.Id != sb.Value.ParentCommitId)))
-		//		.Distinct()
-		//		.OrderByDescending(c => c.CommitDate)
-		//		.Select(c => c.Id);
-		//}
 
 
 		private static MBranch ToBranch(MSubBranch subBranch)

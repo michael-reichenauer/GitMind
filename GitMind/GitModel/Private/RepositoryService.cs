@@ -172,9 +172,7 @@ namespace GitMind.GitModel.Private
 			t.Log($"Added multi branches, total: {repository.SubBranches.Count}");
 
 			Log.Debug($"Unset commits after multi {repository.Commits.Count(c => !c.Value.HasBranchName)}");
-			Log.Debug($"Unset commits id after multi {repository.Commits.Count(c => c.Value.SubBranchId == null)}");
-
-
+	
 			branchHierarchyService.SetBranchHierarchy(repository);
 			t.Log($"SetBranchHierarchy with {repository.Branches.Count} branches");
 
