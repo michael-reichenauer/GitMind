@@ -74,14 +74,16 @@ namespace GitMind.GitModel.Private
 
 		public void SetBranchTipCommitsNames(MRepository repository)
 		{
-			IEnumerable<MSubBranch> lBranches = repository.SubBranches
-				.Where(b => !b.Value.LatestCommit.HasBranchName).Select(b => b.Value);
+			IEnumerable<MSubBranch> branches = repository.SubBranches.Values
+				.Where(b => 
+					b.LatestCommit.BranchId == null
+					&& b.LatestCommit.SubBranchId == null);
 
-			foreach (MSubBranch branch in lBranches)
+			foreach (MSubBranch branch in branches)
 			{
 				MCommit commit = branch.LatestCommit;
 
-				if (!commit.FirstChildren.Any())
+				if (!commit.HasFirstChild)
 				{
 					commit.BranchName = branch.Name;
 					commit.SubBranchId = branch.SubBranchId;
@@ -96,9 +98,12 @@ namespace GitMind.GitModel.Private
 			while (commitId != null)
 			{
 				MCommit commit = repository.Commits[commitId];
+				//if (commit.BranchId != null)
+				//{
+				//	break;
+				//}
 
-				if (commit.BranchName == subBranch.Name 
-					&& commit.SubBranchId != null)
+				if (commit.BranchName == subBranch.Name && commit.SubBranchId != null)
 				{
 					// Do not break if commit is the tip
 					if (!(commit.Id == subBranch.LatestCommitId && commit.SubBranchId == subBranch.SubBranchId))
@@ -123,22 +128,22 @@ namespace GitMind.GitModel.Private
 		private void SetEmptyParentCommits(MRepository repository)
 		{
 			// All commits, which do have a name, but first parent commit does not have a name
-			IEnumerable<MCommit> commitsWithBranchName =
-				repository.Commits
+			IEnumerable<MCommit> commitsWithBranchName = repository.Commits.Values
 				.Where(commit =>
-					commit.Value.HasBranchName
-					&& commit.Value.HasFirstParent
-					&& !commit.Value.FirstParent.HasBranchName)
-				.Select(c => c.Value);
+					commit.BranchId == null
+					&& commit.SubBranchId != null
+					&& commit.HasBranchName
+					&& commit.HasFirstParent
+					&& !commit.FirstParent.HasBranchName);
 
-			foreach (MCommit xCommit in commitsWithBranchName)
+			foreach (MCommit commit in commitsWithBranchName)
 			{
-				string branchName = xCommit.BranchName;
-				string subBranchId = xCommit.SubBranchId;
+				string branchName = commit.BranchName;
+				string subBranchId = commit.SubBranchId;
 
-				MCommit last = xCommit;
+				MCommit last = commit;
 				bool isFound = false;
-				foreach (MCommit current in xCommit.FirstAncestors())
+				foreach (MCommit current in commit.FirstAncestors())
 				{
 					string currentBranchName = GetBranchName(current);
 
@@ -157,7 +162,7 @@ namespace GitMind.GitModel.Private
 
 				if (isFound)
 				{
-					foreach (MCommit current in xCommit.FirstAncestors())
+					foreach (MCommit current in commit.FirstAncestors())
 					{
 						current.BranchName = branchName;
 						current.SubBranchId = subBranchId;
@@ -177,17 +182,17 @@ namespace GitMind.GitModel.Private
 			do
 			{
 				found = false;
-				foreach (var commit in repository.Commits)
+				foreach (var commit in repository.Commits.Values)
 				{
-					if (!commit.Value.HasBranchName && commit.Value.FirstChildren.Any())
+					if (commit.BranchId == null && !commit.HasBranchName && commit.HasFirstChild)
 					{
-						MCommit firstChild = commit.Value.FirstChildren.ElementAt(0);
+						MCommit firstChild = commit.FirstChildren.ElementAt(0);
 						if (firstChild.HasBranchName)
 						{
-							if (commit.Value.FirstChildren.All(c => c.BranchName == firstChild.BranchName))
+							if (commit.FirstChildren.All(c => c.BranchName == firstChild.BranchName))
 							{
-								commit.Value.BranchName = firstChild.BranchName;
-								commit.Value.SubBranchId = firstChild.SubBranchId;
+								commit.BranchName = firstChild.BranchName;
+								commit.SubBranchId = firstChild.SubBranchId;
 								found = true;
 							}
 						}

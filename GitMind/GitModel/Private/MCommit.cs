@@ -49,12 +49,13 @@ namespace GitMind.GitModel.Private
 		public bool HasBranchName => !string.IsNullOrEmpty(BranchName);
 		public bool HasFirstParent => ParentIds.Count > 0;
 		public bool HasSecondParent => ParentIds.Count > 1;
-		public bool HasSingleFirstChild => Repository.FirstChildIds(Id).Count == 1;
+		public bool HasFirstChild => FirstChildIds.Any();
+		public bool HasSingleFirstChild => FirstChildIds.Count == 1;
 
 		public MRepository Repository { get; set; }
 		public IEnumerable<MCommit> Parents => ParentIds.Select(id => Repository.Commits[id]);
 		public IEnumerable<MCommit> Children => Repository.ChildIds(Id).Select(id => Repository.Commits[id]);
-		public IEnumerable<string> FirstChildIds => Repository.FirstChildIds(Id);
+		private IList<string> FirstChildIds => Repository.FirstChildIds(Id);
 		public IEnumerable<MCommit> FirstChildren => Repository.FirstChildIds(Id).Select(id => Repository.Commits[id]);
 		public MBranch Branch => Repository.Branches[BranchId];
 
@@ -66,6 +67,8 @@ namespace GitMind.GitModel.Private
 		public bool IsLocalAhead => Branch.IsLocalAndRemote && IsLocalAheadMarker && !IsSynced;
 		public bool IsRemoteAhead => Branch.IsLocalAndRemote && IsRemoteAheadMarker && !IsSynced;
 		public bool IsSynced => IsLocalAheadMarker && IsRemoteAheadMarker;
+		
+
 
 		public IEnumerable<MCommit> FirstAncestors()
 		{

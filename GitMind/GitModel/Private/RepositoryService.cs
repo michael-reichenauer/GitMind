@@ -133,11 +133,6 @@ namespace GitMind.GitModel.Private
 			commitsService.AddBranchCommits(gitRepo, repository);
 			t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
-			Log.Debug($"Unset commits after multi {repository.Commits.Count(c => !c.Value.HasBranchName)}");
-			Log.Debug($"Unset commits id after multi {repository.Commits.Count(c => c.Value.SubBranchId == null)}");
-
-		
-
 			UpdateX(repository, gitRepo);
 			t.Log("UpdateX time");
 
@@ -154,14 +149,15 @@ namespace GitMind.GitModel.Private
 		private void UpdateX(MRepository repository, IGitRepo gitRepo)
 		{
 			Timing t = new Timing();
-			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
-			branchService.AddActiveBranches(gitBranches, repository);
-			t.Log($"Added {repository.SubBranches.Count} active branches");
 
 			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames = gitRepo.GetSpecifiedNameses();
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			t.Log($"Set {gitSpecifiedNames.Count} specified branch names");
 
+			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
+			branchService.AddActiveBranches(gitBranches, repository);
+			t.Log($"Added {repository.SubBranches.Count} active branches");
+		
 			commitBranchNameService.SetMasterBranchCommits(repository);
 			t.Log("Set master branch names");
 

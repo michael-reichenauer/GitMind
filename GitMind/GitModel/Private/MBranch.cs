@@ -36,10 +36,10 @@ namespace GitMind.GitModel.Private
 		public List<string> CommitIds { get; set; } = new List<string>();
 
 
-
 		public MRepository Repository { get; set; }
 
 		public IEnumerable<MCommit> Commits => CommitIds.Select(id => Repository.Commits[id]);
+
 
 		public MCommit FirstCommit => Repository.Commits[FirstCommitId];
 		public MCommit LatestCommit => Repository.Commits[LatestCommitId];
