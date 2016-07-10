@@ -1,49 +1,51 @@
 using System.Collections.Generic;
 using System.Linq;
-using GitMind.Git;
+
 
 
 namespace GitMind.GitModel.Private
 {
 	internal class CommitsService : ICommitsService
 	{
-		public void AddBranchCommits(IGitRepo gitRepo, MRepository repository)
+		public void AddBranchCommits(LibGit2Sharp.Repository repo, MRepository repository)
 		{
-			IEnumerable<string> rootCommitIds = gitRepo.GetAllBranches().Select(b => b.LatestCommitId);
+			IEnumerable<LibGit2Sharp.Commit> rootCommits = repo.Branches.Select(b => b.Tip);
+			Dictionary<string, object> added = new Dictionary<string, object>();	
+
 			Dictionary<string, string> branchNameByCommitId = new Dictionary<string, string>();
 			Dictionary<string, string> subjectBranchNameByCommitId = new Dictionary<string, string>();
-			Dictionary<string, object> added = new Dictionary<string, object>();
 
-			Stack<string> commitIds = new Stack<string>();
-			rootCommitIds.ForEach(id => commitIds.Push(id));
-			rootCommitIds.ForEach(id => added[id] = null);
+			Stack<LibGit2Sharp.Commit> commits = new Stack<LibGit2Sharp.Commit>();
+			rootCommits.ForEach(c => commits.Push(c));
+			rootCommits.ForEach(c => added[c.Id.Sha] = null);
 
-			while (commitIds.Any())
+			while (commits.Any())
 			{
-				string commitId = commitIds.Pop();
+				LibGit2Sharp.Commit gitCommit = commits.Pop();
 
 				MCommit commit;
+				string commitId = gitCommit.Id.Sha;
 				if (!repository.Commits.TryGetValue(commitId, out commit))
 				{
-					commit = AddCommit(commitId, gitRepo, repository);
+					commit = AddCommit(commitId, gitCommit, repository);
 
 					if (IsMergeCommit(commit))
 					{
 						TrySetBranchNameFromSubject(commit, branchNameByCommitId, subjectBranchNameByCommitId);
 					}
 
-					AddParents(commit, commitIds, added);
+					AddParents(gitCommit.Parents, commits, added);
 				}
 
 				string branchName;
-				if (branchNameByCommitId.TryGetValue(commitId, out branchName))
+				if (branchNameByCommitId.TryGetValue(commit.Id, out branchName))
 				{
 					// Branch name set by a child commit (pull merge commit)
 					commit.BranchName = branchName;
 				}
 
 				string subjectBranchName;
-				if (subjectBranchNameByCommitId.TryGetValue(commitId, out subjectBranchName))
+				if (subjectBranchNameByCommitId.TryGetValue(commit.Id, out subjectBranchName))
 				{
 					// Subject branch name set by a child commit (merge commit)
 					commit.FromSubjectBranchName = subjectBranchName;
@@ -52,10 +54,8 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private MCommit AddCommit(string commitId, IGitRepo gitRepo, MRepository repository)
+		private MCommit AddCommit(string commitId, LibGit2Sharp.Commit gitCommit, MRepository repository)
 		{
-			GitCommit gitCommit = gitRepo.GetCommit(commitId);
-
 			MCommit commit = new MCommit();
 			commit.Repository = repository;
 
@@ -66,21 +66,24 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static void AddParents(MCommit commit, Stack<string> commitIds, Dictionary<string, object> added)
+		private static void AddParents(
+			IEnumerable<LibGit2Sharp.Commit> parents,
+			Stack<LibGit2Sharp.Commit> commits,
+			Dictionary<string, object> added)
 		{
-			commit.ParentIds.ForEach(parentId =>
+			parents.ForEach(parent =>
 			{
-				if (!added.ContainsKey(parentId))
+				if (!added.ContainsKey(parent.Id.Sha))
 				{
-					commitIds.Push(parentId);
-					added[parentId] = null;
+					commits.Push(parent);
+					added[parent.Id.Sha] = null;
 				}
 			});
 		}
 
 
 		private static void TrySetBranchNameFromSubject(
-			MCommit commit, 
+			MCommit commit,
 			IDictionary<string, string> branchNameByCommitId,
 			IDictionary<string, string> subjectBranchNameByCommitId)
 		{
@@ -134,18 +137,19 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void CopyToCommit(GitCommit gitCommit, MCommit commit)
+		private void CopyToCommit(LibGit2Sharp.Commit gitCommit, MCommit commit)
 		{
-			string tickets = GetTickets(gitCommit);
+			string subject = gitCommit.MessageShort;
+			string tickets = GetTickets(subject);
 
-			commit.Id = gitCommit.Id;
-			commit.ShortId = gitCommit.ShortId;
-			commit.Subject = GetSubjectWithoutTickets(gitCommit, tickets);
-			commit.Author = gitCommit.Author;
-			commit.AuthorDate = gitCommit.AuthorDate;
-			commit.CommitDate = gitCommit.CommitDate;
+			commit.Id = gitCommit.Id.Sha;
+			commit.ShortId = gitCommit.Id.Sha.Substring(0, 6);
+			commit.Subject = GetSubjectWithoutTickets(subject, tickets);
+			commit.Author = gitCommit.Author.Name;
+			commit.AuthorDate = gitCommit.Author.When.LocalDateTime;
+			commit.CommitDate = gitCommit.Committer.When.LocalDateTime;
 			commit.Tickets = tickets;
-			commit.ParentIds = gitCommit.ParentIds.ToList();
+			commit.ParentIds = gitCommit.Parents.Select(c => c.Id.Sha).ToList();
 		}
 
 
@@ -163,25 +167,25 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static string GetSubjectWithoutTickets(GitCommit commit, string tickets)
+		private static string GetSubjectWithoutTickets(string subject, string tickets)
 		{
-			return commit.Subject.Substring(tickets.Length);
+			return subject.Substring(tickets.Length);
 		}
 
 
-		private string GetTickets(GitCommit commit)
+		private string GetTickets(string subject)
 		{
-			if (commit.Subject.StartsWith("#"))
+			if (subject.StartsWith("#"))
 			{
-				int index = commit.Subject.IndexOf(" ");
+				int index = subject.IndexOf(" ");
 				if (index > 1)
 				{
-					return commit.Subject.Substring(0, index) + " ";
+					return subject.Substring(0, index) + " ";
 				}
 				if (index > 0)
 				{
-					index = commit.Subject.IndexOf(" ", index + 1);
-					return commit.Subject.Substring(0, index) + " ";
+					index = subject.IndexOf(" ", index + 1);
+					return subject.Substring(0, index) + " ";
 				}
 			}
 

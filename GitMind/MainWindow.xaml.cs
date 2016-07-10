@@ -358,6 +358,7 @@ namespace GitMind
 			await refreshService.UpdateStatusAsync();
 
 			await gitService.FetchAsync(null);
+
 			Repository repository = await repositoryService.UpdateRepositoryAsync(
 				repositoryViewModel.Repository);
 

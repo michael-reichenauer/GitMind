@@ -5,28 +5,28 @@ namespace GitMind.Git
 {
 	internal interface IGitRepo
 	{
-		GitCommit CurrentCommit { get; }
-		GitBranch CurrentBranch { get; }
+		//GitCommit CurrentCommit { get; }
+		//GitBranch CurrentBranch { get; }
 
-		GitCommit GetCommit(string commitId);
+		//GitCommit GetCommit(string commitId);
 
-		GitBranch TryGetBranch(string branchName);
+		//GitBranch TryGetBranch(string branchName);
 
-		GitBranch TryGetBranchByLatestCommiId(string latestCommitId);
+		//GitBranch TryGetBranchByLatestCommiId(string latestCommitId);
 
-		GitCommit GetFirstParent(GitCommit gitCommit);
+		//GitCommit GetFirstParent(GitCommit gitCommit);
 
-		IReadOnlyList<GitTag> GetTags(string commitId);
+		//IReadOnlyList<GitTag> GetTags(string commitId);
 
 		IReadOnlyList<GitSpecifiedNames> GetSpecifiedNameses();
 
-		IReadOnlyList<string> GetCommitChildren(string commitId);
+		//IReadOnlyList<string> GetCommitChildren(string commitId);
 
-		GitBranch GetCurrentBranch();
+		//GitBranch GetCurrentBranch();
 
 
-		IReadOnlyList<GitBranch> GetAllBranches();
+		//IReadOnlyList<GitBranch> GetAllBranches();
 
-		IReadOnlyList<GitTag> GetAllTags();
+		//IReadOnlyList<GitTag> GetAllTags();
 	}
 }

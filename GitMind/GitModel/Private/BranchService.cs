@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
+
 using System.Linq;
-using GitMind.Git;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
 {
 	internal class BranchService : IBranchService
 	{
-		private readonly ICommitBranchNameService commitBranchNameService;
+		private static readonly string Origin = "origin/";
 		private static readonly string AnonyousBranchPrefix = "_Branch_";
 		private readonly string MultibranchPrefix = "_Multibranch_";
+
+		private readonly ICommitBranchNameService commitBranchNameService;
 
 
 		public BranchService()
@@ -25,10 +28,16 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddActiveBranches(IReadOnlyList<GitBranch> gitBranches, MRepository repository)
+		public void AddActiveBranches(LibGit2Sharp.Repository repo, MRepository repository)
 		{
-			foreach (GitBranch gitBranch in gitBranches)
+			foreach (LibGit2Sharp.Branch gitBranch in repo.Branches)
 			{
+				string branchName = gitBranch.FriendlyName;
+				if (branchName == "origin/HEAD" || branchName == "HEAD")
+				{
+					continue;
+				}
+
 				MSubBranch subBranch = ToBranch(gitBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 			}
@@ -178,14 +187,20 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static MSubBranch ToBranch(GitBranch gitBranch, MRepository repository)
+		private static MSubBranch ToBranch(LibGit2Sharp.Branch gitBranch, MRepository repository)
 		{
+			string branchName = gitBranch.FriendlyName;
+			if (gitBranch.IsRemote && branchName.StartsWith(Origin))
+			{
+				branchName = branchName.Substring(Origin.Length);
+			}
+
 			return new MSubBranch
 			{
 				Repository = repository,
 				SubBranchId = Guid.NewGuid().ToString(),
-				Name = gitBranch.Name,
-				LatestCommitId = gitBranch.LatestCommitId,
+				Name = branchName,
+				LatestCommitId = gitBranch.Tip.Sha,
 				IsActive = true,
 				IsRemote = gitBranch.IsRemote
 			};

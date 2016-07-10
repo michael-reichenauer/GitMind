@@ -5,6 +5,6 @@ namespace GitMind.GitModel.Private
 {
 	internal interface ICommitsService
 	{
-		void AddBranchCommits(IGitRepo gitRepo, MRepository repository);
+		void AddBranchCommits(LibGit2Sharp.Repository repo, MRepository repository);
 	}
 }

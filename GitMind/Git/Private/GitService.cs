@@ -41,34 +41,38 @@ namespace GitMind.Git.Private
 
 		public async Task<R<IGitRepo>> GetRepoAsync(string path)
 		{
+			await Task.Yield();
 			//string time = DateTime.Now.ToShortTimeString().Replace(":", "-");
 			//string date = DateTime.Now.ToShortDateString().Replace(":", "-");
 			Timing t = new Timing();
-			R<IReadOnlyList<GitTag>> tags = await GetTagsAsync(path);
-			if (tags.IsFaulted) return tags.Error;
-			t.Log("Get tags");
+			//R<IReadOnlyList<GitTag>> tags = await GetTagsAsync(path);
+			//if (tags.IsFaulted) return tags.Error;
+			//t.Log("Get tags");
 
 			IReadOnlyList<GitSpecifiedNames> specifiedNameses = GetSpecifiedNames(path);
 			t.Log("Get specified names");
 
-			R<IReadOnlyList<GitBranch>> branches = await GetBranchesAsync(path);
-			if (branches.IsFaulted) return branches.Error;
-			t.Log("Get branches");
+			//R<IReadOnlyList<GitBranch>> branches = await GetBranchesAsync(path);
+			//if (branches.IsFaulted) return branches.Error;
+			//t.Log("Get branches");
 
-			R<IReadOnlyList<GitCommit>> commits = await GetCommitsAsync(path);
-			if (commits.IsFaulted) return commits.Error;
-			t.Log("Get commits");
+			//R<IReadOnlyList<GitCommit>> commits = await GetCommitsAsync(path);
+			//if (commits.IsFaulted) return commits.Error;
+			//t.Log("Get commits");
 
-			R<GitCommit> currentCommit = await GetCurrentCommitAsync(path, commits.Value);
-			if (currentCommit.IsFaulted) return currentCommit.Error;
-			t.Log("Get current commit");
+			//R<GitCommit> currentCommit = await GetCurrentCommitAsync(path, commits.Value);
+			//if (currentCommit.IsFaulted) return currentCommit.Error;
+			//t.Log("Get current commit");
 
-			// Getting current branch to be included in stored data
-			GitBranch currentBranch = branches.Value.First(b => b.IsCurrent);
-			t.Log("Get current branch");
+			//// Getting current branch to be included in stored data
+			//GitBranch currentBranch = branches.Value.First(b => b.IsCurrent);
+			//t.Log("Get current branch");
 
-			return new GitRepo(
-				branches.Value, commits.Value, tags.Value, specifiedNameses, currentCommit.Value, currentBranch);
+			return new GitRepo(specifiedNameses);
+
+
+			//return new GitRepo(
+			//	branches.Value, commits.Value, tags.Value, specifiedNameses, currentCommit.Value, currentBranch);
 		}
 
 

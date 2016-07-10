@@ -126,17 +126,23 @@ namespace GitMind.GitModel.Private
 
 		private void Update(MRepository repository, IGitRepo gitRepo)
 		{
+			Log.Debug($"Updating repository");
 			Timing t = new Timing();
+			using (LibGit2Sharp.Repository repo = new LibGit2Sharp.Repository("D:\\My Work\\TestGit2\\.git"))
+			{
+				commitsService.AddBranchCommits(repo, repository);
+				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
-			commitsService.AddBranchCommits(gitRepo, repository);
-			t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
-
-			AnalyzeBranchStructure(repository, gitRepo);
-			t.Log("AnalyzeBranchStructure");
+				AnalyzeBranchStructure(repository, gitRepo, repo);
+				t.Log("AnalyzeBranchStructure");
+			}
 		}
 
 
-		private void AnalyzeBranchStructure(MRepository repository, IGitRepo gitRepo)
+		private void AnalyzeBranchStructure(
+			MRepository repository, 
+			IGitRepo gitRepo,
+			LibGit2Sharp.Repository repo)
 		{
 			Timing t = new Timing();
 
@@ -148,8 +154,8 @@ namespace GitMind.GitModel.Private
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			t.Log($"Set {gitSpecifiedNames.Count} specified branch names");
 
-			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
-			branchService.AddActiveBranches(gitBranches, repository);
+		
+			branchService.AddActiveBranches(repo, repository);
 			t.Log($"Added {repository.SubBranches.Count} active branches");
 
 			commitBranchNameService.SetMasterBranchCommits(repository);
@@ -179,12 +185,12 @@ namespace GitMind.GitModel.Private
 			aheadBehindService.SetAheadBehind(repository);
 			t.Log("SetAheadBehind");
 
-			tagService.AddTags(gitRepo.GetAllTags(), repository);
+			tagService.AddTags(repo, repository);
 			t.Log("Added tags");
 
 			repository.CurrentBranchId = repository.Branches
-				.First(b => b.Value.IsActive && b.Value.Name == gitRepo.CurrentBranch.Name).Value.Id;
-			repository.CurrentCommitId = repository.Commits[gitRepo.CurrentCommit.Id].Id;
+				.First(b => b.Value.IsActive && b.Value.Name == repo.Head.FriendlyName).Value.Id;
+			repository.CurrentCommitId = repository.Commits[repo.Head.Tip.Sha].Id;
 
 			repository.Commits.Where(c => string.IsNullOrEmpty(c.Value.BranchName))
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.Value.FirstParentId}"));
