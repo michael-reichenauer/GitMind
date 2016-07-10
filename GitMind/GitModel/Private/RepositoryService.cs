@@ -127,7 +127,7 @@ namespace GitMind.GitModel.Private
 		private void Update(MRepository repository, IGitRepo gitRepo)
 		{
 			Timing t = new Timing();
-			
+
 			commitsService.AddBranchCommits(gitRepo, repository);
 			t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
@@ -151,7 +151,7 @@ namespace GitMind.GitModel.Private
 			IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
 			branchService.AddActiveBranches(gitBranches, repository);
 			t.Log($"Added {repository.SubBranches.Count} active branches");
-		
+
 			commitBranchNameService.SetMasterBranchCommits(repository);
 			t.Log("Set master branch names");
 

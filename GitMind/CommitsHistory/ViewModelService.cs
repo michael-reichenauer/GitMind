@@ -610,20 +610,26 @@ namespace GitMind.CommitsHistory
 			int parentRow = parentCommit.RowIndex;
 			int childColumn = childBranch.BranchColumn;
 			int parentColumn = parentBranch.BranchColumn;
+
+			if (childColumn == parentColumn)
+			{
+
+			}
+
 			bool isBranchStart = childCommit.Commit.HasFirstParent
 				&& childCommit.Commit.FirstParent.Branch != childCommit.Commit.Branch;
 
-			BranchViewModel mainBranch = childColumn > parentColumn ? childBranch : parentBranch;
+			BranchViewModel mainBranch = childColumn >= parentColumn ? childBranch : parentBranch;
 
 			int childX = Converter.ToX(childColumn);
 			int parentX = Converter.ToX(parentColumn);
 
-			int x1 = childX < parentX ? 0 : childX - parentX - 6;
+			int x1 = childX <= parentX ? 0 : childX - parentX - 6;
 			int y1 = 0;
-			int x2 = parentX < childX ? 0 : parentX - childX - 6;
+			int x2 = parentX <= childX ? 0 : parentX - childX - 6;
 			int y2 = Converter.ToY(parentRow - childRow) + Converter.HalfRow - 8;
 
-			if (isBranchStart)
+			if (isBranchStart && x1 != x2)
 			{
 				y1 = y1 + 2;
 				x1 = x1 + 2;
@@ -637,7 +643,7 @@ namespace GitMind.CommitsHistory
 			merge.Rect = new Rect(
 				(double)Math.Min(childX, parentX) + 10,
 				y + Converter.HalfRow,
-				Math.Abs(childX - parentX) + 2,
+				Math.Abs(childX - parentX) + 2 + (x1 == x2 ? 2 : 0),
 				y2 + 2);
 			merge.Width = merge.Rect.Width;
 
@@ -645,6 +651,7 @@ namespace GitMind.CommitsHistory
 			merge.Brush = mainBranch.Brush;
 			merge.Stroke = isBranchStart ? 2 : 1;
 			merge.StrokeDash = "";
+
 		}
 
 
