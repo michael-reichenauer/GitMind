@@ -15,19 +15,17 @@ namespace GitMind.GitModel.Private
 		public string Version { get; set; } = CurrentVersion;
 
 		[ProtoMember(2)]
-		public DateTime Time { get; set; }
-		[ProtoMember(3)]
 		public string CurrentCommitId { get; set; }
-		[ProtoMember(4)]
+		[ProtoMember(3)]
 		public string CurrentBranchId { get; set; }
-		[ProtoMember(5)]
+		[ProtoMember(4)]
 		public Dictionary<string, MCommit> Commits { get; set; } = new Dictionary<string, MCommit>();		
-		[ProtoMember(6)]
+		[ProtoMember(5)]
 		public Dictionary<string, MBranch> Branches { get; set; } = new Dictionary<string, MBranch>();
-		[ProtoMember(7)]
+		[ProtoMember(6)]
 		public readonly Dictionary<string, IList<string>> ChildrenById =
 			new Dictionary<string, IList<string>>();
-		[ProtoMember(8)]
+		[ProtoMember(7)]
 		public readonly Dictionary<string, IList<string>> FirstChildrenById =
 			new Dictionary<string, IList<string>>();
 

@@ -70,7 +70,6 @@ namespace GitMind.GitModel.Private
 			{
 				Log.Debug("No cached repository");
 				mRepository = new MRepository();
-				mRepository.Time = DateTime.Now;
 				mRepository.CommitsFiles = new CommitsFiles();
 
 				R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
@@ -90,10 +89,9 @@ namespace GitMind.GitModel.Private
 
 		public async Task<Repository> UpdateRepositoryAsync(Repository sourcerepository)
 		{
-			Log.Debug($"Updating repository from time: {sourcerepository.Time}");
+			Log.Debug($"Updating repository");
 
-			MRepository mRepository = new MRepository();
-			mRepository.Time = DateTime.Now;
+			MRepository mRepository = sourcerepository.MRepository;
 			mRepository.CommitsFiles = sourcerepository.CommitsFiles;
 
 			Timing t = new Timing();
@@ -105,7 +103,7 @@ namespace GitMind.GitModel.Private
 
 			Repository repository = ToRepository(mRepository);
 			t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
-			Log.Debug($"Updated to repository with time: {repository.Time}");
+			Log.Debug($"Updated to repository");
 
 			return repository;
 		}
@@ -133,22 +131,18 @@ namespace GitMind.GitModel.Private
 			commitsService.AddBranchCommits(gitRepo, repository);
 			t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
-			UpdateX(repository, gitRepo);
-			t.Log("UpdateX time");
-
-			repository.Commits.ForEach(c => c.Value.SubBranchId = null);
-			repository.SubBranches.Clear();
-
-			UpdateX(repository, gitRepo);
-			t.Log("UpdateX2 time");
-
-			t.Log("Total time");
+			AnalyzeBranchStructure(repository, gitRepo);
+			t.Log("AnalyzeBranchStructure");
 		}
 
 
-		private void UpdateX(MRepository repository, IGitRepo gitRepo)
+		private void AnalyzeBranchStructure(MRepository repository, IGitRepo gitRepo)
 		{
 			Timing t = new Timing();
+
+			repository.Commits.ForEach(c => c.Value.SubBranchId = null);
+			repository.SubBranches.Clear();
+			t.Log("Cleaned sub branches");
 
 			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames = gitRepo.GetSpecifiedNameses();
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
@@ -208,7 +202,7 @@ namespace GitMind.GitModel.Private
 			Commit currentCommit = null;
 
 			Repository repository = new Repository(
-				mRepository.Time,
+				mRepository,
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
 				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
