@@ -31,19 +31,17 @@ namespace GitMind.GitModel.Private
 		public string BranchName { get; set; }
 		[ProtoMember(10)]
 		public string SpecifiedBranchName { get; set; }
-	
 
 		[ProtoMember(11)]
-		public string SubBranchId { get; set; }
-		[ProtoMember(12)]
 		public bool IsLocalAheadMarker { get; set; }
-		[ProtoMember(13)]
+		[ProtoMember(12)]
 		public bool IsRemoteAheadMarker { get; set; }
-		[ProtoMember(14)]
+		[ProtoMember(13)]
 		public string Tags { get; set; }
-		[ProtoMember(15)]
+		[ProtoMember(14)]
 		public string Tickets { get; set; }
 
+		public string SubBranchId { get; set; }
 		public string FromSubjectBranchName { get; set; }
 
 		public bool HasBranchName => !string.IsNullOrEmpty(BranchName);

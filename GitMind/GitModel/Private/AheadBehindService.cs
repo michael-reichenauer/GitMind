@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private

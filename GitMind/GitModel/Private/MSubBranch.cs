@@ -1,11 +1,9 @@
-using System.Collections.Generic;
-using System.Runtime.Serialization;
 using ProtoBuf;
 
 
 namespace GitMind.GitModel.Private
 {
-	[ ProtoContract]
+	[ProtoContract]
 	public class MSubBranch
 	{
 		[ProtoMember(1)]
@@ -30,7 +28,7 @@ namespace GitMind.GitModel.Private
 		public bool IsRemote { get; set; }
 
 		public MRepository Repository { get; set; }
-		
+
 		public MCommit LatestCommit => Repository.Commits[LatestCommitId];
 		public MCommit ParentCommit => Repository.Commits[ParentCommitId];
 		public bool IsLocal => !IsRemote;

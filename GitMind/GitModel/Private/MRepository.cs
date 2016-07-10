@@ -21,17 +21,19 @@ namespace GitMind.GitModel.Private
 		[ProtoMember(4)]
 		public string CurrentBranchId { get; set; }
 		[ProtoMember(5)]
-		public Dictionary<string, MCommit> Commits { get; set; } = new Dictionary<string, MCommit>();
+		public Dictionary<string, MCommit> Commits { get; set; } = new Dictionary<string, MCommit>();		
 		[ProtoMember(6)]
-		public Dictionary<string, MSubBranch> SubBranches { get; set; } = new Dictionary<string, MSubBranch>();
-		[ProtoMember(7)]
 		public Dictionary<string, MBranch> Branches { get; set; } = new Dictionary<string, MBranch>();
-		[ProtoMember(8)]
+		[ProtoMember(7)]
 		public readonly Dictionary<string, IList<string>> ChildrenById =
 			new Dictionary<string, IList<string>>();
-		[ProtoMember(9)]
+		[ProtoMember(8)]
 		public readonly Dictionary<string, IList<string>> FirstChildrenById =
 			new Dictionary<string, IList<string>>();
+
+
+		public Dictionary<string, MSubBranch> SubBranches { get; set; } 
+			= new Dictionary<string, MSubBranch>();
 
 
 		public IList<string> ChildIds(string commitId)

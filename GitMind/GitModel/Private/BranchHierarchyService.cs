@@ -69,29 +69,23 @@ namespace GitMind.GitModel.Private
 				foreach (IGrouping<string, KeyValuePair<string, MSubBranch>> groupByBranch in groupedByParentCommitIds)
 				{
 					MSubBranch subBranch = groupByBranch.First().Value;
-					MBranch branch = ToBranch(subBranch);
 
+					string branchId = subBranch.Name + "-" + subBranch.ParentCommitId;
+
+					MBranch branch;
+					if (!repository.Branches.TryGetValue(branchId, out branch))
+					{
+						branch = ToBranch(subBranch);
+						branch.Id = branchId;
+						branch.Repository.Branches[branch.Id] = branch;
+					}
+					
 					if (subBranch.ParentCommitId == null)
 					{
 						
 					}
-					branch.Id = subBranch.Name + "-" + subBranch.ParentCommitId;
 
-					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);
-
-					//branch.CommitIds.AddRange(GetCommitIdsInBranch(groupByBranch));
-
-					//branch.Commits.ForEach(c => c.BranchId = branch.Id);
-
-					//branch.LatestCommitId = branch.Commits.Any()
-					//	? branch.Commits.First().Id
-					//	: branch.ParentCommitId;
-
-					//branch.FirstCommitId = branch.Commits.Any()
-					//	? branch.Commits.Last().Id
-					//	: branch.ParentCommitId;
-
-					branch.Repository.Branches[branch.Id] = branch;
+					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);		
 				}
 			}
 		
@@ -104,11 +98,7 @@ namespace GitMind.GitModel.Private
 					string subBranchId = commit.Value.SubBranchId;
 					string branchId = repository.SubBranches[subBranchId].BranchId;
 					commit.Value.BranchId = branchId;
-					repository.Branches[branchId].CommitIds.Add(commit.Value.Id);
-				}
-				else
-				{
-					repository.Branches[commit.Value.BranchId].CommitIds.Add(commit.Value.Id);
+					repository.Branches[branchId].TempCommitIds.Add(commit.Value.Id);
 				}
 			}
 
@@ -116,11 +106,17 @@ namespace GitMind.GitModel.Private
 
 			foreach (var branch in repository.Branches.Values)
 			{
-				List<MCommit> commits = branch.Commits.OrderByDescending(b => b.CommitDate).ToList();
-				branch.LatestCommitId = commits.Any() ? commits.First().Id : branch.ParentCommitId;
+				if (branch.TempCommitIds.Any())
+				{
+					branch.CommitIds.AddRange(branch.TempCommitIds);
+					branch.TempCommitIds.Clear();
 
-				branch.FirstCommitId = commits.Any() ? commits.Last().Id : branch.ParentCommitId;
-				branch.CommitIds = commits.Select(c => c.Id).ToList();
+					List<MCommit> commits = branch.Commits.OrderByDescending(b => b.CommitDate).ToList();
+					branch.LatestCommitId = commits.Any() ? commits.First().Id : branch.ParentCommitId;
+
+					branch.FirstCommitId = commits.Any() ? commits.Last().Id : branch.ParentCommitId;
+					branch.CommitIds = commits.Select(c => c.Id).ToList();
+				}		
 			}
 
 			t.Log("Sorted and found first and latest commits");
