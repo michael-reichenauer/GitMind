@@ -90,6 +90,7 @@ namespace GitMind
 			}
 
 			DataContext = mainWindowViewModel;
+			mainWindowViewModel.WorkingFolder = workingFolder;
 
 			ItemsListBox.ItemsSource = repositoryViewModel.VirtualItemsSource;
 
@@ -214,7 +215,7 @@ namespace GitMind
 			newVersionTime.Start();
 
 			refreshService.Start();
-			refreshService.UpdateStatusAsync().RunInBackground();
+			refreshService.UpdateStatusAsync(mainWindowViewModel.WorkingFolder).RunInBackground();
 		}
 
 
@@ -361,7 +362,7 @@ namespace GitMind
 
 		private async Task RefreshInternalAsync(bool isShift)
 		{
-			await refreshService.UpdateStatusAsync();
+			await refreshService.UpdateStatusAsync(repositoryViewModel.Repository.MRepository.WorkingFolder);
 
 			//await gitService.FetchAsync(null);
 

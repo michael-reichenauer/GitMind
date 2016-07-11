@@ -40,9 +40,9 @@ namespace GitMind.Git.Private
 
 
 
-		public GitRepository OpenRepository(string gitRepositoryPath)
+		public GitRepository OpenRepository(string workingFolder)
 		{
-			return new GitRepository(new LibGit2Sharp.Repository(gitRepositoryPath));
+			return new GitRepository(new LibGit2Sharp.Repository(workingFolder));
 		}
 
 
@@ -90,39 +90,24 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<R<GitStatus>> GetStatusAsync(string path)
+		public Task<R<GitStatus>> GetStatusAsync(string workingFolder)
 		{
-			string args = "status -s";
 
-			R<IReadOnlyList<string>> status = await GitAsync(path, args);
-			if (status.IsFaulted) return status.Error;
-
-			int modified = 0;
-			int added = 0;
-			int deleted = 0;
-			int other = 0;
-
-			foreach (string line in status.Value)
+			return Task.Run(() =>
 			{
-				if (line.StartsWith(" M "))
+				try
 				{
-					modified++;
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						return R.From(gitRepository.Status);
+					}
 				}
-				else if (line.StartsWith("?? "))
+				catch (Exception e)
 				{
-					added++;
+					Log.Warn($"Failed to get current branch name, {e.Message}");
+					return Error.From(e);
 				}
-				else if (line.StartsWith(" D "))
-				{
-					deleted++;
-				}
-				else
-				{
-					other++;
-				}
-			}
-
-			return new GitStatus(modified, added, deleted, other);
+			});
 		}
 
 

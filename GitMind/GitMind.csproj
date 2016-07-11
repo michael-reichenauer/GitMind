@@ -172,7 +172,7 @@
     <Compile Include="Git\IGitRepo.cs" />
     <Compile Include="Git\GitTag.cs" />
     <Compile Include="Git\IGitService.cs" />
-    <Compile Include="Git\Private\GitStatus.cs" />
+    <Compile Include="Git\GitStatus.cs" />
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="TestRepo.cs" />
     <Compile Include="Utils\Asserter.cs" />

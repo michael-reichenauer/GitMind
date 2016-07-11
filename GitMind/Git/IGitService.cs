@@ -14,17 +14,17 @@ namespace GitMind.Git
 
 		//Task<R<IGitRepo>> GetRepoAsync(string gitRepositoryPath);
 
-		GitRepository OpenRepository(string gitRepositoryPath);
+		GitRepository OpenRepository(string workingFolder);
 
 		Task FetchAsync(string path);
 
-		Task<R<string>> GetCurrentBranchNameAsync(string path);
+		Task<R<string>> GetCurrentBranchNameAsync(string workingFolder);
 
 		R<string> GetCurrentRootPath(string path);
 
 		Task<R<CommitDiff>> GetCommitDiffAsync(string commitId);
 
-		Task<R<GitStatus>> GetStatusAsync(string path);
+		Task<R<GitStatus>> GetStatusAsync(string workingFolder);
 
 		//Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(
 		//	string path, DateTime? dateTime, int max, int skip);

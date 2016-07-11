@@ -43,11 +43,11 @@ namespace GitMind
 		}
 
 
-		public async Task UpdateStatusAsync()
+		public async Task UpdateStatusAsync(string workingFolder)
 		{
 			try
 			{
-				R<GitStatus> statusResult = await gitService.GetStatusAsync(null);
+				R<GitStatus> statusResult = await gitService.GetStatusAsync(workingFolder);
 				if (statusResult.IsFaulted) return;
 
 				GitStatus status = statusResult.Value;
@@ -55,7 +55,7 @@ namespace GitMind
 
 				if (!status.OK)
 				{
-					int count = status.Added + status.Deleted + status.Modified + status.Other;
+					int count = status.Count;
 					statusText = $"  Uncommitted: {count}";
 				}
 
@@ -78,7 +78,7 @@ namespace GitMind
 
 		private void UpdateStatus(object sender, EventArgs e)
 		{
-			UpdateStatusAsync().RunInBackground();
+			UpdateStatusAsync(mainWindowViewModel.WorkingFolder).RunInBackground();
 		}
 	}
 }
