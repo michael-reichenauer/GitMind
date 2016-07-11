@@ -1,30 +1,30 @@
 using System.Collections.Generic;
 using System.Linq;
-
+using GitMind.Git;
 
 
 namespace GitMind.GitModel.Private
 {
 	internal class CommitsService : ICommitsService
 	{
-		public void AddBranchCommits(LibGit2Sharp.Repository repo, MRepository repository)
+		public void AddBranchCommits(GitRepository gitRepository, MRepository repository)
 		{
-			IEnumerable<LibGit2Sharp.Commit> rootCommits = repo.Branches.Select(b => b.Tip);
+			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
 			Dictionary<string, object> added = new Dictionary<string, object>();	
 
 			Dictionary<string, string> branchNameByCommitId = new Dictionary<string, string>();
 			Dictionary<string, string> subjectBranchNameByCommitId = new Dictionary<string, string>();
 
-			Stack<LibGit2Sharp.Commit> commits = new Stack<LibGit2Sharp.Commit>();
+			Stack<GitCommit> commits = new Stack<GitCommit>();
 			rootCommits.ForEach(c => commits.Push(c));
-			rootCommits.ForEach(c => added[c.Id.Sha] = null);
+			rootCommits.ForEach(c => added[c.Id] = null);
 
 			while (commits.Any())
 			{
-				LibGit2Sharp.Commit gitCommit = commits.Pop();
+				GitCommit gitCommit = commits.Pop();
 
 				MCommit commit;
-				string commitId = gitCommit.Id.Sha;
+				string commitId = gitCommit.Id;
 				if (!repository.Commits.TryGetValue(commitId, out commit))
 				{
 					commit = AddCommit(commitId, gitCommit, repository);
@@ -54,7 +54,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private MCommit AddCommit(string commitId, LibGit2Sharp.Commit gitCommit, MRepository repository)
+		private MCommit AddCommit(string commitId, GitCommit gitCommit, MRepository repository)
 		{
 			MCommit commit = new MCommit();
 			commit.Repository = repository;
@@ -67,16 +67,16 @@ namespace GitMind.GitModel.Private
 
 
 		private static void AddParents(
-			IEnumerable<LibGit2Sharp.Commit> parents,
-			Stack<LibGit2Sharp.Commit> commits,
+			IEnumerable<GitCommit> parents,
+			Stack<GitCommit> commits,
 			Dictionary<string, object> added)
 		{
 			parents.ForEach(parent =>
 			{
-				if (!added.ContainsKey(parent.Id.Sha))
+				if (!added.ContainsKey(parent.Id))
 				{
 					commits.Push(parent);
-					added[parent.Id.Sha] = null;
+					added[parent.Id] = null;
 				}
 			});
 		}
@@ -137,19 +137,19 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void CopyToCommit(LibGit2Sharp.Commit gitCommit, MCommit commit)
+		private void CopyToCommit(GitCommit gitCommit, MCommit commit)
 		{
-			string subject = gitCommit.MessageShort;
+			string subject = gitCommit.Subject;
 			string tickets = GetTickets(subject);
 
-			commit.Id = gitCommit.Id.Sha;
-			commit.ShortId = gitCommit.Id.Sha.Substring(0, 6);
+			commit.Id = gitCommit.Id;
+			commit.ShortId = gitCommit.ShortId;
 			commit.Subject = GetSubjectWithoutTickets(subject, tickets);
-			commit.Author = gitCommit.Author.Name;
-			commit.AuthorDate = gitCommit.Author.When.LocalDateTime;
-			commit.CommitDate = gitCommit.Committer.When.LocalDateTime;
+			commit.Author = gitCommit.Author;
+			commit.AuthorDate = gitCommit.AuthorDate;
+			commit.CommitDate = gitCommit.CommitDate;
 			commit.Tickets = tickets;
-			commit.ParentIds = gitCommit.Parents.Select(c => c.Id.Sha).ToList();
+			commit.ParentIds = gitCommit.Parents.Select(c => c.Id).ToList();
 		}
 
 

@@ -1,18 +1,19 @@
 using System;
+using GitMind.Git;
 
 
 namespace GitMind.GitModel.Private
 {
 	internal class TagService : ITagService
 	{
-		public void AddTags(LibGit2Sharp.Repository repo, MRepository repository)
+		public void AddTags(GitRepository gitRepository, MRepository repository)
 		{
-			foreach (LibGit2Sharp.Tag tag in repo.Tags)
+			foreach (GitTag tag in gitRepository.Tags)
 			{
 				MCommit commit;
-				if (repository.Commits.TryGetValue(tag.Target.Sha, out commit))
+				if (repository.Commits.TryGetValue(tag.CommitId, out commit))
 				{
-					string name = tag.FriendlyName;
+					string name = tag.TagName;
 					string tagText = $"[{name}] ";
 					if (commit.Tags != null && -1 == commit.Tags.IndexOf(name, StringComparison.Ordinal))
 					{

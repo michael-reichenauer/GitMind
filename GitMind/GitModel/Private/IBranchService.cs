@@ -1,8 +1,11 @@
+using GitMind.Git;
+
+
 namespace GitMind.GitModel.Private
 {
 	internal interface IBranchService
 	{
-		void AddActiveBranches(LibGit2Sharp.Repository repo, MRepository repository);
+		void AddActiveBranches(GitRepository gitRepository, MRepository repository);
 
 		void AddInactiveBranches(MRepository repository);
 

@@ -1,40 +1,31 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace GitMind.Git
 {
 	public class GitCommit
 	{
-		public static readonly GitCommit None = new GitCommit(
-			"000000", "", "", new string[0], DateTime.MinValue, DateTime.MinValue);
+		private readonly LibGit2Sharp.Commit commit;
 
-		public GitCommit(
-			string id,
-			string subject,
-			string author,
-			IReadOnlyList<string> parentIds,
-			DateTime authorDate,
-			DateTime commitDate)
+
+		public GitCommit(LibGit2Sharp.Commit commit)
 		{
-			Id = id;
-			ShortId = id.Length > 6 ? id.Substring(0, 6) : id;
-			Subject = subject;
-			Author = author;
-			ParentIds = parentIds;
-			AuthorDate = authorDate;
-			CommitDate = commitDate;
+			this.commit = commit;
+			ShortId = Id.Substring(0, 6);
 		}
 
 
-		public string Id { get; }
+		public string Id => commit.Sha;
 		public string ShortId { get; }
-		public string Author { get; }
-		public IReadOnlyList<string> ParentIds { get; }
-		public DateTime AuthorDate { get; }
-		public DateTime CommitDate { get; }
-		public string Subject { get; }
+		public string Author => commit.Author.Name;
 
-		public override string ToString() => $"{ShortId} {AuthorDate} ({ParentIds.Count}) {Subject}";
+		public DateTime AuthorDate => commit.Author.When.LocalDateTime;
+		public DateTime CommitDate => commit.Committer.When.LocalDateTime;
+		public string Subject => commit.MessageShort;
+		public IEnumerable<GitCommit> Parents => commit.Parents.Select(p => new GitCommit(p));
+
+		public override string ToString() => $"{ShortId} {AuthorDate} {Subject}";
 	}
 }

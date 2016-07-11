@@ -12,7 +12,7 @@ namespace GitMind.Git.Private
 	{
 		private static readonly string LegacyGitPath = "C:\\Program Files (x86)\\Git\\bin\\git.exe";
 		private static readonly string GitPath = "C:\\Program Files\\Git\\bin\\git.exe";
-		private static readonly string Origin = "origin/";
+		//private static readonly string Origin = "origin/";
 		private static readonly char[] IdSplitter = " ".ToCharArray();
 		private static readonly char[] LogRowSplitter = "|".ToCharArray();
 		private static readonly string[] NoParents = new string[0];
@@ -39,41 +39,48 @@ namespace GitMind.Git.Private
 		public Error GitCommandError { get; } = new Error("Git command failed: ");
 
 
-		public async Task<R<IGitRepo>> GetRepoAsync(string gitRepositoryPath)
+
+		public GitRepository OpenRepository(string gitRepositoryPath)
 		{
-			await Task.Yield();
-			//string time = DateTime.Now.ToShortTimeString().Replace(":", "-");
-			//string date = DateTime.Now.ToShortDateString().Replace(":", "-");
-			Timing t = new Timing();
-			//R<IReadOnlyList<GitTag>> tags = await GetTagsAsync(path);
-			//if (tags.IsFaulted) return tags.Error;
-			//t.Log("Get tags");
-
-			IReadOnlyList<GitSpecifiedNames> specifiedNameses = GetSpecifiedNames(gitRepositoryPath);
-			t.Log("Get specified names");
-
-			//R<IReadOnlyList<GitBranch>> branches = await GetBranchesAsync(path);
-			//if (branches.IsFaulted) return branches.Error;
-			//t.Log("Get branches");
-
-			//R<IReadOnlyList<GitCommit>> commits = await GetCommitsAsync(path);
-			//if (commits.IsFaulted) return commits.Error;
-			//t.Log("Get commits");
-
-			//R<GitCommit> currentCommit = await GetCurrentCommitAsync(path, commits.Value);
-			//if (currentCommit.IsFaulted) return currentCommit.Error;
-			//t.Log("Get current commit");
-
-			//// Getting current branch to be included in stored data
-			//GitBranch currentBranch = branches.Value.First(b => b.IsCurrent);
-			//t.Log("Get current branch");
-
-			return new GitRepo(specifiedNameses);
-
-
-			//return new GitRepo(
-			//	branches.Value, commits.Value, tags.Value, specifiedNameses, currentCommit.Value, currentBranch);
+			return new GitRepository(new LibGit2Sharp.Repository(gitRepositoryPath));
 		}
+
+
+		//public async Task<R<IGitRepo>> GetRepoAsync(string gitRepositoryPath)
+		//{
+		//	await Task.Yield();
+		//	//string time = DateTime.Now.ToShortTimeString().Replace(":", "-");
+		//	//string date = DateTime.Now.ToShortDateString().Replace(":", "-");
+		//	Timing t = new Timing();
+		//	//R<IReadOnlyList<GitTag>> tags = await GetTagsAsync(path);
+		//	//if (tags.IsFaulted) return tags.Error;
+		//	//t.Log("Get tags");
+
+		//	IReadOnlyList<GitSpecifiedNames> specifiedNameses = GetSpecifiedNames(gitRepositoryPath);
+		//	t.Log("Get specified names");
+
+		//	//R<IReadOnlyList<GitBranch>> branches = await GetBranchesAsync(path);
+		//	//if (branches.IsFaulted) return branches.Error;
+		//	//t.Log("Get branches");
+
+		//	//R<IReadOnlyList<GitCommit>> commits = await GetCommitsAsync(path);
+		//	//if (commits.IsFaulted) return commits.Error;
+		//	//t.Log("Get commits");
+
+		//	//R<GitCommit> currentCommit = await GetCurrentCommitAsync(path, commits.Value);
+		//	//if (currentCommit.IsFaulted) return currentCommit.Error;
+		//	//t.Log("Get current commit");
+
+		//	//// Getting current branch to be included in stored data
+		//	//GitBranch currentBranch = branches.Value.First(b => b.IsCurrent);
+		//	//t.Log("Get current branch");
+
+		//	return new GitRepo(specifiedNameses);
+
+
+		//	//return new GitRepo(
+		//	//	branches.Value, commits.Value, tags.Value, specifiedNameses, currentCommit.Value, currentBranch);
+		//}
 
 
 		public async Task<R<string>> GetCurrentBranchNameAsync(string path)
@@ -382,162 +389,162 @@ namespace GitMind.Git.Private
 
 
 
-		private async Task<R<GitCommit>> GetCurrentCommitAsync(
-			string path, IReadOnlyList<GitCommit> commits)
-		{
-			string args = "rev-parse HEAD";
+		//private async Task<R<GitCommit>> GetCurrentCommitAsync(
+		//	string path, IReadOnlyList<GitCommit> commits)
+		//{
+		//	string args = "rev-parse HEAD";
 
-			R<IReadOnlyList<string>> currentCommit = await GitAsync(path, args);
-			if (currentCommit.IsFaulted) return currentCommit.Error;
+		//	R<IReadOnlyList<string>> currentCommit = await GitAsync(path, args);
+		//	if (currentCommit.IsFaulted) return currentCommit.Error;
 
-			string commitId = currentCommit.Value[0].Trim();
+		//	string commitId = currentCommit.Value[0].Trim();
 
-			return commits.First(c => c.Id == commitId);
-		}
-
-
-		private async Task<R<IReadOnlyList<GitTag>>> GetTagsAsync(string path)
-		{
-			List<GitTag> tags = new List<GitTag>();
-
-			string args = "show-ref --tags -d";
-			R<IReadOnlyList<string>> showResult = await GitAsync(path, args);
-			if (showResult.IsFaulted) return showResult.Error;
-
-			foreach (string line in showResult.Value)
-			{
-				string commitId = line.Substring(0, 40);
-				string tagName = line.Substring(51);
-				if (tagName.EndsWith("^{}"))
-				{
-					// For soem reason some tag names end in strange characters
-					tagName = tagName.Substring(0, tagName.Length - 3);
-				}
-
-				tags.Add(new GitTag(commitId, tagName));
-			}
-
-			return tags;
-		}
+		//	return commits.First(c => c.Id == commitId);
+		//}
 
 
+		//private async Task<R<IReadOnlyList<GitTag>>> GetTagsAsync(string path)
+		//{
+		//	List<GitTag> tags = new List<GitTag>();
 
-		private async Task<R<IReadOnlyList<GitBranch>>> GetBranchesAsync(string path)
-		{
-			List<GitBranch> branches = new List<GitBranch>();
+		//	string args = "show-ref --tags -d";
+		//	R<IReadOnlyList<string>> showResult = await GitAsync(path, args);
+		//	if (showResult.IsFaulted) return showResult.Error;
 
-			// Get list of local branches
-			string args = "branch -vv --no-color --no-abbrev";
-			R<IReadOnlyList<string>> localBranches = await GitAsync(path, args);
-			if (localBranches.IsFaulted) return localBranches.Error;
+		//	foreach (string line in showResult.Value)
+		//	{
+		//		string commitId = line.Substring(0, 40);
+		//		string tagName = line.Substring(51);
+		//		if (tagName.EndsWith("^{}"))
+		//		{
+		//			// For soem reason some tag names end in strange characters
+		//			tagName = tagName.Substring(0, tagName.Length - 3);
+		//		}
 
-			// Get list of remote branches
-			R<IReadOnlyList<string>> remoteBranches = await GitAsync(path, args + " -r");
-			if (remoteBranches.IsFaulted) return remoteBranches.Error;
+		//		tags.Add(new GitTag(commitId, tagName));
+		//	}
 
-			// Make one list, but prefix a "r" on remote branch lines
-			var lines = localBranches.Value
-				.Concat(remoteBranches.Value.Select(l => "r " + l));
+		//	return tags;
+		//}
 
-			foreach (string line in lines)
-			{
-				// Check if first column marks the branch as current or remote
-				bool isCurrent = false;
-				bool isRemote = false;
-				if (line.StartsWith("*"))
-				{
-					isCurrent = true;
-				}
-				else if (line.StartsWith("r"))
-				{
-					isRemote = true;
-				}
 
-				// Skip current and remote marker column
-				string newLine = line.Substring(1).Trim();
 
-				// Parse branch name and skip to next column
-				int index = newLine.IndexOf(" ");
-				string branchName = newLine.Substring(0, index);
-				newLine = newLine.Substring(index).Trim();
+		//private async Task<R<IReadOnlyList<GitBranch>>> GetBranchesAsync(string path)
+		//{
+		//	List<GitBranch> branches = new List<GitBranch>();
 
-				// Parse latest commit id and skip to next column
-				index = newLine.IndexOf(" ");
-				string latestCommitId = newLine.Substring(0, index);
-				newLine = newLine.Substring(index).Trim();
-				if (latestCommitId == "->")
-				{
-					continue;
-				}
+		//	// Get list of local branches
+		//	string args = "branch -vv --no-color --no-abbrev";
+		//	R<IReadOnlyList<string>> localBranches = await GitAsync(path, args);
+		//	if (localBranches.IsFaulted) return localBranches.Error;
 
-				// Try to parse remote tracking branch
-				string trackingBranchName = null;
-				if (!isRemote && newLine.StartsWith("["))
-				{
-					int index2 = newLine.IndexOf(":");
-					index = newLine.IndexOf("]");
-					if (index2 > -1 && index2 < index)
-					{
-						// The remote tracking branch contained a ": X Behind or ": X ahead"
-						index = index2;
-					}
+		//	// Get list of remote branches
+		//	R<IReadOnlyList<string>> remoteBranches = await GitAsync(path, args + " -r");
+		//	if (remoteBranches.IsFaulted) return remoteBranches.Error;
 
-					trackingBranchName = newLine.Substring(1, index - 1);
-				}
+		//	// Make one list, but prefix a "r" on remote branch lines
+		//	var lines = localBranches.Value
+		//		.Concat(remoteBranches.Value.Select(l => "r " + l));
 
-				if (isRemote && branchName.StartsWith(Origin))
-				{
-					branchName = branchName.Substring(Origin.Length);
-				}
+		//	foreach (string line in lines)
+		//	{
+		//		// Check if first column marks the branch as current or remote
+		//		bool isCurrent = false;
+		//		bool isRemote = false;
+		//		if (line.StartsWith("*"))
+		//		{
+		//			isCurrent = true;
+		//		}
+		//		else if (line.StartsWith("r"))
+		//		{
+		//			isRemote = true;
+		//		}
+
+		//		// Skip current and remote marker column
+		//		string newLine = line.Substring(1).Trim();
+
+		//		// Parse branch name and skip to next column
+		//		int index = newLine.IndexOf(" ");
+		//		string branchName = newLine.Substring(0, index);
+		//		newLine = newLine.Substring(index).Trim();
+
+		//		// Parse latest commit id and skip to next column
+		//		index = newLine.IndexOf(" ");
+		//		string latestCommitId = newLine.Substring(0, index);
+		//		newLine = newLine.Substring(index).Trim();
+		//		if (latestCommitId == "->")
+		//		{
+		//			continue;
+		//		}
+
+		//		// Try to parse remote tracking branch
+		//		string trackingBranchName = null;
+		//		if (!isRemote && newLine.StartsWith("["))
+		//		{
+		//			int index2 = newLine.IndexOf(":");
+		//			index = newLine.IndexOf("]");
+		//			if (index2 > -1 && index2 < index)
+		//			{
+		//				// The remote tracking branch contained a ": X Behind or ": X ahead"
+		//				index = index2;
+		//			}
+
+		//			trackingBranchName = newLine.Substring(1, index - 1);
+		//		}
+
+		//		if (isRemote && branchName.StartsWith(Origin))
+		//		{
+		//			branchName = branchName.Substring(Origin.Length);
+		//		}
 	
-				GitBranch branch = new GitBranch(
-					branchName, latestCommitId, isCurrent, trackingBranchName, isRemote);
-				branches.Add(branch);		
-			}
+		//		GitBranch branch = new GitBranch(
+		//			branchName, latestCommitId, isCurrent, trackingBranchName, isRemote);
+		//		branches.Add(branch);		
+		//	}
 
-			return branches;
-		}
+		//	return branches;
+		//}
 
 
-		private async Task<R<IReadOnlyList<GitCommit>>> GetCommitsAsync(string path)
-		{
-			// git log --all --name-status --pretty="%H|%ai|%ci|%an|%P|%s"
-			Log.Debug("Getting log ...");
-			string args = "log --all --pretty=\"%H|%ai|%ci|%an|%P|%s\"";
+		//private async Task<R<IReadOnlyList<GitCommit>>> GetCommitsAsync(string path)
+		//{
+		//	// git log --all --name-status --pretty="%H|%ai|%ci|%an|%P|%s"
+		//	Log.Debug("Getting log ...");
+		//	string args = "log --all --pretty=\"%H|%ai|%ci|%an|%P|%s\"";
 
-			Timing t = new Timing();
-			R<IReadOnlyList<string>> logResult = await GitAsync(path, args);
-			t.Log("Get commits");
+		//	Timing t = new Timing();
+		//	R<IReadOnlyList<string>> logResult = await GitAsync(path, args);
+		//	t.Log("Get commits");
 
-			if (logResult.IsFaulted) return logResult.Error;
+		//	if (logResult.IsFaulted) return logResult.Error;
 
-			IReadOnlyList<string> logLines = logResult.Value;
+		//	IReadOnlyList<string> logLines = logResult.Value;
 
-			List<GitCommit> commits = new List<GitCommit>(logLines.Count);
+		//	List<GitCommit> commits = new List<GitCommit>(logLines.Count);
 
-			foreach (string line in logLines)
-			{
-				string[] parts = line.Split(LogRowSplitter);
+		//	foreach (string line in logLines)
+		//	{
+		//		string[] parts = line.Split(LogRowSplitter);
 
-				if (parts.Length < 6)
-				{
-					return GitCommandError.With("Unknown log format");
-				}
+		//		if (parts.Length < 6)
+		//		{
+		//			return GitCommandError.With("Unknown log format");
+		//		}
 		
-				var gitCommit = new GitCommit(
-					id: parts[0],
-					subject: GetSubject(parts),
-					author: parts[3],
-					parentIds: GetParentIds(parts),
-					authorDate: DateTime.Parse(parts[1]),
-					commitDate: DateTime.Parse(parts[2]));
+		//		var gitCommit = new GitCommit(
+		//			id: parts[0],
+		//			subject: GetSubject(parts),
+		//			author: parts[3],
+		//			parentIds: GetParentIds(parts),
+		//			authorDate: DateTime.Parse(parts[1]),
+		//			commitDate: DateTime.Parse(parts[2]));
 
-				commits.Add(gitCommit);
-			}
+		//		commits.Add(gitCommit);
+		//	}
 
-			t.Log("Parsing commits");
-			return commits;
-		}
+		//	t.Log("Parsing commits");
+		//	return commits;
+		//}
 
 
 
@@ -559,13 +566,13 @@ namespace GitMind.Git.Private
 		}
 
 
-		private IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string path)
+		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string gitRepositoryPath)
 		{
 			List<GitSpecifiedNames> branchNames = new List<GitSpecifiedNames>();
 
 			try
 			{
-				string filePath = Path.Combine(path, "gitmind.specified");
+				string filePath = Path.Combine(gitRepositoryPath, "gitmind.specified");
 				if (File.Exists(filePath))
 				{
 					string[] lines = File.ReadAllLines(filePath);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using System.Linq;
+using GitMind.Git;
 using GitMind.Utils;
 
 
@@ -28,11 +29,11 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddActiveBranches(LibGit2Sharp.Repository repo, MRepository repository)
+		public void AddActiveBranches(GitRepository gitRepository, MRepository repository)
 		{
-			foreach (LibGit2Sharp.Branch gitBranch in repo.Branches)
+			foreach (GitBranch gitBranch in gitRepository.Branches)
 			{
-				string branchName = gitBranch.FriendlyName;
+				string branchName = gitBranch.Name;
 				if (branchName == "origin/HEAD" || branchName == "HEAD")
 				{
 					continue;
@@ -187,9 +188,9 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static MSubBranch ToBranch(LibGit2Sharp.Branch gitBranch, MRepository repository)
+		private static MSubBranch ToBranch(GitBranch gitBranch, MRepository repository)
 		{
-			string branchName = gitBranch.FriendlyName;
+			string branchName = gitBranch.Name;
 			if (gitBranch.IsRemote && branchName.StartsWith(Origin))
 			{
 				branchName = branchName.Substring(Origin.Length);
@@ -200,7 +201,7 @@ namespace GitMind.GitModel.Private
 				Repository = repository,
 				SubBranchId = Guid.NewGuid().ToString(),
 				Name = branchName,
-				LatestCommitId = gitBranch.Tip.Sha,
+				LatestCommitId = gitBranch.TipId,
 				IsActive = true,
 				IsRemote = gitBranch.IsRemote
 			};

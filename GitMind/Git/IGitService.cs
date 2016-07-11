@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GitMind.Git.Private;
 using GitMind.Utils;
+
 
 
 namespace GitMind.Git
@@ -12,7 +12,9 @@ namespace GitMind.Git
 		Error GitNotInstalledError { get; }
 		Error GitCommandError { get; }
 
-		Task<R<IGitRepo>> GetRepoAsync(string gitRepositoryPath);
+		//Task<R<IGitRepo>> GetRepoAsync(string gitRepositoryPath);
+
+		GitRepository OpenRepository(string gitRepositoryPath);
 
 		Task FetchAsync(string path);
 
@@ -24,12 +26,14 @@ namespace GitMind.Git
 
 		Task<R<GitStatus>> GetStatusAsync(string path);
 
-		Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(
-			string path, DateTime? dateTime, int max, int skip);
+		//Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(
+		//	string path, DateTime? dateTime, int max, int skip);
 
 
 		Task<R<CommitDiff>> GetCommitFileDiffAsync(string commitId, string name);
 		Task<R<GitCommitFiles>> GetCommitsFilesForCommitAsync(string gitRepositoryPath, string commitId);
 		Task SetSpecifiedCommitBranchAsync(string commitId, string branchName, string gitRepositoryPath);
+		IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string gitRepositoryPath);
+
 	}
 }
