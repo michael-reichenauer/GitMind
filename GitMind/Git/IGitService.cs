@@ -12,7 +12,7 @@ namespace GitMind.Git
 		Error GitNotInstalledError { get; }
 		Error GitCommandError { get; }
 
-		Task<R<IGitRepo>> GetRepoAsync(string path);
+		Task<R<IGitRepo>> GetRepoAsync(string gitRepositoryPath);
 
 		Task FetchAsync(string path);
 
@@ -29,7 +29,7 @@ namespace GitMind.Git
 
 
 		Task<R<CommitDiff>> GetCommitFileDiffAsync(string commitId, string name);
-		Task<R<GitCommitFiles>> GetCommitsFilesForCommitAsync(string path, string commitId);
-		Task SetSpecifiedCommitBranchAsync(string commitId, string branchName);
+		Task<R<GitCommitFiles>> GetCommitsFilesForCommitAsync(string gitRepositoryPath, string commitId);
+		Task SetSpecifiedCommitBranchAsync(string commitId, string branchName, string gitRepositoryPath);
 	}
 }

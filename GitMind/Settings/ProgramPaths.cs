@@ -154,9 +154,14 @@ namespace GitMind.Settings
 
 		public static R<string> GetWorkingFolderPath(string path)
 		{
+			if (path == null)
+			{
+				return Error.From("No working folder");
+			}
+
 			IGitService gitService = new GitService();
 
-			//Environment.CurrentDirectory = path;
+			
 
 			return gitService.GetCurrentRootPath(path)
 				.OnError(e => Log.Warn($"Not a working folder {path}, {e}"));

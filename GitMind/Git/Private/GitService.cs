@@ -39,7 +39,7 @@ namespace GitMind.Git.Private
 		public Error GitCommandError { get; } = new Error("Git command failed: ");
 
 
-		public async Task<R<IGitRepo>> GetRepoAsync(string path)
+		public async Task<R<IGitRepo>> GetRepoAsync(string gitRepositoryPath)
 		{
 			await Task.Yield();
 			//string time = DateTime.Now.ToShortTimeString().Replace(":", "-");
@@ -49,7 +49,7 @@ namespace GitMind.Git.Private
 			//if (tags.IsFaulted) return tags.Error;
 			//t.Log("Get tags");
 
-			IReadOnlyList<GitSpecifiedNames> specifiedNameses = GetSpecifiedNames(path);
+			IReadOnlyList<GitSpecifiedNames> specifiedNameses = GetSpecifiedNames(gitRepositoryPath);
 			t.Log("Get specified names");
 
 			//R<IReadOnlyList<GitBranch>> branches = await GetBranchesAsync(path);
@@ -196,12 +196,13 @@ namespace GitMind.Git.Private
 			return commitsFiles;
 		}
 
-		public async Task<R<GitCommitFiles>> GetCommitsFilesForCommitAsync(string path, string commitId)
+		public async Task<R<GitCommitFiles>> GetCommitsFilesForCommitAsync(
+			string gitRepositoryPath, string commitId)
 		{
 			// -m shows diffs for merge commits
 			string args = $"diff-tree --find-renames -m --root --no-commit-id --name-only -r {commitId}";
 
-			R<IReadOnlyList<string>> logResult = await GitAsync(path, args);
+			R<IReadOnlyList<string>> logResult = await GitAsync(gitRepositoryPath, args);
 
 			if (logResult.IsFaulted) return logResult.Error;
 
@@ -218,12 +219,12 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SetSpecifiedCommitBranchAsync(string commitId, string branchName)
+		public Task SetSpecifiedCommitBranchAsync(
+			string commitId, string branchName, string gitRepositoryPath)
 		{
 			try
 			{
-				string file =
-					Path.Combine(Environment.CurrentDirectory, ".git", "gitmind.specified");
+				string file = Path.Combine(gitRepositoryPath, "gitmind.specified");
 				File.AppendAllText(file, $"{commitId} {branchName}\n");
 			}
 			catch (Exception e)
@@ -564,7 +565,7 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				string filePath = Path.Combine(Environment.CurrentDirectory, ".git", "gitmind.specified");
+				string filePath = Path.Combine(path, "gitmind.specified");
 				if (File.Exists(filePath))
 				{
 					string[] lines = File.ReadAllLines(filePath);
@@ -585,9 +586,9 @@ namespace GitMind.Git.Private
 
 
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
-			string path, string args)
+			string gitRepositoryPath, string args)
 		{
-			string gitArgs = path != null ? $"--git-dir \"{path}\\.git\" {args}" : args;
+			string gitArgs = gitRepositoryPath != null ? $"--git-dir \"{gitRepositoryPath}\" {args}" : args;
 
 			return await Task.Run(() => GitCommand(gitArgs));
 		}

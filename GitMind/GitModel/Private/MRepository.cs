@@ -33,6 +33,7 @@ namespace GitMind.GitModel.Private
 		public Dictionary<string, MSubBranch> SubBranches { get; set; } 
 			= new Dictionary<string, MSubBranch>();
 
+		public string GitRepositoryPath { get; set; }
 
 		public IList<string> ChildIds(string commitId)
 		{
@@ -65,8 +66,9 @@ namespace GitMind.GitModel.Private
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
 
 
-		public void CompleteDeserialization()
+		public void CompleteDeserialization(string gitRepositoryPath)
 		{
+			GitRepositoryPath = gitRepositoryPath;
 			Commits.ForEach(c => c.Value.Repository = this);
 			SubBranches.ForEach(b => b.Value.Repository = this);
 			Branches.ForEach(b => b.Value.Repository = this);

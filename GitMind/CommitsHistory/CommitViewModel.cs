@@ -190,7 +190,8 @@ namespace GitMind.CommitsHistory
 			if (dialog.ShowDialog() == true)
 			{
 				string branchName = dialog.PromptText?.Trim();
-				await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName);
+				string gitRepositoryPath = Commit.GitRepositoryPath;
+				await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName, gitRepositoryPath);
 			}
 		});
 

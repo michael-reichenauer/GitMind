@@ -53,7 +53,8 @@ namespace GitMind.GitModel
 		}
 
 
-		public async Task<IEnumerable<CommitFile>> GetAsync(string commitId)
+		public async Task<IEnumerable<CommitFile>> GetAsync(
+			string gitRepositoryPath, string commitId)
 		{
 			IList<CommitFile> files;
 			if (!commitsFiles.TryGetValue(commitId, out files))
@@ -67,7 +68,7 @@ namespace GitMind.GitModel
 				}
 
 				Task<R<GitCommitFiles>> commitsFilesForCommitTask = 
-					gitService.GetCommitsFilesForCommitAsync(null, commitId);
+					gitService.GetCommitsFilesForCommitAsync(gitRepositoryPath, commitId);
 				currentTask = commitsFilesForCommitTask;
 				var commitsFilesForCommit = await commitsFilesForCommitTask;
 

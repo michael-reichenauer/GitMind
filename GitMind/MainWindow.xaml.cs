@@ -51,6 +51,7 @@ namespace GitMind
 		private readonly MainWindowViewModel mainWindowViewModel;
 		private DateTime LoadedTime = DateTime.MaxValue;
 		private readonly List<string> specifiedBranchNames = new List<string>();
+		private string workingFolder = null;
 
 		public MainWindow()
 		{
@@ -170,6 +171,7 @@ namespace GitMind
 
 		public bool InitDataModel()
 		{
+			
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
 			string[] args = Environment.GetCommandLineArgs();
@@ -180,7 +182,7 @@ namespace GitMind
 				string currentDirectory = args[1].Substring(3);
 				if (!string.IsNullOrWhiteSpace(currentDirectory))
 				{
-					Environment.CurrentDirectory = currentDirectory;
+					workingFolder = currentDirectory;
 				}
 
 				args = new string[0];
@@ -188,7 +190,7 @@ namespace GitMind
 
 			if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path))
 			{
-				Environment.CurrentDirectory = TestRepo.Path;
+				workingFolder = TestRepo.Path;
 			}
 			else if (args.Length > 1)
 			{
@@ -198,9 +200,9 @@ namespace GitMind
 				}
 			}
 
-			SetWorkingFolder();
+			workingFolder = TryGetWorkingFolder(workingFolder);
 			
-			Log.Debug($"Current working folder {Environment.CurrentDirectory}");
+			Log.Debug($"Current working folder {workingFolder}");
 			return true;
 		}
 
@@ -247,22 +249,26 @@ namespace GitMind
 		}
 
 
-		private void SetWorkingFolder()
+		private string TryGetWorkingFolder(string workingFolder)
 		{
-			R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(
-				Environment.CurrentDirectory);
+			R<string> path = ProgramPaths.GetWorkingFolderPath(workingFolder);
 
-			if (!workingFolder.HasValue)
+			if (!path.HasValue)
 			{
 				string lastUsedFolder = ProgramSettings.TryGetLatestUsedWorkingFolderPath();
 
 				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
 				{
-					workingFolder = ProgramPaths.GetWorkingFolderPath(lastUsedFolder);
+					path = ProgramPaths.GetWorkingFolderPath(lastUsedFolder);
 				}
 			}
 
-			workingFolder.OnValue(v => Environment.CurrentDirectory = v);
+			if (path.HasValue)
+			{
+				return path.Value;
+			}
+
+			return null;
 		}
 
 
@@ -272,11 +278,11 @@ namespace GitMind
 			Timing t = new Timing();
 			canvas = (ZoomableCanvas)sender;
 
-			R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory);
+			R<string> path = ProgramPaths.GetWorkingFolderPath(workingFolder);
 
-			while (!workingFolder.HasValue)
+			while (!path.HasValue)
 			{
-				Log.Warn($"Not a valid working folder {Environment.CurrentDirectory}");
+				Log.Warn($"Not a valid working folder '{workingFolder}'");
 
 				var dialog = new FolderBrowserDialog();
 				dialog.Description = "Select a working folder with a valid git repository.";
@@ -289,15 +295,15 @@ namespace GitMind
 					return;
 				}
 
-				workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
+				path = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
 			}
 
-			ProgramSettings.SetLatestUsedWorkingFolderPath(workingFolder.Value);
-			Environment.CurrentDirectory = workingFolder.Value;
-			mainWindowViewModel.WorkingFolder = workingFolder.Value;
+			ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
+			workingFolder = path.Value;
+			mainWindowViewModel.WorkingFolder = workingFolder;
 				
 			t.Log("Got working folder");
-			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true);
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true, workingFolder);
 
 			mainWindowViewModel.Busy.Add(repositoryTask);
 
@@ -346,18 +352,18 @@ namespace GitMind
 
 		private async Task RefreshAsync(bool isShift)
 		{
-			//await Task.Yield();
-			//return;
-			Task refreshTask = RefreshInternalAsync(isShift);
-			mainWindowViewModel.Busy.Add(refreshTask);
-			await refreshTask;
+			await Task.Yield();
+			return;
+			//Task refreshTask = RefreshInternalAsync(isShift);
+			//mainWindowViewModel.Busy.Add(refreshTask);
+			//await refreshTask;
 		}
 
 		private async Task RefreshInternalAsync(bool isShift)
 		{
 			await refreshService.UpdateStatusAsync();
 
-			await gitService.FetchAsync(null);
+			//await gitService.FetchAsync(null);
 
 			Repository repository = await repositoryService.UpdateRepositoryAsync(
 				repositoryViewModel.Repository);

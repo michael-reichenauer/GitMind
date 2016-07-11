@@ -76,7 +76,8 @@ namespace GitMind.CommitsHistory
 		{
 			string[] parts = text.Split(",".ToCharArray());
 
-			await repositoryService.SetSpecifiedCommitBranchAsync(parts[0], parts[1]);
+			string gitRepositoryPath = Repository.MRepository.GitRepositoryPath;
+			await repositoryService.SetSpecifiedCommitBranchAsync(parts[0], parts[1], gitRepositoryPath);
 		}
 
 

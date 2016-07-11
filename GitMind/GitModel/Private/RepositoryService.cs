@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Git;
@@ -56,23 +57,26 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task<Repository> GetRepositoryAsync(bool useCache)
+		public async Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder)
 		{
+			string gitRepositoryPath = Path.Combine(workingFolder, ".git");
+
 			Timing t = new Timing();
 			MRepository mRepository = null;
 			if (useCache)
 			{
-				mRepository = await cacheService.TryGetAsync();
-				t.Log("cacheService.TryGetAsync");
+				mRepository = await cacheService.TryGetRepositoryAsync(gitRepositoryPath);
+				t.Log("cacheService.TryGetRepositoryAsync");
 			}
 
 			if (mRepository == null)
 			{
 				Log.Debug("No cached repository");
 				mRepository = new MRepository();
+				mRepository.GitRepositoryPath = gitRepositoryPath;
 				mRepository.CommitsFiles = new CommitsFiles();
 
-				R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
+				R<IGitRepo> gitRepo = await gitService.GetRepoAsync(gitRepositoryPath);
 
 				t.Log("Got gitRepo");
 				await UpdateAsync(mRepository, gitRepo.Value);
@@ -95,8 +99,8 @@ namespace GitMind.GitModel.Private
 			mRepository.CommitsFiles = sourcerepository.CommitsFiles;
 
 			Timing t = new Timing();
-			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
-			t.Log($"Got gitRepo for {Environment.CurrentDirectory}");
+			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(mRepository.GitRepositoryPath);
+			t.Log($"Got gitRepo for {mRepository.GitRepositoryPath}");
 			await UpdateAsync(mRepository, gitRepo.Value);
 			t.Log("Updated mRepository");
 			cacheService.CacheAsync(mRepository).RunInBackground();
@@ -109,9 +113,10 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public Task SetSpecifiedCommitBranchAsync(string commitId, string branchName)
+		public Task SetSpecifiedCommitBranchAsync(
+			string commitId, string branchName, string gitRepositoryPath)
 		{
-			return gitService.SetSpecifiedCommitBranchAsync(commitId, branchName);
+			return gitService.SetSpecifiedCommitBranchAsync(commitId, branchName, gitRepositoryPath);
 		}
 
 
@@ -128,7 +133,8 @@ namespace GitMind.GitModel.Private
 		{
 			Log.Debug($"Updating repository");
 			Timing t = new Timing();
-			using (LibGit2Sharp.Repository repo = new LibGit2Sharp.Repository("D:\\My Work\\TestGit2\\.git"))
+			string gitRepositoryPath = repository.GitRepositoryPath;
+			using (LibGit2Sharp.Repository repo = new LibGit2Sharp.Repository(gitRepositoryPath))
 			{
 				commitsService.AddBranchCommits(repo, repository);
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");

@@ -7,7 +7,7 @@ namespace GitMind.GitModel.Private
 	internal interface ICacheService
 	{
 		Task CacheAsync(MRepository repository);
-		Task<MRepository> TryGetAsync();
-		Task CacheCommitFilesAsync(List<CommitFiles> commitsFilesTask);
+		Task<MRepository> TryGetRepositoryAsync(string gitRepositoryPath);
+		//Task CacheCommitFilesAsync(List<CommitFiles> commitsFilesTask);
 	}
 }

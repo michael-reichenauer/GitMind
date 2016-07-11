@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using GitMind.Utils;
@@ -15,31 +14,32 @@ namespace GitMind.GitModel.Private
 
 		public async Task CacheAsync(MRepository repository)
 		{
-			await Task.Yield();
-			//await WriteRepository(repository);
+			//await Task.Yield();
+			await WriteRepository(repository);
 		}
 
 
-		public async Task CacheCommitFilesAsync(List<CommitFiles> commitsFiles)
+		public async Task<MRepository> TryGetRepositoryAsync(string gitRepositoryPath)
 		{
-			await Task.Yield();
-			//await WriteCommitFilesAsync(commitsFiles);
+			//await Task.Yield();
+			//return null;
+			MRepository repository = await TryReadRepositoryAsync(gitRepositoryPath);
+			if (repository != null)
+			{
+				repository.CommitsFiles = new CommitsFiles();
+				// ReadCommitFilesAsync(repository.CommitsFiles).RunInBackground();
+			}
+
+			return repository;
 		}
 
 
-		public async Task<MRepository> TryGetAsync()
-		{
-			await Task.Yield();
-			return null;
-			//MRepository repository = await TryReadRepositoryAsync();
-			//if (repository != null)
-			//{
-			//	repository.CommitsFiles = new CommitsFiles();
-			//	// ReadCommitFilesAsync(repository.CommitsFiles).RunInBackground();
-			//}
+		//public async Task CacheCommitFilesAsync(List<CommitFiles> commitsFiles)
+		//{
+		//	await Task.Yield();
+		//	//await WriteCommitFilesAsync(commitsFiles);
+		//}
 
-			//return repository;
-		}
 
 
 		private async Task WriteRepository(MRepository repository)
@@ -47,7 +47,7 @@ namespace GitMind.GitModel.Private
 			await TaskThrottler.Run(() => Task.Run(() =>
 			{
 				Log.Debug("Caching repository ...");
-				string cachePath = GetCachePath(null);
+				string cachePath = GetCachePath(repository.GitRepositoryPath);
 				Timing t = new Timing();
 
 				Serialize(cachePath, repository);
@@ -56,30 +56,31 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async Task WriteCommitFilesAsync(IReadOnlyList<CommitFiles> commitsFiles)
-		{
-			await TaskThrottler.Run(() => Task.Run(() =>
-			{
-				//Log.Debug("Caching commit files  ...");
-				string cachePath = GetCachePath(null) + ".files";
-				Timing t = new Timing();
+		//private async Task WriteCommitFilesAsync(IReadOnlyList<CommitFiles> commitsFiles)
+		//{
+		//	await TaskThrottler.Run(() => Task.Run(() =>
+		//	{
+		//		//Log.Debug("Caching commit files  ...");
+		//		string cachePath = GetCachePath(null) + ".files";
+		//		Timing t = new Timing();
 
-				SerializeCommitsFiles(cachePath, commitsFiles);
+		//		SerializeCommitsFiles(cachePath, commitsFiles);
 
-				//t.Log($"Wrote commit files for {commitsFiles.Count} commits");
-			}));
-		}
+		//		//t.Log($"Wrote commit files for {commitsFiles.Count} commits");
+		//	}));
+		//}
 
 
-		public async Task<MRepository> TryReadRepositoryAsync()
+		public async Task<MRepository> TryReadRepositoryAsync(string gitRepositoryPath)
 		{
 			return await TaskThrottler.Run(() => Task.Run(() =>
 			{
-				Log.Debug("Reading cached repository ...");
-				string cachePath = GetCachePath(null);
+				Log.Debug($"Reading cached repository {gitRepositoryPath} ...");
+				string cachePath = GetCachePath(gitRepositoryPath);
 				Timing t = new Timing();
 
 				MRepository repository = Deserialize<MRepository>(cachePath);
+
 				if (repository == null)
 				{
 					Log.Debug("No cached repository");
@@ -94,7 +95,7 @@ namespace GitMind.GitModel.Private
 					return null;
 				}
 
-				repository.CompleteDeserialization();
+				repository.CompleteDeserialization(gitRepositoryPath);
 				t.Log("CompleteDeserialization");
 				return repository;
 			}));
@@ -110,7 +111,7 @@ namespace GitMind.GitModel.Private
 				Timing t = new Timing();
 
 				DeserializeCommitsFiles(cachePath, commitsFiles);
-			
+
 				t.Log($"Read commits file for {commitsFiles.Count} commits");
 			}));
 		}
@@ -144,16 +145,16 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void SerializeCommitsFiles(string cachePath, IReadOnlyList<CommitFiles> commitsFiles)
-		{
-			using (var file = File.Open(cachePath, FileMode.Append))
-			{
-				foreach (CommitFiles commitFiles in commitsFiles)
-				{
-					Serializer.SerializeWithLengthPrefix(file, commitFiles, PrefixStyle.Fixed32);
-				}
-			}
-		}
+		//private void SerializeCommitsFiles(string cachePath, IReadOnlyList<CommitFiles> commitsFiles)
+		//{
+		//	using (var file = File.Open(cachePath, FileMode.Append))
+		//	{
+		//		foreach (CommitFiles commitFiles in commitsFiles)
+		//		{
+		//			Serializer.SerializeWithLengthPrefix(file, commitFiles, PrefixStyle.Fixed32);
+		//		}
+		//	}
+		//}
 
 
 
@@ -175,7 +176,7 @@ namespace GitMind.GitModel.Private
 			{
 				Log.Warn($"Failed to read cache {e}");
 				return default(T);
-			}	
+			}
 		}
 
 
@@ -201,7 +202,7 @@ namespace GitMind.GitModel.Private
 						}
 
 						commitsFiles.Add(commitFiles);
-					}			
+					}
 				}
 			}
 			catch (Exception e)
@@ -212,10 +213,9 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static string GetCachePath(string path)
+		private static string GetCachePath(string gitRepositoryPath)
 		{
-			string workingFolderPath = path ?? Environment.CurrentDirectory;
-			return Path.Combine(workingFolderPath, ".git", "gitmind.cache");
+			return Path.Combine(gitRepositoryPath, "gitmind.cache");
 		}
 	}
 }
