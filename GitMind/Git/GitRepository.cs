@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
+
 namespace GitMind.Git
 {
 	internal class GitRepository : IDisposable

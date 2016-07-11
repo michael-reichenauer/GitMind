@@ -59,13 +59,11 @@ namespace GitMind.GitModel.Private
 
 		public async Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder)
 		{
-			string gitRepositoryPath = Path.Combine(workingFolder, ".git");
-
 			Timing t = new Timing();
 			MRepository mRepository = null;
 			if (useCache)
 			{
-				mRepository = await cacheService.TryGetRepositoryAsync(gitRepositoryPath);
+				mRepository = await cacheService.TryGetRepositoryAsync(workingFolder);
 				t.Log("cacheService.TryGetRepositoryAsync");
 			}
 
@@ -73,7 +71,7 @@ namespace GitMind.GitModel.Private
 			{
 				Log.Debug("No cached repository");
 				mRepository = new MRepository();
-				mRepository.GitRepositoryPath = gitRepositoryPath;
+				mRepository.WorkingFolder = workingFolder;
 				mRepository.CommitsFiles = new CommitsFiles();
 
 		
@@ -132,7 +130,7 @@ namespace GitMind.GitModel.Private
 		{
 			Log.Debug($"Updating repository");
 			Timing t = new Timing();
-			string gitRepositoryPath = repository.GitRepositoryPath;
+			string gitRepositoryPath = repository.WorkingFolder;
 
 			IReadOnlyList<GitSpecifiedNames> specifiedNames = gitService.GetSpecifiedNames(
 				gitRepositoryPath);

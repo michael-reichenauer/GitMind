@@ -62,7 +62,8 @@ namespace GitMind
 				mainWindowViewModel.StatusText = statusText;
 				mainWindowViewModel.IsStatusVisible = !string.IsNullOrWhiteSpace(statusText);
 
-				R<string> currentBranchName = await gitService.GetCurrentBranchNameAsync(null);
+				R<string> currentBranchName = await gitService.GetCurrentBranchNameAsync(
+					mainWindowViewModel.WorkingFolder);
 				if (currentBranchName.IsFaulted) return;
 
 				mainWindowViewModel.BranchName = currentBranchName.Value;

@@ -47,7 +47,7 @@ namespace GitMind.GitModel.Private
 			await TaskThrottler.Run(() => Task.Run(() =>
 			{
 				Log.Debug("Caching repository ...");
-				string cachePath = GetCachePath(repository.GitRepositoryPath);
+				string cachePath = GetCachePath(repository.WorkingFolder);
 				Timing t = new Timing();
 
 				Serialize(cachePath, repository);

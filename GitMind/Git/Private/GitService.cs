@@ -46,67 +46,46 @@ namespace GitMind.Git.Private
 		}
 
 
-		//public async Task<R<IGitRepo>> GetRepoAsync(string gitRepositoryPath)
-		//{
-		//	await Task.Yield();
-		//	//string time = DateTime.Now.ToShortTimeString().Replace(":", "-");
-		//	//string date = DateTime.Now.ToShortDateString().Replace(":", "-");
-		//	Timing t = new Timing();
-		//	//R<IReadOnlyList<GitTag>> tags = await GetTagsAsync(path);
-		//	//if (tags.IsFaulted) return tags.Error;
-		//	//t.Log("Get tags");
-
-		//	IReadOnlyList<GitSpecifiedNames> specifiedNameses = GetSpecifiedNames(gitRepositoryPath);
-		//	t.Log("Get specified names");
-
-		//	//R<IReadOnlyList<GitBranch>> branches = await GetBranchesAsync(path);
-		//	//if (branches.IsFaulted) return branches.Error;
-		//	//t.Log("Get branches");
-
-		//	//R<IReadOnlyList<GitCommit>> commits = await GetCommitsAsync(path);
-		//	//if (commits.IsFaulted) return commits.Error;
-		//	//t.Log("Get commits");
-
-		//	//R<GitCommit> currentCommit = await GetCurrentCommitAsync(path, commits.Value);
-		//	//if (currentCommit.IsFaulted) return currentCommit.Error;
-		//	//t.Log("Get current commit");
-
-		//	//// Getting current branch to be included in stored data
-		//	//GitBranch currentBranch = branches.Value.First(b => b.IsCurrent);
-		//	//t.Log("Get current branch");
-
-		//	return new GitRepo(specifiedNameses);
-
-
-		//	//return new GitRepo(
-		//	//	branches.Value, commits.Value, tags.Value, specifiedNameses, currentCommit.Value, currentBranch);
-		//}
-
-
-		public async Task<R<string>> GetCurrentBranchNameAsync(string path)
+		public Task<R<string>> GetCurrentBranchNameAsync(string workingFolder)
 		{
-			string args = "rev-parse --abbrev-ref HEAD";
-
-			R<IReadOnlyList<string>> currentBranch = await GitAsync(path, args);
-			if (currentBranch.IsFaulted) return currentBranch.Error;
-
-			return currentBranch.Value[0].Trim();
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						return R.From(gitRepository.Head.Name);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to get current branch name, {e.Message}");
+					return Error.From(e);
+				}
+			});
 		}
 
 
 		public R<string> GetCurrentRootPath(string path)
 		{
-			string args = $"--git-dir=\"{path}\\.git\" --work-tree=\"{path}\" rev-parse --show-toplevel";
-
-			CmdResult result = cmd.Run("git", args);
-
-			if (0 == result.ExitCode)
+			try
 			{
-				return result.Output[0].Trim();
+				while (!string.IsNullOrEmpty(path))
+				{
+					if (LibGit2Sharp.Repository.IsValid(path))
+					{
+						return path;
+					}
+
+					path = Path.GetDirectoryName(path);				
+				}
+
+				return Error.From("No working folder");
 			}
-			else
+			catch (Exception e)
 			{
-				return GitCommandError.With(result.ToString());
+				Log.Warn($"Failed to get working folder, {e.Message}");
+				return Error.From(e);
 			}
 		}
 

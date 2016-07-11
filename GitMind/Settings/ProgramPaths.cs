@@ -160,7 +160,6 @@ namespace GitMind.Settings
 			}
 
 			IGitService gitService = new GitService();
-
 			
 
 			return gitService.GetCurrentRootPath(path)
