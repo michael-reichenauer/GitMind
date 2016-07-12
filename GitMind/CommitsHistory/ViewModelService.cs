@@ -385,7 +385,7 @@ namespace GitMind.CommitsHistory
 
 				commitViewModel.Commit = commit;
 
-				// commitViewModel.IsCurrent = commit == model.CurrentCommit;
+				commitViewModel.IsCurrent = commit == repositoryViewModel.Repository.CurrentCommit;
 
 				commitViewModel.IsMergePoint =
 					commit.IsMergePoint && commit.Branch != commit.SecondParent.Branch;
