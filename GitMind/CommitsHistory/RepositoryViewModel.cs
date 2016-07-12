@@ -199,30 +199,28 @@ namespace GitMind.CommitsHistory
 		private void UpdateStatusIndicators()
 		{
 			IEnumerable<Branch> remoteAheadBranches = Repository.Branches
-				.Where(b => b.RemoteAheadCount > 0 && b.LocalAheadCount == 0);
-			int remoteAheadBranchesCount = remoteAheadBranches.Count();
-			int remoteAheadCount = remoteAheadBranches.Sum(b => b.RemoteAheadCount);
+				.Where(b => b.RemoteAheadCount > 0).ToList();
+		
+			string remoteAheadText = remoteAheadBranches.Any() 
+				? "Branches with remote commits:\n" : null;
+			foreach (Branch branch in remoteAheadBranches)
+			{
+				remoteAheadText += $"\n     {branch.Name},   {branch.RemoteAheadCount} commits";
+			}
 
-			RemoteAheadText = remoteAheadCount > 0
-				? $"{remoteAheadBranchesCount} remote branches, with {remoteAheadCount} commits, can be updated"
-				: null;
+			RemoteAheadText = remoteAheadText;
 
 			IEnumerable<Branch> localAheadBranches = Repository.Branches
-				.Where(b => b.LocalAheadCount > 0 && b.RemoteAheadCount == 0);
+				.Where(b => b.LocalAheadCount > 0).ToList();
+		
+			string localAheadText = localAheadBranches.Any()
+				? "Branches with local commits:\n" : null;
+			foreach (Branch branch in localAheadBranches)
+			{
+				localAheadText += $"\n     {branch.Name},   {branch.LocalAheadCount} commits";
+			}
 
-			int localAheadBranchesCount = localAheadBranches.Count();
-			int localAheadCount = localAheadBranches.Sum(b => b.LocalAheadCount);
-
-			LocalAheadText = localAheadCount > 0
-				? $"{localAheadBranchesCount} local branches, with {localAheadCount} commits, can be published"
-				: null;
-
-			int conflictAheadBranchesCount = Repository.Branches
-				.Count(b => b.LocalAheadCount > 0 && b.RemoteAheadCount > 0);
-
-			ConflictAheadText = conflictAheadBranchesCount > 0
-				? $"{conflictAheadBranchesCount} branches with both remote and local ahead commits"
-				: null;
+			LocalAheadText = localAheadText;
 		}
 
 

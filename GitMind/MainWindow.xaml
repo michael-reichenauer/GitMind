@@ -114,8 +114,8 @@
 								Placement="Bottom"					
 								VerticalOffset="5"
 								Background="Black"
-								BorderThickness="2"
-								BorderBrush="{StaticResource RemoteAheadBrush}">
+								BorderThickness="1"
+								BorderBrush="#FF6495ED">
 								<StackPanel Orientation="Horizontal">
 									<TextBlock 
 										Text="{Binding RepositoryViewModel.RemoteAheadText}" 
@@ -139,8 +139,8 @@
 								Placement="Bottom"					
 										VerticalOffset="5"
 										Background="Black"
-										BorderThickness="2"
-										BorderBrush="{StaticResource LocalAheadBrush}">
+										BorderThickness="1"
+										BorderBrush="#FF6495ED">
 								<StackPanel>
 									<TextBlock 
 										Text="{Binding RepositoryViewModel.LocalAheadText}" 
@@ -166,8 +166,8 @@
 								Placement="Bottom"					
 										VerticalOffset="5"
 										Background="Black"
-										BorderThickness="2"
-										BorderBrush="{StaticResource ConflictAheadBrush}">
+										BorderThickness="1"
+										BorderBrush="#FF6495ED">
 								<StackPanel>
 									<TextBlock 
 										Text="{Binding RepositoryViewModel.ConflictAheadText}" 

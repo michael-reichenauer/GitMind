@@ -9,6 +9,7 @@ namespace GitMind.CommitsHistory
 		SolidColorBrush SubjectBrush { get; }
 		SolidColorBrush LocalAheadBrush { get; }
 		SolidColorBrush RemoteAheadBrush { get; }
+		SolidColorBrush ConflictAheadBrush { get; }
 
 		Brush GetDarkerBrush(Brush brush);
 		Brush GetBranchBrush(Branch branch);
