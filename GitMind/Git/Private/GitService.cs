@@ -197,9 +197,9 @@ namespace GitMind.Git.Private
 
 		public Task FetchAsync(string workingFolder)
 		{
-			Log.Debug("Fetching repository ...");
+			Log.Debug($"Fetching repository in {workingFolder} ...");
 
-			return Task.Run(() =>
+			return Task.Run(async () =>
 			{
 				try
 				{
@@ -212,21 +212,33 @@ namespace GitMind.Git.Private
 				}
 				catch (Exception e)
 				{
-					Log.Warn($"Failed to fetch, {e.Message}");
+					if (e.Message == "Unsupported URL protocol")
+					{
+						await FetchUsingCmdAsync(workingFolder);
+					}
+					else
+					{
+						Log.Warn($"Failed to fetch, {e.Message}");
+					}
 				}
 			});
+		}
 
 
-			//string args = "fetch";
+		private async Task FetchUsingCmdAsync(string workingFolder)
+		{
+			Log.Debug("Fetching repository using cmd ...");
 
-			//R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
-			//Log.Debug("Fetched repository");
+			string args = "fetch";
 
-			//fetchResult.OnError(e =>
-			//{
-			//	// Git fetch failed, but ignore that for now
-			//	Log.Warn($"Git Fetch failed {e}");
-			//});
+			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+			Log.Debug("Fetched repository using cmd");
+
+			fetchResult.OnError(e =>
+			{
+				// Git fetch failed, but ignore that for now
+				Log.Warn($"Git Fetch failed {e.Message}");
+			});
 		}
 
 
@@ -259,7 +271,7 @@ namespace GitMind.Git.Private
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
 			string gitRepositoryPath, string args)
 		{
-			string gitArgs = gitRepositoryPath != null ? $"--git-dir \"{gitRepositoryPath}\" {args}" : args;
+			string gitArgs = gitRepositoryPath != null ? $"--git-dir \"{gitRepositoryPath}\\.git\" {args}" : args;
 
 			return await Task.Run(() => GitCommand(gitArgs));
 		}
