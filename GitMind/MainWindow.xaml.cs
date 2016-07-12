@@ -102,27 +102,61 @@ namespace GitMind
 
 		static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
 		{
-			Assembly executingAssembly = Assembly.GetExecutingAssembly();
-			string name = executingAssembly.FullName.Split(',')[0];
-			string resolveName = args.Name.Split(',')[0];
-			string resourceName = $"{name}.Dependencies.{resolveName}.dll";
-			Log.Debug($"Resolving {resolveName} from {resourceName} ...");
-
-			// Load the assembly from the resources
-			using (Stream stream = executingAssembly.GetManifestResourceStream(resourceName))
+			try
 			{
-				if (stream == null)
+				Assembly executingAssembly = Assembly.GetExecutingAssembly();
+				string name = executingAssembly.FullName.Split(',')[0];
+				string resolveName = args.Name.Split(',')[0];
+				string resourceName = $"{name}.Dependencies.{resolveName}.dll";
+				Log.Debug($"Resolving {resolveName} from {resourceName} ...");
+
+				if (resolveName == "LibGit2Sharp")
 				{
-					Log.Error($"Failed to load assembly {resolveName}");
-					throw new InvalidOperationException("Failed to load assembly " + resolveName);
+					string gitName = "git2-785d8c4.dll";
+					string directoryName = Path.GetDirectoryName(executingAssembly.Location);
+					string targetPath = Path.Combine(directoryName, gitName);
+					if (!File.Exists(targetPath))
+					{
+						string gitResourceName = $"{name}.Dependencies.{gitName}";
+						Log.Debug($"Trying to extract {gitResourceName} and write {targetPath}");
+						using (Stream stream = executingAssembly.GetManifestResourceStream(gitResourceName))
+						{
+							if (stream == null)
+							{
+								Log.Error($"Failed to read {gitResourceName}");
+								throw new InvalidOperationException("Failed to extract dll" + gitResourceName);
+							}
+
+							long bytestreamMaxLength = stream.Length;
+							byte[] buffer = new byte[bytestreamMaxLength];
+							stream.Read(buffer, 0, (int)bytestreamMaxLength);
+							File.WriteAllBytes(targetPath, buffer);
+							Log.Debug($"Extracted {targetPath}");
+						}
+					}
 				}
 
-				long bytestreamMaxLength = stream.Length;
-				byte[] buffer = new byte[bytestreamMaxLength];
-				stream.Read(buffer, 0, (int)bytestreamMaxLength);
-				Log.Debug($"Resolved {resolveName}");
-				return Assembly.Load(buffer);
+				// Load the assembly from the resources
+				using (Stream stream = executingAssembly.GetManifestResourceStream(resourceName))
+				{
+					if (stream == null)
+					{
+						Log.Error($"Failed to load assembly {resolveName}");
+						throw new InvalidOperationException("Failed to load assembly " + resolveName);
+					}
+
+					long bytestreamMaxLength = stream.Length;
+					byte[] buffer = new byte[bytestreamMaxLength];
+					stream.Read(buffer, 0, (int)bytestreamMaxLength);
+					Log.Debug($"Resolved {resolveName}");
+					return Assembly.Load(buffer);
+				}
 			}
+			catch (Exception e)
+			{
+				Log.Error($"Failed to load, {e}");
+				throw;
+			}			
 		}
 
 
