@@ -158,6 +158,8 @@
 						FontFamily="pack://application:,,,/Fonts/#Material Icons"
 						Foreground="{StaticResource ConflictAheadBrush}"
 						Text="&#xE259;"
+						FontSize="18"
+						Margin="3,3"
 						>
 						<TextBlock.ToolTip>
 							<ToolTip
@@ -238,7 +240,7 @@
 								Placement="Bottom"					
 										VerticalOffset="5"
 										Background="Black"
-										BorderThickness="1"
+										BorderThickness="2"
 										BorderBrush="#FF6495ED">
 								<StackPanel>
 									<TextBlock 

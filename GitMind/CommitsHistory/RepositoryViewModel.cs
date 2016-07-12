@@ -171,6 +171,8 @@ namespace GitMind.CommitsHistory
 			{
 				Log.Debug("Not updating while in filter mode");
 			}
+
+			UpdateStatusIndicators();
 		}
 
 
@@ -188,6 +190,14 @@ namespace GitMind.CommitsHistory
 				SelectedIndex = Commits[0].VirtualId;
 			}
 
+			UpdateStatusIndicators();
+
+			t.Log("Updated repository view model");
+		}
+
+
+		private void UpdateStatusIndicators()
+		{
 			int remoteAheadCount = Repository.Branches.Sum(b => b.RemoteAheadCount);
 			int remoteAheadBranchesCount = Repository.Branches.Count(b => b.RemoteAheadCount > 0);
 
@@ -208,8 +218,6 @@ namespace GitMind.CommitsHistory
 			ConflictAheadText = conflictAheadBranchesCount > 0
 				? $"{conflictAheadBranchesCount} branches with both remote and local ahead commits"
 				: null;
-
-			t.Log("Updated repository view model");
 		}
 
 
