@@ -24,7 +24,14 @@ namespace GitMind.CommitsHistory
 		public SolidColorBrush RemoteAheadBrush { get; } =
 			(SolidColorBrush)new BrushConverter().ConvertFrom("#BBBBFB");
 
-		
+		public SolidColorBrush ConflictAheadBrush { get; } =
+				(SolidColorBrush)new BrushConverter().ConvertFrom("#FCB9B6");
+
+		// Light orchchid
+		//public SolidColorBrush RemoteAheadBrush { get; } =
+		//		(SolidColorBrush)new BrushConverter().ConvertFrom("#BBBBFB");
+
+
 
 		public Brush GetBranchBrush(Branch branch)
 		{
