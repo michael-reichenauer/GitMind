@@ -5,8 +5,8 @@ namespace GitMind.CommitsHistory
 {
 	internal interface IDiffService
 	{
-		Task ShowDiffAsync(string commitId);
+		Task ShowDiffAsync(string commitId, string workingFolder);
 
-		Task ShowFileDiffAsync(string commitId, string name);
+		Task ShowFileDiffAsync(string workingFolder, string commitId, string name);
 	}
 }

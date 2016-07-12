@@ -219,9 +219,9 @@ namespace GitMind.CommitsHistory
 					new CommitFileViewModel
 					{
 						Id = commit.Id,
-						HasParentCommit = commit.HasFirstParent,
 						Name = f.Name,
-						Status = f.Status
+						Status = f.Status,
+						WorkingFolder = commit.GitRepositoryPath
 					}));
 			}
 			else

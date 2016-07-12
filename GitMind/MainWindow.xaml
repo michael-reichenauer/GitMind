@@ -935,6 +935,7 @@
 									<ColumnDefinition Width="*" />
 									<ColumnDefinition Width="20" />
 								</Grid.ColumnDefinitions>
+								
 								<Label
 									Grid.Column="0"
 									Padding="0"
@@ -944,7 +945,7 @@
 									Grid.Column="1"
 									Padding="0"
 									Content="{Binding Status}" 
-									Foreground="{StaticResource TextBrush}"/>
+									Foreground="DarkGray"/>
 								
 								<Grid.ContextMenu>
 									<ContextMenu 

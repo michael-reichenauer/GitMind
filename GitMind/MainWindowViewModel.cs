@@ -246,7 +246,7 @@ namespace GitMind
 
 		private async void ShowDiff()
 		{
-			await diffService.ShowDiffAsync(null);
+			await diffService.ShowDiffAsync(null, WorkingFolder);
 		}
 
 

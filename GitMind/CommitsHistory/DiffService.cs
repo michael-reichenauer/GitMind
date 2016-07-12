@@ -28,7 +28,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public async Task ShowDiffAsync(string commitId)
+		public async Task ShowDiffAsync(string commitId, string workingFolder)
 		{
 			string p4mergeExe;
 			if (!IsDiffSupported(out p4mergeExe))
@@ -36,7 +36,7 @@ namespace GitMind.CommitsHistory
 				return;
 			}
 
-			R<CommitDiff> commitDiff = await gitService.GetCommitDiffAsync(commitId);
+			R<CommitDiff> commitDiff = await gitService.GetCommitDiffAsync(workingFolder, commitId);
 
 			if (commitDiff.HasValue)
 			{
@@ -48,7 +48,7 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public async Task ShowFileDiffAsync(string commitId, string name)
+		public async Task ShowFileDiffAsync(string workingFolder, string commitId, string name)
 		{
 			string p4mergeExe;
 			if (!IsDiffSupported(out p4mergeExe))
@@ -56,7 +56,7 @@ namespace GitMind.CommitsHistory
 				return;
 			}
 
-			R<CommitDiff> commitDiff = await gitService.GetCommitFileDiffAsync(commitId, name);
+			R<CommitDiff> commitDiff = await gitService.GetFileDiffAsync(workingFolder, commitId, name);
 
 			if (commitDiff.HasValue)
 			{

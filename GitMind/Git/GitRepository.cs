@@ -25,6 +25,8 @@ namespace GitMind.Git
 
 		public GitStatus Status => new GitStatus(repository.RetrieveStatus(new StatusOptions()));
 
+		public GitDiff Diff => new GitDiff(repository.Diff, repository);
+
 
 		public void Dispose()
 		{

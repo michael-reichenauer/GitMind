@@ -180,7 +180,7 @@ namespace GitMind.CommitsHistory
 
 		public Command HideBranchCommand => Command(HideBranch);
 
-		public Command ShowDiffCommand => Command(() => diffService.ShowDiffAsync(Id));
+		public Command ShowDiffCommand => Command(() => diffService.ShowDiffAsync(Id, Commit.GitRepositoryPath));
 
 		public Command SetCommitBranchCommand => Command(async () =>
 		{
