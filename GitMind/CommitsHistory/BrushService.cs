@@ -17,8 +17,8 @@ namespace GitMind.CommitsHistory
 		public SolidColorBrush SubjectBrush { get; } = Brushes.Lavender;
 
 		//public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightSkyBlue;
-		public SolidColorBrush LocalAheadBrush { get; } = 
-			(SolidColorBrush)new BrushConverter().ConvertFrom("#BBFBD8");
+		public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightGreen;
+		//	(SolidColorBrush)new BrushConverter().ConvertFrom("#BBFBD8");
 
 		//public SolidColorBrush RemoteAheadBrush { get; } = Brushes.Gray;
 		public SolidColorBrush RemoteAheadBrush { get; } =

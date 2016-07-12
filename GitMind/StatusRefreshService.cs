@@ -56,7 +56,7 @@ namespace GitMind
 				if (!status.OK)
 				{
 					int count = status.Count;
-					statusText = $"  Uncommitted: {count}";
+					statusText = $"{count} uncommitted changes";
 				}
 
 				mainWindowViewModel.StatusText = statusText;

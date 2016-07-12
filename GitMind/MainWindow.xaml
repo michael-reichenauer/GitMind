@@ -98,55 +98,121 @@
 							</ToolTip>
 						</TextBlock.ToolTip>
 					</TextBlock>
-					
-				
 
-					<!-- Commit status  -->
-					<TextBlock>
-						 <Hyperlink TextDecorations="None">
-							<TextBlock 
-								Visibility="{Binding IsStatusVisible, Converter={StaticResource VC}}"
-								Margin="3, 5"
-								Text="{Binding StatusText}"
-								Foreground="BurlyWood"
-								HorizontalAlignment="Left"
-								VerticalAlignment="Center">
+					<!-- Status status  -->
 
-								<TextBlock.InputBindings>
-									<MouseBinding 
-										Command="{Binding ShowDiffCommand}" 
-										MouseAction="LeftClick" />
-								</TextBlock.InputBindings>
-								<TextBlock.ToolTip>
-									<ToolTip
-										Placement="Bottom"					
+					<!-- Remote ahead status Command="{Binding UpdateCommand}" Style="{StaticResource BaseButtonStyle}"-->
+					<TextBlock
+						Visibility="{Binding RepositoryViewModel.RemoteAheadText, Converter={StaticResource VC}}"					
+						FontFamily="pack://application:,,,/Fonts/#Material Icons"
+						Foreground="{StaticResource RemoteAheadBrush}"
+						FontSize="18"
+						Margin="4,3"
+						Text="&#xE258;">
+						<TextBlock.ToolTip>
+							<ToolTip
+								Placement="Bottom"					
+								VerticalOffset="5"
+								Background="Black"
+								BorderThickness="2"
+								BorderBrush="{StaticResource RemoteAheadBrush}">
+								<StackPanel Orientation="Horizontal">
+									<TextBlock 
+										Text="{Binding RepositoryViewModel.RemoteAheadText}" 
+										Foreground="{StaticResource TextBrush}"/>
+								</StackPanel>
+							</ToolTip>
+						</TextBlock.ToolTip>
+					</TextBlock>
+
+					<!-- Local ahead status Command="{Binding PublishCommand}" Style="{StaticResource BaseButtonStyle}" -->
+					<TextBlock 
+						Visibility="{Binding RepositoryViewModel.LocalAheadText, Converter={StaticResource VC}}"			
+						FontFamily="pack://application:,,,/Fonts/#Material Icons"
+						Foreground="{StaticResource LocalAheadBrush}"
+						Text="&#xE25A;"
+						FontSize="18"
+						Margin="3,3"
+						>
+						<TextBlock.ToolTip>
+							<ToolTip
+								Placement="Bottom"					
 										VerticalOffset="5"
 										Background="Black"
 										BorderThickness="2"
-										BorderBrush="{Binding BranchBrush}">
-										<StackPanel Orientation="Horizontal">
-											<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
-											<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
-										</StackPanel>
-									</ToolTip>
-								</TextBlock.ToolTip>
-
-								<TextBlock.ContextMenu>
-									<ContextMenu 
-										Background="Transparent" 
-										Foreground="LightSteelBlue"
-										BorderBrush="DarkSlateBlue"
-										BorderThickness="0">
-
-										<MenuItem 
-											Header="Show Diff ..."
-											Command="{Binding ShowDiffCommand}"/>
-									</ContextMenu>
-								</TextBlock.ContextMenu>
-							</TextBlock>	
-						</Hyperlink>
+										BorderBrush="{StaticResource LocalAheadBrush}">
+								<StackPanel>
+									<TextBlock 
+										Text="{Binding RepositoryViewModel.LocalAheadText}" 
+										Foreground="{StaticResource TextBrush}"/>
+								</StackPanel>
+							</ToolTip>
+						</TextBlock.ToolTip>
 					</TextBlock>
-					
+
+
+					<!-- Conflict ahead status Command="{Binding ConflictAheadCommand}" Style="{StaticResource BaseButtonStyle}"-->
+					<TextBlock
+						Visibility="{Binding RepositoryViewModel.ConflictAheadText, Converter={StaticResource VC}}"
+						
+						FontFamily="pack://application:,,,/Fonts/#Material Icons"
+						Foreground="{StaticResource ConflictAheadBrush}"
+						Text="&#xE259;"
+						>
+						<TextBlock.ToolTip>
+							<ToolTip
+								Placement="Bottom"					
+										VerticalOffset="5"
+										Background="Black"
+										BorderThickness="2"
+										BorderBrush="{StaticResource ConflictAheadBrush}">
+								<StackPanel>
+									<TextBlock 
+										Text="{Binding RepositoryViewModel.ConflictAheadText}" 
+										Foreground="{StaticResource TextBrush}"/>
+								</StackPanel>
+							</ToolTip>
+						</TextBlock.ToolTip>
+					</TextBlock>
+
+					<!-- Uncommitted status  -->
+					<Button 
+						Visibility="{Binding StatusText, Converter={StaticResource VC}}"
+						Style="{StaticResource BaseButtonStyle}"
+						FontFamily="pack://application:,,,/Fonts/#Material Icons"
+						Foreground="{StaticResource UncomittedBrush}"
+						Content="&#xE430;"
+						Command="{Binding ShowDiffCommand}">
+						<Button.ToolTip>
+							<ToolTip
+								Placement="Bottom"					
+								VerticalOffset="5"
+								Background="Black"
+								BorderThickness="2"
+								BorderBrush="{StaticResource UncomittedBrush}">
+								<StackPanel>
+									<TextBlock 
+										Text="{Binding StatusText}" 
+										Foreground="{StaticResource TextBrush}"/>
+								</StackPanel>
+							</ToolTip>
+						</Button.ToolTip>
+						<Button.ContextMenu>
+							<ContextMenu
+								Background="Transparent"
+								FontFamily="Segoe UI"
+								FontSize="12"
+								Foreground="Lavender"
+								BorderBrush="DarkSlateBlue"
+								BorderThickness="0">
+								<MenuItem
+									Header="Show Diff ..."
+									Command="{Binding ShowDiffCommand}"/>
+							</ContextMenu>
+						</Button.ContextMenu>
+					</Button>
+
+					<!-- Busy Indicator  -->		
 					<Label 
 						Margin="10,0"
 						Foreground="DarkOrchid"

@@ -81,6 +81,25 @@ namespace GitMind.CommitsHistory
 		}
 
 
+		public string RemoteAheadText
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public string LocalAheadText
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public string ConflictAheadText
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
 
@@ -168,6 +187,27 @@ namespace GitMind.CommitsHistory
 			{
 				SelectedIndex = Commits[0].VirtualId;
 			}
+
+			int remoteAheadCount = Repository.Branches.Sum(b => b.RemoteAheadCount);
+			int remoteAheadBranchesCount = Repository.Branches.Count(b => b.RemoteAheadCount > 0);
+
+			RemoteAheadText = remoteAheadCount > 0
+				? $"{remoteAheadCount} commits on {remoteAheadBranchesCount} remote branches can be pulled"
+				: null;
+
+			int localAheadCount = Repository.Branches.Sum(b => b.LocalAheadCount);
+			int localAheadBranchesCount = Repository.Branches.Count(b => b.LocalAheadCount > 0);
+
+			LocalAheadText = localAheadCount > 0
+				? $"{localAheadCount} commits on {localAheadBranchesCount} local branches can be pushed"
+				: null;
+
+			int conflictAheadBranchesCount = Repository.Branches
+				.Count(b => b.LocalAheadCount > 0 && b.RemoteAheadCount > 0);
+
+			ConflictAheadText = conflictAheadBranchesCount > 0
+				? $"{conflictAheadBranchesCount} branches with both remote and local ahead commits"
+				: null;
 
 			t.Log("Updated repository view model");
 		}
