@@ -205,8 +205,7 @@ namespace GitMind
 
 
 		public bool InitDataModel()
-		{
-			
+		{			
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
 			string[] args = Environment.GetCommandLineArgs();

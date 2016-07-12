@@ -198,18 +198,23 @@ namespace GitMind.CommitsHistory
 
 		private void UpdateStatusIndicators()
 		{
-			int remoteAheadCount = Repository.Branches.Sum(b => b.RemoteAheadCount);
-			int remoteAheadBranchesCount = Repository.Branches.Count(b => b.RemoteAheadCount > 0);
+			IEnumerable<Branch> remoteAheadBranches = Repository.Branches
+				.Where(b => b.RemoteAheadCount > 0 && b.LocalAheadCount == 0);
+			int remoteAheadBranchesCount = remoteAheadBranches.Count();
+			int remoteAheadCount = remoteAheadBranches.Sum(b => b.RemoteAheadCount);
 
 			RemoteAheadText = remoteAheadCount > 0
-				? $"{remoteAheadCount} commits on {remoteAheadBranchesCount} remote branches can be pulled"
+				? $"{remoteAheadBranchesCount} remote branches, with {remoteAheadCount} commits, can be updated"
 				: null;
 
-			int localAheadCount = Repository.Branches.Sum(b => b.LocalAheadCount);
-			int localAheadBranchesCount = Repository.Branches.Count(b => b.LocalAheadCount > 0);
+			IEnumerable<Branch> localAheadBranches = Repository.Branches
+				.Where(b => b.LocalAheadCount > 0 && b.RemoteAheadCount == 0);
+
+			int localAheadBranchesCount = localAheadBranches.Count();
+			int localAheadCount = localAheadBranches.Sum(b => b.LocalAheadCount);
 
 			LocalAheadText = localAheadCount > 0
-				? $"{localAheadCount} commits on {localAheadBranchesCount} local branches can be pushed"
+				? $"{localAheadBranchesCount} local branches, with {localAheadCount} commits, can be published"
 				: null;
 
 			int conflictAheadBranchesCount = Repository.Branches
