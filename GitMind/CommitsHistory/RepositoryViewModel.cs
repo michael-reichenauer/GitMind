@@ -205,7 +205,7 @@ namespace GitMind.CommitsHistory
 				? "Branches with remote commits:\n" : null;
 			foreach (Branch branch in remoteAheadBranches)
 			{
-				remoteAheadText += $"\n     {branch.Name},   {branch.RemoteAheadCount} commits";
+				remoteAheadText += $"\n    {branch.RemoteAheadCount}\t{branch.Name}";
 			}
 
 			RemoteAheadText = remoteAheadText;
@@ -217,7 +217,7 @@ namespace GitMind.CommitsHistory
 				? "Branches with local commits:\n" : null;
 			foreach (Branch branch in localAheadBranches)
 			{
-				localAheadText += $"\n     {branch.Name},   {branch.LocalAheadCount} commits";
+				localAheadText += $"\n    {branch.LocalAheadCount}\t{branch.Name}";
 			}
 
 			LocalAheadText = localAheadText;

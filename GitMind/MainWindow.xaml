@@ -781,7 +781,7 @@
 													</Grid.ColumnDefinitions>
 													
 													<Grid.ContextMenu>
-														<ContextMenu 
+															<ContextMenu 
 															Background="Transparent" 
 															Foreground="Lavender"
 															BorderBrush="DarkSlateBlue"
@@ -942,23 +942,23 @@
 							Content="{Binding RepositoryViewModel.CommitDetail.Branch}"/>
 						<Label 
 							Grid.Column="0" Grid.Row="2"
-							Visibility="{Binding RepositoryViewModel.CommitDetail.IsTags, Converter={StaticResource VC}}"
+							Visibility="{Binding RepositoryViewModel.CommitDetail.Tags, Converter={StaticResource VC}}"
 							Style="{StaticResource HeaderLabelStyle}" 
 							Content="Tags:"/>
 						<Label 
 							Grid.Column="1" Grid.Row="2"
-							Visibility="{Binding RepositoryViewModel.CommitDetail.IsTags, Converter={StaticResource VC}}"
+							Visibility="{Binding RepositoryViewModel.CommitDetail.Tags, Converter={StaticResource VC}}"
 							Style="{StaticResource TextLabelStyle}" 
 							Foreground="{StaticResource TagBrush}"
 							Content="{Binding RepositoryViewModel.CommitDetail.Tags}"/>
 						<Label 
 							Grid.Column="0" Grid.Row="3"
-							Visibility="{Binding RepositoryViewModel.CommitDetail.IsTickets, Converter={StaticResource VC}}"
+							Visibility="{Binding RepositoryViewModel.CommitDetail.Tickets, Converter={StaticResource VC}}"
 							Style="{StaticResource HeaderLabelStyle}" 
 							Content="Tickets:"/>				
 						<Label 
 							Grid.Column="1" Grid.Row="3"
-							Visibility="{Binding RepositoryViewModel.CommitDetail.IsTickets, Converter={StaticResource VC}}"
+							Visibility="{Binding RepositoryViewModel.CommitDetail.Tickets, Converter={StaticResource VC}}"
 							Style="{StaticResource TextLabelStyle}" 
 							Foreground="{StaticResource TicketBrush}"
 							Content="{Binding RepositoryViewModel.CommitDetail.Tickets}"/>			
