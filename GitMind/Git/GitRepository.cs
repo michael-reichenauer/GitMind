@@ -32,5 +32,11 @@ namespace GitMind.Git
 		{
 			repository.Dispose();
 		}
+
+
+		public void Fetch()
+		{
+			repository.Fetch("origin");
+		}
 	}
 }

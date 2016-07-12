@@ -61,18 +61,18 @@ namespace GitMind.Git.Private
 		}
 
 
-		public R<string> GetCurrentRootPath(string path)
+		public R<string> GetCurrentRootPath(string workingFolder)
 		{
 			try
 			{
-				while (!string.IsNullOrEmpty(path))
+				while (!string.IsNullOrEmpty(workingFolder))
 				{
-					if (LibGit2Sharp.Repository.IsValid(path))
+					if (LibGit2Sharp.Repository.IsValid(workingFolder))
 					{
-						return path;
+						return workingFolder;
 					}
 
-					path = Path.GetDirectoryName(path);
+					workingFolder = Path.GetDirectoryName(workingFolder);
 				}
 
 				return Error.From("No working folder");
@@ -106,8 +106,6 @@ namespace GitMind.Git.Private
 		}
 
 
-
-
 		public Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId)
 		{
 			return Task.Run(() =>
@@ -129,11 +127,11 @@ namespace GitMind.Git.Private
 
 
 		public Task SetSpecifiedCommitBranchAsync(
-			string commitId, string branchName, string gitRepositoryPath)
+			string workingFolder, string commitId, string branchName)
 		{
 			try
 			{
-				string file = Path.Combine(gitRepositoryPath, "gitmind.specified");
+				string file = Path.Combine(workingFolder, "gitmind.specified");
 				File.AppendAllText(file, $"{commitId} {branchName}\n");
 			}
 			catch (Exception e)
@@ -169,7 +167,6 @@ namespace GitMind.Git.Private
 
 		public Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId)
 		{
-
 			return Task.Run(async () =>
 			{
 				try
@@ -198,29 +195,48 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task FetchAsync(string path)
+		public Task FetchAsync(string workingFolder)
 		{
 			Log.Debug("Fetching repository ...");
-			string args = "fetch";
 
-			R<IReadOnlyList<string>> fetchResult = await GitAsync(path, args);
-			Log.Debug("Fetched repository");
-
-			fetchResult.OnError(e =>
+			return Task.Run(() =>
 			{
-				// Git fetch failed, but ignore that for now
-				Log.Warn($"Git Fetch failed {e}");
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.Fetch();
+					}
+
+					Log.Debug("Fetched repository");
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to fetch, {e.Message}");
+				}
 			});
+
+
+			//string args = "fetch";
+
+			//R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+			//Log.Debug("Fetched repository");
+
+			//fetchResult.OnError(e =>
+			//{
+			//	// Git fetch failed, but ignore that for now
+			//	Log.Warn($"Git Fetch failed {e}");
+			//});
 		}
 
 
-		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string gitRepositoryPath)
+		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder)
 		{
 			List<GitSpecifiedNames> branchNames = new List<GitSpecifiedNames>();
 
 			try
 			{
-				string filePath = Path.Combine(gitRepositoryPath, "gitmind.specified");
+				string filePath = Path.Combine(workingFolder, "gitmind.specified");
 				if (File.Exists(filePath))
 				{
 					string[] lines = File.ReadAllLines(filePath);

@@ -353,18 +353,18 @@ namespace GitMind
 
 		private async Task RefreshAsync(bool isShift)
 		{
-			await Task.Yield();
-			return;
-			//Task refreshTask = RefreshInternalAsync(isShift);
-			//mainWindowViewModel.Busy.Add(refreshTask);
-			//await refreshTask;
+			//await Task.Yield();
+			//return;
+			Task refreshTask = RefreshInternalAsync(isShift);
+			mainWindowViewModel.Busy.Add(refreshTask);
+			await refreshTask;
 		}
 
 		private async Task RefreshInternalAsync(bool isShift)
 		{
 			await refreshService.UpdateStatusAsync(repositoryViewModel.Repository.MRepository.WorkingFolder);
 
-			//await gitService.FetchAsync(null);
+			await gitService.FetchAsync(repositoryViewModel.Repository.MRepository.WorkingFolder);
 
 			Repository repository = await repositoryService.UpdateRepositoryAsync(
 				repositoryViewModel.Repository);

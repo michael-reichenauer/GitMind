@@ -13,11 +13,11 @@ namespace GitMind.Git
 
 		GitRepository OpenRepository(string workingFolder);
 
-		Task FetchAsync(string path);
+		Task FetchAsync(string workingFolder);
 
 		Task<R<string>> GetCurrentBranchNameAsync(string workingFolder);
 
-		R<string> GetCurrentRootPath(string path);
+		R<string> GetCurrentRootPath(string workingFolder);
 
 		Task<R<GitStatus>> GetStatusAsync(string workingFolder);
 
@@ -27,9 +27,9 @@ namespace GitMind.Git
 
 		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId);
 
-		Task SetSpecifiedCommitBranchAsync(string commitId, string branchName, string gitRepositoryPath);
+		Task SetSpecifiedCommitBranchAsync(string workingFolder, string commitId, string branchName);
 
-		IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string gitRepositoryPath);
+		IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder);
 
 	}
 }
