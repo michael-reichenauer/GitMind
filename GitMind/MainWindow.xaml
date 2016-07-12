@@ -758,14 +758,14 @@
 														<!-- Tag -->
 														<TextBlock 
 															Text="{Binding Tags}"
-															Foreground="MediumSeaGreen"
+															Foreground="{StaticResource TagBrush}"
 															HorizontalAlignment="Left"
 															VerticalAlignment="Center"/>
 
 														<!-- Tickets -->
 														<TextBlock 
 															Text="{Binding Tickets}"
-															Foreground="Red"
+															Foreground="{StaticResource TicketBrush}"
 															HorizontalAlignment="Left"
 															VerticalAlignment="Center"/>
 
@@ -881,7 +881,7 @@
 							Grid.Column="1" Grid.Row="2"
 							Visibility="{Binding RepositoryViewModel.CommitDetail.IsTags, Converter={StaticResource VC}}"
 							Style="{StaticResource TextLabelStyle}" 
-							Foreground="MediumSeaGreen"
+							Foreground="{StaticResource TagBrush}"
 							Content="{Binding RepositoryViewModel.CommitDetail.Tags}"/>
 						<Label 
 							Grid.Column="0" Grid.Row="3"
@@ -892,7 +892,7 @@
 							Grid.Column="1" Grid.Row="3"
 							Visibility="{Binding RepositoryViewModel.CommitDetail.IsTickets, Converter={StaticResource VC}}"
 							Style="{StaticResource TextLabelStyle}" 
-							Foreground="Red"
+							Foreground="{StaticResource TicketBrush}"
 							Content="{Binding RepositoryViewModel.CommitDetail.Tickets}"/>			
 						<Label 
 							Grid.Column="0" Grid.Row="4"

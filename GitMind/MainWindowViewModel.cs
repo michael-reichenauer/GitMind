@@ -258,6 +258,7 @@ namespace GitMind
 				var dialog = new FolderBrowserDialog();
 				dialog.Description = "Select a working folder with a valid git repository.";
 				dialog.ShowNewFolderButton = false;
+				dialog.RootFolder = Environment.SpecialFolder.MyComputer;
 				dialog.SelectedPath = WorkingFolder ?? Environment.CurrentDirectory;
 				if (dialog.ShowDialog(owner.GetIWin32Window()) != DialogResult.OK)
 				{

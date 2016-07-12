@@ -13,13 +13,18 @@ namespace GitMind.CommitsHistory
 
 		private readonly Lazy<IList<Brush>> brushes = new Lazy<IList<Brush>>(InitBrushes);
 
+		//public SolidColorBrush SubjectBrush { get; } = Brushes.Lavender;
 		public SolidColorBrush SubjectBrush { get; } = Brushes.Lavender;
 
-		public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightSkyBlue;
+		//public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightSkyBlue;
+		public SolidColorBrush LocalAheadBrush { get; } = 
+			(SolidColorBrush)new BrushConverter().ConvertFrom("#BBFBD8");
 
 		//public SolidColorBrush RemoteAheadBrush { get; } = Brushes.Gray;
-		public SolidColorBrush RemoteAheadBrush { get; } = Brushes.LightSteelBlue;
+		public SolidColorBrush RemoteAheadBrush { get; } =
+			(SolidColorBrush)new BrushConverter().ConvertFrom("#BBBBFB");
 
+		
 
 		public Brush GetBranchBrush(Branch branch)
 		{
