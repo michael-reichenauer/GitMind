@@ -18,8 +18,10 @@ namespace GitMind.Git.Private
 			+ "=================================================";
 
 
-		public Task<CommitDiff> ParseAsync(string commitId, IReadOnlyList<string> diff)
+		public Task<CommitDiff> ParseAsync(string commitId, string patch)
 		{
+			string[] patchLines = patch.Split("\n".ToCharArray());
+
 			return Task.Run(() =>
 			{
 				StringBuilder left = new StringBuilder();
@@ -35,7 +37,7 @@ namespace GitMind.Git.Private
 					diffFileIndex++;
 					string prefix = $"{diffFileIndex}| ";
 
-					index = TryFindNextFile(index, diff);
+					index = TryFindNextFile(index, patchLines);
 					if (index == -1)
 					{
 						break;
@@ -44,15 +46,15 @@ namespace GitMind.Git.Private
 					left.AppendLine(prefix + FilePart);
 					right.AppendLine(prefix + FilePart);
 
-					string fileName = GetFileName(index, diff);
+					string fileName = GetFileName(index, patchLines);
 					left.AppendLine(prefix + fileName);
 					right.AppendLine(prefix + fileName);
 
 					left.AppendLine(prefix + FilePart);
 					right.AppendLine(prefix + FilePart);
 
-					index = FindFileDiff(index, diff);
-					index = WriteFileDiff(index, diff, left, right, prefix);
+					index = FindFileDiff(index, patchLines);
+					index = WriteFileDiff(index, patchLines, left, right, prefix);
 
 					left.AppendLine(prefix);
 					left.AppendLine(prefix);

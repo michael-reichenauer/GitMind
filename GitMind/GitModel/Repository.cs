@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 
 
@@ -14,14 +14,14 @@ namespace GitMind.GitModel
 
 
 		public Repository(
-			DateTime time,
-			Lazy<IReadOnlyKeyedList<string, Branch>> branches, 
+			MRepository mRepository,
+			Lazy<IReadOnlyKeyedList<string, Branch>> branches,
 			Lazy<IReadOnlyKeyedList<string, Commit>> commits,
 			Lazy<Branch> currentBranch,
 			Lazy<Commit> currentCommit,
 			CommitsFiles commitsFiles)
 		{
-			Time = time;
+			MRepository = mRepository;
 			CommitsFiles = commitsFiles;
 			this.branches = branches;
 			this.commits = commits;
@@ -33,7 +33,7 @@ namespace GitMind.GitModel
 		public IReadOnlyKeyedList<string, Commit> Commits => commits.Value;
 		public Branch CurrentBranch => currentBranch.Value;
 		public Commit CurrentCommit => currentCommit.Value;
-		public DateTime Time { get; }
+		public MRepository MRepository { get; }
 		public CommitsFiles CommitsFiles { get; }
 	}
 }

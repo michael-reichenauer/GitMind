@@ -15,7 +15,7 @@ namespace GitMind.GitModel.Private
 				branch.LatestCommitId,
 				branch.FirstCommitId,
 				branch.ParentCommitId,
-				branch.Commits.Select(c => c.Id).ToList(),			
+				branch.Commits.Select(c => c.Id).ToList(),
 				branch.ParentBranchId,
 				branch.ChildBranchNames.ToList(),
 				branch.IsActive,
@@ -23,8 +23,6 @@ namespace GitMind.GitModel.Private
 				branch.LocalAheadCount,
 				branch.RemoteAheadCount);
 		}
-
-
 
 		public static Commit ToCommit(Repository repository, MCommit commit)
 		{
@@ -39,9 +37,9 @@ namespace GitMind.GitModel.Private
 				commit.Tags,
 				commit.Tickets,
 				commit.ParentIds.ToList(),
-				commit.ChildIds.ToList(),
+				commit.Repository.ChildIds(commit.Id).ToList(),
 				commit.BranchId,
-				commit.BranchNameSpecified,
+				commit.SpecifiedBranchName,
 				commit.IsLocalAhead,
 				commit.IsRemoteAhead);
 		}

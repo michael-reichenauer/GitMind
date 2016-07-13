@@ -7,93 +7,104 @@ namespace GitMind.GitModel.Private
 {
 	internal class BranchHierarchyService : IBranchHierarchyService
 	{
-		public void SetBranchHierarchy(IReadOnlyList<MSubBranch> subBranches, MRepository repository)
+		public void SetBranchHierarchy(MRepository repository)
 		{
-			SetParentCommitId(subBranches);
+			SetParentCommitId(repository);
 
-			GroupSubBranches(subBranches);
+			GroupSubBranches(repository);
 
-			SetBranchHierarchy(repository.Branches);
+			SetBranchHierarchyImpl(repository);
 		}
 
 
-		private static void SetParentCommitId(IReadOnlyList<MSubBranch> subBranches)
+		private static void SetParentCommitId(MRepository repository)
 		{
-			foreach (MSubBranch subBranch in subBranches)
+			foreach (var subBranch in repository.SubBranches)
 			{
-				MCommit LatestCommit = subBranch.LatestCommit;
-
-				IEnumerable<MCommit> commits = subBranch.LatestCommit.FirstAncestors()
-					.TakeWhile(c => c.BranchXName == subBranch.Name);
-
-				MCommit firstCommit = commits.Any() ? commits.Last() : LatestCommit;				
-				
-				subBranch.FirstCommitId = firstCommit.Id;
-				subBranch.ParentCommitId = firstCommit.FirstParentId;
-			}
-		}
-
-
-		private static void GroupSubBranches(IReadOnlyList<MSubBranch> branches)
-		{
-			var groupByBranchNames = branches.GroupBy(b => b.Name);
-
-			foreach (var groupByBranchName in groupByBranchNames)
-			{
-				var groupedByParentCommitIds = groupByBranchName.GroupBy(b => b.ParentCommitId);
-
-				foreach (var groupByBranch in groupedByParentCommitIds)
+				MCommit LatestCommit = subBranch.Value.LatestCommit;
+				if (LatestCommit.BranchId != null)
 				{
-					MSubBranch subBranch = groupByBranch.First();
-					MBranch branch = ToBranch(subBranch);
+					subBranch.Value.ParentCommitId = repository.Branches[LatestCommit.BranchId].ParentCommitId;
+				}
+				else
+				{
+					IEnumerable<MCommit> commits = subBranch.Value.LatestCommit.FirstAncestors()
+						.TakeWhile(c => c.BranchName == subBranch.Value.Name);
 
-					branch.Id = subBranch.Name + "-" + subBranch.ParentCommitId;
+					MCommit currentcommit = null;
+					foreach (MCommit commit in commits)
+					{
+						if (commit.BranchId != null)
+						{
+							subBranch.Value.ParentCommitId = repository.Branches[commit.BranchId].ParentCommitId;
+							break;
+						}
+						currentcommit = commit;
+					}
 
-					groupByBranch.ForEach(b => b.BranchId = branch.Id);
+					if (subBranch.Value.ParentCommitId == null)
+					{
+						MCommit firstCommit = currentcommit ?? LatestCommit;
 
-					//branch.SubBranchIds.AddRange(GetSubBranchIds(groupByBranch));
-					//branch.SubBranches.ForEach(b => b.BranchId = branch.Id);
-
-					branch.CommitIds.AddRange(GetCommitIdsInBranch(groupByBranch));
-
-					branch.Commits.ForEach(c => c.BranchId = branch.Id);
-
-					branch.LatestCommitId = branch.Commits.Any()
-						? branch.Commits.First().Id
-						: branch.ParentCommitId;
-
-					branch.FirstCommitId = branch.Commits.Any()
-						? branch.Commits.Last().Id
-						: branch.ParentCommitId;
-
-					branch.ChildBranchNames = groupByBranch
-						.SelectMany(b => b.ChildBranchNames).Distinct().ToList();
-
-					branch.Repository.Branches.Add(branch);
+						subBranch.Value.ParentCommitId = firstCommit.FirstParentId;
+					}
 				}
 			}
 		}
 
 
-		private static IEnumerable<string> GetCommitIdsInBranch(IGrouping<string, MSubBranch> groupByBranch)
+		private static void GroupSubBranches(MRepository repository)
 		{
-			return groupByBranch
-				.SelectMany(sb =>
-					new[] { sb.LatestCommit }
-						.Where(c => c.SubBranchId == sb.SubBranchId && c.Id != sb.ParentCommitId)
-						.Concat(
-							sb.LatestCommit
-								.FirstAncestors()
-								.TakeWhile(c => c.SubBranchId == sb.SubBranchId && c.Id != sb.ParentCommitId)))
-				.Distinct()
-				.OrderByDescending(c => c.CommitDate)
-				.Select(c => c.Id);
-		}
+			Timing t = new Timing();
+			var groupByBranchNames = repository.SubBranches.GroupBy(b => b.Value.Name);
 
+			foreach (var groupByBranchName in groupByBranchNames)
+			{
+				var groupedByParentCommitIds = groupByBranchName.GroupBy(b => b.Value.ParentCommitId);
 
-		private static IEnumerable<string> GetSubBranchIds(IGrouping<string, MSubBranch> groupByBranch)
-		{
-			return groupByBranch.Select(b => b.SubBranchId);
+				foreach (IGrouping<string, KeyValuePair<string, MSubBranch>> groupByBranch in groupedByParentCommitIds)
+				{
+					MSubBranch subBranch = groupByBranch.First().Value;
+
+					string branchId = subBranch.Name + "-" + subBranch.ParentCommitId;
+
+					MBranch branch;
+					if (!repository.Branches.TryGetValue(branchId, out branch))
+					{
+						branch = ToBranch(subBranch);
+						branch.Id = branchId;
+						branch.Repository.Branches[branch.Id] = branch;
+					}
+
+					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);		
+				}
+			}
+
+			foreach (var commit in repository.Commits)
+			{
+				if (commit.Value.BranchId == null)
+				{
+					string subBranchId = commit.Value.SubBranchId;
+					string branchId = repository.SubBranches[subBranchId].BranchId;
+					commit.Value.BranchId = branchId;
+					repository.Branches[branchId].TempCommitIds.Add(commit.Value.Id);
+				}
+			}
+
+			foreach (var branch in repository.Branches.Values)
+			{
+				if (branch.TempCommitIds.Any())
+				{
+					branch.CommitIds.AddRange(branch.TempCommitIds);
+					branch.TempCommitIds.Clear();
+
+					List<MCommit> commits = branch.Commits.OrderByDescending(b => b.CommitDate).ToList();
+					branch.LatestCommitId = commits.Any() ? commits.First().Id : branch.ParentCommitId;
+
+					branch.FirstCommitId = commits.Any() ? commits.Last().Id : branch.ParentCommitId;
+					branch.CommitIds = commits.Select(c => c.Id).ToList();
+				}		
+			}
 		}
 
 
@@ -105,49 +116,31 @@ namespace GitMind.GitModel.Private
 				Name = subBranch.Name,
 				IsMultiBranch = subBranch.IsMultiBranch,
 				IsActive = subBranch.IsActive,
-				IsAnonymous = subBranch.IsAnonymous,
 				ParentCommitId = subBranch.ParentCommitId
 			};
 		}
 
 
-		private static void SetBranchHierarchy(IReadOnlyList<MBranch> branches)
+		private static void SetBranchHierarchyImpl(MRepository repository)
 		{
-			foreach (MBranch branch in branches)
+			foreach (var branch in repository.Branches)
 			{
-				if (branch.ParentCommitId != null
-					&& branch.ParentCommit.BranchId != branch.Id
-					&& branch.ParentCommit.BranchId != null)
+				if (branch.Value.ParentCommitId != null
+					&& branch.Value.ParentCommit.BranchId != branch.Value.Id
+					&& branch.Value.ParentCommit.BranchId != null)
 				{
-					branch.ParentBranchId = branch.ParentCommit.BranchId;
+					branch.Value.ParentBranchId = branch.Value.ParentCommit.BranchId;
 
-					MBranch parentBranch = branch.ParentBranch;
-					if (!parentBranch.ChildBranches.Contains(branch))
+					if (branch.Value.ParentBranch.IsMultiBranch
+						&& branch.Value.ParentCommitId == branch.Value.ParentBranch.LatestCommitId)
 					{
-						parentBranch.ChildBrancheIds.Add(branch.Id);
+						branch.Value.ParentBranch.ChildBranchNames.Add(branch.Value.Name);
 					}
 				}
 				else
 				{
 					Log.Debug($"Branch {branch} has no parent branch");
 				}
-			}
-
-			//foreach (MBranch xBranch in branches.Where(b => b.ParentBranchId == null))
-			//{
-			//	LogBranchHierarchy(xBranch, 0);
-			//}
-		}
-
-
-		private static void LogBranchHierarchy(MBranch mBranch, int indent)
-		{
-			string indentText = new string(' ', indent);
-			Log.Debug($"{indentText}{mBranch}");
-
-			foreach (MBranch childBranch in mBranch.ChildBranches.OrderBy(b => b.Name))
-			{
-				LogBranchHierarchy(childBranch, indent + 3);
 			}
 		}
 	}

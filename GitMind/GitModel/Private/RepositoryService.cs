@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Git;
@@ -56,28 +57,26 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task<Repository> GetRepositoryAsync(bool useCache)
+		public async Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder)
 		{
 			Timing t = new Timing();
 			MRepository mRepository = null;
 			if (useCache)
 			{
-				mRepository = await cacheService.TryGetAsync();
-				t.Log("cacheService.TryGetAsync");
+				mRepository = await cacheService.TryGetRepositoryAsync(workingFolder);
+				t.Log("cacheService.TryGetRepositoryAsync");
 			}
 
 			if (mRepository == null)
 			{
 				Log.Debug("No cached repository");
 				mRepository = new MRepository();
-				mRepository.Time = DateTime.Now;
+				mRepository.WorkingFolder = workingFolder;
 				mRepository.CommitsFiles = new CommitsFiles();
 
-				R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
-				//AddCommitsFilesAsync(mRepository.CommitsFiles, null).RunInBackground();
-
+		
 				t.Log("Got gitRepo");
-				await UpdateAsync(mRepository, gitRepo.Value);
+				await UpdateAsync(mRepository);
 				t.Log("Updated mRepository");
 				cacheService.CacheAsync(mRepository).RunInBackground();
 			}
@@ -91,132 +90,117 @@ namespace GitMind.GitModel.Private
 
 		public async Task<Repository> UpdateRepositoryAsync(Repository sourcerepository)
 		{
-			Log.Debug($"Updating repository from time: {sourcerepository.Time}");
+			Log.Debug($"Updating repository");
 
-			//AddCommitsFilesAsync(repository.CommitsFiles, repository.Time).RunInBackground();
-
-			MRepository mRepository = new MRepository();
-			mRepository.Time = DateTime.Now;
+			MRepository mRepository = sourcerepository.MRepository;
 			mRepository.CommitsFiles = sourcerepository.CommitsFiles;
 
 			Timing t = new Timing();
-			R<IGitRepo> gitRepo = await gitService.GetRepoAsync(null);
-			t.Log($"Got gitRepo for {Environment.CurrentDirectory}");
-			await UpdateAsync(mRepository, gitRepo.Value);
+		
+			await UpdateAsync(mRepository);
 			t.Log("Updated mRepository");
 			cacheService.CacheAsync(mRepository).RunInBackground();
 
 			Repository repository = ToRepository(mRepository);
 			t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
-			Log.Debug($"Updated to repository with time: {repository.Time}");
+			Log.Debug($"Updated to repository");
 
 			return repository;
 		}
 
 
-		public Task SetSpecifiedCommitBranchAsync(string commitId, string branchName)
+		public Task SetSpecifiedCommitBranchAsync(
+			string commitId, string branchName, string gitRepositoryPath)
 		{
-			return gitService.SetSpecifiedCommitBranchAsync(commitId, branchName);
+			return gitService.SetSpecifiedCommitBranchAsync(gitRepositoryPath, commitId, branchName);
 		}
 
 
-		private Task UpdateAsync(MRepository mRepository, IGitRepo gitRepo)
+		private Task UpdateAsync(
+			MRepository mRepository)
 		{
 			return Task.Run(() =>
 			{
-				IReadOnlyList<GitCommit> gitCommits = gitRepo.GetAllCommts().ToList();
-				IReadOnlyList<GitBranch> gitBranches = gitRepo.GetAllBranches();
-				IReadOnlyList<GitSpecifiedNames> specifiedBranches = gitRepo.GetSpecifiedNameses();
-				IReadOnlyList<GitTag> tags = gitRepo.GetAllTags();
-
-				Update(
-					mRepository,
-					gitBranches,
-					gitCommits,
-					specifiedBranches,
-					tags,
-					gitRepo.CurrentBranch,
-					gitRepo.CurrentCommit);
+				Update(mRepository);
 			});
 		}
 
 
-		private void Update(
-			MRepository repository,
-			IReadOnlyList<GitBranch> gitBranches,
-			IReadOnlyList<GitCommit> gitCommits,
+		private void Update(MRepository repository)
+		{
+			Log.Debug($"Updating repository");
+			Timing t = new Timing();
+			string gitRepositoryPath = repository.WorkingFolder;
+
+			IReadOnlyList<GitSpecifiedNames> specifiedNames = gitService.GetSpecifiedNames(
+				gitRepositoryPath);
+
+			using (GitRepository gitRepository = gitService.OpenRepository(gitRepositoryPath))
+			{
+				commitsService.AddBranchCommits(gitRepository, repository);
+				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
+
+				AnalyzeBranchStructure(repository, specifiedNames, gitRepository);
+				t.Log("AnalyzeBranchStructure");
+			}
+		}
+
+
+
+		private void AnalyzeBranchStructure(
+			MRepository repository, 
 			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames,
-			IReadOnlyList<GitTag> gitTags,
-			GitBranch currentBranch,
-			GitCommit currentCommit)
+			GitRepository gitRepository)
 		{
 			Timing t = new Timing();
-			IReadOnlyList<MCommit> commits = commitsService.AddCommits(gitCommits, repository);
-			t.Log($"Added {commits.Count} commits");
-			
+
+			repository.Commits.ForEach(c => c.Value.SubBranchId = null);
+			repository.SubBranches.Clear();
+			t.Log("Cleaned sub branches");
+
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			t.Log($"Set {gitSpecifiedNames.Count} specified branch names");
+		
+			branchService.AddActiveBranches(gitRepository, repository);
+			t.Log($"Added {repository.SubBranches.Count} active branches");
 
-			commitBranchNameService.SetPullMergeCommitBranchNames(commits);
-			t.Log("Set pull merge commit branch names");
+			commitBranchNameService.SetMasterBranchCommits(repository);
+			t.Log("Set master branch names");
 
-			commitBranchNameService.SetSubjectCommitBranchNames(commits, repository);
-			t.Log("Set commit subject branch names");
+			branchService.AddInactiveBranches(repository);
+			t.Log($"Added inactive branches, total: {repository.SubBranches.Count}");
 
+			commitBranchNameService.SetBranchTipCommitsNames(repository);
+			t.Log("Set branch tip commit branch names");
 
-			IReadOnlyList<MSubBranch> activeBranches = branchService.AddActiveBranches(gitBranches, repository);
-			t.Log($"Added {activeBranches.Count} active branches");
-
-			IReadOnlyList<MSubBranch> inactiveBranches = branchService.AddInactiveBranches(commits, repository);
-			t.Log($"Added {inactiveBranches.Count} inactive branches");
-
-			IReadOnlyList<MSubBranch> subBranches = activeBranches.Concat(inactiveBranches).ToList();
-			
-			commitBranchNameService.SetMasterBranchCommits(subBranches, repository);
-			t.Log("Set master branch names");		
-
-			commitBranchNameService.SetBranchTipCommitsNames(subBranches, repository);
-			t.Log("Set branch tip commit branch names");	
-
-			commitBranchNameService.SetNeighborCommitNames(commits);
+			commitBranchNameService.SetNeighborCommitNames(repository);
 			t.Log("Set neighbor commit names");
 
-		
-			IReadOnlyList<MSubBranch> missingInactiveBranches = branchService.AddMissingInactiveBranches(
-				commits, repository);
-			t.Log($"Added {missingInactiveBranches.Count} missing inactive branches");
-			subBranches = subBranches.Concat(missingInactiveBranches).ToList();
-			
-			IReadOnlyList<MSubBranch> multiBranches = branchService.AddMultiBranches(commits, repository);
-			t.Log($"Added {multiBranches.Count(B => B.IsMultiBranch)} multi branches");
 
-			Log.Debug($"Unset commits after multi {commits.Count(c => !c.HasBranchName)}");
-			Log.Debug($"Unset commits id after multi {commits.Count(c => c.SubBranchId == null)}");
+			branchService.AddMissingInactiveBranches(repository);
+			t.Log($"Added missing inactive branches, total: {repository.SubBranches.Count}");
 
-			subBranches = subBranches.Concat(multiBranches).ToList();
-			t.Log($"Total {subBranches.Count} sub branches");
+			branchService.AddMultiBranches(repository);
+			t.Log($"Added multi branches, total: {repository.SubBranches.Count}");
 
-		
-
-			branchHierarchyService.SetBranchHierarchy(subBranches, repository);
+			Log.Debug($"Unset commits after multi {repository.Commits.Count(c => !c.Value.HasBranchName)}");
+	
+			branchHierarchyService.SetBranchHierarchy(repository);
 			t.Log($"SetBranchHierarchy with {repository.Branches.Count} branches");
 
 			aheadBehindService.SetAheadBehind(repository);
 			t.Log("SetAheadBehind");
 
-			tagService.AddTags(gitTags, repository);
+			tagService.AddTags(gitRepository, repository);
 			t.Log("Added tags");
 
 			repository.CurrentBranchId = repository.Branches
-				.First(b => b.IsActive && b.Name == currentBranch.Name).Id;
-			repository.CurrentCommitId = repository.Commits[currentCommit.Id].Id;
+				.First(b => b.Value.IsActive && b.Value.Name == gitRepository.Head.Name).Value.Id;
+			repository.CurrentCommitId = repository.Commits[gitRepository.Head.TipId].Id;
 
-			commits.Where(c => string.IsNullOrEmpty(c.BranchXName))
-				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.FirstParentId}"));
-
-			t.Log("Total time");
+			repository.Commits.Where(c => string.IsNullOrEmpty(c.Value.BranchName))
+				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.Value.FirstParentId}"));
 		}
-
 
 
 		private static Repository ToRepository(MRepository mRepository)
@@ -228,18 +212,18 @@ namespace GitMind.GitModel.Private
 			Commit currentCommit = null;
 
 			Repository repository = new Repository(
-				mRepository.Time,
+				mRepository,
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
 				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
 				mRepository.CommitsFiles);
 
-			foreach (MCommit mCommit in mRepository.Commits)
+			foreach (var mCommit in mRepository.Commits)
 			{
-				Commit commit = Converter.ToCommit(repository, mCommit);
+				Commit commit = Converter.ToCommit(repository, mCommit.Value);
 				rCommits.Add(commit);
-				if (mCommit == mRepository.CurrentCommit)
+				if (mCommit.Value == mRepository.CurrentCommit)
 				{
 					currentCommit = commit;
 				}
@@ -247,12 +231,12 @@ namespace GitMind.GitModel.Private
 
 			t.Log("Commits: " + rCommits.Count);
 
-			foreach (MBranch mBranch in mRepository.Branches)
+			foreach (var mBranch in mRepository.Branches)
 			{
-				Branch branch = Converter.ToBranch(repository, mBranch);
+				Branch branch = Converter.ToBranch(repository, mBranch.Value);
 				rBranches.Add(branch);
 
-				if (mBranch == mRepository.CurrentBranch)
+				if (mBranch.Value == mRepository.CurrentBranch)
 				{
 					currentBranch = branch;
 				}
@@ -261,53 +245,6 @@ namespace GitMind.GitModel.Private
 			t.Log("Branches: " + rBranches.Count);
 
 			return repository;
-		}
-
-
-		private async Task AddCommitsFilesAsync(CommitsFiles commitsFiles, DateTime? dateTime)
-		{
-			Log.Debug("Getting commit files ...");
-
-			Timing t = new Timing();
-
-			int maxCount = 2000;
-			int skip = 0;
-			while (true)
-			{
-				List<CommitFiles> currentCommitsFiles = new List<CommitFiles>();
-				R<IReadOnlyList<GitCommitFiles>> gitCommitFilesList =
-					await gitService.GetCommitsFilesAsync(null, dateTime, maxCount, skip);
-				skip += (maxCount - 10);
-
-				if (gitCommitFilesList.IsFaulted)
-				{
-					Log.Warn($"Failed to get commits files {gitCommitFilesList.Error}");
-					break;
-				}
-
-				if (gitCommitFilesList.Value.Count == 0)
-				{
-					break;
-				}
-
-				await Task.Run(() =>
-				{
-					foreach (GitCommitFiles gitCommitFiles in gitCommitFilesList.Value)
-					{
-						List<CommitFile> files = gitCommitFiles.Files.Select(Converter.ToCommitFile).ToList();
-						CommitFiles commitFiles = new CommitFiles(gitCommitFiles.Id, files);
-
-						if (commitsFiles.Add(commitFiles))
-						{
-							currentCommitsFiles.Add(commitFiles);
-						}
-					}
-				});
-
-				cacheService.CacheCommitFilesAsync(currentCommitsFiles).RunInBackground();
-			}
-
-			t.Log($"Total {commitsFiles.Count}");
 		}
 	}
 }

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using GitMind.Git;
 
 
@@ -6,16 +5,12 @@ namespace GitMind.GitModel.Private
 {
 	internal interface IBranchService
 	{
-		IReadOnlyList<MSubBranch> AddActiveBranches(
-			IReadOnlyList<GitBranch> gitBranches, MRepository repository);
+		void AddActiveBranches(GitRepository gitRepository, MRepository repository);
 
-		IReadOnlyList<MSubBranch> AddInactiveBranches(
-			IReadOnlyList<MCommit> commits, MRepository repository);
+		void AddInactiveBranches(MRepository repository);
 
-		IReadOnlyList<MSubBranch> AddMissingInactiveBranches(
-			IReadOnlyList<MCommit> commits, MRepository repository);
+		void AddMissingInactiveBranches(MRepository repository);
 
-		IReadOnlyList<MSubBranch> AddMultiBranches(
-			IReadOnlyList<MCommit> commits, MRepository repository);
+		void AddMultiBranches(MRepository repository);
 	}
 }

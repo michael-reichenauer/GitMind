@@ -181,9 +181,14 @@ namespace GitMind.GitModel.Private
 			}
 
 
-			if (sourceBranchName == "" || targetBranchName == "")
+			if (string.IsNullOrWhiteSpace(sourceBranchName))
 			{
+				sourceBranchName = null;
+			}
 
+			if (string.IsNullOrWhiteSpace(targetBranchName))
+			{
+				targetBranchName = null;
 			}
 
 			return new MergeBranchNames(sourceBranchName, targetBranchName);

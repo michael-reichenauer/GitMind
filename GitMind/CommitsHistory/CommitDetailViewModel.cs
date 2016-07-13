@@ -42,19 +42,14 @@ namespace GitMind.CommitsHistory
 		public string Tags
 		{
 			get { return Get(); }
-			set { Set(value).Notify(nameof(IsTags)); }
+			set { Set(value); }
 		}
-
-		public bool IsTags => !string.IsNullOrWhiteSpace(Tags);
-
 
 		public string Tickets
 		{
 			get { return Get(); }
-			set { Set(value).Notify(nameof(IsTickets)); }
+			set { Set(value); }
 		}
-
-		public bool IsTickets => !string.IsNullOrWhiteSpace(Tickets);
 
 		public Command ShowDiffCommand => Command(ShowDiffAsync);
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using GitMind.GitModel;
-using GitMind.Utils;
 using GitMind.Utils.UI;
 
 
@@ -16,7 +15,16 @@ namespace GitMind.CommitsHistory
 			= new Lazy<IReadOnlyList<BranchItem>>(() => new BranchItem[0]);
 
 
-		public BranchItem(
+		public BranchItem(Branch branch, ICommand showBranchCommand)
+		{
+			Text = branch.Name;
+			Branch = branch;
+			ShowBranchCommand = showBranchCommand;
+			subItems = NoSubItems;
+		}
+
+
+		private BranchItem(
 			string prefix,
 			string name,
 			IEnumerable<Branch> branches,
@@ -27,14 +35,6 @@ namespace GitMind.CommitsHistory
 			ShowBranchCommand = showBranchCommand;
 			subItems = new Lazy<IReadOnlyList<BranchItem>>(
 				() => GetBranches(prefix, branches, level, showBranchCommand));
-		}
-
-		public BranchItem(Branch branch, ICommand showBranchCommand)
-		{
-			Text = branch.Name;
-			Branch = branch;
-			ShowBranchCommand = showBranchCommand;
-			subItems = NoSubItems;
 		}
 
 
@@ -51,6 +51,11 @@ namespace GitMind.CommitsHistory
 		public static IReadOnlyList<BranchItem> GetBranches(
 			IEnumerable<Branch> branches, ICommand showBranchCommand)
 		{
+			if (branches.Count() < 20)
+			{
+				return branches.Select(b => new BranchItem(b, showBranchCommand)).ToList();
+			}
+
 			return GetBranches("", branches, 0, showBranchCommand);
 		}
 
@@ -58,8 +63,6 @@ namespace GitMind.CommitsHistory
 		private static IReadOnlyList<BranchItem> GetBranches(
 			string prefix, IEnumerable<Branch> branches, int level, ICommand showBranchCommand)
 		{
-			Log.Warn($"Get for {prefix}");
-
 			List<BranchItem> list = new List<BranchItem>();
 
 			foreach (Branch branch in branches.Where(b => b.Name.StartsWith(prefix)))

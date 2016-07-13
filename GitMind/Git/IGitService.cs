@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GitMind.Git.Private;
 using GitMind.Utils;
+
 
 
 namespace GitMind.Git
@@ -12,24 +11,25 @@ namespace GitMind.Git
 		Error GitNotInstalledError { get; }
 		Error GitCommandError { get; }
 
-		Task<R<IGitRepo>> GetRepoAsync(string path);
+		GitRepository OpenRepository(string workingFolder);
 
-		Task FetchAsync(string path);
+		Task FetchAsync(string workingFolder);
 
-		Task<R<string>> GetCurrentBranchNameAsync(string path);
+		Task<R<string>> GetCurrentBranchNameAsync(string workingFolder);
 
-		R<string> GetCurrentRootPath(string path);
+		R<string> GetCurrentRootPath(string workingFolder);
 
-		Task<R<CommitDiff>> GetCommitDiffAsync(string commitId);
+		Task<R<GitStatus>> GetStatusAsync(string workingFolder);
 
-		Task<R<GitStatus>> GetStatusAsync(string path);
+		Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId);
 
-		Task<R<IReadOnlyList<GitCommitFiles>>> GetCommitsFilesAsync(
-			string path, DateTime? dateTime, int max, int skip);
+		Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string name);
 
+		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId);
 
-		Task<R<CommitDiff>> GetCommitFileDiffAsync(string commitId, string name);
-		Task<R<GitCommitFiles>> GetCommitsFilesForCommitAsync(string path, string commitId);
-		Task SetSpecifiedCommitBranchAsync(string commitId, string branchName);
+		Task SetSpecifiedCommitBranchAsync(string workingFolder, string commitId, string branchName);
+
+		IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder);
+
 	}
 }

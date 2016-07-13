@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -19,12 +20,9 @@ namespace GitMind.CommitsHistory
 		public BranchViewModel(
 			string id, 
 			int virtualId,
-			ICommand showBranchCommand,
-			ICommand hideBranchCommand)
-		{
+			ICommand showBranchCommand, ICommand hideBranchCommand)
+		{			
 			this.showBranchCommand = showBranchCommand;
-
-
 			Id = id;
 			VirtualId = virtualId;
 			HideBranchCommand = hideBranchCommand;
@@ -32,21 +30,38 @@ namespace GitMind.CommitsHistory
 
 
 		public int VirtualId { get; }
+		public ObservableCollection<BranchItem> ActiveBranches { get; set; }
 		public ICommand HideBranchCommand { get; }
 		public string Id { get; }
 
 		public IReadOnlyList<BranchItem> ChildBranches =>
-			BranchItem.GetBranches(Branch.GetChildBranches().Take(50).ToList(), showBranchCommand);		
+			BranchItem.GetBranches(
+				Branch.GetChildBranches()
+					.Where(b => !ActiveBranches.Any(ab => ab.Branch == b))
+					.Take(50)
+					.ToList(),
+				showBranchCommand);
+
+		public IReadOnlyList<BranchNameItem> MultiBranches { get; set; }
+
+		public bool HasChildren => ChildBranches.Count > 0;
 
 
 		public Branch Branch { get; set; }
 
 		public int BranchColumn { get; set; }
 
+
+		public bool IsMultiBranch
+		{
+			get { return Get(); }
+			set { Set(value).Notify(nameof(ChildBranches), nameof(MultiBranches)); }
+		}
+
 		public string Name
 		{
 			get { return Get(); }
-			set { Set(value); }
+			set { Set(value).Notify(nameof(HasChildren)); }
 		}
 
 		public int LatestRowIndex

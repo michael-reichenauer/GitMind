@@ -246,7 +246,7 @@ namespace GitMind
 
 		private async void ShowDiff()
 		{
-			await diffService.ShowDiffAsync(null);
+			await diffService.ShowDiffAsync(null, WorkingFolder);
 		}
 
 
@@ -258,7 +258,8 @@ namespace GitMind
 				var dialog = new FolderBrowserDialog();
 				dialog.Description = "Select a working folder with a valid git repository.";
 				dialog.ShowNewFolderButton = false;
-				dialog.SelectedPath = Environment.CurrentDirectory;
+				dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+				dialog.SelectedPath = WorkingFolder ?? Environment.CurrentDirectory;
 				if (dialog.ShowDialog(owner.GetIWin32Window()) != DialogResult.OK)
 				{
 					Log.Warn("User canceled selecting a Working folder");
@@ -280,17 +281,15 @@ namespace GitMind
 
 			Log.Debug($"Setting working folder {selectedPath}");
 			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
-			Environment.CurrentDirectory = selectedPath;
+			WorkingFolder = selectedPath;
 
-			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true);
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true, selectedPath);
 
 			Busy.Add(repositoryTask);
 
 			Repository repository = await repositoryTask;
 
-			RepositoryViewModel.Update(repository, new string[0]);
-
-			WorkingFolder = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory).Or("");
+			RepositoryViewModel.Update(repository, new string[0]);			
 		}
 
 

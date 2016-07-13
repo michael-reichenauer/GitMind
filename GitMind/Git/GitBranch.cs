@@ -1,27 +1,25 @@
+
+
+
+
 namespace GitMind.Git
 {
 	internal class GitBranch
 	{
-		public GitBranch(
-			string name,
-			string latestCommitId,
-			bool isCurrent,
-			string trackingBranchName,
-			bool isRemote)
+		private readonly LibGit2Sharp.Branch branch;
+
+
+		public GitBranch(LibGit2Sharp.Branch branch)
 		{
-			Name = name;
-			LatestCommitId = latestCommitId;
-			IsCurrent = isCurrent;
-			TrackingBranchName = trackingBranchName;
-			IsRemote = isRemote;
+			this.branch = branch;
 		}
 
 
-		public string Name { get; }
-		public string LatestCommitId { get; }
-		public bool IsCurrent { get; }
-		public string TrackingBranchName { get; }
-		public bool IsRemote { get; }
+		public string Name => branch.FriendlyName;
+		public string TipId => branch.Tip.Sha;
+
+		public bool IsRemote => branch.IsRemote;
+		public GitCommit Tip => new GitCommit(branch.Tip);
 
 		public override string ToString() => Name;
 	}

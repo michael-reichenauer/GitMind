@@ -1,8 +1,8 @@
 using System;
+using System.Collections;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using GitMind.Utils.UI;
 
 
 namespace GitMind
@@ -18,29 +18,46 @@ namespace GitMind
 		/// </summary> 
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			bool bValue = false;
+			bool isVisible = false;
 			if (value is bool)
 			{
-				bValue = (bool)value;
+				isVisible = (bool)value;
 			}
 			else if (value is Nullable<bool>)
 			{
 				Nullable<bool> typedValue = (Nullable<bool>)value;
-				bValue = typedValue ?? false;
+				isVisible = typedValue ?? false;
 			}
-			//else if (value is Property<bool>)
-			//{
-			//	Property<bool> typedValue = (Property<bool>)value;
-			//	bValue = typedValue;
-			//}
-			//else if (value is Property<Nullable<bool>>)
-			//{
-			//	Property<Nullable<bool>> typedValue = (Property<Nullable<bool>>)value;
-			//	Nullable<bool> propertyValue = typedValue;
-			//	bValue = propertyValue ?? false;
-			//}
+			else if (value is int)
+			{
+				isVisible = ((int)value) != 0;
+			}
+			else if (value is string)
+			{
+				isVisible = !string.IsNullOrEmpty((string)value);
+			}
 
-			return (bValue) ? Visibility.Visible : Visibility.Collapsed;
+			else if (value is IEnumerable)
+			{
+				isVisible = IsEmpty((IEnumerable)value);
+			}
+			else 
+			{
+				isVisible = value != null;
+			}
+
+			return isVisible ? Visibility.Visible : Visibility.Collapsed;
+		}
+
+
+		private bool IsEmpty(IEnumerable enumerable)
+		{
+			foreach (object obj in enumerable)
+			{
+				return false;
+			}
+
+			return true;
 		}
 
 		/// <summary>

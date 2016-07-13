@@ -6,6 +6,6 @@ namespace GitMind
 	internal interface IStatusRefreshService
 	{
 		void Start();
-		Task UpdateStatusAsync();
+		Task UpdateStatusAsync(string workingFolder);
 	}
 }

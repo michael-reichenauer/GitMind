@@ -1,178 +1,177 @@
-using System.Collections.Generic;
-using System.Linq;
+//using System.Collections.Generic;
+//using System.Linq;
 
 
-namespace GitMind.Git.Private
-{
-	internal class GitRepo : IGitRepo
-	{
-		private readonly IReadOnlyList<GitTag> tags;
-		private readonly IReadOnlyList<GitSpecifiedNames> specifiedNames;
-		private static readonly IReadOnlyList<GitTag> noTags = new List<GitTag>();
+//namespace GitMind.Git.Private
+//{
+//	internal class GitRepo : IGitRepo
+//	{
+//		//private readonly IReadOnlyList<GitTag> tags;
+//		private readonly IReadOnlyList<GitSpecifiedNames> specifiedNames;
+//		//private static readonly IReadOnlyList<GitTag> noTags = new List<GitTag>();
 
-		private readonly Dictionary<string, GitCommit> commits = new Dictionary<string, GitCommit>();
+//		//private readonly Dictionary<string, GitCommit> commits = new Dictionary<string, GitCommit>();
 
-		private readonly Dictionary<string, List<string>> commitIdToChildren =
-			new Dictionary<string, List<string>>();
+//		//private readonly Dictionary<string, List<string>> commitIdToChildren =
+//		//	new Dictionary<string, List<string>>();
 
-		private readonly Dictionary<string, List<GitTag>> commitIdToTags =
-			new Dictionary<string, List<GitTag>>();
+//		//private readonly Dictionary<string, List<GitTag>> commitIdToTags =
+//		//	new Dictionary<string, List<GitTag>>();
 
-		private readonly List<GitBranch> branches = new List<GitBranch>();
-
-
-		public GitRepo(
-			IReadOnlyList<GitBranch> branches, 
-			IReadOnlyList<GitCommit> commits, 
-			IReadOnlyList<GitTag> tags,
-			IReadOnlyList<GitSpecifiedNames> specifiedNames,
-			GitCommit currentCommit,
-			GitBranch currentBranch)
-		{
-			this.tags = tags;
-			this.specifiedNames = specifiedNames;
-			CurrentCommit = currentCommit;
-			CurrentBranch = currentBranch;
-
-			SetGitBranches(branches);
-
-			SetGitCommits(commits);
-
-			SetTags(tags);
-		}
+//		//private readonly List<GitBranch> branches = new List<GitBranch>();
 
 
-		public GitCommit CurrentCommit { get; }
+//		public GitRepo(
+//			//IReadOnlyList<GitBranch> branches, 
+//			//IReadOnlyList<GitCommit> commits, 
+//			//IReadOnlyList<GitTag> tags,
+//			IReadOnlyList<GitSpecifiedNames> specifiedNames
+//			//GitCommit currentCommit,
+//			//GitBranch currentBranch
+//			)
+//		{
+//			//this.tags = tags;
+//			this.specifiedNames = specifiedNames;
+//			//CurrentCommit = currentCommit;
+//			//CurrentBranch = currentBranch;
 
-		public GitBranch CurrentBranch { get; }
+//			//SetGitBranches(branches);
 
-		public IEnumerable<GitCommit> GetAllCommts() => commits.Values;
+//			//SetGitCommits(commits);
 
-		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNameses() => specifiedNames;
-
-
-		public IReadOnlyList<string> GetCommitChildren(string commitId) => GetChildren(commitId);
-
-
-		public GitCommit GetCommit(string commitId)
-		{
-			GitCommit commit;
-			if (commits.TryGetValue(commitId, out commit))
-			{
-				return commit;
-			}
-
-			return GitCommit.None;
-		}
+//			//SetTags(tags);
+//		}
 
 
-		public IReadOnlyList<GitTag> GetTags(string commitId)
-		{
-			List<GitTag> tags;
-			if (commitIdToTags.TryGetValue(commitId, out tags))
-			{
-				return tags;
-			}
+//		//public GitCommit CurrentCommit { get; }
 
-			return noTags;
-		}
+//		//public GitBranch CurrentBranch { get; }
+
+//		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNameses() => specifiedNames;
 
 
-		public IReadOnlyList<GitTag> GetAllTags() => tags;
+//		//public IReadOnlyList<string> GetCommitChildren(string commitId) => GetChildren(commitId);
 
 
-		public GitBranch GetCurrentBranch()
-		{
-			return branches.First(branch => branch.IsCurrent);
-		}
+//		//public GitCommit GetCommit(string commitId)
+//		//{
+//		//	GitCommit commit;
+//		//	if (commits.TryGetValue(commitId, out commit))
+//		//	{
+//		//		return commit;
+//		//	}
+
+//		//	return GitCommit.None;
+//		//}
 
 
-		public IReadOnlyList<GitBranch> GetAllBranches()
-		{
-			return branches;
-		}
+//		//public IReadOnlyList<GitTag> GetTags(string commitId)
+//		//{
+//		//	List<GitTag> tags;
+//		//	if (commitIdToTags.TryGetValue(commitId, out tags))
+//		//	{
+//		//		return tags;
+//		//	}
+
+//		//	return noTags;
+//		//}
 
 
-		public GitBranch TryGetBranchByLatestCommiId(string latestCommitId)
-		{
-			return branches.FirstOrDefault(branch => branch.LatestCommitId == latestCommitId);
-		}
+//		//public IReadOnlyList<GitTag> GetAllTags() => tags;
 
 
-		public GitCommit GetFirstParent(GitCommit commit)
-		{
-			return commit.ParentIds.Count > 0
-				? commits[commit.ParentIds[0]]
-				: GitCommit.None;
-		}
+//		//public GitBranch GetCurrentBranch()
+//		//{
+//		//	return branches.First(branch => branch.IsCurrent);
+//		//}
 
 
-		public GitBranch TryGetBranch(string branchName)
-		{
-			return branches.FirstOrDefault(branch => branch.Name == branchName);
-		}
+//		//public IReadOnlyList<GitBranch> GetAllBranches()
+//		//{
+//		//	return branches;
+//		//}
 
 
-		private void SetGitBranches(IReadOnlyList<GitBranch> newGitBranches)
-		{
-			foreach (GitBranch branch in newGitBranches)
-			{
-				branches.Add(branch);
-			}
-		}
+//		//public GitBranch TryGetBranchByLatestCommiId(string latestCommitId)
+//		//{
+//		//	return branches.FirstOrDefault(branch => branch.LatestCommitId == latestCommitId);
+//		//}
 
 
-		private void SetGitCommits(IReadOnlyList<GitCommit> commits)
-		{
-			foreach (GitCommit gitCommit in commits)
-			{
-				this.commits[gitCommit.Id] = gitCommit;
-
-				UpdateChildren(gitCommit);
-			}
-		}
+//		//public GitCommit GetFirstParent(GitCommit commit)
+//		//{
+//		//	return commit.ParentIds.Count > 0
+//		//		? commits[commit.ParentIds[0]]
+//		//		: GitCommit.None;
+//		//}
 
 
-		private void SetTags(IReadOnlyList<GitTag> tags)
-		{
-			foreach (GitTag tag in tags)
-			{
-				List<GitTag> commitTags;
-				if (!commitIdToTags.TryGetValue(tag.CommitId, out commitTags))
-				{
-					commitTags = new List<GitTag>();
-				}
-
-				commitTags.Add(tag);
-
-				commitIdToTags[tag.CommitId] = commitTags;
-			}
-		}
-
-		private void UpdateChildren(GitCommit gitCommit)
-		{
-			foreach (string parentId in gitCommit.ParentIds)
-			{
-				List<string> parentChildren = GetChildren(parentId);
-
-				if (!parentChildren.Contains(gitCommit.Id))
-				{
-					parentChildren.Add(gitCommit.Id);
-				}
-			}
-		}
+//		//public GitBranch TryGetBranch(string branchName)
+//		//{
+//		//	return branches.FirstOrDefault(branch => branch.Name == branchName);
+//		//}
 
 
-		private List<string> GetChildren(string commitId)
-		{
-			List<string> commitChildren;
-			if (!commitIdToChildren.TryGetValue(commitId, out commitChildren))
-			{
-				commitChildren = new List<string>();
-				commitIdToChildren[commitId] = commitChildren;
-			}
+//		//private void SetGitBranches(IReadOnlyList<GitBranch> newGitBranches)
+//		//{
+//		//	foreach (GitBranch branch in newGitBranches)
+//		//	{
+//		//		branches.Add(branch);
+//		//	}
+//		//}
 
-			return commitChildren;
-		}
-	}
-}
+
+//		//private void SetGitCommits(IReadOnlyList<GitCommit> commits)
+//		//{
+//		//	foreach (GitCommit gitCommit in commits)
+//		//	{
+//		//		this.commits[gitCommit.Id] = gitCommit;
+
+//		//		UpdateChildren(gitCommit);
+//		//	}
+//		//}
+
+
+//		//private void SetTags(IReadOnlyList<GitTag> tags)
+//		//{
+//		//	foreach (GitTag tag in tags)
+//		//	{
+//		//		List<GitTag> commitTags;
+//		//		if (!commitIdToTags.TryGetValue(tag.CommitId, out commitTags))
+//		//		{
+//		//			commitTags = new List<GitTag>();
+//		//		}
+
+//		//		commitTags.Add(tag);
+
+//		//		commitIdToTags[tag.CommitId] = commitTags;
+//		//	}
+//		//}
+
+//		//private void UpdateChildren(GitCommit gitCommit)
+//		//{
+//		//	foreach (string parentId in gitCommit.ParentIds)
+//		//	{
+//		//		List<string> parentChildren = GetChildren(parentId);
+
+//		//		if (!parentChildren.Contains(gitCommit.Id))
+//		//		{
+//		//			parentChildren.Add(gitCommit.Id);
+//		//		}
+//		//	}
+//		//}
+
+
+//		//private List<string> GetChildren(string commitId)
+//		//{
+//		//	List<string> commitChildren;
+//		//	if (!commitIdToChildren.TryGetValue(commitId, out commitChildren))
+//		//	{
+//		//		commitChildren = new List<string>();
+//		//		commitIdToChildren[commitId] = commitChildren;
+//		//	}
+
+//		//	return commitChildren;
+//		//}
+//	}
+//}

@@ -1,72 +1,77 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using GitMind.Utils;
 using ProtoBuf;
 
 
 namespace GitMind.GitModel.Private
 {
-	[DataContract, ProtoContract]
+	[ProtoContract]
 	public class MRepository
 	{
-		public static string CurrentVersion = "4";
+		public static string CurrentVersion = "6";
 
-		public MRepository()
+		[ProtoMember(1)]
+		public string Version { get; set; } = CurrentVersion;
+
+		[ProtoMember(2)]
+		public string CurrentCommitId { get; set; }
+		[ProtoMember(3)]
+		public string CurrentBranchId { get; set; }
+		[ProtoMember(4)]
+		public Dictionary<string, MCommit> Commits { get; set; } = new Dictionary<string, MCommit>();		
+		[ProtoMember(5)]
+		public Dictionary<string, MBranch> Branches { get; set; } = new Dictionary<string, MBranch>();
+		[ProtoMember(6)]
+		public readonly Dictionary<string, IList<string>> ChildrenById =
+			new Dictionary<string, IList<string>>();
+		[ProtoMember(7)]
+		public readonly Dictionary<string, IList<string>> FirstChildrenById =
+			new Dictionary<string, IList<string>>();
+
+
+		public Dictionary<string, MSubBranch> SubBranches { get; set; } 
+			= new Dictionary<string, MSubBranch>();
+
+		public string WorkingFolder { get; set; }
+
+		public IList<string> ChildIds(string commitId)
 		{
-			CommitList = new List<MCommit>();
-			SubBrancheList = new List<MSubBranch>();
-			BrancheList = new List<MBranch>();
+			IList<string> children;
+			if (!ChildrenById.TryGetValue(commitId, out children) || children == null)
+			{
+				children = new List<string>();
+				ChildrenById[commitId] = children;
+			}
 
-			Commits = new KeyedList<string, MCommit>(c => c.Id);
-			SubBranches = new KeyedList<string, MSubBranch>(b => b.SubBranchId);
-			Branches = new KeyedList<string, MBranch>(b => b.Id);
+			return children;
 		}
 
 
-		[DataMember, ProtoMember(1)]
-		public string Version { get; set; } = CurrentVersion;
+		public IList<string> FirstChildIds(string commitId)
+		{
+			IList<string> children;
+			if (!FirstChildrenById.TryGetValue(commitId, out children) || children == null)
+			{
+				children = new List<string>();
+				FirstChildrenById[commitId] = children;
+			}
 
-		[DataMember, ProtoMember(2)]
-		public DateTime Time { get; set; }
-		[DataMember, ProtoMember(3)]
-		public string CurrentCommitId { get; set; }
-		[DataMember, ProtoMember(4)]
-		public string CurrentBranchId { get; set; }
-		[DataMember, ProtoMember(5)]
-		public List<MCommit> CommitList { get; set; }
-		[DataMember, ProtoMember(6)]
-		public List<MSubBranch> SubBrancheList { get; set; }
-		[DataMember, ProtoMember(7)]
-		public List<MBranch> BrancheList { get; set; }
+			return children;
+		}
 
-
-		public KeyedList<string, MCommit> Commits;
-		public KeyedList<string, MSubBranch> SubBranches;
-		public KeyedList<string, MBranch> Branches;
 
 		internal CommitsFiles CommitsFiles { get; set; }
-
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
 
-		public void PrepareForSerialization()
-		{
-			Commits.ForEach(c => CommitList.Add(c));
-			SubBranches.ForEach(b => SubBrancheList.Add(b));
-			Branches.ForEach(b => BrancheList.Add(b));
-		}
 
-		public void CompleteDeserialization()
+		public void CompleteDeserialization(string gitRepositoryPath)
 		{
-			Commits = new KeyedList<string, MCommit>(c => c.Id);
-			SubBranches = new KeyedList<string, MSubBranch>(b => b.SubBranchId);
-			Branches = new KeyedList<string, MBranch>(b => b.Id);
-
-			CommitList.ForEach(c => { c.Repository = this; Commits.Add(c); });
-			SubBrancheList.ForEach(b => { b.Repository = this; SubBranches.Add(b); });
-			BrancheList.ForEach(b => { b.Repository = this; Branches.Add(b); });
+			WorkingFolder = gitRepositoryPath;
+			Commits.ForEach(c => c.Value.Repository = this);
+			SubBranches.ForEach(b => b.Value.Repository = this);
+			Branches.ForEach(b => b.Value.Repository = this);
 		}
 	}
 }

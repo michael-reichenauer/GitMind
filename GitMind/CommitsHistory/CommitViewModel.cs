@@ -35,6 +35,8 @@ namespace GitMind.CommitsHistory
 
 		public string Type => "Commit";
 
+		public Action HideBranch { get; set; }
+
 		public Commit Commit
 		{
 			get { return commit; }
@@ -162,13 +164,6 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
-		public Command HideBranchCommand => Command(HideBranch);
-
-		public Command ShowDiffCommand => Command(ShowDiffAsync);
-
-		public Command SetCommitBranchCommand => Command(SetCommitBranchAsync);
-
-
 		public int WindowWidth
 		{
 			get { return windowWidth; }
@@ -183,13 +178,11 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		public override string ToString() => $"{ShortId} {Subject} {Date}";
+		public Command HideBranchCommand => Command(HideBranch);
 
+		public Command ShowDiffCommand => Command(() => diffService.ShowDiffAsync(Id, Commit.GitRepositoryPath));
 
-		public Action HideBranch { get; set; }
-
-
-		private async void SetCommitBranchAsync()
+		public Command SetCommitBranchCommand => Command(async () =>
 		{
 			var dialog = new SetBranchPrompt();
 			dialog.PromptText = Commit.SpecifiedBranchName;
@@ -197,14 +190,13 @@ namespace GitMind.CommitsHistory
 			if (dialog.ShowDialog() == true)
 			{
 				string branchName = dialog.PromptText?.Trim();
-				await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName);
+				string gitRepositoryPath = Commit.GitRepositoryPath;
+				await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName, gitRepositoryPath);
 			}
-		}
+		});
 
 
-		private async void ShowDiffAsync()
-		{
-			await diffService.ShowDiffAsync(Id);
-		}
+
+		public override string ToString() => $"{ShortId} {Subject} {Date}";		
 	}
 }

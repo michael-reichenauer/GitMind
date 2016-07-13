@@ -6,11 +6,11 @@ namespace GitMind.CommitsHistory
 {
 	internal class CommitFileViewModel : ViewModel
 	{
-		private IDiffService diffService = new DiffService();
+		private readonly IDiffService diffService = new DiffService();
 
 		public string Id { get; set; }
 
-		public bool HasParentCommit { get; set; }
+		public string WorkingFolder { get; set; }
 
 		public string Name
 		{
@@ -24,11 +24,8 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
-		public Command ShowDiffCommand => Command(ShowDiffAsync);
 
-		private void ShowDiffAsync()
-		{
-			diffService.ShowFileDiffAsync(Id, Name).RunInBackground();
-		}
+		public Command ShowDiffCommand => Command(
+			() => diffService.ShowFileDiffAsync(WorkingFolder, Id, Name));
 	}
 }

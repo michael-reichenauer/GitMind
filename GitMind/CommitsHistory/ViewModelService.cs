@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -270,6 +269,13 @@ namespace GitMind.CommitsHistory
 			List<Commit> commits = GetCommits(branches);
 			t.Log($"Commits count {commits.Count}");
 
+			repositoryViewModel.ActiveBranches.Clear();
+			branches
+				.Where(b => b.Name != "master")
+				.OrderBy(b => b.Name)
+				.ForEach(b => repositoryViewModel.ActiveBranches.Add(
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
+
 			UpdateBranches(branches, commits, repositoryViewModel);
 			t.Log("Updated Branches");
 
@@ -280,13 +286,6 @@ namespace GitMind.CommitsHistory
 			t.Log("Updated Merges");
 
 			repositoryViewModel.SpecifiedBranches = specifiedBranches;
-
-			repositoryViewModel.ActiveBranches.Clear();
-			branches
-				.Where(b => b.Name != "master")
-				.OrderBy(b => b.Name)
-				.ForEach(b => repositoryViewModel.ActiveBranches.Add(
-					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
 		}
 
 
@@ -318,16 +317,27 @@ namespace GitMind.CommitsHistory
 				Concat(branchesInRepo
 					.Concat(branchesInRepo.SelectMany(branch => branch.Parents().Take(10))))
 				.Distinct()
+				.OrderBy(b => b, Compare.With<Branch>(CompareBranches))
 				.ToList();
 
-
-			// Sort branches to make parent braches shown left of its child branches
-			Sorter.Sort(branchesWithParents, new BranchComparer());
 			branchesWithParents.ForEach(branch => Log.Debug($"Branches with parent with {branch}"));
 
 			return branchesWithParents;
 		}
 
+		private static int CompareBranches(Branch x, Branch y)
+		{
+			if (y.HasParentBranch && y.ParentBranch == x)
+			{
+				return -1;
+			}
+			else if (x.HasParentBranch && x.ParentBranch == y)
+			{
+				return 1;
+			}
+
+			return 0;
+		}
 
 
 		private static IEnumerable<Branch> GetBranchAndDescendants(
@@ -375,7 +385,7 @@ namespace GitMind.CommitsHistory
 
 				commitViewModel.Commit = commit;
 
-				// commitViewModel.IsCurrent = commit == model.CurrentCommit;
+				commitViewModel.IsCurrent = commit == repositoryViewModel.Repository.CurrentCommit;
 
 				commitViewModel.IsMergePoint =
 					commit.IsMergePoint && commit.Branch != commit.SecondParent.Branch;
@@ -422,11 +432,12 @@ namespace GitMind.CommitsHistory
 			{
 				BranchViewModel branch = repositoryViewModel.VirtualItemsSource.GetOrAdd(
 					sourceBranch.Id, (id, virtualId) => new BranchViewModel(
-						id, 
-						virtualId, 
+						id,
+						virtualId,
 						repositoryViewModel.ShowBranchCommand,
 						repositoryViewModel.HideBranchCommand));
 
+				branch.ActiveBranches = repositoryViewModel.ActiveBranches;
 				branch.Branch = sourceBranch;
 				branch.Name = sourceBranch.Name;
 				branch.LatestRowIndex = commits.FindIndex(c => c == sourceBranch.LatestCommit);
@@ -450,6 +461,15 @@ namespace GitMind.CommitsHistory
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 
 				branch.BranchToolTip = GetBranchToolTip(branch);
+
+				if (sourceBranch.IsMultiBranch)
+				{
+					branch.MultiBranches = branch.Branch.ChildBranchNames
+						.Select(name => new BranchNameItem(
+							branch.Branch.LatestCommit.Id, name, repositoryViewModel.SpecifyMultiBranchCommand))
+						.ToList();
+					branch.IsMultiBranch = sourceBranch.IsMultiBranch;
+				}
 			}
 
 			repositoryViewModel.GraphWidth = Converter.ToX(maxColumn + 1);
@@ -472,7 +492,7 @@ namespace GitMind.CommitsHistory
 
 			if (branch.Branch.ChildBranchNames.Count > 1)
 			{
-				toolTip += $"\nMulti branch of:";
+				toolTip += $"\n\nBranch could be one of:";
 				foreach (string branchName in branch.Branch.ChildBranchNames)
 				{
 					toolTip += $"\n   {branchName}";
@@ -590,20 +610,26 @@ namespace GitMind.CommitsHistory
 			int parentRow = parentCommit.RowIndex;
 			int childColumn = childBranch.BranchColumn;
 			int parentColumn = parentBranch.BranchColumn;
+
+			if (childColumn == parentColumn)
+			{
+
+			}
+
 			bool isBranchStart = childCommit.Commit.HasFirstParent
 				&& childCommit.Commit.FirstParent.Branch != childCommit.Commit.Branch;
 
-			BranchViewModel mainBranch = childColumn > parentColumn ? childBranch : parentBranch;
+			BranchViewModel mainBranch = childColumn >= parentColumn ? childBranch : parentBranch;
 
 			int childX = Converter.ToX(childColumn);
 			int parentX = Converter.ToX(parentColumn);
 
-			int x1 = childX < parentX ? 0 : childX - parentX - 6;
+			int x1 = childX <= parentX ? 0 : childX - parentX - 6;
 			int y1 = 0;
-			int x2 = parentX < childX ? 0 : parentX - childX - 6;
+			int x2 = parentX <= childX ? 0 : parentX - childX - 6;
 			int y2 = Converter.ToY(parentRow - childRow) + Converter.HalfRow - 8;
 
-			if (isBranchStart)
+			if (isBranchStart && x1 != x2)
 			{
 				y1 = y1 + 2;
 				x1 = x1 + 2;
@@ -617,7 +643,7 @@ namespace GitMind.CommitsHistory
 			merge.Rect = new Rect(
 				(double)Math.Min(childX, parentX) + 10,
 				y + Converter.HalfRow,
-				Math.Abs(childX - parentX) + 2,
+				Math.Abs(childX - parentX) + 2 + (x1 == x2 ? 2 : 0),
 				y2 + 2);
 			merge.Width = merge.Rect.Width;
 
@@ -625,6 +651,7 @@ namespace GitMind.CommitsHistory
 			merge.Brush = mainBranch.Brush;
 			merge.Stroke = isBranchStart ? 2 : 1;
 			merge.StrokeDash = "";
+
 		}
 
 

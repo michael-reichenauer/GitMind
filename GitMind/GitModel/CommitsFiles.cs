@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.Utils;
@@ -53,7 +54,8 @@ namespace GitMind.GitModel
 		}
 
 
-		public async Task<IEnumerable<CommitFile>> GetAsync(string commitId)
+		public async Task<IEnumerable<CommitFile>> GetAsync(
+			string gitRepositoryPath, string commitId)
 		{
 			IList<CommitFile> files;
 			if (!commitsFiles.TryGetValue(commitId, out files))
@@ -67,13 +69,13 @@ namespace GitMind.GitModel
 				}
 
 				Task<R<GitCommitFiles>> commitsFilesForCommitTask = 
-					gitService.GetCommitsFilesForCommitAsync(null, commitId);
+					gitService.GetFilesForCommitAsync(gitRepositoryPath, commitId);
 				currentTask = commitsFilesForCommitTask;
 				var commitsFilesForCommit = await commitsFilesForCommitTask;
 
 				if (commitsFilesForCommit.HasValue)
 				{
-					files = commitsFilesForCommit.Value.Files.Select(f => new CommitFile(f.File, "")).ToList();
+					files = commitsFilesForCommit.Value.Files.Select(f => new CommitFile(f.File, ToStatus(f))).ToList();
 					commitsFiles[commitId] = files;
 					return files;
 				}
@@ -83,6 +85,25 @@ namespace GitMind.GitModel
 			}
 				
 			return files;		
+		}
+
+
+		private string ToStatus(GitFile gitFile)
+		{
+			if (gitFile.IsAdded)
+			{
+				return "A";
+			}
+			else if (gitFile.IsDeleted)
+			{
+				return "D";
+			}
+			else if (gitFile.IsRenamed)
+			{
+				return "R";
+			}
+
+			return "";
 		}
 	}
 }
