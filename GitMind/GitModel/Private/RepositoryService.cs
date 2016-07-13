@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Git;
@@ -74,7 +73,7 @@ namespace GitMind.GitModel.Private
 				mRepository.WorkingFolder = workingFolder;
 				mRepository.CommitsFiles = new CommitsFiles();
 
-		
+
 				t.Log("Got gitRepo");
 				await UpdateAsync(mRepository);
 				t.Log("Updated mRepository");
@@ -96,7 +95,7 @@ namespace GitMind.GitModel.Private
 			mRepository.CommitsFiles = sourcerepository.CommitsFiles;
 
 			Timing t = new Timing();
-		
+
 			await UpdateAsync(mRepository);
 			t.Log("Updated mRepository");
 			cacheService.CacheAsync(mRepository).RunInBackground();
@@ -148,7 +147,7 @@ namespace GitMind.GitModel.Private
 
 
 		private void AnalyzeBranchStructure(
-			MRepository repository, 
+			MRepository repository,
 			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames,
 			GitRepository gitRepository)
 		{
@@ -160,7 +159,7 @@ namespace GitMind.GitModel.Private
 
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			t.Log($"Set {gitSpecifiedNames.Count} specified branch names");
-		
+
 			branchService.AddActiveBranches(gitRepository, repository);
 			t.Log($"Added {repository.SubBranches.Count} active branches");
 
@@ -184,7 +183,7 @@ namespace GitMind.GitModel.Private
 			t.Log($"Added multi branches, total: {repository.SubBranches.Count}");
 
 			Log.Debug($"Unset commits after multi {repository.Commits.Count(c => !c.Value.HasBranchName)}");
-	
+
 			branchHierarchyService.SetBranchHierarchy(repository);
 			t.Log($"SetBranchHierarchy with {repository.Branches.Count} branches");
 

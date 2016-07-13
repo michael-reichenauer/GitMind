@@ -31,18 +31,20 @@ namespace GitMind.GitModel.Private
 					IEnumerable<MCommit> commits = subBranch.Value.LatestCommit.FirstAncestors()
 						.TakeWhile(c => c.BranchName == subBranch.Value.Name);
 
+					bool foundParent = false;
 					MCommit currentcommit = null;
 					foreach (MCommit commit in commits)
 					{
 						if (commit.BranchId != null)
 						{
 							subBranch.Value.ParentCommitId = repository.Branches[commit.BranchId].ParentCommitId;
+							foundParent = true;
 							break;
 						}
 						currentcommit = commit;
 					}
 
-					if (subBranch.Value.ParentCommitId == null)
+					if (!foundParent)
 					{
 						MCommit firstCommit = currentcommit ?? LatestCommit;
 
