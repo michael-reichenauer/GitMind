@@ -234,7 +234,7 @@ namespace GitMind
 				}
 			}
 
-			workingFolder = TryGetWorkingFolder(workingFolder);
+			workingFolder = TryGetWorkingFolder(workingFolder ?? Environment.CurrentDirectory);
 			
 			Log.Debug($"Current working folder {workingFolder}");
 			return true;
