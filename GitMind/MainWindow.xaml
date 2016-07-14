@@ -155,19 +155,11 @@
 								<MenuItem 
 									Header="Show branch"
 									ItemsSource="{Binding RepositoryViewModel.AllBranches}">
-									
 									<MenuItem.Icon>
-										<Border Background="Transparent" Padding="2">
-											<TextBlock 
-												Text="&#xE3CD;"
-												FontFamily="pack://application:,,,/Fonts/#Material Icons"
-												FontSize="14"
-												Foreground="LightSteelBlue"
-												VerticalAlignment="Center">
-											</TextBlock>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;" FontSize="14"/>
 										</Border>
 									</MenuItem.Icon>
-
 									<MenuItem.Resources>
 										<HierarchicalDataTemplate 
 											DataType="{x:Type commitsHistory:BranchItem}"
@@ -185,17 +177,10 @@
 									Header="Hide branch" 
 									ItemsSource="{Binding RepositoryViewModel.ActiveBranches}">
 									<MenuItem.Icon>
-										<Border Background="Transparent" Padding="2">
-											<TextBlock 
-												Text="&#xE3CB;"
-												FontFamily="pack://application:,,,/Fonts/#Material Icons"
-												FontSize="14"
-												Foreground="LightSteelBlue"
-												VerticalAlignment="Center">
-											</TextBlock>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CB;" FontSize="14"/>
 										</Border>
 									</MenuItem.Icon>
-									
 									<MenuItem.ItemContainerStyle>
 										<Style TargetType="MenuItem">
 											<Setter Property="Header" Value="{Binding Text}"/>
@@ -212,14 +197,8 @@
 									InputGestureText="Space"
 									Command="{Binding RepositoryViewModel.ToggleDetailsCommand}">
 									<MenuItem.Icon>
-										<Border Background="Transparent" Padding="2">
-											<TextBlock 
-												Text="&#xE048;"
-												FontSize="13"
-												FontFamily="pack://application:,,,/Fonts/#Material Icons"
-												Foreground="LightSteelBlue"
-												 VerticalAlignment="Center">
-											</TextBlock>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -230,14 +209,8 @@
 									Header="Open working folder ..." 
 									Command="{Binding SelectWorkingFolderCommand}">
 									<MenuItem.Icon>
-										<Border Background="Transparent" Padding="2">
-											<TextBlock 
-												Text="&#xE2C8;"
-												FontSize="13"
-												FontFamily="pack://application:,,,/Fonts/#Material Icons"
-												Foreground="LightSteelBlue"
-												VerticalAlignment="Center">
-											</TextBlock>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE2C8;"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -265,14 +238,8 @@
 									Header="Send feedback ..." 
 									Command="{Binding FeedbackCommand}">
 									<MenuItem.Icon>
-										<Border Background="Transparent" Padding="2">
-											<TextBlock 
-												Text="&#xE0E1;"
-												FontSize="13"
-												FontFamily="pack://application:,,,/Fonts/#Material Icons"
-												Foreground="LightSteelBlue"
-												VerticalAlignment="Center">
-											</TextBlock>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0E1;"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -282,14 +249,12 @@
 									InputGestureText="F1"
 									Command="{Binding HelpCommand}">
 									<MenuItem.Icon>
-										<Border Background="Transparent" Padding="2">
+										<Border>
 											<TextBlock 
+												Style="{StaticResource MenuIconStyle}" 
 												Text=" ? "
-												FontSize="13"
 												FontWeight="Bold"
-												Foreground="LightSteelBlue"
-												VerticalAlignment="Center">
-											</TextBlock>
+												FontFamily="Segoe UI"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -506,14 +471,8 @@
 																IsEnabled="{Binding HasChildren}"
 																ItemsSource="{Binding ChildBranches}">
 																<MenuItem.Icon>
-																	<Border Background="Transparent" Padding="2">
-																		<TextBlock 
-																			Text="&#xE3CD;"
-																			FontFamily="pack://application:,,,/Fonts/#Material Icons"
-																			FontSize="14"
-																			Foreground="LightSteelBlue"
-																			VerticalAlignment="Center">
-																		</TextBlock>
+																	<Border>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
 																	</Border>
 																</MenuItem.Icon>
 																<MenuItem.Resources>
@@ -537,14 +496,8 @@
 																Visibility="{Binding IsMultiBranch, Converter={StaticResource VC}}"
 																ItemsSource="{Binding MultiBranches}">
 																<MenuItem.Icon>
-																	<Border Background="Transparent" Padding="2">
-																		<TextBlock 
-																			Text="&#xE5DC;"
-																			FontFamily="pack://application:,,,/Fonts/#Material Icons"
-																			FontSize="14"
-																			Foreground="LightSteelBlue"
-																			VerticalAlignment="Center">
-																		</TextBlock>
+																	<Border>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DC;"/>
 																	</Border>
 																</MenuItem.Icon>
 																<MenuItem.ItemContainerStyle>
@@ -630,7 +583,13 @@
 															<MenuItem 
 																Header="Show Diff ..." 
 																Command="{Binding ShowDiffCommand}" 
-																CommandParameter="{Binding Id}"/>
+																CommandParameter="{Binding Id}">
+																<MenuItem.Icon>
+																	<Border>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
 														</ContextMenu>
 													</Grid.ContextMenu>
 
@@ -853,7 +812,13 @@
 
 								<Grid.ContextMenu>
 									<ContextMenu>
-										<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}"/>
+										<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}">
+											<MenuItem.Icon>
+												<Border>
+													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
+												</Border>
+											</MenuItem.Icon>
+										</MenuItem>
 									</ContextMenu>
 								</Grid.ContextMenu>
 

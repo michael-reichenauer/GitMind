@@ -15,6 +15,15 @@
 		</Setter>
 	</Style>
 
+	<Style x:Key="MenuIconStyle" TargetType="{x:Type TextBlock}">
+		<Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Material Icons"/>
+		<Setter Property="FontSize" Value="13"/>
+		<Setter Property="Foreground" Value="LightSteelBlue"/>
+		<Setter Property="VerticalAlignment" Value="Center"/>
+		<Setter Property="Padding" Value="2"/>
+	</Style>
+
+
 	<!-- Outer menu items -->
 	<Style TargetType="{x:Type MenuItem}">
 		<Setter Property="Background" Value="Black"></Setter>
