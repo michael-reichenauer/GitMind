@@ -98,8 +98,9 @@
 					x:Name="InputGestureText"
 					Grid.Column="2"
 					Text="{TemplateBinding InputGestureText}"
-					Margin="5,2,0,2"
-					DockPanel.Dock="Right" />
+					Margin="30,0,0,0"
+					HorizontalAlignment="Left"
+					DockPanel.Dock="Left" />
 			</Grid>
 		</Border>
 		<ControlTemplate.Triggers>

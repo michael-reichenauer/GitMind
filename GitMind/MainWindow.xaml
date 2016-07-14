@@ -208,7 +208,8 @@
 								<Separator Background="DarkSlateBlue"/>
 
 								<MenuItem 
-									Header="Toggle commit details                Space" 
+									Header="Toggle commit details" 
+									InputGestureText="Space"
 									Command="{Binding RepositoryViewModel.ToggleDetailsCommand}">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
@@ -277,7 +278,8 @@
 								</MenuItem>
 
 								<MenuItem 
-									Header="View help ...                                 F1" 
+									Header="View help ..."
+									InputGestureText="F1"
 									Command="{Binding HelpCommand}">
 									<MenuItem.Icon>
 										<Border Background="Transparent" Padding="2">
