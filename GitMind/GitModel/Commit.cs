@@ -32,7 +32,8 @@ namespace GitMind.GitModel
 			string specifiedBranchName,
 			bool isLocalAhead, 
 			bool isRemoteAhead,
-			bool isUncommitted)
+			bool isUncommitted,
+			bool isVirtual)
 		{
 			this.repository = repository;
 			this.parentIds = parentIds;
@@ -51,6 +52,7 @@ namespace GitMind.GitModel
 			IsLocalAhead = isLocalAhead;
 			IsRemoteAhead = isRemoteAhead;
 			IsUncommitted = isUncommitted;
+			IsVirtual = isVirtual;
 		}
 
 
@@ -67,6 +69,7 @@ namespace GitMind.GitModel
 		public bool IsLocalAhead { get; }
 		public bool IsRemoteAhead { get; }
 		public bool IsUncommitted { get; }
+		public bool IsVirtual { get; }
 		public bool HasFirstParent => parentIds.Count > 0;
 		public bool HasSecondParent => parentIds.Count > 1;
 		public Commit FirstParent => repository.Commits[parentIds[0]];
@@ -79,6 +82,7 @@ namespace GitMind.GitModel
 
 		//public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
 		public Task<IEnumerable<CommitFile>> FilesTask => repository.CommitsFiles.GetAsync(GitRepositoryPath, Id);
+
 
 
 		public override string ToString() => $"{ShortId} {Subject} {CommitDate}";

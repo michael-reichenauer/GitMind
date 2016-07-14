@@ -1,6 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
 using GitMind.Utils.UI;
 
 
@@ -38,6 +40,19 @@ namespace GitMind.CommitsHistory
 			get { return Get(); }
 			set { Set(value); }
 		}
+
+		public Brush SubjectBrush
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public FontStyle SubjectStyle
+		{
+			get { return Get<FontStyle>(); }
+			set { Set(value); }
+		}
+
 
 		public string Tags
 		{

@@ -262,6 +262,9 @@ namespace GitMind.CommitsHistory
 			CommitDetail.Tickets = commit.Tickets;
 			CommitDetail.Tags = commit.Tags;
 			CommitDetail.Subject = commit.Subject;
+			CommitDetail.SubjectBrush = commit.SubjectBrush;
+			CommitDetail.SubjectStyle = commit.SubjectStyle;
+
 			CommitDetail.Files.Clear();
 
 			SetFilesAsync(commit.Commit).RunInBackground();

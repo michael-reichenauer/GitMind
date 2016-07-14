@@ -405,7 +405,7 @@ namespace GitMind.CommitsHistory
 
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
-
+				commitViewModel.SubjectStyle = commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
 				commitViewModel.CommitBranchText = "Hide branch: " + commit.Branch.Name;
 				commitViewModel.CommitBranchName = commit.Branch.Name;
 				commitViewModel.ToolTip = GetCommitToolTip(commit);

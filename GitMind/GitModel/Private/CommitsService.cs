@@ -57,7 +57,12 @@ namespace GitMind.GitModel.Private
 			if (!gitStatus.OK)
 			{
 				AddVirtualUncommitted(gitRepository, gitStatus, repository);
-			}			
+			}
+
+			//foreach (GitBranch branch in gitRepository.Branches)
+			//{
+			//	if (repository.Commits[branch.TipId].HasFirstChild)
+			//}	
 		}
 
 
@@ -174,18 +179,15 @@ namespace GitMind.GitModel.Private
 			commit.ParentIds = gitCommit.Parents.Select(c => c.Id).ToList();
 		}
 
-		private void CopyToCommit(GitStatus gitStatus, MCommit commit, string parentId)
+		private static void CopyToCommit(GitStatus gitStatus, MCommit commit, string parentId)
 		{
-			string subject = $"{gitStatus.Count} uncommitted changes in working folder";
-			string tickets = "";
-
 			commit.Id = MCommit.UncommittedId;
 			commit.ShortId = commit.Id.Substring(0, 6);
-			commit.Subject = GetSubjectWithoutTickets(subject, tickets);
+			commit.Subject = $"{gitStatus.Count} uncommitted changes in working folder";
 			commit.Author = "";
 			commit.AuthorDate = DateTime.Now;
 			commit.CommitDate = DateTime.Now;
-			commit.Tickets = tickets;
+			commit.Tickets = "";
 			commit.ParentIds = new List<string> { parentId };
 		}
 

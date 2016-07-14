@@ -137,6 +137,12 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
+		public FontStyle SubjectStyle
+		{
+			get { return Get<FontStyle>(); }
+			set { Set<FontStyle>(value); }
+		}
+
 		public Brush HoverBrush => HoverBrushColor;
 
 		public Brush BrushInner

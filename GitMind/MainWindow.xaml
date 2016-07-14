@@ -646,6 +646,7 @@
 															Text="{Binding Subject}"
 															Foreground="{Binding SubjectBrush}"
 															FontSize="12"
+															FontStyle="{Binding SubjectStyle}"
 															HorizontalAlignment="Left"
 															VerticalAlignment="Center"/>
 													</StackPanel>
@@ -772,7 +773,8 @@
 					<ScrollViewer Grid.Column="1" Grid.Row="4" 
 							VerticalScrollBarVisibility="Auto">
 						<TextBlock			
-								Foreground="{StaticResource TextBrush}"
+								Foreground="{Binding RepositoryViewModel.CommitDetail.SubjectBrush}"		
+								FontStyle="{Binding RepositoryViewModel.CommitDetail.SubjectStyle}"
 								Padding="3,1"
 								Text="{Binding RepositoryViewModel.CommitDetail.Subject}"
 								TextWrapping="Wrap"
