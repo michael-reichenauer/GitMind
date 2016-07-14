@@ -114,6 +114,11 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
+						if (commitId == GitCommit.UncommittedId)
+						{
+							return R.From(gitRepository.Status.CommitFiles);
+						}
+
 						return R.From(gitRepository.Diff.GetFiles(commitId));
 					}
 				}
@@ -173,16 +178,8 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
-						string patch;
-						if (commitId == null)
-						{
-							patch = gitRepository.Diff.GetPatch();
-						}
-						else
-						{
-							patch = gitRepository.Diff.GetPatch(commitId);
-						}
-
+						string patch = gitRepository.Diff.GetPatch(commitId);
+					
 						return R.From(await gitDiffParser.ParseAsync(commitId, patch));
 					}
 				}

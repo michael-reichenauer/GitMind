@@ -695,36 +695,14 @@ namespace GitMind.CommitsHistory
 		}
 
 
-		//if (!string.IsNullOrWhiteSpace(filterText))
-		//{
-		//	sourceCommits = model.GitRepo.GetAllCommts()
-		//		.Where(c => c.Subject.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) != -1
-		//		|| c.Author.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) != -1
-		//		|| c.Id.StartsWith(filterText, StringComparison.CurrentCultureIgnoreCase))
-		//		.Select(c => model.GetCommit(c.Id))
-		//		.ToList();
-
-		//}
-		//else
-		//{
-		//	commitViewModel.SubjectBrush = brushService.SubjectBrush;
-		//	commitViewModel.IsMergePoint = false;
-		//	commitViewModel.BranchColumn = 0;
-		//	commitViewModel.Size = 0;
-		//	commitViewModel.XPoint = 0;
-		//	commitViewModel.YPoint = 0;
-		//	commitViewModel.Brush = Brushes.Black;
-		//	commitViewModel.BrushInner = Brushes.Black;
-		//	commitViewModel.CommitBranchText = "";
-		//	commitViewModel.CommitBranchName = "";
-		//	commitViewModel.ToolTip = "";
-		//}
-		//}
-
 		public Brush GetSubjectBrush(Commit commit)
 		{
 			Brush subjectBrush;
-			if (commit.IsLocalAhead)
+			if (commit.IsUncommitted)
+			{
+				subjectBrush = brushService.UnCommittedBrush;
+			}
+			else if (commit.IsLocalAhead)
 			{
 				subjectBrush = brushService.LocalAheadBrush;
 			}

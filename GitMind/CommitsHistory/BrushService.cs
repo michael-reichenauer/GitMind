@@ -28,8 +28,10 @@ namespace GitMind.CommitsHistory
 		public SolidColorBrush RemoteAheadBrush { get; } =
 			(SolidColorBrush)new BrushConverter().ConvertFrom("#BBBBFB");
 
-		public SolidColorBrush ConflictAheadBrush { get; } =
+		public SolidColorBrush ConflictBrush { get; } =
 			(SolidColorBrush)new BrushConverter().ConvertFrom("#FCB9B6");
+
+		public SolidColorBrush UnCommittedBrush { get; } = Brushes.BurlyWood;
 
 		// Light orchchid
 		//public SolidColorBrush RemoteAheadBrush { get; } =

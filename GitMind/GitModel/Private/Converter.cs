@@ -41,7 +41,8 @@ namespace GitMind.GitModel.Private
 				commit.BranchId,
 				commit.SpecifiedBranchName,
 				commit.IsLocalAhead,
-				commit.IsRemoteAhead);
+				commit.IsRemoteAhead,
+				commit.IsUncommitted);
 		}
 
 

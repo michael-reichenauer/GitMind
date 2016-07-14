@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Git;
@@ -7,7 +8,8 @@ namespace GitMind.GitModel.Private
 {
 	internal class CommitsService : ICommitsService
 	{
-		public void AddBranchCommits(GitRepository gitRepository, MRepository repository)
+		public void AddBranchCommits(
+			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
 		{
 			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
 			Dictionary<string, object> added = new Dictionary<string, object>();	
@@ -51,6 +53,11 @@ namespace GitMind.GitModel.Private
 					commit.FromSubjectBranchName = subjectBranchName;
 				}
 			}
+
+			if (!gitStatus.OK)
+			{
+				AddVirtualUncommitted(gitRepository, gitStatus, repository);
+			}			
 		}
 
 
@@ -63,6 +70,21 @@ namespace GitMind.GitModel.Private
 			SetChildOfParents(commit);
 			repository.Commits[commitId] = commit;
 			return commit;
+		}
+
+
+		private void AddVirtualUncommitted(
+			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
+		{
+			MCommit commit = new MCommit();
+			commit.IsVirtual = true;
+			commit.Repository = repository;
+
+			CopyToCommit(gitStatus, commit, gitRepository.Head.TipId);
+			commit.Author = gitRepository.UserName ?? "";
+
+			SetChildOfParents(commit);
+			repository.Commits[commit.Id] = commit;
 		}
 
 
@@ -151,6 +173,22 @@ namespace GitMind.GitModel.Private
 			commit.Tickets = tickets;
 			commit.ParentIds = gitCommit.Parents.Select(c => c.Id).ToList();
 		}
+
+		private void CopyToCommit(GitStatus gitStatus, MCommit commit, string parentId)
+		{
+			string subject = $"{gitStatus.Count} uncommitted changes in working folder";
+			string tickets = "";
+
+			commit.Id = MCommit.UncommittedId;
+			commit.ShortId = commit.Id.Substring(0, 6);
+			commit.Subject = GetSubjectWithoutTickets(subject, tickets);
+			commit.Author = "";
+			commit.AuthorDate = DateTime.Now;
+			commit.CommitDate = DateTime.Now;
+			commit.Tickets = tickets;
+			commit.ParentIds = new List<string> { parentId };
+		}
+
 
 
 		private static bool IsMergeCommit(MCommit commit)

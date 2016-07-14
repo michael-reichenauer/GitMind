@@ -7,6 +7,8 @@ namespace GitMind.Git
 {
 	public class GitCommit
 	{
+		public static readonly string UncommittedId = new string('0', 40);
+
 		private readonly LibGit2Sharp.Commit commit;
 
 

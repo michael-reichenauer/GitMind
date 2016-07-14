@@ -107,7 +107,13 @@
 						ToolTip="{Binding StatusText}">
 						<Button.ContextMenu>
 							<ContextMenu>
-								<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}"/>
+								<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}">
+									<MenuItem.Icon>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
 							</ContextMenu>
 						</Button.ContextMenu>
 					</Button>

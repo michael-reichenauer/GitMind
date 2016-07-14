@@ -165,6 +165,12 @@ namespace GitMind.CommitsHistory
 
 				VirtualItemsSource.DataChanged(width);
 
+				if (Commits.Any())
+				{
+					SelectedIndex = Commits[0].VirtualId;
+					SetCommitsDetails(Commits[0]);
+				}
+
 				t.Log("Updated repository view model");
 			}
 			else
@@ -188,6 +194,7 @@ namespace GitMind.CommitsHistory
 			if (Commits.Any())
 			{
 				SelectedIndex = Commits[0].VirtualId;
+				SetCommitsDetails(Commits[0]);
 			}
 
 			UpdateStatusIndicators();
@@ -227,12 +234,7 @@ namespace GitMind.CommitsHistory
 		public int SelectedIndex
 		{
 			get { return Get(); }
-			set
-			{
-				if (Set(value).IsSet)
-				{
-				}
-			}
+			set { Set(value); }
 		}
 
 
@@ -246,17 +248,24 @@ namespace GitMind.CommitsHistory
 					CommitViewModel commit = value as CommitViewModel;
 					if (commit != null)
 					{
-						CommitDetail.Id = commit.Id;
-						CommitDetail.Branch = commit.Commit.Branch.Name;
-						CommitDetail.Tickets = commit.Tickets;
-						CommitDetail.Tags = commit.Tags;
-						CommitDetail.Subject = commit.Subject;
-						CommitDetail.Files.Clear();
-
-						SetFilesAsync(commit.Commit).RunInBackground();
+						SetCommitsDetails(commit);
 					}
 				}
 			}
+		}
+
+
+		private void SetCommitsDetails(CommitViewModel commit)
+		{
+			CommitDetail.Id = commit.Id;
+			CommitDetail.Branch = commit.Commit.Branch.Name;
+			CommitDetail.Tickets = commit.Tickets;
+			CommitDetail.Tags = commit.Tags;
+			CommitDetail.Subject = commit.Subject;
+			CommitDetail.Files.Clear();
+
+			SetFilesAsync(commit.Commit).RunInBackground();
+			
 		}
 
 
@@ -265,7 +274,6 @@ namespace GitMind.CommitsHistory
 			IEnumerable<CommitFile> files = await commit.FilesTask;
 			if (CommitDetail.Id == commit.Id)
 			{
-				Log.Debug($"Setting {files.Count()} files for {commit.Id}  ");
 				files.ForEach(f => CommitDetail.Files.Add(
 					new CommitFileViewModel
 					{

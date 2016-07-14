@@ -115,8 +115,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private Task UpdateAsync(
-			MRepository mRepository)
+		private Task UpdateAsync(MRepository mRepository)
 		{
 			return Task.Run(() =>
 			{
@@ -136,10 +135,18 @@ namespace GitMind.GitModel.Private
 
 			using (GitRepository gitRepository = gitService.OpenRepository(gitRepositoryPath))
 			{
-				commitsService.AddBranchCommits(gitRepository, repository);
+				GitStatus gitStatus = gitRepository.Status;
+
+				RemoveVirtualCommits(repository);
+
+				repository.Commits.ForEach(c => c.Value.SubBranchId = null);
+				repository.SubBranches.Clear();
+				t.Log("Cleaned sub branches");
+
+				commitsService.AddBranchCommits(gitRepository, gitStatus, repository);
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
-				AnalyzeBranchStructure(repository, specifiedNames, gitRepository);
+				AnalyzeBranchStructure(repository, specifiedNames, gitStatus, gitRepository);
 				t.Log("AnalyzeBranchStructure");
 			}
 		}
@@ -147,20 +154,17 @@ namespace GitMind.GitModel.Private
 
 
 		private void AnalyzeBranchStructure(
-			MRepository repository,
-			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames,
+			MRepository repository, 
+			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames, 
+			GitStatus gitStatus, 
 			GitRepository gitRepository)
 		{
 			Timing t = new Timing();
 
-			repository.Commits.ForEach(c => c.Value.SubBranchId = null);
-			repository.SubBranches.Clear();
-			t.Log("Cleaned sub branches");
-
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			t.Log($"Set {gitSpecifiedNames.Count} specified branch names");
 
-			branchService.AddActiveBranches(gitRepository, repository);
+			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
 			t.Log($"Added {repository.SubBranches.Count} active branches");
 
 			commitBranchNameService.SetMasterBranchCommits(repository);
@@ -195,7 +199,9 @@ namespace GitMind.GitModel.Private
 
 			repository.CurrentBranchId = repository.Branches
 				.First(b => b.Value.IsActive && b.Value.Name == gitRepository.Head.Name).Value.Id;
-			repository.CurrentCommitId = repository.Commits[gitRepository.Head.TipId].Id;
+			repository.CurrentCommitId = gitStatus.OK
+				? repository.Commits[gitRepository.Head.TipId].Id
+				: MCommit.UncommittedId;
 
 			repository.Commits.Where(c => string.IsNullOrEmpty(c.Value.BranchName))
 				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.Value.FirstParentId}"));
@@ -244,6 +250,23 @@ namespace GitMind.GitModel.Private
 			t.Log("Branches: " + rBranches.Count);
 
 			return repository;
+		}
+
+
+		private static void RemoveVirtualCommits(MRepository repository)
+		{
+			List<MCommit> virtualCommits = repository.Commits.Values.Where(c => c.IsVirtual).ToList();
+			foreach (MCommit virtualCommit in virtualCommits)
+			{
+				repository.ChildrenById[virtualCommit.FirstParentId].Remove(virtualCommit.Id);
+				repository.FirstChildrenById[virtualCommit.FirstParentId].Remove(virtualCommit.Id);
+				repository.Commits.Remove(virtualCommit.Id);
+				virtualCommit.Branch.CommitIds.Remove(virtualCommit.Id);
+				if (virtualCommit.Branch.LatestCommitId == virtualCommit.Id)
+				{
+					virtualCommit.Branch.LatestCommitId = virtualCommit.FirstParentId;
+				}
+			}
 		}
 	}
 }

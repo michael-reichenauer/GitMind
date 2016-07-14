@@ -255,7 +255,7 @@ namespace GitMind
 
 		private async void ShowDiff()
 		{
-			await diffService.ShowDiffAsync(null, WorkingFolder);
+			await diffService.ShowDiffAsync(Commit.UncommittedId, WorkingFolder);
 		}
 
 
