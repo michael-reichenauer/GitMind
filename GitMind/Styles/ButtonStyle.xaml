@@ -54,6 +54,10 @@
 		</Setter>
 	</Style>
 
-	
+	<Style x:Key="IconButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButtonStyle}">
+		<Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Material Icons"/>
+	</Style>
+
+
 
 </ResourceDictionary>

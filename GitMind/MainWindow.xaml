@@ -24,7 +24,6 @@
 	</Window.InputBindings>
 
 	<Window.Resources>
-
 	</Window.Resources>
 
 
@@ -55,27 +54,7 @@
 					Orientation="Horizontal">
 					
 					<!-- Application icon -->
-					<Image 
-						Source="Application.ico" 
-						Width="15"
-						Height="15"
-						Margin="5,0">
-
-						<!-- Version tool tip on application icon -->
-						<Image.ToolTip>
-							<ToolTip
-							Placement="Bottom"
-							HorizontalOffset="-15" 
-							VerticalOffset="5"
-							Background="Black"
-							BorderThickness="2"
-							BorderBrush="DarkOrchid">
-								<StackPanel>
-									<TextBlock Text="{Binding VersionText}" Foreground="LightSteelBlue"/>
-								</StackPanel>
-							</ToolTip>
-						</Image.ToolTip>
-					</Image>
+					<Image Source="Application.ico" Width="15" Height="15" Margin="5,0" ToolTip="{Binding VersionText}"/>
 
 					<!-- Working folder -->
 					<TextBlock 	
@@ -86,9 +65,6 @@
 						Text="{Binding WorkingFolder}">
 						<TextBlock.ToolTip>
 							<ToolTip
-								Placement="Bottom"					
-								VerticalOffset="5"
-								Background="Black"
 								BorderThickness="2"
 								BorderBrush="{Binding BranchBrush}">
 								<StackPanel Orientation="Horizontal">
@@ -101,125 +77,55 @@
 
 					<!-- Status status  -->
 
-					<!-- Remote ahead status Command="{Binding UpdateCommand}" Style="{StaticResource BaseButtonStyle}"-->
+					<!-- Remote ahead status Command="{Binding UpdateCommand}" Style="{StaticResource IconButtonStyle}"-->
 					<TextBlock
 						Visibility="{Binding RepositoryViewModel.RemoteAheadText, Converter={StaticResource VC}}"					
 						FontFamily="pack://application:,,,/Fonts/#Material Icons"
 						Foreground="{StaticResource RemoteAheadBrush}"
 						FontSize="18"
 						Margin="4,3"
-						Text="&#xE258;">
-						<TextBlock.ToolTip>
-							<ToolTip
-								Placement="Bottom"					
-								VerticalOffset="5"
-								Background="Black"
-								BorderThickness="1"
-								BorderBrush="#FF6495ED">
-								<StackPanel Orientation="Horizontal">
-									<TextBlock 
-										Text="{Binding RepositoryViewModel.RemoteAheadText}" 
-										Foreground="{StaticResource TextBrush}"/>
-								</StackPanel>
-							</ToolTip>
-						</TextBlock.ToolTip>
-					</TextBlock>
+						Text="&#xE258;"
+						ToolTip="{Binding RepositoryViewModel.RemoteAheadText}"/>
 
-					<!-- Local ahead status Command="{Binding PublishCommand}" Style="{StaticResource BaseButtonStyle}" -->
+					<!-- Local ahead status Command="{Binding PublishCommand}" Style="{StaticResource IconButtonStyle}" -->
 					<TextBlock 
 						Visibility="{Binding RepositoryViewModel.LocalAheadText, Converter={StaticResource VC}}"			
 						FontFamily="pack://application:,,,/Fonts/#Material Icons"
 						Foreground="{StaticResource LocalAheadBrush}"
 						Text="&#xE25A;"
 						FontSize="18"
-						Margin="3,3"
-						>
-						<TextBlock.ToolTip>
-							<ToolTip
-								Placement="Bottom"					
-										VerticalOffset="5"
-										Background="Black"
-										BorderThickness="1"
-										BorderBrush="#FF6495ED">
-								<StackPanel>
-									<TextBlock 
-										Text="{Binding RepositoryViewModel.LocalAheadText}" 
-										Foreground="{StaticResource TextBrush}"/>
-								</StackPanel>
-							</ToolTip>
-						</TextBlock.ToolTip>
-					</TextBlock>
+						Margin="3,3" 
+						ToolTip="{Binding RepositoryViewModel.LocalAheadText}"/>
+
+					<!-- Commit status button -->
+					<Button 
+						Style="{StaticResource IconButtonStyle}"
+						Visibility="{Binding StatusText, Converter={StaticResource VC}}"				
+						Foreground="{StaticResource UncomittedBrush}"
+						Content="&#xE430;"
+						Command="{Binding ShowDiffCommand}"
+						ToolTip="{Binding StatusText}">
+						<Button.ContextMenu>
+							<ContextMenu>
+								<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}"/>
+							</ContextMenu>
+						</Button.ContextMenu>
+					</Button>
 
 
 					<!-- Conflict ahead status Command="{Binding ConflictAheadCommand}" Style="{StaticResource BaseButtonStyle}"-->
 					<TextBlock
-						Visibility="{Binding RepositoryViewModel.ConflictAheadText, Converter={StaticResource VC}}"
-						
+						Visibility="{Binding RepositoryViewModel.ConflictAheadText, Converter={StaticResource VC}}"			
 						FontFamily="pack://application:,,,/Fonts/#Material Icons"
 						Foreground="{StaticResource ConflictAheadBrush}"
 						Text="&#xE259;"
 						FontSize="18"
 						Margin="3,3"
-						>
-						<TextBlock.ToolTip>
-							<ToolTip
-								Placement="Bottom"					
-										VerticalOffset="5"
-										Background="Black"
-										BorderThickness="1"
-										BorderBrush="#FF6495ED">
-								<StackPanel>
-									<TextBlock 
-										Text="{Binding RepositoryViewModel.ConflictAheadText}" 
-										Foreground="{StaticResource TextBrush}"/>
-								</StackPanel>
-							</ToolTip>
-						</TextBlock.ToolTip>
-					</TextBlock>
+						ToolTip="{Binding RepositoryViewModel.ConflictAheadText}"/>
 
-					<!-- Uncommitted status  -->
-					<Button 
-						Visibility="{Binding StatusText, Converter={StaticResource VC}}"
-						Style="{StaticResource BaseButtonStyle}"
-						FontFamily="pack://application:,,,/Fonts/#Material Icons"
-						Foreground="{StaticResource UncomittedBrush}"
-						Content="&#xE430;"
-						Command="{Binding ShowDiffCommand}">
-						<Button.ToolTip>
-							<ToolTip
-								Placement="Bottom"					
-								VerticalOffset="5"
-								Background="Black"
-								BorderThickness="2"
-								BorderBrush="{StaticResource UncomittedBrush}">
-								<StackPanel>
-									<TextBlock 
-										Text="{Binding StatusText}" 
-										Foreground="{StaticResource TextBrush}"/>
-								</StackPanel>
-							</ToolTip>
-						</Button.ToolTip>
-						<Button.ContextMenu>
-							<ContextMenu
-								Background="Transparent"
-								FontFamily="Segoe UI"
-								FontSize="12"
-								Foreground="Lavender"
-								BorderBrush="DarkSlateBlue"
-								BorderThickness="0">
-								<MenuItem
-									Header="Show Diff ..."
-									Command="{Binding ShowDiffCommand}"/>
-							</ContextMenu>
-						</Button.ContextMenu>
-					</Button>
-
-					<!-- Busy Indicator  -->		
-					<Label 
-						Margin="10,0"
-						Foreground="DarkOrchid"
-						FontSize="10"
-						Content="{Binding Busy.Text}" />
+					<!-- Busy Indicator  -->
+					<Label Content="{Binding Busy.Text}" Foreground="DarkOrchid" Margin="10,0" FontSize="10"/>
+					
 				</StackPanel>
 
 
@@ -227,49 +133,21 @@
 
 					<!-- Latest version button -->
 					<Button 
-						Visibility="{Binding IsNewVersionVisible, Converter={StaticResource VC}}"
-						Style="{StaticResource BaseButtonStyle}"
-						Foreground="Green"
 						Content="&#xE863;"
+						Style="{StaticResource IconButtonStyle}"			
+						Foreground="Green"			
 						FontWeight="Bold"
-						FontFamily="pack://application:,,,/Fonts/#Material Icons"
-						Command="{Binding RunLatestVersionCommand}">
-
-						<Button.ToolTip>
-							<ToolTip
-								Placement="Bottom"					
-										VerticalOffset="5"
-										Background="Black"
-										BorderThickness="2"
-										BorderBrush="#FF6495ED">
-								<StackPanel>
-									<TextBlock 
-										Text="New version of GitMind is available, click to reload ..." 
-										Foreground="LightSteelBlue"/>
-								</StackPanel>
-							</ToolTip>
-						</Button.ToolTip>
-					</Button>
+						Visibility="{Binding IsNewVersionVisible, Converter={StaticResource VC}}"			
+						Command="{Binding RunLatestVersionCommand}"
+						ToolTip="New version of GitMind is available, click to reload ..." />
 
 					<!-- Hamburger button -->
 					<Button
-						Style="{StaticResource BaseButtonStyle}"
-						FontFamily="pack://application:,,,/Fonts/#Material Icons"
 						Content="&#xE8FE;"
-						FontSize="18"
-						Click="HamburgerButton_OnClick">
+						Style="{StaticResource IconButtonStyle}"			
+						Click="HamburgerButton_OnClick"
+						ToolTip="Customize and control">
 					
-						<Button.ToolTip>
-							<ToolTip
-								Placement="Bottom"					
-								VerticalOffset="5"
-								Background="Black"
-								BorderThickness="1"
-								BorderBrush="#FF6495ED">
-								<TextBlock Text="Customize and control" Foreground="LightSteelBlue"/>
-							</ToolTip>
-						</Button.ToolTip>
-
 						<Button.ContextMenu>		
 							<ContextMenu Name="HamburgerContextMenu">
 
@@ -344,6 +222,7 @@
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
+								
 								<Separator Background="DarkSlateBlue"/>
 
 								<MenuItem 
@@ -424,99 +303,66 @@
 					<!-- Search box  -->
 					<Border 
 						BorderThickness="1" 
-						BorderBrush="DarkSlateBlue" Margin="2">
+						BorderBrush="DarkSlateBlue" 
+						Margin="2">
 						<StackPanel Orientation="Horizontal">
-						<TextBlock 
-							FontFamily="pack://application:,,,/Fonts/#Material Icons"
-							Foreground="LightSteelBlue"
-							FontSize="14"
-							Text="&#xE8B6;"
-							Padding="2,3,0,0"/>
-						<TextBox
-							BorderThickness="0" 
-							IsEnabled="true"			
-							Width="125"
-							Height="20"
-							Margin="3,0"
-							Padding="0"
-							Background="Black"
-							Text="{Binding SearchBox, UpdateSourceTrigger=PropertyChanged}"
-							Foreground="Lavender"
-							HorizontalAlignment="Right"
-							VerticalAlignment="Center">
-								<TextBox.ToolTip>
-									<ToolTip
-										Placement="Bottom"					
-										VerticalOffset="5"
-										Background="Black"
-										BorderThickness="1"
-										BorderBrush="#FF6495ED">
-										<TextBlock Text="Type words to search for" Foreground="LightSteelBlue"/>
-									</ToolTip>
-								</TextBox.ToolTip>
-							</TextBox>
-					
-						<Button 
-							IsEnabled="{Binding IsInFilterMode}"
-							Style="{StaticResource BaseButtonStyle}"
-							FontFamily="pack://application:,,,/Fonts/#Material Icons"
-							FontSize="12"
-							Content="&#xE14C;"
-							Padding="2,3,2,3"
-							Command="{Binding ClearFilterCommand}">
-								<Button.ToolTip>
-									<ToolTip
-										Placement="Bottom"					
-										VerticalOffset="5"
-										Background="Black"
-										BorderThickness="1"
-										BorderBrush="#FF6495ED">
-										<TextBlock Text="Clear filter (Esc)" Foreground="LightSteelBlue"/>
-									</ToolTip>
-								</Button.ToolTip>
-							</Button>
+							
+							<!-- Search icon -->
+							<TextBlock 
+								FontFamily="pack://application:,,,/Fonts/#Material Icons"
+								Foreground="LightSteelBlue"
+								FontSize="14"
+								Text="&#xE8B6;"
+								Padding="2,3,0,0"/>
+							
+							<!-- Search text field -->
+							<TextBox
+								BorderThickness="0" 
+								Width="125"
+								Height="20"
+								Margin="3,0"
+								Padding="0"
+								Background="Black"
+								Text="{Binding SearchBox, UpdateSourceTrigger=PropertyChanged}"
+								Foreground="Lavender"
+								HorizontalAlignment="Right"
+								VerticalAlignment="Center"
+								ToolTip="Type words to search for"/>
+
+							<!-- Clear filter button -->
+							<Button 
+								Content="&#xE14C;"					
+								Style="{StaticResource IconButtonStyle}"
+								FontSize="12"					
+								Padding="2,3,2,3"
+								IsEnabled="{Binding IsInFilterMode}"
+								Command="{Binding ClearFilterCommand}"
+								ToolTip="Clear filter (Esc)"/>
 							
 						</StackPanel>
 					</Border>
 
 					<!-- Minimize button-->
-					<Button 
-						Style="{StaticResource BaseButtonStyle}"
-						FontFamily="pack://application:,,,/Fonts/#Material Icons"
-						Content="&#xE15B;"
-						Padding="4,4,4,0"
-						Command="{Binding MinimizeCommand}"/>
+					<Button Style="{StaticResource IconButtonStyle}" Content="&#xE15B;" Padding="4,4,4,0" Command="{Binding MinimizeCommand}"/>
 					
 					<!-- Maximize button-->
-					<Button 
-						Style="{StaticResource BaseButtonStyle}"
-						FontFamily="pack://application:,,,/Fonts/#Material Icons"
-						FontSize="14"
-						Content="&#xE3C1;"
-						Command="{Binding ToggleMaximizeCommand}"/>		
+					<Button Style="{StaticResource IconButtonStyle}" FontSize="14" Content="&#xE3C1;" Command="{Binding ToggleMaximizeCommand}"/>		
 					
 					<!-- Close Button -->
-					<Button 
-						Style="{StaticResource BaseButtonStyle}"
-						FontFamily="pack://application:,,,/Fonts/#Material Icons"
-						Content="&#xE14C;"
-						Command="{Binding CloseCommand}"/>
+					<Button Style="{StaticResource IconButtonStyle}" Content="&#xE14C;" Command="{Binding CloseCommand}"/>
 						
 				</StackPanel>
 			</Grid>
 		</Border>
 
 
-		<!--Commit log 
-		Background="Black"  
-		
-		-->
+		<!--Commit log -->
 		
 		<Border 
 			BorderThickness="1" 
 			BorderBrush="DarkSlateBlue" 
 			Grid.Row="1">
-		<DockPanel>
+			<DockPanel>
 
 			<ListBox 
 				IsTextSearchEnabled="False"
@@ -524,8 +370,7 @@
 				x:Name="ItemsListBox" 
 				Style="{DynamicResource ListBoxScrollbarStyle}" 
 				SelectedIndex="{Binding RepositoryViewModel.SelectedIndex, Mode=TwoWay}" 
-				SelectedItem="{Binding RepositoryViewModel.SelectedItem, Mode=TwoWay}"
-			>
+				SelectedItem="{Binding RepositoryViewModel.SelectedItem, Mode=TwoWay}">
 					<ListBox.InputBindings>
 						<KeyBinding Key="Space" Command="{Binding RepositoryViewModel.ToggleDetailsCommand}" />
 					</ListBox.InputBindings>
@@ -633,7 +478,8 @@
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
-											<Grid Background="Transparent">
+											<Grid 
+												Background="Transparent">
 												<Path 
 													Data="{Binding Line}"
 													Stroke="{Binding Brush}"
@@ -641,14 +487,11 @@
 												</Path>
 												
 												<Grid.ToolTip>
-													<ToolTip  												
-														Background="Black"
-														BorderBrush="{Binding Brush}"
-														BorderThickness="2">
-														<StackPanel>
-															<TextBlock Text="{Binding BranchToolTip}" Foreground="Lavender"/>
-														</StackPanel>
-													</ToolTip>
+													<ToolTip 
+														Content="{Binding BranchToolTip}"
+														Placement="Mouse"
+														BorderBrush="{Binding Brush}"													
+														BorderThickness="2"/>
 												</Grid.ToolTip>
 
 												<!-- Branch line context menu -->
@@ -781,18 +624,12 @@
 													</Grid.ColumnDefinitions>
 													
 													<Grid.ContextMenu>
-															<ContextMenu 
-															Background="Transparent" 
-															Foreground="Lavender"
-															BorderBrush="DarkSlateBlue"
-															BorderThickness="0">
-
+														<ContextMenu>
 															<MenuItem 
-																Header="Show Diff ..."
-																Command="{Binding ShowDiffCommand}"
+																Header="Show Diff ..." 
+																Command="{Binding ShowDiffCommand}" 
 																CommandParameter="{Binding Id}"/>
-
-															</ContextMenu>
+														</ContextMenu>
 													</Grid.ContextMenu>
 
 												<Ellipse
@@ -849,23 +686,22 @@
 
 													<!-- Author column -->
 													<TextBlock 
-													Grid.Column="2"
-													Margin="5,0"
-													Text="{Binding Author}"
-													Foreground="{Binding SubjectBrush}"
-													HorizontalAlignment="Left"
-													VerticalAlignment="Center"/>
+														Grid.Column="2"
+														Margin="5,0"
+														Text="{Binding Author}"
+														Foreground="{Binding SubjectBrush}"
+														HorizontalAlignment="Left"
+														VerticalAlignment="Center"/>
 
 													<!-- Date column -->
 													<TextBlock 
-													Grid.Column="3"
-													Margin="5,0"
-													Text="{Binding Date}"
-													Foreground="{Binding SubjectBrush}"
-													HorizontalAlignment="Left"
-													VerticalAlignment="Center"/>
-
-					
+														Grid.Column="3"
+														Margin="5,0"
+														Text="{Binding Date}"
+														Foreground="{Binding SubjectBrush}"
+														HorizontalAlignment="Left"
+														VerticalAlignment="Center"/>
+				
 												</Grid>
 											</Grid>
 										</DataTemplate>
@@ -885,117 +721,115 @@
 		</Border> 
 		
 		<!-- Commit details -->
-	
-			<Grid
+
+		<Grid
 				Grid.Row="2">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="1*" />
-					<ColumnDefinition Width="1*" />
-				</Grid.ColumnDefinitions>
-				
-				<!-- The commit details list -->
-				<Border 
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="1*" />
+				<ColumnDefinition Width="1*" />
+			</Grid.ColumnDefinitions>
+
+			<!-- The commit details list -->
+			<Border 
 					CornerRadius="0" 
 					BorderThickness="1" 
 					BorderBrush="DarkSlateBlue" 
 					Grid.Column="0">
-				
-					<Grid>
-						<Grid.Resources>
-							<Style x:Key="HeaderLabelStyle" TargetType="Label">
-								<Setter Property="Padding" Value="3,1" />
-								<Setter Property="FontWeight" Value="Bold" />
-								<Setter Property="Foreground" Value="{StaticResource TextLowBrush}" />
-							</Style>
-							<Style x:Key="TextLabelStyle" TargetType="Label">
-								<Setter Property="Padding" Value="3,1" />					
-								<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-							</Style>
-						</Grid.Resources>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="60" />
-							<ColumnDefinition Width="*" />
-						</Grid.ColumnDefinitions>
-						<Grid.RowDefinitions>
-							<RowDefinition Height="auto"/>
-							<RowDefinition Height="auto"/>
-							<RowDefinition Height="auto"/>
-							<RowDefinition Height="auto"/>
-							<RowDefinition Height="auto"/>
-							<RowDefinition Height="auto"/>
-						</Grid.RowDefinitions>
-						<Label 
+
+				<Grid>
+					<Grid.Resources>
+						<Style x:Key="HeaderLabelStyle" TargetType="Label">
+							<Setter Property="Padding" Value="3,1" />
+							<Setter Property="FontWeight" Value="Bold" />
+							<Setter Property="Foreground" Value="{StaticResource TextLowBrush}" />
+						</Style>
+						<Style x:Key="TextLabelStyle" TargetType="Label">
+							<Setter Property="Padding" Value="3,1" />
+							<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+						</Style>
+					</Grid.Resources>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="60" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="auto"/>
+					</Grid.RowDefinitions>
+					<Label 
 							Grid.Column="0" Grid.Row="0"
 							Style="{StaticResource HeaderLabelStyle}"
 							Content="Id:"/>
-						<Label 
+					<Label 
 							Grid.Column="1" Grid.Row="0"
 							Style="{StaticResource TextLabelStyle}" 
 							Content="{Binding RepositoryViewModel.CommitDetail.Id}"/>
-						<Label 
+					<Label 
 							Grid.Column="0" Grid.Row="1" 
 							Style="{StaticResource HeaderLabelStyle}" 
 							Content="Branch:"/>
-						<Label 
+					<Label 
 							Grid.Column="1" Grid.Row="1"
 							Style="{StaticResource TextLabelStyle}" 
 							Content="{Binding RepositoryViewModel.CommitDetail.Branch}"/>
-						<Label 
+					<Label 
 							Grid.Column="0" Grid.Row="2"
 							Visibility="{Binding RepositoryViewModel.CommitDetail.Tags, Converter={StaticResource VC}}"
 							Style="{StaticResource HeaderLabelStyle}" 
 							Content="Tags:"/>
-						<Label 
+					<Label 
 							Grid.Column="1" Grid.Row="2"
 							Visibility="{Binding RepositoryViewModel.CommitDetail.Tags, Converter={StaticResource VC}}"
 							Style="{StaticResource TextLabelStyle}" 
 							Foreground="{StaticResource TagBrush}"
 							Content="{Binding RepositoryViewModel.CommitDetail.Tags}"/>
-						<Label 
+					<Label 
 							Grid.Column="0" Grid.Row="3"
 							Visibility="{Binding RepositoryViewModel.CommitDetail.Tickets, Converter={StaticResource VC}}"
 							Style="{StaticResource HeaderLabelStyle}" 
-							Content="Tickets:"/>				
-						<Label 
+							Content="Tickets:"/>
+					<Label 
 							Grid.Column="1" Grid.Row="3"
 							Visibility="{Binding RepositoryViewModel.CommitDetail.Tickets, Converter={StaticResource VC}}"
 							Style="{StaticResource TextLabelStyle}" 
 							Foreground="{StaticResource TicketBrush}"
-							Content="{Binding RepositoryViewModel.CommitDetail.Tickets}"/>			
-						<Label 
+							Content="{Binding RepositoryViewModel.CommitDetail.Tickets}"/>
+					<Label 
 							Grid.Column="0" Grid.Row="4"
 							Style="{StaticResource HeaderLabelStyle}" 
 							Content="Subject:"/>
-						<ScrollViewer Grid.Column="1" Grid.Row="4" 
+					<ScrollViewer Grid.Column="1" Grid.Row="4" 
 							VerticalScrollBarVisibility="Auto">
-							<TextBlock			
+						<TextBlock			
 								Foreground="{StaticResource TextBrush}"
 								Padding="3,1"
 								Text="{Binding RepositoryViewModel.CommitDetail.Subject}"
 								TextWrapping="Wrap"
 							/>
-						</ScrollViewer>
-					</Grid>
-					
-				</Border>
-						
-				
-				<!-- The commit files list -->
-				<Border 
-					
+					</ScrollViewer>
+				</Grid>
+
+			</Border>
+
+
+			<!-- The commit files list -->
+			<Border 				
 					CornerRadius="0" 
 					BorderThickness="1" 
 					BorderBrush="DarkSlateBlue" 
 					Grid.Column="1">
-				
-					<ListBox
+
+				<ListBox
 						Background="Transparent"
 						ItemsSource="{Binding RepositoryViewModel.CommitDetail.Files}"
 						Style="{DynamicResource ListBoxScrollbarStyle}"		
 						HorizontalContentAlignment="Stretch"
 					>
-					
-						
+
 					<ListBox.ItemTemplate>
 						<DataTemplate DataType="{x:Type commitsHistory:CommitFileViewModel}">
 							<Grid>
@@ -1003,7 +837,7 @@
 									<ColumnDefinition Width="*" />
 									<ColumnDefinition Width="20" />
 								</Grid.ColumnDefinitions>
-								
+
 								<Label
 									Grid.Column="0"
 									Padding="0"
@@ -1014,28 +848,21 @@
 									Padding="0"
 									Content="{Binding Status}" 
 									Foreground="DarkGray"/>
-								
-								<Grid.ContextMenu>
-									<ContextMenu 
-										Background="Transparent" 
-										Foreground="Lavender"
-										BorderBrush="DarkSlateBlue"
-										BorderThickness="0">
 
-										<MenuItem 
-											Header="Show Diff ..."
-											Command="{Binding ShowDiffCommand}"/>
+								<Grid.ContextMenu>
+									<ContextMenu>
+										<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}"/>
 									</ContextMenu>
-								</Grid.ContextMenu>	
+								</Grid.ContextMenu>
+
 								<Grid.InputBindings>
 									<MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowDiffCommand}" />
-								</Grid.InputBindings>			
+								</Grid.InputBindings>
 							</Grid>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
 				</ListBox>
-				</Border>
-			</Grid>
-		
+			</Border>
+		</Grid>
 	</Grid>
 </Window>

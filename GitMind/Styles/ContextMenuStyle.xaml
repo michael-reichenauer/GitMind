@@ -19,6 +19,8 @@
 	<Style TargetType="{x:Type MenuItem}">
 		<Setter Property="Background" Value="Black"></Setter>
 		<Setter Property="Foreground" Value="Lavender"></Setter>
+		<Setter Property="FontFamily" Value="Segoe UI"></Setter>
+		<Setter Property="FontSize" Value="12"></Setter>
 		<Style.Triggers>
 			<Trigger Property="IsHighlighted" Value="True">
 				<Setter Property="Background" Value="Black"></Setter>
