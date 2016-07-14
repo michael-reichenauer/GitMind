@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -22,7 +23,8 @@ namespace GitMind
 		private readonly ILatestVersionService latestVersionService;
 		private readonly Window owner;
 		private readonly Func<Task> refreshAsync;
-
+		private readonly FileSystemWatcher watcher = new FileSystemWatcher();
+		private string watchedPath = null;
 
 		internal MainWindowViewModel(
 			RepositoryViewModel repositoryViewModel,
@@ -80,8 +82,15 @@ namespace GitMind
 		public string WorkingFolder
 		{
 			get { return Get(); }
-			set { Set(value); }
+			set
+			{
+				Set(value);
+				//AddFolderWatcher(value);
+			}
 		}
+
+
+
 
 		public string SearchBox
 		{
@@ -300,6 +309,71 @@ namespace GitMind
 			{
 				await commit.SetCommitBranchCommand.ExecuteAsync(null);
 			}
+		}
+
+
+		private void AddFolderWatcher(string path)
+		{
+			Log.Warn("Called");
+			if (string.IsNullOrEmpty(path))
+			{
+				watcher.EnableRaisingEvents = false;
+				watchedPath = null;
+				Log.Warn("Disable watcher");
+				return;
+			}
+
+			if (!path.EndsWith(".git"))
+			{
+				path = Path.Combine(path, ".git");
+			}
+
+			if (path == watchedPath)
+			{
+				Log.Warn($"Already watching {path}");
+				return;
+			}
+
+
+			Log.Warn($"Watching {path}");
+			watchedPath = path;
+			watcher.Path = path;
+			watcher.IncludeSubdirectories = true;
+
+
+			watcher.NotifyFilter = NotifyFilters.LastWrite
+				 | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+			
+			watcher.Filter = "*.lock";
+
+			// Add event handlers.
+			watcher.Changed += OnFileChanged;
+			watcher.Created += OnFileChanged;
+			watcher.Deleted += OnFileChanged;
+			watcher.Renamed += OnFileRenamed;
+			watcher.Error += OnFileError;
+
+			// Begin watching.
+			watcher.EnableRaisingEvents = true;
+		}
+
+
+		private void OnFileError(object sender, ErrorEventArgs e)
+		{
+			Log.Warn($"Error: {e.GetException()}");
+		}
+
+
+		private static void OnFileChanged(object source, FileSystemEventArgs e)
+		{
+			// Specify what is done when a file is changed, created, or deleted.
+			Log.Warn($"File: { e.FullPath} {e.ChangeType}");
+		}
+
+		private static void OnFileRenamed(object source, RenamedEventArgs e)
+		{
+			// Specify what is done when a file is renamed.
+			Log.Warn($"File: {e.OldFullPath} renamed to {e.FullPath}");
 		}
 	}
 }

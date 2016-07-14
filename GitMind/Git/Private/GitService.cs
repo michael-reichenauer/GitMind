@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Utils;
 
@@ -195,33 +196,55 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task FetchAsync(string workingFolder)
+		public async Task FetchAsync(string workingFolder)
 		{
 			Log.Debug($"Fetching repository in {workingFolder} ...");
 
-			return Task.Run(async () =>
+			CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+			bool result = false;
+			try
 			{
-				try
+				result = await Task.Run(() =>
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					try
 					{
-						gitRepository.Fetch();
-					}
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							Log.Debug("Before fetch");
+							gitRepository.Fetch();
+							Log.Debug("After fetch");
+						}
 
-					Log.Debug("Fetched repository");
-				}
-				catch (Exception e)
-				{
-					if (e.Message == "Unsupported URL protocol")
-					{
-						await FetchUsingCmdAsync(workingFolder);
+						Log.Debug("Fetched repository");
+						return true;
 					}
-					else
+					catch (Exception e)
 					{
-						Log.Warn($"Failed to fetch, {e.Message}");
+						if (e.Message == "Unsupported URL protocol")
+						{
+							Log.Debug("Unsupported URL protocol");
+							return false;
+						}
+						else
+						{
+							Log.Warn($"Failed to fetch, {e.Message}");
+							return true;
+						}
 					}
-				}
-			});
+				})
+				.WithCancellation(cts.Token);
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to fetch {e}");
+				result = false;
+			}
+
+			Log.Debug("???????");
+			if (!result)
+			{
+				await FetchUsingCmdAsync(workingFolder);
+			}
 		}
 
 
