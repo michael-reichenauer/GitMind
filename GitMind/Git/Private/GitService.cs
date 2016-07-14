@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Utils;
 
@@ -198,53 +197,54 @@ namespace GitMind.Git.Private
 
 		public async Task FetchAsync(string workingFolder)
 		{
-			Log.Debug($"Fetching repository in {workingFolder} ...");
+			await FetchUsingCmdAsync(workingFolder);
+			//Log.Debug($"Fetching repository in {workingFolder} ...");
 
-			CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-			bool result = false;
-			try
-			{
-				result = await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
-						{
-							Log.Debug("Before fetch");
-							gitRepository.Fetch();
-							Log.Debug("After fetch");
-						}
+			//CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+			//bool result = false;
+			//try
+			//{
+			//	result = await Task.Run(() =>
+			//	{
+			//		try
+			//		{
+			//			using (GitRepository gitRepository = OpenRepository(workingFolder))
+			//			{
+			//				Log.Debug("Before fetch");
+			//				gitRepository.Fetch();
+			//				Log.Debug("After fetch");
+			//			}
 
-						Log.Debug("Fetched repository");
-						return true;
-					}
-					catch (Exception e)
-					{
-						if (e.Message == "Unsupported URL protocol")
-						{
-							Log.Debug("Unsupported URL protocol");
-							return false;
-						}
-						else
-						{
-							Log.Warn($"Failed to fetch, {e.Message}");
-							return true;
-						}
-					}
-				})
-				.WithCancellation(cts.Token);
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to fetch {e}");
-				result = false;
-			}
+			//			Log.Debug("Fetched repository");
+			//			return true;
+			//		}
+			//		catch (Exception e)
+			//		{
+			//			if (e.Message == "Unsupported URL protocol")
+			//			{
+			//				Log.Debug("Unsupported URL protocol");
+			//				return false;
+			//			}
+			//			else
+			//			{
+			//				Log.Warn($"Failed to fetch, {e.Message}");
+			//				return true;
+			//			}
+			//		}
+			//	})
+			//	.WithCancellation(cts.Token);
+			//}
+			//catch (Exception e)
+			//{
+			//	Log.Warn($"Failed to fetch {e}");
+			//	result = false;
+			//}
 
-			Log.Debug("???????");
-			if (!result)
-			{
-				await FetchUsingCmdAsync(workingFolder);
-			}
+			//Log.Debug("???????");
+			//if (!result)
+			//{
+			//	await FetchUsingCmdAsync(workingFolder);
+			//}
 		}
 
 
