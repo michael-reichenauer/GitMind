@@ -115,7 +115,7 @@ namespace GitMind.CommitsHistory
 			= new ObservableCollection<BranchItem>();
 
 
-		public CommitDetailViewModel CommitDetail { get; } = new CommitDetailViewModel(null);
+		public CommitDetailsViewModel CommitDetailsViewModel { get; } = new CommitDetailsViewModel(null);
 
 		public string FilterText { get; private set; } = "";
 		public string FilteredText { get; private set; } = "";
@@ -257,7 +257,7 @@ namespace GitMind.CommitsHistory
 
 		private void SetCommitsDetails(CommitViewModel commit)
 		{
-			CommitDetail.CommitViewModel = commit;		
+			CommitDetailsViewModel.CommitViewModel = commit;		
 		}
 
 

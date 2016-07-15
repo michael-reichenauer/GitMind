@@ -83,8 +83,10 @@
     <Compile Include="CommitsHistory\BranchNameItem.cs" />
     <Compile Include="CommitsHistory\BranchViewModel.cs" />
     <Compile Include="CommitsHistory\BrushService.cs" />
-    <Compile Include="CommitsHistory\CommitDetail.cs" />
-    <Compile Include="CommitsHistory\CommitDetailViewModel.cs" />
+    <Compile Include="CommitsHistory\CommitDetailsView.xaml.cs">
+      <DependentUpon>CommitDetailsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CommitsHistory\CommitDetailsViewModel.cs" />
     <Compile Include="CommitsHistory\CommitFileViewModel.cs" />
     <Compile Include="Git\GitDiff.cs" />
     <Compile Include="Git\GitRepository.cs" />
@@ -198,6 +200,10 @@
     <Compile Include="Utils\MicroDiContainer.cs" />
     <Compile Include="VirtualCanvas\VirtualPanel.cs" />
     <Compile Include="VirtualCanvas\ZoomableCanvas.cs" />
+    <Page Include="CommitsHistory\CommitDetailsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CommitsHistory\SetBranchPrompt.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

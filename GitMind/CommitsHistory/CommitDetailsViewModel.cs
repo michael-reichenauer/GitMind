@@ -12,7 +12,7 @@ using GitMind.Utils.UI;
 
 namespace GitMind.CommitsHistory
 {
-	internal class CommitDetailViewModel : ViewModel
+	internal class CommitDetailsViewModel : ViewModel
 	{
 		private readonly Func<string, Task> showDiffAsync;
 		private readonly ObservableCollection<CommitFileViewModel> files = 
@@ -21,7 +21,7 @@ namespace GitMind.CommitsHistory
 		private CommitViewModel commitViewModel;
 
 
-		public CommitDetailViewModel(
+		public CommitDetailsViewModel(
 			Func<string, Task> showDiffAsync)
 		{
 			this.showDiffAsync = showDiffAsync;

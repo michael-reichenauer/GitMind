@@ -17,6 +17,8 @@
 	ResizeMode="CanResizeWithGrip"
 	Icon="Application.ico">
 
+	
+	
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
@@ -697,163 +699,9 @@
 		</Border> 
 		
 		<!-- Commit details -->
-
-		<Grid
-				Grid.Row="2">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="1*" />
-				<ColumnDefinition Width="1*" />
-			</Grid.ColumnDefinitions>
-
-			<!-- The commit details list -->
-			<Border 
-					CornerRadius="0" 
-					BorderThickness="1" 
-					BorderBrush="DarkSlateBlue" 
-					Grid.Column="0">
-
-				<Grid>
-					<Grid.Resources>
-						<Style x:Key="HeaderLabelStyle" TargetType="Label">
-							<Setter Property="Padding" Value="3,1" />
-							<Setter Property="FontWeight" Value="Bold" />
-							<Setter Property="Foreground" Value="{StaticResource TextLowBrush}" />
-						</Style>
-						<Style x:Key="TextLabelStyle" TargetType="Label">
-							<Setter Property="Padding" Value="3,1" />
-							<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-						</Style>
-					</Grid.Resources>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="60" />
-						<ColumnDefinition Width="*" />
-					</Grid.ColumnDefinitions>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="auto"/>
-						<RowDefinition Height="auto"/>
-						<RowDefinition Height="auto"/>
-						<RowDefinition Height="auto"/>
-						<RowDefinition Height="auto"/>
-						<RowDefinition Height="auto"/>
-					</Grid.RowDefinitions>
-					<Label 
-							Grid.Column="0" Grid.Row="0"
-							Style="{StaticResource HeaderLabelStyle}"
-							Content="Id:"/>
-					<Label 
-							Grid.Column="1" Grid.Row="0"
-							Style="{StaticResource TextLabelStyle}" 
-							Content="{Binding RepositoryViewModel.CommitDetail.ShortId}"
-							ToolTip="{Binding RepositoryViewModel.CommitDetail.Id}"/>
-					<Label 
-							Grid.Column="0" Grid.Row="1" 
-							Style="{StaticResource HeaderLabelStyle}" 
-							Content="Branch:"/>
-					<StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
-						<Label 			
-							Style="{StaticResource TextLabelStyle}" 
-							Content="{Binding RepositoryViewModel.CommitDetail.Branch}"
-							Foreground="{Binding RepositoryViewModel.CommitDetail.BranchBrush}"/>
-						<Label 			
-							Style="{StaticResource TextLabelStyle}" 
-							Content="{Binding RepositoryViewModel.CommitDetail.BranchTips}"
-							Foreground="{StaticResource BranchTipsBrush}"
-							ToolTip="Branch tip of branch with no commits of its own."/>
-					</StackPanel>
-					<Label 
-							Grid.Column="0" Grid.Row="2"
-							Visibility="{Binding RepositoryViewModel.CommitDetail.Tags, Converter={StaticResource VC}}"
-							Style="{StaticResource HeaderLabelStyle}" 
-							Content="Tags:"/>
-					<Label 
-							Grid.Column="1" Grid.Row="2"
-							Visibility="{Binding RepositoryViewModel.CommitDetail.Tags, Converter={StaticResource VC}}"
-							Style="{StaticResource TextLabelStyle}" 
-							Foreground="{StaticResource TagBrush}"
-							Content="{Binding RepositoryViewModel.CommitDetail.Tags}"/>
-					<Label 
-							Grid.Column="0" Grid.Row="3"
-							Visibility="{Binding RepositoryViewModel.CommitDetail.Tickets, Converter={StaticResource VC}}"
-							Style="{StaticResource HeaderLabelStyle}" 
-							Content="Tickets:"/>
-					<Label 
-							Grid.Column="1" Grid.Row="3"
-							Visibility="{Binding RepositoryViewModel.CommitDetail.Tickets, Converter={StaticResource VC}}"
-							Style="{StaticResource TextLabelStyle}" 
-							Foreground="{StaticResource TicketBrush}"
-							Content="{Binding RepositoryViewModel.CommitDetail.Tickets}"/>
-					<Label 
-							Grid.Column="0" Grid.Row="4"
-							Style="{StaticResource HeaderLabelStyle}" 
-							Content="Subject:"/>
-					<ScrollViewer Grid.Column="1" Grid.Row="4" 
-							VerticalScrollBarVisibility="Auto">
-						<TextBlock			
-								Foreground="{Binding RepositoryViewModel.CommitDetail.SubjectBrush}"		
-								FontStyle="{Binding RepositoryViewModel.CommitDetail.SubjectStyle}"
-								Padding="3,1"
-								Text="{Binding RepositoryViewModel.CommitDetail.Subject}"
-								TextWrapping="Wrap"
-							/>
-					</ScrollViewer>
-				</Grid>
-
-			</Border>
-
-
-			<!-- The commit files list -->
-			<Border 				
-					CornerRadius="0" 
-					BorderThickness="1" 
-					BorderBrush="DarkSlateBlue" 
-					Grid.Column="1">
-
-				<ListBox
-						Background="Transparent"
-						ItemsSource="{Binding RepositoryViewModel.CommitDetail.Files}"
-						Style="{DynamicResource ListBoxScrollbarStyle}"		
-						HorizontalContentAlignment="Stretch"
-					>
-
-					<ListBox.ItemTemplate>
-						<DataTemplate DataType="{x:Type commitsHistory:CommitFileViewModel}">
-							<Grid>
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="20" />
-								</Grid.ColumnDefinitions>
-
-								<Label
-									Grid.Column="0"
-									Padding="0"
-									Content="{Binding Name}" 
-									Foreground="{StaticResource TextBrush}"/>
-								<Label
-									Grid.Column="1"
-									Padding="0"
-									Content="{Binding Status}" 
-									Foreground="DarkGray"/>
-
-								<Grid.ContextMenu>
-									<ContextMenu>
-										<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}">
-											<MenuItem.Icon>
-												<Border>
-													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
-												</Border>
-											</MenuItem.Icon>
-										</MenuItem>
-									</ContextMenu>
-								</Grid.ContextMenu>
-
-								<Grid.InputBindings>
-									<MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowDiffCommand}" />
-								</Grid.InputBindings>
-							</Grid>
-						</DataTemplate>
-					</ListBox.ItemTemplate>
-				</ListBox>
-			</Border>
-		</Grid>
+		<commitsHistory:CommitDetailsView 
+			Grid.Row="2"
+			DataContext="{Binding RepositoryViewModel.CommitDetailsViewModel}"/>
+		
 	</Grid>
 </Window>
