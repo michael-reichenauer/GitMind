@@ -10,6 +10,7 @@ using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.UI;
+using GitMind.VirtualCanvas;
 
 
 namespace GitMind.CommitsHistory
@@ -38,21 +39,15 @@ namespace GitMind.CommitsHistory
 
 
 		public RepositoryViewModel(
-			Action<int> scroll,
-			Action<int> scrollTo,
 			Lazy<BusyIndicator> busyIndicator)
-			: this(new ViewModelService(), scroll, scrollTo, busyIndicator)
+			: this(new ViewModelService(), busyIndicator)
 		{
 		}
 
 		public RepositoryViewModel(
 			IViewModelService viewModelService,
-			Action<int> scrollRows,
-			Action<int> scrollTo,
 			Lazy<BusyIndicator> busyIndicator)
 		{
-			ScrollRows = scrollRows;
-			ScrollTo = scrollTo;
 			this.viewModelService = viewModelService;
 			this.busyIndicator = busyIndicator;
 
@@ -62,8 +57,7 @@ namespace GitMind.CommitsHistory
 			filterTriggerTimer.Interval = FilterDelay;
 		}
 
-		public Action<int> ScrollRows { get; }
-		public Action<int> ScrollTo { get; }
+
 		public Repository Repository { get; private set; }
 
 		public ICommand ShowBranchCommand => Command<Branch>(ShowBranch);
@@ -263,6 +257,7 @@ namespace GitMind.CommitsHistory
 
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; }
+		public ZoomableCanvas Canvas { get; set; }
 
 
 		public void SetFilter(string text)
@@ -329,6 +324,20 @@ namespace GitMind.CommitsHistory
 				ScrollRows(rowsChange);
 				VirtualItemsSource.DataChanged(width);
 			}
+		}
+
+
+		public void ScrollRows(int rows)
+		{
+			int offsetY = Converter.ToY(rows);
+			Canvas.Offset = new Point(Canvas.Offset.X, Math.Max(Canvas.Offset.Y - offsetY, 0));
+		}
+
+
+		private void ScrollTo(int rows)
+		{
+			int offsetY = Converter.ToY(rows);
+			Canvas.Offset = new Point(Canvas.Offset.X, Math.Max(offsetY, 0));
 		}
 
 

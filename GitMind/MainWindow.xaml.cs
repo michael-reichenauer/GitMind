@@ -6,9 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.CommitsHistory;
 using GitMind.Git;
@@ -20,10 +18,7 @@ using GitMind.Installation.Private;
 using GitMind.Settings;
 using GitMind.Utils;
 using GitMind.Utils.UI;
-using GitMind.VirtualCanvas;
 using Application = System.Windows.Application;
-using Converter = GitMind.CommitsHistory.Converter;
-using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 
 namespace GitMind
@@ -47,7 +42,7 @@ namespace GitMind
 		private readonly DispatcherTimer autoRefreshTime = new DispatcherTimer();
 		private readonly DispatcherTimer newVersionTime = new DispatcherTimer();
 
-		private ZoomableCanvas canvas;
+		//private ZoomableCanvas canvas;
 		private readonly MainWindowViewModel mainWindowViewModel;
 		private DateTime LoadedTime = DateTime.MaxValue;
 		private readonly List<string> specifiedBranchNames = new List<string>();
@@ -72,7 +67,7 @@ namespace GitMind
 				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
 
 			repositoryViewModel = new RepositoryViewModel(
-				ScrollRows, ScrollTo, new Lazy<BusyIndicator>(() => mainWindowViewModel.Busy));
+				new Lazy<BusyIndicator>(() => mainWindowViewModel.Busy));
 
 			mainWindowViewModel = new MainWindowViewModel(
 				repositoryViewModel,
@@ -92,7 +87,6 @@ namespace GitMind
 			DataContext = mainWindowViewModel;
 			mainWindowViewModel.WorkingFolder = workingFolder;
 
-			ItemsListBox.ItemsSource = repositoryViewModel.VirtualItemsSource;
 
 			StartBackgroundTasks();
 
@@ -306,53 +300,6 @@ namespace GitMind
 		}
 
 
-		private async void ZoomableCanvas_Loaded(object sender, RoutedEventArgs e)
-		{
-			// Store the canvas in a local variable since x:Name doesn't work.
-			Timing t = new Timing();
-			canvas = (ZoomableCanvas)sender;
-
-			R<string> path = ProgramPaths.GetWorkingFolderPath(workingFolder);
-
-			while (!path.HasValue)
-			{
-				Log.Warn($"Not a valid working folder '{workingFolder}'");
-
-				var dialog = new FolderBrowserDialog();
-				dialog.Description = "Select a working folder with a valid git repository.";
-				dialog.ShowNewFolderButton = false;
-				dialog.SelectedPath = Environment.CurrentDirectory;
-				if (dialog.ShowDialog(this.GetIWin32Window()) != System.Windows.Forms.DialogResult.OK)
-				{
-					Log.Warn("User canceled selecting a Working folder");
-					Application.Current.Shutdown(0);
-					return;
-				}
-
-				path = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
-			}
-
-			ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
-			workingFolder = path.Value;
-			mainWindowViewModel.WorkingFolder = workingFolder;
-
-			t.Log("Got working folder");
-			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true, workingFolder);
-
-			mainWindowViewModel.Busy.Add(repositoryTask);
-
-			Repository repository = await repositoryTask;
-			t.Log("Got repository");
-			repositoryViewModel.Update(repository, specifiedBranchNames);
-			t.Log("Updated repositoryViewModel");
-			ItemsListBox.Focus();
-
-			LoadedTime = DateTime.Now;
-
-			autoRefreshTime.Interval = TimeSpan.FromMilliseconds(300);
-			autoRefreshTime.Start();
-		}
-
 
 		protected override void OnActivated(EventArgs e)
 		{
@@ -405,36 +352,25 @@ namespace GitMind
 			repositoryViewModel.Update(repository, repositoryViewModel.SpecifiedBranches);
 		}
 
-		protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
-		{
-			// Log.Debug($"Canvas offset {canvas.Offset}");
+		//protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
+		//{
+		//	// Log.Debug($"Canvas offset {canvas.Offset}");
 
-			if (e.ChangedButton == MouseButton.Left)
-			{
-				Point viewPoint = e.GetPosition(ItemsListBox);
+		//	if (e.ChangedButton == MouseButton.Left)
+		//	{
+		//		Point viewPoint = e.GetPosition(ItemsListBox);
 
-				Point position = new Point(viewPoint.X + canvas.Offset.X, viewPoint.Y + canvas.Offset.Y);
+		//		Point position = new Point(viewPoint.X + canvas.Offset.X, viewPoint.Y + canvas.Offset.Y);
 
-				bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
+		//		bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
-				repositoryViewModel.Clicked(position, isControl);
-			}
+		//		repositoryViewModel.Clicked(position, isControl);
+		//	}
 
-			base.OnPreviewMouseUp(e);
-		}
+		//	base.OnPreviewMouseUp(e);
+		//}
 
 
-		private void ScrollRows(int rows)
-		{
-			int offsetY = Converter.ToY(rows);
-			canvas.Offset = new Point(canvas.Offset.X, Math.Max(canvas.Offset.Y - offsetY, 0));
-		}
-
-		private void ScrollTo(int rows)
-		{
-			int offsetY = Converter.ToY(rows);
-			canvas.Offset = new Point(canvas.Offset.X, Math.Max(offsetY, 0));
-		}
 
 
 		protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -442,36 +378,6 @@ namespace GitMind
 			base.OnRenderSizeChanged(sizeInfo);
 			// Log.Warn($"Size: {sizeInfo.NewSize.Width}");
 			repositoryViewModel.Width = (int)sizeInfo.NewSize.Width;
-		}
-
-
-		protected override void OnPreviewMouseMove(MouseEventArgs e)
-		{
-			Point position = e.GetPosition(ItemsListBox);
-			//Log.Debug($"Position {position}");
-			if (e.LeftButton == MouseButtonState.Pressed
-				&& position.Y < 0
-				&& position.X < (canvas.ActualWidth - 300)
-				&& position.X > 250)
-			{
-				DragMove();
-			}
-
-			//Point position = e.GetPosition(ItemsListBox);
-			//if (e.LeftButton == MouseButtonState.Pressed
-			//		&& !(e.OriginalSource is Thumb)) // Don't block the scrollbars.
-			//{
-			//	Log.Debug($"Mouse {position}");
-			//	CaptureMouse();
-			//	canvas.Offset -= position - lastMousePosition;
-			//	e.Handled = true;
-			//}
-			//else
-			//{
-			//	ReleaseMouseCapture();
-			//}
-
-			//lastMousePosition = position;
 		}
 
 
@@ -504,20 +410,21 @@ namespace GitMind
 			////}
 		}
 
-		private void MouseDobleClick(object sender, MouseButtonEventArgs e)
-		{
-			Point viewPoint = e.GetPosition(ItemsListBox);
-			if (viewPoint.X > repositoryViewModel.GraphWidth)
-			{
-				mainWindowViewModel.RepositoryViewModel.ToggleDetailsCommand.Execute(null);
-			}
-		}
-
 
 		private void HamburgerButton_OnClick(object sender, RoutedEventArgs e)
 		{
 			HamburgerContextMenu.PlacementTarget = this;
 			HamburgerContextMenu.IsOpen = true;
+		}
+
+
+		private void MainWindow_OnMouseDown(object sender, MouseButtonEventArgs e)
+		{
+			// Implement move/drag window in the title bar
+			if (e.ChangedButton == MouseButton.Left)
+			{
+				DragMove();
+			}
 		}
 	}
 }
