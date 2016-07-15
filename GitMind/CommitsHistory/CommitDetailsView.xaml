@@ -12,7 +12,12 @@
 			<ColumnDefinition Width="1*" />
 			<ColumnDefinition Width="1*" />
 		</Grid.ColumnDefinitions>
-
+		
+		<GridSplitter 
+      Background="{StaticResource BorderBrush}"
+      Width="2"
+      HorizontalAlignment="Right"
+      VerticalAlignment="Stretch"/>
 
 		<!-- The commit details list -->
 		<Border 
@@ -138,7 +143,7 @@
 								Grid.Column="0"
 								Foreground="{StaticResource TextBrush}"
 								Padding="0"/>
-							
+
 							<Label
 								Content="{Binding Status}" 
 								Grid.Column="1"
@@ -160,11 +165,13 @@
 							<Grid.InputBindings>
 								<MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowDiffCommand}" />
 							</Grid.InputBindings>
-							
+
 						</Grid>
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
 		</Border>
+		
+		
 	</Grid>
 </UserControl>

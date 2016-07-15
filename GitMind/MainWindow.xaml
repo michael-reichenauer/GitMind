@@ -7,6 +7,7 @@
 	xmlns:gitMind="clr-namespace:GitMind"
 	xmlns:commitsHistory="clr-namespace:GitMind.CommitsHistory"
 	xmlns:gitModel="clr-namespace:GitMind.GitModel"
+	xmlns:ui="clr-namespace:GitMind.Utils.UI"
 	Title="GitMind"
 	Height="800"
 	Width="1050" 
@@ -15,7 +16,8 @@
 	BorderBrush="{StaticResource BorderBrush}"
 	BorderThickness="3"
 	Icon="Application.ico"
-	MouseDown="MainWindow_OnMouseDown">
+	MouseDown="MainWindow_OnMouseDown"
+	ResizeMode="CanResizeWithGrip">
 
 	
 	
@@ -35,7 +37,6 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
-			<RowDefinition Height="{Binding RepositoryViewModel.DetailsSize}"/>
 		</Grid.RowDefinitions>
 
 		<!--First row (title bar) -->
@@ -332,16 +333,31 @@
 		</Border>
 
 
-		<!--Commit log -->
-		<commitsHistory:RepositoryView 
-			Grid.Row="1"
-			DataContext="{Binding RepositoryViewModel}"/>
-		
-		
-		<!-- Commit details -->
-		<commitsHistory:CommitDetailsView 
-			Grid.Row="2"
-			DataContext="{Binding RepositoryViewModel.CommitDetailsViewModel}"/>
-		
+		<Grid Grid.Row="1" x:Name="RepositoryViewModelGrid">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="{Binding RepositoryViewModel.DetailsSize}"/>
+			</Grid.RowDefinitions>
+
+			<!--Commit log -->
+			<commitsHistory:RepositoryView 
+				Grid.Row="0"
+				DataContext="{Binding RepositoryViewModel}"/>
+
+			<ui:HideableGridSplitter
+				Visibility="{Binding RepositoryViewModel.DetailsSize, Converter={StaticResource VC}}"
+				Grid.Row="1"		
+				Background="{StaticResource BorderBrush}"
+				HorizontalAlignment="Stretch"
+				VerticalAlignment="Center"
+        Height="2"/>
+
+			<!-- Commit details -->
+			<commitsHistory:CommitDetailsView
+				Grid.Row="2"
+				DataContext="{Binding RepositoryViewModel.CommitDetailsViewModel}"/>
+
+		</Grid>
 	</Grid>
 </Window>

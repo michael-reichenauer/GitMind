@@ -93,6 +93,7 @@
     </Compile>
     <Compile Include="Git\GitDiff.cs" />
     <Compile Include="Git\GitRepository.cs" />
+    <Compile Include="Utils\UI\HideableGridSplitter.cs" />
     <Compile Include="Utils\Compare.cs" />
     <Compile Include="CommitsHistory\SetBranchPrompt.xaml.cs">
       <DependentUpon>SetBranchPrompt.xaml</DependentUpon>
