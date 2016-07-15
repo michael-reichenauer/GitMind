@@ -413,6 +413,7 @@ namespace GitMind.CommitsHistory
 
 				commitViewModel.Tags = commit.Tags;
 				commitViewModel.Tickets = commit.Tickets;
+				commitViewModel.BranchTips = commit.BranchTips;
 			}
 		}
 

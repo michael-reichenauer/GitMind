@@ -259,7 +259,9 @@ namespace GitMind.CommitsHistory
 		{
 			CommitDetail.Id = commit.Id;
 			CommitDetail.Branch = commit.Commit.Branch.Name;
+			CommitDetail.BranchBrush = commit.Brush;
 			CommitDetail.Tickets = commit.Tickets;
+			CommitDetail.BranchTips = commit.BranchTips;
 			CommitDetail.Tags = commit.Tags;
 			CommitDetail.Subject = commit.Subject;
 			CommitDetail.SubjectBrush = commit.SubjectBrush;

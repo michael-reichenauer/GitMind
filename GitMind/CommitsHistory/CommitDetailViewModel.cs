@@ -35,6 +35,12 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
+		public Brush BranchBrush
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
 		public string Subject
 		{
 			get { return Get(); }
@@ -61,6 +67,12 @@ namespace GitMind.CommitsHistory
 		}
 
 		public string Tickets
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public string BranchTips
 		{
 			get { return Get(); }
 			set { Set(value); }

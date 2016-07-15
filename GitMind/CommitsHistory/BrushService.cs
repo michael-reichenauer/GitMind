@@ -7,8 +7,10 @@ using GitMind.GitModel;
 namespace GitMind.CommitsHistory
 {
 	internal class BrushService : IBrushService
-	{
-		private static readonly SolidColorBrush MasterBranchBrush = Brushes.DarkOrchid;
+	{  
+		//225, 37, 255 Brushes.DarkOrchid
+		private static readonly SolidColorBrush MasterBranchBrush =
+			(SolidColorBrush)new BrushConverter().ConvertFrom("#E540FF");
 		private static readonly SolidColorBrush MultiBranchBrush = Brushes.White;
 
 		private readonly Lazy<IList<Brush>> brushes = new Lazy<IList<Brush>>(InitBrushes2);

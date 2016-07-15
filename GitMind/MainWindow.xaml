@@ -627,6 +627,14 @@
 														Grid.Column="1"
 														Orientation="Horizontal">
 
+														<!-- Branch tips -->
+														<TextBlock 
+															Text="{Binding BranchTips}"
+															Foreground="{StaticResource BranchTipsBrush}"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center"
+															ToolTip="Branch tip of branch with no commits of its own"/>
+														
 														<!-- Tag -->
 														<TextBlock 
 															Text="{Binding Tags}"
@@ -740,10 +748,17 @@
 							Grid.Column="0" Grid.Row="1" 
 							Style="{StaticResource HeaderLabelStyle}" 
 							Content="Branch:"/>
-					<Label 
-							Grid.Column="1" Grid.Row="1"
+					<StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+						<Label 			
 							Style="{StaticResource TextLabelStyle}" 
-							Content="{Binding RepositoryViewModel.CommitDetail.Branch}"/>
+							Content="{Binding RepositoryViewModel.CommitDetail.Branch}"
+							Foreground="{Binding RepositoryViewModel.CommitDetail.BranchBrush}"/>
+						<Label 			
+							Style="{StaticResource TextLabelStyle}" 
+							Content="{Binding RepositoryViewModel.CommitDetail.BranchTips}"
+							Foreground="{StaticResource BranchTipsBrush}"
+							ToolTip="Branch tip of branch with no commits of its own."/>
+					</StackPanel>
 					<Label 
 							Grid.Column="0" Grid.Row="2"
 							Visibility="{Binding RepositoryViewModel.CommitDetail.Tags, Converter={StaticResource VC}}"

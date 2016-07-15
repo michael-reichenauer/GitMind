@@ -70,6 +70,12 @@ namespace GitMind.CommitsHistory
 			set { Set(value); }
 		}
 
+		public string BranchTips
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
 		public bool IsCurrent
 		{
 			get { return Get(); }

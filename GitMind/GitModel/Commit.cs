@@ -26,6 +26,7 @@ namespace GitMind.GitModel
 			DateTime commitDate, 
 			string tags,
 			string tickets,
+			string branchTips,
 			IReadOnlyList<string> parentIds, 
 			IReadOnlyList<string> childIds, 
 			string branchId, 
@@ -48,6 +49,7 @@ namespace GitMind.GitModel
 			CommitDate = commitDate;
 			Tags = tags;
 			Tickets = tickets;
+			BranchTips = branchTips;
 			SpecifiedBranchName = specifiedBranchName;
 			IsLocalAhead = isLocalAhead;
 			IsRemoteAhead = isRemoteAhead;
@@ -65,6 +67,7 @@ namespace GitMind.GitModel
 		public DateTime CommitDate { get; }
 		public string Tags { get; }
 		public string Tickets { get; }
+		public string BranchTips { get; }
 		public string SpecifiedBranchName { get; }
 		public bool IsLocalAhead { get; }
 		public bool IsRemoteAhead { get; }

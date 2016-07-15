@@ -139,6 +139,8 @@ namespace GitMind.GitModel.Private
 
 				RemoveVirtualCommits(repository);
 
+				repository.Commits.ForEach(c => c.Value.BranchTips = null);
+
 				repository.Commits.ForEach(c => c.Value.SubBranchId = null);
 				repository.SubBranches.Clear();
 				t.Log("Cleaned sub branches");
@@ -150,7 +152,6 @@ namespace GitMind.GitModel.Private
 				t.Log("AnalyzeBranchStructure");
 			}
 		}
-
 
 
 		private void AnalyzeBranchStructure(

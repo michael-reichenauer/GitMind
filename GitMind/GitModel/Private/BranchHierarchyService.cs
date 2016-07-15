@@ -115,72 +115,34 @@ namespace GitMind.GitModel.Private
 
 					branch.FirstCommitId = commits.Any() ? commits.Last().Id : branch.ParentCommitId;
 					branch.CommitIds = commits.Select(c => c.Id).ToList();
-				}		
+				}
+
+				if (!branch.CommitIds.Any())
+				{
+					// Branch has no commits of its own
+					branch.LatestCommitId = branch.ParentCommitId;
+					branch.FirstCommitId = branch.ParentCommitId;
+				}
 			}
+
 
 			foreach (MBranch branch in repository.Branches.Values.Where(b => !b.Commits.Any()))
 			{
-				Log.Warn($"Branch has no commits {branch} isActive={branch.IsActive}, {branch.Id}");
+				Log.Warn($"Branch {branch} has no commits isActive={branch.IsActive}, {branch.Id}");
 
-				MCommit commit = new MCommit();
-				commit.IsVirtual = true;
-				commit.Repository = repository;
-				commit.BranchId = branch.Id;
-				commit.BranchName = branch.Name;
-				CopyToCommit(branch, commit);
-				SetChildOfParents(commit);
-				repository.Commits[commit.Id] = commit;
-
-				branch.CommitIds.Add(commit.Id);
-				branch.LatestCommitId = commit.Id;
-				branch.FirstCommitId = commit.Id;
-			}
-		}
-
-		private static void CopyToCommit(MBranch branch, MCommit commit)
-		{
-			commit.Id = GetId();
-			commit.ShortId = commit.Id.Substring(0, 6);
-			commit.Subject = $"Tip of branch '{branch.Name}'";
-			commit.Author = branch.ParentCommit.Author;
-			commit.AuthorDate = branch.ParentCommit.AuthorDate;
-			commit.CommitDate = branch.ParentCommit.CommitDate + TimeSpan.FromSeconds(1);
-			commit.Tickets = "";
-			commit.ParentIds = new List<string> { branch.ParentCommitId };
-		}
-
-
-		private static string GetId()
-		{
-			string id = 
-				Guid.NewGuid().ToString().Replace("-", "")
-			  + Guid.NewGuid().ToString().Replace("-", "");
-			return id.Substring(0, 40);
-		}
-
-
-		private static void SetChildOfParents(MCommit commit)
-		{
-			bool isFirstParent = true;
-			foreach (string parentId in commit.ParentIds)
-			{
-				IList<string> childIds = commit.Repository.ChildIds(parentId);
-				if (!childIds.Contains(commit.Id))
+				string branchTipText = $"({branch.Name}) ";
+				if (branch.LatestCommit.BranchTips != null 
+					&& -1 == branch.LatestCommit.BranchTips.IndexOf(branch.Name, StringComparison.Ordinal))
 				{
-					childIds.Add(commit.Id);
+					branch.LatestCommit.BranchTips += branchTipText;
 				}
-
-				if (isFirstParent)
+				else
 				{
-					isFirstParent = false;
-					IList<string> firstChildIds = commit.Repository.FirstChildIds(parentId);
-					if (!firstChildIds.Contains(commit.Id))
-					{
-						firstChildIds.Add(commit.Id);
-					}
+					branch.LatestCommit.BranchTips = branchTipText;
 				}
 			}
 		}
+
 
 		private static MBranch ToBranch(MSubBranch subBranch)
 		{
