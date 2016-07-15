@@ -12,7 +12,7 @@
 	Width="1050" 
 	AllowsTransparency="True"
 	WindowStyle="None"
-	BorderBrush="DarkSlateBlue"
+	BorderBrush="{StaticResource BorderBrush}"
 	BorderThickness="3"
 	ResizeMode="CanResizeWithGrip"
 	Icon="Application.ico">
@@ -40,7 +40,7 @@
 		<!--First row (title bar) -->
 		<Border 
 			BorderThickness="1" 
-			BorderBrush="DarkSlateBlue" 
+			BorderBrush="{StaticResource BorderBrush}" 
 			Grid.Row="0">
 
 			<!-- Background="Black" -->
@@ -198,7 +198,7 @@
 									</MenuItem.ItemContainerStyle>
 								</MenuItem>
 
-								<Separator Background="DarkSlateBlue"/>
+								<Separator Background="{StaticResource BorderBrush}"/>
 
 								<MenuItem 
 									Header="Toggle commit details" 
@@ -210,8 +210,8 @@
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
-								
-								<Separator Background="DarkSlateBlue"/>
+
+								<Separator Background="{StaticResource BorderBrush}"/>
 
 								<MenuItem 
 									Header="Open working folder ..." 
@@ -223,7 +223,7 @@
 									</MenuItem.Icon>
 								</MenuItem>
 
-								<!--<Separator Background="DarkSlateBlue"/>
+								<!--<Separator Background="{StaticResource BorderBrush}"/>
 								
 								<MenuItem 
 									Header="Specify branch for commit ..." 
@@ -240,7 +240,7 @@
 									</MenuItem.Icon>
 								</MenuItem>-->
 
-								<Separator Background="DarkSlateBlue"/>
+								<Separator Background="{StaticResource BorderBrush}"/>
 
 								<MenuItem 
 									Header="Send feedback ..." 
@@ -278,7 +278,7 @@
 					<!-- Search box  -->
 					<Border 
 						BorderThickness="1" 
-						BorderBrush="DarkSlateBlue" 
+						BorderBrush="{StaticResource BorderBrush}" 
 						Margin="2">
 						<StackPanel Orientation="Horizontal">
 							
@@ -335,7 +335,7 @@
 		
 		<Border 
 			BorderThickness="1" 
-			BorderBrush="DarkSlateBlue" 
+			BorderBrush="{StaticResource BorderBrush}" 
 			Grid.Row="1">
 			<DockPanel>
 
@@ -497,7 +497,7 @@
 
 															<Separator
 																Visibility="{Binding IsMultiBranch, Converter={StaticResource VC}}"
-																Background="DarkSlateBlue"/>
+																Background="{StaticResource BorderBrush}"/>
 
 															<MenuItem 
 																Header="Specify multi branch" 
