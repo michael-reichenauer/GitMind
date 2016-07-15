@@ -257,42 +257,9 @@ namespace GitMind.CommitsHistory
 
 		private void SetCommitsDetails(CommitViewModel commit)
 		{
-			CommitDetail.Id = commit.Id;
-			CommitDetail.Branch = commit.Commit.Branch.Name;
-			CommitDetail.BranchBrush = commit.Brush;
-			CommitDetail.Tickets = commit.Tickets;
-			CommitDetail.BranchTips = commit.BranchTips;
-			CommitDetail.Tags = commit.Tags;
-			CommitDetail.Subject = commit.Subject;
-			CommitDetail.SubjectBrush = commit.SubjectBrush;
-			CommitDetail.SubjectStyle = commit.SubjectStyle;
-
-			CommitDetail.Files.Clear();
-
-			SetFilesAsync(commit.Commit).RunInBackground();
-			
+			CommitDetail.CommitViewModel = commit;		
 		}
 
-
-		private async Task SetFilesAsync(Commit commit)
-		{
-			IEnumerable<CommitFile> files = await commit.FilesTask;
-			if (CommitDetail.Id == commit.Id)
-			{
-				files.ForEach(f => CommitDetail.Files.Add(
-					new CommitFileViewModel
-					{
-						Id = commit.Id,
-						Name = f.Name,
-						Status = f.Status,
-						WorkingFolder = commit.GitRepositoryPath
-					}));
-			}
-			else
-			{
-				Log.Debug($"No longer selected {commit.Id} (now {CommitDetail.Id}is selected)");
-			}
-		}
 
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; }

@@ -743,7 +743,8 @@
 					<Label 
 							Grid.Column="1" Grid.Row="0"
 							Style="{StaticResource TextLabelStyle}" 
-							Content="{Binding RepositoryViewModel.CommitDetail.Id}"/>
+							Content="{Binding RepositoryViewModel.CommitDetail.ShortId}"
+							ToolTip="{Binding RepositoryViewModel.CommitDetail.Id}"/>
 					<Label 
 							Grid.Column="0" Grid.Row="1" 
 							Style="{StaticResource HeaderLabelStyle}" 
