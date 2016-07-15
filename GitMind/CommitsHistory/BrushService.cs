@@ -32,6 +32,7 @@ namespace GitMind.CommitsHistory
 			(SolidColorBrush)new BrushConverter().ConvertFrom("#FCB9B6");
 
 		public SolidColorBrush UnCommittedBrush { get; } = Brushes.BurlyWood;
+		public SolidColorBrush BranchTipBrush { get; } = Brushes.Aqua;
 
 		// Light orchchid
 		//public SolidColorBrush RemoteAheadBrush { get; } =

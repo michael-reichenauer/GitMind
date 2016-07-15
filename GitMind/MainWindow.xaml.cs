@@ -156,7 +156,7 @@ namespace GitMind
 			{
 				Log.Error($"Failed to load, {e}");
 				throw;
-			}			
+			}
 		}
 
 
@@ -205,7 +205,7 @@ namespace GitMind
 
 
 		public bool InitDataModel()
-		{			
+		{
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
 			string[] args = Environment.GetCommandLineArgs();
@@ -235,7 +235,7 @@ namespace GitMind
 			}
 
 			workingFolder = TryGetWorkingFolder(workingFolder ?? Environment.CurrentDirectory);
-			
+
 			Log.Debug($"Current working folder {workingFolder}");
 			return true;
 		}
@@ -335,7 +335,7 @@ namespace GitMind
 			ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
 			workingFolder = path.Value;
 			mainWindowViewModel.WorkingFolder = workingFolder;
-				
+
 			t.Log("Got working folder");
 			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true, workingFolder);
 
@@ -450,7 +450,7 @@ namespace GitMind
 			Point position = e.GetPosition(ItemsListBox);
 			//Log.Debug($"Position {position}");
 			if (e.LeftButton == MouseButtonState.Pressed
-				&& position.Y < 0 
+				&& position.Y < 0
 				&& position.X < (canvas.ActualWidth - 300)
 				&& position.X > 250)
 			{

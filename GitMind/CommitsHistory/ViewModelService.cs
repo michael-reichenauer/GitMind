@@ -405,11 +405,12 @@ namespace GitMind.CommitsHistory
 
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
-				commitViewModel.SubjectStyle = commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
 				commitViewModel.CommitBranchText = "Hide branch: " + commit.Branch.Name;
 				commitViewModel.CommitBranchName = commit.Branch.Name;
 				commitViewModel.ToolTip = GetCommitToolTip(commit);
 				commitViewModel.SubjectBrush = GetSubjectBrush(commit);
+				commitViewModel.SubjectStyle = commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
+
 				commitViewModel.Tags = commit.Tags;
 				commitViewModel.Tickets = commit.Tickets;
 			}
@@ -701,6 +702,10 @@ namespace GitMind.CommitsHistory
 			if (commit.IsUncommitted)
 			{
 				subjectBrush = brushService.UnCommittedBrush;
+			}
+			else if (commit.IsVirtual)
+			{
+				subjectBrush = brushService.BranchTipBrush;
 			}
 			else if (commit.IsLocalAhead)
 			{

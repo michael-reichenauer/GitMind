@@ -25,7 +25,16 @@ namespace GitMind.GitModel.Private
 				MCommit LatestCommit = subBranch.Value.LatestCommit;
 				if (LatestCommit.BranchId != null)
 				{
-					subBranch.Value.ParentCommitId = repository.Branches[LatestCommit.BranchId].ParentCommitId;
+					if (LatestCommit.BranchName == subBranch.Value.Name)
+					{
+						subBranch.Value.ParentCommitId = repository.Branches[LatestCommit.BranchId].ParentCommitId;
+					}
+					else
+					{
+						// This is a branch with no commits
+						MCommit firstCommit = LatestCommit;
+						subBranch.Value.ParentCommitId = firstCommit.FirstParentId;
+					}
 				}
 				else
 				{
@@ -133,7 +142,7 @@ namespace GitMind.GitModel.Private
 			commit.Id = GetId();
 			commit.ShortId = commit.Id.Substring(0, 6);
 			commit.Subject = $"Tip of branch '{branch.Name}'";
-			commit.Author = "";
+			commit.Author = branch.ParentCommit.Author;
 			commit.AuthorDate = branch.ParentCommit.AuthorDate;
 			commit.CommitDate = branch.ParentCommit.CommitDate + TimeSpan.FromSeconds(1);
 			commit.Tickets = "";

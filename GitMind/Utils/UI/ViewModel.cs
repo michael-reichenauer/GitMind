@@ -47,8 +47,14 @@ namespace GitMind.Utils.UI
 
 
 		protected T Get<T>([CallerMemberName] string memberName = "")
-		{		
-			return (T)Get(memberName).Value;
+		{
+			Property property = Get(memberName);
+			if (property.Value == null)
+			{
+				return default(T);
+			}
+
+			return (T)property.Value;
 		}
 
 
