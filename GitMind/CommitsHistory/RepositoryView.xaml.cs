@@ -46,44 +46,16 @@ namespace GitMind.CommitsHistory
 			viewModel = (RepositoryViewModel)DataContext;
 			viewModel.Canvas = (ZoomableCanvas)sender;
 
-			// Store the canvas in a local variable since x:Name doesn't work.
 			Timing t = new Timing();
 
-			string workingFolder = TestRepo.Path4;
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true, viewModel.WorkingFolder);
 
-			R<string> path = ProgramPaths.GetWorkingFolderPath(workingFolder);
-
-			while (!path.HasValue)
-			{
-				Log.Warn($"Not a valid working folder '{workingFolder}'");
-
-				var dialog = new FolderBrowserDialog();
-				dialog.Description = "Select a working folder with a valid git repository.";
-				dialog.ShowNewFolderButton = false;
-				dialog.SelectedPath = Environment.CurrentDirectory;
-				if (dialog.ShowDialog(this.GetIWin32Window()) != DialogResult.OK)
-				{
-					Log.Warn("User canceled selecting a Working folder");
-					Application.Current.Shutdown(0);
-					return;
-				}
-
-				path = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
-			}
-
-			ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
-			workingFolder = path.Value;
-		//	mainWindowViewModel.WorkingFolder = workingFolder;
-
-			t.Log("Got working folder");
-			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true, workingFolder);
-
-			//mainWindowViewModel.Busy.Add(repositoryTask);
+			viewModel.Busy.Value.Add(repositoryTask);
 
 			Repository repository = await repositoryTask;
 			t.Log("Got repository");
-			List<string> specifiedBranchNames = new List<string>();
-			viewModel.Update(repository, specifiedBranchNames);
+
+			viewModel.Update(repository, viewModel.SpecifiedBranchNames);
 			t.Log("Updated repositoryViewModel");
 			ItemsListBox.Focus();
 

@@ -86,7 +86,7 @@ namespace GitMind
 
 			DataContext = mainWindowViewModel;
 			mainWindowViewModel.WorkingFolder = workingFolder;
-
+			mainWindowViewModel.SpecifiedBranchNames = specifiedBranchNames;
 
 			StartBackgroundTasks();
 

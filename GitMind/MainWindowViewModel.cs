@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -40,21 +41,13 @@ namespace GitMind
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
 			this.refreshAsync = refreshAsync;
+
+			WhenSet(RepositoryViewModel, nameof(RepositoryViewModel.UnCommited)).Notify(nameof(StatusText));
 		}
 
 
-
-		public string StatusText
-		{
-			get { return Get(); }
-			set { Set(value).Notify(nameof(IsStatusVisible)); }
-		}
-
-		public bool IsStatusVisible
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public string StatusText => RepositoryViewModel.UnCommited?.Subject;
+		
 
 		public bool IsInFilterMode => !string.IsNullOrEmpty(SearchBox);
 
@@ -84,8 +77,10 @@ namespace GitMind
 			get { return Get(); }
 			set
 			{
-				Set(value);
-				//AddFolderWatcher(value);
+				if (Set(value).IsSet)
+				{
+					RepositoryViewModel.WorkingFolder = value;
+				}
 			}
 		}
 
@@ -170,6 +165,11 @@ namespace GitMind
 
 
 		public Command RefreshCommand => AsyncCommand(Refresh);
+
+		public List<string> SpecifiedBranchNames
+		{
+			 set { RepositoryViewModel.SpecifiedBranchNames = value; }
+		}
 
 
 		private async Task Refresh()

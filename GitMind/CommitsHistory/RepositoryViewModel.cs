@@ -17,9 +17,10 @@ namespace GitMind.CommitsHistory
 {
 	internal class RepositoryViewModel : ViewModel
 	{
+		public Lazy<BusyIndicator> Busy { get; set; }
 		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
 		private readonly IViewModelService viewModelService;
-		private readonly Lazy<BusyIndicator> busyIndicator;
+		
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 
 
@@ -42,14 +43,16 @@ namespace GitMind.CommitsHistory
 			Lazy<BusyIndicator> busyIndicator)
 			: this(new ViewModelService(), busyIndicator)
 		{
+			Busy = busyIndicator;
 		}
+
 
 		public RepositoryViewModel(
 			IViewModelService viewModelService,
 			Lazy<BusyIndicator> busyIndicator)
 		{
 			this.viewModelService = viewModelService;
-			this.busyIndicator = busyIndicator;
+
 
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
 
@@ -72,6 +75,13 @@ namespace GitMind.CommitsHistory
 
 			string gitRepositoryPath = Repository.MRepository.WorkingFolder;
 			await repositoryService.SetSpecifiedCommitBranchAsync(parts[0], parts[1], gitRepositoryPath);
+		}
+
+
+		public Commit UnCommited
+		{
+			get { return Get<Commit>(); }
+			set { Set(value); }
 		}
 
 
@@ -222,6 +232,10 @@ namespace GitMind.CommitsHistory
 			}
 
 			LocalAheadText = localAheadText;
+
+			Commit uncommitted;
+			Repository.Commits.TryGetValue(Commit.UncommittedId, out uncommitted);
+			UnCommited = uncommitted;
 		}
 
 
@@ -258,6 +272,8 @@ namespace GitMind.CommitsHistory
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; }
 		public ZoomableCanvas Canvas { get; set; }
+		public string WorkingFolder { get; set; }
+		public List<string> SpecifiedBranchNames { get; set; }
 
 
 		public void SetFilter(string text)
@@ -281,7 +297,7 @@ namespace GitMind.CommitsHistory
 			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
 
 			Task setFilterTask = viewModelService.SetFilterAsync(this, filterText);
-			busyIndicator.Value.Add(setFilterTask);
+			Busy.Value.Add(setFilterTask);
 
 			await setFilterTask;
 			if (filterText != FilterText)

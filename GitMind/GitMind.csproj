@@ -187,6 +187,7 @@
     <Compile Include="Utils\Timing.cs" />
     <Compile Include="Utils\UI\PropertySetter.cs" />
     <Compile Include="Utils\UI\ViewModel.cs" />
+    <Compile Include="Utils\UI\WhenSetter.cs" />
     <Compile Include="VirtualCanvas\VirtualItemsSource.cs" />
     <Compile Include="VirtualCanvas\ArithmeticConverter.cs" />
     <Compile Include="VirtualCanvas\ISpatialItemsSource.cs" />

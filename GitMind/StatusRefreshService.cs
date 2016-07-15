@@ -59,8 +59,8 @@ namespace GitMind
 					statusText = $"{count} uncommitted changes";
 				}
 
-				mainWindowViewModel.StatusText = statusText;
-				mainWindowViewModel.IsStatusVisible = !string.IsNullOrWhiteSpace(statusText);
+				//mainWindowViewModel.StatusText = statusText;
+				//mainWindowViewModel.IsStatusVisible = !string.IsNullOrWhiteSpace(statusText);
 
 				R<string> currentBranchName = await gitService.GetCurrentBranchNameAsync(
 					mainWindowViewModel.WorkingFolder);

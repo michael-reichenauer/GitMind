@@ -26,6 +26,12 @@ namespace GitMind.Utils.UI
 		}
 
 
+		protected WhenSetter WhenSet(ViewModel viewModel, params string[] sourcePropertyName)
+		{
+			return new WhenSetter(this, viewModel, sourcePropertyName);
+		}
+
+
 		internal void Notify(params string[] otherPropertyNames)
 		{
 			foreach (string otherPropertyName in otherPropertyNames)
