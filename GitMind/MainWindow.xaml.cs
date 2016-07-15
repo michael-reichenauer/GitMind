@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Shell;
 using System.Windows.Threading;
 using GitMind.CommitsHistory;
 using GitMind.Git;
@@ -61,6 +62,7 @@ namespace GitMind
 			}
 
 			InitializeComponent();
+			WindowChrome.SetWindowChrome(this, new WindowChrome());
 			autoRefreshTime.Tick += FetchAndRefreshAsync;
 
 			ToolTipService.ShowDurationProperty.OverrideMetadata(

@@ -14,8 +14,8 @@
 	WindowStyle="None"
 	BorderBrush="{StaticResource BorderBrush}"
 	BorderThickness="3"
-	ResizeMode="CanResizeWithGrip"
-	Icon="Application.ico" MouseDown="MainWindow_OnMouseDown">
+	Icon="Application.ico"
+	MouseDown="MainWindow_OnMouseDown">
 
 	
 	
@@ -26,6 +26,7 @@
 	</Window.InputBindings>
 
 	<Window.Resources>
+		
 	</Window.Resources>
 
 
