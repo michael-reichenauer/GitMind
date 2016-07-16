@@ -1,7 +1,9 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-										xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-										xmlns:local="clr-namespace:GitMind.Styles">
+﻿<ResourceDictionary 
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+	
+	<!-- Tool tip style -->
 	<Style x:Key="{x:Type ToolTip}" TargetType="ToolTip">
 
 		<Setter Property="Background" Value="Black" />

@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 
-namespace GitMind
+
+namespace GitMind.Common
 {
 	/// <summary>
 	/// Interaction logic for WindowControlButtons.xaml
