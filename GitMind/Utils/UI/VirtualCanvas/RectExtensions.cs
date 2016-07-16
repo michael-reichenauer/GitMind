@@ -9,7 +9,7 @@ using System;
 using System.Windows;
 
 
-namespace GitMind.VirtualCanvas
+namespace GitMind.Utils.UI.VirtualCanvas
 {
 	/// <summary>
 	/// Provides extension methods for rects.

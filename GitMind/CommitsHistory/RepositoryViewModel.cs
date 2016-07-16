@@ -10,7 +10,7 @@ using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.UI;
-using GitMind.VirtualCanvas;
+using GitMind.Utils.UI.VirtualCanvas;
 
 
 namespace GitMind.CommitsHistory

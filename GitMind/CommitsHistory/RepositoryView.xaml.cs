@@ -16,7 +16,7 @@ using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Settings;
 using GitMind.Utils;
-using GitMind.VirtualCanvas;
+using GitMind.Utils.UI.VirtualCanvas;
 using Application = System.Windows.Application;
 using UserControl = System.Windows.Controls.UserControl;
 

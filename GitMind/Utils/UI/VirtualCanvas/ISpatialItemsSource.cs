@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 
 
-namespace GitMind.VirtualCanvas
+namespace GitMind.Utils.UI.VirtualCanvas
 {
 	/// <summary>
 	/// Provides a two-dimensional index of items that can be quickly queried for all items that 

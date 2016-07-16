@@ -15,7 +15,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 
 
-namespace GitMind.VirtualCanvas
+namespace GitMind.Utils.UI.VirtualCanvas
 {
 	/// <summary>
 	/// Provides a framework for <see cref="Panel"/> elements that virtualize their child data collection. This is an abstract class.

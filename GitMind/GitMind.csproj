@@ -194,22 +194,22 @@
     <Compile Include="Utils\UI\PropertySetter.cs" />
     <Compile Include="Utils\UI\ViewModel.cs" />
     <Compile Include="Utils\UI\WhenSetter.cs" />
-    <Compile Include="VirtualCanvas\VirtualItemsSource.cs" />
-    <Compile Include="VirtualCanvas\ArithmeticConverter.cs" />
-    <Compile Include="VirtualCanvas\ISpatialItemsSource.cs" />
-    <Compile Include="VirtualCanvas\LinkedListExtensions.cs" />
-    <Compile Include="VirtualCanvas\MathExtensions.cs" />
-    <Compile Include="VirtualCanvas\PriorityQuadTree.cs" />
-    <Compile Include="VirtualCanvas\PriorityQueue.cs" />
-    <Compile Include="VirtualCanvas\RectExtensions.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\VirtualItemsSource.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\ArithmeticConverter.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\ISpatialItemsSource.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\LinkedListExtensions.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\MathExtensions.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\PriorityQuadTree.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\PriorityQueue.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\RectExtensions.cs" />
     <Compile Include="Utils\Cmd.cs" />
     <Compile Include="Utils\ICmd.cs" />
     <Compile Include="Utils\Log.cs" />
     <Compile Include="Git\Private\GitService.cs" />
     <Compile Include="Git\GitCommit.cs" />
     <Compile Include="Utils\MicroDiContainer.cs" />
-    <Compile Include="VirtualCanvas\VirtualPanel.cs" />
-    <Compile Include="VirtualCanvas\ZoomableCanvas.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\VirtualPanel.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\ZoomableCanvas.cs" />
     <Compile Include="Common\WindowControlButtons.xaml.cs">
       <DependentUpon>WindowControlButtons.xaml</DependentUpon>
     </Compile>

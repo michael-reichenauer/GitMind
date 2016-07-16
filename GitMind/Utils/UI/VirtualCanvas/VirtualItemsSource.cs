@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Windows;
 
 
-namespace GitMind.VirtualCanvas
+namespace GitMind.Utils.UI.VirtualCanvas
 {
 	public abstract class VirtualItemsSource : ISpatialItemsSource, IList
 	{

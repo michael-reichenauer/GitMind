@@ -8,10 +8,13 @@ namespace GitMind.Git
 	{
 		private readonly Diff diff;
 		private readonly Repository repository;
-		private static readonly CompareOptions DefultCompareOptions =
-			new CompareOptions { ContextLines = 5 };
-		private static readonly CompareOptions DefultFileCompareOptions =
-			new CompareOptions { ContextLines = 10000 };
+		private static readonly SimilarityOptions DetectRenames =
+			new SimilarityOptions { RenameDetectionMode = RenameDetectionMode.Renames };
+
+		private static readonly CompareOptions DefultCompareOptions = new CompareOptions
+			{ ContextLines = 5, Similarity = DetectRenames };
+		private static readonly CompareOptions DefultFileCompareOptions = new CompareOptions
+			{ ContextLines = 10000, Similarity = DetectRenames };
 
 
 		public GitDiff(Diff diff, Repository repository)

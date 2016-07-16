@@ -1,13 +1,11 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 
 
-namespace GitMind.VirtualCanvas
+namespace GitMind.Utils.UI.VirtualCanvas
 {
 	/// <summary>
 	/// This class efficiently stores and lazily retrieves arbitrarily sized and positioned objects in a prioritized order in a quad-tree data structure.

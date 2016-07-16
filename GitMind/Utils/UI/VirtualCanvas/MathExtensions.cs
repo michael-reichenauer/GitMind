@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 
-namespace GitMind.VirtualCanvas
+namespace GitMind.Utils.UI.VirtualCanvas
 {
 	/// <summary>Provides extension methods for trigonometric, logarithmic, and other common mathematical functions.</summary>
 	public static class MathExtensions
