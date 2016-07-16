@@ -78,6 +78,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Installation\Private\AssemblyResolver.cs" />
+    <Compile Include="Installation\IAssemblyResolver.cs" />
     <Compile Include="RepositoryViews\BranchItem.cs" />
     <Compile Include="RepositoryViews\BranchNameItem.cs" />
     <Compile Include="RepositoryViews\BranchViewModel.cs" />
