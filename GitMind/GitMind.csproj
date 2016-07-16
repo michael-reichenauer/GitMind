@@ -187,7 +187,7 @@
     <Compile Include="Git\IGitService.cs" />
     <Compile Include="Git\GitStatus.cs" />
     <Compile Include="MainWindowViewModel.cs" />
-    <Compile Include="TestRepo.cs" />
+    <Compile Include="Testing\TestRepo.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />
     <Compile Include="Utils\Timing.cs" />

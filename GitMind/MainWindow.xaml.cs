@@ -17,6 +17,7 @@ using GitMind.GitModel.Private;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.Settings;
+using GitMind.Testing;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
