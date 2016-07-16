@@ -5,7 +5,7 @@
 	xmlns:gitMind="clr-namespace:GitMind"
 	xmlns:commitsHistory="clr-namespace:GitMind.CommitsHistory"
 	xmlns:common="clr-namespace:GitMind.Common"
-	Title="GitMind"
+	Title="{Binding Title}"
 	Height="800"
 	Width="1050" 
 	AllowsTransparency="True"

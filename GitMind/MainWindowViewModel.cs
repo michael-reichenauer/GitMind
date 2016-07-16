@@ -80,9 +80,13 @@ namespace GitMind
 				if (Set(value).IsSet)
 				{
 					RepositoryViewModel.WorkingFolder = value;
+					Notify(nameof(Title));
 				}
 			}
 		}
+
+		public string Title => WorkingFolder != null 
+			? $"{Path.GetFileNameWithoutExtension(WorkingFolder)} - GitMind" : "GitMind";
 
 
 		public string SearchBox
