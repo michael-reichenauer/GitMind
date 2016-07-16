@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
@@ -21,6 +23,7 @@ namespace GitMind.RepositoryViews
 
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService = new RepositoryService();
+		private readonly IGitService gitService = new GitService();
 
 		private readonly Lazy<BusyIndicator> busyIndicator;
 
@@ -163,6 +166,17 @@ namespace GitMind.RepositoryViews
 				}
 			}
 		}
+
+
+		public async Task RefreshAsync()
+		{
+			await gitService.FetchAsync(Repository.MRepository.WorkingFolder);
+
+			Repository repository = await repositoryService.UpdateRepositoryAsync(Repository);
+
+			Update(repository, SpecifiedBranches);
+		}
+
 
 		public async Task UpdateAsync()
 		{
@@ -412,5 +426,7 @@ namespace GitMind.RepositoryViews
 				Clicked(column, row, isControl);
 			}
 		}
+
+
 	}
 }

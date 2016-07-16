@@ -3,7 +3,7 @@
 						 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 						 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 						 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:ui="clr-namespace:GitMind.Utils.UI"
+						 xmlns:ui="clr-namespace:GitMind.Utils.UI"
 						 xmlns:virtualCanvas="clr-namespace:GitMind.Utils.UI.VirtualCanvas"
 						 xmlns:local="clr-namespace:GitMind.RepositoryViews"
 						 mc:Ignorable="d" 
@@ -11,7 +11,7 @@
 
 	<Grid>
 		<Grid.RowDefinitions>
-			<!-- Commit log -->
+			<!-- Commits log -->
 			<RowDefinition Height="*" />
 			<!-- Grid splitter -->
 			<RowDefinition Height="Auto" />
@@ -19,36 +19,32 @@
 			<RowDefinition Height="150"/>
 		</Grid.RowDefinitions>
 
-		<!-- Commit log -->
-		<Border
-			Grid.Row="0"		
-			BorderThickness="1" 
-			BorderBrush="{StaticResource BorderBrush}">
-			<DockPanel>
-
-				<ListBox 
+		<!-- Commits log -->
+		<Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" >
+			
+			<ListBox 
+				x:Name="ItemsListBox"
+				ItemsSource="{Binding VirtualItemsSource}"
 				IsTextSearchEnabled="False"
-				Padding="4"
-				x:Name="ItemsListBox" 
+				Padding="4"		
 				Style="{DynamicResource ListBoxScrollbarStyle}" 
 				SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" 
-				SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-				ItemsSource="{Binding VirtualItemsSource}">
+				SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 
-					<ListBox.InputBindings>
-						<KeyBinding Key="Space" Command="{Binding ToggleDetailsCommand}" />
-					</ListBox.InputBindings>
+				<ListBox.InputBindings>
+					<KeyBinding Key="Space" Command="{Binding ToggleDetailsCommand}" />
+				</ListBox.InputBindings>
 
-					<ListBox.ItemsPanel>
-						<ItemsPanelTemplate>
-							<virtualCanvas:ZoomableCanvas 
+				<ListBox.ItemsPanel>
+					<ItemsPanelTemplate>
+						<virtualCanvas:ZoomableCanvas 
 							Loaded="ZoomableCanvas_Loaded"
 							RealizationLimit="1000" 
 							RealizationRate="20"
 							RealizationPriority="Normal"
 							ApplyTransform="false"/>
-						</ItemsPanelTemplate>
-					</ListBox.ItemsPanel>
+					</ItemsPanelTemplate>
+				</ListBox.ItemsPanel>
 
 					<ListBox.ItemContainerStyle>
 						<Style TargetType="ListBoxItem">
@@ -59,15 +55,15 @@
 							<Setter Property="Template">
 								<Setter.Value>
 									<ControlTemplate TargetType="ListBoxItem">
-										<Border
-										Name="ItemBorder"
-										CornerRadius="0" 
-										BorderBrush="Transparent"
-										BorderThickness="1" 
-										Margin="0"
-										Background="Transparent">
-											<ContentPresenter />
-										</Border>
+									<Border
+											Name="ItemBorder"
+											CornerRadius="0" 
+											BorderBrush="Transparent"
+											BorderThickness="1" 
+											Margin="0"
+											Background="Transparent">
+										<ContentPresenter />
+									</Border>
 										<ControlTemplate.Triggers>
 											<Trigger Property="IsSelected" Value="True">
 												<Setter 
@@ -269,10 +265,14 @@
 
 													<Grid Grid.Column="1">
 														<Grid.ColumnDefinitions>
-															<ColumnDefinition Width="15"/>
-															<ColumnDefinition Width="*"/>
-															<ColumnDefinition Width="130"/>
-															<ColumnDefinition Width="105"/>
+															<!-- Margin and current commit indicator -->
+															<ColumnDefinition Width="15" />
+															<!-- Subject -->
+															<ColumnDefinition Width="*" />
+															<!-- Author -->
+															<ColumnDefinition Width="130" SharedSizeGroup="FirstColumn"/>
+															<!-- Date -->
+															<ColumnDefinition Width="105" SharedSizeGroup="SecondColumn"/>
 														</Grid.ColumnDefinitions>
 
 														<Grid.ContextMenu>
@@ -290,84 +290,69 @@
 															</ContextMenu>
 														</Grid.ContextMenu>
 
+														<!-- Current commit indicator (and margin when not current)-->
 														<Ellipse
-													Margin="0,1,3,0"
-													Visibility="{Binding IsCurrent, Converter={StaticResource VC}}"
-													Grid.Column="0"
-													Width="6"
-													Height="6"
-													Fill="LightSteelBlue">
-
-															<Ellipse.ToolTip>
-																<ToolTip
-															Placement="Bottom"
-															 HorizontalOffset="-15" 
-															 VerticalOffset="5"
-															Background="Black"
-															BorderThickness="2"
-															BorderBrush="{Binding Brush}">
-																	<StackPanel>
-																		<TextBlock Text="{Binding ToolTip}" Foreground="Lavender"/>
-																	</StackPanel>
-																</ToolTip>
-															</Ellipse.ToolTip>
-														</Ellipse>
+															Grid.Column="0"
+															Margin="0,1,3,0"
+															Visibility="{Binding IsCurrent, Converter={StaticResource VC}}"
+															Width="6"
+															Height="6"
+															Fill="{StaticResource CurrentCommitIndicatorBrush}"/>
 
 														<!-- Commit Subject column -->
 														<StackPanel 
-														Grid.Column="1"
-														Orientation="Horizontal">
+															Grid.Column="1"
+															Orientation="Horizontal">
 
 															<!-- Branch tips -->
 															<TextBlock 
-															Text="{Binding BranchTips}"
-															Foreground="{StaticResource BranchTipsBrush}"
-															HorizontalAlignment="Left"
-															VerticalAlignment="Center"
-															ToolTip="Branch tip of branch with no commits of its own"/>
+																Text="{Binding BranchTips}"
+																Foreground="{StaticResource BranchTipsBrush}"
+																HorizontalAlignment="Left"
+																VerticalAlignment="Center"
+																ToolTip="Branch tip of branch with no commits of its own"/>
 
 															<!-- Tag -->
 															<TextBlock 
-															Text="{Binding Tags}"
-															Foreground="{StaticResource TagBrush}"
-															HorizontalAlignment="Left"
-															VerticalAlignment="Center"/>
+																Text="{Binding Tags}"
+																Foreground="{StaticResource TagBrush}"
+																HorizontalAlignment="Left"
+																VerticalAlignment="Center"/>
 
 															<!-- Tickets -->
 															<TextBlock 
-															Text="{Binding Tickets}"
-															Foreground="{StaticResource TicketBrush}"
-															HorizontalAlignment="Left"
-															VerticalAlignment="Center"/>
+																Text="{Binding Tickets}"
+																Foreground="{StaticResource TicketBrush}"
+																HorizontalAlignment="Left"
+																VerticalAlignment="Center"/>
 
 															<!-- Subject -->
 															<TextBlock 
-															Text="{Binding Subject}"
-															Foreground="{Binding SubjectBrush}"
-															FontSize="12"
-															FontStyle="{Binding SubjectStyle}"
-															HorizontalAlignment="Left"
-															VerticalAlignment="Center"/>
+																Text="{Binding Subject}"
+																Foreground="{Binding SubjectBrush}"
+																FontSize="12"
+																FontStyle="{Binding SubjectStyle}"
+																HorizontalAlignment="Left"
+																VerticalAlignment="Center"/>
 														</StackPanel>
-
 
 														<!-- Author column -->
 														<TextBlock 
-														Grid.Column="2"
-														Margin="5,0"
-														Text="{Binding Author}"
-														Foreground="{Binding SubjectBrush}"
-														HorizontalAlignment="Left"
-														VerticalAlignment="Center"/>
+															Grid.Column="2"
+															Margin="5,0"
+															Text="{Binding Author}"
+															Foreground="{Binding SubjectBrush}"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center"/>
 
 														<!-- Date column -->
 														<TextBlock 
-														Grid.Column="3"
-														Margin="5,0"
-														Text="{Binding Date}"
-														Foreground="{Binding SubjectBrush}"
-														HorizontalAlignment="Left"
-														VerticalAlignment="Center"/>
+															Grid.Column="3"
+															Margin="5,0"
+															Text="{Binding Date}"
+															Foreground="{Binding SubjectBrush}"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center"/>
 
 													</Grid>
 												</Grid>
@@ -384,7 +369,7 @@
 
 				</ListBox>
 
-			</DockPanel>
+
 		</Border>
 
 		<ui:HideableGridSplitter
@@ -393,7 +378,7 @@
 				Background="{StaticResource BorderBrush}"
 				HorizontalAlignment="Stretch"
 				VerticalAlignment="Center"
-        Height="2"/>
+				Height="2"/>
 
 		<!-- Commit details -->
 		<local:CommitDetailsView
@@ -401,6 +386,5 @@
 				DataContext="{Binding CommitDetailsViewModel}"/>
 
 	</Grid>
-	
-	
+		
 </UserControl>

@@ -9,22 +9,20 @@
 
 	<Grid>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="1*" />
-			<ColumnDefinition Width="1*" />
+			<!-- Commit details -->
+			<ColumnDefinition Width="*" />
+			<!-- Grid splitter -->
+			<ColumnDefinition Width="Auto" />
+			<!-- Commit files -->
+			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
-		
-		<GridSplitter 
-      Background="{StaticResource BorderBrush}"
-      Width="2"
-      HorizontalAlignment="Right"
-      VerticalAlignment="Stretch"/>
 
 		<!-- The commit details list -->
 		<Border 
+			Grid.Column="0"
 			CornerRadius="0" 
 			BorderThickness="1" 
-			BorderBrush="{StaticResource BorderBrush}" 
-			Grid.Column="0">
+			BorderBrush="{StaticResource BorderBrush}">
 
 			<Grid>
 				<Grid.Resources>
@@ -117,12 +115,18 @@
 			</Grid>
 		</Border>
 
+		<GridSplitter 
+			Grid.Column="1"
+			Background="{StaticResource BorderBrush}"
+			Width="2"
+			HorizontalAlignment="Stretch"/>
+
 		<!-- The commit files list -->
-		<Border 				
+		<Border
+			Grid.Column="2"
 			CornerRadius="0" 
 			BorderThickness="1" 
-			BorderBrush="DarkSlateBlue" 
-			Grid.Column="1">
+			BorderBrush="DarkSlateBlue">
 
 			<ListBox
 				Background="Transparent"

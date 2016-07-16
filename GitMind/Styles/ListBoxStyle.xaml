@@ -13,6 +13,7 @@
 	<SolidColorBrush x:Key="TicketBrush" Color="#F25B54" />
 	<SolidColorBrush x:Key="TagBrush" Color="#42C650" />
 	<SolidColorBrush x:Key="BranchTipsBrush" Color="Aqua" />
+	<SolidColorBrush x:Key="CurrentCommitIndicatorBrush" Color="LightSteelBlue" />
 	
 	<SolidColorBrush x:Key="RemoteAheadBrush" Color="#BBBBFB" />
 	<SolidColorBrush x:Key="LocalAheadBrush" Color="LightGreen" />

@@ -123,6 +123,7 @@ namespace GitMind.MainWindowViews
 			}
 		}
 
+		public Command RefreshCommand => AsyncCommand(RefreshAsync);
 
 		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
 
@@ -153,6 +154,14 @@ namespace GitMind.MainWindowViews
 		}
 
 
+		private Task RefreshAsync()
+		{
+			Task refreshTask = RepositoryViewModel.RefreshAsync();
+			Busy.Add(refreshTask);
+			return refreshTask;
+		}
+
+
 		private void Escape()
 		{
 			if (!string.IsNullOrWhiteSpace(SearchBox))
@@ -170,7 +179,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public Command RefreshCommand => AsyncCommand(Refresh);
+	
 
 		public List<string> SpecifiedBranchNames
 		{
@@ -178,12 +187,6 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private async Task Refresh()
-		{
-			Task refreshTask = refreshAsync();
-			Busy.Add(refreshTask);
-			await refreshTask;
-		}
 
 
 		private void Minimize()
