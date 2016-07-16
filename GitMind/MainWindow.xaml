@@ -2,12 +2,8 @@
 	x:Class="GitMind.MainWindow"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:virtualCanvas="clr-namespace:GitMind.VirtualCanvas"
-	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
 	xmlns:gitMind="clr-namespace:GitMind"
 	xmlns:commitsHistory="clr-namespace:GitMind.CommitsHistory"
-	xmlns:gitModel="clr-namespace:GitMind.GitModel"
-	xmlns:ui="clr-namespace:GitMind.Utils.UI"
 	Title="GitMind"
 	Height="800"
 	Width="1050" 
@@ -15,9 +11,7 @@
 	WindowStyle="None"
 	BorderBrush="{StaticResource BorderBrush}"
 	BorderThickness="3"
-	Icon="Application.ico"
-	MouseDown="MainWindow_OnMouseDown"
-	ResizeMode="CanResizeWithGrip">
+	Icon="Application.ico">
 
 	
 	
@@ -28,7 +22,13 @@
 	</Window.InputBindings>
 
 	<Window.Resources>
-		
+		<Style TargetType="{x:Type gitMind:MainWindow}">
+			<Setter Property="WindowChrome.WindowChrome">
+				<Setter.Value>
+					<WindowChrome />
+				</Setter.Value>
+			</Setter>
+		</Style>
 	</Window.Resources>
 
 
@@ -57,7 +57,8 @@
 
 				<StackPanel 
 					Grid.Column="0" 
-					Orientation="Horizontal">
+					Orientation="Horizontal"
+					WindowChrome.IsHitTestVisibleInChrome="True">
 					
 					<!-- Application icon -->
 					<Image Source="Application.ico" Width="15" Height="15" Margin="5,0" ToolTip="{Binding VersionText}"/>
@@ -141,7 +142,7 @@
 				</StackPanel>
 
 
-				<StackPanel Grid.Column="1" Orientation="Horizontal">
+				<StackPanel Grid.Column="1" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
 
 					<!-- Latest version button -->
 					<Button 
@@ -278,7 +279,7 @@
 				</StackPanel>
 
 
-				<StackPanel Grid.Column="2" Orientation="Horizontal">
+				<StackPanel Grid.Column="2" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
 					<!-- Search box  -->
 					<Border 
 						BorderThickness="1" 
@@ -322,13 +323,23 @@
 					</Border>
 
 					<!-- Minimize button-->
-					<Button Style="{StaticResource IconButtonStyle}" Content="&#xE15B;" Padding="4,4,4,0" Command="{Binding MinimizeCommand}"/>
+					<Button 
+						Style="{StaticResource IconButtonStyle}" 
+						Content="&#xE15B;" 
+						Padding="4,4,4,0" 
+						Command="{Binding MinimizeCommand}"/>
 					
 					<!-- Maximize button-->
-					<Button Style="{StaticResource IconButtonStyle}" FontSize="14" Content="&#xE3C1;" Command="{Binding ToggleMaximizeCommand}"/>		
+					<Button 
+						Style="{StaticResource IconButtonStyle}" 
+						FontSize="14" Content="&#xE3C1;" 
+						Command="{Binding ToggleMaximizeCommand}"/>		
 					
 					<!-- Close Button -->
-					<Button Style="{StaticResource IconButtonStyle}" Content="&#xE14C;" Command="{Binding CloseCommand}"/>
+					<Button 
+						Style="{StaticResource IconButtonStyle}" 
+						Content="&#xE14C;" 
+						Command="{Binding CloseCommand}"/>
 						
 				</StackPanel>
 			</Grid>

@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Shell;
 using System.Windows.Threading;
 using GitMind.CommitsHistory;
 using GitMind.Git;
@@ -417,36 +418,6 @@ namespace GitMind
 		{
 			HamburgerContextMenu.PlacementTarget = this;
 			HamburgerContextMenu.IsOpen = true;
-		}
-
-
-		private void MainWindow_OnMouseDown(object sender, MouseButtonEventArgs e)
-		{
-			// Implement move/drag window in the title bar
-			if (e.ChangedButton == MouseButton.Left)
-			{
-				DragMove();
-			}
-		}
-
-
-
-
-		private void MyGridSplitter_DragStarted(object sender, DragStartedEventArgs e)
-		{
-
-		}
-
-
-		private void MyGridSplitter_DragCompleted(object sender, DragCompletedEventArgs e)
-		{
-
-		}
-
-
-		private void MyGridSplitter_DragDelta(object sender, DragDeltaEventArgs e)
-		{
-
 		}
 	}
 }
