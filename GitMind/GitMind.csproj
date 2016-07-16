@@ -78,7 +78,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AcceptingExceptionsAttribute.cs" />
     <Compile Include="CommitsHistory\BranchItem.cs" />
     <Compile Include="CommitsHistory\BranchNameItem.cs" />
     <Compile Include="CommitsHistory\BranchViewModel.cs" />
@@ -149,8 +148,8 @@
     <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="GitModel\Private\MRepository.cs" />
     <Compile Include="GitModel\Private\RepositoryService.cs" />
-    <Compile Include="ExceptionHandling.cs" />
-    <Compile Include="FatalExceptionsExtensions.cs" />
+    <Compile Include="Common\ExceptionHandling.cs" />
+    <Compile Include="Utils\FatalExceptionsExtensions.cs" />
     <Compile Include="GitModel\Private\CacheService.cs" />
     <Compile Include="GitModel\Private\ICacheService.cs" />
     <Compile Include="Installation\Private\CommandLine.cs" />

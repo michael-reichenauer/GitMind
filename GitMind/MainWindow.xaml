@@ -5,14 +5,10 @@
 	xmlns:gitMind="clr-namespace:GitMind"
 	xmlns:commitsHistory="clr-namespace:GitMind.CommitsHistory"
 	xmlns:common="clr-namespace:GitMind.Common"
-	Title="{Binding Title}"
-	Height="800"
-	Width="1050" 
-	AllowsTransparency="True"
-	WindowStyle="None"
-	BorderBrush="{StaticResource BorderBrush}"
-	BorderThickness="3"
-	Icon="Application.ico">
+	Title="{Binding Title}"	Icon="Application.ico"
+	Width="1050" Height="800"
+	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
+	WindowStyle="None" AllowsTransparency="True">
 
 
 	<!-- Enable "normal" windows behavior with drag and resize,

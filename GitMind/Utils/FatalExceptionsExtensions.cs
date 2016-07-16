@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using GitMind;
+using GitMind.Common;
 using GitMind.Utils;
 
 

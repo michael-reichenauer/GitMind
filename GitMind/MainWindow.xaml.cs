@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.CommitsHistory;
+using GitMind.Common;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
