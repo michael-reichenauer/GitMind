@@ -10,7 +10,7 @@ using GitMind.Utils;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal class CommitDetailsViewModel : ViewModel
 	{

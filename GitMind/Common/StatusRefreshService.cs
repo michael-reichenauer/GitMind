@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Threading;
-using GitMind.CommitsHistory;
 using GitMind.Git;
 using GitMind.Git.Private;
+using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 

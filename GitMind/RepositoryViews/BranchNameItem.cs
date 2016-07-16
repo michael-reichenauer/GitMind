@@ -2,7 +2,7 @@ using System.Windows.Input;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal class BranchNameItem : ViewModel
 	{

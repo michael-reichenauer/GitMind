@@ -5,7 +5,7 @@ using GitMind.Utils;
 using GitMind.Utils.UI.VirtualCanvas;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal class RepositoryVirtualItemsSource : VirtualItemsSource
 	{

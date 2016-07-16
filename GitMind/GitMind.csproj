@@ -78,16 +78,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CommitsHistory\BranchItem.cs" />
-    <Compile Include="CommitsHistory\BranchNameItem.cs" />
-    <Compile Include="CommitsHistory\BranchViewModel.cs" />
-    <Compile Include="CommitsHistory\BrushService.cs" />
-    <Compile Include="CommitsHistory\CommitDetailsView.xaml.cs">
+    <Compile Include="RepositoryViews\BranchItem.cs" />
+    <Compile Include="RepositoryViews\BranchNameItem.cs" />
+    <Compile Include="RepositoryViews\BranchViewModel.cs" />
+    <Compile Include="RepositoryViews\BrushService.cs" />
+    <Compile Include="RepositoryViews\CommitDetailsView.xaml.cs">
       <DependentUpon>CommitDetailsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CommitsHistory\CommitDetailsViewModel.cs" />
-    <Compile Include="CommitsHistory\CommitFileViewModel.cs" />
-    <Compile Include="CommitsHistory\RepositoryView.xaml.cs">
+    <Compile Include="RepositoryViews\CommitDetailsViewModel.cs" />
+    <Compile Include="RepositoryViews\CommitFileViewModel.cs" />
+    <Compile Include="RepositoryViews\RepositoryView.xaml.cs">
       <DependentUpon>RepositoryView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\SearchFilter.xaml.cs">
@@ -100,21 +100,21 @@
     </Compile>
     <Compile Include="Utils\UI\HideableGridSplitter.cs" />
     <Compile Include="Utils\Compare.cs" />
-    <Compile Include="CommitsHistory\SetBranchPrompt.xaml.cs">
+    <Compile Include="RepositoryViews\SetBranchPrompt.xaml.cs">
       <DependentUpon>SetBranchPrompt.xaml</DependentUpon>
     </Compile>
     <Compile Include="GitModel\CommitFile.cs" />
-    <Compile Include="CommitsHistory\CommitViewModel.cs" />
-    <Compile Include="CommitsHistory\Converter.cs" />
-    <Compile Include="CommitsHistory\DiffService.cs" />
-    <Compile Include="CommitsHistory\IBrushService.cs" />
-    <Compile Include="CommitsHistory\IDiffService.cs" />
-    <Compile Include="CommitsHistory\IViewModelService.cs" />
-    <Compile Include="CommitsHistory\IVirtualItem.cs" />
-    <Compile Include="CommitsHistory\MergeViewModel.cs" />
-    <Compile Include="CommitsHistory\RepositoryVirtualItemsSource.cs" />
-    <Compile Include="CommitsHistory\RepositoryViewModel.cs" />
-    <Compile Include="CommitsHistory\ViewModelService.cs" />
+    <Compile Include="RepositoryViews\CommitViewModel.cs" />
+    <Compile Include="RepositoryViews\Converter.cs" />
+    <Compile Include="RepositoryViews\DiffService.cs" />
+    <Compile Include="RepositoryViews\IBrushService.cs" />
+    <Compile Include="RepositoryViews\IDiffService.cs" />
+    <Compile Include="RepositoryViews\IViewModelService.cs" />
+    <Compile Include="RepositoryViews\IVirtualItem.cs" />
+    <Compile Include="RepositoryViews\MergeViewModel.cs" />
+    <Compile Include="RepositoryViews\RepositoryVirtualItemsSource.cs" />
+    <Compile Include="RepositoryViews\RepositoryViewModel.cs" />
+    <Compile Include="RepositoryViews\ViewModelService.cs" />
     <Compile Include="GitModel\Branch.cs" />
     <Compile Include="GitModel\Commit.cs" />
     <Compile Include="GitModel\CommitFiles.cs" />
@@ -213,15 +213,15 @@
     <Compile Include="Common\WindowControlButtons.xaml.cs">
       <DependentUpon>WindowControlButtons.xaml</DependentUpon>
     </Compile>
-    <Page Include="CommitsHistory\CommitDetailsView.xaml">
+    <Page Include="RepositoryViews\CommitDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CommitsHistory\RepositoryView.xaml">
+    <Page Include="RepositoryViews\RepositoryView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CommitsHistory\SetBranchPrompt.xaml">
+    <Page Include="RepositoryViews\SetBranchPrompt.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

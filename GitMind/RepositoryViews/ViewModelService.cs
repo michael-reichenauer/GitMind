@@ -8,7 +8,7 @@ using GitMind.GitModel;
 using GitMind.Utils;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal class ViewModelService : IViewModelService
 	{

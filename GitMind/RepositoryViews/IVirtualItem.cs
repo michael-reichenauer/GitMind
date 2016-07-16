@@ -1,4 +1,4 @@
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal interface IVirtualItem
 	{

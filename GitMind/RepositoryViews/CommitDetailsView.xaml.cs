@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 
-namespace GitMind.CommitsHistory
+
+namespace GitMind.RepositoryViews
 {
 	/// <summary>
 	/// Interaction logic for CommitDetailsView.xaml

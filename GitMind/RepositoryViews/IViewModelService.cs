@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using GitMind.GitModel;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal interface IViewModelService
 	{

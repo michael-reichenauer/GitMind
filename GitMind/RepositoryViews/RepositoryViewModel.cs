@@ -13,7 +13,7 @@ using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal class RepositoryViewModel : ViewModel
 	{

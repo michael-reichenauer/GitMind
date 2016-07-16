@@ -6,7 +6,7 @@ using GitMind.GitModel;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal class BranchItem : ViewModel
 	{

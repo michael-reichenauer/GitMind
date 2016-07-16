@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal interface IDiffService
 	{

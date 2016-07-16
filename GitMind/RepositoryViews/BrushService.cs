@@ -4,7 +4,7 @@ using System.Windows.Media;
 using GitMind.GitModel;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal class BrushService : IBrushService
 	{  

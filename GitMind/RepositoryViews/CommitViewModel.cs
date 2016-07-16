@@ -6,7 +6,7 @@ using GitMind.GitModel.Private;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal class CommitViewModel : ViewModel, IVirtualItem
 	{

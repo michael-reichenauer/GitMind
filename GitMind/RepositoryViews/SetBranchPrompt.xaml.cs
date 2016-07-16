@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 
-namespace GitMind.CommitsHistory
+
+namespace GitMind.RepositoryViews
 {
 	/// <summary>
 	/// Interaction logic for SetBranchPrompt.xaml

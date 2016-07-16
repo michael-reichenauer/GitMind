@@ -7,7 +7,7 @@ using GitMind.Settings;
 using GitMind.Utils;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal class DiffService : IDiffService
 	{

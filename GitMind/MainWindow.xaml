@@ -3,8 +3,8 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:gitMind="clr-namespace:GitMind"
-	xmlns:commitsHistory="clr-namespace:GitMind.CommitsHistory"
 	xmlns:common="clr-namespace:GitMind.Common"
+	xmlns:repositoryViews="clr-namespace:GitMind.RepositoryViews"
 	Title="{Binding Title}"	Icon="Application.ico"
 	Width="1050" Height="800"
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
@@ -172,7 +172,7 @@
 		</Border>
 
 		<!-- Repository view -->
-		<commitsHistory:RepositoryView 
+		<repositoryViews:RepositoryView 
 			Grid.Row="1"
 			DataContext="{Binding RepositoryViewModel}"/>
 

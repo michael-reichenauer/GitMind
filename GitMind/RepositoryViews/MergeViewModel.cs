@@ -3,7 +3,7 @@ using System.Windows.Media;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal class MergeViewModel : ViewModel, IVirtualItem
 	{

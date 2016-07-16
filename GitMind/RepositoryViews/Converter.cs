@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 
 
-namespace GitMind.CommitsHistory
+namespace GitMind.RepositoryViews
 {
 	internal static class Converter
 	{
