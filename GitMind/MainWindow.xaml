@@ -14,13 +14,14 @@
 	Icon="Application.ico">
 
 	
-	
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
 	</Window.InputBindings>
 
+	<!-- Enable "normal" windows behavior with drag and resize,
+	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
 	<Window.Resources>
 		<Style TargetType="{x:Type gitMind:MainWindow}">
 			<Setter Property="WindowChrome.WindowChrome">
@@ -47,28 +48,29 @@
 			BorderBrush="{StaticResource BorderBrush}" 
 			Grid.Row="0">
 
-			<!-- Background="Black" -->
 			<Grid >
 				<Grid.ColumnDefinitions>
+					<!-- Left part, with icon, working folder, status indicators -->
 					<ColumnDefinition Width="*"/>
+					<!-- Middle part, empty, but which makes widow drag-able -->
 					<ColumnDefinition Width="Auto"/>
+					<!-- Right part with Hamburger button, search field and mini, max and close buttons -->
 					<ColumnDefinition Width="258"/>
 				</Grid.ColumnDefinitions>
 
-				<StackPanel 
-					Grid.Column="0" 
-					Orientation="Horizontal"
-					WindowChrome.IsHitTestVisibleInChrome="True">
+				<!-- Left part of title bar, with icon, working folder, status indicators -->
+				<StackPanel Grid.Column="0" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
 					
 					<!-- Application icon -->
-					<Image Source="Application.ico" Width="15" Height="15" Margin="5,0" ToolTip="{Binding VersionText}"/>
+					<Image 
+						Source="Application.ico" Width="15" Height="15" Margin="5,0" 
+						ToolTip="{Binding VersionText}"/>
 
 					<!-- Working folder -->
 					<TextBlock 	
 						Margin="3,5"
-						HorizontalAlignment="Left"
 						VerticalAlignment="Center"
-						Foreground="LightSteelBlue"
+						Foreground="{StaticResource TextLowBrush}"
 						Text="{Binding WorkingFolder}">
 						<TextBlock.ToolTip>
 							<ToolTip
@@ -82,7 +84,6 @@
 						</TextBlock.ToolTip>
 					</TextBlock>
 
-					<!-- Status status  -->
 
 					<!-- Remote ahead status Command="{Binding UpdateCommand}" Style="{StaticResource IconButtonStyle}"-->
 					<TextBlock
@@ -142,6 +143,7 @@
 				</StackPanel>
 
 
+				<!-- Right part with Hamburger button, search field and mini, max and close buttons -->
 				<StackPanel Grid.Column="1" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
 
 					<!-- Latest version button -->
@@ -320,27 +322,12 @@
 								ToolTip="Clear filter (Esc)"/>
 							
 						</StackPanel>
+						
 					</Border>
 
-					<!-- Minimize button-->
-					<Button 
-						Style="{StaticResource IconButtonStyle}" 
-						Content="&#xE15B;" 
-						Padding="4,4,4,0" 
-						Command="{Binding MinimizeCommand}"/>
-					
-					<!-- Maximize button-->
-					<Button 
-						Style="{StaticResource IconButtonStyle}" 
-						FontSize="14" Content="&#xE3C1;" 
-						Command="{Binding ToggleMaximizeCommand}"/>		
-					
-					<!-- Close Button -->
-					<Button 
-						Style="{StaticResource IconButtonStyle}" 
-						Content="&#xE14C;" 
-						Command="{Binding CloseCommand}"/>
-						
+					<!-- The 3 minimize, maximize and close window control buttons in the title bar -->
+					<gitMind:WindowControlButtons/>
+
 				</StackPanel>
 			</Grid>
 		</Border>

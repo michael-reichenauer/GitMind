@@ -205,6 +205,9 @@
     <Compile Include="Utils\MicroDiContainer.cs" />
     <Compile Include="VirtualCanvas\VirtualPanel.cs" />
     <Compile Include="VirtualCanvas\ZoomableCanvas.cs" />
+    <Compile Include="WindowControlButtons.xaml.cs">
+      <DependentUpon>WindowControlButtons.xaml</DependentUpon>
+    </Compile>
     <Page Include="CommitsHistory\CommitDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -250,6 +253,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Styles\ToolTipStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WindowControlButtons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
