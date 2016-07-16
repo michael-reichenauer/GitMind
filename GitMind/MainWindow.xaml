@@ -89,7 +89,7 @@
 					<!-- Remote ahead status Command="{Binding UpdateCommand}" Style="{StaticResource IconButtonStyle}"-->
 					<TextBlock
 						Visibility="{Binding RepositoryViewModel.RemoteAheadText, Converter={StaticResource VC}}"					
-						FontFamily="pack://application:,,,/Fonts/#Material Icons"
+						FontFamily="{StaticResource IconFont}"
 						Foreground="{StaticResource RemoteAheadBrush}"
 						FontSize="18"
 						Margin="4,3"
@@ -99,7 +99,7 @@
 					<!-- Local ahead status Command="{Binding PublishCommand}" Style="{StaticResource IconButtonStyle}" -->
 					<TextBlock 
 						Visibility="{Binding RepositoryViewModel.LocalAheadText, Converter={StaticResource VC}}"			
-						FontFamily="pack://application:,,,/Fonts/#Material Icons"
+						FontFamily="{StaticResource IconFont}"
 						Foreground="{StaticResource LocalAheadBrush}"
 						Text="&#xE25A;"
 						FontSize="18"
@@ -131,7 +131,7 @@
 					<!-- Conflict ahead status Command="{Binding ConflictAheadCommand}" Style="{StaticResource BaseButtonStyle}"-->
 					<TextBlock
 						Visibility="{Binding RepositoryViewModel.ConflictAheadText, Converter={StaticResource VC}}"			
-						FontFamily="pack://application:,,,/Fonts/#Material Icons"
+						FontFamily="{StaticResource IconFont}"
 						Foreground="{StaticResource ConflictAheadBrush}"
 						Text="&#xE259;"
 						FontSize="18"
@@ -240,7 +240,7 @@
 										<Border Background="Transparent" Padding="2">
 											<TextBlock 
 												Text="&#xE8B1;"
-												FontFamily="pack://application:,,,/Fonts/#Material Icons"
+												FontFamily="{StaticResource IconFont}"
 												Foreground="LightSteelBlue"
 												VerticalAlignment="Center">
 											</TextBlock>
@@ -283,53 +283,15 @@
 
 
 				<StackPanel Grid.Column="2" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
-					<!-- Search box  -->
-					<Border 
-						BorderThickness="1" 
-						BorderBrush="{StaticResource BorderBrush}" 
-						Margin="2">
-						<StackPanel Orientation="Horizontal">
-							
-							<!-- Search icon -->
-							<TextBlock 
-								FontFamily="pack://application:,,,/Fonts/#Material Icons"
-								Foreground="LightSteelBlue"
-								FontSize="14"
-								Text="&#xE8B6;"
-								Padding="2,3,0,0"/>
-							
-							<!-- Search text field -->
-							<TextBox
-								BorderThickness="0" 
-								Width="125"
-								Height="20"
-								Margin="3,0"
-								Padding="0"
-								Background="Black"
-								Text="{Binding SearchBox, UpdateSourceTrigger=PropertyChanged}"
-								Foreground="Lavender"
-								HorizontalAlignment="Right"
-								VerticalAlignment="Center"
-								ToolTip="Type words to search for"/>
-
-							<!-- Clear filter button -->
-							<Button 
-								Content="&#xE14C;"					
-								Style="{StaticResource IconButtonStyle}"
-								FontSize="12"					
-								Padding="2,3,2,3"
-								IsEnabled="{Binding IsInFilterMode}"
-								Command="{Binding ClearFilterCommand}"
-								ToolTip="Clear filter (Esc)"/>
-							
-						</StackPanel>
-						
-					</Border>
+					
+					<!-- Search and filter box  -->
+					<common:SearchFilter/>
 
 					<!-- The 3 minimize, maximize and close window control buttons in the title bar -->
 					<common:WindowControlButtons/>
 
 				</StackPanel>
+				
 			</Grid>
 		</Border>
 
