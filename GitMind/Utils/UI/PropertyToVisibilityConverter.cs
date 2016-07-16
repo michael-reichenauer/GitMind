@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Data;
 
 
-namespace GitMind
+namespace GitMind.Utils.UI
 {
 	/// <summary>
 	/// Convert between boolean and visibility

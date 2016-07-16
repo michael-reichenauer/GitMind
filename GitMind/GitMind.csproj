@@ -167,7 +167,7 @@
     <Compile Include="Settings\ProgramPaths.cs" />
     <Compile Include="Settings\ProgramSettings.cs" />
     <Compile Include="IStatusRefreshService.cs" />
-    <Compile Include="PropertyToVisibilityConverter.cs" />
+    <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
     <Compile Include="StatusRefreshService.cs" />
     <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\JsonSerializer.cs" />
