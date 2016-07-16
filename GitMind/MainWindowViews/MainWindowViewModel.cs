@@ -187,6 +187,10 @@ namespace GitMind.MainWindowViews
 		}
 
 
+		public int WindowWith
+		{
+			set { RepositoryViewModel.Width = value; }	
+		}
 
 
 		private void Minimize()

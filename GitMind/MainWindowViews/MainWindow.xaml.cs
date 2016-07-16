@@ -36,7 +36,7 @@ namespace GitMind.MainWindowViews
 		private readonly IInstaller installer = new Installer();
 		private readonly ICommandLine commandLine = new CommandLine();
 		private readonly IDiffService diffService = new DiffService();
-		private readonly IGitService gitService = new GitService();
+
 
 		private static Mutex programMutex;
 		private readonly DispatcherTimer autoRefreshTime = new DispatcherTimer();
@@ -96,6 +96,7 @@ namespace GitMind.MainWindowViews
 		private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
 		{
 			await mainWindowViewModel.UpdateAsync();
+			LoadedTime = DateTime.Now;
 		}
 
 
@@ -310,10 +311,9 @@ namespace GitMind.MainWindowViews
 		{
 			if (LoadedTime < DateTime.MaxValue && DateTime.Now - LoadedTime > TimeSpan.FromSeconds(10))
 			{
-				DispatcherTimer dispatcherTimer = new DispatcherTimer();
-				dispatcherTimer.Tick += FetchAndRefreshAfterActivatedAsync;
-				dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
-				dispatcherTimer.Start();
+				Log.Debug("Refreshing after activation");
+				mainWindowViewModel.RefreshCommand.ExecuteAsync(null).RunInBackground();
+				LoadedTime = DateTime.Now;
 			}
 		}
 
@@ -383,7 +383,7 @@ namespace GitMind.MainWindowViews
 		protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
 		{
 			base.OnRenderSizeChanged(sizeInfo);
-			mainWindowViewModel.RepositoryViewModel.Width = (int)sizeInfo.NewSize.Width;
+			mainWindowViewModel.WindowWith = (int)sizeInfo.NewSize.Width;	
 		}
 
 

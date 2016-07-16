@@ -128,8 +128,6 @@ namespace GitMind.GitModel.Private
 
 			foreach (MBranch branch in repository.Branches.Values.Where(b => !b.Commits.Any()))
 			{
-				Log.Warn($"Branch {branch} has no commits isActive={branch.IsActive}, {branch.Id}");
-
 				string branchTipText = $"({branch.Name}) ";
 				if (branch.LatestCommit.BranchTips != null 
 					&& -1 == branch.LatestCommit.BranchTips.IndexOf(branch.Name, StringComparison.Ordinal))
