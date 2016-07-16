@@ -63,7 +63,7 @@ namespace GitMind
 			}
 
 			InitializeComponent();
-			//WindowChrome.SetWindowChrome(this, new WindowChrome());
+			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
 			autoRefreshTime.Tick += FetchAndRefreshAsync;
 
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
