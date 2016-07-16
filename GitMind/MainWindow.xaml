@@ -32,14 +32,16 @@
 	</Window.Resources>
 
 
-	<!--  -->
+	<!-- Main window -->
 	<Grid Background="Black">
 		<Grid.RowDefinitions>
+			<!-- Title and tool bar -->
 			<RowDefinition Height="Auto" />
+			<!-- Repository view -->
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<!--First row (title bar) -->
+		<!--Title and tool bar -->
 		<Border 
 			BorderThickness="1" 
 			BorderBrush="{StaticResource BorderBrush}" 
@@ -332,32 +334,10 @@
 			</Grid>
 		</Border>
 
-
-		<Grid Grid.Row="1" x:Name="RepositoryViewModelGrid">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="*" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="150"/>
-			</Grid.RowDefinitions>
-
-			<!--Commit log -->
-			<commitsHistory:RepositoryView 
-				Grid.Row="0"
+		<!-- Repository view -->
+		<commitsHistory:RepositoryView 
+				Grid.Row="1"
 				DataContext="{Binding RepositoryViewModel}"/>
 
-			<ui:HideableGridSplitter
-				Grid.Row="1"		
-				Visibility="{Binding RepositoryViewModel.IsShowCommitDetails, Converter={StaticResource VC}}"
-				Background="{StaticResource BorderBrush}"
-				HorizontalAlignment="Stretch"
-				VerticalAlignment="Center"
-        Height="2"/>
-
-			<!-- Commit details -->
-			<commitsHistory:CommitDetailsView
-				Grid.Row="2"
-				DataContext="{Binding RepositoryViewModel.CommitDetailsViewModel}"/>
-
-		</Grid>
 	</Grid>
 </Window>
