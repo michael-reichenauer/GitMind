@@ -15,7 +15,7 @@ using GitMind.Utils.UI;
 using Application = System.Windows.Application;
 
 
-namespace GitMind
+namespace GitMind.MainWindowViews
 {
 	internal class MainWindowViewModel : ViewModel
 	{

@@ -1,7 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace GitMind
+
+namespace GitMind.MainWindowViews
 {
 	/// <summary>
 	/// Interaction logic for HamburgerButton.xaml

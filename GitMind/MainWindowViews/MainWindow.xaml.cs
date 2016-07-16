@@ -23,7 +23,7 @@ using GitMind.Utils.UI;
 using Application = System.Windows.Application;
 
 
-namespace GitMind
+namespace GitMind.MainWindowViews
 {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
