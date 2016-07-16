@@ -7,7 +7,7 @@ using GitMind.Git.Private;
 using GitMind.Utils;
 
 
-namespace GitMind
+namespace GitMind.Common
 {
 	internal class StatusRefreshService : IStatusRefreshService
 	{

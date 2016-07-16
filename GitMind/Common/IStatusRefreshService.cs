@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 
 
-namespace GitMind
+namespace GitMind.Common
 {
 	internal interface IStatusRefreshService
 	{
