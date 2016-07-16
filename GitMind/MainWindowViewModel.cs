@@ -85,8 +85,6 @@ namespace GitMind
 		}
 
 
-
-
 		public string SearchBox
 		{
 			get { return Get(); }
@@ -153,9 +151,9 @@ namespace GitMind
 			{
 				SearchBox = "";
 			}
-			else if (RepositoryViewModel.DetailsSize > 0)
+			else if (RepositoryViewModel.IsShowCommitDetails)
 			{
-				RepositoryViewModel.DetailsSize = 0;
+				RepositoryViewModel.IsShowCommitDetails = false;
 			}
 			else
 			{

@@ -124,7 +124,7 @@ namespace GitMind.CommitsHistory
 		public string FilterText { get; private set; } = "";
 		public string FilteredText { get; private set; } = "";
 
-		public int DetailsSize
+		public bool IsShowCommitDetails
 		{
 			get { return Get(); }
 			set { Set(value); }
@@ -371,7 +371,7 @@ namespace GitMind.CommitsHistory
 
 		private void ToggleDetails()
 		{
-			DetailsSize = DetailsSize > 0 ? 0 : 150;
+			IsShowCommitDetails = !IsShowCommitDetails;
 		}
 
 

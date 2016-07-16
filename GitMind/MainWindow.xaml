@@ -337,7 +337,7 @@
 			<Grid.RowDefinitions>
 				<RowDefinition Height="*" />
 				<RowDefinition Height="Auto" />
-				<RowDefinition Height="{Binding RepositoryViewModel.DetailsSize}"/>
+				<RowDefinition Height="150"/>
 			</Grid.RowDefinitions>
 
 			<!--Commit log -->
@@ -346,8 +346,8 @@
 				DataContext="{Binding RepositoryViewModel}"/>
 
 			<ui:HideableGridSplitter
-				Visibility="{Binding RepositoryViewModel.DetailsSize, Converter={StaticResource VC}}"
 				Grid.Row="1"		
+				Visibility="{Binding RepositoryViewModel.IsShowCommitDetails, Converter={StaticResource VC}}"
 				Background="{StaticResource BorderBrush}"
 				HorizontalAlignment="Stretch"
 				VerticalAlignment="Center"

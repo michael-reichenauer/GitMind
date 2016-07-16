@@ -4,9 +4,15 @@ using System.Windows.Controls;
 
 namespace GitMind.Utils.UI
 {
+	/// <summary>
+	/// Grid splitter, which can toggle visibility of grid row after a the grid splitter
+	/// </summary>
 	public class HideableGridSplitter : GridSplitter
 	{
-		private GridLength height = new GridLength(150);
+		private static readonly GridLength CollapsedRow = new GridLength(0);
+		private GridLength height;
+		private bool isInitialized;
+
 
 		public HideableGridSplitter()
 		{
@@ -24,19 +30,28 @@ namespace GitMind.Utils.UI
 			int rowIndex = Grid.GetRow(this);
 			if (rowIndex + 1 >= parent.RowDefinitions.Count)
 			{
+				// No row after this splitter
 				return;
 			}
 
-			var lastRow = parent.RowDefinitions[rowIndex + 1];
+			// Get the row after the splitter to hide or show
+			RowDefinition lastRow = parent.RowDefinitions[rowIndex + 1];
 
-			if (this.Visibility == Visibility.Visible)
+			if (!isInitialized)
+			{
+				// Store the initial row height 
+				height = lastRow.Height;
+				isInitialized = true;
+			}
+
+			if (Visibility == Visibility.Visible)
 			{
 				lastRow.Height = height;
 			}
 			else
 			{
 				height = lastRow.Height;
-				lastRow.Height = new GridLength(0);
+				lastRow.Height = CollapsedRow;
 			}
 		}
 	}
