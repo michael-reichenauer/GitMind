@@ -327,6 +327,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Dependencies\git2-785d8c4.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Dependencies\Readme.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>mkdir "$(ProjectDir)\Dependencies" 2&gt; NUL

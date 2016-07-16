@@ -27,14 +27,15 @@ namespace GitMind.MainWindowViews
 	
 
 		internal MainWindowViewModel(
-			RepositoryViewModel repositoryViewModel,
+		
 			IRepositoryService repositoryService,
 			IDiffService diffService,
 			ILatestVersionService latestVersionService,
 			Window owner,
 			Func<Task> refreshAsync)
 		{
-			RepositoryViewModel = repositoryViewModel;
+			RepositoryViewModel = new RepositoryViewModel(new Lazy<BusyIndicator>(() => Busy));
+
 			this.repositoryService = repositoryService;
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
@@ -146,6 +147,10 @@ namespace GitMind.MainWindowViews
 		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
 
 
+		public Task UpdateAsync()
+		{
+			return RepositoryViewModel.UpdateAsync();
+		}
 
 
 		private void Escape()
@@ -311,5 +316,8 @@ namespace GitMind.MainWindowViews
 				await commit.SetCommitBranchCommand.ExecuteAsync(null);
 			}
 		}
+
+
+
 	}
 }

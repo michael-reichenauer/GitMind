@@ -17,11 +17,12 @@ namespace GitMind.RepositoryViews
 {
 	internal class RepositoryViewModel : ViewModel
 	{
-		public Lazy<BusyIndicator> Busy { get; set; }
 		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
+
 		private readonly IViewModelService viewModelService;
-		
 		private readonly IRepositoryService repositoryService = new RepositoryService();
+
+		private readonly Lazy<BusyIndicator> busyIndicator;
 
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
@@ -43,8 +44,14 @@ namespace GitMind.RepositoryViews
 			Lazy<BusyIndicator> busyIndicator)
 			: this(new ViewModelService(), busyIndicator)
 		{
-			Busy = busyIndicator;
+			this.busyIndicator = busyIndicator;
 		}
+
+
+		public IReadOnlyList<Branch> SpecifiedBranches { get; set; }
+		public string WorkingFolder { get; set; }
+		public List<string> SpecifiedBranchNames { get; set; }
+		public ZoomableCanvas Canvas { get; set; }
 
 
 		public RepositoryViewModel(
@@ -155,6 +162,21 @@ namespace GitMind.RepositoryViews
 					Commits.ForEach(commit => commit.GraphWidth = graphWidth);
 				}
 			}
+		}
+
+		public async Task UpdateAsync()
+		{
+			Timing t = new Timing();
+
+			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true, WorkingFolder);
+
+			busyIndicator.Value.Add(repositoryTask);
+
+			Repository repository = await repositoryTask;
+			t.Log("Got repository");
+
+			Update(repository, SpecifiedBranchNames);
+			t.Log("Updated repositoryViewModel");
 		}
 
 
@@ -270,11 +292,7 @@ namespace GitMind.RepositoryViews
 
 
 
-		public IReadOnlyList<Branch> SpecifiedBranches { get; set; }
-		public ZoomableCanvas Canvas { get; set; }
-		public string WorkingFolder { get; set; }
-		public List<string> SpecifiedBranchNames { get; set; }
-
+	
 
 		public void SetFilter(string text)
 		{
@@ -297,7 +315,7 @@ namespace GitMind.RepositoryViews
 			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
 
 			Task setFilterTask = viewModelService.SetFilterAsync(this, filterText);
-			Busy.Value.Add(setFilterTask);
+			busyIndicator.Value.Add(setFilterTask);
 
 			await setFilterTask;
 			if (filterText != FilterText)

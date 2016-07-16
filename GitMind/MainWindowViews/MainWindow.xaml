@@ -8,7 +8,8 @@
 	Title="{Binding Title}"	Icon="Application.ico"
 	Width="1050" Height="800"
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
-	WindowStyle="None" AllowsTransparency="True">
+	WindowStyle="None" AllowsTransparency="True"
+	Loaded="MainWindow_OnLoaded">
 
 
 	<!-- Enable "normal" windows behavior with drag and resize,
@@ -29,7 +30,7 @@
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
 	</Window.InputBindings>
-	
+
 
 	<!-- Main window -->
 	<Grid Background="Black">

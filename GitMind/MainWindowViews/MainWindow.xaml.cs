@@ -19,7 +19,6 @@ using GitMind.RepositoryViews;
 using GitMind.Settings;
 using GitMind.Testing;
 using GitMind.Utils;
-using GitMind.Utils.UI;
 using Application = System.Windows.Application;
 
 
@@ -31,7 +30,6 @@ namespace GitMind.MainWindowViews
 	public partial class MainWindow : Window
 	{
 		//private readonly OldHistoryViewModel historyViewModel;
-		private readonly RepositoryViewModel repositoryViewModel;
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IStatusRefreshService refreshService;
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
@@ -44,17 +42,16 @@ namespace GitMind.MainWindowViews
 		private readonly DispatcherTimer autoRefreshTime = new DispatcherTimer();
 		private readonly DispatcherTimer newVersionTime = new DispatcherTimer();
 
-		//private ZoomableCanvas canvas;
 		private readonly MainWindowViewModel mainWindowViewModel;
 		private DateTime LoadedTime = DateTime.MaxValue;
 		private readonly List<string> specifiedBranchNames = new List<string>();
 		private string workingFolder = null;
 
+
 		public MainWindow()
 		{
-			AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
-
 			ExceptionHandling.Init();
+			AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
 
 			if (!IsStartProgram())
 			{
@@ -63,17 +60,16 @@ namespace GitMind.MainWindowViews
 			}
 
 			InitializeComponent();
+
+			// Make sure maximize does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
+
 			autoRefreshTime.Tick += FetchAndRefreshAsync;
 
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
 
-			repositoryViewModel = new RepositoryViewModel(
-				new Lazy<BusyIndicator>(() => mainWindowViewModel.Busy));
-
 			mainWindowViewModel = new MainWindowViewModel(
-				repositoryViewModel,
 				repositoryService,
 				diffService,
 				latestVersionService,
@@ -94,6 +90,12 @@ namespace GitMind.MainWindowViews
 			StartBackgroundTasks();
 
 			Activate();
+		}
+
+
+		private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+		{
+			await mainWindowViewModel.UpdateAsync();
 		}
 
 
@@ -345,14 +347,16 @@ namespace GitMind.MainWindowViews
 
 		private async Task RefreshInternalAsync(bool isShift)
 		{
-			await refreshService.UpdateStatusAsync(repositoryViewModel.Repository.MRepository.WorkingFolder);
+			await Task.Yield();
 
-			await gitService.FetchAsync(repositoryViewModel.Repository.MRepository.WorkingFolder);
+			//await refreshService.UpdateStatusAsync(repositoryViewModel.Repository.MRepository.WorkingFolder);
 
-			Repository repository = await repositoryService.UpdateRepositoryAsync(
-				repositoryViewModel.Repository);
+			//await gitService.FetchAsync(repositoryViewModel.Repository.MRepository.WorkingFolder);
 
-			repositoryViewModel.Update(repository, repositoryViewModel.SpecifiedBranches);
+			//Repository repository = await repositoryService.UpdateRepositoryAsync(
+			//	repositoryViewModel.Repository);
+
+			//repositoryViewModel.Update(repository, repositoryViewModel.SpecifiedBranches);
 		}
 
 		//protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
@@ -379,8 +383,7 @@ namespace GitMind.MainWindowViews
 		protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
 		{
 			base.OnRenderSizeChanged(sizeInfo);
-			// Log.Warn($"Size: {sizeInfo.NewSize.Width}");
-			repositoryViewModel.Width = (int)sizeInfo.NewSize.Width;
+			mainWindowViewModel.RepositoryViewModel.Width = (int)sizeInfo.NewSize.Width;
 		}
 
 
@@ -412,8 +415,6 @@ namespace GitMind.MainWindowViews
 			////	e.Handled = true;
 			////}
 		}
-
-
 	}
 }
 
