@@ -414,11 +414,6 @@ namespace GitMind
 		}
 
 
-		private void HamburgerButton_OnClick(object sender, RoutedEventArgs e)
-		{
-			HamburgerContextMenu.PlacementTarget = this;
-			HamburgerContextMenu.IsOpen = true;
-		}
 	}
 }
 

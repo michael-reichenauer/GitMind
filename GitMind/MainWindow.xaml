@@ -14,12 +14,6 @@
 	BorderThickness="3"
 	Icon="Application.ico">
 
-	
-	<Window.InputBindings>
-		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
-		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
-		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
-	</Window.InputBindings>
 
 	<!-- Enable "normal" windows behavior with drag and resize,
 	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
@@ -34,6 +28,13 @@
 	</Window.Resources>
 
 
+	<Window.InputBindings>
+		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
+		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
+		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
+	</Window.InputBindings>
+	
+
 	<!-- Main window -->
 	<Grid Background="Black">
 		<Grid.RowDefinitions>
@@ -44,18 +45,15 @@
 		</Grid.RowDefinitions>
 
 		<!--Title and tool bar -->
-		<Border 
-			BorderThickness="1" 
-			BorderBrush="{StaticResource BorderBrush}" 
-			Grid.Row="0">
+		<Border	Grid.Row="0" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
 
 			<Grid >
 				<Grid.ColumnDefinitions>
 					<!-- Left part, with icon, working folder, status indicators -->
 					<ColumnDefinition Width="*"/>
-					<!-- Middle part, empty, but which makes widow drag-able -->
+					<!-- Middle part, mostly empty, which makes widow drag-able, on the right the Hamburger button -->
 					<ColumnDefinition Width="Auto"/>
-					<!-- Right part with Hamburger button, search field and mini, max and close buttons -->
+					<!-- Right part, search field and mini, max and close buttons -->
 					<ColumnDefinition Width="258"/>
 				</Grid.ColumnDefinitions>
 
@@ -144,7 +142,7 @@
 				</StackPanel>
 
 
-				<!-- Right part with Hamburger button, search field and mini, max and close buttons -->
+				<!-- Middle part, mostly empty, which makes widow drag-able, on the right the Hamburger button -->
 				<StackPanel Grid.Column="1" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
 
 					<!-- Latest version button -->
@@ -158,130 +156,12 @@
 						ToolTip="New version of GitMind is available, click to reload ..." />
 
 					<!-- Hamburger button -->
-					<Button
-						Content="&#xE8FE;"
-						Style="{StaticResource IconButtonStyle}"			
-						Click="HamburgerButton_OnClick"
-						ToolTip="Customize and control">
-					
-						<Button.ContextMenu>		
-							<ContextMenu Name="HamburgerContextMenu">
+					<gitMind:HamburgerButton/>
 
-								<!--Show Branch menu item -->
-								<MenuItem 
-									Header="Show branch"
-									ItemsSource="{Binding RepositoryViewModel.AllBranches}">
-									<MenuItem.Icon>
-										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;" FontSize="14"/>
-										</Border>
-									</MenuItem.Icon>
-									<MenuItem.Resources>
-										<HierarchicalDataTemplate 
-											DataType="{x:Type commitsHistory:BranchItem}"
-											ItemsSource="{Binding Children}">
-											<MenuItem 
-												Header="{Binding Text}" 
-												Command="{Binding ShowBranchCommand}"
-												CommandParameter="{Binding Branch}"/>
-										</HierarchicalDataTemplate>
-									</MenuItem.Resources>
-								</MenuItem>
-											
-								<!--Hide Branch menu item -->
-								<MenuItem 
-									Header="Hide branch" 
-									ItemsSource="{Binding RepositoryViewModel.ActiveBranches}">
-									<MenuItem.Icon>
-										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CB;" FontSize="14"/>
-										</Border>
-									</MenuItem.Icon>
-									<MenuItem.ItemContainerStyle>
-										<Style TargetType="MenuItem">
-											<Setter Property="Header" Value="{Binding Text}"/>
-											<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.HideBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
-											<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-										</Style>
-									</MenuItem.ItemContainerStyle>
-								</MenuItem>
-
-								<Separator Background="{StaticResource BorderBrush}"/>
-
-								<MenuItem 
-									Header="Toggle commit details" 
-									InputGestureText="Space"
-									Command="{Binding RepositoryViewModel.ToggleDetailsCommand}">
-									<MenuItem.Icon>
-										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;"/>
-										</Border>
-									</MenuItem.Icon>
-								</MenuItem>
-
-								<Separator Background="{StaticResource BorderBrush}"/>
-
-								<MenuItem 
-									Header="Open working folder ..." 
-									Command="{Binding SelectWorkingFolderCommand}">
-									<MenuItem.Icon>
-										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE2C8;"/>
-										</Border>
-									</MenuItem.Icon>
-								</MenuItem>
-
-								<!--<Separator Background="{StaticResource BorderBrush}"/>
-								
-								<MenuItem 
-									Header="Specify branch for commit ..." 
-									Command="{Binding SpecifyCommitBranchCommand}">
-									<MenuItem.Icon>
-										<Border Background="Transparent" Padding="2">
-											<TextBlock 
-												Text="&#xE8B1;"
-												FontFamily="{StaticResource IconFont}"
-												Foreground="LightSteelBlue"
-												VerticalAlignment="Center">
-											</TextBlock>
-										</Border>
-									</MenuItem.Icon>
-								</MenuItem>-->
-
-								<Separator Background="{StaticResource BorderBrush}"/>
-
-								<MenuItem 
-									Header="Send feedback ..." 
-									Command="{Binding FeedbackCommand}">
-									<MenuItem.Icon>
-										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0E1;"/>
-										</Border>
-									</MenuItem.Icon>
-								</MenuItem>
-
-								<MenuItem 
-									Header="View help ..."
-									InputGestureText="F1"
-									Command="{Binding HelpCommand}">
-									<MenuItem.Icon>
-										<Border>
-											<TextBlock 
-												Style="{StaticResource MenuIconStyle}" 
-												Text=" ? "
-												FontWeight="Bold"
-												FontFamily="Segoe UI"/>
-										</Border>
-									</MenuItem.Icon>
-								</MenuItem>
-				
-							</ContextMenu>
-						</Button.ContextMenu>
-					</Button>
-					
 				</StackPanel>
 
 
+				<!-- Right part, search field and mini, max and close buttons -->
 				<StackPanel Grid.Column="2" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
 					
 					<!-- Search and filter box  -->
@@ -297,8 +177,8 @@
 
 		<!-- Repository view -->
 		<commitsHistory:RepositoryView 
-				Grid.Row="1"
-				DataContext="{Binding RepositoryViewModel}"/>
+			Grid.Row="1"
+			DataContext="{Binding RepositoryViewModel}"/>
 
 	</Grid>
 </Window>
