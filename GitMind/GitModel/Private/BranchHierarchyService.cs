@@ -15,8 +15,6 @@ namespace GitMind.GitModel.Private
 			GroupSubBranches(repository);
 
 			SetBranchHierarchyImpl(repository);
-
-			repository.SubBranches.Clear();
 		}
 
 

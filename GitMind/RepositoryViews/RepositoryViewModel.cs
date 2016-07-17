@@ -175,6 +175,7 @@ namespace GitMind.RepositoryViews
 
 		public async Task FirstLoadAsync()
 		{
+			Log.Debug("Loading repository");
 			refreshInProgress = true;
 
 			using (busyIndicator.Progress)
@@ -201,6 +202,7 @@ namespace GitMind.RepositoryViews
 				return;
 			}
 
+			Log.Debug("Refresh after activating");
 			refreshInProgress = true;
 
 			Repository repository;
@@ -232,7 +234,7 @@ namespace GitMind.RepositoryViews
 			}
 
 			refreshInProgress = true;
-
+			Log.Debug("Auto refresh");
 
 			if (DateTime.Now - fetchedTime > FetchInterval)
 			{
@@ -242,7 +244,8 @@ namespace GitMind.RepositoryViews
 			Repository repository;
 			if (DateTime.Now - RebuildRepositoryTime > TimeSpan.FromMinutes(10))
 			{
-				repository = await repositoryService.GetRepositoryAsync(false, WorkingFolder);
+				Log.Debug("Get fresh repository from scratch");
+				repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
 				RebuildRepositoryTime = DateTime.Now;
 			}
 			else
@@ -265,14 +268,21 @@ namespace GitMind.RepositoryViews
 			}
 
 			refreshInProgress = true;
+			Log.Debug("Manual refresh");
 
+			Repository repository;
 			using (busyIndicator.Progress)
 			{
 				await FetchRemoteChangesAsync(Repository);
 
-				Repository repository = await GetLocalChangesAsync(Repository);
+				repository = await GetLocalChangesAsync(Repository);
 				UpdateViewModel(repository, SpecifiedBranches);		
 			}
+
+			Log.Debug("Get fresh repository from scratch");
+			repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
+			RebuildRepositoryTime = DateTime.Now;
+			UpdateViewModel(repository, SpecifiedBranches);
 
 			refreshInProgress = false;
 		}

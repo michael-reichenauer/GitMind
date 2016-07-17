@@ -7,7 +7,7 @@ namespace GitMind.GitModel
 	{
 		Task<Repository> GetCachedOrFreshRepositoryAsync(string workingFolder);
 
-		Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder);
+		Task<Repository> GetFreshRepositoryAsync(string workingFolder);
 
 		Task<Repository> UpdateRepositoryAsync(Repository repository);
 

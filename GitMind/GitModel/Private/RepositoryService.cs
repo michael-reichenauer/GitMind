@@ -62,6 +62,12 @@ namespace GitMind.GitModel.Private
 		}
 
 
+		public Task<Repository> GetFreshRepositoryAsync(string workingFolder)
+		{
+			return GetRepositoryAsync(false, workingFolder);
+		}
+
+
 		public async Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder)
 		{
 			Timing t = new Timing();
@@ -79,8 +85,6 @@ namespace GitMind.GitModel.Private
 				mRepository.WorkingFolder = workingFolder;
 				mRepository.CommitsFiles = new CommitsFiles();
 
-
-				t.Log("Got gitRepo");
 				await UpdateAsync(mRepository);
 				t.Log("Updated mRepository");
 				cacheService.CacheAsync(mRepository).RunInBackground();
@@ -193,6 +197,8 @@ namespace GitMind.GitModel.Private
 			repository.CurrentCommitId = gitStatus.OK
 				? repository.Commits[gitRepository.Head.TipId].Id
 				: MCommit.UncommittedId;
+
+			repository.SubBranches.Clear();
 		}
 
 
