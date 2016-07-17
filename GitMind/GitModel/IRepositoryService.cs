@@ -5,6 +5,8 @@ namespace GitMind.GitModel
 {
 	internal interface IRepositoryService
 	{
+		Task<Repository> GetCachedOrFreshRepositoryAsync(string workingFolder);
+
 		Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder);
 
 		Task<Repository> UpdateRepositoryAsync(Repository repository);

@@ -16,6 +16,7 @@ namespace GitMind.Installation.Private
 			AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
 		}
 
+
 		private static Assembly ResolveAssembly(object sender, ResolveEventArgs args)
 		{
 			try

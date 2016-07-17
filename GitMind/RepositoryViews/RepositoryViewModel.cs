@@ -25,7 +25,7 @@ namespace GitMind.RepositoryViews
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IGitService gitService = new GitService();
 
-		private readonly Lazy<BusyIndicator> busyIndicator;
+		private readonly BusyIndicator busyIndicator;
 
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
@@ -42,12 +42,16 @@ namespace GitMind.RepositoryViews
 		public Dictionary<string, CommitViewModel> CommitsById { get; } =
 			new Dictionary<string, CommitViewModel>();
 
+		private DateTime fetchedTime = DateTime.MinValue;
+		private DateTime RebuildRepositoryTime = DateTime.MinValue;
+		private static readonly TimeSpan FetchInterval = TimeSpan.FromMinutes(10);
+		private bool refreshInProgress = false;
+
 
 		public RepositoryViewModel(
-			Lazy<BusyIndicator> busyIndicator)
+			BusyIndicator busyIndicator)
 			: this(new ViewModelService(), busyIndicator)
 		{
-			this.busyIndicator = busyIndicator;
 		}
 
 
@@ -59,9 +63,10 @@ namespace GitMind.RepositoryViews
 
 		public RepositoryViewModel(
 			IViewModelService viewModelService,
-			Lazy<BusyIndicator> busyIndicator)
+			BusyIndicator busyIndicator)
 		{
 			this.viewModelService = viewModelService;
+			this.busyIndicator = busyIndicator;
 
 
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
@@ -168,39 +173,132 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public async Task RefreshAsync()
+		public async Task FirstLoadAsync()
 		{
-			await gitService.FetchAsync(Repository.MRepository.WorkingFolder);
+			refreshInProgress = true;
 
-			Repository repository = await repositoryService.UpdateRepositoryAsync(Repository);
+			using (busyIndicator.Progress)
+			{				
+				Repository repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
+				Update(repository, SpecifiedBranchNames);	
 
-			Update(repository, SpecifiedBranches);
+				repository = await GetLocalChangesAsync(Repository);	
+				UpdateViewModel(repository, SpecifiedBranches);
+
+				await FetchRemoteChangesAsync(Repository);
+				repository = await GetLocalChangesAsync(Repository);
+				UpdateViewModel(repository, SpecifiedBranches);
+			}
+
+			refreshInProgress = false;
 		}
 
 
-		public async Task UpdateAsync()
+		public async Task ActivateRefreshAsync()
 		{
-			Timing t = new Timing();
+			if (refreshInProgress)
+			{
+				return;
+			}
 
-			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true, WorkingFolder);
+			refreshInProgress = true;
 
-			busyIndicator.Value.Add(repositoryTask);
+			Repository repository;
 
-			Repository repository = await repositoryTask;
-			t.Log("Got repository");
+			using (busyIndicator.Progress)
+			{
+				repository = await GetLocalChangesAsync(Repository);
+				UpdateViewModel(repository, SpecifiedBranches);
+			}
 
-			Update(repository, SpecifiedBranchNames);
-			t.Log("Updated repositoryViewModel");
+			if (DateTime.Now - fetchedTime > FetchInterval)
+			{
+				await FetchRemoteChangesAsync(Repository);
+			}
+
+			repository = await GetLocalChangesAsync(Repository);
+			UpdateViewModel(repository, SpecifiedBranches);
+
+			refreshInProgress = false;
 		}
 
 
-		public void Update(Repository repository, IReadOnlyList<Branch> specifiedBranch)
+
+		public async Task AutoRefreshAsync()
+		{
+			if (refreshInProgress)
+			{
+				return;
+			}
+
+			refreshInProgress = true;
+
+
+			if (DateTime.Now - fetchedTime > FetchInterval)
+			{
+				await FetchRemoteChangesAsync(Repository);
+			}
+
+			Repository repository;
+			if (DateTime.Now - RebuildRepositoryTime > TimeSpan.FromMinutes(10))
+			{
+				repository = await repositoryService.GetRepositoryAsync(false, WorkingFolder);
+				RebuildRepositoryTime = DateTime.Now;
+			}
+			else
+			{
+				repository = await GetLocalChangesAsync(Repository);
+			}
+
+			UpdateViewModel(repository, SpecifiedBranches);
+
+			refreshInProgress = false;
+		}
+
+
+
+		public async Task ManualRefreshAsync()
+		{
+			if (refreshInProgress)
+			{
+				return;
+			}
+
+			refreshInProgress = true;
+
+			using (busyIndicator.Progress)
+			{
+				await FetchRemoteChangesAsync(Repository);
+
+				Repository repository = await GetLocalChangesAsync(Repository);
+				UpdateViewModel(repository, SpecifiedBranches);		
+			}
+
+			refreshInProgress = false;
+		}
+
+
+		private Task<Repository> GetLocalChangesAsync(Repository repository)
+		{
+			return repositoryService.UpdateRepositoryAsync(repository);
+		}
+
+
+		private async Task FetchRemoteChangesAsync(Repository repository)
+		{
+			await gitService.FetchAsync(repository.MRepository.WorkingFolder);
+			fetchedTime = DateTime.Now;
+		}
+
+
+
+		private void UpdateViewModel(Repository repository, IReadOnlyList<Branch> specifiedBranch)
 		{
 			Timing t = new Timing();
 			Repository = repository;
 			if (string.IsNullOrEmpty(FilterText) && string.IsNullOrEmpty(settingFilterText))
 			{
-				viewModelService.Update(this, specifiedBranch);
+				viewModelService.UpdateViewModel(this, specifiedBranch);
 				Commits.ForEach(commit => commit.WindowWidth = Width);
 
 				VirtualItemsSource.DataChanged(width);
@@ -222,7 +320,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public void Update(Repository repository, IReadOnlyList<string> specifiedBranchNames)
+		private void Update(Repository repository, IReadOnlyList<string> specifiedBranchNames)
 		{
 			Timing t = new Timing();
 			Repository = repository;
@@ -328,10 +426,11 @@ namespace GitMind.RepositoryViews
 			CommitViewModel selectedBefore = SelectedItem as CommitViewModel;
 			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
 
-			Task setFilterTask = viewModelService.SetFilterAsync(this, filterText);
-			busyIndicator.Value.Add(setFilterTask);
+			using (busyIndicator.Progress)
+			{
+				await viewModelService.SetFilterAsync(this, filterText);
+			}	
 
-			await setFilterTask;
 			if (filterText != FilterText)
 			{
 				Log.Warn($"Filter has changed {filterText} ->" + $"{FilterText}");

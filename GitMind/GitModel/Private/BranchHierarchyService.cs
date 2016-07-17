@@ -15,6 +15,8 @@ namespace GitMind.GitModel.Private
 			GroupSubBranches(repository);
 
 			SetBranchHierarchyImpl(repository);
+
+			repository.SubBranches.Clear();
 		}
 
 
@@ -99,6 +101,7 @@ namespace GitMind.GitModel.Private
 					string subBranchId = commit.Value.SubBranchId;
 					string branchId = repository.SubBranches[subBranchId].BranchId;
 					commit.Value.BranchId = branchId;
+					commit.Value.SubBranchId = null;
 					repository.Branches[branchId].TempCommitIds.Add(commit.Value.Id);
 				}
 			}
@@ -170,10 +173,6 @@ namespace GitMind.GitModel.Private
 					{
 						branch.Value.ParentBranch.ChildBranchNames.Add(branch.Value.Name);
 					}
-				}
-				else
-				{
-					Log.Debug($"Branch {branch} has no parent branch");
 				}
 			}
 		}

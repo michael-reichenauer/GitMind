@@ -23,7 +23,6 @@ namespace GitMind.MainWindowViews
 		private readonly IDiffService diffService;
 		private readonly ILatestVersionService latestVersionService;
 		private readonly Window owner;
-		private readonly Func<Task> refreshAsync;
 	
 
 		internal MainWindowViewModel(
@@ -31,16 +30,14 @@ namespace GitMind.MainWindowViews
 			IRepositoryService repositoryService,
 			IDiffService diffService,
 			ILatestVersionService latestVersionService,
-			Window owner,
-			Func<Task> refreshAsync)
+			Window owner)
 		{
-			RepositoryViewModel = new RepositoryViewModel(new Lazy<BusyIndicator>(() => Busy));
+			RepositoryViewModel = new RepositoryViewModel(Busy);
 
 			this.repositoryService = repositoryService;
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;
-			this.refreshAsync = refreshAsync;
 
 			WhenSet(RepositoryViewModel, nameof(RepositoryViewModel.UnCommited)).Notify(nameof(StatusText));
 		}
@@ -123,7 +120,7 @@ namespace GitMind.MainWindowViews
 			}
 		}
 
-		public Command RefreshCommand => AsyncCommand(RefreshAsync);
+		public Command RefreshCommand => AsyncCommand(ManualRefreshAsync);
 
 		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
 
@@ -148,17 +145,27 @@ namespace GitMind.MainWindowViews
 		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
 
 
-		public Task UpdateAsync()
+		public Task FirstLoadAsync()
 		{
-			return RepositoryViewModel.UpdateAsync();
+			return RepositoryViewModel.FirstLoadAsync();
 		}
 
 
-		private Task RefreshAsync()
+		private Task ManualRefreshAsync()
 		{
-			Task refreshTask = RepositoryViewModel.RefreshAsync();
-			Busy.Add(refreshTask);
-			return refreshTask;
+			return RepositoryViewModel.ManualRefreshAsync();
+		}
+
+
+		public Task AutoRefreshAsync()
+		{
+			return RepositoryViewModel.AutoRefreshAsync();
+		}
+
+
+		public Task ActivateRefreshAsync()
+		{
+			return RepositoryViewModel.ActivateRefreshAsync();
 		}
 
 
@@ -191,6 +198,8 @@ namespace GitMind.MainWindowViews
 		{
 			set { RepositoryViewModel.Width = value; }	
 		}
+
+
 
 
 		private void Minimize()
@@ -305,13 +314,7 @@ namespace GitMind.MainWindowViews
 			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
 			WorkingFolder = selectedPath;
 
-			Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true, selectedPath);
-
-			Busy.Add(repositoryTask);
-
-			Repository repository = await repositoryTask;
-
-			RepositoryViewModel.Update(repository, new string[0]);			
+			await RepositoryViewModel.FirstLoadAsync();
 		}
 
 
@@ -323,8 +326,5 @@ namespace GitMind.MainWindowViews
 				await commit.SetCommitBranchCommand.ExecuteAsync(null);
 			}
 		}
-
-
-
 	}
 }

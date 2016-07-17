@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Utils;
 
@@ -194,7 +195,17 @@ namespace GitMind.Git.Private
 
 		public async Task FetchAsync(string workingFolder)
 		{
-			await FetchUsingCmdAsync(workingFolder);
+			try
+			{
+				// Sometimes, a fetch to GitHub takes just forever, don't know why
+				await FetchUsingCmdAsync(workingFolder)
+					.WithCancellation(new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
+			}
+			catch (Exception e)
+			{			
+				Log.Warn($"Failed to fetch {workingFolder}, {e.Message}");
+			}
+			
 			//Log.Debug($"Fetching repository in {workingFolder} ...");
 
 			//CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));

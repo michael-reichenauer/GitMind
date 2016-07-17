@@ -56,6 +56,12 @@ namespace GitMind.GitModel.Private
 		}
 
 
+		public Task<Repository> GetCachedOrFreshRepositoryAsync(string workingFolder)
+		{
+			return GetRepositoryAsync(true, workingFolder);
+		}
+
+
 		public async Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder)
 		{
 			Timing t = new Timing();
@@ -126,7 +132,7 @@ namespace GitMind.GitModel.Private
 
 		private void Update(MRepository repository)
 		{
-			Log.Debug($"Updating repository");
+			Log.Debug("Updating repository");
 			Timing t = new Timing();
 			string gitRepositoryPath = repository.WorkingFolder;
 
@@ -136,22 +142,21 @@ namespace GitMind.GitModel.Private
 			using (GitRepository gitRepository = gitService.OpenRepository(gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;
+				t.Log("Got git status");
 
-				RemoveVirtualCommits(repository);
-
-				repository.Commits.ForEach(c => c.Value.BranchTips = null);
-
-				repository.Commits.ForEach(c => c.Value.SubBranchId = null);
-				repository.SubBranches.Clear();
-				t.Log("Cleaned sub branches");
+				CleanRepositoryOfTempData(repository);
 
 				commitsService.AddBranchCommits(gitRepository, gitStatus, repository);
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
 				AnalyzeBranchStructure(repository, specifiedNames, gitStatus, gitRepository);
-				t.Log("AnalyzeBranchStructure");
+				t.Log("AnalyzeBranchStructure");		
 			}
+
+			t.Log("Done");
 		}
+
+
 
 
 		private void AnalyzeBranchStructure(
@@ -160,58 +165,39 @@ namespace GitMind.GitModel.Private
 			GitStatus gitStatus, 
 			GitRepository gitRepository)
 		{
-			Timing t = new Timing();
-
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
-			t.Log($"Set {gitSpecifiedNames.Count} specified branch names");
-
+		
 			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
-			t.Log($"Added {repository.SubBranches.Count} active branches");
-
+			
 			commitBranchNameService.SetMasterBranchCommits(repository);
-			t.Log("Set master branch names");
 
 			branchService.AddInactiveBranches(repository);
-			t.Log($"Added inactive branches, total: {repository.SubBranches.Count}");
 
 			commitBranchNameService.SetBranchTipCommitsNames(repository);
-			t.Log("Set branch tip commit branch names");
 
 			commitBranchNameService.SetNeighborCommitNames(repository);
-			t.Log("Set neighbor commit names");
-
 
 			branchService.AddMissingInactiveBranches(repository);
-			t.Log($"Added missing inactive branches, total: {repository.SubBranches.Count}");
 
 			branchService.AddMultiBranches(repository);
-			t.Log($"Added multi branches, total: {repository.SubBranches.Count}");
-
-			Log.Debug($"Unset commits after multi {repository.Commits.Count(c => !c.Value.HasBranchName)}");
 
 			branchHierarchyService.SetBranchHierarchy(repository);
-			t.Log($"SetBranchHierarchy with {repository.Branches.Count} branches");
-
+			
 			aheadBehindService.SetAheadBehind(repository);
-			t.Log("SetAheadBehind");
 
 			tagService.AddTags(gitRepository, repository);
-			t.Log("Added tags");
 
 			repository.CurrentBranchId = repository.Branches
 				.First(b => b.Value.IsActive && b.Value.Name == gitRepository.Head.Name).Value.Id;
+
 			repository.CurrentCommitId = gitStatus.OK
 				? repository.Commits[gitRepository.Head.TipId].Id
 				: MCommit.UncommittedId;
-
-			repository.Commits.Where(c => string.IsNullOrEmpty(c.Value.BranchName))
-				.ForEach(c => Log.Warn($"   Unset {c} -> parent: {c.Value.FirstParentId}"));
 		}
 
 
 		private static Repository ToRepository(MRepository mRepository)
 		{
-			Timing t = new Timing();
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
 			KeyedList<string, Commit> rCommits = new KeyedList<string, Commit>(c => c.Id);
 			Branch currentBranch = null;
@@ -235,7 +221,7 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			t.Log("Commits: " + rCommits.Count);
+			
 
 			foreach (var mBranch in mRepository.Branches)
 			{
@@ -248,26 +234,45 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			t.Log("Branches: " + rBranches.Count);
-
 			return repository;
 		}
 
 
+		private static void CleanRepositoryOfTempData(MRepository repository)
+		{
+			RemoveVirtualCommits(repository);
+
+			repository.Branches.Values.ForEach(b => b.LatestCommit.BranchTips = null);
+		}
+
 		private static void RemoveVirtualCommits(MRepository repository)
 		{
-			List<MCommit> virtualCommits = repository.Commits.Values.Where(c => c.IsVirtual).ToList();
-			foreach (MCommit virtualCommit in virtualCommits)
+			MCommit uncommitted;
+			if (repository.Commits.TryGetValue(MCommit.UncommittedId, out uncommitted))
 			{
-				repository.ChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
-				repository.FirstChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
-				repository.Commits.Remove(virtualCommit.Id);
-				virtualCommit.Branch.CommitIds.Remove(virtualCommit.Id);
-				if (virtualCommit.Branch.LatestCommitId == virtualCommit.Id)
+				repository.ChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
+				repository.FirstChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
+				repository.Commits.Remove(uncommitted.Id);
+				uncommitted.Branch.CommitIds.Remove(uncommitted.Id);
+				if (uncommitted.Branch.LatestCommitId == uncommitted.Id)
 				{
-					virtualCommit.Branch.LatestCommitId = virtualCommit.FirstParentId;
+					uncommitted.Branch.LatestCommitId = uncommitted.FirstParentId;
 				}
 			}
+
+
+			//List<MCommit> virtualCommits = repository.Commits.Values.Where(c => c.IsVirtual).ToList();
+			//foreach (MCommit virtualCommit in virtualCommits)
+			//{
+			//	repository.ChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
+			//	repository.FirstChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
+			//	repository.Commits.Remove(virtualCommit.Id);
+			//	virtualCommit.Branch.CommitIds.Remove(virtualCommit.Id);
+			//	if (virtualCommit.Branch.LatestCommitId == virtualCommit.Id)
+			//	{
+			//		virtualCommit.Branch.LatestCommitId = virtualCommit.FirstParentId;
+			//	}
+			//}
 		}
 	}
 }

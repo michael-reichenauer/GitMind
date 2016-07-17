@@ -49,7 +49,7 @@ namespace GitMind.RepositoryViews
 				branches.Add(currentBranch);
 			}
 
-			Update(repositoryViewModel, branches);
+			UpdateViewModel(repositoryViewModel, branches);
 		}
 
 
@@ -92,7 +92,7 @@ namespace GitMind.RepositoryViews
 			int currentRow = stableCommitViewModel.RowIndex;
 			//	repositoryViewModel.SelectedItem = stableCommitViewModel;
 			repositoryViewModel.SelectedIndex = currentRow;
-			Update(repositoryViewModel, currentlyShownBranches);
+			UpdateViewModel(repositoryViewModel, currentlyShownBranches);
 
 			int newRow = stableCommitViewModel.RowIndex;
 			Log.Debug($"Row {currentRow}->{newRow} for {stableCommit}");
@@ -110,7 +110,7 @@ namespace GitMind.RepositoryViews
 			{
 				// Showing the specified branch
 				currentlyShownBranches.Add(branch);
-				Update(repositoryViewModel, currentlyShownBranches);
+				UpdateViewModel(repositoryViewModel, currentlyShownBranches);
 
 				var x = repositoryViewModel.Branches.FirstOrDefault(b => b.Branch == branch);
 				if (x != null)
@@ -148,7 +148,7 @@ namespace GitMind.RepositoryViews
 				currentlyShownBranches.RemoveAll(b => b.Name != "master" && closingBranches.Contains(b));
 
 				repositoryViewModel.SelectedIndex = 3;
-				Update(repositoryViewModel, currentlyShownBranches);
+				UpdateViewModel(repositoryViewModel, currentlyShownBranches);
 
 
 				repositoryViewModel.VirtualItemsSource.DataChanged(repositoryViewModel.Width);
@@ -176,7 +176,7 @@ namespace GitMind.RepositoryViews
 					branches.Add(commit.Commit.Branch);
 				}
 
-				Update(repositoryViewModel, branches);
+				UpdateViewModel(repositoryViewModel, branches);
 			}
 			else
 			{
@@ -258,18 +258,18 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public void Update(
+		public void UpdateViewModel(
 			RepositoryViewModel repositoryViewModel, IReadOnlyList<Branch> specifiedBranches)
 		{
+			Timing t = new Timing();
 			specifiedBranches.ForEach(branch => Log.Debug($"Update with {branch}"));
 
-			Timing t = new Timing();
 			IReadOnlyList<Branch> branches = GetBranchesIncludingParents(specifiedBranches, repositoryViewModel);
-			t.Log("Branches");
+
 			List<Commit> commits = GetCommits(branches);
-			t.Log($"Commits count {commits.Count}");
 
 			repositoryViewModel.ActiveBranches.Clear();
+
 			branches
 				.Where(b => b.Name != "master")
 				.OrderBy(b => b.Name)
@@ -277,15 +277,14 @@ namespace GitMind.RepositoryViews
 					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
 
 			UpdateBranches(branches, commits, repositoryViewModel);
-			t.Log("Updated Branches");
 
 			UpdateCommits(commits, repositoryViewModel);
-			t.Log("Updated Commits");
 
 			UpdateMerges(branches, repositoryViewModel);
-			t.Log("Updated Merges");
 
 			repositoryViewModel.SpecifiedBranches = specifiedBranches;
+			
+			t.Log("Updated view model");
 		}
 
 

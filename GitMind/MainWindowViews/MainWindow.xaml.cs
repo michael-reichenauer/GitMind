@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.Common;
-using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Installation;
@@ -44,7 +40,7 @@ namespace GitMind.MainWindowViews
 		private readonly DispatcherTimer newVersionTime = new DispatcherTimer();
 
 		private readonly MainWindowViewModel mainWindowViewModel;
-		private DateTime LoadedTime = DateTime.MaxValue;
+		private DateTime ActivatedTime = DateTime.MaxValue;
 		private readonly List<string> specifiedBranchNames = new List<string>();
 		private string workingFolder = null;
 
@@ -53,7 +49,6 @@ namespace GitMind.MainWindowViews
 		{
 			ExceptionHandling.Init();
 			assemblyResolver.Activate();
-			
 
 			if (!IsStartProgram())
 			{
@@ -66,7 +61,6 @@ namespace GitMind.MainWindowViews
 			// Make sure maximize does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
 
-			autoRefreshTime.Tick += FetchAndRefreshAsync;
 
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
@@ -75,8 +69,7 @@ namespace GitMind.MainWindowViews
 				repositoryService,
 				diffService,
 				latestVersionService,
-				this,
-				() => RefreshAsync(true));
+				this);
 
 			refreshService = new StatusRefreshService(mainWindowViewModel);
 
@@ -97,12 +90,11 @@ namespace GitMind.MainWindowViews
 
 		private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
 		{
-			await mainWindowViewModel.UpdateAsync();
-			LoadedTime = DateTime.Now;
+			await mainWindowViewModel.FirstLoadAsync();
+			ActivatedTime = DateTime.Now;
 		}
 
 
-		
 
 		private bool IsStartProgram()
 		{
@@ -190,19 +182,17 @@ namespace GitMind.MainWindowViews
 			newVersionTime.Interval = TimeSpan.FromSeconds(5);
 			newVersionTime.Start();
 
-			refreshService.Start();
-			refreshService.UpdateStatusAsync(mainWindowViewModel.WorkingFolder).RunInBackground();
+			autoRefreshTime.Tick += AutoRefresh;
+			autoRefreshTime.Interval = TimeSpan.FromMinutes(1);
+			autoRefreshTime.Start();
 		}
 
 
-		private async void FetchAndRefreshAsync(object sender, EventArgs e)
+		private void AutoRefresh(object sender, EventArgs e)
 		{
 			try
 			{
-				autoRefreshTime.Interval = TimeSpan.FromMinutes(10);
-
-				//await Task.Yield();
-				await RefreshAsync(true);
+				mainWindowViewModel.AutoRefreshAsync().RunInBackground();
 			}
 			catch (Exception ex) when (ex.IsNotFatal())
 			{
@@ -252,55 +242,15 @@ namespace GitMind.MainWindowViews
 
 		protected override void OnActivated(EventArgs e)
 		{
-			if (LoadedTime < DateTime.MaxValue && DateTime.Now - LoadedTime > TimeSpan.FromSeconds(10))
+			if (ActivatedTime < DateTime.MaxValue && DateTime.Now - ActivatedTime > TimeSpan.FromSeconds(10))
 			{
 				Log.Debug("Refreshing after activation");
-				mainWindowViewModel.RefreshCommand.ExecuteAsync(null).RunInBackground();
-				LoadedTime = DateTime.Now;
+				mainWindowViewModel.ActivateRefreshAsync().RunInBackground();
+				ActivatedTime = DateTime.Now;
 			}
 		}
 
 
-		private async void FetchAndRefreshAfterActivatedAsync(object sender, EventArgs e)
-		{
-			try
-			{
-				DispatcherTimer dispatcherTimer = sender as DispatcherTimer;
-				if (dispatcherTimer != null)
-				{
-					dispatcherTimer.Stop();
-				}
-
-				await RefreshAsync(true);
-			}
-			catch (Exception ex) when (ex.IsNotFatal())
-			{
-				Log.Warn($"Failed to refresh {ex}");
-			}
-		}
-
-		private async Task RefreshAsync(bool isShift)
-		{
-			//await Task.Yield();
-			//return;
-			Task refreshTask = RefreshInternalAsync(isShift);
-			mainWindowViewModel.Busy.Add(refreshTask);
-			await refreshTask;
-		}
-
-		private async Task RefreshInternalAsync(bool isShift)
-		{
-			await Task.Yield();
-
-			//await refreshService.UpdateStatusAsync(repositoryViewModel.Repository.MRepository.WorkingFolder);
-
-			//await gitService.FetchAsync(repositoryViewModel.Repository.MRepository.WorkingFolder);
-
-			//Repository repository = await repositoryService.UpdateRepositoryAsync(
-			//	repositoryViewModel.Repository);
-
-			//repositoryViewModel.Update(repository, repositoryViewModel.SpecifiedBranches);
-		}
 
 		//protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
 		//{
@@ -326,7 +276,7 @@ namespace GitMind.MainWindowViews
 		protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
 		{
 			base.OnRenderSizeChanged(sizeInfo);
-			mainWindowViewModel.WindowWith = (int)sizeInfo.NewSize.Width;	
+			mainWindowViewModel.WindowWith = (int)sizeInfo.NewSize.Width;
 		}
 
 

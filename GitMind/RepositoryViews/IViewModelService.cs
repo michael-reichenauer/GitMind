@@ -7,7 +7,7 @@ namespace GitMind.RepositoryViews
 {
 	internal interface IViewModelService
 	{
-		void Update(RepositoryViewModel repositoryViewModel, IReadOnlyList<Branch> specifiedBranches);
+		void UpdateViewModel(RepositoryViewModel repositoryViewModel, IReadOnlyList<Branch> specifiedBranches);
 
 		void Update(RepositoryViewModel repositoryViewModel, IReadOnlyList<string> specifiedBranchNames);
 
