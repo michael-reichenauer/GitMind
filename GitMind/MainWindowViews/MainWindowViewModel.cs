@@ -54,12 +54,6 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public string BranchName
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
 		public Brush BranchBrush
 		{
 			get { return Get(); }

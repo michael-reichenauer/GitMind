@@ -169,9 +169,7 @@
     <Compile Include="Installation\Private\Installer.cs" />
     <Compile Include="Settings\ProgramPaths.cs" />
     <Compile Include="Settings\ProgramSettings.cs" />
-    <Compile Include="Common\IStatusRefreshService.cs" />
     <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
-    <Compile Include="Common\StatusRefreshService.cs" />
     <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\JsonSerializer.cs" />
     <Compile Include="Utils\R.cs" />

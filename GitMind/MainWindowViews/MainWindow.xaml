@@ -71,10 +71,10 @@
 						<TextBlock.ToolTip>
 							<ToolTip
 								BorderThickness="2"
-								BorderBrush="{Binding BranchBrush}">
+								BorderBrush="{Binding RepositoryViewModel.CurrentBranchBrush}">
 								<StackPanel Orientation="Horizontal">
-									<TextBlock Text="Current branch: " Foreground="LightSteelBlue"/>
-									<TextBlock Text="{Binding BranchName}" Foreground="Lavender"/>
+									<TextBlock Text="Current branch: " Foreground="{StaticResource TextLowBrush}"/>
+									<TextBlock Text="{Binding RepositoryViewModel.CurrentBranchName}" Foreground="{StaticResource TextBrush}"/>
 								</StackPanel>
 							</ToolTip>
 						</TextBlock.ToolTip>

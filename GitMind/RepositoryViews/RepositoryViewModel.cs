@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -24,6 +25,7 @@ namespace GitMind.RepositoryViews
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IGitService gitService = new GitService();
+		private readonly IBrushService brushService = new BrushService();
 
 		private readonly BusyIndicator busyIndicator;
 
@@ -118,6 +120,18 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
+
+		public string CurrentBranchName
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public Brush CurrentBranchBrush
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
@@ -353,6 +367,9 @@ namespace GitMind.RepositoryViews
 
 		private void UpdateStatusIndicators()
 		{
+			CurrentBranchName = Repository.CurrentBranch.Name;
+			CurrentBranchBrush = brushService.GetBranchBrush(Repository.CurrentBranch);
+
 			IEnumerable<Branch> remoteAheadBranches = Repository.Branches
 				.Where(b => b.RemoteAheadCount > 0).ToList();
 		
@@ -405,6 +422,7 @@ namespace GitMind.RepositoryViews
 				}
 			}
 		}
+
 
 
 		private void SetCommitsDetails(CommitViewModel commit)
