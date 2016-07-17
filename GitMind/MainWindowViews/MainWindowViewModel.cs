@@ -54,13 +54,6 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public Brush BranchBrush
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-
 		public string WorkingFolder
 		{
 			get { return Get(); }
@@ -73,6 +66,7 @@ namespace GitMind.MainWindowViews
 				}
 			}
 		}
+
 
 		public string Title => WorkingFolder != null 
 			? $"{Path.GetFileNameWithoutExtension(WorkingFolder)} - GitMind" : "GitMind";
