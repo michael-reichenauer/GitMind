@@ -270,18 +270,49 @@ namespace GitMind.MainWindowViews
 		private async void SelectWorkingFolder()
 		{
 			string selectedPath;
+			if (GetWorkingFolder(true, WorkingFolder, out selectedPath))
+			{
+				return;
+			}
+
+			WorkingFolder = selectedPath;
+
+			await RepositoryViewModel.FirstLoadAsync();
+		}
+
+
+		public bool GetWorkingFolder(bool useOwner, string currentFolder, out string selectedPath)
+		{
+			selectedPath = null;
+
 			while (true)
 			{
 				var dialog = new FolderBrowserDialog();
 				dialog.Description = "Select a working folder with a valid git repository.";
 				dialog.ShowNewFolderButton = false;
 				dialog.RootFolder = Environment.SpecialFolder.MyComputer;
-				dialog.SelectedPath = WorkingFolder ?? Environment.CurrentDirectory;
-				if (dialog.ShowDialog(owner.GetIWin32Window()) != DialogResult.OK)
+				if (currentFolder != null)
 				{
-					Log.Warn("User canceled selecting a Working folder");
-					return;
+					dialog.SelectedPath = currentFolder;
 				}
+
+				if (useOwner)
+				{
+					if (dialog.ShowDialog(owner.GetIWin32Window()) != DialogResult.OK)
+					{
+						Log.Warn("User canceled selecting a Working folder");
+						return true;
+					}
+				}
+				else
+				{
+					if (dialog.ShowDialog() != DialogResult.OK)
+					{
+						Log.Warn("User canceled selecting a Working folder");
+						return true;
+					}
+				}
+				
 
 				R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
 				if (workingFolder.HasValue)
@@ -298,9 +329,7 @@ namespace GitMind.MainWindowViews
 
 			Log.Debug($"Setting working folder {selectedPath}");
 			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
-			WorkingFolder = selectedPath;
-
-			await RepositoryViewModel.FirstLoadAsync();
+			return false;
 		}
 
 

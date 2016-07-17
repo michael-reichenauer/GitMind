@@ -128,6 +128,12 @@ namespace GitMind.MainWindowViews
 		}
 
 
+		// Must be able to handle:
+		// * Starting app from start menu or pinned (no parameters and unknown current dir)
+		// * Starting on command line in some dir (no parameters but known dir)
+		// * Starting as right click on folder (parameter "/d:<dir>"
+		// * Starting on command line with some parameters (branch names)
+		// * Starting with parameters "/test"
 		public bool InitDataModel()
 		{
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
@@ -137,16 +143,9 @@ namespace GitMind.MainWindowViews
 			if (args.Length == 2 && args[1].StartsWith("/d:"))
 			{
 				// Call from e.g. Windows Explorer folder context menu
-				string currentDirectory = args[1].Substring(3);
-				if (!string.IsNullOrWhiteSpace(currentDirectory))
-				{
-					workingFolder = currentDirectory;
-				}
-
-				args = new string[0];
+				workingFolder = args[1].Substring(3);
 			}
-
-			if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path))
+			else if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path))
 			{
 				workingFolder = TestRepo.Path;
 			}
@@ -158,7 +157,19 @@ namespace GitMind.MainWindowViews
 				}
 			}
 
+			workingFolder = workingFolder ?? Environment.CurrentDirectory;
+
+			R<string> path = ProgramPaths.GetWorkingFolderPath(workingFolder);
+			if (!path.HasValue)
+			{
+				if (!mainWindowViewModel.GetWorkingFolder(false, null, out workingFolder))
+				{
+					return false;
+				}
+			}
+
 			workingFolder = TryGetWorkingFolder(workingFolder ?? Environment.CurrentDirectory);
+
 
 			Log.Debug($"Current working folder {workingFolder}");
 			return true;

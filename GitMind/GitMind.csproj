@@ -42,6 +42,9 @@
   <PropertyGroup>
     <ApplicationIcon>MainWindowViews\Application.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>GitMind.App</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="LibGit2Sharp, Version=0.22.0.0, Culture=neutral, PublicKeyToken=7cbde695407f0333, processorArchitecture=MSIL">
       <HintPath>..\packages\LibGit2Sharp.0.22.0\lib\net40\LibGit2Sharp.dll</HintPath>
@@ -58,6 +61,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -74,10 +78,10 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </ApplicationDefinition>
+    </Page>
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
     <Compile Include="Installation\IAssemblyResolver.cs" />
     <Compile Include="RepositoryViews\BranchItem.cs" />
@@ -100,6 +104,7 @@
     <Compile Include="MainWindowViews\HamburgerButton.xaml.cs">
       <DependentUpon>HamburgerButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\SingleInstance.cs" />
     <Compile Include="Utils\UI\BusyProgress.cs" />
     <Compile Include="Utils\UI\HideableGridSplitter.cs" />
     <Compile Include="Utils\Compare.cs" />
