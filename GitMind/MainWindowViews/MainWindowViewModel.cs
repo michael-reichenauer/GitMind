@@ -19,22 +19,20 @@ namespace GitMind.MainWindowViews
 {
 	internal class MainWindowViewModel : ViewModel
 	{
-		private readonly IRepositoryService repositoryService;
+
 		private readonly IDiffService diffService;
 		private readonly ILatestVersionService latestVersionService;
 		private readonly Window owner;
 	
 
 		internal MainWindowViewModel(
-		
-			IRepositoryService repositoryService,
 			IDiffService diffService,
 			ILatestVersionService latestVersionService,
 			Window owner)
 		{
 			RepositoryViewModel = new RepositoryViewModel(Busy);
 
-			this.repositoryService = repositoryService;
+
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
 			this.owner = owner;

@@ -7,8 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.Common;
-using GitMind.GitModel;
-using GitMind.GitModel.Private;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.RepositoryViews;
@@ -25,10 +23,7 @@ namespace GitMind.MainWindowViews
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		//private readonly OldHistoryViewModel historyViewModel;
 		private readonly IAssemblyResolver assemblyResolver = new AssemblyResolver();
-		private readonly IRepositoryService repositoryService = new RepositoryService();
-		private readonly IStatusRefreshService refreshService;
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly IInstaller installer = new Installer();
 		private readonly ICommandLine commandLine = new CommandLine();
@@ -58,20 +53,14 @@ namespace GitMind.MainWindowViews
 
 			InitializeComponent();
 
-			// Make sure maximize does not cover the task bar
+			// Make sure maximize window does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
 
-
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
-				typeof(DependencyObject), new FrameworkPropertyMetadata(Int32.MaxValue));
+				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
 
-			mainWindowViewModel = new MainWindowViewModel(
-				repositoryService,
-				diffService,
-				latestVersionService,
-				this);
+			mainWindowViewModel = new MainWindowViewModel(diffService, latestVersionService, this);
 
-			refreshService = new StatusRefreshService(mainWindowViewModel);
 
 			if (!InitDataModel())
 			{
