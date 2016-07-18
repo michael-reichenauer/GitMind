@@ -139,6 +139,7 @@ namespace GitMind.MainWindowViews
 			if (path.HasValue)
 			{
 				WorkingFolder = path.Value;
+				ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
 				return RepositoryViewModel.FirstLoadAsync();
 			}
 			else

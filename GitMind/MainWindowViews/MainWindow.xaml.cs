@@ -154,7 +154,10 @@ namespace GitMind.MainWindowViews
 				}
 			}
 
-			workingFolder = workingFolder ?? Environment.CurrentDirectory;
+			if (workingFolder == null)
+			{
+				workingFolder = TryGetWorkingFolder();
+			}
 
 			Log.Debug($"Current working folder {workingFolder}");
 		}
@@ -217,6 +220,29 @@ namespace GitMind.MainWindowViews
 			mainWindowViewModel.WindowWith = (int)sizeInfo.NewSize.Width;
 		}
 
+
+		private string TryGetWorkingFolder()
+		{
+			R<string> path = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory);
+ 
+			if (!path.HasValue)
+			{
+				string lastUsedFolder = ProgramSettings.TryGetLatestUsedWorkingFolderPath();
+ 
+				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
+				{
+					path = ProgramPaths.GetWorkingFolderPath(lastUsedFolder);
+				}
+			}
+ 
+			if (path.HasValue)
+			{
+				return path.Value;
+			}
+ 
+			return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+		}
+ 
 
 
 		protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
