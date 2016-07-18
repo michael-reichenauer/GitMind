@@ -97,7 +97,7 @@ namespace GitMind.GitModel.Private
 						branch.LatestCommitId = activeTip.Value.LatestCommitId;
 					}
 
-					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);		
+					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);
 				}
 			}
 
@@ -139,7 +139,7 @@ namespace GitMind.GitModel.Private
 						// Branch has no commits of its own
 						branch.LatestCommitId = branch.ParentCommitId;
 						branch.FirstCommitId = branch.ParentCommitId;
-					}			
+					}
 				}
 			}
 
@@ -147,7 +147,7 @@ namespace GitMind.GitModel.Private
 			foreach (MBranch branch in repository.Branches.Values.Where(b => !b.Commits.Any()))
 			{
 				string branchTipText = $"({branch.Name}) ";
-				if (branch.LatestCommit.BranchTips != null 
+				if (branch.LatestCommit.BranchTips != null
 					&& -1 == branch.LatestCommit.BranchTips.IndexOf(branch.Name, StringComparison.Ordinal))
 				{
 					branch.LatestCommit.BranchTips += branchTipText;
@@ -184,7 +184,8 @@ namespace GitMind.GitModel.Private
 					branch.Value.ParentBranchId = branch.Value.ParentCommit.BranchId;
 
 					if (branch.Value.ParentBranch.IsMultiBranch
-						&& branch.Value.ParentCommitId == branch.Value.ParentBranch.LatestCommitId)
+						&& branch.Value.ParentCommitId == branch.Value.ParentBranch.LatestCommitId
+						&& !branch.Value.ParentBranch.ChildBranchNames.Contains(branch.Value.Name))
 					{
 						branch.Value.ParentBranch.ChildBranchNames.Add(branch.Value.Name);
 					}

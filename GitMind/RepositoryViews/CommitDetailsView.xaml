@@ -38,7 +38,7 @@
 				</Grid.Resources>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="60" />
-					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="auto"/>
@@ -72,9 +72,20 @@
 						Text="{Binding Branch, Mode=OneWay}"
 						Style="{StaticResource LabelStyle}"
 						Foreground="{Binding BranchBrush}"/>
+					
+					<Button 
+						Content="&#xE3C9;"
+						Style="{StaticResource IconButtonStyle}"
+						FontSize="14"
+						Foreground="{StaticResource TextLowBrush}"			
+						Margin="0,3,0,0"			
+						Command="{Binding RunLatestVersionCommand}"
+						ToolTip="Manually specify a branch for this commit ..." />
+
 					<TextBox
 						Text="{Binding BranchTips, Mode=OneWay}"
-						Style="{StaticResource LabelStyle}" 			
+						Style="{StaticResource LabelStyle}" 
+						Margin="20,0"
 						Foreground="{StaticResource BranchTipsBrush}"
 						ToolTip="Branch tip of branch with no commits of its own."/>
 				</StackPanel>
