@@ -13,94 +13,44 @@ namespace GitMind.RepositoryViews
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 
-		private Commit commit;
+	
 		private int windowWidth;
 		private static readonly SolidColorBrush HoverBrushColor = 
 			(SolidColorBrush)(new BrushConverter().ConvertFrom("#996495ED"));
 
+		public Commit Commit { get; set; }
 
 		public int ZIndex => 0;
-		public string Id { get; set; }
+		
+		public string Type => nameof(CommitViewModel);
 
-		public string Type => "Commit";
-
-		public Action HideBranch { get; set; }
-
-		public Commit Commit
-		{
-			get { return commit; }
-			set
-			{
-				if (commit != value)
-				{
-					commit = value;
-					Notify(nameof(Id), nameof(ShortId), nameof(Author), nameof(Date), nameof(Subject));
-				}
-			}
-		}
-
-		public int RowIndex { get; set; }
-
-
+		public string Id => Commit.Id;
 		public string ShortId => Commit.ShortId;
 		public string Author => Commit.Author;
 		public string Date => Commit.AuthorDateText;
 		public string Subject => Commit.Subject;
+		public string Tags => Commit.Tags;
+		public string Tickets => Commit.Tickets;
+		public string BranchTips => Commit.BranchTips;
+		public string CommitBranchText => "Hide branch: " + Commit.Branch.Name;
+		public string CommitBranchName => Commit.Branch.Name;
+		public bool IsMergePoint => Commit.IsMergePoint && Commit.Branch != Commit.SecondParent.Branch;
+		public bool IsCurrent => Commit.IsCurrent;
 
-		public string Tags
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public Action HideBranch { get; set; }
+		public int RowIndex { get; set; }
 
-		public string Tickets
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public int BranchColumn { get; set; }
+		public int XPoint { get; set; }	
+		public int YPoint => IsMergePoint ? 2 : 4;
+		public int Size => IsMergePoint ? 10 : 6;
+		public Rect Rect { get; set; }
+		public Brush SubjectBrush { get; set; }
+		public string ToolTip { get; set; }
+		public Brush Brush { get; set; }
+		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
+		public Brush HoverBrush => HoverBrushColor;
 
-		public string BranchTips
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public bool IsCurrent
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		// The branch point 
-		public bool IsMergePoint
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public int BranchColumn
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public int XPoint
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public int YPoint
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public int Size
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
 
 		public double Width
 		{
@@ -114,57 +64,13 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
-		public Brush SubjectBrush
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public string ToolTip
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public Brush Brush
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public FontStyle SubjectStyle
-		{
-			get { return Get<FontStyle>(); }
-			set { Set<FontStyle>(value); }
-		}
-
-		public Brush HoverBrush => HoverBrushColor;
 
 		public Brush BrushInner
 		{
 			get { return Get(); }
 			set { Set(value); }
 		}
-
-		public Rect Rect
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-
-		public string CommitBranchText
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public string CommitBranchName
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
+		
 		public int WindowWidth
 		{
 			get { return windowWidth; }

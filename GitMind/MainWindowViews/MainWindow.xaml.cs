@@ -54,7 +54,7 @@ namespace GitMind.MainWindowViews
 			InitializeComponent();
 
 			// Make sure maximize window does not cover the task bar
-			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
+			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
 
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));

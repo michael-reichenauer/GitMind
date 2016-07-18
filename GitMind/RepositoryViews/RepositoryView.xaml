@@ -131,7 +131,7 @@
 							<Style.Triggers>
 
 								<!-- Branch line -->
-								<DataTrigger Binding="{Binding Type}" Value="Branch">
+								<DataTrigger Binding="{Binding Type}" Value="BranchViewModel">
 									<Setter Property="IsEnabled" Value="true"/>
 									<Setter Property="Focusable" Value="False"/>
 									<Setter Property="Background" Value="Transparent"/>
@@ -213,7 +213,7 @@
 
 
 								<!-- Merge line -->
-								<DataTrigger Binding="{Binding Type}" Value="Merge">
+								<DataTrigger Binding="{Binding Type}" Value="MergeViewModel">
 									<Setter Property="IsEnabled" Value="false"/>
 									<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
 									<Setter Property="ContentTemplate">
@@ -232,7 +232,7 @@
 								</DataTrigger>
 
 								<!-- Commit row -->
-								<DataTrigger Binding="{Binding Type}" Value="Commit">
+							<DataTrigger Binding="{Binding Type}" Value="CommitViewModel">
 									<Setter Property="ContentTemplate">
 										<Setter.Value>
 											<DataTemplate>
