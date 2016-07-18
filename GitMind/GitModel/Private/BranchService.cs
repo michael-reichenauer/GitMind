@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using System.Linq;
 using GitMind.Git;
-using GitMind.Utils;
+
 
 
 namespace GitMind.GitModel.Private
@@ -29,7 +29,8 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddActiveBranches(GitRepository gitRepository, MRepository repository)
+		public void AddActiveBranches(
+			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
 		{
 			foreach (GitBranch gitBranch in gitRepository.Branches)
 			{
@@ -41,6 +42,17 @@ namespace GitMind.GitModel.Private
 
 				MSubBranch subBranch = ToBranch(gitBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
+			}
+
+			if (!gitStatus.OK)
+			{
+				string name = gitRepository.Head.Name;
+				MSubBranch currentBranch = repository.SubBranches.Values
+					.FirstOrDefault(b => b.IsActive && !b.IsRemote && b.Name == name);
+				if (currentBranch != null)
+				{
+					currentBranch.LatestCommitId = MCommit.UncommittedId;
+				}
 			}
 		}
 

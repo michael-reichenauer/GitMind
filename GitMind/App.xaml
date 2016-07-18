@@ -1,14 +1,15 @@
-﻿<Application x:Class="GitMind.App"
-						 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-						 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-						 xmlns:local="clr-namespace:GitMind"
-						 StartupUri="MainWindow.xaml">
-		<Application.Resources>
-
+﻿<Application 
+	x:Class="GitMind.App"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:ui="clr-namespace:GitMind.Utils.UI"
+	StartupUri="MainWindowViews/MainWindow.xaml">
+	
+	<Application.Resources>
 
 		<ResourceDictionary>
 
-			<local:PropertyToVisibilityConverter x:Key="VC"/>
+			<ui:PropertyToVisibilityConverter x:Key="VC"/>
 			
 			<ResourceDictionary.MergedDictionaries>
 				
@@ -16,6 +17,7 @@
 				<ResourceDictionary Source="Styles\ContextMenuStyle.xaml"/>
 				<ResourceDictionary Source="Styles\ButtonStyle.xaml"/>
 				<ResourceDictionary Source="Styles\ListBoxStyle.xaml"/>
+				<ResourceDictionary Source="Styles\ToolTipStyle.xaml"/>
 				<!--<ResourceDictionary Source="Styles\Theme.xaml"/>-->
 
 			</ResourceDictionary.MergedDictionaries>

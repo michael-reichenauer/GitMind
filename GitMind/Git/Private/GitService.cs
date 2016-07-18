@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Utils;
 
@@ -114,6 +115,11 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
+						if (commitId == GitCommit.UncommittedId)
+						{
+							return R.From(gitRepository.Status.CommitFiles);
+						}
+
 						return R.From(gitRepository.Diff.GetFiles(commitId));
 					}
 				}
@@ -173,16 +179,8 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
-						string patch;
-						if (commitId == null)
-						{
-							patch = gitRepository.Diff.GetPatch();
-						}
-						else
-						{
-							patch = gitRepository.Diff.GetPatch(commitId);
-						}
-
+						string patch = gitRepository.Diff.GetPatch(commitId);
+					
 						return R.From(await gitDiffParser.ParseAsync(commitId, patch));
 					}
 				}
@@ -195,33 +193,66 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task FetchAsync(string workingFolder)
+		public async Task FetchAsync(string workingFolder)
 		{
-			Log.Debug($"Fetching repository in {workingFolder} ...");
-
-			return Task.Run(async () =>
+			try
 			{
-				try
-				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
-					{
-						gitRepository.Fetch();
-					}
+				// Sometimes, a fetch to GitHub takes just forever, don't know why
+				await FetchUsingCmdAsync(workingFolder)
+					.WithCancellation(new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
+			}
+			catch (Exception e)
+			{			
+				Log.Warn($"Failed to fetch {workingFolder}, {e.Message}");
+			}
+			
+			//Log.Debug($"Fetching repository in {workingFolder} ...");
 
-					Log.Debug("Fetched repository");
-				}
-				catch (Exception e)
-				{
-					if (e.Message == "Unsupported URL protocol")
-					{
-						await FetchUsingCmdAsync(workingFolder);
-					}
-					else
-					{
-						Log.Warn($"Failed to fetch, {e.Message}");
-					}
-				}
-			});
+			//CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+			//bool result = false;
+			//try
+			//{
+			//	result = await Task.Run(() =>
+			//	{
+			//		try
+			//		{
+			//			using (GitRepository gitRepository = OpenRepository(workingFolder))
+			//			{
+			//				Log.Debug("Before fetch");
+			//				gitRepository.Fetch();
+			//				Log.Debug("After fetch");
+			//			}
+
+			//			Log.Debug("Fetched repository");
+			//			return true;
+			//		}
+			//		catch (Exception e)
+			//		{
+			//			if (e.Message == "Unsupported URL protocol")
+			//			{
+			//				Log.Debug("Unsupported URL protocol");
+			//				return false;
+			//			}
+			//			else
+			//			{
+			//				Log.Warn($"Failed to fetch, {e.Message}");
+			//				return true;
+			//			}
+			//		}
+			//	})
+			//	.WithCancellation(cts.Token);
+			//}
+			//catch (Exception e)
+			//{
+			//	Log.Warn($"Failed to fetch {e}");
+			//	result = false;
+			//}
+
+			//Log.Debug("???????");
+			//if (!result)
+			//{
+			//	await FetchUsingCmdAsync(workingFolder);
+			//}
 		}
 
 

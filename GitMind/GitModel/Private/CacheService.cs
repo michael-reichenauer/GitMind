@@ -14,7 +14,7 @@ namespace GitMind.GitModel.Private
 
 		public async Task CacheAsync(MRepository repository)
 		{
-			//await Task.Yield();
+			await Task.Yield();
 			await WriteRepository(repository);
 		}
 
@@ -46,12 +46,11 @@ namespace GitMind.GitModel.Private
 		{
 			await TaskThrottler.Run(() => Task.Run(() =>
 			{
-				Log.Debug("Caching repository ...");
 				string cachePath = GetCachePath(repository.WorkingFolder);
 				Timing t = new Timing();
 
 				Serialize(cachePath, repository);
-				t.Log($"Wrote repository with {repository.Commits.Count} commits");
+				t.Log($"Wrote cached repository with {repository.Commits.Count} commits");
 			}));
 		}
 
@@ -75,7 +74,6 @@ namespace GitMind.GitModel.Private
 		{
 			return await TaskThrottler.Run(() => Task.Run(() =>
 			{
-				Log.Debug($"Reading cached repository {gitRepositoryPath} ...");
 				string cachePath = GetCachePath(gitRepositoryPath);
 				Timing t = new Timing();
 
@@ -86,7 +84,7 @@ namespace GitMind.GitModel.Private
 					Log.Debug("No cached repository");
 					return null;
 				}
-				t.Log($"Read repository for {repository.Commits.Count} commits");
+				
 
 				if (repository.Version != MRepository.CurrentVersion)
 				{
@@ -96,7 +94,7 @@ namespace GitMind.GitModel.Private
 				}
 
 				repository.CompleteDeserialization(gitRepositoryPath);
-				t.Log("CompleteDeserialization");
+				t.Log($"Read cached repository with {repository.Commits.Count} commits");
 				return repository;
 			}));
 		}

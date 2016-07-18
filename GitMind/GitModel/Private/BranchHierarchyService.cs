@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Utils;
@@ -24,7 +25,16 @@ namespace GitMind.GitModel.Private
 				MCommit LatestCommit = subBranch.Value.LatestCommit;
 				if (LatestCommit.BranchId != null)
 				{
-					subBranch.Value.ParentCommitId = repository.Branches[LatestCommit.BranchId].ParentCommitId;
+					if (LatestCommit.BranchName == subBranch.Value.Name)
+					{
+						subBranch.Value.ParentCommitId = repository.Branches[LatestCommit.BranchId].ParentCommitId;
+					}
+					else
+					{
+						// This is a branch with no commits
+						MCommit firstCommit = LatestCommit;
+						subBranch.Value.ParentCommitId = firstCommit.FirstParentId;
+					}
 				}
 				else
 				{
@@ -78,6 +88,15 @@ namespace GitMind.GitModel.Private
 						branch.Repository.Branches[branch.Id] = branch;
 					}
 
+					var activeTip = groupByBranch
+						.Where(b => b.Value.IsActive)
+						.OrderByDescending(b => b.Value.LatestCommit.CommitDate)
+						.FirstOrDefault();
+					if (activeTip.Value != null)
+					{
+						branch.LatestCommitId = activeTip.Value.LatestCommitId;
+					}
+
 					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);		
 				}
 			}
@@ -89,6 +108,7 @@ namespace GitMind.GitModel.Private
 					string subBranchId = commit.Value.SubBranchId;
 					string branchId = repository.SubBranches[subBranchId].BranchId;
 					commit.Value.BranchId = branchId;
+					commit.Value.SubBranchId = null;
 					repository.Branches[branchId].TempCommitIds.Add(commit.Value.Id);
 				}
 			}
@@ -105,7 +125,37 @@ namespace GitMind.GitModel.Private
 
 					branch.FirstCommitId = commits.Any() ? commits.Last().Id : branch.ParentCommitId;
 					branch.CommitIds = commits.Select(c => c.Id).ToList();
-				}		
+				}
+
+				if (!branch.CommitIds.Any())
+				{
+					if (branch.LatestCommitId != null)
+					{
+						// Active Branch has no commits of its own
+						branch.FirstCommitId = branch.LatestCommitId;
+					}
+					else
+					{
+						// Branch has no commits of its own
+						branch.LatestCommitId = branch.ParentCommitId;
+						branch.FirstCommitId = branch.ParentCommitId;
+					}			
+				}
+			}
+
+
+			foreach (MBranch branch in repository.Branches.Values.Where(b => !b.Commits.Any()))
+			{
+				string branchTipText = $"({branch.Name}) ";
+				if (branch.LatestCommit.BranchTips != null 
+					&& -1 == branch.LatestCommit.BranchTips.IndexOf(branch.Name, StringComparison.Ordinal))
+				{
+					branch.LatestCommit.BranchTips += branchTipText;
+				}
+				else
+				{
+					branch.LatestCommit.BranchTips = branchTipText;
+				}
 			}
 		}
 
@@ -138,10 +188,6 @@ namespace GitMind.GitModel.Private
 					{
 						branch.Value.ParentBranch.ChildBranchNames.Add(branch.Value.Name);
 					}
-				}
-				else
-				{
-					Log.Debug($"Branch {branch} has no parent branch");
 				}
 			}
 		}

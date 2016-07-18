@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using LibGit2Sharp;
 
@@ -9,10 +8,13 @@ namespace GitMind.Git
 	{
 		private readonly Diff diff;
 		private readonly Repository repository;
-		private static readonly CompareOptions DefultCompareOptions =
-			new CompareOptions { ContextLines = 5 };
-		private static readonly CompareOptions DefultFileCompareOptions =
-					new CompareOptions { ContextLines = 10000 };
+		private static readonly SimilarityOptions DetectRenames =
+			new SimilarityOptions { RenameDetectionMode = RenameDetectionMode.Renames };
+
+		private static readonly CompareOptions DefultCompareOptions = new CompareOptions
+			{ ContextLines = 5, Similarity = DetectRenames };
+		private static readonly CompareOptions DefultFileCompareOptions = new CompareOptions
+			{ ContextLines = 10000, Similarity = DetectRenames };
 
 
 		public GitDiff(Diff diff, Repository repository)
@@ -22,14 +24,14 @@ namespace GitMind.Git
 		}
 
 
-		public string GetPatch()
-		{
-			return diff.Compare<Patch>(null, true, null, DefultCompareOptions);
-		}
-
-
 		public string GetPatch(string commitId)
 		{
+			if (commitId == GitCommit.UncommittedId)
+			{
+				// Current working folder uncommitted changes
+				return diff.Compare<Patch>(null, true, null, DefultCompareOptions);
+			}
+
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 
 			if (commit != null)
@@ -42,9 +44,38 @@ namespace GitMind.Git
 
 				return diff.Compare<Patch>(
 					parentTree,
-					commit.Tree,					
+					commit.Tree,
 					DefultCompareOptions);
-				
+			}
+
+			return "";
+		}
+
+
+		internal string GetFilePatch(string commitId, string filePath)
+		{
+			if (commitId == GitCommit.UncommittedId)
+			{
+				// Current working folder uncommitted changes
+				return diff.Compare<Patch>(new[] { filePath }, true, null, DefultFileCompareOptions);
+			}
+
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+
+			if (commit != null)
+			{
+				Tree parentTree = null;
+				if (commit.Parents.Any())
+				{
+					parentTree = commit.Parents.First().Tree;
+				}
+
+				return diff.Compare<Patch>(
+					parentTree,
+					commit.Tree,
+					new[] { filePath },
+					null,
+					DefultFileCompareOptions);
 			}
 
 			return "";
@@ -68,38 +99,10 @@ namespace GitMind.Git
 					commit.Tree,
 					DefultCompareOptions);
 
-					return new GitCommitFiles(commitId, treeChanges);			
+				return new GitCommitFiles(commitId, treeChanges);
 			}
 
-			return new GitCommitFiles(commitId, null);
-		}
-
-		internal string GetFilePatch(string commitId, string filePath)
-		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
-
-			if (commit != null)
-			{
-				Tree parentTree = null;
-				if (commit.Parents.Any())
-				{
-					parentTree = commit.Parents.First().Tree;
-				}
-
-				return diff.Compare<Patch>(
-					parentTree,
-					commit.Tree,
-					new [] { filePath },
-					null,
-					DefultFileCompareOptions);
-			}
-
-			return "";
-		}
-
-		public string GetFilePatch(string name)
-		{
-			throw new NotImplementedException();
+			return new GitCommitFiles(commitId, (TreeChanges)null);
 		}
 	}
 }

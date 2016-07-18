@@ -21,5 +21,13 @@ namespace GitMind.Utils.UI
 				viewModel.Notify(otherPropertyNames);
 			}
 		}
+
+		public void NotifyAll()
+		{
+			if (IsSet)
+			{
+				viewModel.NotifyAll();
+			}
+		}
 	}
 }

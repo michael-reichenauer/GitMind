@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Git;
 using ProtoBuf;
 
 
@@ -9,6 +10,9 @@ namespace GitMind.GitModel.Private
 	[ProtoContract]
 	public class MCommit
 	{
+		public static readonly string UncommittedId = GitCommit.UncommittedId;
+
+
 		[ProtoMember(1)]
 		public string Id { get; set; }
 		[ProtoMember(2)]
@@ -40,10 +44,15 @@ namespace GitMind.GitModel.Private
 		public string Tags { get; set; }
 		[ProtoMember(14)]
 		public string Tickets { get; set; }
+		[ProtoMember(15)]
+		public bool IsVirtual { get; set; }
+		[ProtoMember(16)]
+		public string BranchTips { get; set; }
+
 
 		public string SubBranchId { get; set; }
 		public string FromSubjectBranchName { get; set; }
-
+		
 		public bool HasBranchName => !string.IsNullOrEmpty(BranchName);
 		public bool HasFirstParent => ParentIds.Count > 0;
 		public bool HasSecondParent => ParentIds.Count > 1;
@@ -65,8 +74,8 @@ namespace GitMind.GitModel.Private
 		public bool IsLocalAhead => Branch.IsLocalAndRemote && IsLocalAheadMarker && !IsSynced;
 		public bool IsRemoteAhead => Branch.IsLocalAndRemote && IsRemoteAheadMarker && !IsSynced;
 		public bool IsSynced => IsLocalAheadMarker && IsRemoteAheadMarker;
-		
 
+		public bool IsUncommitted => Id == UncommittedId;
 
 		public IEnumerable<MCommit> FirstAncestors()
 		{

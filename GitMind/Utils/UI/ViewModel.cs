@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -14,13 +15,20 @@ namespace GitMind.Utils.UI
 
 		private readonly Dictionary<string, Property> properties = new Dictionary<string, Property>();
 		private readonly Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>();
-		private readonly Dictionary<string, BusyIndicator> busyIndicators = 
+		private readonly Dictionary<string, BusyIndicator> busyIndicators =
 			new Dictionary<string, BusyIndicator>();
 
+		private IList<string> allPropertyNames = null;
 
 		internal void OnPropertyChanged(string propertyName)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+
+		protected WhenSetter WhenSet(ViewModel viewModel, params string[] sourcePropertyName)
+		{
+			return new WhenSetter(this, viewModel, sourcePropertyName);
 		}
 
 
@@ -32,6 +40,23 @@ namespace GitMind.Utils.UI
 			}
 		}
 
+
+		internal void NotifyAll()
+		{
+			if (allPropertyNames == null)
+			{
+				allPropertyNames = this.GetType()
+					.GetProperties()
+					.Where(pi => pi.GetGetMethod() != null)
+					.Select(pi => pi.Name)
+					.ToList();
+			}
+
+			foreach (string propertyName in allPropertyNames)
+			{
+				OnPropertyChanged(propertyName);
+			}
+		}
 
 		protected Property Get([CallerMemberName] string memberName = "")
 		{
@@ -47,8 +72,14 @@ namespace GitMind.Utils.UI
 
 
 		protected T Get<T>([CallerMemberName] string memberName = "")
-		{		
-			return (T)Get(memberName).Value;
+		{
+			Property property = Get(memberName);
+			if (property.Value == null)
+			{
+				return default(T);
+			}
+
+			return (T)property.Value;
 		}
 
 
@@ -57,20 +88,6 @@ namespace GitMind.Utils.UI
 			Property property = Get(memberName);
 			return property.Set(value);
 		}
-
-
-		//protected Property<T> Property<T>([CallerMemberName] string memberName = "")
-		//{
-		//	Property property;
-		//	if (!properties.TryGetValue(memberName, out property))
-		//	{
-
-		//		property = new Property<T>(memberName, this);
-		//		properties[memberName] = property;
-		//	}
-
-		//	return (Property<T>)property;
-		//}
 
 
 		protected BusyIndicator BusyIndicator([CallerMemberName] string memberName = "")

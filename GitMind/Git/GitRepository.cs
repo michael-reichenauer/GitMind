@@ -9,6 +9,8 @@ namespace GitMind.Git
 	internal class GitRepository : IDisposable
 	{
 		private readonly Repository repository;
+		private static readonly StatusOptions StatusOptions = new StatusOptions
+			{ DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
 
 
 		public GitRepository(Repository repository)
@@ -23,10 +25,11 @@ namespace GitMind.Git
 
 		public GitBranch Head => new GitBranch(repository.Head);
 
-		public GitStatus Status => new GitStatus(repository.RetrieveStatus(new StatusOptions()));
+		public GitStatus Status => new GitStatus(repository.RetrieveStatus(StatusOptions));
 
 		public GitDiff Diff => new GitDiff(repository.Diff, repository);
 
+		public string UserName => repository.Config.GetValueOrDefault<string>("user.name");
 
 		public void Dispose()
 		{

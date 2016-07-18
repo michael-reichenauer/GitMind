@@ -40,7 +40,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Application.ico</ApplicationIcon>
+    <ApplicationIcon>MainWindowViews\Application.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>GitMind.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LibGit2Sharp, Version=0.22.0.0, Culture=neutral, PublicKeyToken=7cbde695407f0333, processorArchitecture=MSIL">
@@ -58,6 +61,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -74,36 +78,51 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="AcceptingExceptionsAttribute.cs" />
-    <Compile Include="CommitsHistory\BranchItem.cs" />
-    <Compile Include="CommitsHistory\BranchNameItem.cs" />
-    <Compile Include="CommitsHistory\BranchViewModel.cs" />
-    <Compile Include="CommitsHistory\BrushService.cs" />
-    <Compile Include="CommitsHistory\CommitDetail.cs" />
-    <Compile Include="CommitsHistory\CommitDetailViewModel.cs" />
-    <Compile Include="CommitsHistory\CommitFileViewModel.cs" />
+    </Page>
+    <Compile Include="Installation\Private\AssemblyResolver.cs" />
+    <Compile Include="Installation\IAssemblyResolver.cs" />
+    <Compile Include="RepositoryViews\BranchItem.cs" />
+    <Compile Include="RepositoryViews\BranchNameItem.cs" />
+    <Compile Include="RepositoryViews\BranchViewModel.cs" />
+    <Compile Include="RepositoryViews\BrushService.cs" />
+    <Compile Include="RepositoryViews\CommitDetailsView.xaml.cs">
+      <DependentUpon>CommitDetailsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RepositoryViews\CommitDetailsViewModel.cs" />
+    <Compile Include="RepositoryViews\CommitFileViewModel.cs" />
+    <Compile Include="RepositoryViews\RepositoryView.xaml.cs">
+      <DependentUpon>RepositoryView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Common\SearchFilter.xaml.cs">
+      <DependentUpon>SearchFilter.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Git\GitDiff.cs" />
     <Compile Include="Git\GitRepository.cs" />
+    <Compile Include="MainWindowViews\HamburgerButton.xaml.cs">
+      <DependentUpon>HamburgerButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Utils\SingleInstance.cs" />
+    <Compile Include="Utils\UI\BusyProgress.cs" />
+    <Compile Include="Utils\UI\HideableGridSplitter.cs" />
     <Compile Include="Utils\Compare.cs" />
-    <Compile Include="CommitsHistory\SetBranchPrompt.xaml.cs">
+    <Compile Include="RepositoryViews\SetBranchPrompt.xaml.cs">
       <DependentUpon>SetBranchPrompt.xaml</DependentUpon>
     </Compile>
     <Compile Include="GitModel\CommitFile.cs" />
-    <Compile Include="CommitsHistory\CommitViewModel.cs" />
-    <Compile Include="CommitsHistory\Converter.cs" />
-    <Compile Include="CommitsHistory\DiffService.cs" />
-    <Compile Include="CommitsHistory\IBrushService.cs" />
-    <Compile Include="CommitsHistory\IDiffService.cs" />
-    <Compile Include="CommitsHistory\IViewModelService.cs" />
-    <Compile Include="CommitsHistory\IVirtualItem.cs" />
-    <Compile Include="CommitsHistory\MergeViewModel.cs" />
-    <Compile Include="CommitsHistory\RepositoryVirtualItemsSource.cs" />
-    <Compile Include="CommitsHistory\RepositoryViewModel.cs" />
-    <Compile Include="CommitsHistory\ViewModelService.cs" />
+    <Compile Include="RepositoryViews\CommitViewModel.cs" />
+    <Compile Include="RepositoryViews\Converter.cs" />
+    <Compile Include="RepositoryViews\DiffService.cs" />
+    <Compile Include="RepositoryViews\IBrushService.cs" />
+    <Compile Include="RepositoryViews\IDiffService.cs" />
+    <Compile Include="RepositoryViews\IViewModelService.cs" />
+    <Compile Include="RepositoryViews\IVirtualItem.cs" />
+    <Compile Include="RepositoryViews\MergeViewModel.cs" />
+    <Compile Include="RepositoryViews\RepositoryVirtualItemsSource.cs" />
+    <Compile Include="RepositoryViews\RepositoryViewModel.cs" />
+    <Compile Include="RepositoryViews\ViewModelService.cs" />
     <Compile Include="GitModel\Branch.cs" />
     <Compile Include="GitModel\Commit.cs" />
     <Compile Include="GitModel\CommitFiles.cs" />
@@ -137,8 +156,8 @@
     <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="GitModel\Private\MRepository.cs" />
     <Compile Include="GitModel\Private\RepositoryService.cs" />
-    <Compile Include="ExceptionHandling.cs" />
-    <Compile Include="FatalExceptionsExtensions.cs" />
+    <Compile Include="Common\ExceptionHandling.cs" />
+    <Compile Include="Utils\FatalExceptionsExtensions.cs" />
     <Compile Include="GitModel\Private\CacheService.cs" />
     <Compile Include="GitModel\Private\ICacheService.cs" />
     <Compile Include="Installation\Private\CommandLine.cs" />
@@ -155,13 +174,12 @@
     <Compile Include="Installation\Private\Installer.cs" />
     <Compile Include="Settings\ProgramPaths.cs" />
     <Compile Include="Settings\ProgramSettings.cs" />
-    <Compile Include="IStatusRefreshService.cs" />
-    <Compile Include="PropertyToVisibilityConverter.cs" />
-    <Compile Include="StatusRefreshService.cs" />
+    <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
     <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\JsonSerializer.cs" />
     <Compile Include="Utils\R.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
+    <Compile Include="Utils\TaskExtensions.cs" />
     <Compile Include="Utils\TaskThrottler.cs" />
     <Compile Include="Utils\UI\BusyIndicator.cs" />
     <Compile Include="Utils\UI\MyWpfExtensions.cs" />
@@ -174,34 +192,54 @@
     <Compile Include="Git\GitTag.cs" />
     <Compile Include="Git\IGitService.cs" />
     <Compile Include="Git\GitStatus.cs" />
-    <Compile Include="MainWindowViewModel.cs" />
-    <Compile Include="TestRepo.cs" />
+    <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
+    <Compile Include="Testing\TestRepo.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />
     <Compile Include="Utils\Timing.cs" />
     <Compile Include="Utils\UI\PropertySetter.cs" />
     <Compile Include="Utils\UI\ViewModel.cs" />
-    <Compile Include="VirtualCanvas\VirtualItemsSource.cs" />
-    <Compile Include="VirtualCanvas\ArithmeticConverter.cs" />
-    <Compile Include="VirtualCanvas\ISpatialItemsSource.cs" />
-    <Compile Include="VirtualCanvas\LinkedListExtensions.cs" />
-    <Compile Include="VirtualCanvas\MathExtensions.cs" />
-    <Compile Include="VirtualCanvas\PriorityQuadTree.cs" />
-    <Compile Include="VirtualCanvas\PriorityQueue.cs" />
-    <Compile Include="VirtualCanvas\RectExtensions.cs" />
+    <Compile Include="Utils\UI\WhenSetter.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\VirtualItemsSource.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\ArithmeticConverter.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\ISpatialItemsSource.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\LinkedListExtensions.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\MathExtensions.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\PriorityQuadTree.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\PriorityQueue.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\RectExtensions.cs" />
     <Compile Include="Utils\Cmd.cs" />
     <Compile Include="Utils\ICmd.cs" />
     <Compile Include="Utils\Log.cs" />
     <Compile Include="Git\Private\GitService.cs" />
     <Compile Include="Git\GitCommit.cs" />
     <Compile Include="Utils\MicroDiContainer.cs" />
-    <Compile Include="VirtualCanvas\VirtualPanel.cs" />
-    <Compile Include="VirtualCanvas\ZoomableCanvas.cs" />
-    <Page Include="CommitsHistory\SetBranchPrompt.xaml">
+    <Compile Include="Utils\UI\VirtualCanvas\VirtualPanel.cs" />
+    <Compile Include="Utils\UI\VirtualCanvas\ZoomableCanvas.cs" />
+    <Compile Include="Common\WindowControlButtons.xaml.cs">
+      <DependentUpon>WindowControlButtons.xaml</DependentUpon>
+    </Compile>
+    <Page Include="RepositoryViews\CommitDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="RepositoryViews\RepositoryView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RepositoryViews\SetBranchPrompt.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Common\SearchFilter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainWindowViews\HamburgerButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainWindowViews\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -209,7 +247,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="MainWindowViews\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -232,6 +270,14 @@
     <Page Include="Styles\Theme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\ToolTipStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Common\WindowControlButtons.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -265,7 +311,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Application.ico" />
+    <Resource Include="MainWindowViews\Application.ico" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="IWshRuntimeLibrary">

@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using System.Windows.Threading;
 
 
@@ -10,11 +9,11 @@ namespace GitMind.Utils.UI
 		private readonly string propertyName;
 		private readonly ViewModel viewModel;
 		private static readonly string[] indicators = { "o", "o o", "o o o", "o o o o" };
-		private static readonly TimeSpan InitialIndicatorTime = TimeSpan.FromMilliseconds(100);
+		private static readonly TimeSpan InitialIndicatorTime = TimeSpan.FromMilliseconds(10);
 		private static readonly TimeSpan IndicatorInterval = TimeSpan.FromMilliseconds(500);
 
 		private readonly DispatcherTimer timer = new DispatcherTimer();
-		private int taskCount;
+		private int progressCount;
 		private int indicatorIndex;
 
 
@@ -24,46 +23,51 @@ namespace GitMind.Utils.UI
 			this.viewModel = viewModel;
 			timer.Tick += UpdateIndicator;
 		}
-		
-		
+
 
 		public string Text { get; private set; }
 
 
-		public void Add(Task task)
+		public BusyProgress Progress
 		{
-			if (task.IsCompleted)
-			{
-				return;
-			}
-
-			taskCount++;
-
-			if (taskCount == 1)
+			get
 			{
 				StartIndicator();
-			}
 
-			task.ContinueWith(t => RemoveTask(), TaskScheduler.FromCurrentSynchronizationContext());
+				return new BusyProgress(this);
+			}
 		}
 
 
-		private void RemoveTask()
+		public void Done()
 		{
-			taskCount--;
+			progressCount--;
+
+			if (progressCount == 0)
+			{
+				timer.Stop();
+				indicatorIndex = 0;
+				Set("");
+			}
 		}
 
 
 		private void StartIndicator()
 		{
-			timer.Interval = InitialIndicatorTime;
-			timer.Start();
+			progressCount++;
+
+			if (progressCount == 1)
+			{
+				indicatorIndex = 0;
+				timer.Interval = InitialIndicatorTime;
+				timer.Start();
+			}
 		}
 
 
 		private void UpdateIndicator(object sender, EventArgs e)
 		{
-			if (taskCount > 0)
+			if (progressCount > 0)
 			{
 				string indicatorText = indicators[indicatorIndex];
 				Set(indicatorText);
@@ -85,5 +89,24 @@ namespace GitMind.Utils.UI
 			Text = indicatorText;
 			viewModel.OnPropertyChanged(propertyName);
 		}
+
+
+		//public void Add(Task task)
+		//{
+		//	if (task.IsCompleted)
+		//	{
+		//		return;
+		//	}
+
+		//	taskCount++;
+
+		//	if (taskCount == 1)
+		//	{
+		//		StartIndicator();
+		//	}
+
+		//	task.ContinueWith(t => Done(), TaskScheduler.FromCurrentSynchronizationContext());
+		//}
+
 	}
 }

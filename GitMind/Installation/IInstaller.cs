@@ -1,7 +1,7 @@
 ﻿namespace GitMind.Installation
 {
 	public interface IInstaller
-	{		
+	{
 		void InstallNormal();
 
 		void InstallSilent();

@@ -15,10 +15,21 @@
 		</Setter>
 	</Style>
 
+	<Style x:Key="MenuIconStyle" TargetType="{x:Type TextBlock}">
+		<Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Material Icons"/>
+		<Setter Property="FontSize" Value="13"/>
+		<Setter Property="Foreground" Value="LightSteelBlue"/>
+		<Setter Property="VerticalAlignment" Value="Center"/>
+		<Setter Property="Padding" Value="2"/>
+	</Style>
+
+
 	<!-- Outer menu items -->
 	<Style TargetType="{x:Type MenuItem}">
 		<Setter Property="Background" Value="Black"></Setter>
 		<Setter Property="Foreground" Value="Lavender"></Setter>
+		<Setter Property="FontFamily" Value="Segoe UI"></Setter>
+		<Setter Property="FontSize" Value="12"></Setter>
 		<Style.Triggers>
 			<Trigger Property="IsHighlighted" Value="True">
 				<Setter Property="Background" Value="Black"></Setter>
@@ -96,8 +107,9 @@
 					x:Name="InputGestureText"
 					Grid.Column="2"
 					Text="{TemplateBinding InputGestureText}"
-					Margin="5,2,0,2"
-					DockPanel.Dock="Right" />
+					Margin="30,0,0,0"
+					HorizontalAlignment="Left"
+					DockPanel.Dock="Left" />
 			</Grid>
 		</Border>
 		<ControlTemplate.Triggers>

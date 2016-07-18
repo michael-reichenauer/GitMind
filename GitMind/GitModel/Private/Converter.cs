@@ -36,12 +36,15 @@ namespace GitMind.GitModel.Private
 				commit.CommitDate,
 				commit.Tags,
 				commit.Tickets,
+				commit.BranchTips,
 				commit.ParentIds.ToList(),
 				commit.Repository.ChildIds(commit.Id).ToList(),
 				commit.BranchId,
 				commit.SpecifiedBranchName,
 				commit.IsLocalAhead,
-				commit.IsRemoteAhead);
+				commit.IsRemoteAhead,
+				commit.IsUncommitted,
+				commit.IsVirtual);
 		}
 
 

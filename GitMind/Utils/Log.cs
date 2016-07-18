@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 
 namespace GitMind.Utils
@@ -67,12 +67,16 @@ namespace GitMind.Utils
 				byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
 				UdpClient.Send(bytes, bytes.Length, LocalLogEndPoint);
 
-				Debugger.Log(0, Debugger.DefaultCategory, text);
+				//Debugger.Log(0, Debugger.DefaultCategory, text);
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Debugger.Log(0, Debugger.DefaultCategory, "ERROR Failed to log to udp " + e);
+				//Debugger.Log(0, Debugger.DefaultCategory, "ERROR Failed to log to udp " + e);
+				OutputDebugString("ERROR Failed to log to udp " + e);
 			}
 		}
+
+		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+		public static extern void OutputDebugString(string message);
 	}
 }

@@ -84,7 +84,10 @@ namespace GitMind.GitModel.Private
 		{
 			if (!commit.IsLocalAheadMarker)
 			{
-				commit.IsLocalAheadMarker = true;
+				if (!commit.IsUncommitted)
+				{
+					commit.IsLocalAheadMarker = true;
+				}
 
 				foreach (MCommit parent in commit.Parents)
 				{
