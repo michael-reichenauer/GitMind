@@ -412,14 +412,10 @@ namespace GitMind.RepositoryViews
 		}
 
 
-
 		private void SetCommitsDetails(CommitViewModel commit)
 		{
 			CommitDetailsViewModel.CommitViewModel = commit;		
 		}
-
-
-
 	
 
 		public void SetFilter(string text)

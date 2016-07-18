@@ -94,7 +94,9 @@ namespace GitMind.RepositoryViews
 			repositoryViewModel.SelectedIndex = currentRow;
 			UpdateViewModel(repositoryViewModel, currentlyShownBranches);
 
-			int newRow = stableCommitViewModel.RowIndex;
+			CommitViewModel newCommitViewModel = repositoryViewModel.CommitsById[stableCommit.Id];
+
+			int newRow = newCommitViewModel.RowIndex;
 			Log.Debug($"Row {currentRow}->{newRow} for {stableCommit}");
 
 			return currentRow - newRow;
@@ -626,6 +628,8 @@ namespace GitMind.RepositoryViews
 			merge.Line = $"M {x1},{y1} L {x2},{y2}";
 			merge.Brush = mainBranch.Brush;
 			merge.Stroke = isBranchStart ? 2 : 1;
+
+			merge.NotifyAll();
 		}
 
 
