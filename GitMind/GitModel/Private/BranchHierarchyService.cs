@@ -88,6 +88,15 @@ namespace GitMind.GitModel.Private
 						branch.Repository.Branches[branch.Id] = branch;
 					}
 
+					var activeTip = groupByBranch
+						.Where(b => b.Value.IsActive)
+						.OrderByDescending(b => b.Value.LatestCommit.CommitDate)
+						.FirstOrDefault();
+					if (activeTip.Value != null)
+					{
+						branch.LatestCommitId = activeTip.Value.LatestCommitId;
+					}
+
 					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);		
 				}
 			}
@@ -120,9 +129,17 @@ namespace GitMind.GitModel.Private
 
 				if (!branch.CommitIds.Any())
 				{
-					// Branch has no commits of its own
-					branch.LatestCommitId = branch.ParentCommitId;
-					branch.FirstCommitId = branch.ParentCommitId;
+					if (branch.LatestCommitId != null)
+					{
+						// Active Branch has no commits of its own
+						branch.FirstCommitId = branch.LatestCommitId;
+					}
+					else
+					{
+						// Branch has no commits of its own
+						branch.LatestCommitId = branch.ParentCommitId;
+						branch.FirstCommitId = branch.ParentCommitId;
+					}			
 				}
 			}
 

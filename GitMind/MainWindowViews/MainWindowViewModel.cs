@@ -161,7 +161,7 @@ namespace GitMind.MainWindowViews
 						isLoaded = true;
 					}));
 
-				return Task.FromResult(true);
+				return Task.CompletedTask;
 			}
 		}
 
