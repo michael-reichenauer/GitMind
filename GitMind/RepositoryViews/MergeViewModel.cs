@@ -5,17 +5,10 @@ using GitMind.Utils.UI;
 
 namespace GitMind.RepositoryViews
 {
-	internal class MergeViewModel : ViewModel, IVirtualItem
+	internal class MergeViewModel : ViewModel
 	{
-		public MergeViewModel(string id, int virtualId)
-		{
-			Id = id;
-			VirtualId = virtualId;
-		}
-
 		public int ZIndex => 100;
-		public string Id { get; }
-		public int VirtualId { get; }
+		public string Id { get; set; }
 
 		public string Type => "Merge";
 

@@ -360,27 +360,28 @@ namespace GitMind.RepositoryViews
 
 
 		private void UpdateCommits(
-			IEnumerable<Commit> sourceCommits,
+			IReadOnlyList<Commit> sourceCommits,
 			RepositoryViewModel repositoryViewModel)
 		{
 			List<CommitViewModel> commits = repositoryViewModel.Commits;
 			var commitsById = repositoryViewModel.CommitsById;
 
-			//SetNumberOfItems(commits, sourceCommits.Count(), i => new CommitViewModel(i, null, null));
-			commits.Clear();
+			SetNumberOfItems(commits, sourceCommits.Count, i => new CommitViewModel());
+
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
 
+			int index = 0;
 			foreach (Commit commit in sourceCommits)
 			{
-				CommitViewModel commitViewModel = repositoryViewModel.VirtualItemsSource.GetOrAdd(
-					commit.Id, (id, virtualId) => new CommitViewModel(id, virtualId));
+				CommitViewModel commitViewModel = commits[index];
+				commitViewModel.RowIndex = index++;
+
+				commitViewModel.Id = commit.Id;
+				commitsById[commit.Id] = commitViewModel;
 
 				commitViewModel.HideBranch = () => HideBranch(repositoryViewModel, commit.Branch);
-				commitViewModel.RowIndex = commits.Count;
-
-				commits.Add(commitViewModel);
-				commitsById[commit.Id] = commitViewModel;
+				
 
 				commitViewModel.Commit = commit;
 
@@ -418,25 +419,25 @@ namespace GitMind.RepositoryViews
 
 
 		private void UpdateBranches(
-			IEnumerable<Branch> sourceBranches,
+			IReadOnlyList<Branch> sourceBranches,
 			List<Commit> commits,
 			RepositoryViewModel repositoryViewModel)
 		{
 			int maxColumn = 0;
 			var branches = repositoryViewModel.Branches;
 			//var commits = repositoryViewModel.CommitsById;
-			//SetNumberOfItems(branches, sourceBranches.Count(), i => new BranchViewModel(i));
 
-			branches.Clear();
-			//int index = 0;
+			SetNumberOfItems(branches, sourceBranches.Count, i => new BranchViewModel(
+				repositoryViewModel.ShowBranchCommand,
+				repositoryViewModel.HideBranchCommand));
+
+			//branches.Clear();
+			int index = 0;
+			List<BranchViewModel> addedBranchColumns = new List<BranchViewModel>();
 			foreach (Branch sourceBranch in sourceBranches)
 			{
-				BranchViewModel branch = repositoryViewModel.VirtualItemsSource.GetOrAdd(
-					sourceBranch.Id, (id, virtualId) => new BranchViewModel(
-						id,
-						virtualId,
-						repositoryViewModel.ShowBranchCommand,
-						repositoryViewModel.HideBranchCommand));
+				BranchViewModel branch = branches[index++];
+				branch.Id = sourceBranch.Id;
 
 				branch.ActiveBranches = repositoryViewModel.ActiveBranches;
 				branch.Branch = sourceBranch;
@@ -445,11 +446,9 @@ namespace GitMind.RepositoryViews
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
 				int height = Converter.ToY(branch.FirstRowIndex - branch.LatestRowIndex);
 
-				//branch.BranchColumn = index++;
-				branch.BranchColumn = FindBranchColumn(branches, branch);
+				branch.BranchColumn = FindBranchColumn(addedBranchColumns, branch);
+				addedBranchColumns.Add(branch);
 				maxColumn = Math.Max(branch.BranchColumn, maxColumn);
-
-				branches.Add(branch);
 
 				branch.Rect = new Rect(
 					(double)Converter.ToX(branch.BranchColumn) + 6,
@@ -519,11 +518,14 @@ namespace GitMind.RepositoryViews
 
 			while (true)
 			{
-				if (branches.Any(current => column == current.BranchColumn && IsOverlapping(
-					current.LatestRowIndex,
-					current.FirstRowIndex,
-					branch.LatestRowIndex,
-					branch.FirstRowIndex)))
+				if (branches.Any(current => 
+					current.Id != branch.Id
+					&& column == current.BranchColumn 
+					&& IsOverlapping(
+						current.LatestRowIndex,
+						current.FirstRowIndex,
+						branch.LatestRowIndex,
+						branch.FirstRowIndex)))
 				{
 					column++;
 				}
@@ -565,15 +567,16 @@ namespace GitMind.RepositoryViews
 				.Select(b => b.Branch.FirstCommit)
 				.ToList();
 
-			//SetNumberOfItems(merges, mergePoints.Count + branchStarts.Count, _ => new MergeViewModel());
-			merges.Clear();
+			SetNumberOfItems(merges, mergePoints.Count + branchStarts.Count, _ => new MergeViewModel());
+
+			int index = 0;
 			foreach (CommitViewModel childCommit in mergePoints)
 			{
 				CommitViewModel parentCommit = commitsById[childCommit.Commit.SecondParent.Id];
 				string mergeId = childCommit.ShortId + "-" + parentCommit.ShortId;
 
-				MergeViewModel merge = repositoryViewModel.VirtualItemsSource.GetOrAdd(
-					mergeId, (id, virtualId) => new MergeViewModel(id, virtualId));
+				MergeViewModel merge = merges[index++];
+				merge.Id = mergeId;
 
 				AddMerge(merge, merges, branches, childCommit, parentCommit);
 			}
@@ -583,8 +586,8 @@ namespace GitMind.RepositoryViews
 				CommitViewModel parentCommit = commitsById[childCommit.FirstParent.Id];
 				string mergeId = childCommit.ShortId + "-" + parentCommit.ShortId;
 
-				MergeViewModel merge = repositoryViewModel.VirtualItemsSource.GetOrAdd(
-					mergeId, (id, virtualId) => new MergeViewModel(id, virtualId));
+				MergeViewModel merge = merges[index++];
+				merge.Id = mergeId;
 
 				AddMerge(merge, merges, branches, commitsById[childCommit.Id], parentCommit);
 			}
@@ -598,8 +601,6 @@ namespace GitMind.RepositoryViews
 			CommitViewModel childCommit,
 			CommitViewModel parentCommit)
 		{
-			merges.Add(merge);
-
 			BranchViewModel childBranch = branches
 				.First(b => b.Branch == childCommit.Commit.Branch);
 			BranchViewModel parentBranch = branches
@@ -611,11 +612,6 @@ namespace GitMind.RepositoryViews
 			int parentRow = parentCommit.RowIndex;
 			int childColumn = childBranch.BranchColumn;
 			int parentColumn = parentBranch.BranchColumn;
-
-			if (childColumn == parentColumn)
-			{
-
-			}
 
 			bool isBranchStart = childCommit.Commit.HasFirstParent
 				&& childCommit.Commit.FirstParent.Branch != childCommit.Commit.Branch;
@@ -652,7 +648,6 @@ namespace GitMind.RepositoryViews
 			merge.Brush = mainBranch.Brush;
 			merge.Stroke = isBranchStart ? 2 : 1;
 			merge.StrokeDash = "";
-
 		}
 
 

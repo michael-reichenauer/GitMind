@@ -10,29 +10,22 @@ using GitMind.Utils.UI;
 
 namespace GitMind.RepositoryViews
 {
-	internal class BranchViewModel : ViewModel, IVirtualItem
+	internal class BranchViewModel : ViewModel
 	{
 		private readonly ICommand showBranchCommand;
 
 		public string Type => "Branch";
 		public int ZIndex => 200;
 
-		public BranchViewModel(
-			string id, 
-			int virtualId,
-			ICommand showBranchCommand, ICommand hideBranchCommand)
+		public BranchViewModel(ICommand showBranchCommand, ICommand hideBranchCommand)
 		{			
 			this.showBranchCommand = showBranchCommand;
-			Id = id;
-			VirtualId = virtualId;
 			HideBranchCommand = hideBranchCommand;
 		}
 
-
-		public int VirtualId { get; }
 		public ObservableCollection<BranchItem> ActiveBranches { get; set; }
 		public ICommand HideBranchCommand { get; }
-		public string Id { get; }
+		public string Id { get; set; }
 
 		public IReadOnlyList<BranchItem> ChildBranches =>
 			BranchItem.GetBranches(

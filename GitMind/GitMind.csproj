@@ -118,7 +118,6 @@
     <Compile Include="RepositoryViews\IBrushService.cs" />
     <Compile Include="RepositoryViews\IDiffService.cs" />
     <Compile Include="RepositoryViews\IViewModelService.cs" />
-    <Compile Include="RepositoryViews\IVirtualItem.cs" />
     <Compile Include="RepositoryViews\MergeViewModel.cs" />
     <Compile Include="RepositoryViews\RepositoryVirtualItemsSource.cs" />
     <Compile Include="RepositoryViews\RepositoryViewModel.cs" />

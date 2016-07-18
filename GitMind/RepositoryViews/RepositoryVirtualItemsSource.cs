@@ -9,9 +9,14 @@ namespace GitMind.RepositoryViews
 {
 	internal class RepositoryVirtualItemsSource : VirtualItemsSource
 	{
-		private readonly KeyedList<string, IVirtualItem> items =
-			new KeyedList<string, IVirtualItem>(item => item.Id);
-		
+		private const int minCommitIndex = 0;
+		private const int minBranchIndex = 1000000;
+		private const int minMergeIndex = 2000000;
+
+		private const int maxCommitIndex = minBranchIndex;
+		private const int maxBranchIndex = minMergeIndex;
+		private const int maxMergeIndex = 3000000;
+
 		private readonly IReadOnlyList<BranchViewModel> branches;
 		private readonly IReadOnlyList<MergeViewModel> merges;
 		private readonly IReadOnlyList<CommitViewModel> commits;
@@ -25,20 +30,6 @@ namespace GitMind.RepositoryViews
 			this.branches = branches;
 			this.merges = merges;
 			this.commits = commits;
-		}
-
-
-		public T GetOrAdd<T>(string id, Func<string, int, T> itemFactory) where T: IVirtualItem
-		{
-			IVirtualItem item;
-			if (!items.TryGetValue(id, out item))
-			{
-				int virtualId = items.Count;
-				item = itemFactory(id, virtualId);
-				items.Add(item);
-			}
-
-			return (T)item;
 		}
 
 
@@ -76,21 +67,24 @@ namespace GitMind.RepositoryViews
 			if (viewAreaBottomIndex > viewAreaTopIndex)
 			{
 				// Return visible branches
-				foreach (BranchViewModel branch in branches)
+				for (int i = 0; i < branches.Count; i++)
 				{
+					BranchViewModel branch = branches[i];
+
 					if (IsVisable(
 						viewAreaTopIndex, viewAreaBottomIndex, branch.LatestRowIndex, branch.FirstRowIndex))
 					{
-						yield return branch.VirtualId;
+						yield return i + minBranchIndex;
 					}
 				}
 
 				// Return visible merges
-				foreach (MergeViewModel merge in merges)
+				for (int i = 0; i < merges.Count; i++)
 				{
+					MergeViewModel merge = merges[i];
 					if (IsVisable(viewAreaTopIndex, viewAreaBottomIndex, merge.ChildRow, merge.ParentRow))
 					{
-						yield return merge.VirtualId;
+						yield return i + minMergeIndex;
 					}
 				}
 
@@ -99,8 +93,7 @@ namespace GitMind.RepositoryViews
 				{
 					if (i >= 0 && i < commits.Count)
 					{
-						var commit = commits[i];
-						yield return commit.VirtualId;
+						yield return i + minCommitIndex;
 					}
 				}
 			}
@@ -115,9 +108,29 @@ namespace GitMind.RepositoryViews
 		/// </summary>
 		protected override object GetItem(int virtualId)
 		{
-			if (virtualId < items.Count)
+			if (virtualId >= minCommitIndex && virtualId < maxCommitIndex)
 			{
-				return items[virtualId];
+				int commitIndex = virtualId - minCommitIndex;
+				if (commitIndex < commits.Count)
+				{
+					return commits[commitIndex];
+				}
+			}
+			else if (virtualId >= minBranchIndex && virtualId < maxBranchIndex)
+			{
+				int branchIndex = virtualId - minBranchIndex;
+				if (branchIndex < branches.Count)
+				{
+					return branches[branchIndex];
+				}
+			}
+			else if (virtualId >= minMergeIndex && virtualId < maxMergeIndex)
+			{
+				int mergeIndex = virtualId - minMergeIndex;
+				if (mergeIndex < merges.Count)
+				{
+					return merges[mergeIndex];
+				}
 			}
 
 			return null;
@@ -132,8 +145,8 @@ namespace GitMind.RepositoryViews
 		{
 			return
 				(itemTopIndex >= areaTopIndex && itemTopIndex <= areaBottomIndex)
-					|| (ItemBottomIndex >= areaTopIndex && ItemBottomIndex <= areaBottomIndex)
-					|| (itemTopIndex <= areaTopIndex && ItemBottomIndex >= areaBottomIndex);
+				|| (ItemBottomIndex >= areaTopIndex && ItemBottomIndex <= areaBottomIndex)
+				|| (itemTopIndex <= areaTopIndex && ItemBottomIndex >= areaBottomIndex);
 		}
 	}
 }

@@ -327,12 +327,6 @@ namespace GitMind.RepositoryViews
 
 				VirtualItemsSource.DataChanged(width);
 
-				if (Commits.Any())
-				{
-					SelectedIndex = Commits[0].VirtualId;
-					SetCommitsDetails(Commits[0]);
-				}
-
 				t.Log("Updated repository view model");
 			}
 			else
@@ -352,12 +346,6 @@ namespace GitMind.RepositoryViews
 			Commits.ForEach(commit => commit.WindowWidth = Width);
 
 			VirtualItemsSource.DataChanged(width);
-
-			if (Commits.Any())
-			{
-				SelectedIndex = Commits[0].VirtualId;
-				SetCommitsDetails(Commits[0]);
-			}
 
 			UpdateStatusIndicators();
 

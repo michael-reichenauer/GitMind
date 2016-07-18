@@ -8,7 +8,7 @@ using GitMind.Utils.UI;
 
 namespace GitMind.RepositoryViews
 {
-	internal class CommitViewModel : ViewModel, IVirtualItem
+	internal class CommitViewModel : ViewModel
 	{
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IRepositoryService repositoryService = new RepositoryService();
@@ -19,19 +19,8 @@ namespace GitMind.RepositoryViews
 			(SolidColorBrush)(new BrushConverter().ConvertFrom("#996495ED"));
 
 
-		public CommitViewModel(
-			string id,
-			int virtualId)
-		{
-			Id = id;
-			VirtualId = virtualId;
-		}
-
-
-
 		public int ZIndex => 0;
-		public string Id { get; }
-		public int VirtualId { get; }
+		public string Id { get; set; }
 
 		public string Type => "Commit";
 
