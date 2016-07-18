@@ -69,15 +69,18 @@
 					Style="{StaticResource HeaderLabelStyle}"/>
 				<StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
 					<TextBox
-						Text="{Binding Branch, Mode=OneWay}"
+						Text="{Binding BranchName, Mode=OneWay}"
 						Style="{StaticResource LabelStyle}"
-						Foreground="{Binding BranchBrush}"/>
+						FontStyle="{Binding BranchNameStyle}"
+						TextDecorations="{Binding BranchNameUnderline}"
+						Foreground="{Binding BranchBrush}"
+						ToolTip="{Binding BranchNameToolTip}"/>
 					
 					<Button 
 						Content="&#xE3C9;"
 						Style="{StaticResource IconButtonStyle}"
 						FontSize="14"
-						Foreground="{StaticResource TextLowBrush}"			
+						Foreground="{Binding SpecifiedBranchBrush}"			
 						Margin="0,3,0,0"			
 						Command="{Binding RunLatestVersionCommand}"
 						ToolTip="Manually specify a branch for this commit ..." />
