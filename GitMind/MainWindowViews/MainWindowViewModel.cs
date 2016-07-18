@@ -133,20 +133,21 @@ namespace GitMind.MainWindowViews
 		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
 
 
-		public Task FirstLoadAsync()
+		public async Task FirstLoadAsync()
 		{
 			R<string> path = ProgramPaths.GetWorkingFolderPath(WorkingFolder);
 			if (path.HasValue)
 			{
 				WorkingFolder = path.Value;
 				ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
+			
+				await RepositoryViewModel.FirstLoadAsync();
 				isLoaded = true;
-				return RepositoryViewModel.FirstLoadAsync();
 			}
 			else
 			{
-				Application.Current.Dispatcher.BeginInvoke(
-					DispatcherPriority.Normal, 
+				await Application.Current.Dispatcher.BeginInvoke(
+					DispatcherPriority.Normal,
 					new Action(async () =>
 					{
 						string selectedPath;
@@ -161,8 +162,6 @@ namespace GitMind.MainWindowViews
 						await RepositoryViewModel.FirstLoadAsync();
 						isLoaded = true;
 					}));
-
-				return Task.CompletedTask;
 			}
 		}
 
@@ -314,15 +313,18 @@ namespace GitMind.MainWindowViews
 
 		private async void SelectWorkingFolder()
 		{
+			isLoaded = false;
 			string selectedPath;
 			if (!GetWorkingFolder(WorkingFolder, out selectedPath))
 			{
+				isLoaded = true;
 				return;
 			}
 
 			WorkingFolder = selectedPath;
 
 			await RepositoryViewModel.FirstLoadAsync();
+			isLoaded = true;
 		}
 
 
