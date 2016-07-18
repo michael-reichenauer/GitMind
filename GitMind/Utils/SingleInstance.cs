@@ -1,4 +1,6 @@
-﻿namespace Microsoft.Shell
+﻿// Single instance application
+// From http://blogs.microsoft.co.il/arik/2010/05/28/wpf-single-instance-application/
+namespace Microsoft.Shell
 {
 	using System;
 	using System.Collections;

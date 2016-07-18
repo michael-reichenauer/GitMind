@@ -62,10 +62,7 @@ namespace GitMind.MainWindowViews
 			mainWindowViewModel = new MainWindowViewModel(diffService, latestVersionService, this);
 
 
-			if (!InitDataModel())
-			{
-				Application.Current.Shutdown(0);
-			}
+			InitDataModel();
 
 			DataContext = mainWindowViewModel;
 			mainWindowViewModel.WorkingFolder = workingFolder;
@@ -134,7 +131,7 @@ namespace GitMind.MainWindowViews
 		// * Starting as right click on folder (parameter "/d:<dir>"
 		// * Starting on command line with some parameters (branch names)
 		// * Starting with parameters "/test"
-		public bool InitDataModel()
+		public void InitDataModel()
 		{
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
@@ -159,20 +156,7 @@ namespace GitMind.MainWindowViews
 
 			workingFolder = workingFolder ?? Environment.CurrentDirectory;
 
-			R<string> path = ProgramPaths.GetWorkingFolderPath(workingFolder);
-			if (!path.HasValue)
-			{
-				if (!mainWindowViewModel.GetWorkingFolder(false, null, out workingFolder))
-				{
-					return false;
-				}
-			}
-
-			workingFolder = TryGetWorkingFolder(workingFolder ?? Environment.CurrentDirectory);
-
-
 			Log.Debug($"Current working folder {workingFolder}");
-			return true;
 		}
 
 
@@ -216,30 +200,6 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private string TryGetWorkingFolder(string workingFolder)
-		{
-			R<string> path = ProgramPaths.GetWorkingFolderPath(workingFolder);
-
-			if (!path.HasValue)
-			{
-				string lastUsedFolder = ProgramSettings.TryGetLatestUsedWorkingFolderPath();
-
-				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
-				{
-					path = ProgramPaths.GetWorkingFolderPath(lastUsedFolder);
-				}
-			}
-
-			if (path.HasValue)
-			{
-				return path.Value;
-			}
-
-			return null;
-		}
-
-
-
 		protected override void OnActivated(EventArgs e)
 		{
 			if (ActivatedTime < DateTime.MaxValue && DateTime.Now - ActivatedTime > TimeSpan.FromSeconds(10))
@@ -249,28 +209,6 @@ namespace GitMind.MainWindowViews
 				ActivatedTime = DateTime.Now;
 			}
 		}
-
-
-
-		//protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
-		//{
-		//	// Log.Debug($"Canvas offset {canvas.Offset}");
-
-		//	if (e.ChangedButton == MouseButton.Left)
-		//	{
-		//		Point viewPoint = e.GetPosition(ItemsListBox);
-
-		//		Point position = new Point(viewPoint.X + canvas.Offset.X, viewPoint.Y + canvas.Offset.Y);
-
-		//		bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
-
-		//		repositoryViewModel.Clicked(position, isControl);
-		//	}
-
-		//	base.OnPreviewMouseUp(e);
-		//}
-
-
 
 
 		protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -308,6 +246,25 @@ namespace GitMind.MainWindowViews
 			////	e.Handled = true;
 			////}
 		}
+
+
+		//protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
+		//{
+		//	// Log.Debug($"Canvas offset {canvas.Offset}");
+
+		//	if (e.ChangedButton == MouseButton.Left)
+		//	{
+		//		Point viewPoint = e.GetPosition(ItemsListBox);
+
+		//		Point position = new Point(viewPoint.X + canvas.Offset.X, viewPoint.Y + canvas.Offset.Y);
+
+		//		bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
+
+		//		repositoryViewModel.Clicked(position, isControl);
+		//	}
+
+		//	base.OnPreviewMouseUp(e);
+		//}
 	}
 }
 

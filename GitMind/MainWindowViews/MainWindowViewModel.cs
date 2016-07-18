@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
+using System.Windows.Threading;
 using GitMind.GitModel;
 using GitMind.Installation;
 using GitMind.RepositoryViews;
@@ -23,7 +24,8 @@ namespace GitMind.MainWindowViews
 		private readonly IDiffService diffService;
 		private readonly ILatestVersionService latestVersionService;
 		private readonly Window owner;
-	
+		private bool isLoaded = false;
+
 
 		internal MainWindowViewModel(
 			IDiffService diffService,
@@ -42,7 +44,7 @@ namespace GitMind.MainWindowViews
 
 
 		public string StatusText => RepositoryViewModel.UnCommited?.Subject;
-		
+
 
 		public bool IsInFilterMode => !string.IsNullOrEmpty(SearchBox);
 
@@ -68,7 +70,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public string Title => WorkingFolder != null 
+		public string Title => WorkingFolder != null
 			? $"{Path.GetFileNameWithoutExtension(WorkingFolder)} - GitMind" : "GitMind";
 
 
@@ -133,24 +135,65 @@ namespace GitMind.MainWindowViews
 
 		public Task FirstLoadAsync()
 		{
-			return RepositoryViewModel.FirstLoadAsync();
+			R<string> path = ProgramPaths.GetWorkingFolderPath(WorkingFolder);
+			if (path.HasValue)
+			{
+				WorkingFolder = path.Value;
+				return RepositoryViewModel.FirstLoadAsync();
+			}
+			else
+			{
+				Application.Current.Dispatcher.BeginInvoke(
+					DispatcherPriority.Normal, 
+					new Action(async () =>
+					{
+						string selectedPath;
+						if (!GetWorkingFolder(WorkingFolder, out selectedPath))
+						{
+							Application.Current.Shutdown(0);
+							return;
+						}
+
+						WorkingFolder = selectedPath;
+
+						await RepositoryViewModel.FirstLoadAsync();
+						isLoaded = true;
+					}));
+
+				return Task.FromResult(true);
+			}
 		}
 
 
 		private Task ManualRefreshAsync()
 		{
+			if (!isLoaded)
+			{
+				return Task.CompletedTask;
+			}
+
 			return RepositoryViewModel.ManualRefreshAsync();
 		}
 
 
 		public Task AutoRefreshAsync()
 		{
+			if (!isLoaded)
+			{
+				return Task.CompletedTask;
+			}
+
 			return RepositoryViewModel.AutoRefreshAsync();
 		}
 
 
 		public Task ActivateRefreshAsync()
 		{
+			if (!isLoaded)
+			{
+				return Task.CompletedTask;
+			}
+
 			return RepositoryViewModel.ActivateRefreshAsync();
 		}
 
@@ -172,17 +215,17 @@ namespace GitMind.MainWindowViews
 		}
 
 
-	
+
 
 		public List<string> SpecifiedBranchNames
 		{
-			 set { RepositoryViewModel.SpecifiedBranchNames = value; }
+			set { RepositoryViewModel.SpecifiedBranchNames = value; }
 		}
 
 
 		public int WindowWith
 		{
-			set { RepositoryViewModel.Width = value; }	
+			set { RepositoryViewModel.Width = value; }
 		}
 
 
@@ -270,7 +313,7 @@ namespace GitMind.MainWindowViews
 		private async void SelectWorkingFolder()
 		{
 			string selectedPath;
-			if (GetWorkingFolder(true, WorkingFolder, out selectedPath))
+			if (!GetWorkingFolder(WorkingFolder, out selectedPath))
 			{
 				return;
 			}
@@ -281,7 +324,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public bool GetWorkingFolder(bool useOwner, string currentFolder, out string selectedPath)
+		public bool GetWorkingFolder(string currentFolder, out string selectedPath)
 		{
 			selectedPath = null;
 
@@ -296,23 +339,13 @@ namespace GitMind.MainWindowViews
 					dialog.SelectedPath = currentFolder;
 				}
 
-				if (useOwner)
+
+				if (dialog.ShowDialog(owner.GetIWin32Window()) != DialogResult.OK)
 				{
-					if (dialog.ShowDialog(owner.GetIWin32Window()) != DialogResult.OK)
-					{
-						Log.Warn("User canceled selecting a Working folder");
-						return true;
-					}
+					Log.Warn("User canceled selecting a Working folder");
+					return false;
 				}
-				else
-				{
-					if (dialog.ShowDialog() != DialogResult.OK)
-					{
-						Log.Warn("User canceled selecting a Working folder");
-						return true;
-					}
-				}
-				
+
 
 				R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
 				if (workingFolder.HasValue)
@@ -329,7 +362,7 @@ namespace GitMind.MainWindowViews
 
 			Log.Debug($"Setting working folder {selectedPath}");
 			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
-			return false;
+			return true;
 		}
 
 
