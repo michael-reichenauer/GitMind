@@ -70,7 +70,7 @@ namespace GitMind.RepositoryViews
 		public string BranchName => CommitViewModel?.Commit?.Branch?.Name;
 		public FontStyle BranchNameStyle => SpecifiedBranchName != null 
 			? FontStyles.Oblique : FontStyles.Normal;
-		public string BranchNameUnderline => SpecifiedBranchName != null ? "Underline" : null;
+		public string BranchNameUnderline => SpecifiedBranchName != null ? "Underline" : "None";
 		public string BranchNameToolTip => SpecifiedBranchName != null ? "Manually specified branch" : null;
 		public string SpecifiedBranchName => CommitViewModel?.Commit?.SpecifiedBranchName;
 		public Brush SpecifiedBranchBrush => SpecifiedBranchName != null 
@@ -84,6 +84,13 @@ namespace GitMind.RepositoryViews
 		public string BranchTips => CommitViewModel?.BranchTips;
 
 		public Command ShowDiffCommand => Command(ShowDiffAsync);
+		public Command EditBranchCommand => Command(EditBranchAsync);
+
+
+		private void EditBranchAsync()
+		{
+		
+		}
 
 
 		public override string ToString() => $"{Id} {Subject}";

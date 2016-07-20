@@ -81,7 +81,7 @@
 						Style="{StaticResource IconButtonStyle}"
 						FontSize="12"	
 						Margin="0,3,0,0"			
-						Command="{Binding RunLatestVersionCommand}"
+						Command="{Binding EditBranchCommand}"
 						ToolTip="Manually specify a branch for this commit ..." />
 				</StackPanel>
 				
