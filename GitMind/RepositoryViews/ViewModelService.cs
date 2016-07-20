@@ -183,8 +183,7 @@ namespace GitMind.RepositoryViews
 			else
 			{
 				Timing t = new Timing();
-				List<Commit> commits = await GetFilteredCommitsAsync(
-					repositoryViewModel, filterText);
+				List<Commit> commits = await GetFilteredCommitsAsync(repositoryViewModel, filterText);
 				t.Log($"Got filtered {commits.Count} commits");
 
 				if (filterText != repositoryViewModel.FilterText)
@@ -207,7 +206,9 @@ namespace GitMind.RepositoryViews
 			IEnumerable<Commit> commits = null;
 			string filteredText = repositoryViewModel.FilteredText;
 
-			if (StartsWith(filterText, filteredText))
+			bool isSearchSpecifiedNames = filterText == "$gm:";
+
+			if (StartsWith(filterText, filteredText) && !isSearchSpecifiedNames)
 			{
 				// The previous used filter text is a sub string of the new search, lets just search
 				// these commits
@@ -232,7 +233,8 @@ namespace GitMind.RepositoryViews
 						|| Contains(c.AuthorDateText, filterText)
 						|| Contains(c.Tickets, filterText)
 						|| Contains(c.Tags, filterText)
-						|| Contains(c.Branch.Name, filteredText))
+						|| Contains(c.Branch.Name, filteredText)
+						|| (isSearchSpecifiedNames && c.SpecifiedBranchName != null))
 					.OrderByDescending(c => c.CommitDate)
 					.ToList();
 			});

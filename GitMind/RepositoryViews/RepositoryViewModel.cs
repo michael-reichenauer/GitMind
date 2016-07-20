@@ -435,8 +435,8 @@ namespace GitMind.RepositoryViews
 
 			Log.Debug($"Filter triggered for: {FilterText}");
 
-			CommitViewModel selectedBefore = SelectedItem as CommitViewModel;
-			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
+			Commit selectedBefore = (SelectedItem as CommitViewModel)?.Commit;
+			int indexBefore = Commits.FindIndex(c => c.Commit == selectedBefore);
 
 			using (busyIndicator.Progress)
 			{
@@ -448,13 +448,20 @@ namespace GitMind.RepositoryViews
 				Log.Warn($"Filter has changed {filterText} ->" + $"{FilterText}");
 				return;
 			}
-			FilteredText = filterText;
-			int indexAfter = Commits.FindIndex(c => c == selectedBefore);
 
+			FilteredText = filterText;
+
+			int indexAfter = -1;
+			if (selectedBefore != null)
+			{
+				indexAfter = Commits.FindIndex(c => c.Commit == selectedBefore);
+			}
+			
 			Log.Debug($"Selected {indexBefore}->{indexAfter} for commit {selectedBefore}");
 			if (indexBefore != -1 && indexAfter != -1)
 			{
 				ScrollRows(indexBefore - indexAfter);
+				SelectedIndex = indexAfter;
 			}
 			else
 			{
