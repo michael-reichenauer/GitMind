@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows;
@@ -13,6 +14,7 @@ using GitMind.RepositoryViews;
 using GitMind.Settings;
 using GitMind.Testing;
 using GitMind.Utils;
+using GitMind.Utils.UI;
 using Application = System.Windows.Application;
 
 
@@ -44,6 +46,8 @@ namespace GitMind.MainWindowViews
 		{
 			ExceptionHandling.Init();
 			assemblyResolver.Activate();
+			WpfBindingTraceListener.Register();
+			
 
 			if (!IsStartProgram())
 			{
