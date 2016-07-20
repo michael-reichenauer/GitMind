@@ -37,7 +37,7 @@
 					</Style>
 				</Grid.Resources>
 				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="60" />
+					<ColumnDefinition Width="75" />
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
 				<Grid.RowDefinitions>
@@ -75,53 +75,58 @@
 						TextDecorations="{Binding BranchNameUnderline}"
 						Foreground="{Binding BranchBrush}"
 						ToolTip="{Binding BranchNameToolTip}"/>
-					
+
 					<Button 
 						Content="&#xE3C9;"
 						Style="{StaticResource IconButtonStyle}"
-						FontSize="14"
-						Foreground="{Binding SpecifiedBranchBrush}"			
+						FontSize="12"	
 						Margin="0,3,0,0"			
 						Command="{Binding RunLatestVersionCommand}"
 						ToolTip="Manually specify a branch for this commit ..." />
-
-					<TextBox
-						Text="{Binding BranchTips, Mode=OneWay}"
-						Style="{StaticResource LabelStyle}" 
-						Margin="20,0"
-						Foreground="{StaticResource BranchTipsBrush}"
-						ToolTip="Branch tip of branch with no commits of its own."/>
 				</StackPanel>
 				
 				<Label
-					Content="Tags:"
+					Content="Branch tips:"
 					Grid.Column="0" Grid.Row="2"
+					Visibility="{Binding BranchTips, Converter={StaticResource VC}}"
+					Style="{StaticResource HeaderLabelStyle}"/>
+				<TextBox Grid.Column="1" Grid.Row="2"
+					Text="{Binding BranchTips, Mode=OneWay}"
+					Visibility="{Binding BranchTips, Converter={StaticResource VC}}"
+					Style="{StaticResource LabelStyle}" 
+					Margin="20,0"
+					Foreground="{StaticResource BranchTipsBrush}"
+					ToolTip="Branch tip of branch with no commits of its own."/>
+
+				<Label
+					Content="Tags:"
+					Grid.Column="0" Grid.Row="3"
 					Visibility="{Binding Tags, Converter={StaticResource VC}}"
 					Style="{StaticResource HeaderLabelStyle}"/>
 				<TextBox
 					Text="{Binding Tags, Mode=OneWay}"
-					Grid.Column="1" Grid.Row="2"
+					Grid.Column="1" Grid.Row="3"
 					Visibility="{Binding Tags, Converter={StaticResource VC}}"
 					Style="{StaticResource LabelStyle}" 
 					Foreground="{StaticResource TagBrush}"/>
 				
 				<Label
 					Content="Tickets:"
-					Grid.Column="0" Grid.Row="3"
+					Grid.Column="0" Grid.Row="4"
 					Visibility="{Binding Tickets, Converter={StaticResource VC}}"
 					Style="{StaticResource HeaderLabelStyle}"/>
 				<TextBox 
 					Text="{Binding Tickets, Mode=OneWay}"
-					Grid.Column="1" Grid.Row="3"
+					Grid.Column="1" Grid.Row="4"
 					Visibility="{Binding Tickets, Converter={StaticResource VC}}"
 					Style="{StaticResource LabelStyle}" 
 					Foreground="{StaticResource TicketBrush}"/>
 				
 				<Label
 					Content="Subject:"
-					Grid.Column="0" Grid.Row="4"
+					Grid.Column="0" Grid.Row="5"
 					Style="{StaticResource HeaderLabelStyle}"/>
-				<ScrollViewer Grid.Column="1" Grid.Row="4" 
+				<ScrollViewer Grid.Column="1" Grid.Row="5" 
 					VerticalScrollBarVisibility="Auto">
 					<TextBox
 						Text="{Binding Subject, Mode=OneWay}"
