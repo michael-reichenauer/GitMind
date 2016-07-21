@@ -1,5 +1,7 @@
 using System;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
@@ -10,18 +12,26 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitViewModel : ViewModel
 	{
+		private readonly ICommand refreshManuallyCommand;
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 
-	
+
 		private int windowWidth;
-		private static readonly SolidColorBrush HoverBrushColor = 
+		private static readonly SolidColorBrush HoverBrushColor =
 			(SolidColorBrush)(new BrushConverter().ConvertFrom("#996495ED"));
+
+
+		public CommitViewModel(ICommand refreshManuallyCommand)
+		{
+			this.refreshManuallyCommand = refreshManuallyCommand;
+		}
+
 
 		public Commit Commit { get; set; }
 
 		public int ZIndex => 0;
-		
+
 		public string Type => nameof(CommitViewModel);
 
 		public string Id => Commit.Id;
@@ -41,7 +51,7 @@ namespace GitMind.RepositoryViews
 		public int RowIndex { get; set; }
 
 		public int BranchColumn { get; set; }
-		public int XPoint { get; set; }	
+		public int XPoint { get; set; }
 		public int YPoint => IsMergePoint ? 2 : 4;
 		public int Size => IsMergePoint ? 10 : 6;
 		public Rect Rect { get; set; }
@@ -70,7 +80,7 @@ namespace GitMind.RepositoryViews
 			get { return Get(); }
 			set { Set(value); }
 		}
-		
+
 		public int WindowWidth
 		{
 			get { return windowWidth; }
@@ -87,23 +97,32 @@ namespace GitMind.RepositoryViews
 
 		public Command HideBranchCommand => Command(HideBranch);
 
-		public Command ShowDiffCommand => Command(() => diffService.ShowDiffAsync(Id, Commit.GitRepositoryPath));
+		public Command ShowDiffCommand => Command(() => diffService.ShowDiffAsync(Id, Commit.WorkingFolder));
 
-		public Command SetCommitBranchCommand => Command(async () =>
+		public Command SetCommitBranchCommand => AsyncCommand(SetBranch);
+
+		public override string ToString() => $"{ShortId} {Subject} {Date}";
+
+
+		private async Task SetBranch()
 		{
-			var dialog = new SetBranchPrompt();
+			SetBranchPromptDialog dialog = new SetBranchPromptDialog();
 			dialog.PromptText = Commit.SpecifiedBranchName;
 
 			if (dialog.ShowDialog() == true)
 			{
+				Application.Current.MainWindow.Focus();
 				string branchName = dialog.PromptText?.Trim();
-				string gitRepositoryPath = Commit.GitRepositoryPath;
-				await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName, gitRepositoryPath);
+				string workingFolder = Commit.WorkingFolder;
+
+				await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName, workingFolder);
+
+				refreshManuallyCommand.Execute(null);
 			}
-		});
-
-
-
-		public override string ToString() => $"{ShortId} {Subject} {Date}";		
+			else
+			{
+				Application.Current.MainWindow.Focus();
+			}
+		}
 	}
 }

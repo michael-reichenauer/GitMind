@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -12,17 +13,20 @@ namespace GitMind.RepositoryViews
 {
 	internal class ViewModelService : IViewModelService
 	{
+
 		private readonly IBrushService brushService;
+		private readonly ICommand refreshManuallyCommand;
 
 
-		public ViewModelService()
-			: this(new BrushService())
+		public ViewModelService(ICommand refreshManually)
+			: this(new BrushService(), refreshManually)
 		{
 		}
 
-		public ViewModelService(IBrushService brushService)
+		public ViewModelService(IBrushService brushService, ICommand refreshManuallyCommand)
 		{
 			this.brushService = brushService;
+			this.refreshManuallyCommand = refreshManuallyCommand;
 		}
 
 
@@ -370,7 +374,7 @@ namespace GitMind.RepositoryViews
 			List<CommitViewModel> commits = repositoryViewModel.Commits;
 			var commitsById = repositoryViewModel.CommitsById;
 
-			SetNumberOfItems(commits, sourceCommits.Count, i => new CommitViewModel());
+			SetNumberOfItems(commits, sourceCommits.Count, i => new CommitViewModel(refreshManuallyCommand));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;

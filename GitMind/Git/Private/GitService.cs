@@ -137,7 +137,7 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-				string file = Path.Combine(workingFolder, "gitmind.specified");
+				string file = Path.Combine(workingFolder, ".git", "gitmind.specified");
 				File.AppendAllText(file, $"{commitId} {branchName}\n");
 			}
 			catch (Exception e)
@@ -146,6 +146,33 @@ namespace GitMind.Git.Private
 			}
 
 			return Task.FromResult(true);
+		}
+
+
+
+		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder)
+		{
+			List<GitSpecifiedNames> branchNames = new List<GitSpecifiedNames>();
+
+			try
+			{
+				string filePath = Path.Combine(workingFolder, ".git", "gitmind.specified");
+				if (File.Exists(filePath))
+				{
+					string[] lines = File.ReadAllLines(filePath);
+					foreach (string line in lines)
+					{
+						string[] parts = line.Split(" ".ToCharArray());
+						branchNames.Add(new GitSpecifiedNames(parts[0], parts[1]?.Trim()));
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to read specified names {e}");
+			}
+
+			return branchNames;
 		}
 
 
@@ -273,30 +300,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder)
-		{
-			List<GitSpecifiedNames> branchNames = new List<GitSpecifiedNames>();
 
-			try
-			{
-				string filePath = Path.Combine(workingFolder, "gitmind.specified");
-				if (File.Exists(filePath))
-				{
-					string[] lines = File.ReadAllLines(filePath);
-					foreach (string line in lines)
-					{
-						string[] parts = line.Split(" ".ToCharArray());
-						branchNames.Add(new GitSpecifiedNames(parts[0], parts[1]?.Trim()));
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to read specified names {e}");
-			}
-
-			return branchNames;
-		}
 
 
 		private async Task<R<IReadOnlyList<string>>> GitAsync(

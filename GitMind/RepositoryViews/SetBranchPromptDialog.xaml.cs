@@ -1,14 +1,15 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 
 namespace GitMind.RepositoryViews
 {
 	/// <summary>
-	/// Interaction logic for SetBranchPrompt.xaml
+	/// Interaction logic for SetBranchPromptDialog.xaml
 	/// </summary>
-	public partial class SetBranchPrompt : Window
+	public partial class SetBranchPromptDialog : Window
 	{
-		public SetBranchPrompt()
+		public SetBranchPromptDialog()
 		{
 			InitializeComponent();
 			Owner = Application.Current.MainWindow;
@@ -17,7 +18,11 @@ namespace GitMind.RepositoryViews
 		public string PromptText
 		{
 			get { return PromptTextBox.Text; }
-			set { PromptTextBox.Text = value; }
+			set
+			{
+				PromptTextBox.Text = value;
+				PromptTextBox.Focus();
+			}
 		}
 
 		private void OKButton_Click(object sender, RoutedEventArgs e)

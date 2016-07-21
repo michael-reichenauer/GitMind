@@ -32,8 +32,7 @@ namespace GitMind.MainWindowViews
 			ILatestVersionService latestVersionService,
 			Window owner)
 		{
-			RepositoryViewModel = new RepositoryViewModel(Busy);
-
+			RepositoryViewModel = new RepositoryViewModel(Busy, RefreshCommand);
 
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;

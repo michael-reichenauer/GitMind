@@ -109,8 +109,8 @@
     <Compile Include="Utils\UI\BusyProgress.cs" />
     <Compile Include="Utils\UI\HideableGridSplitter.cs" />
     <Compile Include="Utils\Compare.cs" />
-    <Compile Include="RepositoryViews\SetBranchPrompt.xaml.cs">
-      <DependentUpon>SetBranchPrompt.xaml</DependentUpon>
+    <Compile Include="RepositoryViews\SetBranchPromptDialog.xaml.cs">
+      <DependentUpon>SetBranchPromptDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="GitModel\CommitFile.cs" />
     <Compile Include="RepositoryViews\CommitViewModel.cs" />
@@ -227,7 +227,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RepositoryViews\SetBranchPrompt.xaml">
+    <Page Include="RepositoryViews\SetBranchPromptDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
