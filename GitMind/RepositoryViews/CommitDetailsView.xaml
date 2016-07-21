@@ -95,7 +95,6 @@
 					Text="{Binding BranchTips, Mode=OneWay}"
 					Visibility="{Binding BranchTips, Converter={StaticResource VC}}"
 					Style="{StaticResource LabelStyle}" 
-					Margin="20,0"
 					Foreground="{StaticResource BranchTipsBrush}"
 					ToolTip="Branch tip of branch with no commits of its own."/>
 

@@ -47,7 +47,7 @@ namespace GitMind.RepositoryViews
 		private DateTime fetchedTime = DateTime.MinValue;
 		private DateTime RebuildRepositoryTime = DateTime.MinValue;
 		private static readonly TimeSpan FetchInterval = TimeSpan.FromMinutes(10);
-		private readonly TaskThrottler refreshThrottler  = new TaskThrottler(1);
+		private readonly TaskThrottler refreshThrottler = new TaskThrottler(1);
 
 
 		public RepositoryViewModel(
@@ -142,7 +142,7 @@ namespace GitMind.RepositoryViews
 			Repository.Branches
 			.Where(b => b.IsActive && b.Name != "master")
 			.Where(b => !ActiveBranches.Any(ab => ab.Branch.Id == b.Id)),
-			ShowBranchCommand);			
+			ShowBranchCommand);
 
 		public ObservableCollection<BranchItem> ActiveBranches { get; }
 			= new ObservableCollection<BranchItem>();
@@ -190,7 +190,7 @@ namespace GitMind.RepositoryViews
 		public Task FirstLoadAsync()
 		{
 			return refreshThrottler.Run(async () =>
-			{ 
+			{
 				Log.Debug("Loading repository");
 
 				using (busyIndicator.Progress)
@@ -206,7 +206,7 @@ namespace GitMind.RepositoryViews
 					UpdateViewModel(repository, SpecifiedBranches);
 				}
 			});
-	}
+		}
 
 
 		public Task ActivateRefreshAsync()
@@ -277,10 +277,11 @@ namespace GitMind.RepositoryViews
 
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository, SpecifiedBranches);
+
+					Log.Debug("Get fresh repository from scratch");
+					repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
 				}
 
-				Log.Debug("Get fresh repository from scratch");
-				repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
 				RebuildRepositoryTime = DateTime.Now;
 				UpdateViewModel(repository, SpecifiedBranches);
 			});
@@ -315,7 +316,7 @@ namespace GitMind.RepositoryViews
 
 				TrySetSelectedCommitPosition(commitPosition);
 				t.Log("Updated repository view model");
-			}	
+			}
 		}
 
 
@@ -347,8 +348,8 @@ namespace GitMind.RepositoryViews
 
 			IEnumerable<Branch> remoteAheadBranches = Repository.Branches
 				.Where(b => b.RemoteAheadCount > 0).ToList();
-		
-			string remoteAheadText = remoteAheadBranches.Any() 
+
+			string remoteAheadText = remoteAheadBranches.Any()
 				? "Branches with remote commits:\n" : null;
 			foreach (Branch branch in remoteAheadBranches)
 			{
@@ -359,7 +360,7 @@ namespace GitMind.RepositoryViews
 
 			IEnumerable<Branch> localAheadBranches = Repository.Branches
 				.Where(b => b.LocalAheadCount > 0).ToList();
-		
+
 			string localAheadText = localAheadBranches.Any()
 				? "Branches with local commits:\n" : null;
 			foreach (Branch branch in localAheadBranches)
@@ -401,9 +402,9 @@ namespace GitMind.RepositoryViews
 
 		private void SetCommitsDetails(CommitViewModel commit)
 		{
-			CommitDetailsViewModel.CommitViewModel = commit;		
+			CommitDetailsViewModel.CommitViewModel = commit;
 		}
-	
+
 
 		public void SetFilter(string text)
 		{
@@ -436,11 +437,10 @@ namespace GitMind.RepositoryViews
 
 			CommitPosition commitPosition = TryGetSelectedCommitPosition();
 
-		
 			using (busyIndicator.Progress)
 			{
 				await viewModelService.SetFilterAsync(this, filterText);
-			}	
+			}
 
 			if (filterText != FilterText)
 			{
@@ -449,8 +449,8 @@ namespace GitMind.RepositoryViews
 			}
 
 			FilteredText = filterText;
-
 			TrySetSelectedCommitPosition(commitPosition);
+			CommitDetailsViewModel.NotifyAll();
 
 			VirtualItemsSource.DataChanged(width);
 		}
@@ -477,25 +477,29 @@ namespace GitMind.RepositoryViews
 
 		private void TrySetSelectedCommitPosition(CommitPosition commitPosition)
 		{
-			if (commitPosition == null)
+			if (commitPosition != null)
 			{
-				return;
-			}
+				Commit selected = commitPosition.Commit;
 
-			Commit selected = commitPosition.Commit;
-			
-			int indexAfter = Commits.FindIndex(c => c.Commit.Id == selected.Id);
+				int indexAfter = Commits.FindIndex(c => c.Commit.Id == selected.Id);
 
-			if (selected != null && indexAfter != -1)
-			{
-				int indexBefore = commitPosition.Index;
-				ScrollRows(indexBefore - indexAfter);
-				SelectedIndex = indexAfter;
+				if (selected != null && indexAfter != -1)
+				{
+					int indexBefore = commitPosition.Index;
+					ScrollRows(indexBefore - indexAfter);
+					SelectedIndex = indexAfter;
+					SelectedItem = Commits[indexAfter];
+					Log.Warn($"Set index {indexBefore}->{indexAfter}");
+					return;
+				}
 			}
-			else
+		
+			Log.Warn($"Not setting index");
+			ScrollTo(0);
+			if (Commits.Any())
 			{
-				ScrollTo(0);
 				SelectedIndex = 0;
+				SelectedItem = Commits.First();
 			}
 		}
 
