@@ -1,4 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Navigation;
+using Log = GitMind.Utils.Log;
 
 
 namespace GitMind.RepositoryViews
@@ -18,18 +22,20 @@ namespace GitMind.RepositoryViews
 		public bool IsAutomatically
 		{
 			get { return OptionAuto.IsChecked ?? false; }
-			set { OptionAuto.IsChecked = value; }
+			set
+			{
+				OptionAuto.IsChecked = value;
+				if (!value)
+				{
+					PromptTextBox.Focus();
+				}
+			}
 		}
 
 		public string PromptText
 		{
 			get { return PromptTextBox.Text; }
-			set
-			{
-				IsAutomatically = string.IsNullOrEmpty(value);
-				OptionManual.IsChecked = !string.IsNullOrEmpty(value);
-				PromptTextBox.Text = value;
-			}
+			set { PromptTextBox.Text = value; }
 		}
 
 		private void OKButton_Click(object sender, RoutedEventArgs e)
@@ -40,6 +46,21 @@ namespace GitMind.RepositoryViews
 		private void CancelButton_Click(object sender, RoutedEventArgs e)
 		{
 			DialogResult = false;
+		}
+
+
+		private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
+		{
+			try
+			{
+				Process proc = new Process();
+				proc.StartInfo.FileName = "https://github.com/michael-reichenauer/GitMind/wiki/Help";
+				proc.Start();
+			}
+			catch (Exception ex) when (ex.IsNotFatal())
+			{
+				Log.Error($"Failed to open help link {ex}");
+			}
 		}
 	}
 }

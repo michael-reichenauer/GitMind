@@ -108,6 +108,7 @@ namespace GitMind.RepositoryViews
 		{
 			SetBranchPromptDialog dialog = new SetBranchPromptDialog();
 			dialog.PromptText = Commit.SpecifiedBranchName;
+			dialog.IsAutomatically = string.IsNullOrEmpty(Commit.SpecifiedBranchName);
 
 			if (dialog.ShowDialog() == true)
 			{

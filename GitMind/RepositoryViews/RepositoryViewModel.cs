@@ -489,12 +489,10 @@ namespace GitMind.RepositoryViews
 					ScrollRows(indexBefore - indexAfter);
 					SelectedIndex = indexAfter;
 					SelectedItem = Commits[indexAfter];
-					Log.Warn($"Set index {indexBefore}->{indexAfter}");
 					return;
 				}
 			}
 		
-			Log.Warn($"Not setting index");
 			ScrollTo(0);
 			if (Commits.Any())
 			{

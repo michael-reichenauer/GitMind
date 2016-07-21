@@ -64,14 +64,14 @@
 			</Grid.RowDefinitions>
 
 			<StackPanel Grid.Row="1" Margin="10,0">
-				<RadioButton
+				<RadioButton GroupName="Options"
 					x:Name="OptionAuto" 
 					Content="Automatically"				
 					IsChecked="True"
 					Margin="4"
 					Style="{StaticResource RadioButtonStyle}"/>
-				
-				<RadioButton
+
+				<RadioButton GroupName="Options"
 					x:Name="OptionManual" 
 					HorizontalAlignment="Stretch" 
 					HorizontalContentAlignment="Stretch"
@@ -91,6 +91,25 @@
 							Foreground="{StaticResource TextBrush}"/>
 					</DockPanel>
 				</RadioButton>
+				
+				<TextBlock
+					Text="You can let GitMind determine the branch for this commit automatically (recommended), or specify a branch manually. Read more in:"
+					Foreground="{StaticResource TextBrush}"
+					TextWrapping="Wrap"
+					Margin="4,25,4,4"/>
+				<TextBlock
+					Margin="4,0">
+					<Hyperlink TextDecorations="None" Click="Hyperlink_OnClick">
+						<TextBlock 	
+							HorizontalAlignment="Left"
+ 							VerticalAlignment="Center"
+ 							Foreground="LightSkyBlue"
+							TextDecorations="Underline"
+ 							Text="Set Branch">
+ 						</TextBlock>
+					</Hyperlink>
+				</TextBlock>
+
 			</StackPanel>
 			
 			
