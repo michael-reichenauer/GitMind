@@ -19,6 +19,7 @@
 				<ResourceDictionary Source="Styles\ListBoxStyle.xaml"/>
 				<ResourceDictionary Source="Styles\ToolTipStyle.xaml"/>
 				<ResourceDictionary Source="Styles\LabelStyle.xaml"/>
+				<ResourceDictionary Source="Styles\RadioButtonStyle.xaml"/>
 				<!--<ResourceDictionary Source="Styles\Theme.xaml"/>-->
 
 			</ResourceDictionary.MergedDictionaries>

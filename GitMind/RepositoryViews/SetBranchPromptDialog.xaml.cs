@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 
 
 namespace GitMind.RepositoryViews
@@ -15,13 +14,21 @@ namespace GitMind.RepositoryViews
 			Owner = Application.Current.MainWindow;
 		}
 
+
+		public bool IsAutomatically
+		{
+			get { return OptionAuto.IsChecked ?? false; }
+			set { OptionAuto.IsChecked = value; }
+		}
+
 		public string PromptText
 		{
 			get { return PromptTextBox.Text; }
 			set
 			{
+				IsAutomatically = string.IsNullOrEmpty(value);
+				OptionManual.IsChecked = !string.IsNullOrEmpty(value);
 				PromptTextBox.Text = value;
-				PromptTextBox.Focus();
 			}
 		}
 
