@@ -79,16 +79,27 @@
 					Margin="4"
 					Style="{StaticResource RadioButtonStyle}">
 					<DockPanel LastChildFill="True">
-						<TextBlock
+						<TextBlock						
 							Text="Manually"
+							Margin="0,4"
 							Foreground="{StaticResource TextBrush}"/>
-						<TextBox 
+
+						<ComboBox x:Name="PromptTextBox"
+							IsEditable="True" 
+							Margin="40,0,0,0"						
+							Width="150">
+							<ComboBoxItem>ComboBox Item #1</ComboBoxItem>
+							<ComboBoxItem>ComboBox Item #2</ComboBoxItem>
+							<ComboBoxItem>ComboBox Item #3</ComboBoxItem>
+						</ComboBox>
+						
+						<!--<TextBox 
 							x:Name="PromptTextBox" 
 							BorderBrush="{StaticResource BorderBrush}"		 
-							Width="188"
+							Width="18"
 							Margin="30,0"
 							Background="Transparent" 
-							Foreground="{StaticResource TextBrush}"/>
+							Foreground="{StaticResource TextBrush}"/>-->
 					</DockPanel>
 				</RadioButton>
 				
@@ -102,11 +113,11 @@
 					<Hyperlink TextDecorations="None" Click="Hyperlink_OnClick">
 						<TextBlock 	
 							HorizontalAlignment="Left"
- 							VerticalAlignment="Center"
- 							Foreground="LightSkyBlue"
+							VerticalAlignment="Center"
+							Foreground="LightSkyBlue"
 							TextDecorations="Underline"
- 							Text="Set Branch">
- 						</TextBlock>
+							Text="Set Branch">
+						</TextBlock>
 					</Hyperlink>
 				</TextBlock>
 
