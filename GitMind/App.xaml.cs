@@ -9,6 +9,7 @@ using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.MainWindowViews;
 using GitMind.Settings;
+using GitMind.Testing;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using Microsoft.Shell;
@@ -26,8 +27,9 @@ namespace GitMind
 		private readonly IInstaller installer = new Installer();
 
 		private static Mutex programMutex;
-		private DispatcherTimer newVersionTime;
+		private DispatcherTimer newVersionTimer;
 		private MainWindow mainWindow;
+
 
 		[STAThread]
 		public static void Main()
@@ -67,7 +69,7 @@ namespace GitMind
 		{
 			base.OnStartup(e);
 
-			newVersionTime = new DispatcherTimer();
+			newVersionTimer = new DispatcherTimer();
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
 
@@ -75,9 +77,9 @@ namespace GitMind
 			MainWindow = mainWindow;
 			MainWindow.Show();
 
-			newVersionTime.Tick += NewVersionCheckAsync;
-			newVersionTime.Interval = TimeSpan.FromSeconds(5);
-			newVersionTime.Start();
+			newVersionTimer.Tick += NewVersionCheckAsync;
+			newVersionTimer.Interval = TimeSpan.FromSeconds(5);
+			newVersionTimer.Start();
 		}
 
 
@@ -152,7 +154,7 @@ namespace GitMind
 
 			mainWindow.IsNewVersionVisible = latestVersionService.IsNewVersionInstalled();
 
-			newVersionTime.Interval = TimeSpan.FromHours(3);
+			newVersionTimer.Interval = TimeSpan.FromHours(3);
 		}
 	}
 }

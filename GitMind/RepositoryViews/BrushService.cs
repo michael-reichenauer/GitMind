@@ -13,6 +13,10 @@ namespace GitMind.RepositoryViews
 			(SolidColorBrush)new BrushConverter().ConvertFrom("#E540FF");
 		private static readonly SolidColorBrush MultiBranchBrush = Brushes.White;
 
+		private static readonly SolidColorBrush LighterBaseBrush =
+		(SolidColorBrush)new BrushConverter().ConvertFrom("#77FFFFFF");
+
+
 		private readonly Lazy<IList<Brush>> brushes = new Lazy<IList<Brush>>(InitBrushes2);
 		private readonly Lazy<IList<Brush>> darkBrushes = new Lazy<IList<Brush>>(InitDarkBrushes2);
 
@@ -80,6 +84,16 @@ namespace GitMind.RepositoryViews
 			darkerBrush.Color = InterpolateColors(solidBrush.Color, Brushes.Black.Color, 0.5f);
 
 			return darkerBrush;
+		}
+
+
+		public Brush GetLighterBrush(Brush brush)
+		{
+			SolidColorBrush solidBrush = brush as SolidColorBrush;
+			SolidColorBrush LighterBrush = new SolidColorBrush(solidBrush.Color);
+			LighterBrush.Color = InterpolateColors(solidBrush.Color, LighterBaseBrush.Color, 0.9f);
+
+			return LighterBrush;
 		}
 
 

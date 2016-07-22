@@ -431,6 +431,7 @@ namespace GitMind.RepositoryViews
 
 				branch.Line = $"M 1,0 L 1,{height}";
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
+				branch.HoverBrush = brushService.GetLighterBrush(branch.Brush);
 				branch.BranchToolTip = GetBranchToolTip(branch);
 
 				if (sourceBranch.IsMultiBranch)

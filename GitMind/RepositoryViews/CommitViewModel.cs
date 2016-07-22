@@ -12,8 +12,7 @@ using GitMind.Utils.UI;
 namespace GitMind.RepositoryViews
 {
 	internal class CommitViewModel : ViewModel
-	{
-		
+	{	
 		private readonly ICommand refreshManuallyCommand;
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IRepositoryService repositoryService = new RepositoryService();

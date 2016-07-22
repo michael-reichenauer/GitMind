@@ -245,6 +245,7 @@ namespace GitMind.MainWindowViews
 			}
 		}
 
+
 		private void CloseWindow()
 		{
 			Application.Current.Shutdown(0);

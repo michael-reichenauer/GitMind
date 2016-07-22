@@ -14,6 +14,8 @@ namespace GitMind.RepositoryViews
 		SolidColorBrush BranchTipBrush { get; }
 
 		Brush GetDarkerBrush(Brush brush);
+		Brush GetLighterBrush(Brush brush);
+
 		Brush GetBranchBrush(Branch branch);
 		Brush GetBranchBrush(string branchName);
 	}

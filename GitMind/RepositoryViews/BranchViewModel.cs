@@ -53,7 +53,7 @@ namespace GitMind.RepositoryViews
 		public double Width => Rect.Width;
 		public string Line { get; set; }
 		public Brush Brush { get; set; }	
-		public Brush HoverBrush => Brush;
+		public Brush HoverBrush { get; set; }
 
 		public string BranchToolTip { get; set; }
 		public string HideBranchText => "Hide branch: " + Branch.Name;
