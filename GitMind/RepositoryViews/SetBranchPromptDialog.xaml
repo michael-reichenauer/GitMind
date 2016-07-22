@@ -75,7 +75,6 @@
 					x:Name="OptionManual" 
 					HorizontalAlignment="Stretch" 
 					HorizontalContentAlignment="Stretch"
-					IsChecked="{Binding ElementName=PromptTextBox, Path=IsFocused, Mode=OneWay}"
 					Margin="4"
 					Style="{StaticResource RadioButtonStyle}">
 					<DockPanel LastChildFill="True">
@@ -84,22 +83,13 @@
 							Margin="0,4"
 							Foreground="{StaticResource TextBrush}"/>
 
-						<ComboBox x:Name="PromptTextBox"
+						<ComboBox x:Name="BranchName"
 							IsEditable="True" 
 							Margin="40,0,0,0"						
-							Width="150">
-							<ComboBoxItem>ComboBox Item #1</ComboBoxItem>
-							<ComboBoxItem>ComboBox Item #2</ComboBoxItem>
-							<ComboBoxItem>ComboBox Item #3</ComboBoxItem>
+							Width="205"
+							PreviewMouseDown="BranchName_OnPreviewMouseDown">
 						</ComboBox>
-						
-						<!--<TextBox 
-							x:Name="PromptTextBox" 
-							BorderBrush="{StaticResource BorderBrush}"		 
-							Width="18"
-							Margin="30,0"
-							Background="Transparent" 
-							Foreground="{StaticResource TextBrush}"/>-->
+
 					</DockPanel>
 				</RadioButton>
 				
@@ -107,7 +97,7 @@
 					Text="You can let GitMind determine the branch for this commit automatically (recommended), or specify a branch manually. Read more in:"
 					Foreground="{StaticResource TextBrush}"
 					TextWrapping="Wrap"
-					Margin="4,25,4,4"/>
+					Margin="4,25,4,2"/>
 				<TextBlock
 					Margin="4,0">
 					<Hyperlink TextDecorations="None" Click="Hyperlink_OnClick">

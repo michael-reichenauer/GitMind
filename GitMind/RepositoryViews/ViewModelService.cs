@@ -238,7 +238,7 @@ namespace GitMind.RepositoryViews
 						|| Contains(c.Tickets, filterText)
 						|| Contains(c.Tags, filterText)
 						|| Contains(c.Branch.Name, filteredText)
-						|| (isSearchSpecifiedNames && c.SpecifiedBranchName != null))
+						|| (isSearchSpecifiedNames && !string.IsNullOrEmpty(c.SpecifiedBranchName)))
 					.OrderByDescending(c => c.CommitDate)
 					.ToList();
 			});

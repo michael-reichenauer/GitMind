@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Navigation;
 using Log = GitMind.Utils.Log;
 
@@ -25,17 +26,14 @@ namespace GitMind.RepositoryViews
 			set
 			{
 				OptionAuto.IsChecked = value;
-				if (!value)
-				{
-					PromptTextBox.Focus();
-				}
+				OptionManual.IsChecked = !value;
 			}
 		}
 
 		public string PromptText
 		{
-			get { return PromptTextBox.Text; }
-			set { PromptTextBox.Text = value; }
+			get { return BranchName.Text; }
+			set { BranchName.Text = value; }
 		}
 
 		private void OKButton_Click(object sender, RoutedEventArgs e)
@@ -61,6 +59,18 @@ namespace GitMind.RepositoryViews
 			{
 				Log.Error($"Failed to open help link {ex}");
 			}
+		}
+
+
+		private void BranchName_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+		{
+			OptionManual.IsChecked = true;
+		}
+
+
+		public void AddBranchName(string name)
+		{
+			BranchName.Items.Add(name);
 		}
 	}
 }

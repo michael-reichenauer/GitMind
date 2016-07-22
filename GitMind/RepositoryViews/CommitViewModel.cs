@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -109,16 +110,26 @@ namespace GitMind.RepositoryViews
 			SetBranchPromptDialog dialog = new SetBranchPromptDialog();
 			dialog.PromptText = Commit.SpecifiedBranchName;
 			dialog.IsAutomatically = string.IsNullOrEmpty(Commit.SpecifiedBranchName);
+			foreach (Branch childBranch in Commit.Branch.GetChildBranches())
+			{
+				if (!childBranch.IsMultiBranch && !childBranch.Name.StartsWith("_"))
+				{
+					dialog.AddBranchName(childBranch.Name);
+				}
+			}
 
 			if (dialog.ShowDialog() == true)
 			{
 				Application.Current.MainWindow.Focus();
-				string branchName = dialog.PromptText?.Trim();
+				string branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
 				string workingFolder = Commit.WorkingFolder;
 
-				await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName, workingFolder);
+				if (Commit.SpecifiedBranchName != branchName)
+				{
+					await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName, workingFolder);
 
-				refreshManuallyCommand.Execute(null);
+					refreshManuallyCommand.Execute(null);
+				}
 			}
 			else
 			{
