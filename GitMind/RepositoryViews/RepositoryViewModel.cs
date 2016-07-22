@@ -47,12 +47,12 @@ namespace GitMind.RepositoryViews
 		private DateTime fetchedTime = DateTime.MinValue;
 		private DateTime RebuildRepositoryTime = DateTime.MinValue;
 		private static readonly TimeSpan FetchInterval = TimeSpan.FromMinutes(10);
-		private bool refreshInProgress = false;
+		private readonly TaskThrottler refreshThrottler = new TaskThrottler(1);
 
 
 		public RepositoryViewModel(
-			BusyIndicator busyIndicator)
-			: this(new ViewModelService(), busyIndicator)
+			BusyIndicator busyIndicator, ICommand refreshManuallyCommand)
+			: this(new ViewModelService(refreshManuallyCommand), busyIndicator)
 		{
 		}
 
@@ -142,13 +142,13 @@ namespace GitMind.RepositoryViews
 			Repository.Branches
 			.Where(b => b.IsActive && b.Name != "master")
 			.Where(b => !ActiveBranches.Any(ab => ab.Branch.Id == b.Id)),
-			ShowBranchCommand);			
+			ShowBranchCommand);
 
 		public ObservableCollection<BranchItem> ActiveBranches { get; }
 			= new ObservableCollection<BranchItem>();
 
 
-		public CommitDetailsViewModel CommitDetailsViewModel { get; } = new CommitDetailsViewModel(null);
+		public CommitDetailsViewModel CommitDetailsViewModel { get; } = new CommitDetailsViewModel();
 
 		public string FilterText { get; private set; } = "";
 		public string FilteredText { get; private set; } = "";
@@ -187,118 +187,104 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public async Task FirstLoadAsync()
+		public Task FirstLoadAsync()
 		{
-			Log.Debug("Loading repository");
-			refreshInProgress = true;
+			return refreshThrottler.Run(async () =>
+			{
+				Log.Debug("Loading repository");
 
-			using (busyIndicator.Progress)
-			{				
-				Repository repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
-				Update(repository, SpecifiedBranchNames);	
+				using (busyIndicator.Progress)
+				{
+					Repository repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
+					UpdateViewModel(repository, SpecifiedBranchNames);
 
-				repository = await GetLocalChangesAsync(Repository);	
-				UpdateViewModel(repository, SpecifiedBranches);
+					repository = await GetLocalChangesAsync(Repository);
+					UpdateViewModel(repository, SpecifiedBranches);
 
-				await FetchRemoteChangesAsync(Repository);
-				repository = await GetLocalChangesAsync(Repository);
-				UpdateViewModel(repository, SpecifiedBranches);
-			}
-
-			refreshInProgress = false;
+					await FetchRemoteChangesAsync(Repository);
+					repository = await GetLocalChangesAsync(Repository);
+					UpdateViewModel(repository, SpecifiedBranches);
+				}
+			});
 		}
 
 
-		public async Task ActivateRefreshAsync()
+		public Task ActivateRefreshAsync()
 		{
-			if (refreshInProgress)
+			return refreshThrottler.Run(async () =>
 			{
-				return;
-			}
+				Log.Debug("Refresh after activating");
 
-			Log.Debug("Refresh after activating");
-			refreshInProgress = true;
+				Repository repository;
 
-			Repository repository;
+				using (busyIndicator.Progress)
+				{
+					repository = await GetLocalChangesAsync(Repository);
+					UpdateViewModel(repository, SpecifiedBranches);
+				}
 
-			using (busyIndicator.Progress)
-			{
+				if (DateTime.Now - fetchedTime > FetchInterval)
+				{
+					await FetchRemoteChangesAsync(Repository);
+				}
+
 				repository = await GetLocalChangesAsync(Repository);
 				UpdateViewModel(repository, SpecifiedBranches);
-			}
-
-			if (DateTime.Now - fetchedTime > FetchInterval)
-			{
-				await FetchRemoteChangesAsync(Repository);
-			}
-
-			repository = await GetLocalChangesAsync(Repository);
-			UpdateViewModel(repository, SpecifiedBranches);
-
-			refreshInProgress = false;
+			});
 		}
 
 
 
-		public async Task AutoRefreshAsync()
+		public Task AutoRefreshAsync()
 		{
-			if (refreshInProgress)
+			return refreshThrottler.Run(async () =>
 			{
-				return;
-			}
+				Log.Debug("Auto refresh");
 
-			refreshInProgress = true;
-			Log.Debug("Auto refresh");
+				if (DateTime.Now - fetchedTime > FetchInterval)
+				{
+					await FetchRemoteChangesAsync(Repository);
+				}
 
-			if (DateTime.Now - fetchedTime > FetchInterval)
+				Repository repository;
+				if (DateTime.Now - RebuildRepositoryTime > TimeSpan.FromMinutes(10))
+				{
+					Log.Debug("Get fresh repository from scratch");
+					repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
+					RebuildRepositoryTime = DateTime.Now;
+				}
+				else
+				{
+					repository = await GetLocalChangesAsync(Repository);
+				}
+
+				UpdateViewModel(repository, SpecifiedBranches);
+			});
+		}
+
+
+
+		public Task ManualRefreshAsync()
+		{
+			return refreshThrottler.Run(async () =>
 			{
-				await FetchRemoteChangesAsync(Repository);
-			}
+				Log.Debug("Manual refresh");
 
-			Repository repository;
-			if (DateTime.Now - RebuildRepositoryTime > TimeSpan.FromMinutes(10))
-			{
-				Log.Debug("Get fresh repository from scratch");
-				repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
+				Repository repository;
+				using (busyIndicator.Progress)
+				{
+					await FetchRemoteChangesAsync(Repository);
+
+					repository = await GetLocalChangesAsync(Repository);
+					UpdateViewModel(repository, SpecifiedBranches);
+
+					Log.Debug("Get fresh repository from scratch");
+					repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
+				}
+
 				RebuildRepositoryTime = DateTime.Now;
-			}
-			else
-			{
-				repository = await GetLocalChangesAsync(Repository);
-			}
-
-			UpdateViewModel(repository, SpecifiedBranches);
-
-			refreshInProgress = false;
-		}
-
-
-
-		public async Task ManualRefreshAsync()
-		{
-			if (refreshInProgress)
-			{
-				return;
-			}
-
-			refreshInProgress = true;
-			Log.Debug("Manual refresh");
-
-			Repository repository;
-			using (busyIndicator.Progress)
-			{
-				await FetchRemoteChangesAsync(Repository);
-
-				repository = await GetLocalChangesAsync(Repository);
-				UpdateViewModel(repository, SpecifiedBranches);		
-			}
-
-			Log.Debug("Get fresh repository from scratch");
-			repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
-			RebuildRepositoryTime = DateTime.Now;
-			UpdateViewModel(repository, SpecifiedBranches);
-
-			refreshInProgress = false;
+				UpdateViewModel(repository, SpecifiedBranches);
+			});
 		}
 
 
@@ -322,46 +308,43 @@ namespace GitMind.RepositoryViews
 			Repository = repository;
 			if (string.IsNullOrEmpty(FilterText) && string.IsNullOrEmpty(settingFilterText))
 			{
+				CommitPosition commitPosition = TryGetSelectedCommitPosition();
+
 				viewModelService.UpdateViewModel(this, specifiedBranch);
-				Commits.ForEach(commit => commit.WindowWidth = Width);
 
-				VirtualItemsSource.DataChanged(width);
+				UpdateViewModel();
 
-				if (Commits.Any())
-				{
-					SelectedIndex = Commits[0].VirtualId;
-					SetCommitsDetails(Commits[0]);
-				}
-
+				TrySetSelectedCommitPosition(commitPosition);
 				t.Log("Updated repository view model");
 			}
-			else
-			{
-				Log.Debug("Not updating while in filter mode");
-			}
-
-			UpdateStatusIndicators();
 		}
 
 
-		private void Update(Repository repository, IReadOnlyList<string> specifiedBranchNames)
+		private void UpdateViewModel(Repository repository, IReadOnlyList<string> specifiedBranchNames)
 		{
 			Timing t = new Timing();
 			Repository = repository;
 			viewModelService.Update(this, specifiedBranchNames);
-			Commits.ForEach(commit => commit.WindowWidth = Width);
 
-			VirtualItemsSource.DataChanged(width);
+			UpdateViewModel();
 
 			if (Commits.Any())
 			{
-				SelectedIndex = Commits[0].VirtualId;
-				SetCommitsDetails(Commits[0]);
+				SelectedIndex = 0;
+				SelectedItem = Commits.First();
 			}
 
-			UpdateStatusIndicators();
-
 			t.Log("Updated repository view model");
+		}
+
+
+		private void UpdateViewModel()
+		{
+			Commits.ForEach(commit => commit.WindowWidth = Width);
+			CommitDetailsViewModel.NotifyAll();
+			VirtualItemsSource.DataChanged(width);
+
+			UpdateStatusIndicators();
 		}
 
 
@@ -372,8 +355,8 @@ namespace GitMind.RepositoryViews
 
 			IEnumerable<Branch> remoteAheadBranches = Repository.Branches
 				.Where(b => b.RemoteAheadCount > 0).ToList();
-		
-			string remoteAheadText = remoteAheadBranches.Any() 
+
+			string remoteAheadText = remoteAheadBranches.Any()
 				? "Branches with remote commits:\n" : null;
 			foreach (Branch branch in remoteAheadBranches)
 			{
@@ -384,7 +367,7 @@ namespace GitMind.RepositoryViews
 
 			IEnumerable<Branch> localAheadBranches = Repository.Branches
 				.Where(b => b.LocalAheadCount > 0).ToList();
-		
+
 			string localAheadText = localAheadBranches.Any()
 				? "Branches with local commits:\n" : null;
 			foreach (Branch branch in localAheadBranches)
@@ -424,15 +407,11 @@ namespace GitMind.RepositoryViews
 		}
 
 
-
 		private void SetCommitsDetails(CommitViewModel commit)
 		{
-			CommitDetailsViewModel.CommitViewModel = commit;		
+			CommitDetailsViewModel.CommitViewModel = commit;
 		}
 
-
-
-	
 
 		public void SetFilter(string text)
 		{
@@ -443,6 +422,18 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		private class CommitPosition
+		{
+			public CommitPosition(Commit commit, int index)
+			{
+				Commit = commit;
+				Index = index;
+			}
+
+			public Commit Commit { get; }
+			public int Index { get; }
+		}
+
 		private async void FilterTrigger(object sender, EventArgs e)
 		{
 			filterTriggerTimer.Stop();
@@ -451,35 +442,71 @@ namespace GitMind.RepositoryViews
 
 			Log.Debug($"Filter triggered for: {FilterText}");
 
-			CommitViewModel selectedBefore = SelectedItem as CommitViewModel;
-			int indexBefore = Commits.FindIndex(c => c == selectedBefore);
+			CommitPosition commitPosition = TryGetSelectedCommitPosition();
 
 			using (busyIndicator.Progress)
 			{
 				await viewModelService.SetFilterAsync(this, filterText);
-			}	
+			}
 
 			if (filterText != FilterText)
 			{
 				Log.Warn($"Filter has changed {filterText} ->" + $"{FilterText}");
 				return;
 			}
-			FilteredText = filterText;
-			int indexAfter = Commits.FindIndex(c => c == selectedBefore);
 
-			Log.Debug($"Selected {indexBefore}->{indexAfter} for commit {selectedBefore}");
-			if (indexBefore != -1 && indexAfter != -1)
-			{
-				ScrollRows(indexBefore - indexAfter);
-			}
-			else
-			{
-				ScrollTo(0);
-			}
+			FilteredText = filterText;
+			TrySetSelectedCommitPosition(commitPosition);
+			CommitDetailsViewModel.NotifyAll();
 
 			VirtualItemsSource.DataChanged(width);
 		}
 
+
+		private CommitPosition TryGetSelectedCommitPosition()
+		{
+			Commit selected = (SelectedItem as CommitViewModel)?.Commit;
+			int index = -1;
+
+			if (selected != null)
+			{
+				index = Commits.FindIndex(c => c.Commit.Id == selected.Id);
+			}
+
+			if (selected != null && index != -1)
+			{
+				return new CommitPosition(selected, index);
+			}
+
+			return null;
+		}
+
+
+		private void TrySetSelectedCommitPosition(CommitPosition commitPosition)
+		{
+			if (commitPosition != null)
+			{
+				Commit selected = commitPosition.Commit;
+
+				int indexAfter = Commits.FindIndex(c => c.Commit.Id == selected.Id);
+
+				if (selected != null && indexAfter != -1)
+				{
+					int indexBefore = commitPosition.Index;
+					ScrollRows(indexBefore - indexAfter);
+					SelectedIndex = indexAfter;
+					SelectedItem = Commits[indexAfter];
+					return;
+				}
+			}
+		
+			ScrollTo(0);
+			if (Commits.Any())
+			{
+				SelectedIndex = 0;
+				SelectedItem = Commits.First();
+			}
+		}
 
 		public void Clicked(int column, int rowIndex, bool isControl)
 		{

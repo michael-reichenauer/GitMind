@@ -26,6 +26,7 @@ namespace GitMind.Utils
 			currentCount = initialCount;
 		}
 
+
 		public Task WaitAsync()
 		{
 			lock (waiters)

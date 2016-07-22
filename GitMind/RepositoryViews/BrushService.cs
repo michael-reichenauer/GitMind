@@ -35,6 +35,8 @@ namespace GitMind.RepositoryViews
 
 		public SolidColorBrush UnCommittedBrush { get; } = Brushes.BurlyWood;
 		public SolidColorBrush BranchTipBrush { get; } = Brushes.Aqua;
+		public static Brush SpecifiedBranchBrush = Brushes.Yellow;
+		public static Brush NotSpecifiedBranchBrush = Brushes.LightSteelBlue;
 
 		// Light orchchid
 		//public SolidColorBrush RemoteAheadBrush { get; } =

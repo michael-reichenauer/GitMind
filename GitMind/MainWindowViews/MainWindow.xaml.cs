@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows;
@@ -13,6 +14,7 @@ using GitMind.RepositoryViews;
 using GitMind.Settings;
 using GitMind.Testing;
 using GitMind.Utils;
+using GitMind.Utils.UI;
 using Application = System.Windows.Application;
 
 
@@ -44,6 +46,8 @@ namespace GitMind.MainWindowViews
 		{
 			ExceptionHandling.Init();
 			assemblyResolver.Activate();
+			WpfBindingTraceListener.Register();
+			
 
 			if (!IsStartProgram())
 			{
@@ -54,7 +58,7 @@ namespace GitMind.MainWindowViews
 			InitializeComponent();
 
 			// Make sure maximize window does not cover the task bar
-			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
+			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
 
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
@@ -190,14 +194,12 @@ namespace GitMind.MainWindowViews
 
 		private async void NewVersionAsync(object sender, EventArgs e)
 		{
-			mainWindowViewModel.IsNewVersionVisible = await
-				latestVersionService.IsNewVersionAvailableAsync();
-
 			if (await latestVersionService.IsNewVersionAvailableAsync())
 			{
-				await latestVersionService.InstallLatestVersionAsync();
+				await latestVersionService.InstallLatestVersionAsync();			
 			}
 
+			mainWindowViewModel.IsNewVersionVisible = latestVersionService.IsNewVersionInstalled();
 
 			newVersionTime.Interval = TimeSpan.FromHours(3);
 		}

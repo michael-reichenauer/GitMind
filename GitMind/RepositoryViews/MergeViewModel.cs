@@ -5,68 +5,21 @@ using GitMind.Utils.UI;
 
 namespace GitMind.RepositoryViews
 {
-	internal class MergeViewModel : ViewModel, IVirtualItem
+	internal class MergeViewModel : ViewModel
 	{
-		public MergeViewModel(string id, int virtualId)
-		{
-			Id = id;
-			VirtualId = virtualId;
-		}
-
 		public int ZIndex => 100;
-		public string Id { get; }
-		public int VirtualId { get; }
+		public string Id { get; set; }
 
-		public string Type => "Merge";
+		public string Type => nameof(MergeViewModel);
 
-
-		public int ChildRow
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public int ParentRow
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public Rect Rect
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public double Width
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public string Line
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public Brush Brush
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-	
-		public int Stroke
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public string StrokeDash
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public int ChildRow { get; set; }
+		public int ParentRow { get; set; }
+		public Rect Rect { get; set; }
+		public double Width { get; set; }
+		public string Line { get; set; }
+		public Brush Brush { get; set; }
+		public int Stroke { get; set; }
+		public string StrokeDash => "";
 
 		public override string ToString() => Id;
 	}

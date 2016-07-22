@@ -131,7 +131,7 @@
 							<Style.Triggers>
 
 								<!-- Branch line -->
-								<DataTrigger Binding="{Binding Type}" Value="Branch">
+								<DataTrigger Binding="{Binding Type}" Value="BranchViewModel">
 									<Setter Property="IsEnabled" Value="true"/>
 									<Setter Property="Focusable" Value="False"/>
 									<Setter Property="Background" Value="Transparent"/>
@@ -139,73 +139,20 @@
 										<Setter.Value>
 											<DataTemplate>
 												<Grid 
-												Background="Transparent">
+													Background="Transparent">
 													<Path 
-													Data="{Binding Line}"
-													Stroke="{Binding Brush}"
-													StrokeThickness="2">
-													</Path>
+														Data="{Binding Line}"
+														Stroke="{Binding Brush}"
+														StrokeThickness="2"/>
 
 													<Grid.ToolTip>
 														<ToolTip 
-														Content="{Binding BranchToolTip}"
-														Placement="Mouse"
-														BorderBrush="{Binding Brush}"													
-														BorderThickness="2"/>
-													</Grid.ToolTip>
-
-													<!-- Branch line context menu -->
-													<Grid.ContextMenu>
-														<ContextMenu>
-
-															<!-- Show child branch meu item -->
-															<MenuItem 
-																Header="Show child branch"
-																IsEnabled="{Binding HasChildren}"
-																ItemsSource="{Binding ChildBranches}">
-																<MenuItem.Icon>
-																	<Border>
-																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
-																	</Border>
-																</MenuItem.Icon>
-																<MenuItem.Resources>
-																	<HierarchicalDataTemplate 
-																		DataType="{x:Type local:BranchItem}"
-																		ItemsSource="{Binding Children}">
-																		<MenuItem 
-																			Header="{Binding Text}" 
-																			Command="{Binding ShowBranchCommand}"
-																			CommandParameter="{Binding Branch}"/>
-																	</HierarchicalDataTemplate>
-																</MenuItem.Resources>
-															</MenuItem>
-
-															<Separator
-																Visibility="{Binding IsMultiBranch, Converter={StaticResource VC}}"
-																Background="{StaticResource BorderBrush}"/>
-
-															<MenuItem 
-																Header="Specify multi branch" 
-																Visibility="{Binding IsMultiBranch, Converter={StaticResource VC}}"
-																ItemsSource="{Binding MultiBranches}">
-																<MenuItem.Icon>
-																	<Border>
-																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DC;"/>
-																	</Border>
-																</MenuItem.Icon>
-																<MenuItem.ItemContainerStyle>
-																	<Style TargetType="MenuItem">
-																		<Setter Property="Header" Value="{Binding Name}"/>
-																		<Setter Property="Command" Value="{Binding ItemCommand}"/>
-																		<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-																	</Style>
-																</MenuItem.ItemContainerStyle>
-															</MenuItem>
-
-														</ContextMenu>
-													</Grid.ContextMenu>
-
-												</Grid>
+																Content="{Binding BranchToolTip}"
+																Placement="Mouse"
+																BorderBrush="{Binding Brush}"													
+																BorderThickness="2"/>
+												</Grid.ToolTip>
+											</Grid>
 											</DataTemplate>
 										</Setter.Value>
 									</Setter>
@@ -213,7 +160,7 @@
 
 
 								<!-- Merge line -->
-								<DataTrigger Binding="{Binding Type}" Value="Merge">
+								<DataTrigger Binding="{Binding Type}" Value="MergeViewModel">
 									<Setter Property="IsEnabled" Value="false"/>
 									<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
 									<Setter Property="ContentTemplate">
@@ -232,7 +179,7 @@
 								</DataTrigger>
 
 								<!-- Commit row -->
-								<DataTrigger Binding="{Binding Type}" Value="Commit">
+							<DataTrigger Binding="{Binding Type}" Value="CommitViewModel">
 									<Setter Property="ContentTemplate">
 										<Setter.Value>
 											<DataTemplate>
@@ -279,6 +226,7 @@
 															<ContextMenu>
 																<MenuItem 
 																Header="Show Diff ..." 
+																InputGestureText="Enter"
 																Command="{Binding ShowDiffCommand}" 
 																CommandParameter="{Binding Id}">
 																	<MenuItem.Icon>
@@ -287,7 +235,18 @@
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
-															</ContextMenu>
+
+															<MenuItem 
+																Header="Toggle commit details" 
+																InputGestureText="Space"
+																Command="{Binding ToggleDetailsCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;"/>
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+														</ContextMenu>
 														</Grid.ContextMenu>
 
 														<!-- Current commit indicator (and margin when not current)-->

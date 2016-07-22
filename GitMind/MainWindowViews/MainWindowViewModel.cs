@@ -32,8 +32,7 @@ namespace GitMind.MainWindowViews
 			ILatestVersionService latestVersionService,
 			Window owner)
 		{
-			RepositoryViewModel = new RepositoryViewModel(Busy);
-
+			RepositoryViewModel = new RepositoryViewModel(Busy, RefreshCommand);
 
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
@@ -114,6 +113,8 @@ namespace GitMind.MainWindowViews
 
 		public Command ShowDiffCommand => Command(ShowDiff);
 
+		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
+
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
 		public Command FeedbackCommand => Command(Feedback);
@@ -133,20 +134,21 @@ namespace GitMind.MainWindowViews
 		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
 
 
-		public Task FirstLoadAsync()
+		public async Task FirstLoadAsync()
 		{
 			R<string> path = ProgramPaths.GetWorkingFolderPath(WorkingFolder);
 			if (path.HasValue)
 			{
 				WorkingFolder = path.Value;
 				ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
+			
+				await RepositoryViewModel.FirstLoadAsync();
 				isLoaded = true;
-				return RepositoryViewModel.FirstLoadAsync();
 			}
 			else
 			{
-				Application.Current.Dispatcher.BeginInvoke(
-					DispatcherPriority.Normal, 
+				await Application.Current.Dispatcher.BeginInvoke(
+					DispatcherPriority.Normal,
 					new Action(async () =>
 					{
 						string selectedPath;
@@ -161,8 +163,6 @@ namespace GitMind.MainWindowViews
 						await RepositoryViewModel.FirstLoadAsync();
 						isLoaded = true;
 					}));
-
-				return Task.CompletedTask;
 			}
 		}
 
@@ -311,18 +311,31 @@ namespace GitMind.MainWindowViews
 			await diffService.ShowDiffAsync(Commit.UncommittedId, WorkingFolder);
 		}
 
+		private async void ShowSelectedDiff()
+		{
+			CommitViewModel commit = RepositoryViewModel.SelectedItem as CommitViewModel;
+
+			if (commit != null)
+			{
+				await diffService.ShowDiffAsync(commit.Commit.Id, WorkingFolder);
+			}
+		}
+
 
 		private async void SelectWorkingFolder()
 		{
+			isLoaded = false;
 			string selectedPath;
 			if (!GetWorkingFolder(WorkingFolder, out selectedPath))
 			{
+				isLoaded = true;
 				return;
 			}
 
 			WorkingFolder = selectedPath;
 
 			await RepositoryViewModel.FirstLoadAsync();
+			isLoaded = true;
 		}
 
 

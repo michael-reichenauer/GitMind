@@ -80,11 +80,11 @@ namespace GitMind.GitModel
 		public IEnumerable<Commit> Children => childIds.Select(id => repository.Commits[id]);
 		public Branch Branch => repository.Branches[branchId];
 		public bool IsMergePoint => parentIds.Count > 1;
-
-		public string GitRepositoryPath => repository.MRepository.WorkingFolder;
+		public bool IsCurrent => this == repository.CurrentCommit;
+		public string WorkingFolder => repository.MRepository.WorkingFolder;
 
 		//public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
-		public Task<IEnumerable<CommitFile>> FilesTask => repository.CommitsFiles.GetAsync(GitRepositoryPath, Id);
+		public Task<IEnumerable<CommitFile>> FilesTask => repository.CommitsFiles.GetAsync(WorkingFolder, Id);
 
 
 

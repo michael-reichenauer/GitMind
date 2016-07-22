@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -14,18 +13,11 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitDetailsViewModel : ViewModel
 	{
-		private readonly Func<string, Task> showDiffAsync;
-		private readonly ObservableCollection<CommitFileViewModel> files = 
+		private readonly ObservableCollection<CommitFileViewModel> files =
 			new ObservableCollection<CommitFileViewModel>();
 		private string filesCommitId = null;
 		private CommitViewModel commitViewModel;
 
-
-		public CommitDetailsViewModel(
-			Func<string, Task> showDiffAsync)
-		{
-			this.showDiffAsync = showDiffAsync;
-		}
 
 
 		public CommitViewModel CommitViewModel
@@ -67,7 +59,14 @@ namespace GitMind.RepositoryViews
 
 		public string Id => CommitViewModel?.Id;
 		public string ShortId => CommitViewModel?.ShortId;
-		public string Branch => CommitViewModel?.Commit?.Branch?.Name;
+		public string BranchName => CommitViewModel?.Commit?.Branch?.Name;
+		public FontStyle BranchNameStyle => !string.IsNullOrEmpty(SpecifiedBranchName)
+			? FontStyles.Oblique : FontStyles.Normal;
+		public string BranchNameUnderline => !string.IsNullOrEmpty(SpecifiedBranchName) ? "Underline" : "None";
+		public string BranchNameToolTip => SpecifiedBranchName != null ? "Manually specified branch" : null;
+		public string SpecifiedBranchName => CommitViewModel?.Commit?.SpecifiedBranchName;
+		public Brush SpecifiedBranchBrush => SpecifiedBranchName != null
+			? BrushService.SpecifiedBranchBrush : BrushService.NotSpecifiedBranchBrush;
 		public Brush BranchBrush => CommitViewModel?.Brush;
 		public string Subject => CommitViewModel?.Subject;
 		public Brush SubjectBrush => CommitViewModel?.SubjectBrush;
@@ -76,16 +75,11 @@ namespace GitMind.RepositoryViews
 		public string Tickets => CommitViewModel?.Tickets;
 		public string BranchTips => CommitViewModel?.BranchTips;
 
-		public Command ShowDiffCommand => Command(ShowDiffAsync);
+		public Command EditBranchCommand => CommitViewModel.SetCommitBranchCommand;
 
 
 		public override string ToString() => $"{Id} {Subject}";
 
-
-		private async void ShowDiffAsync()
-		{
-			await showDiffAsync(Id);
-		}
 
 
 		private async Task SetFilesAsync(Commit commit)
@@ -100,7 +94,7 @@ namespace GitMind.RepositoryViews
 						Id = commit.Id,
 						Name = f.Name,
 						Status = f.Status,
-						WorkingFolder = commit.GitRepositoryPath
+						WorkingFolder = commit.WorkingFolder
 					}));
 			}
 		}

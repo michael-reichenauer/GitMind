@@ -10,29 +10,24 @@ using GitMind.Utils.UI;
 
 namespace GitMind.RepositoryViews
 {
-	internal class BranchViewModel : ViewModel, IVirtualItem
+	internal class BranchViewModel : ViewModel
 	{
 		private readonly ICommand showBranchCommand;
 
-		public string Type => "Branch";
+		public string Type => nameof(BranchViewModel);
 		public int ZIndex => 200;
 
-		public BranchViewModel(
-			string id, 
-			int virtualId,
-			ICommand showBranchCommand, ICommand hideBranchCommand)
+		public BranchViewModel(ICommand showBranchCommand, ICommand hideBranchCommand)
 		{			
 			this.showBranchCommand = showBranchCommand;
-			Id = id;
-			VirtualId = virtualId;
 			HideBranchCommand = hideBranchCommand;
 		}
 
-
-		public int VirtualId { get; }
 		public ObservableCollection<BranchItem> ActiveBranches { get; set; }
 		public ICommand HideBranchCommand { get; }
-		public string Id { get; }
+
+		public Branch Branch { get; set; }
+		
 
 		public IReadOnlyList<BranchItem> ChildBranches =>
 			BranchItem.GetBranches(
@@ -44,70 +39,23 @@ namespace GitMind.RepositoryViews
 
 		public IReadOnlyList<BranchNameItem> MultiBranches { get; set; }
 
+		public string Id => Branch.Id;
+		public string Name => Branch.Name;
+		public bool IsMultiBranch => Branch.IsMultiBranch;
 		public bool HasChildren => ChildBranches.Count > 0;
 
-
-		public Branch Branch { get; set; }
-
 		public int BranchColumn { get; set; }
+		public int LatestRowIndex { get; set; }
+		public int FirstRowIndex { get; set; }
+		public Rect Rect { get; set; }
 
 
-		public bool IsMultiBranch
-		{
-			get { return Get(); }
-			set { Set(value).Notify(nameof(ChildBranches), nameof(MultiBranches)); }
-		}
-
-		public string Name
-		{
-			get { return Get(); }
-			set { Set(value).Notify(nameof(HasChildren)); }
-		}
-
-		public int LatestRowIndex
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public int FirstRowIndex
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public Rect Rect
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public double Width
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public string Line
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public Brush Brush
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
+		public double Width => Rect.Width;
+		public string Line { get; set; }
+		public Brush Brush { get; set; }	
 		public Brush HoverBrush => Brush;
 
-		public string BranchToolTip
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
+		public string BranchToolTip { get; set; }
 		public string HideBranchText => "Hide branch: " + Branch.Name;
 
 		public override string ToString() => $"{Name}";

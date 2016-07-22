@@ -1,10 +1,11 @@
-﻿<UserControl x:Class="GitMind.RepositoryViews.CommitDetailsView"
-						 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-						 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-						 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-						 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-						 xmlns:local="clr-namespace:GitMind.RepositoryViews"
-						 mc:Ignorable="d">
+﻿<UserControl 
+	x:Class="GitMind.RepositoryViews.CommitDetailsView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="clr-namespace:GitMind.RepositoryViews"
+	mc:Ignorable="d">
 
 
 	<Grid>
@@ -37,7 +38,7 @@
 					</Style>
 				</Grid.Resources>
 				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="60" />
+					<ColumnDefinition Width="75" />
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
 				<Grid.RowDefinitions>
@@ -53,63 +54,85 @@
 					Content="Id:"
 					Grid.Column="0" Grid.Row="0"
 					Style="{StaticResource HeaderLabelStyle}"/>
-				<Label
-					Content="{Binding ShortId}"
-					Grid.Column="1" Grid.Row="0"
-					Style="{StaticResource TextLabelStyle}"
-					ToolTip="{Binding Id}"/>
-				
+				<StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+					<TextBox
+						Text="{Binding ShortId, Mode=OneWay}"
+						Style="{StaticResource LabelStyle}"
+						ToolTip="{Binding Id}"/>
+					<Label
+						Content=""			
+						Style="{StaticResource HeaderLabelStyle}"/>
+				</StackPanel>
+
 				<Label
 					Content="Branch:"
 					Grid.Column="0" Grid.Row="1" 
 					Style="{StaticResource HeaderLabelStyle}"/>
 				<StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
-					<Label
-						Content="{Binding Branch}"
-						Style="{StaticResource TextLabelStyle}"
-						Foreground="{Binding BranchBrush}"/>
-					<Label 			
-						Style="{StaticResource TextLabelStyle}" 
-						Content="{Binding BranchTips}"
-						Foreground="{StaticResource BranchTipsBrush}"
-						ToolTip="Branch tip of branch with no commits of its own."/>
+					<TextBox
+						Text="{Binding BranchName, Mode=OneWay}"
+						Style="{StaticResource LabelStyle}"
+						FontStyle="{Binding BranchNameStyle}"
+						TextDecorations="{Binding BranchNameUnderline}"
+						Foreground="{Binding BranchBrush}"
+						ToolTip="{Binding BranchNameToolTip}"/>
+
+					<Button 
+						Content="&#xE3C9;"
+						Style="{StaticResource IconButtonStyle}"
+						FontSize="12"	
+						Margin="0,3,0,0"			
+						Command="{Binding CommitViewModel.SetCommitBranchCommand}"
+						ToolTip="Manually specify a branch for this commit ..." />
 				</StackPanel>
 				
 				<Label
-					Content="Tags:"
+					Content="Branch tips:"
 					Grid.Column="0" Grid.Row="2"
+					Visibility="{Binding BranchTips, Converter={StaticResource VC}}"
+					Style="{StaticResource HeaderLabelStyle}"/>
+				<TextBox Grid.Column="1" Grid.Row="2"
+					Text="{Binding BranchTips, Mode=OneWay}"
+					Visibility="{Binding BranchTips, Converter={StaticResource VC}}"
+					Style="{StaticResource LabelStyle}" 
+					Foreground="{StaticResource BranchTipsBrush}"
+					ToolTip="Branch tip of branch with no commits of its own."/>
+
+				<Label
+					Content="Tags:"
+					Grid.Column="0" Grid.Row="3"
 					Visibility="{Binding Tags, Converter={StaticResource VC}}"
 					Style="{StaticResource HeaderLabelStyle}"/>
-				<Label
-					Content="{Binding Tags}"
-					Grid.Column="1" Grid.Row="2"
+				<TextBox
+					Text="{Binding Tags, Mode=OneWay}"
+					Grid.Column="1" Grid.Row="3"
 					Visibility="{Binding Tags, Converter={StaticResource VC}}"
-					Style="{StaticResource TextLabelStyle}" 
+					Style="{StaticResource LabelStyle}" 
 					Foreground="{StaticResource TagBrush}"/>
 				
 				<Label
 					Content="Tickets:"
-					Grid.Column="0" Grid.Row="3"
+					Grid.Column="0" Grid.Row="4"
 					Visibility="{Binding Tickets, Converter={StaticResource VC}}"
 					Style="{StaticResource HeaderLabelStyle}"/>
-				<Label 
-					Grid.Column="1" Grid.Row="3"
+				<TextBox 
+					Text="{Binding Tickets, Mode=OneWay}"
+					Grid.Column="1" Grid.Row="4"
 					Visibility="{Binding Tickets, Converter={StaticResource VC}}"
-					Style="{StaticResource TextLabelStyle}" 
-					Foreground="{StaticResource TicketBrush}"
-					Content="{Binding Tickets}"/>
+					Style="{StaticResource LabelStyle}" 
+					Foreground="{StaticResource TicketBrush}"/>
 				
 				<Label
 					Content="Subject:"
-					Grid.Column="0" Grid.Row="4"
+					Grid.Column="0" Grid.Row="5"
 					Style="{StaticResource HeaderLabelStyle}"/>
-				<ScrollViewer Grid.Column="1" Grid.Row="4" 
+				<ScrollViewer Grid.Column="1" Grid.Row="5" 
 					VerticalScrollBarVisibility="Auto">
-					<TextBlock			
+					<TextBox
+						Text="{Binding Subject, Mode=OneWay}"
+						Style="{StaticResource LabelStyle}"
 						Foreground="{Binding SubjectBrush}"		
-						FontStyle="{Binding SubjectStyle}"
-						Padding="3,1"
-						Text="{Binding Subject}"
+						FontStyle="{Binding SubjectStyle}"			
 						TextWrapping="Wrap"/>
 				</ScrollViewer>
 			</Grid>

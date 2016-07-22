@@ -84,6 +84,7 @@
     </Page>
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
     <Compile Include="Installation\IAssemblyResolver.cs" />
+    <Compile Include="Utils\UI\WpfBindingTraceListener.cs" />
     <Compile Include="RepositoryViews\BranchItem.cs" />
     <Compile Include="RepositoryViews\BranchNameItem.cs" />
     <Compile Include="RepositoryViews\BranchViewModel.cs" />
@@ -108,8 +109,8 @@
     <Compile Include="Utils\UI\BusyProgress.cs" />
     <Compile Include="Utils\UI\HideableGridSplitter.cs" />
     <Compile Include="Utils\Compare.cs" />
-    <Compile Include="RepositoryViews\SetBranchPrompt.xaml.cs">
-      <DependentUpon>SetBranchPrompt.xaml</DependentUpon>
+    <Compile Include="RepositoryViews\SetBranchPromptDialog.xaml.cs">
+      <DependentUpon>SetBranchPromptDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="GitModel\CommitFile.cs" />
     <Compile Include="RepositoryViews\CommitViewModel.cs" />
@@ -118,7 +119,6 @@
     <Compile Include="RepositoryViews\IBrushService.cs" />
     <Compile Include="RepositoryViews\IDiffService.cs" />
     <Compile Include="RepositoryViews\IViewModelService.cs" />
-    <Compile Include="RepositoryViews\IVirtualItem.cs" />
     <Compile Include="RepositoryViews\MergeViewModel.cs" />
     <Compile Include="RepositoryViews\RepositoryVirtualItemsSource.cs" />
     <Compile Include="RepositoryViews\RepositoryViewModel.cs" />
@@ -227,7 +227,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RepositoryViews\SetBranchPrompt.xaml">
+    <Page Include="RepositoryViews\SetBranchPromptDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -255,7 +255,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Styles\ComboBoxStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\ContextMenuStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\LabelStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -264,6 +272,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Styles\ListBoxStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\RadioButtonStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,5 +1,8 @@
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
@@ -8,110 +11,61 @@ using GitMind.Utils.UI;
 
 namespace GitMind.RepositoryViews
 {
-	internal class CommitViewModel : ViewModel, IVirtualItem
+	internal class CommitViewModel : ViewModel
 	{
+		
+		private readonly ICommand refreshManuallyCommand;
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 
-		private Commit commit;
+
 		private int windowWidth;
-		private static readonly SolidColorBrush HoverBrushColor = 
+		private static readonly SolidColorBrush HoverBrushColor =
 			(SolidColorBrush)(new BrushConverter().ConvertFrom("#996495ED"));
 
 
-		public CommitViewModel(
-			string id,
-			int virtualId)
+		public CommitViewModel
+			(ICommand refreshManuallyCommand, 
+			ICommand toggleDetailsCommand)
 		{
-			Id = id;
-			VirtualId = virtualId;
+			ToggleDetailsCommand = toggleDetailsCommand;
+			this.refreshManuallyCommand = refreshManuallyCommand;
 		}
 
 
+		public Commit Commit { get; set; }
 
 		public int ZIndex => 0;
-		public string Id { get; }
-		public int VirtualId { get; }
 
-		public string Type => "Commit";
+		public string Type => nameof(CommitViewModel);
 
-		public Action HideBranch { get; set; }
-
-		public Commit Commit
-		{
-			get { return commit; }
-			set
-			{
-				if (commit != value)
-				{
-					commit = value;
-					Notify(nameof(Id), nameof(ShortId), nameof(Author), nameof(Date), nameof(Subject));
-				}
-			}
-		}
-
-		public int RowIndex { get; set; }
-
-
+		public string Id => Commit.Id;
 		public string ShortId => Commit.ShortId;
 		public string Author => Commit.Author;
 		public string Date => Commit.AuthorDateText;
 		public string Subject => Commit.Subject;
+		public string Tags => Commit.Tags;
+		public string Tickets => Commit.Tickets;
+		public string BranchTips => Commit.BranchTips;
+		public string CommitBranchText => "Hide branch: " + Commit.Branch.Name;
+		public string CommitBranchName => Commit.Branch.Name;
+		public bool IsMergePoint => Commit.IsMergePoint && Commit.Branch != Commit.SecondParent.Branch;
+		public bool IsCurrent => Commit.IsCurrent;
 
-		public string Tags
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public Action HideBranch { get; set; }
+		public int RowIndex { get; set; }
 
-		public string Tickets
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public int BranchColumn { get; set; }
+		public int XPoint { get; set; }
+		public int YPoint => IsMergePoint ? 2 : 4;
+		public int Size => IsMergePoint ? 10 : 6;
+		public Rect Rect { get; set; }
+		public Brush SubjectBrush { get; set; }
+		public string ToolTip { get; set; }
+		public Brush Brush { get; set; }
+		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
+		public Brush HoverBrush => HoverBrushColor;
 
-		public string BranchTips
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public bool IsCurrent
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		// The branch point 
-		public bool IsMergePoint
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public int BranchColumn
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public int XPoint
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public int YPoint
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public int Size
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
 
 		public double Width
 		{
@@ -125,52 +79,8 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
-		public Brush SubjectBrush
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public string ToolTip
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public Brush Brush
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public FontStyle SubjectStyle
-		{
-			get { return Get<FontStyle>(); }
-			set { Set<FontStyle>(value); }
-		}
-
-		public Brush HoverBrush => HoverBrushColor;
 
 		public Brush BrushInner
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public Rect Rect
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-
-		public string CommitBranchText
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
-
-		public string CommitBranchName
 		{
 			get { return Get(); }
 			set { Set(value); }
@@ -190,25 +100,47 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		public ICommand ToggleDetailsCommand { get; }
+
 		public Command HideBranchCommand => Command(HideBranch);
 
-		public Command ShowDiffCommand => Command(() => diffService.ShowDiffAsync(Id, Commit.GitRepositoryPath));
+		public Command ShowDiffCommand => Command(() => diffService.ShowDiffAsync(Id, Commit.WorkingFolder));
 
-		public Command SetCommitBranchCommand => Command(async () =>
+		public Command SetCommitBranchCommand => AsyncCommand(SetBranch);
+
+		public override string ToString() => $"{ShortId} {Subject} {Date}";
+
+
+		private async Task SetBranch()
 		{
-			var dialog = new SetBranchPrompt();
+			SetBranchPromptDialog dialog = new SetBranchPromptDialog();
 			dialog.PromptText = Commit.SpecifiedBranchName;
+			dialog.IsAutomatically = string.IsNullOrEmpty(Commit.SpecifiedBranchName);
+			foreach (Branch childBranch in Commit.Branch.GetChildBranches())
+			{
+				if (!childBranch.IsMultiBranch && !childBranch.Name.StartsWith("_"))
+				{
+					dialog.AddBranchName(childBranch.Name);
+				}
+			}
 
 			if (dialog.ShowDialog() == true)
 			{
-				string branchName = dialog.PromptText?.Trim();
-				string gitRepositoryPath = Commit.GitRepositoryPath;
-				await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName, gitRepositoryPath);
+				Application.Current.MainWindow.Focus();
+				string branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
+				string workingFolder = Commit.WorkingFolder;
+
+				if (Commit.SpecifiedBranchName != branchName)
+				{
+					await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName, workingFolder);
+
+					refreshManuallyCommand.Execute(null);
+				}
 			}
-		});
-
-
-
-		public override string ToString() => $"{ShortId} {Subject} {Date}";		
+			else
+			{
+				Application.Current.MainWindow.Focus();
+			}
+		}
 	}
 }
