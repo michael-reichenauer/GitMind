@@ -139,73 +139,20 @@
 										<Setter.Value>
 											<DataTemplate>
 												<Grid 
-												Background="Transparent">
+													Background="Transparent">
 													<Path 
-													Data="{Binding Line}"
-													Stroke="{Binding Brush}"
-													StrokeThickness="2">
-													</Path>
+														Data="{Binding Line}"
+														Stroke="{Binding Brush}"
+														StrokeThickness="2"/>
 
 													<Grid.ToolTip>
 														<ToolTip 
-														Content="{Binding BranchToolTip}"
-														Placement="Mouse"
-														BorderBrush="{Binding Brush}"													
-														BorderThickness="2"/>
-													</Grid.ToolTip>
-
-													<!-- Branch line context menu -->
-													<Grid.ContextMenu>
-														<ContextMenu>
-
-															<!-- Show child branch meu item -->
-															<MenuItem 
-																Header="Show child branch"
-																IsEnabled="{Binding HasChildren}"
-																ItemsSource="{Binding ChildBranches}">
-																<MenuItem.Icon>
-																	<Border>
-																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
-																	</Border>
-																</MenuItem.Icon>
-																<MenuItem.Resources>
-																	<HierarchicalDataTemplate 
-																		DataType="{x:Type local:BranchItem}"
-																		ItemsSource="{Binding Children}">
-																		<MenuItem 
-																			Header="{Binding Text}" 
-																			Command="{Binding ShowBranchCommand}"
-																			CommandParameter="{Binding Branch}"/>
-																	</HierarchicalDataTemplate>
-																</MenuItem.Resources>
-															</MenuItem>
-
-															<Separator
-																Visibility="{Binding IsMultiBranch, Converter={StaticResource VC}}"
-																Background="{StaticResource BorderBrush}"/>
-
-															<MenuItem 
-																Header="Specify multi branch" 
-																Visibility="{Binding IsMultiBranch, Converter={StaticResource VC}}"
-																ItemsSource="{Binding MultiBranches}">
-																<MenuItem.Icon>
-																	<Border>
-																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DC;"/>
-																	</Border>
-																</MenuItem.Icon>
-																<MenuItem.ItemContainerStyle>
-																	<Style TargetType="MenuItem">
-																		<Setter Property="Header" Value="{Binding Name}"/>
-																		<Setter Property="Command" Value="{Binding ItemCommand}"/>
-																		<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-																	</Style>
-																</MenuItem.ItemContainerStyle>
-															</MenuItem>
-
-														</ContextMenu>
-													</Grid.ContextMenu>
-
-												</Grid>
+																Content="{Binding BranchToolTip}"
+																Placement="Mouse"
+																BorderBrush="{Binding Brush}"													
+																BorderThickness="2"/>
+												</Grid.ToolTip>
+											</Grid>
 											</DataTemplate>
 										</Setter.Value>
 									</Setter>
