@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.GitModel;
 using GitMind.Installation;
+using GitMind.Installation.Private;
 using GitMind.RepositoryViews;
 using GitMind.Settings;
 using GitMind.Utils;
@@ -20,22 +21,15 @@ namespace GitMind.MainWindowViews
 {
 	internal class MainWindowViewModel : ViewModel
 	{
-
-		private readonly IDiffService diffService;
-		private readonly ILatestVersionService latestVersionService;
+		private readonly IDiffService diffService = new DiffService();
+		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly Window owner;
 		private bool isLoaded = false;
 
 
-		internal MainWindowViewModel(
-			IDiffService diffService,
-			ILatestVersionService latestVersionService,
-			Window owner)
+		internal MainWindowViewModel(Window owner)
 		{
 			RepositoryViewModel = new RepositoryViewModel(Busy, RefreshCommand);
-
-			this.diffService = diffService;
-			this.latestVersionService = latestVersionService;
 			this.owner = owner;
 
 			WhenSet(RepositoryViewModel, nameof(RepositoryViewModel.UnCommited)).Notify(nameof(StatusText));
@@ -219,7 +213,7 @@ namespace GitMind.MainWindowViews
 
 
 
-		public List<string> SpecifiedBranchNames
+		public IReadOnlyList<string> SpecifiedBranchNames
 		{
 			set { RepositoryViewModel.SpecifiedBranchNames = value; }
 		}
@@ -255,6 +249,7 @@ namespace GitMind.MainWindowViews
 		{
 			Application.Current.Shutdown(0);
 		}
+
 
 		private async void RunLatestVersion()
 		{
