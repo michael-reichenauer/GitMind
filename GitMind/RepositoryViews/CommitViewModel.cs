@@ -13,6 +13,7 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitViewModel : ViewModel
 	{
+		
 		private readonly ICommand refreshManuallyCommand;
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IRepositoryService repositoryService = new RepositoryService();
@@ -23,8 +24,11 @@ namespace GitMind.RepositoryViews
 			(SolidColorBrush)(new BrushConverter().ConvertFrom("#996495ED"));
 
 
-		public CommitViewModel(ICommand refreshManuallyCommand)
+		public CommitViewModel
+			(ICommand refreshManuallyCommand, 
+			ICommand toggleDetailsCommand)
 		{
+			ToggleDetailsCommand = toggleDetailsCommand;
 			this.refreshManuallyCommand = refreshManuallyCommand;
 		}
 
@@ -95,6 +99,8 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
+
+		public ICommand ToggleDetailsCommand { get; }
 
 		public Command HideBranchCommand => Command(HideBranch);
 

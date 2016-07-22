@@ -151,6 +151,7 @@
 					Grid.Column="2"
 					Text="{TemplateBinding InputGestureText}"
 					Margin="5,2,2,2"
+					HorizontalAlignment="Left"
 					DockPanel.Dock="Right" />
 				<Path 
 					Grid.Column="3"

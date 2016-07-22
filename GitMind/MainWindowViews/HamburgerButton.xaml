@@ -75,8 +75,8 @@
 				<Separator Background="{StaticResource BorderBrush}"/>
 
 				<MenuItem 
-									Header="Open working folder ..." 
-									Command="{Binding SelectWorkingFolderCommand}">
+					Header="Open working folder ..." 
+					Command="{Binding SelectWorkingFolderCommand}">
 					<MenuItem.Icon>
 						<Border>
 							<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE2C8;"/>
@@ -84,28 +84,12 @@
 					</MenuItem.Icon>
 				</MenuItem>
 
-				<!--<Separator Background="{StaticResource BorderBrush}"/>
-								
-								<MenuItem 
-									Header="Specify branch for commit ..." 
-									Command="{Binding SpecifyCommitBranchCommand}">
-									<MenuItem.Icon>
-										<Border Background="Transparent" Padding="2">
-											<TextBlock 
-												Text="&#xE8B1;"
-												FontFamily="{StaticResource IconFont}"
-												Foreground="LightSteelBlue"
-												VerticalAlignment="Center">
-											</TextBlock>
-										</Border>
-									</MenuItem.Icon>
-								</MenuItem>-->
 
 				<Separator Background="{StaticResource BorderBrush}"/>
 
 				<MenuItem 
-									Header="Send feedback ..." 
-									Command="{Binding FeedbackCommand}">
+					Header="Send feedback ..." 
+					Command="{Binding FeedbackCommand}">
 					<MenuItem.Icon>
 						<Border>
 							<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0E1;"/>
@@ -114,16 +98,16 @@
 				</MenuItem>
 
 				<MenuItem 
-									Header="View help ..."
-									InputGestureText="F1"
-									Command="{Binding HelpCommand}">
+					Header="View help ..."
+					InputGestureText="F1"
+					Command="{Binding HelpCommand}">
 					<MenuItem.Icon>
 						<Border>
 							<TextBlock 
-												Style="{StaticResource MenuIconStyle}" 
-												Text=" ? "
-												FontWeight="Bold"
-												FontFamily="Segoe UI"/>
+								Style="{StaticResource MenuIconStyle}" 
+								Text=" ? "
+								FontWeight="Bold"
+								FontFamily="Segoe UI"/>
 						</Border>
 					</MenuItem.Icon>
 				</MenuItem>

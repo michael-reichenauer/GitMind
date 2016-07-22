@@ -113,6 +113,8 @@ namespace GitMind.MainWindowViews
 
 		public Command ShowDiffCommand => Command(ShowDiff);
 
+		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
+
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
 		public Command FeedbackCommand => Command(Feedback);
@@ -307,6 +309,16 @@ namespace GitMind.MainWindowViews
 		private async void ShowDiff()
 		{
 			await diffService.ShowDiffAsync(Commit.UncommittedId, WorkingFolder);
+		}
+
+		private async void ShowSelectedDiff()
+		{
+			CommitViewModel commit = RepositoryViewModel.SelectedItem as CommitViewModel;
+
+			if (commit != null)
+			{
+				await diffService.ShowDiffAsync(commit.Commit.Id, WorkingFolder);
+			}
 		}
 
 

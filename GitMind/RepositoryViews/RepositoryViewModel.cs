@@ -327,6 +327,13 @@ namespace GitMind.RepositoryViews
 			viewModelService.Update(this, specifiedBranchNames);
 
 			UpdateViewModel();
+
+			if (Commits.Any())
+			{
+				SelectedIndex = 0;
+				SelectedItem = Commits.First();
+			}
+
 			t.Log("Updated repository view model");
 		}
 

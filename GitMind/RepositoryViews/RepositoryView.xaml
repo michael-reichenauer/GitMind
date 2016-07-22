@@ -226,6 +226,7 @@
 															<ContextMenu>
 																<MenuItem 
 																Header="Show Diff ..." 
+																InputGestureText="Enter"
 																Command="{Binding ShowDiffCommand}" 
 																CommandParameter="{Binding Id}">
 																	<MenuItem.Icon>
@@ -234,7 +235,18 @@
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
-															</ContextMenu>
+
+															<MenuItem 
+																Header="Toggle commit details" 
+																InputGestureText="Space"
+																Command="{Binding ToggleDetailsCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;"/>
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+														</ContextMenu>
 														</Grid.ContextMenu>
 
 														<!-- Current commit indicator (and margin when not current)-->
