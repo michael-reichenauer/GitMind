@@ -106,6 +106,7 @@ namespace GitMind.RepositoryViews
 			return currentRow - newRow;
 		}
 
+
 		public void ShowBranch(RepositoryViewModel repositoryViewModel, Branch branch)
 		{
 			List<Branch> currentlyShownBranches = GetCurrentlyShownBranches(repositoryViewModel);
@@ -129,15 +130,6 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.VirtualItemsSource.DataChanged(repositoryViewModel.Width);
 
 			}
-
-
-			//int currentRow = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
-			//Update(repositoryViewModel, currentlyShownBranches);
-
-			//int newRow = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
-			//Log.Debug($"Row {currentRow}->{newRow} for {stableCommit}");
-
-			//return currentRow - newRow;
 		}
 
 		public void HideBranch(RepositoryViewModel repositoryViewModel, Branch branch)
@@ -159,20 +151,11 @@ namespace GitMind.RepositoryViews
 
 				repositoryViewModel.VirtualItemsSource.DataChanged(repositoryViewModel.Width);
 			}
-
-			//int currentRow = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
-			//Update(repositoryViewModel, currentlyShownBranches);
-
-			//int newRow = repositoryViewModel.CommitsById[stableCommit.Id].RowIndex;
-			//Log.Debug($"Row {currentRow}->{newRow} for {stableCommit}");
-
-			//return currentRow - newRow;
 		}
 
 
 		public async Task SetFilterAsync(RepositoryViewModel repositoryViewModel, string filterText)
 		{
-
 			if (string.IsNullOrEmpty(filterText))
 			{
 				List<Branch> branches = repositoryViewModel.SpecifiedBranches.ToList();
