@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Navigation;
 using Log = GitMind.Utils.Log;
 
 
@@ -52,7 +51,7 @@ namespace GitMind.RepositoryViews
 			try
 			{
 				Process proc = new Process();
-				proc.StartInfo.FileName = "https://github.com/michael-reichenauer/GitMind/wiki/Help";
+				proc.StartInfo.FileName = "https://github.com/michael-reichenauer/GitMind/wiki/Help#set-branch";
 				proc.Start();
 			}
 			catch (Exception ex) when (ex.IsNotFatal())

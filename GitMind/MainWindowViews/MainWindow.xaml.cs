@@ -194,14 +194,12 @@ namespace GitMind.MainWindowViews
 
 		private async void NewVersionAsync(object sender, EventArgs e)
 		{
-			mainWindowViewModel.IsNewVersionVisible = await
-				latestVersionService.IsNewVersionAvailableAsync();
-
 			if (await latestVersionService.IsNewVersionAvailableAsync())
 			{
-				await latestVersionService.InstallLatestVersionAsync();
+				await latestVersionService.InstallLatestVersionAsync();			
 			}
 
+			mainWindowViewModel.IsNewVersionVisible = latestVersionService.IsNewVersionInstalled();
 
 			newVersionTime.Interval = TimeSpan.FromHours(3);
 		}

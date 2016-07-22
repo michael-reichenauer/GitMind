@@ -20,6 +20,16 @@ namespace GitMind.Installation.Private
 		private readonly ICmd cmd = new Cmd();
 
 
+		public bool IsNewVersionInstalled()
+		{
+			Version currentedVersion = ProgramPaths.GetCurrentVersion();
+			Version installedVersion = ProgramPaths.GetInstalledVersion();
+
+			Log.Debug($"Current version: {currentedVersion} installed version: {installedVersion}");
+			return currentedVersion < installedVersion;
+		}
+
+
 		public async Task<bool> IsNewVersionAvailableAsync()
 		{
 			Log.Debug($"Checking remote version of {latestUri} ...");
