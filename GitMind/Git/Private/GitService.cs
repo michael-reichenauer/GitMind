@@ -348,6 +348,29 @@ namespace GitMind.Git.Private
 		}
 
 
+		public async Task PullCurrentBranchAsync(string workingFolder)
+		{
+			try
+			{
+				Log.Debug($"Pull current branch using cmd... {workingFolder}");
+
+				string args = "pull";
+
+				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
+
+				pullResult.OnValue(_ => Log.Debug("Pulled current branch using cmd"));
+
+				// Ignoring fetch errors for now
+				pullResult.OnError(e => Log.Warn($"Git pull current branch failed {e.Message}"));
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to pull current branch {workingFolder}, {e.Message}");
+			}
+		}
+
+
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
 			string gitRepositoryPath, string args)
 		{

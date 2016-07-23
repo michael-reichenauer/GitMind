@@ -133,13 +133,21 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
+		public string PullCurrentBranchText => $"Pull current branch {CurrentBranchName}";
+	
+
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
 		public ICommand TryUpdateAllBranchesCommand => Command(
-			TryUpdateAllBranches, CanTryUpdateAllBranchesExecute);
+			TryUpdateAllBranches, TryUpdateAllBranchesCanExecute);
 
 
-	
+		public ICommand PullCurrentBranchCommand => Command(
+			PullCurrentBranch, PullCurrentBranchCanExecute);
+
+
+
+
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
@@ -615,7 +623,7 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		private bool CanTryUpdateAllBranchesExecute()
+		private bool TryUpdateAllBranchesCanExecute()
 		{
 			Branch uncommittedBranch = UnCommited?.Branch;
 
@@ -625,6 +633,26 @@ namespace GitMind.RepositoryViews
 				&& b.LocalAheadCount == 0);
 		}
 
+
+		private async void PullCurrentBranch()
+		{
+			using (busyIndicator.Progress)
+			{
+				string workingFolder = Repository.MRepository.WorkingFolder;
+				await gitService.PullCurrentBranchAsync(workingFolder);
+
+				await RefreshAfterCommandAsync();
+			}
+		}
+
+
+		private bool PullCurrentBranchCanExecute()
+		{
+			Branch uncommittedBranch = UnCommited?.Branch;
+
+			return uncommittedBranch != Repository.CurrentBranch
+				&& Repository.CurrentBranch.RemoteAheadCount > 0;
+		}
 
 
 		public void Clicked(Point position, bool isControl)

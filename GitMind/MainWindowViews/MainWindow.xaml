@@ -107,8 +107,8 @@
 								<Separator Background="{StaticResource BorderBrush}"/>
 								
 								<MenuItem 
-									Header="Pull current branch" 
-									Command="{Binding RepositoryViewModel.ToggleDetailsCommand}">
+									Header="{Binding RepositoryViewModel.PullCurrentBranchText}" 
+									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
 											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE2C4;"/>
