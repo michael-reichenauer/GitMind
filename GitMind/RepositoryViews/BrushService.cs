@@ -7,45 +7,29 @@ using GitMind.GitModel;
 namespace GitMind.RepositoryViews
 {
 	internal class BrushService : IBrushService
-	{  
-		//225, 37, 255 Brushes.DarkOrchid
-		private static readonly SolidColorBrush MasterBranchBrush =
-			(SolidColorBrush)new BrushConverter().ConvertFrom("#E540FF");
+	{
+		private static readonly SolidColorBrush MasterBranchBrush = BrushFromHex("#E540FF");
 		private static readonly SolidColorBrush MultiBranchBrush = Brushes.White;
+		private static readonly SolidColorBrush LighterBaseBrush = BrushFromHex("#50FFFFFF");
 
-		private static readonly SolidColorBrush LighterBaseBrush =
-		(SolidColorBrush)new BrushConverter().ConvertFrom("#77FFFFFF");
+		private readonly List<Brush> brushes = new List<Brush>();
+		private readonly List<Brush> darkBrushes = new List<Brush>();
+		private readonly List<Brush> lighterBrushes = new List<Brush>();
 
-
-		private readonly Lazy<IList<Brush>> brushes = new Lazy<IList<Brush>>(InitBrushes2);
-		private readonly Lazy<IList<Brush>> darkBrushes = new Lazy<IList<Brush>>(InitDarkBrushes2);
-
-
-
-
-		//public SolidColorBrush SubjectBrush { get; } = Brushes.Lavender;
 		public SolidColorBrush SubjectBrush { get; } = Brushes.Lavender;
-
-		//public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightSkyBlue;
 		public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightGreen;
-		//	(SolidColorBrush)new BrushConverter().ConvertFrom("#BBFBD8");
+		public SolidColorBrush RemoteAheadBrush { get; } = BrushFromHex("#BBBBFB");
 
-		//public SolidColorBrush RemoteAheadBrush { get; } = Brushes.Gray;
-		public SolidColorBrush RemoteAheadBrush { get; } =
-			(SolidColorBrush)new BrushConverter().ConvertFrom("#BBBBFB");
-
-		public SolidColorBrush ConflictBrush { get; } =
-			(SolidColorBrush)new BrushConverter().ConvertFrom("#FCB9B6");
+		public SolidColorBrush ConflictBrush { get; } = BrushFromHex("#FCB9B6");
 
 		public SolidColorBrush UnCommittedBrush { get; } = Brushes.BurlyWood;
 		public SolidColorBrush BranchTipBrush { get; } = Brushes.Aqua;
-		public static Brush SpecifiedBranchBrush = Brushes.Yellow;
-		public static Brush NotSpecifiedBranchBrush = Brushes.LightSteelBlue;
 
-		// Light orchchid
-		//public SolidColorBrush RemoteAheadBrush { get; } =
-		//		(SolidColorBrush)new BrushConverter().ConvertFrom("#BBBBFB");
 
+		public BrushService()
+		{
+			InitBrushes();
+		}
 
 
 		public Brush GetBranchBrush(Branch branch)
@@ -60,112 +44,104 @@ namespace GitMind.RepositoryViews
 				return MultiBranchBrush;
 			}
 
-			int branchBrushId = Math.Abs(branch.Name.GetHashCode())%brushes.Value.Count;
-			return brushes.Value[branchBrushId];
-		}
-
-
-		public Brush GetBranchBrush(string branchName)
-		{
-			if (branchName == "master")
-			{
-				return MasterBranchBrush;
-			}
-
-			int branchBrushId = Math.Abs(branchName.GetHashCode())%brushes.Value.Count;
-			return brushes.Value[branchBrushId];
+			return GetBrush(branch.Name);
 		}
 
 
 		public Brush GetDarkerBrush(Brush brush)
 		{
-			SolidColorBrush solidBrush = brush as SolidColorBrush;
-			SolidColorBrush darkerBrush = new SolidColorBrush(solidBrush.Color);
-			darkerBrush.Color = InterpolateColors(solidBrush.Color, Brushes.Black.Color, 0.5f);
+			int index = brushes.IndexOf(brush); 
 
-			return darkerBrush;
+			return darkBrushes[index];
 		}
 
 
 		public Brush GetLighterBrush(Brush brush)
 		{
-			SolidColorBrush solidBrush = brush as SolidColorBrush;
-			SolidColorBrush LighterBrush = new SolidColorBrush(solidBrush.Color);
-			LighterBrush.Color = InterpolateColors(solidBrush.Color, LighterBaseBrush.Color, 0.9f);
+			int index = brushes.IndexOf(brush);
 
-			return LighterBrush;
+			return lighterBrushes[index];
+		}
+
+
+		private Brush GetBrush(string name)
+		{
+			int branchBrushId = Math.Abs(name.GetHashCode()) % (brushes.Count - 2);
+			return brushes[branchBrushId];
+		}
+
+
+		private void InitBrushes()
+		{			
+			for (int i = 0; i < 100; i += 4)
+			{
+				Color colorFromHsl = ColorFromHSL((double)i / 100, 0.85, 0.57);
+				SolidColorBrush brush = new SolidColorBrush(colorFromHsl);		
+
+				SolidColorBrush darkerBrush = DarkBrush(brush);
+				SolidColorBrush lighterBrush = LightBrush(brush);
+
+				brushes.Add(brush);
+				darkBrushes.Add(darkerBrush);
+				lighterBrushes.Add(lighterBrush);
+			}
+
+			SolidColorBrush darker = DarkBrush(MasterBranchBrush);
+			SolidColorBrush lighter = LightBrush(MasterBranchBrush);
+			brushes.Add(MasterBranchBrush);
+			darkBrushes.Add(darker);
+			lighterBrushes.Add(lighter);
+
+			darker = DarkBrush(MultiBranchBrush);
+			lighter = LightBrush(MultiBranchBrush);
+			brushes.Add(MultiBranchBrush);
+			darkBrushes.Add(darker);
+			lighterBrushes.Add(lighter);
 		}
 
 
 		private Color InterpolateColors(Color color1, Color color2, float percentage)
 		{
-			double a1 = color1.A/255.0;
-			double r1 = color1.R/255.0;
-			double g1 = color1.G/255.0;
-			double b1 = color1.B/255.0;
+			double a1 = color1.A / 255.0;
+			double r1 = color1.R / 255.0;
+			double g1 = color1.G / 255.0;
+			double b1 = color1.B / 255.0;
 
-			double a2 = color2.A/255.0;
-			double r2 = color2.R/255.0;
-			double g2 = color2.G/255.0;
-			double b2 = color2.B/255.0;
+			double a2 = color2.A / 255.0;
+			double r2 = color2.R / 255.0;
+			double g2 = color2.G / 255.0;
+			double b2 = color2.B / 255.0;
 
-			byte a3 = Convert.ToByte((a1 + (a2 - a1)*percentage)*255);
-			byte r3 = Convert.ToByte((r1 + (r2 - r1)*percentage)*255);
-			byte g3 = Convert.ToByte((g1 + (g2 - g1)*percentage)*255);
-			byte b3 = Convert.ToByte((b1 + (b2 - b1)*percentage)*255);
+			byte a3 = Convert.ToByte((a1 + (a2 - a1) * percentage) * 255);
+			byte r3 = Convert.ToByte((r1 + (r2 - r1) * percentage) * 255);
+			byte g3 = Convert.ToByte((g1 + (g2 - g1) * percentage) * 255);
+			byte b3 = Convert.ToByte((b1 + (b2 - b1) * percentage) * 255);
 
 			return Color.FromArgb(a3, r3, g3, b3);
 		}
 
 
-
-		//private static IList<Brush> InitBrushes()
-		//{
-		//	List<Brush> brush = new List<Brush>();
-
-		//	brush.Add(Brushes.Maroon);
-		//	brush.Add(Brushes.CadetBlue);
-		//	brush.Add(Brushes.Crimson);
-		//	brush.Add(Brushes.DeepSkyBlue);
-		//	brush.Add(Brushes.MediumSeaGreen);
-		//	brush.Add(Brushes.IndianRed);
-		//	brush.Add(Brushes.Teal);
-		//	brush.Add(Brushes.Green);
-		//	brush.Add(Brushes.DarkGoldenrod);
-		//	brush.Add(Brushes.Aquamarine);
-		//	brush.Add(Brushes.Aqua);
-		//	brush.Add(Brushes.Bisque);
-		//	brush.Add(Brushes.Coral);
-		//	brush.Add(Brushes.DarkKhaki);
-		//	brush.Add(Brushes.HotPink);
-		//	brush.Add(Brushes.MediumSpringGreen);
-		//	brush.Add(Brushes.Violet);
-		//	brush.Add(Brushes.Tomato);
-		//	brush.Add(Brushes.LightPink);
-		//	brush.Add(Brushes.Fuchsia);
-		//	brush.Add(Brushes.YellowGreen);
-		//	brush.Add(Brushes.DodgerBlue);
-
-		//	return brush;
-		//}
-
-		private static IList<Brush> InitDarkBrushes2()
+		private SolidColorBrush DarkBrush(SolidColorBrush brush)
 		{
-			throw new NotImplementedException();
+			SolidColorBrush darkerBrush = new SolidColorBrush(brush.Color);
+			darkerBrush.Color = InterpolateColors(brush.Color, Brushes.Black.Color, 0.7f);
+			return darkerBrush;
 		}
 
 
-		private static IList<Brush> InitBrushes2()
+		private SolidColorBrush LightBrush(SolidColorBrush brush)
 		{
-			List<Brush> brushes = new List<Brush>(); 
-			for (int i = 0; i < 100; i += 2)
-			{
-				Color colorFromHsl = ColorFromHSL((double)i/100, 0.85, 0.57);
-				brushes.Add(new SolidColorBrush(colorFromHsl));
-			}
-
-			return brushes;
+			SolidColorBrush lighterBrush = new SolidColorBrush(brush.Color);
+			lighterBrush.Color = InterpolateColors(brush.Color, LighterBaseBrush.Color, 0.7f);
+			return lighterBrush;
 		}
+
+
+		private static SolidColorBrush BrushFromHex(string hexText)
+		{
+			return (SolidColorBrush)new BrushConverter().ConvertFrom(hexText);
+		}
+
 
 		public static Color ColorFromHSL(double h, double s, double l)
 		{

@@ -65,8 +65,6 @@ namespace GitMind.RepositoryViews
 		public string BranchNameUnderline => !string.IsNullOrEmpty(SpecifiedBranchName) ? "Underline" : "None";
 		public string BranchNameToolTip => SpecifiedBranchName != null ? "Manually specified branch" : null;
 		public string SpecifiedBranchName => CommitViewModel?.Commit?.SpecifiedBranchName;
-		public Brush SpecifiedBranchBrush => SpecifiedBranchName != null
-			? BrushService.SpecifiedBranchBrush : BrushService.NotSpecifiedBranchBrush;
 		public Brush BranchBrush => CommitViewModel?.Brush;
 		public string Subject => CommitViewModel?.Subject;
 		public Brush SubjectBrush => CommitViewModel?.SubjectBrush;
