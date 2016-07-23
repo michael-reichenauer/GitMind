@@ -306,9 +306,9 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-				Log.Debug("Update repository using cmd fetch...");
+				Log.Debug("Update branch using cmd fetch...");
 
-				string args = $"fetch remote {branchName}:{branchName}";
+				string args = $"fetch origin {branchName}:{branchName}";
 
 				R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
@@ -321,6 +321,29 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to update branch fetch {workingFolder}, {e.Message}");
+			}
+		}
+
+
+		public async Task UpdateCurrentBranchAsync(string workingFolder)
+		{
+			try
+			{
+				Log.Debug("Update current branch using cmd...");
+
+				string args = "pull --ff-only --rebase=false";
+
+				R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args)
+					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
+
+				fetchResult.OnValue(_ => Log.Debug("updated current branch using cmd"));
+
+				// Ignoring fetch errors for now
+				fetchResult.OnError(e => Log.Warn($"Git update current branch failed {e.Message}"));
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to update current branch {workingFolder}, {e.Message}");
 			}
 		}
 

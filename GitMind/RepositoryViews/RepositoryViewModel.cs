@@ -268,6 +268,21 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		private Task RefreshAfterCommandAsync()
+		{
+			return refreshThrottler.Run(async () =>
+			{
+				Log.Debug("Auto refresh");
+
+				await FetchRemoteChangesAsync(Repository);
+
+				Repository repository = await GetLocalChangesAsync(Repository);				
+
+				UpdateViewModel(repository, SpecifiedBranches);
+			});
+		}
+
+
 
 		public Task ManualRefreshAsync()
 		{
@@ -572,10 +587,12 @@ namespace GitMind.RepositoryViews
 
 			using (busyIndicator.Progress)
 			{
+				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 				IEnumerable<Branch> updatableBranches = Repository.Branches
 					.Where(b =>
-					b != uncommittedBranch
+					b != currentBranch
+					&& b != uncommittedBranch
 					&& b.RemoteAheadCount > 0 
 					&& b.LocalAheadCount == 0).ToList();
 
@@ -586,6 +603,13 @@ namespace GitMind.RepositoryViews
 
 					await gitService.UpdateBranchAsync(workingFolder, branch.Name);
 				}
+
+				if (currentBranch.RemoteAheadCount > 0 && currentBranch.LocalAheadCount == 0)
+				{
+					await gitService.UpdateCurrentBranchAsync(workingFolder);
+				}
+
+				await RefreshAfterCommandAsync();
 			}
 		}
 
