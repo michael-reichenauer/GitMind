@@ -133,7 +133,20 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
+		public string PullCurrentBranchText => $"Pull current branch {CurrentBranchName}";
+	
+
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
+
+		public ICommand TryUpdateAllBranchesCommand => Command(
+			TryUpdateAllBranches, TryUpdateAllBranchesCanExecute);
+
+
+		public ICommand PullCurrentBranchCommand => Command(
+			PullCurrentBranch, PullCurrentBranchCanExecute);
+
+
+
 
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
@@ -257,6 +270,21 @@ namespace GitMind.RepositoryViews
 				{
 					repository = await GetLocalChangesAsync(Repository);
 				}
+
+				UpdateViewModel(repository, SpecifiedBranches);
+			});
+		}
+
+
+		private Task RefreshAfterCommandAsync()
+		{
+			return refreshThrottler.Run(async () =>
+			{
+				Log.Debug("Auto refresh");
+
+				await FetchRemoteChangesAsync(Repository);
+
+				Repository repository = await GetLocalChangesAsync(Repository);				
 
 				UpdateViewModel(repository, SpecifiedBranches);
 			});
@@ -499,7 +527,7 @@ namespace GitMind.RepositoryViews
 					return;
 				}
 			}
-		
+
 			ScrollTo(0);
 			if (Commits.Any())
 			{
@@ -558,6 +586,72 @@ namespace GitMind.RepositoryViews
 		private void ToggleDetails()
 		{
 			IsShowCommitDetails = !IsShowCommitDetails;
+		}
+
+
+		private async void TryUpdateAllBranches()
+		{
+			Log.Debug("Try update all branches");
+
+			using (busyIndicator.Progress)
+			{
+				Branch currentBranch = Repository.CurrentBranch;
+				Branch uncommittedBranch = UnCommited?.Branch;
+				IEnumerable<Branch> updatableBranches = Repository.Branches
+					.Where(b =>
+					b != currentBranch
+					&& b != uncommittedBranch
+					&& b.RemoteAheadCount > 0 
+					&& b.LocalAheadCount == 0).ToList();
+
+				string workingFolder = Repository.MRepository.WorkingFolder;
+				foreach (Branch branch in updatableBranches)
+				{
+					Log.Debug($"Updating branch {branch.Name}");
+
+					await gitService.UpdateBranchAsync(workingFolder, branch.Name);
+				}
+
+				if (uncommittedBranch != currentBranch
+					&& currentBranch.RemoteAheadCount > 0 
+					&& currentBranch.LocalAheadCount == 0)
+				{
+					await gitService.UpdateCurrentBranchAsync(workingFolder);
+				}
+
+				await RefreshAfterCommandAsync();
+			}
+		}
+
+		private bool TryUpdateAllBranchesCanExecute()
+		{
+			Branch uncommittedBranch = UnCommited?.Branch;
+
+			return Repository.Branches.Any(
+				b => b != uncommittedBranch
+				&& b.RemoteAheadCount > 0
+				&& b.LocalAheadCount == 0);
+		}
+
+
+		private async void PullCurrentBranch()
+		{
+			using (busyIndicator.Progress)
+			{
+				string workingFolder = Repository.MRepository.WorkingFolder;
+				await gitService.PullCurrentBranchAsync(workingFolder);
+
+				await RefreshAfterCommandAsync();
+			}
+		}
+
+
+		private bool PullCurrentBranchCanExecute()
+		{
+			Branch uncommittedBranch = UnCommited?.Branch;
+
+			return uncommittedBranch != Repository.CurrentBranch
+				&& Repository.CurrentBranch.RemoteAheadCount > 0;
 		}
 
 
