@@ -22,7 +22,7 @@ namespace GitMind.MainWindowViews
 		private DateTime ActivatedTime = DateTime.MaxValue;
 
 
-		public MainWindow(string workingFolder, IReadOnlyList<string> branchNames)
+		public MainWindow()
 		{
 			InitializeComponent();
 
@@ -35,11 +35,13 @@ namespace GitMind.MainWindowViews
 			viewModel = new MainWindowViewModel(this);
 			DataContext = viewModel;
 
-			viewModel.WorkingFolder = workingFolder;
-			viewModel.SpecifiedBranchNames = branchNames;
-
 			Activate();
 		}
+
+
+		public string WorkingFolder {set { viewModel.WorkingFolder = value; } }
+
+		public IReadOnlyList<string> BranchNames { set { viewModel.SpecifiedBranchNames = value; } }
 
 
 		public bool IsNewVersionVisible

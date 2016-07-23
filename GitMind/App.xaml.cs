@@ -9,7 +9,6 @@ using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.MainWindowViews;
 using GitMind.Settings;
-using GitMind.Testing;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using Microsoft.Shell;
@@ -33,9 +32,9 @@ namespace GitMind
 
 		[STAThread]
 		public static void Main()
-		{		
+		{
 			AssemblyResolver.Activate();
-		
+
 			App application = new App();
 			application.StartProgram();
 
@@ -73,8 +72,19 @@ namespace GitMind
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
 
-			mainWindow = new MainWindow(commandLine.WorkingFolder, commandLine.BranchNames);
+			mainWindow = new MainWindow();
 			MainWindow = mainWindow;
+
+			if (!IsStartProgram())
+			{
+				Application.Current.Shutdown(0);
+				return;
+			}
+
+			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
+
+			mainWindow.WorkingFolder = commandLine.WorkingFolder;
+			mainWindow.BranchNames = commandLine.BranchNames;
 			MainWindow.Show();
 
 			newVersionTimer.Tick += NewVersionCheckAsync;
@@ -88,13 +98,6 @@ namespace GitMind
 			ExceptionHandling.Init();
 			WpfBindingTraceListener.Register();
 
-			if (!IsStartProgram())
-			{
-				Application.Current.Shutdown(0);
-				return;
-			}
-
-			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
 			InitializeComponent();
 

@@ -12,6 +12,8 @@ namespace GitMind.Installation.Private
 {
 	internal class CommandLine : ICommandLine
 	{
+		private readonly Lazy<string> lazyWorkingFolder;
+		private readonly Lazy<IReadOnlyList<string>> lazyBranchNames;
 		private readonly string[] args;
 
 		public CommandLine()
@@ -20,7 +22,8 @@ namespace GitMind.Installation.Private
 			Version currentVersion = ProgramPaths.GetCurrentVersion();
 			Log.Debug($"Version: {currentVersion}, args: '{string.Join("','", args)}'");
 
-			ParseCommandLine();
+			lazyWorkingFolder = new Lazy<string>(GetWorkingFolder);
+			lazyBranchNames = new Lazy<IReadOnlyList<string>>(GetBranchNames);
 		}
 
 
@@ -36,9 +39,9 @@ namespace GitMind.Installation.Private
 			Path.GetFileNameWithoutExtension(
 				Assembly.GetEntryAssembly().Location).StartsWith("GitMindSetup");
 
-		public string WorkingFolder { get; private set; }
+		public string WorkingFolder => lazyWorkingFolder.Value;
 
-		public IReadOnlyList<string> BranchNames { get; private set; }
+		public IReadOnlyList<string> BranchNames => lazyBranchNames.Value;
 
 
 		// Must be able to handle:
@@ -47,21 +50,38 @@ namespace GitMind.Installation.Private
 		// * Starting as right click on folder (parameter "/d:<dir>"
 		// * Starting on command line with some parameters (branch names)
 		// * Starting with parameters "/test"
-		private void ParseCommandLine()
+		private string GetWorkingFolder()
 		{
-			List<string> branchNames = new List<string>();
-			BranchNames = branchNames;
+			string workingFolder = null;
 
 			if (args.Length == 2 && args[1].StartsWith("/d:"))
 			{
 				// Call from e.g. Windows Explorer folder context menu
-				WorkingFolder = args[1].Substring(3);
+				workingFolder = args[1].Substring(3);
 			}
 			else if (args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path))
 			{
-				WorkingFolder = TestRepo.Path;
+				workingFolder = TestRepo.Path;
 			}
-			else if (args.Length > 1)
+			
+
+			if (workingFolder == null)
+			{
+				workingFolder = TryGetWorkingFolder();
+			}
+
+			Log.Debug($"Current working folder {workingFolder}");
+			return workingFolder;
+		}
+
+
+		private IReadOnlyList<string> GetBranchNames()
+		{
+			List<string> branchNames = new List<string>();
+	
+			if (!(args.Length == 2 && args[1].StartsWith("/d:"))
+				&& !(args.Length == 2 && args[1] == "/test" && Directory.Exists(TestRepo.Path))
+				&& args.Length > 1)
 			{
 				for (int i = 1; i < args.Length; i++)
 				{
@@ -69,12 +89,7 @@ namespace GitMind.Installation.Private
 				}
 			}
 
-			if (WorkingFolder == null)
-			{
-				WorkingFolder = TryGetWorkingFolder();
-			}
-
-			Log.Debug($"Current working folder {WorkingFolder}");
+			return branchNames;
 		}
 
 
