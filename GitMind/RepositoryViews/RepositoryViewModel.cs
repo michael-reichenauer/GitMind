@@ -145,8 +145,7 @@ namespace GitMind.RepositoryViews
 		public ICommand PullCurrentBranchCommand => Command(
 			PullCurrentBranch, PullCurrentBranchCanExecute);
 
-
-
+		public ICommand ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
@@ -586,6 +585,12 @@ namespace GitMind.RepositoryViews
 		private void ToggleDetails()
 		{
 			IsShowCommitDetails = !IsShowCommitDetails;
+		}
+
+
+		private void ShowCurrentBranch()
+		{
+			viewModelService.ShowBranch(this, Repository.CurrentBranch);
 		}
 
 

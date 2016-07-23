@@ -64,12 +64,12 @@
 						ToolTip="{Binding VersionText}"/>
 
 					<!-- Working folder -->
-					<TextBlock 	
-						Margin="3,5"
-						VerticalAlignment="Center"
-						Foreground="{StaticResource TextLowBrush}"
-						Text="{Binding WorkingFolder}">
-						<TextBlock.ToolTip>
+					<Button 	
+						Content="{Binding WorkingFolder}"
+						Style="{StaticResource BaseButtonStyle}"
+						FontSize="12"
+						Command="{Binding RepositoryViewModel.ShowCurrentBranchCommand}">
+						<Button.ToolTip>
 							<ToolTip
 								BorderThickness="2"
 								BorderBrush="{Binding RepositoryViewModel.CurrentBranchBrush}">
@@ -78,8 +78,8 @@
 									<TextBlock Text="{Binding RepositoryViewModel.CurrentBranchName}" Foreground="{StaticResource TextBrush}"/>
 								</StackPanel>
 							</ToolTip>
-						</TextBlock.ToolTip>
-					</TextBlock>
+						</Button.ToolTip>
+					</Button>
 
 
 					<!-- Remote ahead status Command="{Binding UpdateCommand}" Style="{StaticResource IconButtonStyle}"-->
