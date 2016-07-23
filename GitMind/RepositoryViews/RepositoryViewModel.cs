@@ -604,7 +604,9 @@ namespace GitMind.RepositoryViews
 					await gitService.UpdateBranchAsync(workingFolder, branch.Name);
 				}
 
-				if (currentBranch.RemoteAheadCount > 0 && currentBranch.LocalAheadCount == 0)
+				if (uncommittedBranch != currentBranch
+					&& currentBranch.RemoteAheadCount > 0 
+					&& currentBranch.LocalAheadCount == 0)
 				{
 					await gitService.UpdateCurrentBranchAsync(workingFolder);
 				}

@@ -95,7 +95,6 @@
 							<ContextMenu Name="RemoteAheadContextMenu">
 
 								<MenuItem
-									IsEnabled="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand.CanExecute}"
 									Header="Try update all branches" 
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
