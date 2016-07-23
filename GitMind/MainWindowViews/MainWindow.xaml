@@ -83,14 +83,43 @@
 
 
 					<!-- Remote ahead status Command="{Binding UpdateCommand}" Style="{StaticResource IconButtonStyle}"-->
-					<TextBlock
+					<Button
+						Content="&#xE258;"
 						Visibility="{Binding RepositoryViewModel.RemoteAheadText, Converter={StaticResource VC}}"					
-						FontFamily="{StaticResource IconFont}"
+						Style="{StaticResource IconButtonStyle}"
 						Foreground="{StaticResource RemoteAheadBrush}"
-						FontSize="18"
-						Margin="4,3"
-						Text="&#xE258;"
-						ToolTip="{Binding RepositoryViewModel.RemoteAheadText}"/>
+						Click="RemoteAhead_OnClick"
+						ToolTip="{Binding RepositoryViewModel.RemoteAheadText}">
+
+						<Button.ContextMenu>
+							<ContextMenu Name="RemoteAheadContextMenu">
+
+								<MenuItem
+									IsEnabled="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand.CanExecute}"
+									Header="Try update all branches" 
+									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
+									<MenuItem.Icon>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5CF;"/>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+								
+								<Separator Background="{StaticResource BorderBrush}"/>
+								
+								<MenuItem 
+									Header="Pull current branch" 
+									Command="{Binding RepositoryViewModel.ToggleDetailsCommand}">
+									<MenuItem.Icon>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE2C4;"/>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+							</ContextMenu>
+						</Button.ContextMenu>
+
+					</Button>
 
 					<!-- Local ahead status Command="{Binding PublishCommand}" Style="{StaticResource IconButtonStyle}" -->
 					<TextBlock 

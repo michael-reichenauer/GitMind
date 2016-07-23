@@ -31,5 +31,6 @@ namespace GitMind.Git
 
 		IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder);
 
+		Task UpdateBranchAsync(string workingFolder, string branchName);
 	}
 }

@@ -10,13 +10,15 @@ namespace GitMind.Git.Private
 {
 	internal class GitService : IGitService
 	{
+		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(10);
+
 		private static readonly string LegacyGitPath = @"C:\Program Files (x86)\Git\bin\git.exe";
 		private static readonly string GitPath = @"C:\Program Files\Git\bin\git.exe";
 
 
 		private readonly ICmd cmd;
 		private readonly IGitDiffParser gitDiffParser;
-
+	
 
 		public GitService(ICmd cmd, IGitDiffParser gitDiffParser)
 		{
@@ -176,6 +178,8 @@ namespace GitMind.Git.Private
 		}
 
 
+
+
 		public Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string name)
 		{
 			return Task.Run(async () =>
@@ -226,7 +230,7 @@ namespace GitMind.Git.Private
 			{
 				// Sometimes, a fetch to GitHub takes just forever, don't know why
 				await FetchUsingCmdAsync(workingFolder)
-					.WithCancellation(new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
+					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
 			}
 			catch (Exception e)
 			{			
@@ -290,17 +294,35 @@ namespace GitMind.Git.Private
 			string args = "fetch";
 
 			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
-			Log.Debug("Fetched repository using cmd");
 
-			fetchResult.OnError(e =>
-			{
-				// Git fetch failed, but ignore that for now
-				Log.Warn($"Git Fetch failed {e.Message}");
-			});
+			fetchResult.OnValue(_ => Log.Debug("Fetched repository using cmd"));
+
+			// Ignoring fetch errors for now
+			fetchResult.OnError(e => Log.Warn($"Git fetch failed {e.Message}"));
 		}
 
 
+		public async Task UpdateBranchAsync(string workingFolder, string branchName)
+		{
+			try
+			{
+				Log.Debug("Update repository using cmd fetch...");
 
+				string args = $"fetch remote {branchName}:{branchName}";
+
+				R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args)
+					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
+
+				fetchResult.OnValue(_ => Log.Debug("updated branch using cmd fetch"));
+
+				// Ignoring fetch errors for now
+				fetchResult.OnError(e => Log.Warn($"Git update branch fetch failed {e.Message}"));
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to update branch fetch {workingFolder}, {e.Message}");
+			}
+		}
 
 
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
