@@ -118,18 +118,17 @@ namespace GitMind.RepositoryViews
 				// Showing the specified branch
 				currentlyShownBranches.Add(branch);
 				UpdateViewModel(repositoryViewModel, currentlyShownBranches);
-
-				var x = repositoryViewModel.Branches.FirstOrDefault(b => b.Branch == branch);
-				if (x != null)
-				{
-					var y = x.LatestRowIndex;
-					repositoryViewModel.ScrollRows(repositoryViewModel.Commits.Count);
-					repositoryViewModel.ScrollRows(-(y - 10));
-				}
-
-				repositoryViewModel.VirtualItemsSource.DataChanged(repositoryViewModel.Width);
-
 			}
+
+			var x = repositoryViewModel.Branches.FirstOrDefault(b => b.Branch == branch);
+			if (x != null)
+			{
+				var y = x.LatestRowIndex;
+				repositoryViewModel.ScrollRows(repositoryViewModel.Commits.Count);
+				repositoryViewModel.ScrollRows(-(y - 10));
+			}
+
+			repositoryViewModel.VirtualItemsSource.DataChanged(repositoryViewModel.Width);
 		}
 
 		public void HideBranch(RepositoryViewModel repositoryViewModel, Branch branch)
