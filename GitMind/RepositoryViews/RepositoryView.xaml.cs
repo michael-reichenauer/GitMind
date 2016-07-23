@@ -1,7 +1,9 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
+using GitMind.Utils;
 using GitMind.Utils.UI.VirtualCanvas;
 using UserControl = System.Windows.Controls.UserControl;
 
@@ -51,8 +53,6 @@ namespace GitMind.RepositoryViews
 		}
 
 
-
-
 		protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
 		{
 			// Log.Debug($"Canvas offset {canvas.Offset}");
@@ -78,6 +78,34 @@ namespace GitMind.RepositoryViews
 			if (viewPoint.X > viewModel.GraphWidth)
 			{
 				viewModel.ToggleDetailsCommand.Execute(null);
+			}
+		}
+
+
+		private void MouseEntering(object sender, MouseEventArgs e)
+		{
+			ListBoxItem item = sender as ListBoxItem;
+			if (item != null)
+			{
+				BranchViewModel branch = item.Content as BranchViewModel;
+				if (branch != null)
+				{
+					viewModel.MouseEnterBranch(branch);
+				}
+			}			
+		}
+
+
+		private void MouseLeaving(object sender, MouseEventArgs e)
+		{
+			ListBoxItem item = sender as ListBoxItem;
+			if (item != null)
+			{
+				BranchViewModel branch = item.Content as BranchViewModel;
+				if (branch != null)
+				{
+					viewModel.MouseLeaveBranch(branch);
+				}
 			}
 		}
 	}

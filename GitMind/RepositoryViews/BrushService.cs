@@ -10,7 +10,7 @@ namespace GitMind.RepositoryViews
 	{
 		private static readonly SolidColorBrush MasterBranchBrush = BrushFromHex("#E540FF");
 		private static readonly SolidColorBrush MultiBranchBrush = Brushes.White;
-		private static readonly SolidColorBrush LighterBaseBrush = BrushFromHex("#50FFFFFF");
+		private static readonly SolidColorBrush LighterBaseBrush = BrushFromHex("#10FFFFFF");
 
 		private readonly List<Brush> brushes = new List<Brush>();
 		private readonly List<Brush> darkBrushes = new List<Brush>();
@@ -24,6 +24,9 @@ namespace GitMind.RepositoryViews
 
 		public SolidColorBrush UnCommittedBrush { get; } = Brushes.BurlyWood;
 		public SolidColorBrush BranchTipBrush { get; } = Brushes.Aqua;
+
+		public static SolidColorBrush TagBrush { get; } = BrushFromHex("#42C650");
+		public static SolidColorBrush TicketBrush { get; } = BrushFromHex("#F25B54");
 
 
 		public BrushService()
@@ -88,16 +91,19 @@ namespace GitMind.RepositoryViews
 
 			SolidColorBrush darker = DarkBrush(MasterBranchBrush);
 			SolidColorBrush lighter = LightBrush(MasterBranchBrush);
+			
 			brushes.Add(MasterBranchBrush);
 			darkBrushes.Add(darker);
-			lighterBrushes.Add(lighter);
+			lighterBrushes.Add(lighter);	
 
 			darker = DarkBrush(MultiBranchBrush);
 			lighter = LightBrush(MultiBranchBrush);
+
 			brushes.Add(MultiBranchBrush);
 			darkBrushes.Add(darker);
 			lighterBrushes.Add(lighter);
 		}
+
 
 
 		private Color InterpolateColors(Color color1, Color color2, float percentage)
@@ -132,7 +138,7 @@ namespace GitMind.RepositoryViews
 		private SolidColorBrush LightBrush(SolidColorBrush brush)
 		{
 			SolidColorBrush lighterBrush = new SolidColorBrush(brush.Color);
-			lighterBrush.Color = InterpolateColors(brush.Color, LighterBaseBrush.Color, 0.7f);
+			lighterBrush.Color = InterpolateColors(brush.Color, LighterBaseBrush.Color, 0.2f);
 			return lighterBrush;
 		}
 

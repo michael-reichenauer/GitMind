@@ -60,6 +60,10 @@ namespace GitMind.RepositoryViews
 		public int Size => IsMergePoint ? 10 : 6;
 		public Rect Rect { get; set; }
 		public Brush SubjectBrush { get; set; }
+		public Brush TagBrush { get; set; }
+		public Brush TicketBrush { get; set; }
+		public FontWeight SubjectWeight { get; set; }
+		public Brush BackgroundBrush { get; set; }
 		public string ToolTip { get; set; }
 		public Brush Brush { get; set; }
 		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;

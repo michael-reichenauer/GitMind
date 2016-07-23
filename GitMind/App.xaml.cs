@@ -75,6 +75,8 @@ namespace GitMind
 			mainWindow = new MainWindow();
 			MainWindow = mainWindow;
 
+			// Installation code message boxes must for some reason be run after
+			// main window is created and set. Maybe better when we have a "real" installation dialog
 			if (!IsStartProgram())
 			{
 				Application.Current.Shutdown(0);
@@ -83,6 +85,7 @@ namespace GitMind
 
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
+			// Must not use WorkingFolder before installation code
 			mainWindow.WorkingFolder = commandLine.WorkingFolder;
 			mainWindow.BranchNames = commandLine.BranchNames;
 			MainWindow.Show();

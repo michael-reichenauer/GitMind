@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
+using GitMind.Utils;
 using GitMind.Utils.UI;
 
 

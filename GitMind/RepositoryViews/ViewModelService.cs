@@ -387,6 +387,10 @@ namespace GitMind.RepositoryViews
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.ToolTip = GetCommitToolTip(commit);
 				commitViewModel.SubjectBrush = GetSubjectBrush(commit);
+				commitViewModel.SubjectWeight = FontWeights.Normal;
+				commitViewModel.BackgroundBrush = Brushes.Transparent;
+				commitViewModel.TicketBrush = BrushService.TicketBrush;
+				commitViewModel.TagBrush = BrushService.TagBrush;
 
 				commitViewModel.NotifyAll();
 			}

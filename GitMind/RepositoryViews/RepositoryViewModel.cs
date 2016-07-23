@@ -134,7 +134,7 @@ namespace GitMind.RepositoryViews
 		}
 
 		public string PullCurrentBranchText => $"Pull current branch {CurrentBranchName}";
-	
+
 
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
 
@@ -283,7 +283,7 @@ namespace GitMind.RepositoryViews
 
 				await FetchRemoteChangesAsync(Repository);
 
-				Repository repository = await GetLocalChangesAsync(Repository);				
+				Repository repository = await GetLocalChangesAsync(Repository);
 
 				UpdateViewModel(repository, SpecifiedBranches);
 			});
@@ -313,6 +313,42 @@ namespace GitMind.RepositoryViews
 				UpdateViewModel(repository, SpecifiedBranches);
 			});
 		}
+
+
+		public void MouseEnterBranch(BranchViewModel branch)
+		{
+			foreach (CommitViewModel commit in Commits)
+			{
+				if (commit.Commit.Branch.Id != branch.Branch.Id)
+				{
+					commit.SubjectBrush = Brushes.DimGray;
+					commit.TagBrush = Brushes.DimGray;
+					commit.TicketBrush = Brushes.DimGray;
+
+					commit.Notify(
+						nameof(commit.SubjectBrush),
+						nameof(commit.TicketBrush),
+						nameof(commit.TagBrush));
+				}
+			}
+		}
+
+
+		public void MouseLeaveBranch(BranchViewModel branch)
+		{
+			foreach (CommitViewModel commit in Commits)
+			{			
+				commit.SubjectBrush = viewModelService.GetSubjectBrush(commit.Commit);
+				commit.TagBrush = BrushService.TagBrush;
+				commit.TicketBrush = BrushService.TicketBrush;
+
+				commit.Notify(
+					nameof(commit.SubjectBrush),
+					nameof(commit.TicketBrush),
+					nameof(commit.TagBrush));
+			}
+		}
+
 
 
 		private Task<Repository> GetLocalChangesAsync(Repository repository)
@@ -606,7 +642,7 @@ namespace GitMind.RepositoryViews
 					.Where(b =>
 					b != currentBranch
 					&& b != uncommittedBranch
-					&& b.RemoteAheadCount > 0 
+					&& b.RemoteAheadCount > 0
 					&& b.LocalAheadCount == 0).ToList();
 
 				string workingFolder = Repository.MRepository.WorkingFolder;
@@ -618,7 +654,7 @@ namespace GitMind.RepositoryViews
 				}
 
 				if (uncommittedBranch != currentBranch
-					&& currentBranch.RemoteAheadCount > 0 
+					&& currentBranch.RemoteAheadCount > 0
 					&& currentBranch.LocalAheadCount == 0)
 				{
 					await gitService.UpdateCurrentBranchAsync(workingFolder);
