@@ -195,7 +195,7 @@
 										<Setter.Value>
 											<DataTemplate>
 
-											<Grid Background="{Binding BackgroundBrush}">
+											<Grid>
 													<Grid.ColumnDefinitions>
 														<ColumnDefinition Width="{Binding GraphWidth}"/>
 														<ColumnDefinition Width="*"/>
@@ -277,7 +277,7 @@
 															<!-- Branch tips -->
 															<TextBlock 
 																Text="{Binding BranchTips}"
-																Foreground="{StaticResource BranchTipsBrush}"
+																Foreground="{Binding BranchTipBrush}"
 																HorizontalAlignment="Left"
 																VerticalAlignment="Center"
 																ToolTip="Branch tip of branch with no commits of its own"/>

@@ -386,11 +386,7 @@ namespace GitMind.RepositoryViews
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.ToolTip = GetCommitToolTip(commit);
-				commitViewModel.SubjectBrush = GetSubjectBrush(commit);
-				commitViewModel.SubjectWeight = FontWeights.Normal;
-				commitViewModel.BackgroundBrush = Brushes.Transparent;
-				commitViewModel.TicketBrush = BrushService.TicketBrush;
-				commitViewModel.TagBrush = BrushService.TagBrush;
+				commitViewModel.SetNormal(GetSubjectBrush(commit));			
 
 				commitViewModel.NotifyAll();
 			}
@@ -672,10 +668,6 @@ namespace GitMind.RepositoryViews
 			if (commit.IsUncommitted)
 			{
 				subjectBrush = brushService.UnCommittedBrush;
-			}
-			else if (commit.IsVirtual)
-			{
-				subjectBrush = brushService.BranchTipBrush;
 			}
 			else if (commit.IsLocalAhead)
 			{

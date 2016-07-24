@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -12,7 +11,7 @@ using GitMind.Utils.UI;
 namespace GitMind.RepositoryViews
 {
 	internal class CommitViewModel : ViewModel
-	{	
+	{
 		private readonly ICommand refreshManuallyCommand;
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IRepositoryService repositoryService = new RepositoryService();
@@ -24,7 +23,7 @@ namespace GitMind.RepositoryViews
 
 
 		public CommitViewModel
-			(ICommand refreshManuallyCommand, 
+			(ICommand refreshManuallyCommand,
 			ICommand toggleDetailsCommand)
 		{
 			ToggleDetailsCommand = toggleDetailsCommand;
@@ -62,8 +61,9 @@ namespace GitMind.RepositoryViews
 		public Brush SubjectBrush { get; set; }
 		public Brush TagBrush { get; set; }
 		public Brush TicketBrush { get; set; }
+		public Brush BranchTipBrush { get; set; }
 		public FontWeight SubjectWeight { get; set; }
-		public Brush BackgroundBrush { get; set; }
+		
 		public string ToolTip { get; set; }
 		public Brush Brush { get; set; }
 		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
@@ -111,7 +111,30 @@ namespace GitMind.RepositoryViews
 
 		public Command SetCommitBranchCommand => AsyncCommand(SetBranch);
 
+
+		public void SetDim()
+		{
+			SubjectBrush = BrushService.DimBrush;
+			TagBrush = BrushService.DimBrush;
+			TicketBrush = BrushService.DimBrush;
+			BranchTipBrush = BrushService.DimBrush;
+
+			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
+		}
+
+
 		public override string ToString() => $"{ShortId} {Subject} {Date}";
+
+
+		public void SetNormal(Brush subjectBrush)
+		{
+			SubjectBrush = subjectBrush;
+			TagBrush = BrushService.TagBrush;
+			TicketBrush = BrushService.TicketBrush;
+			BranchTipBrush = BrushService.BranchTipBrush;
+
+			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
+		}
 
 
 		private async Task SetBranch()

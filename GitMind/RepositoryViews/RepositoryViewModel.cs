@@ -321,14 +321,7 @@ namespace GitMind.RepositoryViews
 			{
 				if (commit.Commit.Branch.Id != branch.Branch.Id)
 				{
-					commit.SubjectBrush = Brushes.DimGray;
-					commit.TagBrush = Brushes.DimGray;
-					commit.TicketBrush = Brushes.DimGray;
-
-					commit.Notify(
-						nameof(commit.SubjectBrush),
-						nameof(commit.TicketBrush),
-						nameof(commit.TagBrush));
+					commit.SetDim();					
 				}
 			}
 		}
@@ -337,18 +330,10 @@ namespace GitMind.RepositoryViews
 		public void MouseLeaveBranch(BranchViewModel branch)
 		{
 			foreach (CommitViewModel commit in Commits)
-			{			
-				commit.SubjectBrush = viewModelService.GetSubjectBrush(commit.Commit);
-				commit.TagBrush = BrushService.TagBrush;
-				commit.TicketBrush = BrushService.TicketBrush;
-
-				commit.Notify(
-					nameof(commit.SubjectBrush),
-					nameof(commit.TicketBrush),
-					nameof(commit.TagBrush));
+			{
+				commit.SetNormal(viewModelService.GetSubjectBrush(commit.Commit));
 			}
 		}
-
 
 
 		private Task<Repository> GetLocalChangesAsync(Repository repository)
