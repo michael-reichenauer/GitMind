@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using GitMind.GitModel;
 
 
@@ -18,5 +19,6 @@ namespace GitMind.RepositoryViews
 		void ShowBranch(RepositoryViewModel repositoryViewModel, Branch branch);
 
 		void HideBranch(RepositoryViewModel repositoryViewModel, Branch branch);
+		Brush GetSubjectBrush(Commit commit);
 	}
 }

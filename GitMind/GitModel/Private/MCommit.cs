@@ -52,6 +52,7 @@ namespace GitMind.GitModel.Private
 
 		public string SubBranchId { get; set; }
 		public string FromSubjectBranchName { get; set; }
+		public List<MSubBranch> BranchTipBranches { get; set; } = new List<MSubBranch>();
 		
 		public bool HasBranchName => !string.IsNullOrEmpty(BranchName);
 		public bool HasFirstParent => ParentIds.Count > 0;
@@ -77,8 +78,21 @@ namespace GitMind.GitModel.Private
 
 		public bool IsUncommitted => Id == UncommittedId;
 
+
 		public IEnumerable<MCommit> FirstAncestors()
 		{
+			MCommit current = FirstParent;
+			while (current != null)
+			{
+				yield return current;
+				current = current.FirstParent;
+			}
+		}
+
+		public IEnumerable<MCommit> CommitAndFirstAncestors()
+		{
+			yield return this;
+
 			MCommit current = FirstParent;
 			while (current != null)
 			{

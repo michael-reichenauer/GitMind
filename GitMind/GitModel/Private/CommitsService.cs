@@ -12,7 +12,7 @@ namespace GitMind.GitModel.Private
 			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
 		{
 			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
-			Dictionary<string, object> added = new Dictionary<string, object>();	
+			Dictionary<string, object> added = new Dictionary<string, object>();
 
 			Dictionary<string, string> branchNameByCommitId = new Dictionary<string, string>();
 			Dictionary<string, string> subjectBranchNameByCommitId = new Dictionary<string, string>();
@@ -56,13 +56,9 @@ namespace GitMind.GitModel.Private
 
 			if (!gitStatus.OK)
 			{
+				// Adding a virtual "uncommitted" commit since current working folder status has some changes
 				AddVirtualUncommitted(gitRepository, gitStatus, repository);
 			}
-
-			//foreach (GitBranch branch in gitRepository.Branches)
-			//{
-			//	if (repository.Commits[branch.TipId].HasFirstChild)
-			//}	
 		}
 
 
@@ -84,6 +80,7 @@ namespace GitMind.GitModel.Private
 			MCommit commit = new MCommit();
 			commit.IsVirtual = true;
 			commit.Repository = repository;
+			commit.BranchName = gitRepository.Head.Name;
 
 			CopyToCommit(gitStatus, commit, gitRepository.Head.TipId);
 			commit.Author = gitRepository.UserName ?? "";

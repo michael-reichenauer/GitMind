@@ -66,11 +66,11 @@
 									</Border>
 										<ControlTemplate.Triggers>
 											<Trigger Property="IsSelected" Value="True">
-												<Setter 
+											<Setter 
 												TargetName="ItemBorder" 
 												Property="BorderBrush" 
 												Value="{StaticResource SelectedItemBorderBrush}" />
-												<Setter 
+											<Setter 
 												TargetName="ItemBorder" 
 												Property="Background" 
 												Value="{StaticResource SelectedItemBackgroundBrush}" />
@@ -96,16 +96,18 @@
 
 							<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
 							<EventSetter Event="MouseDoubleClick" Handler="MouseDobleClick" />
+							<EventSetter Event="MouseEnter" Handler="MouseEntering" />
+							<EventSetter Event="MouseLeave" Handler="MouseLeaving" />	
 
-							<Setter Property="Width">
+						<Setter Property="Width">
 								<Setter.Value>
 									<MultiBinding 
-									Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
-									ConverterParameter="*">
+										Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
+										ConverterParameter="*">
 										<Binding Path="Width"/>
 										<Binding 
-										Path="Scale"
-										RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
+											Path="Scale"
+											RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
 									</MultiBinding>
 								</Setter.Value>
 							</Setter>
@@ -113,12 +115,12 @@
 							<Setter Property="Height">
 								<Setter.Value>
 									<MultiBinding 
-									Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
-									ConverterParameter="*">
+										Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
+										ConverterParameter="*">
 										<Binding Path="Rect.Height"/>
 										<Binding 
-										Path="Scale"
-										RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
+											Path="Scale"
+											RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
 									</MultiBinding>
 								</Setter.Value>
 							</Setter>
@@ -135,23 +137,61 @@
 									<Setter Property="IsEnabled" Value="true"/>
 									<Setter Property="Focusable" Value="False"/>
 									<Setter Property="Background" Value="Transparent"/>
-									<Setter Property="ContentTemplate">
+									
+								<Setter Property="ContentTemplate">
 										<Setter.Value>
 											<DataTemplate>
-												<Grid 
+												<Grid
 													Background="Transparent">
 													<Path 
 														Data="{Binding Line}"
 														Stroke="{Binding Brush}"
-														StrokeThickness="2"/>
+														StrokeThickness="{Binding StrokeThickness}"
+														SnapsToDevicePixels="True">
+													<Path.Effect>
+														<DropShadowEffect 
+															Color="White" 
+															ShadowDepth="0" 
+															Direction="0" 
+															BlurRadius="25"  />
+													</Path.Effect>
+												</Path>
 
 													<Grid.ToolTip>
 														<ToolTip 
 																Content="{Binding BranchToolTip}"
 																Placement="Mouse"
 																BorderBrush="{Binding Brush}"													
-																BorderThickness="2"/>
-												</Grid.ToolTip>
+																BorderThickness="2" />
+													</Grid.ToolTip>
+
+													<!-- Branch line context menu -->
+													<Grid.ContextMenu>
+														<ContextMenu>
+
+															<!-- Show child branch meu item -->
+															<MenuItem 
+																Header="Show child branch"
+																IsEnabled="{Binding HasChildren}"
+																ItemsSource="{Binding ChildBranches}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
+																</Border>
+															</MenuItem.Icon>
+															<MenuItem.Resources>
+																<HierarchicalDataTemplate 
+																	DataType="{x:Type local:BranchItem}"
+																	ItemsSource="{Binding Children}">
+																	<MenuItem 
+																		Header="{Binding Text}" 
+																		Command="{Binding ShowBranchCommand}"
+																		CommandParameter="{Binding Branch}"/>
+																</HierarchicalDataTemplate>
+															</MenuItem.Resources>
+														</MenuItem>
+													</ContextMenu>
+												</Grid.ContextMenu>
 											</Grid>
 											</DataTemplate>
 										</Setter.Value>
@@ -184,7 +224,7 @@
 										<Setter.Value>
 											<DataTemplate>
 
-												<Grid Background="Transparent">
+											<Grid>
 													<Grid.ColumnDefinitions>
 														<ColumnDefinition Width="{Binding GraphWidth}"/>
 														<ColumnDefinition Width="*"/>
@@ -266,7 +306,7 @@
 															<!-- Branch tips -->
 															<TextBlock 
 																Text="{Binding BranchTips}"
-																Foreground="{StaticResource BranchTipsBrush}"
+																Foreground="{Binding BranchTipBrush}"
 																HorizontalAlignment="Left"
 																VerticalAlignment="Center"
 																ToolTip="Branch tip of branch with no commits of its own"/>
@@ -274,14 +314,14 @@
 															<!-- Tag -->
 															<TextBlock 
 																Text="{Binding Tags}"
-																Foreground="{StaticResource TagBrush}"
+																Foreground="{Binding TagBrush}"
 																HorizontalAlignment="Left"
 																VerticalAlignment="Center"/>
 
 															<!-- Tickets -->
 															<TextBlock 
 																Text="{Binding Tickets}"
-																Foreground="{StaticResource TicketBrush}"
+																Foreground="{Binding TicketBrush}"
 																HorizontalAlignment="Left"
 																VerticalAlignment="Center"/>
 
@@ -290,6 +330,7 @@
 																Text="{Binding Subject}"
 																Foreground="{Binding SubjectBrush}"
 																FontSize="12"
+																FontWeight="{Binding SubjectWeight}"
 																FontStyle="{Binding SubjectStyle}"
 																HorizontalAlignment="Left"
 																VerticalAlignment="Center"/>

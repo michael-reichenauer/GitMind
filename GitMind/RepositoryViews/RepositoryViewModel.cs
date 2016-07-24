@@ -59,7 +59,7 @@ namespace GitMind.RepositoryViews
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; }
 		public string WorkingFolder { get; set; }
-		public List<string> SpecifiedBranchNames { get; set; }
+		public IReadOnlyList<string> SpecifiedBranchNames { get; set; }
 		public ZoomableCanvas Canvas { get; set; }
 
 
@@ -133,7 +133,19 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
+		public string PullCurrentBranchText => $"Pull current branch {CurrentBranchName}";
+
+
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
+
+		public ICommand TryUpdateAllBranchesCommand => Command(
+			TryUpdateAllBranches, TryUpdateAllBranchesCanExecute);
+
+
+		public ICommand PullCurrentBranchCommand => Command(
+			PullCurrentBranch, PullCurrentBranchCanExecute);
+
+		public ICommand ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
@@ -263,6 +275,21 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		private Task RefreshAfterCommandAsync()
+		{
+			return refreshThrottler.Run(async () =>
+			{
+				Log.Debug("Auto refresh");
+
+				await FetchRemoteChangesAsync(Repository);
+
+				Repository repository = await GetLocalChangesAsync(Repository);
+
+				UpdateViewModel(repository, SpecifiedBranches);
+			});
+		}
+
+
 
 		public Task ManualRefreshAsync()
 		{
@@ -286,6 +313,33 @@ namespace GitMind.RepositoryViews
 				UpdateViewModel(repository, SpecifiedBranches);
 			});
 		}
+
+
+		public void MouseEnterBranch(BranchViewModel branch)
+		{
+			branch.SetHighlighted();
+
+			foreach (CommitViewModel commit in Commits)
+			{
+				if (commit.Commit.Branch.Id != branch.Branch.Id)
+				{
+					commit.SetDim();					
+				}
+			}
+		}
+
+
+		public void MouseLeaveBranch(BranchViewModel branch)
+		{
+			branch.SetNormal();
+
+			foreach (CommitViewModel commit in Commits)
+			{
+				commit.SetNormal(viewModelService.GetSubjectBrush(commit.Commit));
+			}
+		}
+
+
 
 
 		private Task<Repository> GetLocalChangesAsync(Repository repository)
@@ -499,7 +553,7 @@ namespace GitMind.RepositoryViews
 					return;
 				}
 			}
-		
+
 			ScrollTo(0);
 			if (Commits.Any())
 			{
@@ -508,12 +562,12 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		public void Clicked(int column, int rowIndex, bool isControl)
+		public bool Clicked(int column, int rowIndex, bool isControl)
 		{
 			if (rowIndex < 0 || rowIndex >= Commits.Count || column < 0 || column >= Branches.Count)
 			{
 				// Click is not within supported area
-				return;
+				return false;
 			}
 
 			CommitViewModel commitViewModel = Commits[rowIndex];
@@ -525,7 +579,10 @@ namespace GitMind.RepositoryViews
 
 				ScrollRows(rowsChange);
 				VirtualItemsSource.DataChanged(width);
+				return true;
 			}
+
+			return false;
 		}
 
 
@@ -561,6 +618,78 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		private void ShowCurrentBranch()
+		{
+			viewModelService.ShowBranch(this, Repository.CurrentBranch);
+		}
+
+
+		private async void TryUpdateAllBranches()
+		{
+			Log.Debug("Try update all branches");
+
+			using (busyIndicator.Progress)
+			{
+				Branch currentBranch = Repository.CurrentBranch;
+				Branch uncommittedBranch = UnCommited?.Branch;
+				IEnumerable<Branch> updatableBranches = Repository.Branches
+					.Where(b =>
+					b != currentBranch
+					&& b != uncommittedBranch
+					&& b.RemoteAheadCount > 0
+					&& b.LocalAheadCount == 0).ToList();
+
+				string workingFolder = Repository.MRepository.WorkingFolder;
+				foreach (Branch branch in updatableBranches)
+				{
+					Log.Debug($"Updating branch {branch.Name}");
+
+					await gitService.UpdateBranchAsync(workingFolder, branch.Name);
+				}
+
+				if (uncommittedBranch != currentBranch
+					&& currentBranch.RemoteAheadCount > 0
+					&& currentBranch.LocalAheadCount == 0)
+				{
+					await gitService.UpdateCurrentBranchAsync(workingFolder);
+				}
+
+				await RefreshAfterCommandAsync();
+			}
+		}
+
+		private bool TryUpdateAllBranchesCanExecute()
+		{
+			Branch uncommittedBranch = UnCommited?.Branch;
+
+			return Repository.Branches.Any(
+				b => b != uncommittedBranch
+				&& b.RemoteAheadCount > 0
+				&& b.LocalAheadCount == 0);
+		}
+
+
+		private async void PullCurrentBranch()
+		{
+			using (busyIndicator.Progress)
+			{
+				string workingFolder = Repository.MRepository.WorkingFolder;
+				await gitService.PullCurrentBranchAsync(workingFolder);
+
+				await RefreshAfterCommandAsync();
+			}
+		}
+
+
+		private bool PullCurrentBranchCanExecute()
+		{
+			Branch uncommittedBranch = UnCommited?.Branch;
+
+			return uncommittedBranch != Repository.CurrentBranch
+				&& Repository.CurrentBranch.RemoteAheadCount > 0;
+		}
+
+
 		public void Clicked(Point position, bool isControl)
 		{
 			double xpos = position.X - 9;
@@ -575,12 +704,15 @@ namespace GitMind.RepositoryViews
 			double absx = Math.Abs(xpos - x);
 			double absy = Math.Abs(ypos - y);
 
+			bool isHandled = false;
 			if ((absx < 10) && (absy < 10))
 			{
-				Clicked(column, row, isControl);
+				isHandled = Clicked(column, row, isControl);
+			}
+
+			if (!isHandled && (absx < 10))
+			{				
 			}
 		}
-
-
 	}
 }

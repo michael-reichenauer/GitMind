@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
+using GitMind.Utils;
 using GitMind.Utils.UI;
 
 
@@ -52,12 +53,36 @@ namespace GitMind.RepositoryViews
 
 		public double Width => Rect.Width;
 		public string Line { get; set; }
-		public Brush Brush { get; set; }	
-		public Brush HoverBrush => Brush;
+		public int StrokeThickness { get; set; }
+		public Brush Brush { get; set; }
+
+		public Brush HoverBrush { get; set; }
+		public Brush HoverBrushNormal { get; set; }
+		public Brush HoverBrushHighlight{ get; set; }
+
 
 		public string BranchToolTip { get; set; }
 		public string HideBranchText => "Hide branch: " + Branch.Name;
+		public int Height { get; set; }
+
 
 		public override string ToString() => $"{Name}";
+
+
+		public void SetNormal()
+		{
+			StrokeThickness = 2;
+			Brush = HoverBrushNormal;
+
+			Notify(nameof(StrokeThickness), nameof(Brush));
+		}
+
+
+		public void SetHighlighted()
+		{
+			StrokeThickness = 3;
+			Brush = HoverBrushHighlight;
+			Notify(nameof(StrokeThickness), nameof(Brush));
+		}
 	}
 }

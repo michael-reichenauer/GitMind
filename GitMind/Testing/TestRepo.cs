@@ -8,6 +8,6 @@ namespace GitMind.Testing
 		public static readonly string Path5 = @"d:\My Work\TestGit4";
 		public static readonly string Path6 = @"C:\Work Files\AcmAcs";
 
-		public static readonly string Path = Path1;
+		public static readonly string Path = Path2;
 	}
 }

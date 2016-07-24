@@ -249,6 +249,8 @@ namespace GitMind.GitModel.Private
 			RemoveVirtualCommits(repository);
 
 			repository.Branches.Values.ForEach(b => b.LatestCommit.BranchTips = null);
+
+			repository.Commits.Values.ForEach(c => c.BranchTipBranches.Clear());
 		}
 
 		private static void RemoveVirtualCommits(MRepository repository)

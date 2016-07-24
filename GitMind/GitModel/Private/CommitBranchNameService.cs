@@ -39,17 +39,20 @@ namespace GitMind.GitModel.Private
 				.FirstOrDefault(b => b.Value.Name == "master" && b.Value.IsRemote).Value;
 			if (master != null)
 			{
-				SetMasterBranchCommits(repository,  master);
+				SetMasterBranchCommits(repository, master);
 			}
 		}
 
 
 		public void SetNeighborCommitNames(MRepository repository)
 		{
+			SetActiveBranchCommits(repository);
+
 			SetEmptyParentCommits(repository);
 
 			SetBranchCommitsOfParents(repository);
 		}
+
 
 
 
@@ -67,7 +70,7 @@ namespace GitMind.GitModel.Private
 			{
 				return commit.FromSubjectBranchName;
 			}
-
+		
 			return null;
 		}
 
@@ -75,18 +78,18 @@ namespace GitMind.GitModel.Private
 		public void SetBranchTipCommitsNames(MRepository repository)
 		{
 			IEnumerable<MSubBranch> branches = repository.SubBranches.Values
-				.Where(b => 
+				.Where(b =>
 					b.LatestCommit.BranchId == null
 					&& b.LatestCommit.SubBranchId == null);
 
 			foreach (MSubBranch branch in branches)
-			{
-				MCommit commit = branch.LatestCommit;
+			{ 
+				MCommit branchTip = branch.LatestCommit;
 
-				if (!commit.HasFirstChild)
+				if (!branchTip.HasFirstChild)
 				{
-					commit.BranchName = branch.Name;
-					commit.SubBranchId = branch.SubBranchId;
+					branchTip.BranchName = branch.Name;
+					branchTip.SubBranchId = branch.SubBranchId;
 				}
 			}
 		}
@@ -98,10 +101,6 @@ namespace GitMind.GitModel.Private
 			while (commitId != null)
 			{
 				MCommit commit = repository.Commits[commitId];
-				//if (commit.BranchId != null)
-				//{
-				//	break;
-				//}
 
 				if (commit.BranchName == subBranch.Name && commit.SubBranchId != null)
 				{
@@ -125,56 +124,112 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void SetEmptyParentCommits(MRepository repository)
+		private void SetActiveBranchCommits(MRepository repository)
 		{
-			// All commits, which do have a name, but first parent commit does not have a name
-			IEnumerable<MCommit> commitsWithBranchName = repository.Commits.Values
-				.Where(commit =>
-					commit.BranchId == null
-					&& commit.SubBranchId != null
-					&& commit.HasBranchName
-					&& commit.HasFirstParent
-					&& !commit.FirstParent.HasBranchName);
+			IEnumerable<MSubBranch> branches = repository.SubBranches.Values
+				.Where(b =>
+					b.LatestCommit.BranchId == null
+					&& b.IsActive);
 
-			foreach (MCommit commit in commitsWithBranchName)
+			foreach (MSubBranch branch in branches)
 			{
-				string branchName = commit.BranchName;
-				string subBranchId = commit.SubBranchId;
+				MCommit branchTip = branch.LatestCommit;
 
-				MCommit last = commit;
-				bool isFound = false;
-				foreach (MCommit current in commit.FirstAncestors())
+				MCommit last = TryFindFirstAncestorWithSameName(branchTip, branch.Name);
+
+				if (last == null)
 				{
-					string currentBranchName = GetBranchName(current);
-
-					if (current.HasBranchName && current.BranchName != branchName)
-					{
-						// found commit with branch name already set 
-						break;
-					}
-
-					if (currentBranchName == branchName)
-					{
-						isFound = true;
-						last = current;
-					}
+					// Could not find first ancestor commit with branch name 
+					continue;
 				}
 
-				if (isFound)
+				foreach (MCommit current in branchTip.CommitAndFirstAncestors())
 				{
-					foreach (MCommit current in commit.FirstAncestors())
-					{
-						current.BranchName = branchName;
-						current.SubBranchId = subBranchId;
+					current.BranchName = branch.Name;
+					current.SubBranchId = branch.SubBranchId;
 
-						if (current == last)
-						{
-							break;
-						}
+					if (current == last)
+					{
+						break;
 					}
 				}
 			}
 		}
+
+
+		private void SetEmptyParentCommits(MRepository repository)
+		{
+			// All commits, which do have a name, but first parent commit does not have a name
+			bool isFound;
+			do
+			{
+				isFound = false;
+				IEnumerable<MCommit> commitsWithBranchName = repository.Commits.Values
+					.Where(commit =>
+						commit.BranchId == null
+						&& commit.HasBranchName
+						&& commit.HasFirstParent
+						&& !commit.FirstParent.HasBranchName);
+
+				foreach (MCommit commit in commitsWithBranchName)
+				{
+					string branchName = commit.BranchName;
+					string subBranchId = commit.SubBranchId;
+
+					MCommit last = TryFindFirstAncestorWithSameName(commit.FirstParent, branchName);
+
+					if (last != null)
+					{
+						isFound = true;
+						foreach (MCommit current in commit.FirstAncestors())
+						{
+							current.BranchName = branchName;
+							current.SubBranchId = subBranchId;
+
+							if (current == last)
+							{
+								break;
+							}
+						}
+					}
+				}
+			} while (isFound);
+		}
+
+
+		private MCommit TryFindFirstAncestorWithSameName(MCommit startCommit, string branchName)
+		{
+			foreach (MCommit commit in startCommit.CommitAndFirstAncestors())
+			{
+				string commitBranchName = GetBranchName(commit);
+
+				if (!string.IsNullOrEmpty(commitBranchName))			
+				{
+					if (commitBranchName == branchName)
+					{
+						// Found an ancestor, which has branch name we are searching fore
+						return commit;
+					}
+					else
+					{
+						// Fond an ancestor with another different name
+						break;
+					}
+				}
+
+				if (commit != startCommit
+					&& commit.BranchTipBranches.Count == 1 && commit.BranchTipBranches[0].Name == branchName)
+				{
+					// Found a commit with a branch tip of a branch with same name,
+					// this can happen for local/remote pairs. Lets assume the commit is the on that branch
+					return commit;
+				}
+			}
+
+			// Could not find an ancestor with the branch name we a searching for
+			return null;
+		}
+
 
 		private static void SetBranchCommitsOfParents(MRepository repository)
 		{

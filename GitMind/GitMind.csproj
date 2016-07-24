@@ -83,7 +83,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
-    <Compile Include="Installation\IAssemblyResolver.cs" />
     <Compile Include="Utils\UI\WpfBindingTraceListener.cs" />
     <Compile Include="RepositoryViews\BranchItem.cs" />
     <Compile Include="RepositoryViews\BranchNameItem.cs" />

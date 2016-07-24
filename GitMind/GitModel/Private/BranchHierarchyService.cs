@@ -32,13 +32,12 @@ namespace GitMind.GitModel.Private
 					else
 					{
 						// This is a branch with no commits
-						MCommit firstCommit = LatestCommit;
-						subBranch.Value.ParentCommitId = firstCommit.FirstParentId;
+						subBranch.Value.ParentCommitId = LatestCommit.Id;
 					}
 				}
 				else
 				{
-					IEnumerable<MCommit> commits = subBranch.Value.LatestCommit.FirstAncestors()
+					IEnumerable<MCommit> commits = subBranch.Value.LatestCommit.CommitAndFirstAncestors()
 						.TakeWhile(c => c.BranchName == subBranch.Value.Name);
 
 					bool foundParent = false;
@@ -51,14 +50,24 @@ namespace GitMind.GitModel.Private
 							foundParent = true;
 							break;
 						}
+
 						currentcommit = commit;
 					}
 
 					if (!foundParent)
 					{
-						MCommit firstCommit = currentcommit ?? LatestCommit;
+						if (currentcommit != null)
+						{
+							// Sub branch has at least one commit
+							MCommit firstCommit = currentcommit;
 
-						subBranch.Value.ParentCommitId = firstCommit.FirstParentId;
+							subBranch.Value.ParentCommitId = firstCommit.FirstParentId;
+						}
+						else
+						{					
+							// Sub branch has no commits of its own, setting parent commit to same as branch tip
+							subBranch.Value.ParentCommitId = LatestCommit.Id;
+						}						
 					}
 				}
 			}

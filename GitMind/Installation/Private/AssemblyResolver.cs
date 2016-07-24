@@ -6,12 +6,12 @@ using GitMind.Utils;
 
 namespace GitMind.Installation.Private
 {
-	internal class AssemblyResolver : IAssemblyResolver
+	internal class AssemblyResolver
 	{
 		private static readonly string GitBinaryDll = "git2-785d8c4.dll";
 
 
-		public void Activate()
+		public static void Activate()
 		{
 			AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
 		}
@@ -25,8 +25,7 @@ namespace GitMind.Installation.Private
 				string name = executingAssembly.FullName.Split(',')[0];
 				string resolveName = args.Name.Split(',')[0];
 				string resourceName = $"{name}.Dependencies.{resolveName}.dll";
-				Log.Debug($"Resolving {resolveName} from {resourceName} ...");
-
+				
 				if (resolveName == "LibGit2Sharp")
 				{				
 					HandleLibGit2SharpDependency(executingAssembly, name);
@@ -37,8 +36,8 @@ namespace GitMind.Installation.Private
 				{
 					if (stream == null)
 					{
-						Log.Error($"Failed to load assembly {resolveName}");
-						throw new InvalidOperationException("Failed to load assembly " + resolveName);
+						Log.Debug($"Failed to resolve assembly {resolveName}");
+						return null;
 					}
 
 					long bytestreamMaxLength = stream.Length;
