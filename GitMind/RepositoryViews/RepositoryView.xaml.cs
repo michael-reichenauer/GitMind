@@ -1,9 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using GitMind.GitModel;
-using GitMind.GitModel.Private;
-using GitMind.Utils;
 using GitMind.Utils.UI.VirtualCanvas;
 using UserControl = System.Windows.Controls.UserControl;
 
@@ -15,10 +12,7 @@ namespace GitMind.RepositoryViews
 	/// </summary>
 	public partial class RepositoryView : UserControl
 	{
-		private readonly IRepositoryService repositoryService = new RepositoryService();
-
 		private RepositoryViewModel viewModel;
-
 
 
 		public RepositoryView()
@@ -27,29 +21,12 @@ namespace GitMind.RepositoryViews
 		}
 
 
-
 		private void ZoomableCanvas_Loaded(object sender, RoutedEventArgs e)
 		{
 			viewModel = (RepositoryViewModel)DataContext;
 			viewModel.Canvas = (ZoomableCanvas)sender;
 
-			//Timing t = new Timing();
-
-			//Task<Repository> repositoryTask = repositoryService.GetRepositoryAsync(true, viewModel.WorkingFolder);
-
-			//viewModel.Busy.Value.Add(repositoryTask);
-
-			//Repository repository = await repositoryTask;
-			//t.Log("Got repository");
-
-			//viewModel.Update(repository, viewModel.SpecifiedBranchNames);
-			//t.Log("Updated repositoryViewModel");
 			ItemsListBox.Focus();
-
-			//LoadedTime = DateTime.Now;
-
-			//autoRefreshTime.Interval = TimeSpan.FromMilliseconds(300);
-			//autoRefreshTime.Start();
 		}
 
 
@@ -92,7 +69,7 @@ namespace GitMind.RepositoryViews
 				{
 					viewModel.MouseEnterBranch(branch);
 				}
-			}			
+			}
 		}
 
 

@@ -317,6 +317,8 @@ namespace GitMind.RepositoryViews
 
 		public void MouseEnterBranch(BranchViewModel branch)
 		{
+			branch.SetHighlighted();
+
 			foreach (CommitViewModel commit in Commits)
 			{
 				if (commit.Commit.Branch.Id != branch.Branch.Id)
@@ -329,11 +331,15 @@ namespace GitMind.RepositoryViews
 
 		public void MouseLeaveBranch(BranchViewModel branch)
 		{
+			branch.SetNormal();
+
 			foreach (CommitViewModel commit in Commits)
 			{
 				commit.SetNormal(viewModelService.GetSubjectBrush(commit.Commit));
 			}
 		}
+
+
 
 
 		private Task<Repository> GetLocalChangesAsync(Repository repository)
@@ -556,12 +562,12 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		public void Clicked(int column, int rowIndex, bool isControl)
+		public bool Clicked(int column, int rowIndex, bool isControl)
 		{
 			if (rowIndex < 0 || rowIndex >= Commits.Count || column < 0 || column >= Branches.Count)
 			{
 				// Click is not within supported area
-				return;
+				return false;
 			}
 
 			CommitViewModel commitViewModel = Commits[rowIndex];
@@ -573,7 +579,10 @@ namespace GitMind.RepositoryViews
 
 				ScrollRows(rowsChange);
 				VirtualItemsSource.DataChanged(width);
+				return true;
 			}
+
+			return false;
 		}
 
 
@@ -695,12 +704,15 @@ namespace GitMind.RepositoryViews
 			double absx = Math.Abs(xpos - x);
 			double absy = Math.Abs(ypos - y);
 
+			bool isHandled = false;
 			if ((absx < 10) && (absy < 10))
 			{
-				Clicked(column, row, isControl);
+				isHandled = Clicked(column, row, isControl);
+			}
+
+			if (!isHandled && (absx < 10))
+			{				
 			}
 		}
-
-
 	}
 }

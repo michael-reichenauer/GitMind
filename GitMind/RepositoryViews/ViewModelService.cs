@@ -416,21 +416,26 @@ namespace GitMind.RepositoryViews
 
 				branch.LatestRowIndex = commits.FindIndex(c => c == sourceBranch.LatestCommit);
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
-				int height = Converter.ToY(branch.FirstRowIndex - branch.LatestRowIndex);
+				branch.Height = Converter.ToY(branch.FirstRowIndex - branch.LatestRowIndex);
 
 				branch.BranchColumn = FindBranchColumn(addedBranchColumns, branch);
 				addedBranchColumns.Add(branch);
 				maxColumn = Math.Max(branch.BranchColumn, maxColumn);
 
-				branch.Rect = new Rect(
-					(double)Converter.ToX(branch.BranchColumn) + 6,
-					(double)Converter.ToY(branch.LatestRowIndex) + Converter.HalfRow,
-					4,
-					height);
+				branch.SetNormal();
 
-				branch.Line = $"M 1,0 L 1,{height}";
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
-				branch.HoverBrush = brushService.GetLighterBrush(branch.Brush);
+				branch.HoverBrush = Brushes.Transparent;
+				branch.Rect = new Rect(
+					(double)Converter.ToX(branch.BranchColumn) + 3,
+					(double)Converter.ToY(branch.LatestRowIndex) + Converter.HalfRow,
+					8,
+					branch.Height);
+
+				branch.Line = $"M 4,0 L 4,{branch.Height}";
+
+				branch.HoverBrushNormal = branch.Brush;
+				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
 				branch.BranchToolTip = GetBranchToolTip(branch);
 
 				if (sourceBranch.IsMultiBranch)
@@ -684,8 +689,6 @@ namespace GitMind.RepositoryViews
 
 			return subjectBrush;
 		}
-
-
 
 
 		private void SetNumberOfItems<T>(

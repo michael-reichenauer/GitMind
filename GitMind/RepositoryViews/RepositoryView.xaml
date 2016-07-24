@@ -146,7 +146,8 @@
 													<Path 
 														Data="{Binding Line}"
 														Stroke="{Binding Brush}"
-														StrokeThickness="3">
+														StrokeThickness="{Binding StrokeThickness}"
+														SnapsToDevicePixels="True">
 													<Path.Effect>
 														<DropShadowEffect 
 															Color="White" 
@@ -163,7 +164,35 @@
 																BorderBrush="{Binding Brush}"													
 																BorderThickness="2" />
 													</Grid.ToolTip>
-												</Grid>
+
+													<!-- Branch line context menu -->
+													<Grid.ContextMenu>
+														<ContextMenu>
+
+															<!-- Show child branch meu item -->
+															<MenuItem 
+																Header="Show child branch"
+																IsEnabled="{Binding HasChildren}"
+																ItemsSource="{Binding ChildBranches}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
+																</Border>
+															</MenuItem.Icon>
+															<MenuItem.Resources>
+																<HierarchicalDataTemplate 
+																	DataType="{x:Type local:BranchItem}"
+																	ItemsSource="{Binding Children}">
+																	<MenuItem 
+																		Header="{Binding Text}" 
+																		Command="{Binding ShowBranchCommand}"
+																		CommandParameter="{Binding Branch}"/>
+																</HierarchicalDataTemplate>
+															</MenuItem.Resources>
+														</MenuItem>
+													</ContextMenu>
+												</Grid.ContextMenu>
+											</Grid>
 											</DataTemplate>
 										</Setter.Value>
 									</Setter>
