@@ -146,7 +146,8 @@
 													<Path 
 														Data="{Binding Line}"
 														Stroke="{Binding Brush}"
-														StrokeThickness="3">
+														StrokeThickness="{Binding StrokeThickness}"
+														SnapsToDevicePixels="True">
 													<Path.Effect>
 														<DropShadowEffect 
 															Color="White" 

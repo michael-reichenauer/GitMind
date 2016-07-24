@@ -10,7 +10,7 @@ namespace GitMind.RepositoryViews
 	{
 		private static readonly SolidColorBrush MasterBranchBrush = BrushFromHex("#E540FF");
 		private static readonly SolidColorBrush MultiBranchBrush = Brushes.White;
-		private static readonly SolidColorBrush LighterBaseBrush = BrushFromHex("#10FFFFFF");
+		private static readonly SolidColorBrush LighterBaseBrush = BrushFromHex("#FFFFFFFF");
 
 		private readonly List<Brush> brushes = new List<Brush>();
 		private readonly List<Brush> darkBrushes = new List<Brush>();
