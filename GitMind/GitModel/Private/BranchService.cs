@@ -32,6 +32,8 @@ namespace GitMind.GitModel.Private
 		public void AddActiveBranches(
 			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
 		{
+			GitBranch currentBranch = gitRepository.Head;
+
 			foreach (GitBranch gitBranch in gitRepository.Branches)
 			{
 				string branchName = gitBranch.Name;
@@ -42,16 +44,12 @@ namespace GitMind.GitModel.Private
 
 				MSubBranch subBranch = ToBranch(gitBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
-			}
 
-			if (!gitStatus.OK)
-			{
-				string name = gitRepository.Head.Name;
-				MSubBranch currentBranch = repository.SubBranches.Values
-					.FirstOrDefault(b => b.IsActive && !b.IsRemote && b.Name == name);
-				if (currentBranch != null)
+				if (!gitStatus.OK && gitBranch.Name == currentBranch.Name && !gitBranch.IsRemote)
 				{
-					currentBranch.LatestCommitId = MCommit.UncommittedId;
+					// Setting virtual uncommitted commit as tip of the current branch
+					subBranch.LatestCommitId = MCommit.UncommittedId;
+					subBranch.LatestCommit.SubBranchId = subBranch.SubBranchId;
 				}
 			}
 		}
@@ -59,12 +57,13 @@ namespace GitMind.GitModel.Private
 
 		public void AddInactiveBranches(MRepository repository)
 		{
-			// Commits which has no child, which has this commit as a first parent, i.e. it is the 
-			// top of a branch and there is no existing branch at this commit
+			// Get the list of active branch tips
 			List<string> activeBranches = repository.SubBranches
 				.Where(b => b.Value.IsActive).Select(b => b.Value.LatestCommitId)
 				.ToList();
 
+			// Commits which has no child, which has this commit as a first parent, i.e. it is the 
+			// top of a branch and there is no existing branch at this commit
 			IEnumerable<MCommit> topCommits = repository.Commits.Values
 				.Where(commit =>
 					commit.BranchId == null
@@ -224,14 +223,14 @@ namespace GitMind.GitModel.Private
 		{
 			string branchName = commitBranchNameService.GetBranchName(root);
 
-			if (branchName == null)
+			if (string.IsNullOrEmpty(branchName))
 			{
 				// Could not find a branch name from the commit, lets try it ancestors
 				foreach (MCommit commit in root.FirstAncestors()
 					.TakeWhile(c => c.HasSingleFirstChild))
 				{
 					branchName = commitBranchNameService.GetBranchName(commit);
-					if (branchName != null)
+					if (!string.IsNullOrEmpty(branchName))
 					{
 						return branchName;
 					}
