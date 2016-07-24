@@ -83,7 +83,7 @@ namespace GitMind.GitModel.Private
 				string branchName = TryFindBranchName(commit);
 				if (string.IsNullOrEmpty(branchName))
 				{
-					branchName = AnonyousBranchPrefix + commit.ShortId;				
+					branchName = AnonyousBranchPrefix + commit.ShortId;
 				}
 
 				subBranch.IsAnonymous = IsBranchNameAnonyous(branchName);

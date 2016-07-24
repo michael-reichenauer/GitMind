@@ -167,7 +167,6 @@ namespace GitMind.GitModel.Private
 				IEnumerable<MCommit> commitsWithBranchName = repository.Commits.Values
 					.Where(commit =>
 						commit.BranchId == null
-						&& commit.SubBranchId != null
 						&& commit.HasBranchName
 						&& commit.HasFirstParent
 						&& !commit.FirstParent.HasBranchName);
@@ -208,20 +207,26 @@ namespace GitMind.GitModel.Private
 				{
 					if (commitBranchName == branchName)
 					{
+						// Found an ancestor, which has branch name we are searching fore
 						return commit;
 					}
 					else
 					{
+						// Fond an ancestor with another different name
 						break;
 					}
 				}
 
-				if (commit.BranchTipBranches.Count == 1 && commit.BranchTipBranches[0].Name == branchName)
+				if (commit != startCommit
+					&& commit.BranchTipBranches.Count == 1 && commit.BranchTipBranches[0].Name == branchName)
 				{
+					// Found a commit with a branch tip of a branch with same name,
+					// this can happen for local/remote pairs. Lets assume the commit is the on that branch
 					return commit;
 				}
 			}
 
+			// Could not find an ancestor with the branch name we a searching for
 			return null;
 		}
 

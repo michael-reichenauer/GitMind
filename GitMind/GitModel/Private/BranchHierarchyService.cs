@@ -88,7 +88,6 @@ namespace GitMind.GitModel.Private
 					MSubBranch subBranch = groupByBranch.First().Value;
 
 					string branchId = subBranch.Name + "-" + subBranch.ParentCommitId;
-					Log.Debug($"Branch id: {branchId}");
 
 					MBranch branch;
 					if (!repository.Branches.TryGetValue(branchId, out branch))
