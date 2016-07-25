@@ -732,13 +732,13 @@ namespace GitMind.RepositoryViews
 
 		private bool TryPushAllBranchesCanExecute()
 		{
-			return false;
-			// Branch uncommittedBranch = UnCommited?.Branch;
+			//return false;
+			Branch uncommittedBranch = UnCommited?.Branch;
 
-			//return Repository.Branches.Any(
-			//	b => b != uncommittedBranch
-			//	&& b.LocalAheadCount > 0
-			//	&& b.RemoteAheadCount == 0);
+			return Repository.Branches.Any(
+				b => b != uncommittedBranch
+				&& b.LocalAheadCount > 0
+				&& b.RemoteAheadCount == 0);
 		}
 
 
