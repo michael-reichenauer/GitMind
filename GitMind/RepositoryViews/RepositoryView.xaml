@@ -266,10 +266,21 @@
 														<Grid.ContextMenu>
 															<ContextMenu>
 																<MenuItem 
-																Header="Show Diff ..." 
-																InputGestureText="Enter"
-																Command="{Binding ShowDiffCommand}" 
-																CommandParameter="{Binding Id}">
+																	Header="Toggle commit details" 
+																	InputGestureText="Space"
+																	Command="{Binding ToggleDetailsCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;"/>
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
+																
+																<MenuItem 
+																	Header="Show Diff ..." 
+																	InputGestureText="Enter"
+																	Command="{Binding ShowDiffCommand}" 
+																	CommandParameter="{Binding Id}">
 																	<MenuItem.Icon>
 																		<Border>
 																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
@@ -277,17 +288,7 @@
 																	</MenuItem.Icon>
 																</MenuItem>
 
-															<MenuItem 
-																Header="Toggle commit details" 
-																InputGestureText="Space"
-																Command="{Binding ToggleDetailsCommand}">
-																<MenuItem.Icon>
-																	<Border>
-																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;"/>
-																	</Border>
-																</MenuItem.Icon>
-															</MenuItem>
-														</ContextMenu>
+															</ContextMenu>
 														</Grid.ContextMenu>
 
 														<!-- Current commit indicator (and margin when not current)-->
