@@ -251,7 +251,7 @@
 														</Button>
 													</Canvas>
 
-													<Grid Grid.Column="1">
+													<Grid Grid.Column="1" Background="Transparent">
 														<Grid.ColumnDefinitions>
 															<!-- Margin and current commit indicator -->
 															<ColumnDefinition Width="15" />
