@@ -20,7 +20,7 @@ namespace GitMind.Git.Private
 
 		private readonly ICmd cmd;
 		private readonly IGitDiffParser gitDiffParser;
-	
+
 
 		public GitService(ICmd cmd, IGitDiffParser gitDiffParser)
 		{
@@ -213,7 +213,7 @@ namespace GitMind.Git.Private
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
 						string patch = gitRepository.Diff.GetPatch(commitId);
-					
+
 						return R.From(await gitDiffParser.ParseAsync(commitId, patch));
 					}
 				}
@@ -235,10 +235,10 @@ namespace GitMind.Git.Private
 					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
 			}
 			catch (Exception e)
-			{			
+			{
 				Log.Warn($"Failed to fetch {workingFolder}, {e.Message}");
 			}
-			
+
 			//Log.Debug($"Fetching repository in {workingFolder} ...");
 
 			//CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
@@ -409,7 +409,7 @@ namespace GitMind.Git.Private
 
 				pullResult.OnValue(_ => Log.Debug($"Pushed {name} branch using cmd"));
 
-				// Ignoring fetch errors for now
+				// Ignoring fetch errors for now.
 				pullResult.OnError(e => Log.Warn($"Git push {name} branch failed {e.Message}"));
 			}
 			catch (Exception e)
