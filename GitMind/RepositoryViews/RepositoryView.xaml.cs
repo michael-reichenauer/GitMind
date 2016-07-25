@@ -25,6 +25,7 @@ namespace GitMind.RepositoryViews
 		{
 			viewModel = (RepositoryViewModel)DataContext;
 			viewModel.Canvas = (ZoomableCanvas)sender;
+			viewModel.ListBox = ItemsListBox;
 
 			ItemsListBox.Focus();
 		}

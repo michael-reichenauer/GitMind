@@ -51,6 +51,22 @@ namespace GitMind.Git
 			return "";
 		}
 
+		public string GetPatchRange(string id1, string id2)
+		{		
+			Commit commit1 = repository.Lookup<Commit>(new ObjectId(id1));
+			Commit commit2 = repository.Lookup<Commit>(new ObjectId(id2));
+
+			if (commit1 != null && commit2 != null)
+			{
+				return diff.Compare<Patch>(
+					commit2.Tree,
+					commit1.Tree,
+					DefultCompareOptions);
+			}
+
+			return "";
+		}
+
 
 		internal string GetFilePatch(string commitId, string filePath)
 		{

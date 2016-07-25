@@ -48,6 +48,26 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		public async Task ShowDiffRangeAsync(string id1, string id2, string workingFolder)
+		{
+			string p4mergeExe;
+			if (!IsDiffSupported(out p4mergeExe))
+			{
+				return;
+			}
+
+			R<CommitDiff> commitDiff = await gitService.GetCommitDiffRangeAsync(workingFolder, id1, id2);
+
+			if (commitDiff.HasValue)
+			{
+				await Task.Run(() =>
+				{
+					cmd.Run(p4mergeExe, $"\"{commitDiff.Value.LeftPath}\" \"{commitDiff.Value.RightPath}\"");
+				});
+			}
+		}
+
+
 		public async Task ShowFileDiffAsync(string workingFolder, string commitId, string name)
 		{
 			string p4mergeExe;
@@ -66,6 +86,9 @@ namespace GitMind.RepositoryViews
 				});
 			}
 		}
+
+
+
 
 
 		private static bool IsDiffSupported(out string p4mergeExe)
