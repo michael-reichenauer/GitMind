@@ -119,7 +119,7 @@
 						</Button.ContextMenu>
 					</Button>
 
-					<!-- Local ahead status " -->
+					<!-- Local ahead status -->
 					<Button
 						Content="&#xE25A;"
 						Visibility="{Binding RepositoryViewModel.LocalAheadText, Converter={StaticResource VC}}"					
