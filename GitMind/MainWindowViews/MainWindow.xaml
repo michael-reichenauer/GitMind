@@ -82,7 +82,7 @@
 					</Button>
 
 
-					<!-- Remote ahead status Command="{Binding UpdateCommand}" Style="{StaticResource IconButtonStyle}"-->
+					<!-- Remote ahead status "-->
 					<Button
 						Content="&#xE258;"
 						Visibility="{Binding RepositoryViewModel.RemoteAheadText, Converter={StaticResource VC}}"					
@@ -95,7 +95,7 @@
 							<ContextMenu Name="RemoteAheadContextMenu">
 
 								<MenuItem
-									Header="Try update all branches" 
+									Header="Update all branches" 
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Border>
@@ -103,9 +103,9 @@
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
-								
+
 								<Separator Background="{StaticResource BorderBrush}"/>
-								
+
 								<MenuItem 
 									Header="{Binding RepositoryViewModel.PullCurrentBranchText}" 
 									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
@@ -117,18 +117,45 @@
 								</MenuItem>
 							</ContextMenu>
 						</Button.ContextMenu>
-
 					</Button>
 
-					<!-- Local ahead status Command="{Binding PublishCommand}" Style="{StaticResource IconButtonStyle}" -->
-					<TextBlock 
-						Visibility="{Binding RepositoryViewModel.LocalAheadText, Converter={StaticResource VC}}"			
-						FontFamily="{StaticResource IconFont}"
+					<!-- Local ahead status -->
+					<Button
+						Content="&#xE25A;"
+						Visibility="{Binding RepositoryViewModel.LocalAheadText, Converter={StaticResource VC}}"					
+						Style="{StaticResource IconButtonStyle}"
 						Foreground="{StaticResource LocalAheadBrush}"
-						Text="&#xE25A;"
-						FontSize="18"
-						Margin="3,3" 
-						ToolTip="{Binding RepositoryViewModel.LocalAheadText}"/>
+						Click="LocalAhead_OnClick"
+						ToolTip="{Binding RepositoryViewModel.LocalAheadText}">
+
+						<Button.ContextMenu>
+							<ContextMenu Name="LocalAheadContextMenu">
+
+								<MenuItem
+									Header="Push all branches" 
+									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
+									<MenuItem.Icon>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5CE;"/>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+
+								<Separator Background="{StaticResource BorderBrush}"/>
+
+								<MenuItem 
+									Header="{Binding RepositoryViewModel.PushCurrentBranchText}" 
+									Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}">
+									<MenuItem.Icon>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE255;"/>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+							</ContextMenu>
+						</Button.ContextMenu>
+					</Button>
+					
 
 					<!-- Commit status button -->
 					<Button 

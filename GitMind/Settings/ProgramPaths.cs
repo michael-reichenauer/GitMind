@@ -163,7 +163,7 @@ namespace GitMind.Settings
 			
 
 			return gitService.GetCurrentRootPath(path)
-				.OnError(e => Log.Warn($"Not a working folder {path}, {e}"));
+				.OnError(e => Log.Debug($"Not a working folder {path}, {e}"));
 		}
 	}
 }

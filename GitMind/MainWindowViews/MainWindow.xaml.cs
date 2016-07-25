@@ -125,6 +125,13 @@ namespace GitMind.MainWindowViews
 			RemoteAheadContextMenu.PlacementTarget = this;
 			RemoteAheadContextMenu.IsOpen = true;
 		}
+
+
+		private void LocalAhead_OnClick(object sender, RoutedEventArgs e)
+		{
+			LocalAheadContextMenu.PlacementTarget = this;
+			LocalAheadContextMenu.IsOpen = true;
+		}
 	}
 }
 

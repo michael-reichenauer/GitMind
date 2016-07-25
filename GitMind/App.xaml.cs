@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -156,8 +157,11 @@ namespace GitMind
 			if (await latestVersionService.IsNewVersionAvailableAsync())
 			{
 				await latestVersionService.InstallLatestVersionAsync();
-			}
 
+				// The actual installation (copy of files) is done by another, allow some time for that
+				await Task.Delay(TimeSpan.FromSeconds(5));
+			}
+		
 			mainWindow.IsNewVersionVisible = latestVersionService.IsNewVersionInstalled();
 
 			newVersionTimer.Interval = TimeSpan.FromHours(3);
