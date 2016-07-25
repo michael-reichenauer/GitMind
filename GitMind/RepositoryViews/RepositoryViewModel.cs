@@ -642,22 +642,23 @@ namespace GitMind.RepositoryViews
 
 			using (busyIndicator.Progress)
 			{
+				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
-				IEnumerable<Branch> updatableBranches = Repository.Branches
-					.Where(b =>
-					b != currentBranch
-					&& b != uncommittedBranch
-					&& b.RemoteAheadCount > 0
-					&& b.LocalAheadCount == 0).ToList();
+				//IEnumerable<Branch> updatableBranches = Repository.Branches
+				//	.Where(b =>
+				//	b != currentBranch
+				//	&& b != uncommittedBranch
+				//	&& b.RemoteAheadCount > 0
+				//	&& b.LocalAheadCount == 0).ToList();
 
-				string workingFolder = Repository.MRepository.WorkingFolder;
-				foreach (Branch branch in updatableBranches)
-				{
-					Log.Debug($"Updating branch {branch.Name}");
+				
+				//foreach (Branch branch in updatableBranches)
+				//{
+				//	Log.Debug($"Updating branch {branch.Name}");
 
-					await gitService.UpdateBranchAsync(workingFolder, branch.Name);
-				}
+				//	await gitService.UpdateBranchAsync(workingFolder, branch.Name);
+				//}
 
 				if (uncommittedBranch != currentBranch
 					&& currentBranch.RemoteAheadCount > 0
@@ -696,10 +697,11 @@ namespace GitMind.RepositoryViews
 
 		private bool PullCurrentBranchCanExecute()
 		{
-			Branch uncommittedBranch = UnCommited?.Branch;
+			return false;
+			//Branch uncommittedBranch = UnCommited?.Branch;
 
-			return uncommittedBranch != Repository.CurrentBranch
-				&& Repository.CurrentBranch.RemoteAheadCount > 0;
+			//return uncommittedBranch != Repository.CurrentBranch
+			//	&& Repository.CurrentBranch.RemoteAheadCount > 0;
 		}
 
 
@@ -731,12 +733,13 @@ namespace GitMind.RepositoryViews
 
 		private bool TryPushAllBranchesCanExecute()
 		{
-			Branch uncommittedBranch = UnCommited?.Branch;
+			return false;
+			//Branch uncommittedBranch = UnCommited?.Branch;
 
-			return Repository.Branches.Any(
-				b => b != uncommittedBranch
-				&& b.LocalAheadCount > 0
-				&& b.RemoteAheadCount == 0);
+			//return Repository.Branches.Any(
+			//	b => b != uncommittedBranch
+			//	&& b.LocalAheadCount > 0
+			//	&& b.RemoteAheadCount == 0);
 		}
 
 
@@ -745,6 +748,7 @@ namespace GitMind.RepositoryViews
 			using (busyIndicator.Progress)
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
+
 				await gitService.PushCurrentBranchAsync(workingFolder);
 
 				await RefreshAfterCommandAsync();
