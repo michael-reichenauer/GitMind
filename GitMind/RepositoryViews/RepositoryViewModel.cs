@@ -702,9 +702,29 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private void TryPushAllBranches()
+		private async void TryPushAllBranches()
 		{
-			
+			Log.Debug("Try push all branches");
+
+			using (busyIndicator.Progress)
+			{
+				Branch uncommittedBranch = UnCommited?.Branch;
+				IEnumerable<Branch> pushableBranches = Repository.Branches
+					.Where(b =>
+						b != uncommittedBranch
+						&& b.LocalAheadCount > 0
+						&& b.RemoteAheadCount == 0).ToList();
+
+				string workingFolder = Repository.MRepository.WorkingFolder;
+				foreach (Branch branch in pushableBranches)
+				{
+					Log.Debug($"Push branch {branch.Name}");
+
+					await gitService.PushBranchAsync(workingFolder, branch.Name);
+				}
+
+				await RefreshAfterCommandAsync();
+			}
 		}
 
 

@@ -396,6 +396,29 @@ namespace GitMind.Git.Private
 		}
 
 
+		public async Task PushBranchAsync(string workingFolder, string name)
+		{
+			try
+			{
+				Log.Debug($"Push {name} branch using cmd... {workingFolder}");
+
+				string args = $"push origin {name}";
+
+				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+
+				pullResult.OnValue(_ => Log.Debug($"Pushed {name} branch using cmd"));
+
+				// Ignoring fetch errors for now
+				pullResult.OnError(e => Log.Warn($"Git push {name} branch failed {e.Message}"));
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to push {name} branch {workingFolder}, {e.Message}");
+			}
+		}
+
+
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
 			string gitRepositoryPath, string args)
 		{
