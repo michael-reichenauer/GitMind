@@ -1,10 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
+using GitMind.Utils;
 using GitMind.Utils.UI;
 
 
@@ -13,6 +15,7 @@ namespace GitMind.RepositoryViews
 	internal class CommitViewModel : ViewModel
 	{
 		private readonly ICommand refreshManuallyCommand;
+		private readonly ListBox listBox;
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 
@@ -24,10 +27,12 @@ namespace GitMind.RepositoryViews
 
 		public CommitViewModel
 			(ICommand refreshManuallyCommand,
-			ICommand toggleDetailsCommand)
+			ICommand toggleDetailsCommand,
+			ListBox listBox)
 		{
 			ToggleDetailsCommand = toggleDetailsCommand;
 			this.refreshManuallyCommand = refreshManuallyCommand;
+			this.listBox = listBox;
 		}
 
 
@@ -107,7 +112,7 @@ namespace GitMind.RepositoryViews
 
 		public Command HideBranchCommand => Command(HideBranch);
 
-		public Command ShowDiffCommand => Command(() => diffService.ShowDiffAsync(Id, Commit.WorkingFolder));
+		public Command ShowDiffCommand => Command(ShowDiff);
 
 		public Command SetCommitBranchCommand => AsyncCommand(SetBranch);
 
@@ -166,6 +171,52 @@ namespace GitMind.RepositoryViews
 			else
 			{
 				Application.Current.MainWindow.Focus();
+			}
+		}
+
+		private void ShowDiff()
+		{
+			if (listBox.SelectedItems.Count < 2)
+			{
+				diffService.ShowDiffAsync(Id, Commit.WorkingFolder).RunInBackground();
+			}
+			else
+			{
+				CommitViewModel topCommit = listBox.SelectedItems[0] as CommitViewModel;
+				int bottomIndex = listBox.SelectedItems.Count - 1;
+				CommitViewModel bottomCommit = listBox.SelectedItems[bottomIndex] as CommitViewModel;
+
+				if (topCommit != null && bottomCommit != null)
+				{
+					// Selection was made with ctrl-click. Lets take top and bottom commits as range
+					// even if there are more commits in the middle
+					string id1 = topCommit.Commit.Id;
+					string id2 = bottomCommit.Commit.HasFirstParent
+						? bottomCommit.Commit.FirstParent.Id
+						: bottomCommit.Commit.Id;
+
+					diffService.ShowDiffRangeAsync(id1, id2, Commit.WorkingFolder).RunInBackground();
+				}
+				else if (topCommit != null)
+				{
+					// Selection was probably done with shift-click. Fore some reason SelectedItems
+					// only contains first selected item, other items are null, but there are one null
+					// item for each selected item plus one extra.
+					// Find the range by iterating first parents of the top commit (selected items count)
+					Commit current = topCommit.Commit;
+					for (int i = 0; i < bottomIndex; i++)
+					{
+						if (!current.HasFirstParent)
+						{
+							break;
+						}
+						current = current.FirstParent;
+					}
+
+					string id1 = topCommit.Commit.Id;
+					string id2 = current.Id;
+					diffService.ShowDiffRangeAsync(id1, id2, Commit.WorkingFolder).RunInBackground(); ;
+				}
 			}
 		}
 	}

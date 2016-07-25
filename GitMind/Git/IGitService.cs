@@ -22,6 +22,7 @@ namespace GitMind.Git
 		Task<R<GitStatus>> GetStatusAsync(string workingFolder);
 
 		Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId);
+		Task<R<CommitDiff>> GetCommitDiffRangeAsync(string workingFolder, string id1, string id2);
 
 		Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string name);
 
@@ -36,5 +37,6 @@ namespace GitMind.Git
 		Task PullCurrentBranchAsync(string workingFolder);
 		Task PushCurrentBranchAsync(string workingFolder);
 		Task PushBranchAsync(string workingFolder, string name);
+		
 	}
 }

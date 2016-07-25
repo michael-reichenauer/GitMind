@@ -273,7 +273,7 @@ namespace GitMind.RepositoryViews
 			UpdateMerges(branches, repositoryViewModel);
 
 			repositoryViewModel.SpecifiedBranches = specifiedBranches;
-			
+
 			t.Log("Updated view model");
 		}
 
@@ -357,7 +357,9 @@ namespace GitMind.RepositoryViews
 			var commitsById = repositoryViewModel.CommitsById;
 
 			SetNumberOfItems(commits, sourceCommits.Count, i => new CommitViewModel(
-				refreshManuallyCommand, repositoryViewModel.ToggleDetailsCommand));
+				refreshManuallyCommand,
+				repositoryViewModel.ToggleDetailsCommand,
+				repositoryViewModel.ListBox));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
@@ -369,7 +371,7 @@ namespace GitMind.RepositoryViews
 				commitsById[commit.Id] = commitViewModel;
 
 				commitViewModel.Commit = commit;
-				commitViewModel.RowIndex = index++;		
+				commitViewModel.RowIndex = index++;
 
 				commitViewModel.HideBranch = () => HideBranch(repositoryViewModel, commit.Branch);
 				commitViewModel.BranchColumn = IndexOf(repositoryViewModel, commit.Branch);
@@ -386,7 +388,7 @@ namespace GitMind.RepositoryViews
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.ToolTip = GetCommitToolTip(commit);
-				commitViewModel.SetNormal(GetSubjectBrush(commit));			
+				commitViewModel.SetNormal(GetSubjectBrush(commit));
 
 				commitViewModel.NotifyAll();
 			}
@@ -495,9 +497,9 @@ namespace GitMind.RepositoryViews
 
 			while (true)
 			{
-				if (branches.Any(current => 
+				if (branches.Any(current =>
 					current.Id != branch.Id
-					&& column == current.BranchColumn 
+					&& column == current.BranchColumn
 					&& IsOverlapping(
 						current.LatestRowIndex,
 						current.FirstRowIndex,

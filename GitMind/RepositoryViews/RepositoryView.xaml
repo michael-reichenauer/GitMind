@@ -28,6 +28,7 @@
 				IsTextSearchEnabled="False"
 				Padding="4"		
 				Style="{DynamicResource ListBoxScrollbarStyle}" 
+				SelectionMode="Extended"
 				SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" 
 				SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 

@@ -180,8 +180,6 @@ namespace GitMind.Git.Private
 		}
 
 
-
-
 		public Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string name)
 		{
 			return Task.Run(async () =>
@@ -215,6 +213,28 @@ namespace GitMind.Git.Private
 						string patch = gitRepository.Diff.GetPatch(commitId);
 
 						return R.From(await gitDiffParser.ParseAsync(commitId, patch));
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to get diff, {e.Message}");
+					return Error.From(e);
+				}
+			});
+		}
+
+
+		public Task<R<CommitDiff>> GetCommitDiffRangeAsync(string workingFolder, string id1, string id2)
+		{
+			return Task.Run(async () =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						string patch = gitRepository.Diff.GetPatchRange(id1, id2);
+
+						return R.From(await gitDiffParser.ParseAsync(null, patch));
 					}
 				}
 				catch (Exception e)
