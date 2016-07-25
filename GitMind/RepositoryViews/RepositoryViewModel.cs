@@ -133,9 +133,9 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
-		public string PullCurrentBranchText => $"Pull current branch {CurrentBranchName}";
+		public string PullCurrentBranchText => $"Pull current branch '{CurrentBranchName}'";
 
-		public string PushCurrentBranchText => $"Push current branch {CurrentBranchName}";
+		public string PushCurrentBranchText => $"Push current branch '{CurrentBranchName}'";
 
 
 		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
