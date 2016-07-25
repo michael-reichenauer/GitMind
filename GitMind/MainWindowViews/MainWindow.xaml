@@ -95,6 +95,7 @@
 							<ContextMenu Name="RemoteAheadContextMenu">
 
 								<MenuItem
+									IsEnabled="False"
 									Header="Try update all branches" 
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
@@ -106,7 +107,8 @@
 								
 								<Separator Background="{StaticResource BorderBrush}"/>
 								
-								<MenuItem 
+								<MenuItem
+									IsEnabled="False"
 									Header="{Binding RepositoryViewModel.PullCurrentBranchText}" 
 									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
 									<MenuItem.Icon>
