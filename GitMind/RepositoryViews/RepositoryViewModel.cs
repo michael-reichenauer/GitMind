@@ -578,7 +578,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (rowIndex < 0 || rowIndex >= Commits.Count || column < 0 || column >= Branches.Count)
 			{
-				// Click is not within supported area
+				// Click is not within supported area.
 				return false;
 			}
 
