@@ -645,7 +645,7 @@ namespace GitMind.RepositoryViews
 				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
-				//IEnumerable<Branch> updatableBranches = Repository.Branches
+				// IEnumerable<Branch> updatableBranches = Repository.Branches
 				//	.Where(b =>
 				//	b != currentBranch
 				//	&& b != uncommittedBranch
