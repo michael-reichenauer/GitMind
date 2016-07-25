@@ -333,7 +333,9 @@ namespace GitMind.Git.Private
 			{
 				Log.Debug("Update current branch using cmd...");
 
-				string args = "pull --ff-only --rebase=false";
+				await FetchAsync(workingFolder);
+
+				string args = "merge --ff-only";
 
 				R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
@@ -356,7 +358,9 @@ namespace GitMind.Git.Private
 			{
 				Log.Debug($"Pull current branch using cmd... {workingFolder}");
 
-				string args = "pull";
+				await FetchAsync(workingFolder);
+
+				string args = "merge";
 
 				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
