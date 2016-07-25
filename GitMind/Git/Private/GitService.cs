@@ -11,6 +11,8 @@ namespace GitMind.Git.Private
 	internal class GitService : IGitService
 	{
 		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(10);
+		private static readonly TimeSpan UpdateTimeout = TimeSpan.FromSeconds(15);
+		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(15);
 
 		private static readonly string LegacyGitPath = @"C:\Program Files (x86)\Git\bin\git.exe";
 		private static readonly string GitPath = @"C:\Program Files\Git\bin\git.exe";
@@ -311,7 +313,7 @@ namespace GitMind.Git.Private
 				string args = $"fetch origin {branchName}:{branchName}";
 
 				R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args)
-					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
+					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
 
 				fetchResult.OnValue(_ => Log.Debug("updated branch using cmd fetch"));
 
@@ -334,7 +336,7 @@ namespace GitMind.Git.Private
 				string args = "pull --ff-only --rebase=false";
 
 				R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args)
-					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
+					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
 
 				fetchResult.OnValue(_ => Log.Debug("updated current branch using cmd"));
 
@@ -357,7 +359,7 @@ namespace GitMind.Git.Private
 				string args = "pull";
 
 				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
-					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
+					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
 
 				pullResult.OnValue(_ => Log.Debug("Pulled current branch using cmd"));
 
@@ -367,6 +369,29 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to pull current branch {workingFolder}, {e.Message}");
+			}
+		}
+
+
+		public async Task PushCurrentBranchAsync(string workingFolder)
+		{
+			try
+			{
+				Log.Debug($"Push current branch using cmd... {workingFolder}");
+
+				string args = "push";
+
+				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+
+				pullResult.OnValue(_ => Log.Debug("Pushed current branch using cmd"));
+
+				// Ignoring fetch errors for now
+				pullResult.OnError(e => Log.Warn($"Git push current branch failed {e.Message}"));
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to push current branch {workingFolder}, {e.Message}");
 			}
 		}
 

@@ -719,9 +719,15 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private void PushCurrentBranch()
+		private async void PushCurrentBranch()
 		{
-		
+			using (busyIndicator.Progress)
+			{
+				string workingFolder = Repository.MRepository.WorkingFolder;
+				await gitService.PushCurrentBranchAsync(workingFolder);
+
+				await RefreshAfterCommandAsync();
+			}
 		}
 
 
