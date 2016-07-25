@@ -697,11 +697,10 @@ namespace GitMind.RepositoryViews
 
 		private bool PullCurrentBranchCanExecute()
 		{
-			return false;
-			//Branch uncommittedBranch = UnCommited?.Branch;
+			Branch uncommittedBranch = UnCommited?.Branch;
 
-			//return uncommittedBranch != Repository.CurrentBranch
-			//	&& Repository.CurrentBranch.RemoteAheadCount > 0;
+			return uncommittedBranch != Repository.CurrentBranch
+				&& Repository.CurrentBranch.RemoteAheadCount > 0;
 		}
 
 
