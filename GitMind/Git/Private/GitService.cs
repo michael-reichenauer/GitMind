@@ -337,13 +337,13 @@ namespace GitMind.Git.Private
 
 				string args = "merge --ff-only";
 
-				R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args)
+				R<IReadOnlyList<string>> mergeResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
 
-				fetchResult.OnValue(_ => Log.Debug("updated current branch using cmd"));
+				mergeResult.OnValue(_ => Log.Debug("updated current branch using cmd"));
 
 				// Ignoring fetch errors for now
-				fetchResult.OnError(e => Log.Warn($"Git update current branch failed {e.Message}"));
+				mergeResult.OnError(e => Log.Warn($"Git update current branch failed {e.Message}"));
 			}
 			catch (Exception e)
 			{
@@ -362,13 +362,13 @@ namespace GitMind.Git.Private
 
 				string args = "merge";
 
-				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+				R<IReadOnlyList<string>> mergeResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
 
-				pullResult.OnValue(_ => Log.Debug("Pulled current branch using cmd"));
+				mergeResult.OnValue(_ => Log.Debug("Pulled current branch using cmd"));
 
 				// Ignoring fetch errors for now
-				pullResult.OnError(e => Log.Warn($"Git pull current branch failed {e.Message}"));
+				mergeResult.OnError(e => Log.Warn($"Git pull current branch failed {e.Message}"));
 			}
 			catch (Exception e)
 			{
