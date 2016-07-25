@@ -335,7 +335,7 @@ namespace GitMind.RepositoryViews
 			{
 				if (commit.Commit.Branch.Id != branch.Branch.Id)
 				{
-					commit.SetDim();					
+					commit.SetDim();
 				}
 			}
 		}
@@ -652,7 +652,7 @@ namespace GitMind.RepositoryViews
 				//	&& b.RemoteAheadCount > 0
 				//	&& b.LocalAheadCount == 0).ToList();
 
-				
+
 				//foreach (Branch branch in updatableBranches)
 				//{
 				//	Log.Debug($"Updating branch {branch.Name}");
@@ -733,7 +733,7 @@ namespace GitMind.RepositoryViews
 		private bool TryPushAllBranchesCanExecute()
 		{
 			return false;
-			//Branch uncommittedBranch = UnCommited?.Branch;
+			// Branch uncommittedBranch = UnCommited?.Branch;
 
 			//return Repository.Branches.Any(
 			//	b => b != uncommittedBranch
@@ -786,7 +786,7 @@ namespace GitMind.RepositoryViews
 			}
 
 			if (!isHandled && (absx < 10))
-			{				
+			{
 			}
 		}
 	}
