@@ -96,6 +96,7 @@
 
 							<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
 							<EventSetter Event="MouseDoubleClick" Handler="MouseDobleClick" />
+							<EventSetter Event="MouseUp" Handler="EventMouseUp" />
 							<EventSetter Event="MouseEnter" Handler="MouseEntering" />
 							<EventSetter Event="MouseLeave" Handler="MouseLeaving" />	
 

@@ -429,7 +429,7 @@ namespace GitMind.RepositoryViews
 				branch.Rect = new Rect(
 					(double)Converter.ToX(branch.BranchColumn) + 3,
 					(double)Converter.ToY(branch.LatestRowIndex) + Converter.HalfRow,
-					8,
+					10,
 					branch.Height);
 
 				branch.Line = $"M 4,0 L 4,{branch.Height}";

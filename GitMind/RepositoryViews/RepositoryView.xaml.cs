@@ -85,5 +85,19 @@ namespace GitMind.RepositoryViews
 				}
 			}
 		}
+
+
+		private void EventMouseUp(object sender, MouseButtonEventArgs e)
+		{
+			ListBoxItem item = sender as ListBoxItem;
+			if (item != null)
+			{
+				BranchViewModel branch = item.Content as BranchViewModel;
+				if (branch != null)
+				{
+					
+				}
+			}
+		}
 	}
 }
