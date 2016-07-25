@@ -645,20 +645,20 @@ namespace GitMind.RepositoryViews
 				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
-				// IEnumerable<Branch> updatableBranches = Repository.Branches
-				//	.Where(b =>
-				//	b != currentBranch
-				//	&& b != uncommittedBranch
-				//	&& b.RemoteAheadCount > 0
-				//	&& b.LocalAheadCount == 0).ToList();
+				IEnumerable<Branch> updatableBranches = Repository.Branches
+				 .Where(b =>
+				 b != currentBranch
+				 && b != uncommittedBranch
+				 && b.RemoteAheadCount > 0
+				 && b.LocalAheadCount == 0).ToList();
 
 
-				//foreach (Branch branch in updatableBranches)
-				//{
-				//	Log.Debug($"Updating branch {branch.Name}");
+				foreach (Branch branch in updatableBranches)
+				{
+					Log.Debug($"Updating branch {branch.Name}");
 
-				//	await gitService.UpdateBranchAsync(workingFolder, branch.Name);
-				//}
+					await gitService.UpdateBranchAsync(workingFolder, branch.Name);
+				}
 
 				if (uncommittedBranch != currentBranch
 					&& currentBranch.RemoteAheadCount > 0
