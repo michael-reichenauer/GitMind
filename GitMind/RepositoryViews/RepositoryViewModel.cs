@@ -141,9 +141,19 @@ namespace GitMind.RepositoryViews
 		public ICommand TryUpdateAllBranchesCommand => Command(
 			TryUpdateAllBranches, TryUpdateAllBranchesCanExecute);
 
-
 		public ICommand PullCurrentBranchCommand => Command(
 			PullCurrentBranch, PullCurrentBranchCanExecute);
+
+
+		public ICommand TryPushAllBranchesCommand => Command(
+			TryPushAllBranches, TryPushAllBranchesCanExecute);
+
+		public ICommand PushCurrentBranchCommand => Command(
+			PushCurrentBranch, PushCurrentBranchCanExecute);
+
+
+
+
 
 		public ICommand ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 
@@ -687,6 +697,39 @@ namespace GitMind.RepositoryViews
 
 			return uncommittedBranch != Repository.CurrentBranch
 				&& Repository.CurrentBranch.RemoteAheadCount > 0;
+		}
+
+
+		private void TryPushAllBranches()
+		{
+			
+		}
+
+
+		private bool TryPushAllBranchesCanExecute()
+		{
+			Branch uncommittedBranch = UnCommited?.Branch;
+
+			return Repository.Branches.Any(
+				b => b != uncommittedBranch
+				&& b.LocalAheadCount > 0
+				&& b.RemoteAheadCount == 0);
+		}
+
+
+		private void PushCurrentBranch()
+		{
+		
+		}
+
+
+		private bool PushCurrentBranchCanExecute()
+		{
+			Branch uncommittedBranch = UnCommited?.Branch;
+
+			return uncommittedBranch != Repository.CurrentBranch
+				&& Repository.CurrentBranch.LocalAheadCount > 0
+				&& Repository.CurrentBranch.RemoteAheadCount == 0;
 		}
 
 
