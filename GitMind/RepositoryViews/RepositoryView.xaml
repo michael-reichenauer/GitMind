@@ -291,7 +291,7 @@
 															</ContextMenu>
 														</Grid.ContextMenu>
 
-														<!-- Current commit indicator (and margin when not current)-->
+														<!-- Current commit indicator (and margin when not current) -->
 														<Ellipse
 															Grid.Column="0"
 															Margin="0,1,3,0"
