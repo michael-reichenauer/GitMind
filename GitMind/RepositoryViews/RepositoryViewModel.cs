@@ -663,6 +663,7 @@ namespace GitMind.RepositoryViews
 					&& currentBranch.RemoteAheadCount > 0
 					&& currentBranch.LocalAheadCount == 0)
 				{
+					Log.Debug($"Updating current branch {currentBranch.Name}");
 					await gitService.UpdateCurrentBranchAsync(workingFolder);
 				}
 
