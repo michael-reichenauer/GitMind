@@ -402,7 +402,7 @@ namespace GitMind.Git.Private
 			{
 				Log.Debug($"Push {name} branch using cmd... {workingFolder}");
 
-				string args = $"push origin {name}";
+				string args = $"push origin {name}:{name}";
 
 				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
