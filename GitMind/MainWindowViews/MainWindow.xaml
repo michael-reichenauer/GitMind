@@ -33,10 +33,10 @@
 		<KeyBinding Key="Enter" Command="{Binding ShowUncommittedDiffCommand}" />
 		<KeyBinding  Modifiers="Ctrl" Key="Enter" Command="{Binding CommitCommand}" />
 		<KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding ShowSelectedDiffCommand}" />
-		<KeyBinding Modifiers="Ctrl" Key="Up" Command="{Binding PushCurrentBranchCommand}" />
-		<KeyBinding Modifiers="Ctrl+Shift" Key="Up" Command="{Binding TryPushAllBranchesCommand}" />
-		<KeyBinding Modifiers="Ctrl" Key="Down" Command="{Binding PullCurrentBranchCommand}" />
-		<KeyBinding Modifiers="Ctrl+Shift" Key="Up" Command="{Binding TryUpdateAllBranchesCommand}" />
+		<KeyBinding Modifiers="Ctrl" Key="P" Command="{Binding PushCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Ctrl+Shift" Key="P" Command="{Binding TryPushAllBranchesCommand}" />
+		<KeyBinding Modifiers="Ctrl" Key="U" Command="{Binding PullCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Ctrl+Shift" Key="U" Command="{Binding TryUpdateAllBranchesCommand}" />
 	</Window.InputBindings>
 
 
@@ -102,7 +102,8 @@
 							<ContextMenu Name="RemoteAheadContextMenu">
 
 								<MenuItem
-									Header="Update all branches" 
+									Header="Update all branches"
+									InputGestureText="Crtl+Shift-U"
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Border>
@@ -114,7 +115,8 @@
 								<Separator Background="{StaticResource BorderBrush}"/>
 
 								<MenuItem 
-									Header="{Binding RepositoryViewModel.PullCurrentBranchText}" 
+									Header="{Binding RepositoryViewModel.PullCurrentBranchText}"
+									InputGestureText="Crtl-U"
 									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
@@ -139,11 +141,12 @@
 							<ContextMenu Name="LocalAheadContextMenu">
 
 								<MenuItem
-									Header="Push all branches" 
+									Header="Push all branches"
+									InputGestureText="Crtl+Shift-P"
 									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5CE;"/>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE25A;&#xE25A;"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -151,11 +154,12 @@
 								<Separator Background="{StaticResource BorderBrush}"/>
 
 								<MenuItem 
-									Header="{Binding RepositoryViewModel.PushCurrentBranchText}" 
+									Header="{Binding RepositoryViewModel.PushCurrentBranchText}"
+									InputGestureText="Crtl-P"
 									Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE255;"/>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE25A;"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
