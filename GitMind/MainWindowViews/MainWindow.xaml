@@ -161,14 +161,15 @@
 
 					<!-- Commit status button -->
 					<Button 
+						Content="&#xE430;"
 						Style="{StaticResource IconButtonStyle}"
 						Visibility="{Binding StatusText, Converter={StaticResource VC}}"				
-						Foreground="{StaticResource UncomittedBrush}"
-						Content="&#xE430;"
-						Command="{Binding ShowDiffCommand}"
+						Foreground="{StaticResource UncomittedBrush}"					
+						Click="Uncommitted_OnClick"
 						ToolTip="{Binding StatusText}">
 						<Button.ContextMenu>
-							<ContextMenu>
+							<ContextMenu Name="UncommittedContextMenu">
+								
 								<MenuItem 
 									Header="Show uncommitted Diff ..." 
 									InputGestureText="Enter"
@@ -179,7 +180,21 @@
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
+								
+								<Separator Background="{StaticResource BorderBrush}"/>
+								
+								<MenuItem 
+									Header="Commit ..." 
+									InputGestureText="Ctrl-Enter"
+									Command="{Binding CommitCommand}">
+									<MenuItem.Icon>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DD;" FontSize="14"/>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
 							</ContextMenu>
+							
 						</Button.ContextMenu>
 					</Button>
 
