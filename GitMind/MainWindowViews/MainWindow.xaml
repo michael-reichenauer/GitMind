@@ -33,6 +33,10 @@
 		<KeyBinding Key="Enter" Command="{Binding ShowUncommittedDiffCommand}" />
 		<KeyBinding  Modifiers="Ctrl" Key="Enter" Command="{Binding CommitCommand}" />
 		<KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding ShowSelectedDiffCommand}" />
+		<KeyBinding Modifiers="Ctrl" Key="Up" Command="{Binding PushCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Ctrl+Shift" Key="Up" Command="{Binding TryPushAllBranchesCommand}" />
+		<KeyBinding Modifiers="Ctrl" Key="Down" Command="{Binding PullCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Ctrl+Shift" Key="Up" Command="{Binding TryUpdateAllBranchesCommand}" />
 	</Window.InputBindings>
 
 
