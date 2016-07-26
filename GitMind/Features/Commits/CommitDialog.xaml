@@ -1,22 +1,21 @@
 ﻿<Window 
-	x:Class="GitMind.RepositoryViews.SetBranchPromptDialog"
+	x:Class="GitMind.Features.Commits.CommitDialog"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:repositoryViews="clr-namespace:GitMind.RepositoryViews"
+	xmlns:local="clr-namespace:GitMind.Features.Commits"
 	mc:Ignorable="d"
-	Title="Set Branch"
-	Width="350" Height="280" ResizeMode="NoResize"
+	Title="Commit" 
+	Height="300" Width="300" Background="Black"
 	WindowStyle="None" AllowsTransparency="True"
-	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
-	Background="Black"
+	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"		
 	WindowStartupLocation="CenterOwner">
 
 	<!-- Enable "normal" windows behavior with drag and resize,
 	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
 	<Window.Resources>
-		<Style TargetType="{x:Type repositoryViews:SetBranchPromptDialog}">
+		<Style TargetType="{x:Type local:CommitDialog}">
 			<Setter Property="WindowChrome.WindowChrome">
 				<Setter.Value>
 					<WindowChrome />
@@ -24,8 +23,8 @@
 			</Setter>
 		</Style>
 	</Window.Resources>
-
-
+	
+	
 	<Grid Background="Black">
 		<Grid.RowDefinitions>
 			<!-- Title and tool bar -->
@@ -37,11 +36,11 @@
 		<!-- Title and tool bar -->
 		<Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
 			<Grid>
-				<TextBlock Text="Set Branch" 
+				<TextBlock Text="Commit" 
 					HorizontalAlignment="Left"					
 					Foreground="{StaticResource TextBrush}"
 					Margin="5"/>
-		
+
 				<!-- Close Button -->
 				<Button HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True"
 						Style="{StaticResource IconButtonStyle}" 
@@ -56,7 +55,7 @@
 			<Grid.RowDefinitions>
 				<!-- Margin -->
 				<RowDefinition Height="15" />
-				<!-- Dialog contents with options and help text -->
+				<!-- Dialog contents -->
 				<RowDefinition Height="Auto" />
 				<!-- Empty space -->
 				<RowDefinition Height="*" />
@@ -66,56 +65,15 @@
 
 			<!-- Dialog contents -->
 			<StackPanel Grid.Row="1" Margin="10,0">
-				<RadioButton GroupName="Options"
-					x:Name="OptionAuto" 
-					Content="Automatically"				
-					IsChecked="True"
-					Margin="4"
-					Style="{StaticResource RadioButtonStyle}"/>
 
-				<RadioButton GroupName="Options"
-					x:Name="OptionManual" 
-					HorizontalAlignment="Stretch" 
-					HorizontalContentAlignment="Stretch"
-					Margin="4"
-					Style="{StaticResource RadioButtonStyle}">
-					<DockPanel LastChildFill="True">
-						<TextBlock						
-							Text="Manually"
-							Margin="0,4"
-							Foreground="{StaticResource TextBrush}"/>
-
-						<ComboBox x:Name="BranchName"
-							IsEditable="True" 
-							Margin="40,0,0,0"						
-							Width="205"
-							PreviewMouseDown="BranchName_OnPreviewMouseDown">
-						</ComboBox>
-
-					</DockPanel>
-				</RadioButton>
-				
 				<TextBlock
-					Text="You can let GitMind determine the branch for this commit automatically (recommended), or specify a branch manually. Read more in:"
+					Text="Commit dialog:"
 					Foreground="{StaticResource TextBrush}"
 					TextWrapping="Wrap"
 					Margin="4,25,4,2"/>
-				<TextBlock
-					Margin="4,0">
-					<Hyperlink TextDecorations="None" Click="Hyperlink_OnClick">
-						<TextBlock 	
-							HorizontalAlignment="Left"
-							VerticalAlignment="Center"
-							Foreground="LightSkyBlue"
-							TextDecorations="Underline"
-							Text="Set Branch">
-						</TextBlock>
-					</Hyperlink>
-				</TextBlock>
-
 			</StackPanel>
-			
-			
+
+
 
 			<!-- OK and Cancel buttons -->
 			<StackPanel Grid.Row="3" Orientation="Horizontal" 
@@ -133,7 +91,7 @@
 						Foreground="{StaticResource TextBrush}"
 						Click="OKButton_Click" />
 				</Border>
-				
+
 				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
 					Margin="5">
 					<Button Content="Cancel" 
@@ -149,5 +107,6 @@
 			</StackPanel>
 		</Grid>
 	</Grid>
+	
 	
 </Window>
