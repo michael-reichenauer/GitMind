@@ -288,7 +288,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private Task RefreshAfterCommandAsync()
+		public Task RefreshAfterCommandAsync()
 		{
 			return refreshThrottler.Run(async () =>
 			{

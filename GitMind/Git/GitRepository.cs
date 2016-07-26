@@ -55,7 +55,6 @@ namespace GitMind.Git
 
 		public void Add(IReadOnlyList<string> paths)
 		{
-			repository.Index.Clear();
 			paths.ForEach(path => repository.Index.Add(path));
 		}
 	}

@@ -339,7 +339,7 @@ namespace GitMind.MainWindowViews
 
 			Func<string, IReadOnlyList<string>, Task<bool>> commitAction = async (message, list) =>
 			{
-				Log.Debug("Commiting");
+				Log.Debug("Committing");
 
 				await gitService.CommitAsync(workingFolder, message, list);
 				return true;
@@ -350,6 +350,7 @@ namespace GitMind.MainWindowViews
 			if (dialog.ShowDialog() == true)
 			{
 				Application.Current.MainWindow.Focus();
+				await RepositoryViewModel.RefreshAfterCommandAsync();
 			}
 			else
 			{
