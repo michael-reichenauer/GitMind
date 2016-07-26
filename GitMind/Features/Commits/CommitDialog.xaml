@@ -1,5 +1,6 @@
 ﻿<Window 
 	x:Class="GitMind.Features.Commits.CommitDialog"
+	Name="CommitDialogWindow"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -25,7 +26,7 @@
 	</Window.Resources>
 
 	<Window.InputBindings>
-		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
+		<KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding ElementName=CommitDialogWindow}" />
 	</Window.InputBindings>
 
 
@@ -50,7 +51,8 @@
 						Style="{StaticResource IconButtonStyle}" 
 						Content="&#xE14C;" 
 						FontSize="16"
-						Click="CancelButton_Click"/>
+						Command="{Binding CancelCommand}"
+						CommandParameter="{Binding ElementName=CommitDialogWindow}"/>
 			</Grid>
 		</Border>
 
@@ -93,7 +95,8 @@
 						Padding="3"
 						FontSize="12"
 						Foreground="{StaticResource TextBrush}"
-						Click="OKButton_Click" />
+						Command="{Binding OkCommand}"
+						CommandParameter="{Binding ElementName=CommitDialogWindow}" />
 				</Border>
 
 				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
@@ -105,7 +108,8 @@
 						Padding="3"
 						FontSize="12"
 						Foreground="{StaticResource TextBrush}"
-						Click="CancelButton_Click" />
+						Command="{Binding CancelCommand}"
+						CommandParameter="{Binding ElementName=CommitDialogWindow}" />
 				</Border>
 
 			</StackPanel>
