@@ -380,7 +380,7 @@ namespace GitMind.Git.Private
 
 				await FetchAsync(workingFolder);
 
-				string args = "merge";
+				string args = "merge --ff";
 
 				R<IReadOnlyList<string>> mergeResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
