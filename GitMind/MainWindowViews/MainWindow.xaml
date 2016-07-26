@@ -146,7 +146,7 @@
 									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE25A;&#xE25A;"/>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5CE;"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -198,7 +198,7 @@
 									Command="{Binding CommitCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DD;" FontSize="14"/>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE430;" FontSize="14"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
