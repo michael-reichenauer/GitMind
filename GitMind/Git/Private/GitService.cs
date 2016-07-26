@@ -442,7 +442,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task CommitAsync(string workingFolder, string message)
+		public Task CommitAsync(string workingFolder, string message, IReadOnlyList<string> paths)
 		{
 			return Task.Run(() =>
 			{
@@ -450,13 +450,14 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
-						return R.From(gitRepository.Status);
+						gitRepository.Add(paths);
+
+						gitRepository.Commit(message);
 					}
 				}
 				catch (Exception e)
 				{
-					Log.Warn($"Failed to get current branch name, {e.Message}");
-					return Error.From(e);
+					Log.Warn($"Failed to commit, {e.Message}");
 				}
 			});
 		}

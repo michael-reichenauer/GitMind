@@ -51,5 +51,12 @@ namespace GitMind.Git
 
 			repository.Commit(message, author, committer, commitOptions);
 		}
+
+
+		public void Add(IReadOnlyList<string> paths)
+		{
+			repository.Index.Clear();
+			paths.ForEach(path => repository.Index.Add(path));
+		}
 	}
 }

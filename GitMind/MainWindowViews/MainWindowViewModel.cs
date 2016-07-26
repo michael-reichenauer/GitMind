@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -326,18 +327,25 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private void CommitChanges()
+		private async void CommitChanges()
 		{
 			string branchName = RepositoryViewModel.UnCommited.Branch.Name;
 			string workingFolder = RepositoryViewModel.WorkingFolder;
 
-			Func<string, Task<bool>> commitAction = async message =>
+			IEnumerable<CommitFile> commitFiles = await RepositoryViewModel.UnCommited.FilesTask;
+
+			IReadOnlyList<string> files = commitFiles.Select(f => f.Name).ToList();
+
+
+			Func<string, IReadOnlyList<string>, Task<bool>> commitAction = async (message, list) =>
 			{
-				await gitService.CommitAsync(workingFolder, message);
+				Log.Debug("Commiting");
+
+				await gitService.CommitAsync(workingFolder, message, list);
 				return true;
 			};
 
-			CommitDialog dialog = new CommitDialog(branchName, commitAction);
+			CommitDialog dialog = new CommitDialog(branchName, commitAction, files);
 		
 			if (dialog.ShowDialog() == true)
 			{
