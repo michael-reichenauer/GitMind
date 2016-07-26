@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Threading.Tasks;
+using System.Windows;
 
 
 namespace GitMind.Features.Commits
@@ -8,10 +10,11 @@ namespace GitMind.Features.Commits
 	/// </summary>
 	public partial class CommitDialog : Window
 	{
-		public CommitDialog()
+		public CommitDialog(string branchName, Func<string, Task<bool>> commitAction)
 		{
 			InitializeComponent();
-			DataContext = new CommitDialogViewModel();
+			DataContext = new CommitDialogViewModel(branchName, commitAction);
+			MessageText.Focus();
 		}
 	}
 }

@@ -37,6 +37,7 @@ namespace GitMind.Git
 		Task PullCurrentBranchAsync(string workingFolder);
 		Task PushCurrentBranchAsync(string workingFolder);
 		Task PushBranchAsync(string workingFolder, string name);
-		
+
+		Task CommitAsync(string workingFolder, string message);
 	}
 }

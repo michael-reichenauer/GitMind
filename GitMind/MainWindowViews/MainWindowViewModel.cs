@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Features.Commits;
+using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.Installation;
 using GitMind.Installation.Private;
@@ -23,6 +25,8 @@ namespace GitMind.MainWindowViews
 	internal class MainWindowViewModel : ViewModel
 	{
 		private readonly IDiffService diffService = new DiffService();
+		private readonly IGitService gitService = new GitService();
+
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly Window owner;
 		private bool isLoaded = false;
@@ -324,7 +328,16 @@ namespace GitMind.MainWindowViews
 
 		private void CommitChanges()
 		{
-			CommitDialog dialog = new CommitDialog();
+			string branchName = RepositoryViewModel.UnCommited.Branch.Name;
+			string workingFolder = RepositoryViewModel.WorkingFolder;
+
+			Func<string, Task<bool>> commitAction = async message =>
+			{
+				await gitService.CommitAsync(workingFolder, message);
+				return true;
+			};
+
+			CommitDialog dialog = new CommitDialog(branchName, commitAction);
 		
 			if (dialog.ShowDialog() == true)
 			{

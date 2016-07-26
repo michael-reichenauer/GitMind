@@ -92,7 +92,6 @@ namespace GitMind.Git.Private
 
 		public Task<R<GitStatus>> GetStatusAsync(string workingFolder)
 		{
-
 			return Task.Run(() =>
 			{
 				try
@@ -440,6 +439,26 @@ namespace GitMind.Git.Private
 			{
 				Log.Warn($"Failed to push {name} branch {workingFolder}, {e.Message}");
 			}
+		}
+
+
+		public Task CommitAsync(string workingFolder, string message)
+		{
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						return R.From(gitRepository.Status);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to get current branch name, {e.Message}");
+					return Error.From(e);
+				}
+			});
 		}
 
 

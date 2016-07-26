@@ -8,7 +8,7 @@
 	xmlns:local="clr-namespace:GitMind.Features.Commits"
 	mc:Ignorable="d"
 	Title="Commit" 
-	Height="300" Width="300" Background="Black"
+	Width="550" Height="300" Background="Black"
 	WindowStyle="None" AllowsTransparency="True"
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"		
 	WindowStartupLocation="CenterOwner">
@@ -43,7 +43,7 @@
 			<Grid>
 				<TextBlock Text="Commit" 
 					HorizontalAlignment="Left"					
-					Foreground="{StaticResource TextBrush}"
+					Foreground="{StaticResource TextLowBrush}"
 					Margin="5"/>
 
 				<!-- Close Button -->
@@ -59,8 +59,6 @@
 		<!-- Dialog contents -->
 		<Grid Grid.Row="1">
 			<Grid.RowDefinitions>
-				<!-- Margin -->
-				<RowDefinition Height="15" />
 				<!-- Dialog contents -->
 				<RowDefinition Height="Auto" />
 				<!-- Empty space -->
@@ -70,13 +68,24 @@
 			</Grid.RowDefinitions>
 
 			<!-- Dialog contents -->
-			<StackPanel Grid.Row="1" Margin="10,0">
+			<StackPanel Grid.Row="0" Margin="10,10">
 
-				<TextBlock
-					Text="Commit dialog:"
+				<TextBlock Text="{Binding BranchText}" Foreground="{StaticResource TextBrush}" Margin="0, 5"/>
+				
+				<TextBlock Text="Message:" Foreground="{StaticResource TextBrush}" Margin="0, 5"/>
+				
+				<TextBox Name="MessageText"
+					Text="{Binding Message}"
+					Height="100"
+					Margin="0"
+					Background="Transparent"
+					BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
 					Foreground="{StaticResource TextBrush}"
-					TextWrapping="Wrap"
-					Margin="4,25,4,2"/>
+					CaretBrush="{StaticResource TextBrush}"
+					VerticalScrollBarVisibility="Auto"
+					TextWrapping="Wrap" 
+					AcceptsReturn="True"/>
+				
 			</StackPanel>
 
 

@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using GitMind.Utils.UI;
 
@@ -7,10 +9,42 @@ namespace GitMind.Features.Commits
 {
 	internal class CommitDialogViewModel : ViewModel
 	{
-		public ICommand OkCommand { get; } = new Command<Window>(w => w.DialogResult = true);
+		private readonly string branchName;
+		private readonly Func<string, Task<bool>> commitAction;
 
-		public ICommand CancelCommand { get; } = new Command<Window>(w => w.DialogResult = false);
+		//private static readonly string TestMessage = 
+		//	"01234567890123456789012345678901234567890123456789012345678901234567890123456789]";
 
 
+		public CommitDialogViewModel()
+		{
+		}
+
+		public CommitDialogViewModel(string branchName, Func<string, Task<bool>> commitAction)
+		{
+			this.branchName = branchName;
+			this.commitAction = commitAction;
+		}
+
+
+		public ICommand OkCommand => Command<Window>(SetOK);
+
+		public ICommand CancelCommand => Command<Window>(w => w.DialogResult = false);
+
+		public string BranchText => $"Commit to branch: {branchName}";
+
+		public string Message
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+
+		private void SetOK(Window window)
+		{
+			commitAction(Message);
+
+			window.DialogResult = true;
+		}
 	}
 }
