@@ -339,10 +339,13 @@ namespace GitMind.MainWindowViews
 
 			Func<string, IReadOnlyList<string>, Task<bool>> commitAction = async (message, list) =>
 			{
-				Log.Debug("Committing");
+				using (Busy.Progress)
+				{
+					Log.Debug("Committing");
 
-				await gitService.CommitAsync(workingFolder, message, list);
-				return true;
+					await gitService.CommitAsync(workingFolder, message, list);
+					return true;
+				}
 			};
 
 			CommitDialog dialog = new CommitDialog(
