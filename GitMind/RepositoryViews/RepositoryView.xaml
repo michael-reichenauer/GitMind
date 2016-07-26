@@ -279,7 +279,7 @@
 																
 																<MenuItem 
 																	Header="Show Diff ..." 
-																	InputGestureText="Enter"
+																	InputGestureText="Ctrl-D"
 																	Command="{Binding ShowDiffCommand}" 
 																	CommandParameter="{Binding Id}">
 																	<MenuItem.Icon>
