@@ -345,7 +345,8 @@ namespace GitMind.MainWindowViews
 				return true;
 			};
 
-			CommitDialog dialog = new CommitDialog(branchName, commitAction, files);
+			CommitDialog dialog = new CommitDialog(
+				owner, branchName, commitAction, files, ShowUncommittedDiffCommand);
 		
 			if (dialog.ShowDialog() == true)
 			{

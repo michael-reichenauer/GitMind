@@ -118,6 +118,21 @@ namespace GitMind.Utils.UI
 			return (Command<T>)command;
 		}
 
+		protected Command<T> Command<T>(
+			Action<T> executeMethod, Func<T, bool> canExecuteMethod, [CallerMemberName] string memberName = "")
+		{
+			ICommand command;
+			if (!commands.TryGetValue(memberName, out command))
+			{
+
+				command = new Command<T>(executeMethod, canExecuteMethod);
+				commands[memberName] = command;
+			}
+
+			return (Command<T>)command;
+		}
+
+
 		protected Command Command(Action executeMethod, [CallerMemberName] string memberName = "")
 		{
 			ICommand command;

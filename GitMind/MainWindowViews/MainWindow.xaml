@@ -30,13 +30,13 @@
 		<KeyBinding Modifiers="Shift" Key="Escape" Command="{Binding ExitCommand}" />
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
-		<KeyBinding Key="Enter" Command="{Binding ShowUncommittedDiffCommand}" />
-		<KeyBinding  Modifiers="Ctrl" Key="Enter" Command="{Binding CommitCommand}" />
-		<KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding ShowSelectedDiffCommand}" />
-		<KeyBinding Modifiers="Ctrl" Key="P" Command="{Binding PushCurrentBranchCommand}" />
-		<KeyBinding Modifiers="Ctrl+Shift" Key="P" Command="{Binding TryPushAllBranchesCommand}" />
-		<KeyBinding Modifiers="Ctrl" Key="U" Command="{Binding PullCurrentBranchCommand}" />
-		<KeyBinding Modifiers="Ctrl+Shift" Key="U" Command="{Binding TryUpdateAllBranchesCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
+		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding CommitCommand}" />
+		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowSelectedDiffCommand}" />
+		<KeyBinding Modifiers="Control" Key="P" Command="{Binding PushCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="P" Command="{Binding TryPushAllBranchesCommand}" />
+		<KeyBinding Modifiers="Control" Key="U" Command="{Binding PullCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="U" Command="{Binding TryUpdateAllBranchesCommand}" />
 	</Window.InputBindings>
 
 
@@ -103,7 +103,7 @@
 
 								<MenuItem
 									Header="Update all branches"
-									InputGestureText="Crtl+Shift-U"
+									InputGestureText="Ctrl+Shift-U"
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Border>
@@ -116,7 +116,7 @@
 
 								<MenuItem 
 									Header="{Binding RepositoryViewModel.PullCurrentBranchText}"
-									InputGestureText="Crtl-U"
+									InputGestureText="Ctrl-U"
 									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
@@ -142,7 +142,7 @@
 
 								<MenuItem
 									Header="Push all branches"
-									InputGestureText="Crtl+Shift-P"
+									InputGestureText="Ctrl+Shift-P"
 									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Border>
@@ -155,7 +155,7 @@
 
 								<MenuItem 
 									Header="{Binding RepositoryViewModel.PushCurrentBranchText}"
-									InputGestureText="Crtl-P"
+									InputGestureText="Ctrl-P"
 									Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
@@ -181,7 +181,7 @@
 								
 								<MenuItem 
 									Header="Show uncommitted Diff ..." 
-									InputGestureText="Enter"
+									InputGestureText="Ctrl+Shift-D"
 									Command="{Binding ShowUncommittedDiffCommand}">
 									<MenuItem.Icon>
 										<Border>
@@ -198,7 +198,7 @@
 									Command="{Binding CommitCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE430;" FontSize="14"/>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DD;" FontSize="14"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>

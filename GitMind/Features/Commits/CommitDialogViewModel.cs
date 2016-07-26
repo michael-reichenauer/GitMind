@@ -20,13 +20,16 @@ namespace GitMind.Features.Commits
 		//	"01234567890123456789012345678901234567890123456789012345678901234567890123456789]";
 
 
-		public CommitDialogViewModel(string branchName, 
+		public CommitDialogViewModel(
+			string branchName, 
 			Func<string, IReadOnlyList<string>, Task<bool>> commitAction, 
-			IReadOnlyList<string> files)
+			IReadOnlyList<string> files,
+			Command showUncommittedDiffCommand)
 		{
 			this.branchName = branchName;
 			this.commitAction = commitAction;
 			this.files = files;
+			ShowUncommittedDiffCommand = showUncommittedDiffCommand;
 		}
 
 
@@ -34,17 +37,24 @@ namespace GitMind.Features.Commits
 
 		public ICommand CancelCommand => Command<Window>(w => w.DialogResult = false);
 
-		public string BranchText => $"Commit to branch: {branchName}";
+		public Command ShowUncommittedDiffCommand { get; }
+
+		public string BranchText => $"Commit on {branchName}";
 
 		public string Message
 		{
 			get { return Get(); }
-			set { Set(value); }
+			set { Set(value).Notify(nameof(OkCommand)); }
 		}
 
 
 		private void SetOK(Window window)
 		{
+			if (string.IsNullOrEmpty(Message))
+			{
+				return;
+			}
+
 			Log.Debug($"Commit:\n{Message}");
 			files.ForEach(f => Log.Debug($"  {f}"));
 

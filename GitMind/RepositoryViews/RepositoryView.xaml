@@ -33,7 +33,7 @@
 				SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 
 				<ListBox.InputBindings>
-					<KeyBinding Key="Space" Command="{Binding ToggleDetailsCommand}" />
+					<KeyBinding Key="Enter" Command="{Binding ToggleDetailsCommand}" />
 				</ListBox.InputBindings>
 
 				<ListBox.ItemsPanel>
@@ -268,7 +268,7 @@
 															<ContextMenu>
 																<MenuItem 
 																	Header="Toggle commit details" 
-																	InputGestureText="Space"
+																	InputGestureText="Enter"
 																	Command="{Binding ToggleDetailsCommand}">
 																	<MenuItem.Icon>
 																		<Border>

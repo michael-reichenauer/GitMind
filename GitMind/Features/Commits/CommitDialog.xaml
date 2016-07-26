@@ -27,6 +27,8 @@
 
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding ElementName=CommitDialogWindow}" />
+		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
 	</Window.InputBindings>
 
 
@@ -41,14 +43,31 @@
 		<!-- Title and tool bar -->
 		<Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
 			<Grid>
-				<TextBlock Text="Commit" 
-					HorizontalAlignment="Left"					
-					Foreground="{StaticResource TextLowBrush}"
-					Margin="5"/>
+				<StackPanel 
+					HorizontalAlignment="Left"	
+					Orientation="Horizontal">
 
+					<TextBlock Text="{Binding BranchText}" 							
+						Foreground="{StaticResource TextLowBrush}"
+						Margin="10, 5"/>
+					
+					<!-- diff button -->
+					<Button 
+						Content="&#xE915;"
+						KeyboardNavigation.IsTabStop="False"
+						HorizontalAlignment="Left"	
+						Style="{StaticResource IconButtonStyle}"			
+						Foreground="{StaticResource TextLowBrush}"					
+						Command="{Binding ShowUncommittedDiffCommand}"
+						ToolTip="Show diff of uncommitted changes ..." 
+						WindowChrome.IsHitTestVisibleInChrome="True"/>
+					
+				</StackPanel>
+				
 				<!-- Close Button -->
 				<Button HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True"
-						Style="{StaticResource IconButtonStyle}" 
+						Style="{StaticResource IconButtonStyle}"
+						KeyboardNavigation.IsTabStop="False"
 						Content="&#xE14C;" 
 						FontSize="16"
 						Command="{Binding CancelCommand}"
@@ -70,12 +89,11 @@
 			<!-- Dialog contents -->
 			<StackPanel Grid.Row="0" Margin="10,10">
 
-				<TextBlock Text="{Binding BranchText}" Foreground="{StaticResource TextBrush}" Margin="0, 5"/>
-				
 				<TextBlock Text="Message:" Foreground="{StaticResource TextBrush}" Margin="0, 5"/>
 				
 				<TextBox Name="MessageText"
-					Text="{Binding Message}"
+					Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}"
+					KeyboardNavigation.TabIndex="0"
 					Height="100"
 					Margin="0"
 					Background="Transparent"
@@ -89,7 +107,6 @@
 			</StackPanel>
 
 
-
 			<!-- OK and Cancel buttons -->
 			<StackPanel Grid.Row="3" Orientation="Horizontal" 
 				HorizontalAlignment="Center"
@@ -99,6 +116,7 @@
 					Margin="5">
 					<Button Content="OK" 
 						Style="{StaticResource BaseButtonStyle}"
+						KeyboardNavigation.TabIndex="1"
 						Width="60"
 						Margin="1"
 						Padding="3"
@@ -112,6 +130,7 @@
 					Margin="5">
 					<Button Content="Cancel" 
 						Style="{StaticResource BaseButtonStyle}"
+						KeyboardNavigation.TabIndex="2"
 						Width="60"
 						Margin="1"
 						Padding="3"
