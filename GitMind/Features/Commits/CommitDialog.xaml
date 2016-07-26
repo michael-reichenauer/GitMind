@@ -23,8 +23,12 @@
 			</Setter>
 		</Style>
 	</Window.Resources>
-	
-	
+
+	<Window.InputBindings>
+		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
+	</Window.InputBindings>
+
+
 	<Grid Background="Black">
 		<Grid.RowDefinitions>
 			<!-- Title and tool bar -->

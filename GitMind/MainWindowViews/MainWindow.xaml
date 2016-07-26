@@ -30,7 +30,8 @@
 		<KeyBinding Modifiers="Shift" Key="Escape" Command="{Binding ExitCommand}" />
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
-		<KeyBinding Key="Enter" Command="{Binding ShowDiffCommand}" />
+		<KeyBinding Key="Enter" Command="{Binding ShowUncommittedDiffCommand}" />
+		<KeyBinding  Modifiers="Ctrl" Key="Enter" Command="{Binding CommitCommand}" />
 		<KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding ShowSelectedDiffCommand}" />
 	</Window.InputBindings>
 
@@ -173,7 +174,7 @@
 								<MenuItem 
 									Header="Show uncommitted Diff ..." 
 									InputGestureText="Enter"
-									Command="{Binding ShowDiffCommand}">
+									Command="{Binding ShowUncommittedDiffCommand}">
 									<MenuItem.Icon>
 										<Border>
 											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>

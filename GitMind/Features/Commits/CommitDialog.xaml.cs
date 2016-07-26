@@ -35,5 +35,11 @@ namespace GitMind.Features.Commits
 		{
 			DialogResult = false;
 		}
+
+
+		private void Exscape_Clicked(object sender, EventArgs e)
+		{
+			DialogResult = false;
+		}
 	}
 }

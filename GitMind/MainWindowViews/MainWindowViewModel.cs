@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Features.Commits;
 using GitMind.GitModel;
 using GitMind.Installation;
 using GitMind.Installation.Private;
@@ -105,7 +106,9 @@ namespace GitMind.MainWindowViews
 
 		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
 
-		public Command ShowDiffCommand => Command(ShowDiff);
+		public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, IsUncommitted);
+
+		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
 
 		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
 
@@ -160,6 +163,12 @@ namespace GitMind.MainWindowViews
 						isLoaded = true;
 					}));
 			}
+		}
+
+
+		private bool IsUncommitted()
+		{
+			return RepositoryViewModel.UnCommited != null;
 		}
 
 
@@ -307,10 +316,26 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private async void ShowDiff()
+		private async void ShowUncommittedDiff()
 		{
 			await diffService.ShowDiffAsync(Commit.UncommittedId, WorkingFolder);
 		}
+
+
+		private void CommitChanges()
+		{
+			CommitDialog dialog = new CommitDialog();
+		
+			if (dialog.ShowDialog() == true)
+			{
+				Application.Current.MainWindow.Focus();
+			}
+			else
+			{
+				Application.Current.MainWindow.Focus();
+			}
+		}
+
 
 		private async void ShowSelectedDiff()
 		{
