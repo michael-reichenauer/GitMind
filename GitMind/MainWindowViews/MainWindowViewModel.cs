@@ -119,6 +119,8 @@ namespace GitMind.MainWindowViews
 
 		public Command CloseCommand => Command(CloseWindow);
 
+		public Command ExitCommand => Command(Exit);
+
 		public Command ToggleMaximizeCommand => Command(ToggleMaximize);
 
 		public Command EscapeCommand => Command(Escape);
@@ -206,11 +208,9 @@ namespace GitMind.MainWindowViews
 			}
 			else
 			{
-				CloseWindow();
+				Minimize();
 			}
 		}
-
-
 
 
 		public IReadOnlyList<string> SpecifiedBranchNames
@@ -247,6 +247,11 @@ namespace GitMind.MainWindowViews
 
 
 		private void CloseWindow()
+		{
+			Application.Current.Shutdown(0);
+		}
+
+		private void Exit()
 		{
 			Application.Current.Shutdown(0);
 		}

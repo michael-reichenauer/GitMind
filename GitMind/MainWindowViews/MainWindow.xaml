@@ -27,6 +27,7 @@
 
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
+		<KeyBinding Modifiers="Shift" Key="Escape" Command="{Binding ExitCommand}" />
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
 		<KeyBinding Key="Enter" Command="{Binding ShowDiffCommand}" />
