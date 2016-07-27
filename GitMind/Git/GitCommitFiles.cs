@@ -43,7 +43,10 @@ namespace GitMind.Git
 					.Concat(status.Modified.Select(t => new GitFile(t.FilePath, null, true, false, false, false)))
 					.Concat(status.RenamedInWorkDir.Select(t => new GitFile(
 						t.FilePath, t.IndexToWorkDirRenameDetails.OldFilePath, false, false, false, true)))
-					.Concat(status.RenamedInIndex.Select(t => new GitFile(t.FilePath, t.HeadToIndexRenameDetails.OldFilePath, false, false, false, true)))
+					.Concat(status.RenamedInIndex.Select(t => new GitFile(
+						t.FilePath, t.HeadToIndexRenameDetails.OldFilePath, false, false, false, true)))
+					.Concat(status.Staged.Select(t => new GitFile(
+						t.FilePath, null, true, false, false, false)))
 					.ToList();
 
 				Files = GetUniqueFiles(files);

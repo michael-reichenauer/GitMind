@@ -84,8 +84,7 @@ namespace GitMind.Git
 				repository.Index.Add(commitFile.Path);
 				if (commitFile.OldPath != null)
 				{
-				repository.Index.Add(commitFile.OldPath);
-
+					repository.Index.Remove(commitFile.OldPath);
 				}
 			}
 		}
