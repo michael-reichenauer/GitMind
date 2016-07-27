@@ -120,8 +120,8 @@
 									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Grid Margin="2,0,0,0">
-											<TextBlock Text="&#xE2C4;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
-											<TextBlock Text="&#xE2C4;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
 										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
