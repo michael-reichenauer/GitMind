@@ -91,6 +91,56 @@
 					</Button>
 
 
+					<!-- Conflict ahead status Command="{Binding ConflictAheadCommand}" Style="{StaticResource BaseButtonStyle}"-->
+					<TextBlock
+						Visibility="{Binding RepositoryViewModel.ConflictsText, Converter={StaticResource VC}}"			
+						FontFamily="{StaticResource IconFont}"
+						Foreground="{StaticResource ConflictBrush}"
+						Text="&#xE259;"
+						FontSize="18"
+						Margin="3,3"
+						ToolTip="{Binding RepositoryViewModel.ConflictsText}"/>
+
+					<!-- Commit status button -->
+					<Button 
+						Content="&#xE430;"
+						Style="{StaticResource IconButtonStyle}"
+						Visibility="{Binding StatusText, Converter={StaticResource VC}}"				
+						Foreground="{StaticResource UncomittedBrush}"					
+						Click="Uncommitted_OnClick"
+						ToolTip="{Binding StatusText}">
+						<Button.ContextMenu>
+							<ContextMenu Name="UncommittedContextMenu">
+
+								<MenuItem 
+									Header="Show uncommitted Diff ..." 
+									InputGestureText="Ctrl+Shift-D"
+									Command="{Binding ShowUncommittedDiffCommand}">
+									<MenuItem.Icon>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+
+								<Separator Background="{StaticResource BorderBrush}"/>
+
+								<MenuItem 
+									Header="Commit ..." 
+									InputGestureText="Ctrl-Enter"
+									Command="{Binding CommitCommand}">
+									<MenuItem.Icon>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DD;" FontSize="14"/>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
+							</ContextMenu>
+
+						</Button.ContextMenu>
+					</Button>
+
+
 					<!-- Remote ahead status "-->
 					<Button
 						Content="&#xE258;"
@@ -171,57 +221,6 @@
 						</Button.ContextMenu>
 					</Button>
 					
-
-					<!-- Commit status button -->
-					<Button 
-						Content="&#xE430;"
-						Style="{StaticResource IconButtonStyle}"
-						Visibility="{Binding StatusText, Converter={StaticResource VC}}"				
-						Foreground="{StaticResource UncomittedBrush}"					
-						Click="Uncommitted_OnClick"
-						ToolTip="{Binding StatusText}">
-						<Button.ContextMenu>
-							<ContextMenu Name="UncommittedContextMenu">
-								
-								<MenuItem 
-									Header="Show uncommitted Diff ..." 
-									InputGestureText="Ctrl+Shift-D"
-									Command="{Binding ShowUncommittedDiffCommand}">
-									<MenuItem.Icon>
-										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
-										</Border>
-									</MenuItem.Icon>
-								</MenuItem>
-								
-								<Separator Background="{StaticResource BorderBrush}"/>
-								
-								<MenuItem 
-									Header="Commit ..." 
-									InputGestureText="Ctrl-Enter"
-									Command="{Binding CommitCommand}">
-									<MenuItem.Icon>
-										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DD;" FontSize="14"/>
-										</Border>
-									</MenuItem.Icon>
-								</MenuItem>
-							</ContextMenu>
-							
-						</Button.ContextMenu>
-					</Button>
-
-
-					<!-- Conflict ahead status Command="{Binding ConflictAheadCommand}" Style="{StaticResource BaseButtonStyle}"-->
-					<TextBlock
-						Visibility="{Binding RepositoryViewModel.ConflictsText, Converter={StaticResource VC}}"			
-						FontFamily="{StaticResource IconFont}"
-						Foreground="{StaticResource ConflictBrush}"
-						Text="&#xE259;"
-						FontSize="18"
-						Margin="3,3"
-						ToolTip="{Binding RepositoryViewModel.ConflictsText}"/>
-
 					<!-- Busy Indicator  -->
 					<Label Content="{Binding Busy.Text}" Foreground="DarkOrchid" Margin="10,0" FontSize="10"/>
 					

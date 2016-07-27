@@ -450,7 +450,7 @@ namespace GitMind.RepositoryViews
 
 			ConflictsText = Repository.Status.ConflictCount > 0
 				? $"Conflicts in {Repository.Status.ConflictCount} files\n\n" +
-				"User some other tool to resolve them for now." 
+				"User other tool to resolve conflicts for now." 
 				: null;
 		}
 
@@ -695,6 +695,11 @@ namespace GitMind.RepositoryViews
 
 		private bool TryUpdateAllBranchesCanExecute()
 		{
+			if (!string.IsNullOrEmpty(ConflictsText))
+			{
+				return false;
+			}
+
 			Branch uncommittedBranch = UnCommited?.Branch;
 
 			return Repository.Branches.Any(
@@ -718,6 +723,11 @@ namespace GitMind.RepositoryViews
 
 		private bool PullCurrentBranchCanExecute()
 		{
+			if (!string.IsNullOrEmpty(ConflictsText))
+			{
+				return false;
+			}
+
 			Branch uncommittedBranch = UnCommited?.Branch;
 
 			return uncommittedBranch != Repository.CurrentBranch
@@ -753,6 +763,11 @@ namespace GitMind.RepositoryViews
 
 		private bool TryPushAllBranchesCanExecute()
 		{
+			if (!string.IsNullOrEmpty(ConflictsText))
+			{
+				return false;
+			}
+
 			Branch uncommittedBranch = UnCommited?.Branch;
 
 			return Repository.Branches.Any(
@@ -777,6 +792,11 @@ namespace GitMind.RepositoryViews
 
 		private bool PushCurrentBranchCanExecute()
 		{
+			if (!string.IsNullOrEmpty(ConflictsText))
+			{
+				return false;
+			}
+
 			Branch uncommittedBranch = UnCommited?.Branch;
 
 			return uncommittedBranch != Repository.CurrentBranch
