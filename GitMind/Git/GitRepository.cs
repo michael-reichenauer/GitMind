@@ -70,6 +70,13 @@ namespace GitMind.Git
 		}
 
 
+		public void MergeCurrentBranchNoFastForwardy()
+		{
+			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
+			repository.MergeFetchedRefs(committer, MergeNoFastForward);
+		}
+
+
 		public void MergeCurrentBranch()
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);

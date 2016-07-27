@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GitMind.GitModel;
 using GitMind.Utils;
+using LibGit2Sharp;
 
 
 namespace GitMind.Git.Private
@@ -342,7 +343,7 @@ namespace GitMind.Git.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to update branch fetch {workingFolder}, {e.Message}");
+				Log.Warn($"Failed to fetch branch fetch {workingFolder}, {e.Message}");
 			}
 		}
 
@@ -364,13 +365,13 @@ namespace GitMind.Git.Private
 					}
 					catch (Exception e)
 					{
-						Log.Warn($"Failed to update current branch, {e.Message}");
+						Log.Warn($"Failed to merge current branch, {e.Message}");
 					}
 				});
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to update current branch {workingFolder}, {e.Message}");
+				Log.Warn($"Failed to merge current branch {workingFolder}, {e.Message}");
 			}
 		}
 
@@ -379,7 +380,7 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-				Log.Debug($"Pull current branch using cmd... {workingFolder}");
+				Log.Debug($"Merge current branch (try ff, then no-ff) ... {workingFolder}");
 
 				await Task.Run(() =>
 				{
@@ -387,18 +388,26 @@ namespace GitMind.Git.Private
 					{
 						using (GitRepository gitRepository = OpenRepository(workingFolder))
 						{
-							gitRepository.MergeCurrentBranch();
+							try
+							{
+								gitRepository.MergeCurrentBranchFastForwardOnly();
+							}
+							catch (NonFastForwardException)
+							{
+								// Failed with fast forward merge, trying no fast forward
+								gitRepository.MergeCurrentBranchNoFastForwardy();
+							}						
 						}
 					}
 					catch (Exception e)
 					{
-						Log.Warn($"Failed to update current branch, {e.Message}");
+						Log.Warn($"Failed to merge current branch, {e.Message}");
 					}
 				});
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to pull current branch {workingFolder}, {e.Message}");
+				Log.Warn($"Failed to merge current branch {workingFolder}, {e.Message}");
 			}
 		}
 
