@@ -38,7 +38,7 @@
 		<KeyBinding Modifiers="Control" Key="Up" Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}" />
 		<KeyBinding Modifiers="Control+Shift" Key="Up" Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}" />
 		<KeyBinding Modifiers="Control" Key="Down" Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}" />
-		<KeyBinding Modifiers="Control+Shift" Key="VolumeDown" Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="Down" Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}" />
 	</Window.InputBindings>
 
 
