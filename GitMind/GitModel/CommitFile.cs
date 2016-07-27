@@ -7,18 +7,20 @@ namespace GitMind.GitModel
 	public class CommitFile
 	{
 		[ProtoMember(1)]
-		public string Name { get; set; }
+		public string Path { get; set; }
 		[ProtoMember(2)]
 		public string Status { get; set; }
 
+		public string OldPath { get; set; }
 
 		public CommitFile()
 		{		
 		}
 
-		public CommitFile(string name, string status)
+		public CommitFile(string path, string oldPath, string status)
 		{
-			Name = name;
+			Path = path;
+			OldPath = oldPath;
 			Status = status;
 		}
 	}

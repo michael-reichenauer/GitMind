@@ -23,7 +23,7 @@ namespace GitMind.Features.Committing
 		{
 			Owner = owner;
 			InitializeComponent();
-			DataContext = new CommitDialogViewModel(
+			DataContext = new CommitXDialogViewModel(
 				branchName, workingFolder,  commitAction, files, showUncommittedDiffCommand);
 			MessageText.Focus();
 		}

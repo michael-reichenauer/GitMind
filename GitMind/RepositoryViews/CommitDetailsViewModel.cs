@@ -90,7 +90,7 @@ namespace GitMind.RepositoryViews
 					new CommitFileViewModel
 					{
 						Id = commit.Id,
-						Name = f.Name,
+						Name = f.Path,
 						Status = f.Status,
 						WorkingFolder = commit.WorkingFolder
 					}));

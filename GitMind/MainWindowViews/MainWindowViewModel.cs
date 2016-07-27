@@ -340,7 +340,7 @@ namespace GitMind.MainWindowViews
 				{
 					Log.Debug("Committing");
 
-					await gitService.CommitAsync(workingFolder, message, list.Select(f => f.Name).ToList());
+					await gitService.CommitAsync(workingFolder, message, list.ToList());
 					return true;
 				}
 			};

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.GitModel;
 using GitMind.Utils;
 
 
@@ -498,7 +499,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task CommitAsync(string workingFolder, string message, IReadOnlyList<string> paths)
+		public Task CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths)
 		{
 			return Task.Run(() =>
 			{

@@ -60,7 +60,7 @@ namespace GitMind.GitModel.Private
 							? "r"
 							: "";
 
-			return new CommitFile(gitFile.File, status);
+			return new CommitFile(gitFile.File, gitFile.OldFile, status);
 		}
 	}
 }

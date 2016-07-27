@@ -19,7 +19,7 @@ namespace GitMind.GitModel
 		private string nextIdToGet;
 
 		public static CommitFile[] InProgress =
-			{ new CommitFile("      Retrieving files, please retry in a while ... ", "") };
+			{ new CommitFile("      Retrieving files, please retry in a while ... ", null, "") };
 		private static readonly List<CommitFile> EmptyFileList = Enumerable.Empty<CommitFile>().ToList();
 
 		public int Count => commitsFiles.Count;
@@ -75,7 +75,7 @@ namespace GitMind.GitModel
 
 				if (commitsFilesForCommit.HasValue)
 				{
-					files = commitsFilesForCommit.Value.Files.Select(f => new CommitFile(f.File, ToStatus(f))).ToList();
+					files = commitsFilesForCommit.Value.Files.Select(f => new CommitFile(f.File, f.OldFile, ToStatus(f))).ToList();
 					commitsFiles[commitId] = files;
 					return files;
 				}
@@ -97,6 +97,10 @@ namespace GitMind.GitModel
 			else if (gitFile.IsDeleted)
 			{
 				return "D";
+			}
+			else if (gitFile.IsRenamed && gitFile.IsModified)
+			{
+				return "RM";
 			}
 			else if (gitFile.IsRenamed)
 			{

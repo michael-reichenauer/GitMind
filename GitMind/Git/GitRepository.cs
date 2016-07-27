@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.GitModel;
 using LibGit2Sharp;
+using Repository = LibGit2Sharp.Repository;
 
 
 namespace GitMind.Git
@@ -75,9 +77,17 @@ namespace GitMind.Git
 		}
 
 
-		public void Add(IReadOnlyList<string> paths)
+		public void Add(IReadOnlyList<CommitFile> paths)
 		{
-			paths.ForEach(path => repository.Index.Add(path));
+			foreach (CommitFile commitFile in paths)
+			{
+				repository.Index.Add(commitFile.Path);
+				if (commitFile.OldPath != null)
+				{
+				repository.Index.Add(commitFile.OldPath);
+
+				}
+			}
 		}
 
 		private GitStatus GetGitStatus()
