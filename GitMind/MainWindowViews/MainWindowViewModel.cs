@@ -334,22 +334,19 @@ namespace GitMind.MainWindowViews
 
 			IEnumerable<CommitFile> commitFiles = await RepositoryViewModel.UnCommited.FilesTask;
 
-			IReadOnlyList<string> files = commitFiles.Select(f => f.Name).ToList();
-
-
-			Func<string, IReadOnlyList<string>, Task<bool>> commitAction = async (message, list) =>
+			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction = async (message, list) =>
 			{
 				using (Busy.Progress)
 				{
 					Log.Debug("Committing");
 
-					await gitService.CommitAsync(workingFolder, message, list);
+					await gitService.CommitAsync(workingFolder, message, list.Select(f => f.Name).ToList());
 					return true;
 				}
 			};
 
 			CommitDialog dialog = new CommitDialog(
-				owner, branchName, commitAction, files, ShowUncommittedDiffCommand);
+				owner, branchName, workingFolder, commitAction, commitFiles, ShowUncommittedDiffCommand);
 		
 			if (dialog.ShowDialog() == true)
 			{

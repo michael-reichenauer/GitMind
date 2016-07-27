@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using GitMind.GitModel;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -15,8 +16,8 @@ namespace GitMind.Features.Commits
 	internal class CommitDialogViewModel : ViewModel
 	{
 		private readonly string branchName;
-		private readonly Func<string, IReadOnlyList<string>, Task<bool>> commitAction;
-		private readonly IReadOnlyList<string> files;
+		private readonly Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction;
+		private readonly IEnumerable<CommitFile> files;
 
 		// private static readonly string TestMessage = 
 		//	"01234567890123456789012345678901234567890123456789012345678901234567890123456789]";
@@ -24,8 +25,9 @@ namespace GitMind.Features.Commits
 
 		public CommitDialogViewModel(
 			string branchName, 
-			Func<string, IReadOnlyList<string>, Task<bool>> commitAction, 
-			IReadOnlyList<string> files,
+			string workingFolder,
+			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction,
+			IEnumerable<CommitFile> files,
 			Command showUncommittedDiffCommand)
 		{
 			this.branchName = branchName;
@@ -33,7 +35,8 @@ namespace GitMind.Features.Commits
 			this.files = files;
 			ShowUncommittedDiffCommand = showUncommittedDiffCommand;
 
-			files.ForEach(f => Files.Add(new CommitFileViewModel() {Name = f}));
+			files.ForEach(f => Files.Add(
+				ToCommitFileViewModel(workingFolder, f)));
 		}
 
 
@@ -68,6 +71,18 @@ namespace GitMind.Features.Commits
 			commitAction(Message, files);
 
 			window.DialogResult = true;
+		}
+
+
+		private static CommitFileViewModel ToCommitFileViewModel(string workingFolder, CommitFile file)
+		{
+			return new CommitFileViewModel
+			{
+				WorkingFolder = workingFolder,
+				Id = Commit.UncommittedId,
+				Name = file.Name,
+				Status = file.Status
+			};
 		}
 	}
 }

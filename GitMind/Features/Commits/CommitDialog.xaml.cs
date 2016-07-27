@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
+using GitMind.GitModel;
 using GitMind.Utils.UI;
 
 
@@ -15,13 +16,15 @@ namespace GitMind.Features.Commits
 		public CommitDialog(
 			Window owner, 
 			string branchName, 
-			Func<string, IReadOnlyList<string>, Task<bool>> commitAction, 
-			IReadOnlyList<string> files,
+			string workingFolder,
+			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction,
+			IEnumerable<CommitFile> files,
 			Command showUncommittedDiffCommand)
 		{
 			Owner = owner;
 			InitializeComponent();
-			DataContext = new CommitDialogViewModel(branchName, commitAction, files, showUncommittedDiffCommand);
+			DataContext = new CommitDialogViewModel(
+				branchName, workingFolder,  commitAction, files, showUncommittedDiffCommand);
 			MessageText.Focus();
 		}
 	}
