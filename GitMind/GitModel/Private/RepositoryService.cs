@@ -146,6 +146,7 @@ namespace GitMind.GitModel.Private
 			using (GitRepository gitRepository = gitService.OpenRepository(gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;
+				repository.Status = gitStatus;
 				t.Log("Got git status");
 
 				CleanRepositoryOfTempData(repository);
@@ -215,7 +216,8 @@ namespace GitMind.GitModel.Private
 				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
-				mRepository.CommitsFiles);
+				mRepository.CommitsFiles,
+				new Status(mRepository.Status?.ConflictCount ?? 0));
 
 			foreach (var mCommit in mRepository.Commits)
 			{

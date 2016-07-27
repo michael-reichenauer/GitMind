@@ -5,7 +5,7 @@ using LibGit2Sharp;
 
 namespace GitMind.Git
 {
-	internal class GitCommitFiles
+	public class GitCommitFiles
 	{
 		public GitCommitFiles(string commitId, TreeChanges treeChanges)
 		{
@@ -43,6 +43,16 @@ namespace GitMind.Git
 					.Concat(status.RenamedInIndex.Select(t => new GitFile(t.FilePath, false, false, false, true)))
 					.ToList();
 			}
+		}
+
+
+		public GitCommitFiles(string commitId, ConflictCollection conflicts)
+		{
+			Id = commitId;
+
+			Files = conflicts
+				.Select(c => new GitFile(c.Ours.Path, true, false, false, false))
+				.ToList();
 		}
 
 

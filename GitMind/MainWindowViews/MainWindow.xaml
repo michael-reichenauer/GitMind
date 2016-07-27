@@ -214,13 +214,13 @@
 
 					<!-- Conflict ahead status Command="{Binding ConflictAheadCommand}" Style="{StaticResource BaseButtonStyle}"-->
 					<TextBlock
-						Visibility="{Binding RepositoryViewModel.ConflictAheadText, Converter={StaticResource VC}}"			
+						Visibility="{Binding RepositoryViewModel.ConflictsText, Converter={StaticResource VC}}"			
 						FontFamily="{StaticResource IconFont}"
-						Foreground="{StaticResource ConflictAheadBrush}"
+						Foreground="{StaticResource ConflictBrush}"
 						Text="&#xE259;"
 						FontSize="18"
 						Margin="3,3"
-						ToolTip="{Binding RepositoryViewModel.ConflictAheadText}"/>
+						ToolTip="{Binding RepositoryViewModel.ConflictsText}"/>
 
 					<!-- Busy Indicator  -->
 					<Label Content="{Binding Busy.Text}" Foreground="DarkOrchid" Margin="10,0" FontSize="10"/>

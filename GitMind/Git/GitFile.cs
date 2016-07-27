@@ -1,6 +1,6 @@
 namespace GitMind.Git
 {
-	internal class GitFile
+	public class GitFile
 	{
 		public GitFile(string file, bool isModified, bool isAdded, bool isDeleted, bool isRenamed)
 		{

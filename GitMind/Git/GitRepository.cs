@@ -25,7 +25,11 @@ namespace GitMind.Git
 
 		public GitBranch Head => new GitBranch(repository.Head);
 
-		public GitStatus Status => new GitStatus(repository.RetrieveStatus(StatusOptions));
+		public GitStatus Status => GetGitStatus();
+
+
+
+
 
 		public GitDiff Diff => new GitDiff(repository.Diff, repository);
 
@@ -57,5 +61,13 @@ namespace GitMind.Git
 		{
 			paths.ForEach(path => repository.Index.Add(path));
 		}
+
+		private GitStatus GetGitStatus()
+		{
+			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
+			ConflictCollection conflicts = repository.Index.Conflicts;
+			return new GitStatus(repositoryStatus, conflicts);
+		}
+
 	}
 }

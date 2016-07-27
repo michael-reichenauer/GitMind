@@ -115,7 +115,7 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
-		public string ConflictAheadText
+		public string ConflictsText
 		{
 			get { return Get(); }
 			set { Set(value); }
@@ -447,6 +447,11 @@ namespace GitMind.RepositoryViews
 			Commit uncommitted;
 			Repository.Commits.TryGetValue(Commit.UncommittedId, out uncommitted);
 			UnCommited = uncommitted;
+
+			ConflictsText = Repository.Status.ConflictCount > 0
+				? $"Conflicts in {Repository.Status.ConflictCount} files\n\n" +
+				"User some other tool to resolve them for now." 
+				: null;
 		}
 
 
