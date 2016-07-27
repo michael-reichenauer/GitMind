@@ -85,7 +85,7 @@
     <Compile Include="Features\Committing\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Committing\CommitXDialogViewModel.cs" />
+    <Compile Include="Features\Committing\CommitDialogViewModel.cs" />
     <Compile Include="GitModel\Status.cs" />
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />

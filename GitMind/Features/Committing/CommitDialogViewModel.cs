@@ -13,7 +13,7 @@ using GitMind.Utils.UI;
 
 namespace GitMind.Features.Committing
 {
-	internal class CommitXDialogViewModel : ViewModel
+	internal class CommitDialogViewModel : ViewModel
 	{
 		private readonly string branchName;
 		private readonly Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction;
@@ -23,7 +23,7 @@ namespace GitMind.Features.Committing
 		//	"01234567890123456789012345678901234567890123456789012345678901234567890123456789]";
 
 
-		public CommitXDialogViewModel(
+		public CommitDialogViewModel(
 			string branchName, 
 			string workingFolder,
 			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction,
