@@ -32,9 +32,9 @@ namespace GitMind.Git
 
 		IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder);
 
-		Task UpdateBranchAsync(string workingFolder, string branchName);
-		Task UpdateCurrentBranchAsync(string workingFolder);
-		Task PullCurrentBranchAsync(string workingFolder);
+		Task FetchBranchAsync(string workingFolder, string branchName);
+		Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder);
+		Task MergeCurrentBranchAsync(string workingFolder);
 		Task PushCurrentBranchAsync(string workingFolder);
 		Task PushBranchAsync(string workingFolder, string name);
 

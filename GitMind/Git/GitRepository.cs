@@ -9,8 +9,15 @@ namespace GitMind.Git
 	internal class GitRepository : IDisposable
 	{
 		private readonly Repository repository;
-		private static readonly StatusOptions StatusOptions = new StatusOptions
-			{ DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
+		private static readonly StatusOptions StatusOptions = 
+			new StatusOptions { DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
+		private static readonly MergeOptions MergeFastForwardOnly = 
+			new MergeOptions{ FastForwardStrategy = FastForwardStrategy.FastForwardOnly };
+		private static readonly MergeOptions MergeDefault = 
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.Default };
+		private static readonly MergeOptions MergeNoFastForward =
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward };
+
 
 
 		public GitRepository(Repository repository)
@@ -26,9 +33,6 @@ namespace GitMind.Git
 		public GitBranch Head => new GitBranch(repository.Head);
 
 		public GitStatus Status => GetGitStatus();
-
-
-
 
 
 		public GitDiff Diff => new GitDiff(repository.Diff, repository);
@@ -54,6 +58,20 @@ namespace GitMind.Git
 			CommitOptions commitOptions = new CommitOptions();
 
 			repository.Commit(message, author, committer, commitOptions);
+		}
+
+
+		public void MergeCurrentBranchFastForwardOnly()
+		{
+			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
+			repository.MergeFetchedRefs(committer, MergeFastForwardOnly);
+		}
+
+
+		public void MergeCurrentBranch()
+		{
+			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
+			repository.MergeFetchedRefs(committer, MergeDefault);
 		}
 
 

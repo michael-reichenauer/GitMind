@@ -664,6 +664,9 @@ namespace GitMind.RepositoryViews
 			using (busyIndicator.Progress)
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
+
+				await gitService.FetchAsync(workingFolder);
+				
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 				IEnumerable<Branch> updatableBranches = Repository.Branches
@@ -678,7 +681,7 @@ namespace GitMind.RepositoryViews
 				{
 					Log.Debug($"Updating branch {branch.Name}");
 
-					await gitService.UpdateBranchAsync(workingFolder, branch.Name);
+					await gitService.FetchBranchAsync(workingFolder, branch.Name);
 				}
 
 				if (uncommittedBranch != currentBranch
@@ -686,7 +689,7 @@ namespace GitMind.RepositoryViews
 					&& currentBranch.LocalAheadCount == 0)
 				{
 					Log.Debug($"Updating current branch {currentBranch.Name}");
-					await gitService.UpdateCurrentBranchAsync(workingFolder);
+					await gitService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
 				}
 
 				await RefreshAfterCommandAsync();
@@ -715,7 +718,10 @@ namespace GitMind.RepositoryViews
 			using (busyIndicator.Progress)
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
-				await gitService.PullCurrentBranchAsync(workingFolder);
+
+				await gitService.FetchAsync(workingFolder);
+
+				await gitService.MergeCurrentBranchAsync(workingFolder);
 
 				await RefreshAfterCommandAsync();
 			}

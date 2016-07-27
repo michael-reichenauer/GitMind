@@ -323,7 +323,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task UpdateBranchAsync(string workingFolder, string branchName)
+		public async Task FetchBranchAsync(string workingFolder, string branchName)
 		{
 			try
 			{
@@ -346,23 +346,26 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task UpdateCurrentBranchAsync(string workingFolder)
+		public async Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder)
 		{
 			try
 			{
-				Log.Debug("Update current branch using cmd...");
+				Log.Debug("Merge current branch fast forward ...");
 
-				await FetchAsync(workingFolder);
-
-				string args = "merge --ff-only";
-
-				R<IReadOnlyList<string>> mergeResult = await GitAsync(workingFolder, args)
-					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
-
-				mergeResult.OnValue(_ => Log.Debug("updated current branch using cmd"));
-
-				// Ignoring fetch errors for now
-				mergeResult.OnError(e => Log.Warn($"Git update current branch failed {e.Message}"));
+				await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							gitRepository.MergeCurrentBranchFastForwardOnly();
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to update current branch, {e.Message}");
+					}
+				});
 			}
 			catch (Exception e)
 			{
@@ -371,29 +374,82 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task PullCurrentBranchAsync(string workingFolder)
+		public async Task MergeCurrentBranchAsync(string workingFolder)
 		{
 			try
 			{
 				Log.Debug($"Pull current branch using cmd... {workingFolder}");
 
-				await FetchAsync(workingFolder);
-
-				string args = "merge --ff";
-
-				R<IReadOnlyList<string>> mergeResult = await GitAsync(workingFolder, args)
-					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
-
-				mergeResult.OnValue(_ => Log.Debug("Pulled current branch using cmd"));
-
-				// Ignoring fetch errors for now
-				mergeResult.OnError(e => Log.Warn($"Git pull current branch failed {e.Message}"));
+				await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							gitRepository.MergeCurrentBranch();
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to update current branch, {e.Message}");
+					}
+				});
 			}
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to pull current branch {workingFolder}, {e.Message}");
 			}
 		}
+
+
+		//public async Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder)
+		//{
+		//	try
+		//	{
+		//		Log.Debug("Update current branch using cmd...");
+
+		//		await FetchAsync(workingFolder);
+
+		//		string args = "merge --ff-only";
+
+		//		R<IReadOnlyList<string>> mergeResult = await GitAsync(workingFolder, args)
+		//			.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
+
+		//		mergeResult.OnValue(_ => Log.Debug("updated current branch using cmd"));
+
+		//		// Ignoring fetch errors for now
+		//		mergeResult.OnError(e => Log.Warn($"Git update current branch failed {e.Message}"));
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		Log.Warn($"Failed to update current branch {workingFolder}, {e.Message}");
+		//	}
+		//}
+
+
+		//public async Task MergeCurrentBranchAsync(string workingFolder)
+		//{
+		//	try
+		//	{
+		//		Log.Debug($"Pull current branch using cmd... {workingFolder}");
+
+		//		await FetchAsync(workingFolder);
+
+		//		string args = "merge --ff";
+
+		//		R<IReadOnlyList<string>> mergeResult = await GitAsync(workingFolder, args)
+		//			.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
+
+		//		mergeResult.OnValue(_ => Log.Debug("Pulled current branch using cmd"));
+
+		//		// Ignoring fetch errors for now
+		//		mergeResult.OnError(e => Log.Warn($"Git pull current branch failed {e.Message}"));
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		Log.Warn($"Failed to pull current branch {workingFolder}, {e.Message}");
+		//	}
+		//}
 
 
 		public async Task PushCurrentBranchAsync(string workingFolder)
