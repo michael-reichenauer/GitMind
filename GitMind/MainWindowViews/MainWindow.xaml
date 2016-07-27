@@ -31,13 +31,12 @@
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
 		<KeyBinding Modifiers="Control+Shift" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
-		<!--<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding CommitCommand}" />-->
+		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding CommitCommand}" />
 		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowSelectedDiffCommand}" />
-		<KeyBinding Modifiers="Control" Key="P" Command="{Binding PushCurrentBranchCommand}" />
-		<KeyBinding Modifiers="Control+Shift" Key="P" Command="{Binding TryPushAllBranchesCommand}" />
-		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding TryPushAllBranchesCommand}" />
-		<KeyBinding Modifiers="Control" Key="U" Command="{Binding PullCurrentBranchCommand}" />
-		<KeyBinding Modifiers="Control+Shift" Key="U" Command="{Binding TryUpdateAllBranchesCommand}" />
+		<KeyBinding Modifiers="Control" Key="Up" Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="Up" Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}" />
+		<KeyBinding Modifiers="Control" Key="Down" Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="VolumeDown" Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}" />
 	</Window.InputBindings>
 
 
