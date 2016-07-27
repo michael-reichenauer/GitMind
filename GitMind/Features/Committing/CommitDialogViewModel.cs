@@ -11,7 +11,7 @@ using GitMind.Utils;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Features.Commits
+namespace GitMind.Features.Committing
 {
 	internal class CommitDialogViewModel : ViewModel
 	{
