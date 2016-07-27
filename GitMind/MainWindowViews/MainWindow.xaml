@@ -5,11 +5,13 @@
 	xmlns:common="clr-namespace:GitMind.Common"
 	xmlns:repositoryViews="clr-namespace:GitMind.RepositoryViews"
 	xmlns:mainWindowViews="clr-namespace:GitMind.MainWindowViews"
+	xmlns:ui="clr-namespace:GitMind.Utils.UI"
 	Title="{Binding Title}"	Icon="Application.ico"
 	Width="1050" Height="800"
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
 	WindowStyle="None" AllowsTransparency="True"
-	Loaded="MainWindow_OnLoaded">
+	Loaded="MainWindow_OnLoaded"
+	ui:InputBindingsBehavior.TakesInputBindingPrecedence="True">
 
 
 	<!-- Enable "normal" windows behavior with drag and resize,
