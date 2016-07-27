@@ -91,15 +91,23 @@
 					</Button>
 
 
-					<!-- Conflict ahead status Command="{Binding ConflictAheadCommand}" Style="{StaticResource BaseButtonStyle}"-->
-					<TextBlock
+					<!-- Conflict status -->
+					<Button
+						IsEnabled="False"
+						ToolTipService.ShowOnDisabled="True"			
+						Style="{StaticResource IconButtonStyle}"
 						Visibility="{Binding RepositoryViewModel.ConflictsText, Converter={StaticResource VC}}"			
-						FontFamily="{StaticResource IconFont}"
-						Foreground="{StaticResource ConflictBrush}"
-						Text="&#xE259;"
-						FontSize="18"
-						Margin="3,3"
-						ToolTip="{Binding RepositoryViewModel.ConflictsText}"/>
+						ToolTip="{Binding RepositoryViewModel.ConflictsText}">
+						<TextBlock					
+							FontFamily="{StaticResource IconFont}"
+							Foreground="{StaticResource ConflictBrush}"
+							Text="&#xE259;"
+							FontSize="18">
+							<TextBlock.RenderTransform>
+								<RotateTransform Angle="90" CenterX="9" CenterY="9"/>
+							</TextBlock.RenderTransform>
+						</TextBlock>
+					</Button>
 
 					<!-- Commit status button -->
 					<Button 
@@ -158,9 +166,10 @@
 									InputGestureText="Ctrl+Shift-U"
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
-										<Border>
-											<TextBlock Text="&#xE5CF;" Style="{StaticResource MenuIconStyle}"/>
-										</Border>
+										<Grid Margin="2,0,0,0">
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
+										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
 
@@ -171,10 +180,9 @@
 									InputGestureText="Ctrl-U"
 									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
 									<MenuItem.Icon>
-										<Grid Margin="2,0,0,0">
-											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
-											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
-										</Grid>
+										<Border>
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}"/>
+										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
 							</ContextMenu>
