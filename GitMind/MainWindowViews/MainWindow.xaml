@@ -15,7 +15,7 @@
 
 
 	<!-- Enable "normal" windows behavior with drag and resize,
-	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
+	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below. -->
 	<Window.Resources>
 		<Style TargetType="{x:Type mainWindowViews:MainWindow}">
 			<Setter Property="WindowChrome.WindowChrome">
