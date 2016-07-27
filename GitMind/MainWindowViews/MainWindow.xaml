@@ -145,9 +145,9 @@
 									InputGestureText="Ctrl+Shift-P"
 									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
-										<Border>
+										<Grid>
 											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5CE;"/>
-										</Border>
+										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
 
