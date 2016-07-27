@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 
@@ -30,6 +32,8 @@ namespace GitMind.Features.Commits
 			this.commitAction = commitAction;
 			this.files = files;
 			ShowUncommittedDiffCommand = showUncommittedDiffCommand;
+
+			files.ForEach(f => Files.Add(new CommitFileViewModel() {Name = f}));
 		}
 
 
@@ -46,6 +50,9 @@ namespace GitMind.Features.Commits
 			get { return Get(); }
 			set { Set(value).Notify(nameof(OkCommand)); }
 		}
+
+		public ObservableCollection<CommitFileViewModel> Files { get; } 
+			= new ObservableCollection<CommitFileViewModel>();
 
 
 		private void SetOK(Window window)
