@@ -18,7 +18,7 @@ namespace GitMind.Git.Private
 			+ "=================================================";
 
 
-		public Task<CommitDiff> ParseAsync(string commitId, string patch)
+		public Task<CommitDiff> ParseAsync(string commitId, string patch, bool addPrefixes = true)
 		{
 			string[] patchLines = patch.Split("\n".ToCharArray());
 
@@ -35,7 +35,7 @@ namespace GitMind.Git.Private
 				while (index != -1)
 				{
 					diffFileIndex++;
-					string prefix = $"{diffFileIndex}| ";
+					string prefix = addPrefixes ? $"{diffFileIndex}| " : "";
 
 					index = TryFindNextFile(index, patchLines);
 					if (index == -1)

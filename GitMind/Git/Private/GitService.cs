@@ -189,7 +189,7 @@ namespace GitMind.Git.Private
 					{
 						string patch = gitRepository.Diff.GetFilePatch(commitId, name);
 
-						return R.From(await gitDiffParser.ParseAsync(commitId, patch));
+						return R.From(await gitDiffParser.ParseAsync(commitId, patch, false));
 					}
 				}
 				catch (Exception e)
