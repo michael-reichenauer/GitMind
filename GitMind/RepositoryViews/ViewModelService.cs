@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
 using GitMind.Utils;
+using GitMind.Utils.UI;
 
 
 namespace GitMind.RepositoryViews
@@ -15,15 +16,15 @@ namespace GitMind.RepositoryViews
 	{
 
 		private readonly IBrushService brushService;
-		private readonly ICommand refreshManuallyCommand;
+		private readonly Command refreshManuallyCommand;
 
 
-		public ViewModelService(ICommand refreshManually)
+		public ViewModelService(Command refreshManually)
 			: this(new BrushService(), refreshManually)
 		{
 		}
 
-		public ViewModelService(IBrushService brushService, ICommand refreshManuallyCommand)
+		public ViewModelService(IBrushService brushService, Command refreshManuallyCommand)
 		{
 			this.brushService = brushService;
 			this.refreshManuallyCommand = refreshManuallyCommand;

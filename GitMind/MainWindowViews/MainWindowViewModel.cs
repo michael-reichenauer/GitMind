@@ -435,7 +435,7 @@ namespace GitMind.MainWindowViews
 			var commit = RepositoryViewModel.SelectedItem as CommitViewModel;
 			if (commit != null)
 			{
-				await commit.SetCommitBranchCommand.ExecuteAsync(null);
+				await commit.SetCommitBranchCommand.ExecuteAsync();
 			}
 		}
 	}

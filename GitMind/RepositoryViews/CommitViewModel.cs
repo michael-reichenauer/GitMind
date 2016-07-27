@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
@@ -14,7 +13,7 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitViewModel : ViewModel
 	{
-		private readonly ICommand refreshManuallyCommand;
+		private readonly Command refreshManuallyCommand;
 		private readonly ListBox listBox;
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IRepositoryService repositoryService = new RepositoryService();
@@ -26,8 +25,8 @@ namespace GitMind.RepositoryViews
 
 
 		public CommitViewModel
-			(ICommand refreshManuallyCommand,
-			ICommand toggleDetailsCommand,
+			(Command refreshManuallyCommand,
+			Command toggleDetailsCommand,
 			ListBox listBox)
 		{
 			ToggleDetailsCommand = toggleDetailsCommand;
@@ -68,7 +67,7 @@ namespace GitMind.RepositoryViews
 		public Brush TicketBrush { get; set; }
 		public Brush BranchTipBrush { get; set; }
 		public FontWeight SubjectWeight { get; set; }
-		
+
 		public string ToolTip { get; set; }
 		public Brush Brush { get; set; }
 		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
@@ -108,7 +107,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public ICommand ToggleDetailsCommand { get; }
+		public Command ToggleDetailsCommand { get; }
 
 		public Command HideBranchCommand => Command(HideBranch);
 
@@ -165,7 +164,7 @@ namespace GitMind.RepositoryViews
 				{
 					await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName, workingFolder);
 
-					refreshManuallyCommand.Execute(null);
+					refreshManuallyCommand.Execute();
 				}
 			}
 			else

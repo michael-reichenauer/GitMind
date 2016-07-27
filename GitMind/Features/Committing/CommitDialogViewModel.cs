@@ -40,9 +40,9 @@ namespace GitMind.Features.Committing
 		}
 
 
-		public ICommand OkCommand => Command<Window>(SetOK);
+		public Command<Window> OkCommand => Command<Window>(SetOK);
 
-		public ICommand CancelCommand => Command<Window>(w => w.DialogResult = false);
+		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
 		public Command ShowUncommittedDiffCommand { get; }
 

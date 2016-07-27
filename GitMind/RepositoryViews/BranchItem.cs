@@ -15,7 +15,7 @@ namespace GitMind.RepositoryViews
 			= new Lazy<IReadOnlyList<BranchItem>>(() => new BranchItem[0]);
 
 
-		public BranchItem(Branch branch, ICommand showBranchCommand)
+		public BranchItem(Branch branch, Command<Branch> showBranchCommand)
 		{
 			Text = branch.Name;
 			Branch = branch;
@@ -29,7 +29,7 @@ namespace GitMind.RepositoryViews
 			string name,
 			IEnumerable<Branch> branches,
 			int level,
-			ICommand showBranchCommand)
+			Command<Branch> showBranchCommand)
 		{
 			Text = name;
 			ShowBranchCommand = showBranchCommand;
@@ -45,11 +45,11 @@ namespace GitMind.RepositoryViews
 
 		public Branch Branch { get; }
 
-		public ICommand ShowBranchCommand { get; }
+		public Command<Branch> ShowBranchCommand { get; }
 
 
 		public static IReadOnlyList<BranchItem> GetBranches(
-			IEnumerable<Branch> branches, ICommand showBranchCommand)
+			IEnumerable<Branch> branches, Command<Branch> showBranchCommand)
 		{
 			if (branches.Count() < 20)
 			{
@@ -61,7 +61,7 @@ namespace GitMind.RepositoryViews
 
 
 		private static IReadOnlyList<BranchItem> GetBranches(
-			string prefix, IEnumerable<Branch> branches, int level, ICommand showBranchCommand)
+			string prefix, IEnumerable<Branch> branches, int level, Command<Branch> showBranchCommand)
 		{
 			List<BranchItem> list = new List<BranchItem>();
 

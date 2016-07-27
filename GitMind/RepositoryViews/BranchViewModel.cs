@@ -2,10 +2,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
-using GitMind.Utils;
 using GitMind.Utils.UI;
 
 
@@ -13,22 +11,22 @@ namespace GitMind.RepositoryViews
 {
 	internal class BranchViewModel : ViewModel
 	{
-		private readonly ICommand showBranchCommand;
+		private readonly Command<Branch> showBranchCommand;
 
 		public string Type => nameof(BranchViewModel);
 		public int ZIndex => 200;
 
-		public BranchViewModel(ICommand showBranchCommand, ICommand hideBranchCommand)
-		{			
+		public BranchViewModel(Command<Branch> showBranchCommand, Command<Branch> hideBranchCommand)
+		{
 			this.showBranchCommand = showBranchCommand;
 			HideBranchCommand = hideBranchCommand;
 		}
 
 		public ObservableCollection<BranchItem> ActiveBranches { get; set; }
-		public ICommand HideBranchCommand { get; }
+		public Command<Branch> HideBranchCommand { get; }
 
 		public Branch Branch { get; set; }
-		
+
 
 		public IReadOnlyList<BranchItem> ChildBranches =>
 			BranchItem.GetBranches(
@@ -58,7 +56,7 @@ namespace GitMind.RepositoryViews
 
 		public Brush HoverBrush { get; set; }
 		public Brush HoverBrushNormal { get; set; }
-		public Brush HoverBrushHighlight{ get; set; }
+		public Brush HoverBrushHighlight { get; set; }
 
 
 		public string BranchToolTip { get; set; }

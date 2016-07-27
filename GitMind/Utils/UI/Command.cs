@@ -5,26 +5,65 @@ using System.Windows.Input;
 
 namespace GitMind.Utils.UI
 {
-	public class Command : Command<object>
+	public class Command : ICommand
 	{
+		private readonly Command<object> command;
+
+
 		public Command(Action executeMethod)
-			: base(_ => executeMethod())
 		{
+			 command = new Command<object>(_ => executeMethod());
 		}
 
 		public Command(Action executeMethod, Func<bool> canExecuteMethod)
-			: base((object _) => executeMethod(), _ => canExecuteMethod())
 		{
+			command = new Command<object>((object _) => executeMethod(), _ => canExecuteMethod());
 		}
 
 		public Command(Func<Task> executeMethodAsync)
-			: base(_ => executeMethodAsync())
 		{
+			command = new Command<object>(_ => executeMethodAsync());
 		}
 
 		public Command(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod)
-			: base(_ => executeMethodAsync(), _ => canExecuteMethod())
 		{
+			command = new Command<object>(_ => executeMethodAsync(), _ => canExecuteMethod());
+
+		}
+
+		public event EventHandler CanExecuteChanged
+		{
+			add { command.CanExecuteChanged += value; }
+			remove { command.CanExecuteChanged -= value; }
+		}
+
+		bool ICommand.CanExecute(object parameter)
+		{
+			return CanExecute();
+		}
+
+
+		void ICommand.Execute(object parameter)
+		{
+			Execute();
+		}
+
+
+		public bool CanExecute()
+		{
+			return command.CanExecute(null);
+		}
+
+
+		public void Execute()
+		{
+			command.Execute(null);
+		}
+
+
+		public Task ExecuteAsync()
+		{
+			return command.ExecuteAsync(null);
 		}
 	}
 
@@ -80,20 +119,31 @@ namespace GitMind.Utils.UI
 		public bool IsNotCompleted => !IsCompleted;
 
 
-		bool ICommand.CanExecute(object parameter)
+		public bool CanExecute(T parameter)
 		{
 			if (canExecuteMethod != null)
 			{
-				return canExecuteMethod((T)parameter);
+				return canExecuteMethod(parameter);
 			}
 
 			return canExecute;
 		}
 
-
-		async void ICommand.Execute(object parameter)
+		public async void Execute(T parameter)
 		{
-			await ExecuteAsync((T)parameter);
+			await ExecuteAsync(parameter);
+		}
+
+
+		bool ICommand.CanExecute(object parameter)
+		{
+			return CanExecute((T)parameter);
+		}
+
+
+		void ICommand.Execute(object parameter)
+		{
+			Execute((T)parameter);
 		}
 
 

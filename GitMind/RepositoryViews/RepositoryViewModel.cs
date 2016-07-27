@@ -52,7 +52,7 @@ namespace GitMind.RepositoryViews
 
 
 		public RepositoryViewModel(
-			BusyIndicator busyIndicator, ICommand refreshManuallyCommand)
+			BusyIndicator busyIndicator, Command refreshManuallyCommand)
 			: this(new ViewModelService(refreshManuallyCommand), busyIndicator)
 		{
 		}
@@ -81,10 +81,10 @@ namespace GitMind.RepositoryViews
 
 		public Repository Repository { get; private set; }
 
-		public ICommand ShowBranchCommand => Command<Branch>(ShowBranch);
-		public ICommand HideBranchCommand => Command<Branch>(HideBranch);
+		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
+		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
 
-		public ICommand SpecifyMultiBranchCommand => Command<string>(SpecifyMultiBranch);
+		public Command<string> SpecifyMultiBranchCommand => Command<string>(SpecifyMultiBranch);
 
 
 		private async void SpecifyMultiBranch(string text)
@@ -139,26 +139,26 @@ namespace GitMind.RepositoryViews
 		public string PushCurrentBranchText => $"Push current branch '{CurrentBranchName}'";
 
 
-		public ICommand ToggleDetailsCommand => Command(ToggleDetails);
+		public Command ToggleDetailsCommand => Command(ToggleDetails);
 
-		public ICommand TryUpdateAllBranchesCommand => Command(
+		public Command TryUpdateAllBranchesCommand => Command(
 			TryUpdateAllBranches, TryUpdateAllBranchesCanExecute);
 
-		public ICommand PullCurrentBranchCommand => Command(
+		public Command PullCurrentBranchCommand => Command(
 			PullCurrentBranch, PullCurrentBranchCanExecute);
 
 
-		public ICommand TryPushAllBranchesCommand => Command(
+		public Command TryPushAllBranchesCommand => Command(
 			TryPushAllBranches, TryPushAllBranchesCanExecute);
 
-		public ICommand PushCurrentBranchCommand => Command(
+		public Command PushCurrentBranchCommand => Command(
 			PushCurrentBranch, PushCurrentBranchCanExecute);
 
 
 
 
 
-		public ICommand ShowCurrentBranchCommand => Command(ShowCurrentBranch);
+		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
