@@ -695,17 +695,18 @@ namespace GitMind.RepositoryViews
 
 		private bool TryUpdateAllBranchesCanExecute()
 		{
-			if (!string.IsNullOrEmpty(ConflictsText))
-			{
-				return false;
-			}
+			return false;
+			//if (!string.IsNullOrEmpty(ConflictsText))
+			//{
+			//	return false;
+			//}
 
-			Branch uncommittedBranch = UnCommited?.Branch;
+			//Branch uncommittedBranch = UnCommited?.Branch;
 
-			return Repository.Branches.Any(
-				b => b != uncommittedBranch
-				&& b.RemoteAheadCount > 0
-				&& b.LocalAheadCount == 0);
+			//return Repository.Branches.Any(
+			//	b => b != uncommittedBranch
+			//	&& b.RemoteAheadCount > 0
+			//	&& b.LocalAheadCount == 0);
 		}
 
 
@@ -763,17 +764,18 @@ namespace GitMind.RepositoryViews
 
 		private bool TryPushAllBranchesCanExecute()
 		{
-			if (!string.IsNullOrEmpty(ConflictsText))
-			{
-				return false;
-			}
+			return false;
+			//if (!string.IsNullOrEmpty(ConflictsText))
+			//{
+			//	return false;
+			//}
 
-			Branch uncommittedBranch = UnCommited?.Branch;
+			//Branch uncommittedBranch = UnCommited?.Branch;
 
-			return Repository.Branches.Any(
-				b => b != uncommittedBranch
-				&& b.LocalAheadCount > 0
-				&& b.RemoteAheadCount == 0);
+			//return Repository.Branches.Any(
+			//	b => b != uncommittedBranch
+			//	&& b.LocalAheadCount > 0
+			//	&& b.RemoteAheadCount == 0);
 		}
 
 
