@@ -56,13 +56,15 @@
 			<Grid.RowDefinitions>
 				<!-- Margin -->
 				<RowDefinition Height="15" />
-				<!-- Repository view -->
+				<!-- Dialog contents with options and help text -->
 				<RowDefinition Height="Auto" />
+				<!-- Empty space -->
 				<RowDefinition Height="*" />
-				<!-- Repository view -->
+				<!-- OK and Cancel buttons -->
 				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
 
+			<!-- Dialog contents -->
 			<StackPanel Grid.Row="1" Margin="10,0">
 				<RadioButton GroupName="Options"
 					x:Name="OptionAuto" 

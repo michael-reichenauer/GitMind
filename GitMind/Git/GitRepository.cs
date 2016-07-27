@@ -41,5 +41,21 @@ namespace GitMind.Git
 		{
 			repository.Fetch("origin");
 		}
+
+
+		public void Commit(string message)
+		{
+			Signature author = repository.Config.BuildSignature(DateTimeOffset.Now);
+			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
+			CommitOptions commitOptions = new CommitOptions();
+
+			repository.Commit(message, author, committer, commitOptions);
+		}
+
+
+		public void Add(IReadOnlyList<string> paths)
+		{
+			paths.ForEach(path => repository.Index.Add(path));
+		}
 	}
 }

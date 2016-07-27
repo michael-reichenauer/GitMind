@@ -39,6 +39,14 @@
 							<Setter Property="BorderBrush" Value="#996495ED" />
 							<Setter Property="Foreground" Value="Lavender" />
 						</Trigger>
+						
+						<Trigger Property="IsFocused" Value="True">
+							<Setter Property="Background" Value="Black" />
+							<Setter Property="BorderThickness" Value="1" />
+							<Setter Property="BorderBrush" Value="#996495ED" />
+							<Setter Property="Foreground" Value="Lavender" />
+						</Trigger>
+
 						<Trigger Property="IsPressed" Value="True">
 							<Setter Property="Background" Value="#000025" />
 							<Setter Property="BorderThickness" Value="1" />

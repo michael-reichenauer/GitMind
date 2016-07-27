@@ -82,7 +82,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Features\Commits\CommitDialog.xaml.cs">
+      <DependentUpon>CommitDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Commits\CommitDialogViewModel.cs" />
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
+    <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
     <Compile Include="Utils\UI\WpfBindingTraceListener.cs" />
     <Compile Include="RepositoryViews\BranchItem.cs" />
     <Compile Include="RepositoryViews\BranchNameItem.cs" />
@@ -218,6 +223,10 @@
     <Compile Include="Common\WindowControlButtons.xaml.cs">
       <DependentUpon>WindowControlButtons.xaml</DependentUpon>
     </Compile>
+    <Page Include="Features\Commits\CommitDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="RepositoryViews\CommitDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

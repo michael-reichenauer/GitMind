@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Features.Commits;
+using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.Installation;
 using GitMind.Installation.Private;
@@ -22,6 +26,8 @@ namespace GitMind.MainWindowViews
 	internal class MainWindowViewModel : ViewModel
 	{
 		private readonly IDiffService diffService = new DiffService();
+		private readonly IGitService gitService = new GitService();
+
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly Window owner;
 		private bool isLoaded = false;
@@ -105,7 +111,9 @@ namespace GitMind.MainWindowViews
 
 		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
 
-		public Command ShowDiffCommand => Command(ShowDiff);
+		public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, IsUncommitted);
+
+		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
 
 		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
 
@@ -118,6 +126,8 @@ namespace GitMind.MainWindowViews
 		public Command MinimizeCommand => Command(Minimize);
 
 		public Command CloseCommand => Command(CloseWindow);
+
+		public Command ExitCommand => Command(Exit);
 
 		public Command ToggleMaximizeCommand => Command(ToggleMaximize);
 
@@ -158,6 +168,12 @@ namespace GitMind.MainWindowViews
 						isLoaded = true;
 					}));
 			}
+		}
+
+
+		private bool IsUncommitted()
+		{
+			return RepositoryViewModel.UnCommited != null;
 		}
 
 
@@ -206,11 +222,9 @@ namespace GitMind.MainWindowViews
 			}
 			else
 			{
-				CloseWindow();
+				Minimize();
 			}
 		}
-
-
 
 
 		public IReadOnlyList<string> SpecifiedBranchNames
@@ -247,6 +261,11 @@ namespace GitMind.MainWindowViews
 
 
 		private void CloseWindow()
+		{
+			Application.Current.Shutdown(0);
+		}
+
+		private void Exit()
 		{
 			Application.Current.Shutdown(0);
 		}
@@ -302,10 +321,44 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private async void ShowDiff()
+		private async void ShowUncommittedDiff()
 		{
 			await diffService.ShowDiffAsync(Commit.UncommittedId, WorkingFolder);
 		}
+
+
+		private async void CommitChanges()
+		{
+			string branchName = RepositoryViewModel.UnCommited.Branch.Name;
+			string workingFolder = RepositoryViewModel.WorkingFolder;
+
+			IEnumerable<CommitFile> commitFiles = await RepositoryViewModel.UnCommited.FilesTask;
+
+			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction = async (message, list) =>
+			{
+				using (Busy.Progress)
+				{
+					Log.Debug("Committing");
+
+					await gitService.CommitAsync(workingFolder, message, list.Select(f => f.Name).ToList());
+					return true;
+				}
+			};
+
+			CommitDialog dialog = new CommitDialog(
+				owner, branchName, workingFolder, commitAction, commitFiles, ShowUncommittedDiffCommand);
+		
+			if (dialog.ShowDialog() == true)
+			{
+				Application.Current.MainWindow.Focus();
+				await RepositoryViewModel.RefreshAfterCommandAsync();
+			}
+			else
+			{
+				Application.Current.MainWindow.Focus();
+			}
+		}
+
 
 		private async void ShowSelectedDiff()
 		{

@@ -92,7 +92,6 @@ namespace GitMind.Git.Private
 
 		public Task<R<GitStatus>> GetStatusAsync(string workingFolder)
 		{
-
 			return Task.Run(() =>
 			{
 				try
@@ -380,7 +379,7 @@ namespace GitMind.Git.Private
 
 				await FetchAsync(workingFolder);
 
-				string args = "merge";
+				string args = "merge --ff";
 
 				R<IReadOnlyList<string>> mergeResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
@@ -440,6 +439,27 @@ namespace GitMind.Git.Private
 			{
 				Log.Warn($"Failed to push {name} branch {workingFolder}, {e.Message}");
 			}
+		}
+
+
+		public Task CommitAsync(string workingFolder, string message, IReadOnlyList<string> paths)
+		{
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.Add(paths);
+
+						gitRepository.Commit(message);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to commit, {e.Message}");
+				}
+			});
 		}
 
 

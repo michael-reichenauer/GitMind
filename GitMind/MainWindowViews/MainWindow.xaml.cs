@@ -132,6 +132,13 @@ namespace GitMind.MainWindowViews
 			LocalAheadContextMenu.PlacementTarget = this;
 			LocalAheadContextMenu.IsOpen = true;
 		}
+
+
+		private void Uncommitted_OnClick(object sender, RoutedEventArgs e)
+		{
+			UncommittedContextMenu.PlacementTarget = this;
+			UncommittedContextMenu.IsOpen = true;
+		}
 	}
 }
 

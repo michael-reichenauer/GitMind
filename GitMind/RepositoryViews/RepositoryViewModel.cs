@@ -288,7 +288,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private Task RefreshAfterCommandAsync()
+		public Task RefreshAfterCommandAsync()
 		{
 			return refreshThrottler.Run(async () =>
 			{
@@ -525,7 +525,7 @@ namespace GitMind.RepositoryViews
 			}
 
 			FilteredText = filterText;
-			TrySetSelectedCommitPosition(commitPosition);
+			TrySetSelectedCommitPosition(commitPosition, true);
 			CommitDetailsViewModel.NotifyAll();
 
 			VirtualItemsSource.DataChanged(width);
@@ -551,10 +551,23 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private void TrySetSelectedCommitPosition(CommitPosition commitPosition)
+		private void TrySetSelectedCommitPosition(CommitPosition commitPosition, bool ignoreTopIndex = false)
 		{
 			if (commitPosition != null)
 			{
+				if (!ignoreTopIndex && commitPosition.Index == 0)
+				{
+					// The index was 0 (top) lest ensure the index remains 0 again
+					ScrollTo(0);
+					if (Commits.Any())
+					{
+						SelectedIndex = 0;
+						SelectedItem = Commits.First();
+					}
+
+					return;
+				}
+
 				Commit selected = commitPosition.Commit;
 
 				int indexAfter = Commits.FindIndex(c => c.Commit.Id == selected.Id);

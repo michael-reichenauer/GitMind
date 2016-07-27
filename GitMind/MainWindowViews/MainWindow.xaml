@@ -5,11 +5,13 @@
 	xmlns:common="clr-namespace:GitMind.Common"
 	xmlns:repositoryViews="clr-namespace:GitMind.RepositoryViews"
 	xmlns:mainWindowViews="clr-namespace:GitMind.MainWindowViews"
+	xmlns:ui="clr-namespace:GitMind.Utils.UI"
 	Title="{Binding Title}"	Icon="Application.ico"
 	Width="1050" Height="800"
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
 	WindowStyle="None" AllowsTransparency="True"
-	Loaded="MainWindow_OnLoaded">
+	Loaded="MainWindow_OnLoaded"
+	ui:InputBindingsBehavior.TakesInputBindingPrecedence="True">
 
 
 	<!-- Enable "normal" windows behavior with drag and resize,
@@ -27,9 +29,16 @@
 
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
+		<KeyBinding Modifiers="Shift" Key="Escape" Command="{Binding ExitCommand}" />
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
-		<KeyBinding Key="Enter" Command="{Binding ShowSelectedDiffCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
+		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding CommitCommand}" />
+		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowSelectedDiffCommand}" />
+		<KeyBinding Modifiers="Control" Key="Up" Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="Up" Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}" />
+		<KeyBinding Modifiers="Control" Key="Down" Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="VolumeDown" Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}" />
 	</Window.InputBindings>
 
 
@@ -95,11 +104,12 @@
 							<ContextMenu Name="RemoteAheadContextMenu">
 
 								<MenuItem
-									Header="Update all branches" 
+									Header="Update all branches"
+									InputGestureText="Ctrl+Shift-U"
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5CF;"/>
+											<TextBlock Text="&#xE5CF;" Style="{StaticResource MenuIconStyle}"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -107,12 +117,14 @@
 								<Separator Background="{StaticResource BorderBrush}"/>
 
 								<MenuItem 
-									Header="{Binding RepositoryViewModel.PullCurrentBranchText}" 
+									Header="{Binding RepositoryViewModel.PullCurrentBranchText}"
+									InputGestureText="Ctrl-U"
 									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
 									<MenuItem.Icon>
-										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE2C4;"/>
-										</Border>
+										<Grid Margin="2,0,0,0">
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
+										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
 							</ContextMenu>
@@ -132,23 +144,26 @@
 							<ContextMenu Name="LocalAheadContextMenu">
 
 								<MenuItem
-									Header="Push all branches" 
+									Header="Push all branches"
+									InputGestureText="Ctrl+Shift-P"
 									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
-										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5CE;"/>
-										</Border>
+										<Grid Margin="2,0,0,0">
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
+										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
 
 								<Separator Background="{StaticResource BorderBrush}"/>
 
 								<MenuItem 
-									Header="{Binding RepositoryViewModel.PushCurrentBranchText}" 
+									Header="{Binding RepositoryViewModel.PushCurrentBranchText}"
+									InputGestureText="Ctrl-P"
 									Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE255;"/>
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -159,22 +174,40 @@
 
 					<!-- Commit status button -->
 					<Button 
+						Content="&#xE430;"
 						Style="{StaticResource IconButtonStyle}"
 						Visibility="{Binding StatusText, Converter={StaticResource VC}}"				
-						Foreground="{StaticResource UncomittedBrush}"
-						Content="&#xE430;"
-						Command="{Binding ShowDiffCommand}"
+						Foreground="{StaticResource UncomittedBrush}"					
+						Click="Uncommitted_OnClick"
 						ToolTip="{Binding StatusText}">
 						<Button.ContextMenu>
-							<ContextMenu>
-								<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}">
+							<ContextMenu Name="UncommittedContextMenu">
+								
+								<MenuItem 
+									Header="Show uncommitted Diff ..." 
+									InputGestureText="Ctrl+Shift-D"
+									Command="{Binding ShowUncommittedDiffCommand}">
 									<MenuItem.Icon>
 										<Border>
 											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
+								
+								<Separator Background="{StaticResource BorderBrush}"/>
+								
+								<MenuItem 
+									Header="Commit ..." 
+									InputGestureText="Ctrl-Enter"
+									Command="{Binding CommitCommand}">
+									<MenuItem.Icon>
+										<Border>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DD;" FontSize="14"/>
+										</Border>
+									</MenuItem.Icon>
+								</MenuItem>
 							</ContextMenu>
+							
 						</Button.ContextMenu>
 					</Button>
 
