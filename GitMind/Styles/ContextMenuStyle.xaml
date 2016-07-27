@@ -21,6 +21,7 @@
 		<Setter Property="Foreground" Value="LightSteelBlue"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
 		<Setter Property="Padding" Value="2"/>
+		<Setter Property="Margin" Value="6,0,6,0"/>
 	</Style>
 
 
@@ -78,7 +79,7 @@
 					<ColumnDefinition Width="Auto" SharedSizeGroup="Shortcut" />
 					<ColumnDefinition Width="13" />
 				</Grid.ColumnDefinitions>
-				<ContentPresenter Name="Icon" Margin="6,0,6,0" VerticalAlignment="Center" ContentSource="Icon" />
+				<ContentPresenter Name="Icon" Margin="0" VerticalAlignment="Center" ContentSource="Icon" />
 				<Border 
 					Name="Check"
 					Width="13"
@@ -144,7 +145,7 @@
 					<ColumnDefinition Width="Auto" SharedSizeGroup="Shortcut" />
 					<ColumnDefinition Width="13" />
 				</Grid.ColumnDefinitions>
-				<ContentPresenter Name="Icon" Margin="6,0,6,0" VerticalAlignment="Center" ContentSource="Icon" />
+				<ContentPresenter Name="Icon" Margin="0" VerticalAlignment="Center" ContentSource="Icon" />
 				<ContentPresenter Name="HeaderHost" Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" />
 				<TextBlock 
 					x:Name="InputGestureText"

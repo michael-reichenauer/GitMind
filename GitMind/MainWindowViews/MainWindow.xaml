@@ -107,7 +107,7 @@
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5CF;"/>
+											<TextBlock Text="&#xE5CF;" Style="{StaticResource MenuIconStyle}"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -119,9 +119,10 @@
 									InputGestureText="Ctrl-U"
 									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
 									<MenuItem.Icon>
-										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE2C4;"/>
-										</Border>
+										<Grid Margin="2,0,0,0">
+											<TextBlock Text="&#xE2C4;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
+											<TextBlock Text="&#xE2C4;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
+										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
 							</ContextMenu>
@@ -145,8 +146,9 @@
 									InputGestureText="Ctrl+Shift-P"
 									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
-										<Grid>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5CE;"/>
+										<Grid Margin="2,0,0,0">
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
 										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -159,7 +161,7 @@
 									Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE25A;"/>
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
