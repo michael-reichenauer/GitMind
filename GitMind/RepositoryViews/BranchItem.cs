@@ -15,11 +15,15 @@ namespace GitMind.RepositoryViews
 			= new Lazy<IReadOnlyList<BranchItem>>(() => new BranchItem[0]);
 
 
-		public BranchItem(Branch branch, Command<Branch> showBranchCommand)
+		public BranchItem(
+			Branch branch, 
+			Command<Branch> showBranchCommand, 
+			Command<Branch> mergeBranchCommand)
 		{
 			Text = branch.Name;
 			Branch = branch;
 			ShowBranchCommand = showBranchCommand;
+			MergeBranchCommand = mergeBranchCommand;
 			subItems = NoSubItems;
 		}
 
@@ -60,7 +64,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (branches.Count() < 20)
 			{
-				return branches.Select(b => new BranchItem(b, showBranchCommand)).ToList();
+				return branches.Select(b => new BranchItem(b, showBranchCommand, mergeBranchCommand)).ToList();
 			}
 
 			return GetBranches("", branches, 0, showBranchCommand, mergeBranchCommand);
@@ -81,7 +85,7 @@ namespace GitMind.RepositoryViews
 				string[] nameParts = branch.Name.Split("/".ToCharArray());
 				if (nameParts.Length == level + 1)
 				{
-					list.Add(new BranchItem(branch, showBranchCommand));
+					list.Add(new BranchItem(branch, showBranchCommand, mergeBranchCommand));
 				}
 				else if (!list.Any(n => n.Text == nameParts[level]))
 				{

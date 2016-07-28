@@ -264,7 +264,7 @@ namespace GitMind.RepositoryViews
 			branches
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.ShownBranches.Add(
-					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
 
 			repositoryViewModel.HidableBranches.Clear();
 
@@ -272,7 +272,7 @@ namespace GitMind.RepositoryViews
 				.Where(b => b.Name != "master")
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.HidableBranches.Add(
-					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
 
 			UpdateBranches(branches, commits, repositoryViewModel);
 
