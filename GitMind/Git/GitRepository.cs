@@ -113,6 +113,17 @@ namespace GitMind.Git
 			{
 				repository.Checkout(branch);
 			}
+			else
+			{
+				Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+				if (remoteBranch != null)
+				{
+					branch = repository.Branches.Add(branchName, remoteBranch.Tip);
+					repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
+
+					repository.Checkout(branch);
+				}
+			}
 		}
 	}
 }
