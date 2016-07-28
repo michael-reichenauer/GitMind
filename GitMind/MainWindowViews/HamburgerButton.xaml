@@ -61,6 +61,7 @@
 
 					<Separator Background="{StaticResource BorderBrush}"/>
 
+					<!-- Toggle commit details menu item -->
 					<MenuItem 
 						Header="Toggle commit details" 
 						InputGestureText="Space"
