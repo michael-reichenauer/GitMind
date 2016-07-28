@@ -145,7 +145,7 @@ namespace GitMind.MainWindowViews
 			{
 				WorkingFolder = path.Value;
 				ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
-			
+
 				await RepositoryViewModel.FirstLoadAsync();
 				isLoaded = true;
 			}
@@ -346,8 +346,14 @@ namespace GitMind.MainWindowViews
 			};
 
 			CommitDialog dialog = new CommitDialog(
-				owner, branchName, workingFolder, commitAction, commitFiles, ShowUncommittedDiffCommand);
-		
+				owner,
+				branchName,
+				workingFolder,
+				commitAction,
+				commitFiles,
+				ShowUncommittedDiffCommand,
+				RepositoryViewModel.UndoUncommittedFileCommand);
+
 			if (dialog.ShowDialog() == true)
 			{
 				Application.Current.MainWindow.Focus();

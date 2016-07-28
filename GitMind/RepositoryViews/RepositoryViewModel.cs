@@ -76,6 +76,8 @@ namespace GitMind.RepositoryViews
 
 			filterTriggerTimer.Tick += FilterTrigger;
 			filterTriggerTimer.Interval = FilterDelay;
+
+			CommitDetailsViewModel = new CommitDetailsViewModel(UndoUncommittedFileCommand);
 		}
 
 
@@ -133,7 +135,8 @@ namespace GitMind.RepositoryViews
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
-		public Command<Branch> switchBranchCommand => AsyncCommand<Branch>(SwitchBranchAsync, CanExecuteSwitchBranch);
+		public Command<Branch> SwitchBranchCommand => AsyncCommand<Branch>(SwitchBranchAsync, CanExecuteSwitchBranch);
+		public Command<string> UndoUncommittedFileCommand => AsyncCommand<string>(UndoUncommittedFileAsync);
 
 		public Command TryUpdateAllBranchesCommand => Command(
 			TryUpdateAllBranches, CanExecuteTryUpdateAllBranches);
@@ -161,7 +164,7 @@ namespace GitMind.RepositoryViews
 			= new ObservableCollection<BranchItem>();
 
 
-		public CommitDetailsViewModel CommitDetailsViewModel { get; } = new CommitDetailsViewModel();
+		public CommitDetailsViewModel CommitDetailsViewModel { get; } 
 
 		public string FilterText { get; private set; } = "";
 		public string FilteredText { get; private set; } = "";
@@ -900,6 +903,18 @@ namespace GitMind.RepositoryViews
 			return
 				Repository.Status.ConflictCount == 0
 				&& Repository.CurrentBranch.Id != branch.Id;
+		}
+
+
+
+		private async Task UndoUncommittedFileAsync(string path)
+		{
+			using (busyIndicator.Progress)
+			{
+				await gitService.UndoFileInCurrentBranchAsync(WorkingFolder, path);
+
+				await RefreshAfterCommandAsync();
+			}
 		}
 
 

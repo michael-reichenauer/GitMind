@@ -548,6 +548,25 @@ namespace GitMind.Git.Private
 		}
 
 
+		public Task UndoFileInCurrentBranchAsync(string workingFolder, string path)
+		{
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.UndoFileInCurrentBranch(path);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to undo {path}, {e.Message}");
+				}
+			});
+		}
+
+
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
 			string gitRepositoryPath, string args)
 		{

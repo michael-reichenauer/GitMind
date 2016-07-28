@@ -5,7 +5,7 @@ using System.Windows.Controls;
 namespace GitMind.MainWindowViews
 {
 	/// <summary>
-	/// Interaction logic for HamburgerButton.xaml
+	/// Interaction logic for HamburgerButton.xaml.
 	/// </summary>
 	public partial class HamburgerButton : UserControl
 	{
