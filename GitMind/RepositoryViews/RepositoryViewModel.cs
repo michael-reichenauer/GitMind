@@ -27,6 +27,7 @@ namespace GitMind.RepositoryViews
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IGitService gitService = new GitService();
 		private readonly IBrushService brushService = new BrushService();
+		private readonly IDiffService diffService = new DiffService();
 
 		private readonly BusyIndicator busyIndicator;
 
@@ -81,20 +82,8 @@ namespace GitMind.RepositoryViews
 
 		public Repository Repository { get; private set; }
 
-		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
-		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
-
-		public Command<string> SpecifyMultiBranchCommand => Command<string>(SpecifyMultiBranch);
-
-
-		private async void SpecifyMultiBranch(string text)
-		{
-			string[] parts = text.Split(",".ToCharArray());
-
-			string gitRepositoryPath = Repository.MRepository.WorkingFolder;
-			await repositoryService.SetSpecifiedCommitBranchAsync(parts[0], parts[1], gitRepositoryPath);
-		}
-
+	
+	
 
 		public Commit UnCommited
 		{
@@ -125,7 +114,7 @@ namespace GitMind.RepositoryViews
 		public string CurrentBranchName
 		{
 			get { return Get(); }
-			set { Set(value); }
+			set { Set(value).Notify(nameof(PullCurrentBranchText), nameof(PushCurrentBranchText)); }
 		}
 
 		public Brush CurrentBranchBrush
@@ -139,26 +128,25 @@ namespace GitMind.RepositoryViews
 		public string PushCurrentBranchText => $"Push current branch '{CurrentBranchName}'";
 
 
+		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
+		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
+		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
+		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
+		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
 
 		public Command TryUpdateAllBranchesCommand => Command(
-			TryUpdateAllBranches, TryUpdateAllBranchesCanExecute);
+			TryUpdateAllBranches, CanExecuteTryUpdateAllBranches);
 
 		public Command PullCurrentBranchCommand => Command(
-			PullCurrentBranch, PullCurrentBranchCanExecute);
-
+			PullCurrentBranch, CanExecutePullCurrentBranch);
 
 		public Command TryPushAllBranchesCommand => Command(
-			TryPushAllBranches, TryPushAllBranchesCanExecute);
+			TryPushAllBranches, CanExecuteTryPushAllBranches);
 
 		public Command PushCurrentBranchCommand => Command(
-			PushCurrentBranch, PushCurrentBranchCanExecute);
+			PushCurrentBranch, CanExecutePushCurrentBranch);
 
-
-
-
-
-		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
@@ -696,7 +684,7 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		private bool TryUpdateAllBranchesCanExecute()
+		private bool CanExecuteTryUpdateAllBranches()
 		{
 			return false;
 			//if (!string.IsNullOrEmpty(ConflictsText))
@@ -728,7 +716,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private bool PullCurrentBranchCanExecute()
+		private bool CanExecutePullCurrentBranch()
 		{
 			if (!string.IsNullOrEmpty(ConflictsText))
 			{
@@ -768,7 +756,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private bool TryPushAllBranchesCanExecute()
+		private bool CanExecuteTryPushAllBranches()
 		{
 			return false;
 			//if (!string.IsNullOrEmpty(ConflictsText))
@@ -798,7 +786,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private bool PushCurrentBranchCanExecute()
+		private bool CanExecutePushCurrentBranch()
 		{
 			if (!string.IsNullOrEmpty(ConflictsText))
 			{
@@ -810,6 +798,87 @@ namespace GitMind.RepositoryViews
 			return uncommittedBranch != Repository.CurrentBranch
 				&& Repository.CurrentBranch.LocalAheadCount > 0
 				&& Repository.CurrentBranch.RemoteAheadCount == 0;
+		}
+
+
+
+		private void ShowDiff(Commit commit)
+		{
+			if (ListBox.SelectedItems.Count < 2)
+			{
+				diffService.ShowDiffAsync(commit.Id, WorkingFolder).RunInBackground();
+			}
+			else
+			{
+				CommitViewModel topCommit = ListBox.SelectedItems[0] as CommitViewModel;
+				int bottomIndex = ListBox.SelectedItems.Count - 1;
+				CommitViewModel bottomCommit = ListBox.SelectedItems[bottomIndex] as CommitViewModel;
+
+				if (topCommit != null && bottomCommit != null)
+				{
+					// Selection was made with ctrl-click. Lets take top and bottom commits as range
+					// even if there are more commits in the middle
+					string id1 = topCommit.Commit.Id;
+					string id2 = bottomCommit.Commit.HasFirstParent
+						? bottomCommit.Commit.FirstParent.Id
+						: bottomCommit.Commit.Id;
+
+					diffService.ShowDiffRangeAsync(id1, id2, WorkingFolder).RunInBackground();
+				}
+				else if (topCommit != null)
+				{
+					// Selection was probably done with shift-click. Fore some reason SelectedItems
+					// only contains first selected item, other items are null, but there are one null
+					// item for each selected item plus one extra.
+					// Find the range by iterating first parents of the top commit (selected items count)
+					Commit current = topCommit.Commit;
+					for (int i = 0; i < bottomIndex; i++)
+					{
+						if (!current.HasFirstParent)
+						{
+							break;
+						}
+						current = current.FirstParent;
+					}
+
+					string id1 = topCommit.Commit.Id;
+					string id2 = current.Id;
+					diffService.ShowDiffRangeAsync(id1, id2, WorkingFolder).RunInBackground(); ;
+				}
+			}
+		}
+
+
+		private async Task SetBranchAsync(Commit commit)
+		{
+			SetBranchPromptDialog dialog = new SetBranchPromptDialog();
+			dialog.PromptText = commit.SpecifiedBranchName;
+			dialog.IsAutomatically = string.IsNullOrEmpty(commit.SpecifiedBranchName);
+			foreach (Branch childBranch in commit.Branch.GetChildBranches())
+			{
+				if (!childBranch.IsMultiBranch && !childBranch.Name.StartsWith("_"))
+				{
+					dialog.AddBranchName(childBranch.Name);
+				}
+			}
+
+			if (dialog.ShowDialog() == true)
+			{
+				Application.Current.MainWindow.Focus();
+				string branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
+				string workingFolder = WorkingFolder;
+
+				if (commit.SpecifiedBranchName != branchName)
+				{
+					await repositoryService.SetSpecifiedCommitBranchAsync(commit.Id, branchName, workingFolder);
+
+					await RefreshAfterCommandAsync();
+				}
+			}
+			else
+			{
+				Application.Current.MainWindow.Focus();
+			}
 		}
 
 

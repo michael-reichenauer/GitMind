@@ -176,5 +176,20 @@ namespace GitMind.Utils.UI
 
 			return (Command)command;
 		}
+
+
+		protected Command<T> AsyncCommand<T>(
+			Func<T, Task> executeMethodAsync, [CallerMemberName] string memberName = "")
+		{
+			ICommand command;
+			if (!commands.TryGetValue(memberName, out command))
+			{
+
+				command = new Command<T>(executeMethodAsync);
+				commands[memberName] = command;
+			}
+
+			return (Command<T>)command;
+		}
 	}
 }

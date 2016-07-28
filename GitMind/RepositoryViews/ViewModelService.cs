@@ -358,9 +358,9 @@ namespace GitMind.RepositoryViews
 			var commitsById = repositoryViewModel.CommitsById;
 
 			SetNumberOfItems(commits, sourceCommits.Count, i => new CommitViewModel(
-				refreshManuallyCommand,
 				repositoryViewModel.ToggleDetailsCommand,
-				repositoryViewModel.ListBox));
+				repositoryViewModel.ShowDiffCommand,
+				repositoryViewModel.SetBranchCommand));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
@@ -374,7 +374,6 @@ namespace GitMind.RepositoryViews
 				commitViewModel.Commit = commit;
 				commitViewModel.RowIndex = index++;
 
-				commitViewModel.HideBranch = () => HideBranch(repositoryViewModel, commit.Branch);
 				commitViewModel.BranchColumn = IndexOf(repositoryViewModel, commit.Branch);
 
 				commitViewModel.XPoint = commitViewModel.IsMergePoint

@@ -280,8 +280,7 @@
 																<MenuItem 
 																	Header="Show Diff ..." 
 																	InputGestureText="Ctrl-D"
-																	Command="{Binding ShowDiffCommand}" 
-																	CommandParameter="{Binding Id}">
+																	Command="{Binding ShowDiffCommand}">
 																	<MenuItem.Icon>
 																		<Border>
 																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
