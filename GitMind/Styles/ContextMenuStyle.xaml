@@ -20,20 +20,21 @@
 	<!-- Menu item Icons -->
 	<Style x:Key="MenuIconStyle" TargetType="{x:Type TextBlock}">
 		<Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Material Icons"/>
-		<Setter Property="FontSize" Value="13"/>
+		<Setter Property="FontSize" Value="18"/>
 		<Setter Property="Foreground" Value="LightSteelBlue"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
-		<Setter Property="Padding" Value="2"/>
+		<Setter Property="Padding" Value="0"/>
 		<Setter Property="Margin" Value="6,0,6,0"/>
 	</Style>
 
 
 	<!-- Outer menu items -->
 	<Style TargetType="{x:Type MenuItem}">
-		<Setter Property="Background" Value="Black"></Setter>
-		<Setter Property="Foreground" Value="Lavender"></Setter>
-		<Setter Property="FontFamily" Value="Segoe UI"></Setter>
-		<Setter Property="FontSize" Value="12"></Setter>
+		<Setter Property="Background" Value="Black"/>
+		<Setter Property="Foreground" Value="Lavender"/>
+		<Setter Property="FontFamily" Value="Segoe UI"/>
+		<Setter Property="FontSize" Value="12"/>
+		<Setter Property="Margin" Value="5,0"/>
 		<Style.Triggers>
 			<Trigger Property="IsHighlighted" Value="True">
 				<Setter Property="Background" Value="Black"></Setter>
@@ -193,7 +194,6 @@
 				<Setter TargetName="Border" Property="Background" Value="Black" />
 			</Trigger>
 			<Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="True">
-				<!--<Setter TargetName="SubmenuBorder" Property="CornerRadius" Value="4" />-->
 				<Setter TargetName="SubmenuBorder" Property="Padding" Value="0,3,0,3" />
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="false"> 

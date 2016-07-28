@@ -317,7 +317,7 @@
 																	Command="{Binding ShowDiffCommand}">
 																	<MenuItem.Icon>
 																		<Border>
-																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;"/>
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>

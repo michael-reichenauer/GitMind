@@ -25,7 +25,7 @@
 						ItemsSource="{Binding RepositoryViewModel.ShowableBranches}">
 						<MenuItem.Icon>
 							<Border>
-								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;" FontSize="14"/>
+								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
 							</Border>
 						</MenuItem.Icon>
 						<MenuItem.Resources>
@@ -47,7 +47,7 @@
 						ItemsSource="{Binding RepositoryViewModel.HidableBranches}">
 						<MenuItem.Icon>
 							<Border>
-								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CB;" FontSize="14"/>
+								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CB;"/>
 							</Border>
 						</MenuItem.Icon>
 						<MenuItem.ItemContainerStyle>
@@ -102,13 +102,15 @@
 					InputGestureText="F1"
 					Command="{Binding HelpCommand}">
 					<MenuItem.Icon>
-						<Border>
+						<Grid>
 							<TextBlock 
-								Style="{StaticResource MenuIconStyle}" 
-								Text=" ? "
-								FontWeight="Bold"
-								FontFamily="Segoe UI"/>
-						</Border>
+								Foreground="{StaticResource TextBrush}"
+								Margin="12,0,12,0"
+								FontSize="16"
+								Text="?"
+								Padding="0"
+								FontWeight="Bold"/>
+						</Grid>
 					</MenuItem.Icon>
 				</MenuItem>
 
