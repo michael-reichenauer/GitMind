@@ -40,9 +40,9 @@ namespace GitMind.RepositoryViews
 		public ObservableCollection<BranchItem> ActiveBranches { get; set; }
 		public IReadOnlyList<BranchItem> ChildBranches => GetChildBranches();
 
-		// Some values used by Merge items
+		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }
-		public int LatestRowIndex { get; set; }
+		public int TipRowIndex { get; set; }
 		public int FirstRowIndex { get; set; }
 
 

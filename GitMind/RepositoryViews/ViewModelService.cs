@@ -124,7 +124,7 @@ namespace GitMind.RepositoryViews
 			var x = repositoryViewModel.Branches.FirstOrDefault(b => b.Branch == branch);
 			if (x != null)
 			{
-				var y = x.LatestRowIndex;
+				var y = x.TipRowIndex;
 				repositoryViewModel.ScrollRows(repositoryViewModel.Commits.Count);
 				repositoryViewModel.ScrollRows(-(y - 10));
 			}
@@ -416,9 +416,9 @@ namespace GitMind.RepositoryViews
 
 				branch.ActiveBranches = repositoryViewModel.ActiveBranches;
 
-				branch.LatestRowIndex = commits.FindIndex(c => c == sourceBranch.TipCommit);
+				branch.TipRowIndex = commits.FindIndex(c => c == sourceBranch.TipCommit);
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
-				int height = Converter.ToY(branch.FirstRowIndex - branch.LatestRowIndex);
+				int height = Converter.ToY(branch.FirstRowIndex - branch.TipRowIndex);
 
 				branch.BranchColumn = FindBranchColumn(addedBranchColumns, branch);
 				addedBranchColumns.Add(branch);
@@ -430,7 +430,7 @@ namespace GitMind.RepositoryViews
 				branch.HoverBrush = Brushes.Transparent;
 				branch.Rect = new Rect(
 					(double)Converter.ToX(branch.BranchColumn) + 3,
-					(double)Converter.ToY(branch.LatestRowIndex) + Converter.HalfRow,
+					(double)Converter.ToY(branch.TipRowIndex) + Converter.HalfRow,
 					10,
 					height);
 
@@ -493,9 +493,9 @@ namespace GitMind.RepositoryViews
 					current.Id != branch.Id
 					&& column == current.BranchColumn
 					&& IsOverlapping(
-						current.LatestRowIndex,
+						current.TipRowIndex,
 						current.FirstRowIndex,
-						branch.LatestRowIndex,
+						branch.TipRowIndex,
 						branch.FirstRowIndex)))
 				{
 					column++;
