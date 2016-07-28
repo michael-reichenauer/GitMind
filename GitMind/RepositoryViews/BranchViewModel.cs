@@ -19,8 +19,7 @@ namespace GitMind.RepositoryViews
 		{
 			this.showBranchCommand = showBranchCommand;
 
-			SwitchBranchCommand = new Command(
-				() => switchBranchCommand.Execute(Branch), () => switchBranchCommand.CanExecute(Branch));
+			SwitchBranchCommand = switchBranchCommand.With(() => Branch);
 		}
 
 		// UI properties

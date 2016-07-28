@@ -12,7 +12,7 @@ namespace GitMind.Utils.UI
 
 		public Command(Action executeMethod)
 		{
-			 command = new Command<object>(_ => executeMethod());
+			command = new Command<object>(_ => executeMethod());
 		}
 
 		public Command(Action executeMethod, Func<bool> canExecuteMethod)
@@ -65,6 +65,12 @@ namespace GitMind.Utils.UI
 		{
 			return command.ExecuteAsync(null);
 		}
+
+
+		public void RaiseCanExecuteChanaged()
+		{
+			command.RaiseCanExecuteChanaged();
+		}
 	}
 
 
@@ -109,6 +115,14 @@ namespace GitMind.Utils.UI
 			this.canExecuteMethod = canExecuteMethod;
 		}
 
+	
+		public Command With(Func<T> parameterFunc)
+		{
+			Command cmd = new Command(() => Execute(parameterFunc()), () => CanExecute(parameterFunc()));
+			CanExecuteChanged += (s, e) => cmd.RaiseCanExecuteChanaged();
+
+			return cmd;
+		}
 
 
 		// NOTE: Should use weak event if command instance is longer than UI object
@@ -170,7 +184,7 @@ namespace GitMind.Utils.UI
 				{
 					// Async command
 					await executeMethodAsync(parameter);
-				}			
+				}
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{

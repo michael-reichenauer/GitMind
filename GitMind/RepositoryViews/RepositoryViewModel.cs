@@ -397,6 +397,8 @@ namespace GitMind.RepositoryViews
 		{
 			Commits.ForEach(commit => commit.WindowWidth = Width);
 			CommitDetailsViewModel.NotifyAll();
+			NotifyAll();
+
 			VirtualItemsSource.DataChanged(width);
 
 			UpdateStatusIndicators();
@@ -896,8 +898,7 @@ namespace GitMind.RepositoryViews
 		private bool CanExecuteSwitchBranch(Branch branch)
 		{
 			return
-				Repository.Status.StatusCount == 0
-				&& Repository.Status.ConflictCount == 0
+				Repository.Status.ConflictCount == 0
 				&& Repository.CurrentBranch.Id != branch.Id;
 		}
 

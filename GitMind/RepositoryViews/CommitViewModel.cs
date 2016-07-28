@@ -17,8 +17,8 @@ namespace GitMind.RepositoryViews
 			Command<Commit> setBranchCommand)
 		{
 			ToggleDetailsCommand = toggleDetailsCommand;
-			ShowDiffCommand = new Command(() => showDiffCommand.Execute(Commit));
-			SetCommitBranchCommand = new Command(() => setBranchCommand.Execute(Commit));
+			SetCommitBranchCommand = setBranchCommand.With(() => Commit);
+			ShowDiffCommand = showDiffCommand.With(() => Commit);
 		}
 
 
