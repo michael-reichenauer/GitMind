@@ -12,7 +12,7 @@ namespace GitMind.GitModel.Private
 				repository,
 				branch.Id,
 				branch.Name,
-				branch.LatestCommitId,
+				branch.TipCommitId,
 				branch.FirstCommitId,
 				branch.ParentCommitId,
 				branch.Commits.Select(c => c.Id).ToList(),

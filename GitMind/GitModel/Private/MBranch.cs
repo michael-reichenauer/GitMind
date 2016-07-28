@@ -13,7 +13,7 @@ namespace GitMind.GitModel.Private
 		[ProtoMember(2)]
 		public string Name { get; set; }
 		[ProtoMember(3)]
-		public string LatestCommitId { get; set; }
+		public string TipCommitId { get; set; }
 		[ProtoMember(4)]
 		public string FirstCommitId { get; set; }
 		[ProtoMember(5)]
@@ -44,7 +44,7 @@ namespace GitMind.GitModel.Private
 
 
 		public MCommit FirstCommit => Repository.Commits[FirstCommitId];
-		public MCommit LatestCommit => Repository.Commits[LatestCommitId];
+		public MCommit TipCommit => Repository.Commits[TipCommitId];
 		public MCommit ParentCommit => Repository.Commits[ParentCommitId];
 		public MBranch ParentBranch => Repository.Branches[ParentBranchId];
 

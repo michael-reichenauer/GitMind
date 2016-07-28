@@ -103,7 +103,7 @@ namespace GitMind.GitModel.Private
 						.FirstOrDefault();
 					if (activeTip.Value != null)
 					{
-						branch.LatestCommitId = activeTip.Value.LatestCommitId;
+						branch.TipCommitId = activeTip.Value.LatestCommitId;
 					}
 
 					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);
@@ -130,7 +130,7 @@ namespace GitMind.GitModel.Private
 					branch.TempCommitIds.Clear();
 
 					List<MCommit> commits = branch.Commits.OrderByDescending(b => b.CommitDate).ToList();
-					branch.LatestCommitId = commits.Any() ? commits.First().Id : branch.ParentCommitId;
+					branch.TipCommitId = commits.Any() ? commits.First().Id : branch.ParentCommitId;
 
 					branch.FirstCommitId = commits.Any() ? commits.Last().Id : branch.ParentCommitId;
 					branch.CommitIds = commits.Select(c => c.Id).ToList();
@@ -138,15 +138,15 @@ namespace GitMind.GitModel.Private
 
 				if (!branch.CommitIds.Any())
 				{
-					if (branch.LatestCommitId != null)
+					if (branch.TipCommitId != null)
 					{
 						// Active Branch has no commits of its own
-						branch.FirstCommitId = branch.LatestCommitId;
+						branch.FirstCommitId = branch.TipCommitId;
 					}
 					else
 					{
 						// Branch has no commits of its own
-						branch.LatestCommitId = branch.ParentCommitId;
+						branch.TipCommitId = branch.ParentCommitId;
 						branch.FirstCommitId = branch.ParentCommitId;
 					}
 				}
@@ -156,14 +156,14 @@ namespace GitMind.GitModel.Private
 			foreach (MBranch branch in repository.Branches.Values.Where(b => !b.Commits.Any()))
 			{
 				string branchTipText = $"({branch.Name}) ";
-				if (branch.LatestCommit.BranchTips != null
-					&& -1 == branch.LatestCommit.BranchTips.IndexOf(branch.Name, StringComparison.Ordinal))
+				if (branch.TipCommit.BranchTips != null
+					&& -1 == branch.TipCommit.BranchTips.IndexOf(branch.Name, StringComparison.Ordinal))
 				{
-					branch.LatestCommit.BranchTips += branchTipText;
+					branch.TipCommit.BranchTips += branchTipText;
 				}
 				else
 				{
-					branch.LatestCommit.BranchTips = branchTipText;
+					branch.TipCommit.BranchTips = branchTipText;
 				}
 			}
 		}
@@ -193,7 +193,7 @@ namespace GitMind.GitModel.Private
 					branch.Value.ParentBranchId = branch.Value.ParentCommit.BranchId;
 
 					if (branch.Value.ParentBranch.IsMultiBranch
-						&& branch.Value.ParentCommitId == branch.Value.ParentBranch.LatestCommitId
+						&& branch.Value.ParentCommitId == branch.Value.ParentBranch.TipCommitId
 						&& !branch.Value.ParentBranch.ChildBranchNames.Contains(branch.Value.Name))
 					{
 						branch.Value.ParentBranch.ChildBranchNames.Add(branch.Value.Name);
