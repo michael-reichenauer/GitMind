@@ -7,10 +7,10 @@ namespace GitMind.RepositoryViews
 	internal class BranchNameItem : ViewModel
 	{
 		private readonly string commitId;
-		private readonly ICommand command;
+		private readonly Command<string> command;
 
 
-		public BranchNameItem(string commitId, string name, ICommand command)
+		public BranchNameItem(string commitId, string name, Command<string> command)
 		{
 			this.commitId = commitId;
 			this.command = command;
@@ -20,7 +20,7 @@ namespace GitMind.RepositoryViews
 
 		public string Name { get; }
 
-		public ICommand ItemCommand => Command(SpecifyName);
+		public Command ItemCommand => Command(SpecifyName);
 
 
 		private void SpecifyName()

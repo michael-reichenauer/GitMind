@@ -1,7 +1,9 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-										xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-										xmlns:local="clr-namespace:GitMind.Styles">
+﻿<!--  Context menu styles -->
+<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+	
 	<!-- Separator -->
 	<Style TargetType="{x:Type Separator}">
 		<Setter Property="Height" Value="1" />
@@ -15,6 +17,7 @@
 		</Setter>
 	</Style>
 
+	<!-- Menu item Icons -->
 	<Style x:Key="MenuIconStyle" TargetType="{x:Type TextBlock}">
 		<Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Material Icons"/>
 		<Setter Property="FontSize" Value="13"/>
@@ -51,12 +54,11 @@
 				<ControlTemplate TargetType="{x:Type ContextMenu}">
 
 					<!-- Here is where you change the border thickness to zero on the menu-->
-					<!-- MR main border -->
 					<Border BorderThickness="2" x:Name="Border" BorderBrush="DarkSlateBlue" Background="Black">
 						<StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True" />
 					</Border>
 					
-					<!-- MR main background when not selected -->
+					<!-- main background when not selected -->
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsMouseOver" Value="true">
 							<Setter TargetName="Border" Property="Background" Value="Black" />
@@ -67,7 +69,7 @@
 		</Setter>
 	</Style>
 
-	<!-- SubmenuItem -->
+	<!-- Submenu Item -->
 	<ControlTemplate x:Key="{x:Static MenuItem.SubmenuItemTemplateKey}" TargetType="{x:Type MenuItem}">
 	
 		<!-- MR order for highlight --> 
@@ -89,15 +91,15 @@
 					Background="Black"
 					BorderThickness="1"
 					BorderBrush="#5082a4">
-				<Path
-					Name="CheckMark"
-					Width="7"
-					Height="7"
-					Visibility="Hidden"
-					SnapsToDevicePixels="False"
-					Stroke="Lavender"
-					StrokeThickness="2"
-					Data="M 0 0 L 7 7 M 0 7 L 7 0" />
+					<Path
+						Name="CheckMark"
+						Width="7"
+						Height="7"
+						Visibility="Hidden"
+						SnapsToDevicePixels="False"
+						Stroke="Lavender"
+						StrokeThickness="2"
+						Data="M 0 0 L 7 7 M 0 7 L 7 0" />
 				</Border>
 				<ContentPresenter 
 					Name="HeaderHost"
@@ -110,6 +112,7 @@
 					Text="{TemplateBinding InputGestureText}"
 					Margin="30,0,0,0"
 					HorizontalAlignment="Left"
+					TextAlignment="Left"
 					DockPanel.Dock="Left" />
 			</Grid>
 		</Border>

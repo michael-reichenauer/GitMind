@@ -94,7 +94,7 @@
 
 //		//public GitBranch TryGetBranchByLatestCommiId(string latestCommitId)
 //		//{
-//		//	return branches.FirstOrDefault(branch => branch.LatestCommitId == latestCommitId);
+//		//	return branches.FirstOrDefault(branch => branch.TipCommitId == latestCommitId);
 //		//}
 
 

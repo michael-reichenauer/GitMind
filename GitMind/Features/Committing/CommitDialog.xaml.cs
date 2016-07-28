@@ -6,7 +6,7 @@ using GitMind.GitModel;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Features.Commits
+namespace GitMind.Features.Committing
 {
 	/// <summary>
 	/// Interaction logic for CommitDialog.xaml
@@ -14,17 +14,23 @@ namespace GitMind.Features.Commits
 	public partial class CommitDialog : Window
 	{
 		public CommitDialog(
-			Window owner, 
-			string branchName, 
+			Window owner,
+			string branchName,
 			string workingFolder,
 			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction,
 			IEnumerable<CommitFile> files,
-			Command showUncommittedDiffCommand)
+			Command showUncommittedDiffCommand,
+			Command<string> undoUncommittedFileCommand)
 		{
 			Owner = owner;
 			InitializeComponent();
 			DataContext = new CommitDialogViewModel(
-				branchName, workingFolder,  commitAction, files, showUncommittedDiffCommand);
+				branchName,
+				workingFolder,
+				commitAction,
+				files,
+				showUncommittedDiffCommand,
+				undoUncommittedFileCommand);
 			MessageText.Focus();
 		}
 	}

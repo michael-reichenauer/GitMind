@@ -16,12 +16,14 @@ namespace GitMind.Git
 			}
 			else
 			{
-				Files = treeChanges
-					.Added.Select(t => new GitFile(t.Path, false, true, false, false))
-					.Concat(treeChanges.Deleted.Select(t => new GitFile(t.Path, false, false, true, false)))
-					.Concat(treeChanges.Modified.Select(t => new GitFile(t.Path, true, false, false, false)))
-					.Concat(treeChanges.Renamed.Select(t => new GitFile(t.Path, false, false, false, true)))
+				List<GitFile> files = treeChanges
+					.Added.Select(t => new GitFile(t.Path, null, false, true, false, false))
+					.Concat(treeChanges.Deleted.Select(t => new GitFile(t.Path, null, false, false, true, false)))
+					.Concat(treeChanges.Modified.Select(t => new GitFile(t.Path, null, true, false, false, false)))
+					.Concat(treeChanges.Renamed.Select(t => new GitFile(t.Path, t.OldPath, false, false, false, true)))
 					.ToList();
+
+				Files = GetUniqueFiles(files);
 			}
 		}
 
@@ -34,15 +36,48 @@ namespace GitMind.Git
 			}
 			else
 			{
-				Files = status
-					.Added.Select(t => new GitFile(t.FilePath, false, true, false, false))
-					.Concat(status.Untracked.Select(t => new GitFile(t.FilePath, false, true, false, false)))
-					.Concat(status.Removed.Select(t => new GitFile(t.FilePath, false, false, true, false)))
-					.Concat(status.Modified.Select(t => new GitFile(t.FilePath, true, false, false, false)))
-					.Concat(status.RenamedInWorkDir.Select(t => new GitFile(t.FilePath, false, false, false, true)))
-					.Concat(status.RenamedInIndex.Select(t => new GitFile(t.FilePath, false, false, false, true)))
+				List<GitFile> files = status
+					.Added.Select(t => new GitFile(t.FilePath, null, false, true, false, false))
+					.Concat(status.Untracked.Select(t => new GitFile(t.FilePath, null, false, true, false, false)))
+					.Concat(status.Removed.Select(t => new GitFile(t.FilePath, null, false, false, true, false)))
+					.Concat(status.Modified.Select(t => new GitFile(t.FilePath, null, true, false, false, false)))
+					.Concat(status.RenamedInWorkDir.Select(t => new GitFile(
+						t.FilePath, t.IndexToWorkDirRenameDetails.OldFilePath, false, false, false, true)))
+					.Concat(status.RenamedInIndex.Select(t => new GitFile(
+						t.FilePath, t.HeadToIndexRenameDetails.OldFilePath, false, false, false, true)))
+					.Concat(status.Staged.Select(t => new GitFile(
+						t.FilePath, null, true, false, false, false)))
 					.ToList();
+
+				Files = GetUniqueFiles(files);
 			}
+		}
+
+
+		private static List<GitFile> GetUniqueFiles(List<GitFile> files)
+		{
+			List<GitFile> uniqueFiles = new List<GitFile>();
+
+			foreach (GitFile gitFile in files)
+			{
+				GitFile file = uniqueFiles.FirstOrDefault(f => f.File == gitFile.File);
+				if (file == null)
+				{
+					uniqueFiles.Add(gitFile);
+				}
+				else
+				{
+					uniqueFiles.Remove(file);
+					uniqueFiles.Add(new GitFile(
+						file.File,
+						gitFile.OldFile ?? file.OldFile,
+						gitFile.IsModified | file.IsModified,
+						gitFile.IsAdded || file.IsAdded,
+						gitFile.IsDeleted || file.IsDeleted,
+						gitFile.IsRenamed || file.IsRenamed));
+				}
+			}
+			return uniqueFiles;
 		}
 
 
@@ -51,7 +86,7 @@ namespace GitMind.Git
 			Id = commitId;
 
 			Files = conflicts
-				.Select(c => new GitFile(c.Ours.Path, true, false, false, false))
+				.Select(c => new GitFile(c.Ours.Path, c.Theirs.Path, true, false, false, false))
 				.ToList();
 		}
 

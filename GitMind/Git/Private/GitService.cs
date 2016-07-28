@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.GitModel;
 using GitMind.Utils;
+using LibGit2Sharp;
 
 
 namespace GitMind.Git.Private
@@ -341,7 +343,7 @@ namespace GitMind.Git.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to update branch fetch {workingFolder}, {e.Message}");
+				Log.Warn($"Failed to fetch branch fetch {workingFolder}, {e.Message}");
 			}
 		}
 
@@ -363,13 +365,13 @@ namespace GitMind.Git.Private
 					}
 					catch (Exception e)
 					{
-						Log.Warn($"Failed to update current branch, {e.Message}");
+						Log.Warn($"Failed to merge current branch, {e.Message}");
 					}
 				});
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to update current branch {workingFolder}, {e.Message}");
+				Log.Warn($"Failed to merge current branch {workingFolder}, {e.Message}");
 			}
 		}
 
@@ -378,7 +380,7 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-				Log.Debug($"Pull current branch using cmd... {workingFolder}");
+				Log.Debug($"Merge current branch (try ff, then no-ff) ... {workingFolder}");
 
 				await Task.Run(() =>
 				{
@@ -386,18 +388,26 @@ namespace GitMind.Git.Private
 					{
 						using (GitRepository gitRepository = OpenRepository(workingFolder))
 						{
-							gitRepository.MergeCurrentBranch();
+							try
+							{
+								gitRepository.MergeCurrentBranchFastForwardOnly();
+							}
+							catch (NonFastForwardException)
+							{
+								// Failed with fast forward merge, trying no fast forward
+								gitRepository.MergeCurrentBranchNoFastForwardy();
+							}
 						}
 					}
 					catch (Exception e)
 					{
-						Log.Warn($"Failed to update current branch, {e.Message}");
+						Log.Warn($"Failed to merge current branch, {e.Message}");
 					}
 				});
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to pull current branch {workingFolder}, {e.Message}");
+				Log.Warn($"Failed to merge current branch {workingFolder}, {e.Message}");
 			}
 		}
 
@@ -498,7 +508,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task CommitAsync(string workingFolder, string message, IReadOnlyList<string> paths)
+		public Task CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths)
 		{
 			return Task.Run(() =>
 			{
@@ -514,6 +524,63 @@ namespace GitMind.Git.Private
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to commit, {e.Message}");
+				}
+			});
+		}
+
+
+		public Task SwitchToBranchAsync(string workingFolder, string branchName)
+		{
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.Checkout(branchName);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to checkout {branchName}, {e.Message}");
+				}
+			});
+		}
+
+
+		public Task UndoFileInCurrentBranchAsync(string workingFolder, string path)
+		{
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.UndoFileInCurrentBranch(path);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to undo {path}, {e.Message}");
+				}
+			});
+		}
+
+
+		public Task MergeAsync(string workingFolder, string branchName)
+		{
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.MergeBranchNoFastForward(branchName);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to merge {branchName}, {e.Message}");
 				}
 			});
 		}

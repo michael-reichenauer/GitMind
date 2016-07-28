@@ -17,8 +17,12 @@ namespace GitMind.RepositoryViews
 			new ObservableCollection<CommitFileViewModel>();
 		private string filesCommitId = null;
 		private CommitViewModel commitViewModel;
+		private Command<string> undoUncommittedFileCommand;
 
-
+		public CommitDetailsViewModel(Command<string> undoUncommittedFileCommand)
+		{
+			this.undoUncommittedFileCommand = undoUncommittedFileCommand;
+		}
 
 		public CommitViewModel CommitViewModel
 		{
@@ -76,6 +80,7 @@ namespace GitMind.RepositoryViews
 		public Command EditBranchCommand => CommitViewModel.SetCommitBranchCommand;
 
 
+
 		public override string ToString() => $"{Id} {Subject}";
 
 
@@ -87,10 +92,10 @@ namespace GitMind.RepositoryViews
 			{
 				files.Clear();
 				commitFiles.ForEach(f => files.Add(
-					new CommitFileViewModel
+					new CommitFileViewModel(undoUncommittedFileCommand)
 					{
 						Id = commit.Id,
-						Name = f.Name,
+						Name = f.Path,
 						Status = f.Status,
 						WorkingFolder = commit.WorkingFolder
 					}));

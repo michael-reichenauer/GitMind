@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
-using GitMind.Features.Commits;
+using GitMind.Features.Committing;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
@@ -145,7 +145,7 @@ namespace GitMind.MainWindowViews
 			{
 				WorkingFolder = path.Value;
 				ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
-			
+
 				await RepositoryViewModel.FirstLoadAsync();
 				isLoaded = true;
 			}
@@ -340,14 +340,20 @@ namespace GitMind.MainWindowViews
 				{
 					Log.Debug("Committing");
 
-					await gitService.CommitAsync(workingFolder, message, list.Select(f => f.Name).ToList());
+					await gitService.CommitAsync(workingFolder, message, list.ToList());
 					return true;
 				}
 			};
 
 			CommitDialog dialog = new CommitDialog(
-				owner, branchName, workingFolder, commitAction, commitFiles, ShowUncommittedDiffCommand);
-		
+				owner,
+				branchName,
+				workingFolder,
+				commitAction,
+				commitFiles,
+				ShowUncommittedDiffCommand,
+				RepositoryViewModel.UndoUncommittedFileCommand);
+
 			if (dialog.ShowDialog() == true)
 			{
 				Application.Current.MainWindow.Focus();
@@ -435,7 +441,7 @@ namespace GitMind.MainWindowViews
 			var commit = RepositoryViewModel.SelectedItem as CommitViewModel;
 			if (commit != null)
 			{
-				await commit.SetCommitBranchCommand.ExecuteAsync(null);
+				await commit.SetCommitBranchCommand.ExecuteAsync();
 			}
 		}
 	}

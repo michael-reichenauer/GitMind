@@ -179,6 +179,7 @@
 
 							<Grid.ContextMenu>
 								<ContextMenu>
+
 									<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}">
 										<MenuItem.Icon>
 											<Border>
@@ -186,6 +187,18 @@
 											</Border>
 										</MenuItem.Icon>
 									</MenuItem>
+
+									<!--<MenuItem 
+										Header="Undo changes in file" 
+										Command="{Binding UndoUncommittedFileCommand}"
+										Visibility="{Binding IsUncommitted, Converter={StaticResource VC}}">
+										<MenuItem.Icon>
+											<Border>
+												<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE042;" FontSize="14"/>
+											</Border>
+										</MenuItem.Icon>
+									</MenuItem>-->
+
 								</ContextMenu>
 							</Grid.ContextMenu>
 

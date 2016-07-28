@@ -217,7 +217,7 @@ namespace GitMind.GitModel.Private
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
 				mRepository.CommitsFiles,
-				new Status(mRepository.Status?.ConflictCount ?? 0));
+				new Status(mRepository.Status?.Count ?? 0, mRepository.Status?.ConflictCount ?? 0));
 
 			foreach (var mCommit in mRepository.Commits)
 			{
@@ -250,7 +250,7 @@ namespace GitMind.GitModel.Private
 		{
 			RemoveVirtualCommits(repository);
 
-			repository.Branches.Values.ForEach(b => b.LatestCommit.BranchTips = null);
+			repository.Branches.Values.ForEach(b => b.TipCommit.BranchTips = null);
 
 			repository.Commits.Values.ForEach(c => c.BranchTipBranches.Clear());
 		}
@@ -264,9 +264,9 @@ namespace GitMind.GitModel.Private
 				repository.FirstChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
 				repository.Commits.Remove(uncommitted.Id);
 				uncommitted.Branch.CommitIds.Remove(uncommitted.Id);
-				if (uncommitted.Branch.LatestCommitId == uncommitted.Id)
+				if (uncommitted.Branch.TipCommitId == uncommitted.Id)
 				{
-					uncommitted.Branch.LatestCommitId = uncommitted.FirstParentId;
+					uncommitted.Branch.TipCommitId = uncommitted.FirstParentId;
 				}
 			}
 
@@ -278,9 +278,9 @@ namespace GitMind.GitModel.Private
 			//	repository.FirstChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
 			//	repository.Commits.Remove(virtualCommit.Id);
 			//	virtualCommit.Branch.CommitIds.Remove(virtualCommit.Id);
-			//	if (virtualCommit.Branch.LatestCommitId == virtualCommit.Id)
+			//	if (virtualCommit.Branch.TipCommitId == virtualCommit.Id)
 			//	{
-			//		virtualCommit.Branch.LatestCommitId = virtualCommit.FirstParentId;
+			//		virtualCommit.Branch.TipCommitId = virtualCommit.FirstParentId;
 			//	}
 			//}
 		}

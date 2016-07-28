@@ -22,7 +22,7 @@
 					<!--Show Branch menu item -->
 					<MenuItem 
 						Header="Show branch"
-						ItemsSource="{Binding RepositoryViewModel.AllBranches}">
+						ItemsSource="{Binding RepositoryViewModel.ShowableBranches}">
 						<MenuItem.Icon>
 							<Border>
 								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;" FontSize="14"/>
@@ -44,7 +44,7 @@
 					<!--Hide Branch menu item -->
 					<MenuItem 
 						Header="Hide branch" 
-						ItemsSource="{Binding RepositoryViewModel.ActiveBranches}">
+						ItemsSource="{Binding RepositoryViewModel.HidableBranches}">
 						<MenuItem.Icon>
 							<Border>
 								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CB;" FontSize="14"/>

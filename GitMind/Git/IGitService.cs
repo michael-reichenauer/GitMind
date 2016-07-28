@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GitMind.GitModel;
 using GitMind.Utils;
 
 
@@ -38,6 +39,9 @@ namespace GitMind.Git
 		Task PushCurrentBranchAsync(string workingFolder);
 		Task PushBranchAsync(string workingFolder, string name);
 
-		Task CommitAsync(string workingFolder, string message, IReadOnlyList<string> paths);
+		Task CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths);
+		Task SwitchToBranchAsync(string workingFolder, string branchName);
+		Task UndoFileInCurrentBranchAsync(string workingFolder, string path);
+		Task MergeAsync(string workingFolder, string branchName);
 	}
 }

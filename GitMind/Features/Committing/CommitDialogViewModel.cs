@@ -4,35 +4,37 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Features.Commits
+namespace GitMind.Features.Committing
 {
 	internal class CommitDialogViewModel : ViewModel
 	{
 		private readonly string branchName;
 		private readonly Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction;
 		private readonly IEnumerable<CommitFile> files;
+		private readonly Command<string> undoUncommittedFileCommand;
 
 		// private static readonly string TestMessage = 
 		//	"01234567890123456789012345678901234567890123456789012345678901234567890123456789]";
 
 
 		public CommitDialogViewModel(
-			string branchName, 
+			string branchName,
 			string workingFolder,
 			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction,
 			IEnumerable<CommitFile> files,
-			Command showUncommittedDiffCommand)
+			Command showUncommittedDiffCommand,
+			Command<string> undoUncommittedFileCommand)
 		{
 			this.branchName = branchName;
 			this.commitAction = commitAction;
 			this.files = files;
+			this.undoUncommittedFileCommand = undoUncommittedFileCommand;
 			ShowUncommittedDiffCommand = showUncommittedDiffCommand;
 
 			files.ForEach(f => Files.Add(
@@ -40,9 +42,9 @@ namespace GitMind.Features.Commits
 		}
 
 
-		public ICommand OkCommand => Command<Window>(SetOK);
+		public Command<Window> OkCommand => Command<Window>(SetOK);
 
-		public ICommand CancelCommand => Command<Window>(w => w.DialogResult = false);
+		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
 		public Command ShowUncommittedDiffCommand { get; }
 
@@ -54,7 +56,7 @@ namespace GitMind.Features.Commits
 			set { Set(value).Notify(nameof(OkCommand)); }
 		}
 
-		public ObservableCollection<CommitFileViewModel> Files { get; } 
+		public ObservableCollection<CommitFileViewModel> Files { get; }
 			= new ObservableCollection<CommitFileViewModel>();
 
 
@@ -74,13 +76,13 @@ namespace GitMind.Features.Commits
 		}
 
 
-		private static CommitFileViewModel ToCommitFileViewModel(string workingFolder, CommitFile file)
+		private CommitFileViewModel ToCommitFileViewModel(string workingFolder, CommitFile file)
 		{
-			return new CommitFileViewModel
+			return new CommitFileViewModel(undoUncommittedFileCommand)
 			{
 				WorkingFolder = workingFolder,
 				Id = Commit.UncommittedId,
-				Name = file.Name,
+				Name = file.Path,
 				Status = file.Status
 			};
 		}

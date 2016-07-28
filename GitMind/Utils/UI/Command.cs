@@ -5,26 +5,71 @@ using System.Windows.Input;
 
 namespace GitMind.Utils.UI
 {
-	public class Command : Command<object>
+	public class Command : ICommand
 	{
+		private readonly Command<object> command;
+
+
 		public Command(Action executeMethod)
-			: base(_ => executeMethod())
 		{
+			command = new Command<object>(_ => executeMethod());
 		}
 
 		public Command(Action executeMethod, Func<bool> canExecuteMethod)
-			: base((object _) => executeMethod(), _ => canExecuteMethod())
 		{
+			command = new Command<object>((object _) => executeMethod(), _ => canExecuteMethod());
 		}
 
 		public Command(Func<Task> executeMethodAsync)
-			: base(_ => executeMethodAsync())
 		{
+			command = new Command<object>(_ => executeMethodAsync());
 		}
 
 		public Command(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod)
-			: base(_ => executeMethodAsync(), _ => canExecuteMethod())
 		{
+			command = new Command<object>(_ => executeMethodAsync(), _ => canExecuteMethod());
+
+		}
+
+		public event EventHandler CanExecuteChanged
+		{
+			add { command.CanExecuteChanged += value; }
+			remove { command.CanExecuteChanged -= value; }
+		}
+
+		bool ICommand.CanExecute(object parameter)
+		{
+			return CanExecute();
+		}
+
+
+		void ICommand.Execute(object parameter)
+		{
+			Execute();
+		}
+
+
+		public bool CanExecute()
+		{
+			return command.CanExecute(null);
+		}
+
+
+		public void Execute()
+		{
+			command.Execute(null);
+		}
+
+
+		public Task ExecuteAsync()
+		{
+			return command.ExecuteAsync(null);
+		}
+
+
+		public void RaiseCanExecuteChanaged()
+		{
+			command.RaiseCanExecuteChanaged();
 		}
 	}
 
@@ -70,6 +115,14 @@ namespace GitMind.Utils.UI
 			this.canExecuteMethod = canExecuteMethod;
 		}
 
+	
+		public Command With(Func<T> parameterFunc)
+		{
+			Command cmd = new Command(() => Execute(parameterFunc()), () => CanExecute(parameterFunc()));
+			CanExecuteChanged += (s, e) => cmd.RaiseCanExecuteChanaged();
+
+			return cmd;
+		}
 
 
 		// NOTE: Should use weak event if command instance is longer than UI object
@@ -80,20 +133,31 @@ namespace GitMind.Utils.UI
 		public bool IsNotCompleted => !IsCompleted;
 
 
-		bool ICommand.CanExecute(object parameter)
+		public bool CanExecute(T parameter)
 		{
 			if (canExecuteMethod != null)
 			{
-				return canExecuteMethod((T)parameter);
+				return canExecuteMethod(parameter);
 			}
 
 			return canExecute;
 		}
 
-
-		async void ICommand.Execute(object parameter)
+		public async void Execute(T parameter)
 		{
-			await ExecuteAsync((T)parameter);
+			await ExecuteAsync(parameter);
+		}
+
+
+		bool ICommand.CanExecute(object parameter)
+		{
+			return CanExecute((T)parameter);
+		}
+
+
+		void ICommand.Execute(object parameter)
+		{
+			Execute((T)parameter);
 		}
 
 
@@ -120,7 +184,7 @@ namespace GitMind.Utils.UI
 				{
 					// Async command
 					await executeMethodAsync(parameter);
-				}			
+				}
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
