@@ -29,12 +29,14 @@ namespace GitMind.RepositoryViews
 			string name,
 			IEnumerable<Branch> branches,
 			int level,
-			Command<Branch> showBranchCommand)
+			Command<Branch> showBranchCommand,
+			Command<Branch> mergeBranchCommand)
 		{
 			Text = name;
 			ShowBranchCommand = showBranchCommand;
+			MergeBranchCommand = mergeBranchCommand;
 			subItems = new Lazy<IReadOnlyList<BranchItem>>(
-				() => GetBranches(prefix, branches, level, showBranchCommand));
+				() => GetBranches(prefix, branches, level, showBranchCommand, mergeBranchCommand));
 		}
 
 
@@ -47,21 +49,30 @@ namespace GitMind.RepositoryViews
 
 		public Command<Branch> ShowBranchCommand { get; }
 
+		public Command<Branch> MergeBranchCommand { get; }
+
+
 
 		public static IReadOnlyList<BranchItem> GetBranches(
-			IEnumerable<Branch> branches, Command<Branch> showBranchCommand)
+			IEnumerable<Branch> branches, 
+			Command<Branch> showBranchCommand, 
+			Command<Branch> mergeBranchCommand)
 		{
 			if (branches.Count() < 20)
 			{
 				return branches.Select(b => new BranchItem(b, showBranchCommand)).ToList();
 			}
 
-			return GetBranches("", branches, 0, showBranchCommand);
+			return GetBranches("", branches, 0, showBranchCommand, mergeBranchCommand);
 		}
 
 
 		private static IReadOnlyList<BranchItem> GetBranches(
-			string prefix, IEnumerable<Branch> branches, int level, Command<Branch> showBranchCommand)
+			string prefix, 
+			IEnumerable<Branch> branches,
+			int level, 
+			Command<Branch> showBranchCommand,
+			Command<Branch> mergeBranchCommand)
 		{
 			List<BranchItem> list = new List<BranchItem>();
 
@@ -79,7 +90,8 @@ namespace GitMind.RepositoryViews
 						nameParts[level],
 						branches,
 						level + 1,
-						showBranchCommand));
+						showBranchCommand,
+						mergeBranchCommand));
 				}
 			}
 

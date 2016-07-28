@@ -131,5 +131,18 @@ namespace GitMind.Git
 		{
 			repository.CheckoutPaths("HEAD", new[] { path });
 		}
+
+
+		public void MergeBranchNoFastForward(string branchName)
+		{
+			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
+
+			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+
+			if (branch != null)
+			{
+				repository.Merge(branch, committer, MergeNoFastForward);
+			}		
+		}
 	}
 }

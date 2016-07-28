@@ -171,8 +171,41 @@
 													<Grid.ContextMenu>
 														<ContextMenu>
 
-															<!-- Show child branch meu item -->
-															<MenuItem 
+														<!-- Switch to this branch -->
+														<MenuItem 
+															Header="Switch to this branch"										
+															Command="{Binding SwitchBranchCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
+																</Border>
+															</MenuItem.Icon>
+														</MenuItem>
+
+														<!-- Merge to this branch -->
+														<MenuItem 
+															Header="Merge into this branch"
+															IsEnabled="{Binding IsMergeable}"
+															ItemsSource="{Binding OtherShownBranches}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B3;"/>
+																</Border>
+															</MenuItem.Icon>
+															<MenuItem.Resources>
+																<HierarchicalDataTemplate 
+																	DataType="{x:Type local:BranchItem}"
+																	ItemsSource="{Binding Children}">
+																	<MenuItem 
+																		Header="{Binding Text}" 
+																		Command="{Binding MergeBranchCommand}"
+																		CommandParameter="{Binding Branch}"/>
+																</HierarchicalDataTemplate>
+															</MenuItem.Resources>
+														</MenuItem>
+															
+														<!-- Show child branch meu item -->
+														<MenuItem 
 																Header="Show child branch"
 																IsEnabled="{Binding HasChildren}"
 																ItemsSource="{Binding ChildBranches}">
@@ -191,18 +224,6 @@
 																		CommandParameter="{Binding Branch}"/>
 																</HierarchicalDataTemplate>
 															</MenuItem.Resources>
-														</MenuItem>
-
-														<!-- Show child branch meu item -->
-														<MenuItem 
-															Header="Switch to this branch"										
-															Command="{Binding SwitchBranchCommand}">
-															<MenuItem.Icon>
-																<Border>
-																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
-																</Border>
-															</MenuItem.Icon>
-														
 														</MenuItem>
 
 													</ContextMenu>

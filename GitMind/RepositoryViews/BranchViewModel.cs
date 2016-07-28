@@ -12,12 +12,16 @@ namespace GitMind.RepositoryViews
 	internal class BranchViewModel : ViewModel
 	{
 		private readonly Command<Branch> showBranchCommand;
+		private readonly Command<Branch> mergeBranchCommand;
+
 
 		public BranchViewModel(
 			Command<Branch> showBranchCommand,
-			Command<Branch> switchBranchCommand)
+			Command<Branch> switchBranchCommand,
+			Command<Branch> mergeBranchCommand)
 		{
 			this.showBranchCommand = showBranchCommand;
+			this.mergeBranchCommand = mergeBranchCommand;
 
 			SwitchBranchCommand = switchBranchCommand.With(() => Branch);
 		}
@@ -38,11 +42,16 @@ namespace GitMind.RepositoryViews
 		public Brush HoverBrushNormal { get; set; }
 		public Brush HoverBrushHighlight { get; set; }
 		public string BranchToolTip { get; set; }
+		public bool IsMergeable => Branch.IsMergeable;
 
 		// Values used by UI properties
 		public Branch Branch { get; set; }
 		public ObservableCollection<BranchItem> ActiveBranches { get; set; }
+		public ObservableCollection<BranchItem> ShownBranches { get; set; }
 		public IReadOnlyList<BranchItem> ChildBranches => GetChildBranches();
+		public IReadOnlyList<BranchItem> OtherShownBranches => GetOtherChownBranches();
+
+
 
 		public Command SwitchBranchCommand { get; }
 
@@ -78,7 +87,21 @@ namespace GitMind.RepositoryViews
 					.Where(b => !ActiveBranches.Any(ab => ab.Branch == b))
 					.Take(50)
 					.ToList(),
-				showBranchCommand);
+				showBranchCommand,
+				mergeBranchCommand);
 		}
+
+
+		private IReadOnlyList<BranchItem> GetOtherChownBranches()
+		{
+			return BranchItem.GetBranches(
+				ShownBranches
+					.Where(b => b.Branch != Branch)
+					.Select(b => b.Branch)
+				.ToList(),
+				showBranchCommand,
+				mergeBranchCommand);
+		}
+
 	}
 }

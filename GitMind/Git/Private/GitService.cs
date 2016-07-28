@@ -567,6 +567,25 @@ namespace GitMind.Git.Private
 		}
 
 
+		public Task MergeAsync(string workingFolder, string branchName)
+		{
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.MergeBranchNoFastForward(branchName);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to merge {branchName}, {e.Message}");
+				}
+			});
+		}
+
+
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
 			string gitRepositoryPath, string args)
 		{

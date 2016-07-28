@@ -259,12 +259,19 @@ namespace GitMind.RepositoryViews
 
 			List<Commit> commits = GetCommits(branches);
 
-			repositoryViewModel.ActiveBranches.Clear();
+			repositoryViewModel.ShownBranches.Clear();
+
+			branches
+				.OrderBy(b => b.Name)
+				.ForEach(b => repositoryViewModel.ShownBranches.Add(
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
+
+			repositoryViewModel.HidableBranches.Clear();
 
 			branches
 				.Where(b => b.Name != "master")
 				.OrderBy(b => b.Name)
-				.ForEach(b => repositoryViewModel.ActiveBranches.Add(
+				.ForEach(b => repositoryViewModel.HidableBranches.Add(
 					new BranchItem(b, repositoryViewModel.ShowBranchCommand)));
 
 			UpdateBranches(branches, commits, repositoryViewModel);
@@ -404,7 +411,9 @@ namespace GitMind.RepositoryViews
 			var branches = repositoryViewModel.Branches;
 
 			SetNumberOfItems(branches, sourceBranches.Count, i => new BranchViewModel(
-				repositoryViewModel.ShowBranchCommand, repositoryViewModel.SwitchBranchCommand));
+				repositoryViewModel.ShowBranchCommand,
+				repositoryViewModel.SwitchBranchCommand, 
+				repositoryViewModel.MergeBranchCommand));
 
 			int index = 0;
 			List<BranchViewModel> addedBranchColumns = new List<BranchViewModel>();
@@ -413,7 +422,8 @@ namespace GitMind.RepositoryViews
 				BranchViewModel branch = branches[index++];
 				branch.Branch = sourceBranch;
 
-				branch.ActiveBranches = repositoryViewModel.ActiveBranches;
+				branch.ActiveBranches = repositoryViewModel.HidableBranches;
+				branch.ShownBranches = repositoryViewModel.ShownBranches;
 
 				branch.TipRowIndex = commits.FindIndex(c => c == sourceBranch.TipCommit);
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);

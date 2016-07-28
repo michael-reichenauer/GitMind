@@ -137,6 +137,8 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
 		public Command<Branch> SwitchBranchCommand => AsyncCommand<Branch>(SwitchBranchAsync, CanExecuteSwitchBranch);
 		public Command<string> UndoUncommittedFileCommand => AsyncCommand<string>(UndoUncommittedFileAsync);
+		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
+
 
 		public Command TryUpdateAllBranchesCommand => Command(
 			TryUpdateAllBranches, CanExecuteTryUpdateAllBranches);
@@ -154,13 +156,17 @@ namespace GitMind.RepositoryViews
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
-		public IReadOnlyList<BranchItem> AllBranches => BranchItem.GetBranches(
+		public IReadOnlyList<BranchItem> ShowableBranches => BranchItem.GetBranches(
 			Repository.Branches
 			.Where(b => b.IsActive && b.Name != "master")
-			.Where(b => !ActiveBranches.Any(ab => ab.Branch.Id == b.Id)),
-			ShowBranchCommand);
+			.Where(b => !HidableBranches.Any(ab => ab.Branch.Id == b.Id)),
+			ShowBranchCommand,
+			MergeBranchCommand);
 
-		public ObservableCollection<BranchItem> ActiveBranches { get; }
+		public ObservableCollection<BranchItem> HidableBranches { get; }
+			= new ObservableCollection<BranchItem>();
+
+		public ObservableCollection<BranchItem> ShownBranches { get; }
 			= new ObservableCollection<BranchItem>();
 
 
@@ -916,6 +922,18 @@ namespace GitMind.RepositoryViews
 				await RefreshAfterCommandAsync();
 			}
 		}
+
+
+		private async Task MergeBranchAsync(Branch branch)
+		{
+			using (busyIndicator.Progress)
+			{
+				await gitService.MergeAsync(WorkingFolder, branch.Name);
+
+				await RefreshAfterCommandAsync();
+			}
+		}
+
 
 
 		public void Clicked(Point position, bool isControl)
