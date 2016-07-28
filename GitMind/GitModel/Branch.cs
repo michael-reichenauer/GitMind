@@ -7,7 +7,7 @@ namespace GitMind.GitModel
 	internal class Branch
 	{
 		private readonly Repository repository;
-		private readonly string latestCommitId;
+		private readonly string tipCommitId;
 		private readonly string firstCommitId;
 		private readonly string parentCommitId;
 		private readonly IReadOnlyList<string> commitIds;
@@ -17,7 +17,7 @@ namespace GitMind.GitModel
 			Repository repository,
 			string id,
 			string name,
-			string latestCommitId,
+			string tipCommitId,
 			string firstCommitId,
 			string parentCommitId,
 			IReadOnlyList<string> commitIds,
@@ -29,7 +29,7 @@ namespace GitMind.GitModel
 			int remoteAheadCount)
 		{
 			this.repository = repository;
-			this.latestCommitId = latestCommitId;
+			this.tipCommitId = tipCommitId;
 			this.firstCommitId = firstCommitId;
 			this.parentCommitId = parentCommitId;
 			this.commitIds = commitIds;
@@ -51,7 +51,7 @@ namespace GitMind.GitModel
 		public bool IsMultiBranch { get; }
 		public int LocalAheadCount { get; }
 		public int RemoteAheadCount { get; }
-		public Commit LatestCommit => repository.Commits[latestCommitId];
+		public Commit TipCommit => repository.Commits[tipCommitId];
 		public Commit FirstCommit => repository.Commits[firstCommitId];
 		public Commit ParentCommit => repository.Commits[parentCommitId];
 		public IEnumerable<Commit> Commits => commitIds.Select(id => repository.Commits[id]);

@@ -416,7 +416,7 @@ namespace GitMind.RepositoryViews
 
 				branch.ActiveBranches = repositoryViewModel.ActiveBranches;
 
-				branch.LatestRowIndex = commits.FindIndex(c => c == sourceBranch.LatestCommit);
+				branch.LatestRowIndex = commits.FindIndex(c => c == sourceBranch.TipCommit);
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
 				branch.Height = Converter.ToY(branch.FirstRowIndex - branch.LatestRowIndex);
 
@@ -444,7 +444,7 @@ namespace GitMind.RepositoryViews
 				{
 					branch.MultiBranches = branch.Branch.ChildBranchNames
 						.Select(name => new BranchNameItem(
-							branch.Branch.LatestCommit.Id, name, repositoryViewModel.SpecifyMultiBranchCommand))
+							branch.Branch.TipCommit.Id, name, repositoryViewModel.SpecifyMultiBranchCommand))
 						.ToList();
 				}
 
