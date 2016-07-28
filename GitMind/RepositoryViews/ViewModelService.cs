@@ -418,7 +418,7 @@ namespace GitMind.RepositoryViews
 
 				branch.LatestRowIndex = commits.FindIndex(c => c == sourceBranch.TipCommit);
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
-				branch.Height = Converter.ToY(branch.FirstRowIndex - branch.LatestRowIndex);
+				int height = Converter.ToY(branch.FirstRowIndex - branch.LatestRowIndex);
 
 				branch.BranchColumn = FindBranchColumn(addedBranchColumns, branch);
 				addedBranchColumns.Add(branch);
@@ -432,21 +432,13 @@ namespace GitMind.RepositoryViews
 					(double)Converter.ToX(branch.BranchColumn) + 3,
 					(double)Converter.ToY(branch.LatestRowIndex) + Converter.HalfRow,
 					10,
-					branch.Height);
+					height);
 
-				branch.Line = $"M 4,0 L 4,{branch.Height}";
+				branch.Line = $"M 4,0 L 4,{height}";
 
 				branch.HoverBrushNormal = branch.Brush;
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
 				branch.BranchToolTip = GetBranchToolTip(branch);
-
-				if (sourceBranch.IsMultiBranch)
-				{
-					branch.MultiBranches = branch.Branch.ChildBranchNames
-						.Select(name => new BranchNameItem(
-							branch.Branch.TipCommit.Id, name, repositoryViewModel.SpecifyMultiBranchCommand))
-						.ToList();
-				}
 
 				branch.NotifyAll();
 			}
