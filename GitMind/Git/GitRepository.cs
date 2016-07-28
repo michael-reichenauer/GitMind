@@ -157,51 +157,40 @@ namespace GitMind.Git
 				return;
 			}
 
-			Branch branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
-			if (branch != null)
+			string shortId = commitId.Substring(0, 6);
+
+			// Trying to create a switch branch and check out, but that branch might be "taken"
+			// so we might have to retry a few times
+			for (int i = 0; i < 5; i++)
 			{
+				// Trying to get an existing switch branch 		
+
+				Branch branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
+
+				string tempBranchName = $"_tmp_{shortId}{i}";
+				if (branch == null)
+				{
+					// Try get a previous switch branch				
+					branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == tempBranchName);
+				}
+
+				if (branch != null && branch.Tip.Id.Sha != commitId)
+				{
+					// Branch name already exist, but no longer point to specified commit, lets try other name
+					continue;
+				}
+				else if (branch == null)
+				{
+					// No branch with that name so lets create one
+					branch = repository.Branches.Add(tempBranchName, commit);
+				}
+
 				repository.Checkout(branch);
-			}
-			else
-			{
-				repository.Checkout(commit);
+
+				return;
 			}
 
-
-			//string shortId = commitId.Substring(0, 6);
-
-			//// Trying to create a switch branch and check out, but that branch might be "taken"
-			//// so we might have to retry a few times
-			//for (int i = 0; i < 9; i++)
-			//{		
-			//	// Trying to get an existing switch branch 		
-
-			//	Branch branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
-
-			//	string tempBranchName = $"_tmp_{shortId}{i}";
-			//	if (branch == null)
-			//	{
-			//		// Try get a previous switch branch				
-			//		branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == tempBranchName);
-			//	}
-
-			//	if (branch != null && branch.Tip.Id.Sha != commitId)
-			//	{
-			//		// Branch name already exist, but no longer point to specified commit, lets try other name
-			//		continue;
-			//	}
-			//	else if (branch == null)
-			//	{
-			//		// No branch with that name so lets create one
-			//		branch = repository.Branches.Add(tempBranchName, commit);
-			//	}
-
-			//	repository.Checkout(branch);
-
-			//	return;
-			//}
-
-			//Log.Warn("To many branches with name _{shortId}");
+			Log.Warn("To many branches with name _{shortId}");
 		}
 	}
 }
