@@ -13,17 +13,20 @@ namespace GitMind.RepositoryViews
 	{
 		private readonly Command<Branch> showBranchCommand;
 
-		public string Type => nameof(BranchViewModel);
-		public int ZIndex => 200;
 
-		public BranchViewModel(Command<Branch> showBranchCommand, Command<Branch> hideBranchCommand)
+		public BranchViewModel(Command<Branch> showBranchCommand)
 		{
 			this.showBranchCommand = showBranchCommand;
-			HideBranchCommand = hideBranchCommand;
 		}
 
+
+		public string Type => nameof(BranchViewModel);
+
+		public int ZIndex => 200;
+
+
 		public ObservableCollection<BranchItem> ActiveBranches { get; set; }
-		public Command<Branch> HideBranchCommand { get; }
+	
 
 		public Branch Branch { get; set; }
 
