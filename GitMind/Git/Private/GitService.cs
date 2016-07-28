@@ -396,7 +396,7 @@ namespace GitMind.Git.Private
 							{
 								// Failed with fast forward merge, trying no fast forward
 								gitRepository.MergeCurrentBranchNoFastForwardy();
-							}						
+							}
 						}
 					}
 					catch (Exception e)

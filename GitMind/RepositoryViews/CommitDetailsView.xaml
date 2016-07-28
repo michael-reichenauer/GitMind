@@ -188,7 +188,7 @@
 										</MenuItem.Icon>
 									</MenuItem>
 
-									<MenuItem 
+									<!--<MenuItem 
 										Header="Undo changes in file" 
 										Command="{Binding UndoUncommittedFileCommand}"
 										Visibility="{Binding IsUncommitted, Converter={StaticResource VC}}">
@@ -197,7 +197,7 @@
 												<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE042;" FontSize="14"/>
 											</Border>
 										</MenuItem.Icon>
-									</MenuItem>
+									</MenuItem>-->
 
 								</ContextMenu>
 							</Grid.ContextMenu>
