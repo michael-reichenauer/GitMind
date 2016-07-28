@@ -29,7 +29,8 @@
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding ElementName=CommitDialogWindow}" />
 		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
-		<KeyBinding Modifiers="Control+Shift" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
+		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
+		<KeyBinding Modifiers="Control" Key="Space" Command="{Binding ShowUncommittedDiffCommand}" />
 	</Window.InputBindings>
 
 

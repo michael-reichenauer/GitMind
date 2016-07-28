@@ -167,7 +167,7 @@ namespace GitMind.Git
 				string branchName = $"_Switch_{shortId}{i}";
 				Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
 
-				if (branch != null && branch.Tip.Id.Sha == commitId)
+				if (branch != null && branch.Tip.Id.Sha != commitId)
 				{
 					// Branch name already exist, but no longer point to specified commit, lets try other name
 					continue;
