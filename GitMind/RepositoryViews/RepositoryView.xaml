@@ -192,6 +192,19 @@
 																</HierarchicalDataTemplate>
 															</MenuItem.Resources>
 														</MenuItem>
+
+														<!-- Show child branch meu item -->
+														<MenuItem 
+															Header="Switch to this branch"										
+															Command="{Binding SwitchBranchCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
+																</Border>
+															</MenuItem.Icon>
+														
+														</MenuItem>
+
 													</ContextMenu>
 												</Grid.ContextMenu>
 											</Grid>

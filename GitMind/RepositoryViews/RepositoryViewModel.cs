@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Git;
@@ -82,8 +81,8 @@ namespace GitMind.RepositoryViews
 
 		public Repository Repository { get; private set; }
 
-	
-	
+
+
 
 		public Commit UnCommited
 		{
@@ -134,6 +133,7 @@ namespace GitMind.RepositoryViews
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
+		public Command<Branch> switchBranchCommand => AsyncCommand<Branch>(SwitchBranchAsync, CanExecuteSwitchBranch);
 
 		public Command TryUpdateAllBranchesCommand => Command(
 			TryUpdateAllBranches, CanExecuteTryUpdateAllBranches);
@@ -438,7 +438,7 @@ namespace GitMind.RepositoryViews
 
 			ConflictsText = Repository.Status.ConflictCount > 0
 				? $"Conflicts in {Repository.Status.ConflictCount} files\n\n" +
-				"User other tool to resolve conflicts for now." 
+				"User other tool to resolve conflicts for now."
 				: null;
 		}
 
@@ -654,7 +654,7 @@ namespace GitMind.RepositoryViews
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
 				await gitService.FetchAsync(workingFolder);
-				
+
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 				IEnumerable<Branch> updatableBranches = Repository.Branches
@@ -879,6 +879,21 @@ namespace GitMind.RepositoryViews
 			{
 				Application.Current.MainWindow.Focus();
 			}
+		}
+
+
+		private async Task SwitchBranchAsync(Branch branch)
+		{
+			await Task.Yield();
+		}
+
+
+		private bool CanExecuteSwitchBranch(Branch branch)
+		{
+			return
+				Repository.Status.StatusCount == 0
+				&& Repository.Status.ConflictCount == 0
+				&& Repository.CurrentBranch.Id != branch.Id;
 		}
 
 

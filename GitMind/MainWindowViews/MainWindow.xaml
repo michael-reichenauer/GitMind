@@ -32,7 +32,7 @@
 		<KeyBinding Modifiers="Shift" Key="Escape" Command="{Binding ExitCommand}" />
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
-		<KeyBinding Modifiers="Control+Shift" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
+		<KeyBinding Modifiers="Control" Key="Space" Command="{Binding ShowUncommittedDiffCommand}" />
 		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding CommitCommand}" />
 		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowSelectedDiffCommand}" />
 		<KeyBinding Modifiers="Control" Key="Up" Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}" />
@@ -122,7 +122,7 @@
 
 								<MenuItem 
 									Header="Show uncommitted Diff ..." 
-									InputGestureText="Ctrl+Shift-D"
+									InputGestureText="Ctrl-Space"
 									Command="{Binding ShowUncommittedDiffCommand}">
 									<MenuItem.Icon>
 										<Border>

@@ -13,9 +13,14 @@ namespace GitMind.RepositoryViews
 	{
 		private readonly Command<Branch> showBranchCommand;
 
-		public BranchViewModel(Command<Branch> showBranchCommand)
+		public BranchViewModel(
+			Command<Branch> showBranchCommand,
+			Command<Branch> switchBranchCommand)
 		{
 			this.showBranchCommand = showBranchCommand;
+
+			SwitchBranchCommand = new Command(
+				() => switchBranchCommand.Execute(Branch), () => switchBranchCommand.CanExecute(Branch));
 		}
 
 		// UI properties
@@ -39,6 +44,8 @@ namespace GitMind.RepositoryViews
 		public Branch Branch { get; set; }
 		public ObservableCollection<BranchItem> ActiveBranches { get; set; }
 		public IReadOnlyList<BranchItem> ChildBranches => GetChildBranches();
+
+		public Command SwitchBranchCommand { get; }
 
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }

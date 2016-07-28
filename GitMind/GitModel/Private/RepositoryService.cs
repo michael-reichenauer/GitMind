@@ -217,7 +217,7 @@ namespace GitMind.GitModel.Private
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
 				mRepository.CommitsFiles,
-				new Status(mRepository.Status?.ConflictCount ?? 0));
+				new Status(mRepository.Status?.Count ?? 0, mRepository.Status?.ConflictCount ?? 0));
 
 			foreach (var mCommit in mRepository.Commits)
 			{
