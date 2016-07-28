@@ -135,7 +135,7 @@
 									Command="{Binding ShowUncommittedDiffCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -148,7 +148,7 @@
 									Command="{Binding CommitCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DD;" FontSize="14"/>
+											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DD;"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -175,7 +175,7 @@
 									InputGestureText="Ctrl+Shift-U"
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
-										<Grid Margin="2,0,0,0">
+										<Grid Margin="0">
 											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
 											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
 										</Grid>
@@ -215,7 +215,7 @@
 									InputGestureText="Ctrl+Shift-P"
 									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
-										<Grid Margin="2,0,0,0">
+										<Grid Margin="0">
 											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
 											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
 										</Grid>
