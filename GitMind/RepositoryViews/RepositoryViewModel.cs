@@ -138,6 +138,7 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> SwitchBranchCommand => AsyncCommand<Branch>(SwitchBranchAsync, CanExecuteSwitchBranch);
 		public Command<string> UndoUncommittedFileCommand => AsyncCommand<string>(UndoUncommittedFileAsync);
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
+		public Command<Commit> SwitchToCommitCommand => AsyncCommand<Commit>(SwitchToCommitAsync, CanExecuteSwitchToCommit);
 
 
 		public Command TryUpdateAllBranchesCommand => Command(
@@ -932,6 +933,24 @@ namespace GitMind.RepositoryViews
 
 				await RefreshAfterCommandAsync();
 			}
+		}
+
+
+
+		private async Task SwitchToCommitAsync(Commit commit)
+		{
+			using (busyIndicator.Progress)
+			{
+				await gitService.SwitchToCommitAsync(WorkingFolder, commit.Id);
+
+				await RefreshAfterCommandAsync();
+			}
+		}
+
+
+		private bool CanExecuteSwitchToCommit(Commit commit)
+		{
+			return Repository.Status.StatusCount == 0 && Repository.Status.ConflictCount == 0;
 		}
 
 

@@ -367,7 +367,8 @@ namespace GitMind.RepositoryViews
 			SetNumberOfItems(commits, sourceCommits.Count, i => new CommitViewModel(
 				repositoryViewModel.ToggleDetailsCommand,
 				repositoryViewModel.ShowDiffCommand,
-				repositoryViewModel.SetBranchCommand));
+				repositoryViewModel.SetBranchCommand,
+				repositoryViewModel.SwitchToCommitCommand));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;

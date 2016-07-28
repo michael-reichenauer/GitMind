@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.GitModel;
+using GitMind.Utils;
 using LibGit2Sharp;
 using Branch = LibGit2Sharp.Branch;
+using Commit = LibGit2Sharp.Commit;
 using Repository = LibGit2Sharp.Repository;
 
 
@@ -143,6 +145,45 @@ namespace GitMind.Git
 			{
 				repository.Merge(branch, committer, MergeNoFastForward);
 			}		
+		}
+
+
+		public void SwitchToCommit(string commitId)
+		{
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			if (commit == null)
+			{
+				Log.Warn("Unknown commit id {commitId}");
+				return;
+			}
+
+			string shortId = commitId.Substring(0, 6);
+
+			// Trying to create a switch branch and check out, but that branch might be "taken"
+			// so we might have to retry a few times
+			for (int i = 0; i < 9; i++)
+			{		
+				// Trying to get an existing switch branch 		
+				string branchName = $"_Switch_{shortId}{i}";
+				Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+
+				if (branch != null && branch.Tip.Id.Sha == commitId)
+				{
+					// Branch name already exist, but no longer point to specified commit, lets try other name
+					continue;
+				}
+				else if (branch == null)
+				{
+					// No branch with that name so lets create one
+					branch = repository.Branches.Add(branchName, commit);
+				}
+
+				repository.Checkout(branch);
+
+				return;
+			}
+
+			Log.Warn("To many branches with name _{shortId}");
 		}
 	}
 }

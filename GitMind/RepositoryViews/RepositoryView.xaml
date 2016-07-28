@@ -314,7 +314,7 @@
 																<MenuItem 
 																	Header="Show Diff ..." 
 																	InputGestureText="Ctrl-D"
-																	Command="{Binding ShowDiffCommand}">
+																	Command="{Binding ShowCommitDiffCommand}">
 																	<MenuItem.Icon>
 																		<Border>
 																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;"/>
@@ -322,7 +322,19 @@
 																	</MenuItem.Icon>
 																</MenuItem>
 
-															</ContextMenu>
+															<Separator Background="{StaticResource BorderBrush}"/>
+
+															<MenuItem 
+																Header="Switch to this commit" 
+																Command="{Binding SwitchToCommitCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE31C;"/>
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+																
+														</ContextMenu>
 														</Grid.ContextMenu>
 
 														<!-- Current commit indicator (and margin when not current) .-->

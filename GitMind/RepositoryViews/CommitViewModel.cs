@@ -13,12 +13,14 @@ namespace GitMind.RepositoryViews
 
 		public CommitViewModel(
 			Command toggleDetailsCommand,
-			Command<Commit> showDiffCommand,
-			Command<Commit> setBranchCommand)
+			Command<Commit> showCommitDiffCommand,
+			Command<Commit> setBranchCommand,
+			Command<Commit> switchToCommitCommand)
 		{
 			ToggleDetailsCommand = toggleDetailsCommand;
 			SetCommitBranchCommand = setBranchCommand.With(() => Commit);
-			ShowDiffCommand = showDiffCommand.With(() => Commit);
+			ShowCommitDiffCommand = showCommitDiffCommand.With(() => Commit);
+			SwitchToCommitCommand = switchToCommitCommand.With(() => Commit);
 		}
 
 
@@ -87,10 +89,12 @@ namespace GitMind.RepositoryViews
 
 		public Command ToggleDetailsCommand { get; }
 
-		public Command ShowDiffCommand { get; }
+		public Command ShowCommitDiffCommand { get; }
 
 		public Command SetCommitBranchCommand { get; }
 
+		public Command SwitchToCommitCommand { get; }
+		
 
 		// Values used by other properties
 		public Commit Commit { get; set; }

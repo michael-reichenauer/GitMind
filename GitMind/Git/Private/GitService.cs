@@ -586,6 +586,25 @@ namespace GitMind.Git.Private
 		}
 
 
+		public Task SwitchToCommitAsync(string workingFolder, string commitId)
+		{
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.SwitchToCommit(commitId);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed switch to {commitId}, {e.Message}");
+				}
+			});
+		}
+
+
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
 			string gitRepositoryPath, string args)
 		{
