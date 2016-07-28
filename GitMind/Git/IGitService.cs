@@ -40,5 +40,6 @@ namespace GitMind.Git
 		Task PushBranchAsync(string workingFolder, string name);
 
 		Task CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths);
+		Task SwitchToBranchAsync(string workingFolder, string branchName);
 	}
 }

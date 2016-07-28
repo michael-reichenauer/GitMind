@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GitMind.GitModel;
 using LibGit2Sharp;
+using Branch = LibGit2Sharp.Branch;
 using Repository = LibGit2Sharp.Repository;
 
 
@@ -103,5 +104,15 @@ namespace GitMind.Git
 			return new GitStatus(repositoryStatus, conflicts);
 		}
 
+
+		public void Checkout(string branchName)
+		{
+			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+
+			if (branch != null)
+			{
+				repository.Checkout(branch);
+			}
+		}
 	}
 }

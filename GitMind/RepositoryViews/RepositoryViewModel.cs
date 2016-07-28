@@ -884,7 +884,12 @@ namespace GitMind.RepositoryViews
 
 		private async Task SwitchBranchAsync(Branch branch)
 		{
-			await Task.Yield();
+			using (busyIndicator.Progress)
+			{
+				await gitService.SwitchToBranchAsync(WorkingFolder, branch.Name);
+
+				await RefreshAfterCommandAsync();
+			}		
 		}
 
 
