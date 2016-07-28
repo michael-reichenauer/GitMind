@@ -164,8 +164,15 @@ namespace GitMind.Git
 			for (int i = 0; i < 9; i++)
 			{		
 				// Trying to get an existing switch branch 		
-				string branchName = $"_Switch_{shortId}{i}";
-				Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+				
+				Branch branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
+
+				string tempBranchName = $"_Switch_{shortId}{i}";
+				if (branch == null)
+				{
+					// Try get a previous switch branch				
+					branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == tempBranchName);
+				}
 
 				if (branch != null && branch.Tip.Id.Sha != commitId)
 				{
@@ -175,7 +182,7 @@ namespace GitMind.Git
 				else if (branch == null)
 				{
 					// No branch with that name so lets create one
-					branch = repository.Branches.Add(branchName, commit);
+					branch = repository.Branches.Add(tempBranchName, commit);
 				}
 
 				repository.Checkout(branch);
