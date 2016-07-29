@@ -414,7 +414,8 @@ namespace GitMind.RepositoryViews
 			SetNumberOfItems(branches, sourceBranches.Count, i => new BranchViewModel(
 				repositoryViewModel.ShowBranchCommand,
 				repositoryViewModel.SwitchBranchCommand, 
-				repositoryViewModel.MergeBranchCommand));
+				repositoryViewModel.MergeBranchCommand,
+				repositoryViewModel.CreateBranchCommand));
 
 			int index = 0;
 			List<BranchViewModel> addedBranchColumns = new List<BranchViewModel>();

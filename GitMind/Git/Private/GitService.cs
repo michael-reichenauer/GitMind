@@ -605,6 +605,25 @@ namespace GitMind.Git.Private
 		}
 
 
+		public Task CreateBranchAsync(string workingFolder, string branchName, string commitId)
+		{
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.CreateBranch(branchName, commitId);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed create branch {branchName}, {e.Message}");
+				}
+			});
+		}
+
+
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
 			string gitRepositoryPath, string args)
 		{

@@ -35,7 +35,7 @@ namespace GitMind.MainWindowViews
 
 		internal MainWindowViewModel(Window owner)
 		{
-			RepositoryViewModel = new RepositoryViewModel(Busy, RefreshCommand);
+			RepositoryViewModel = new RepositoryViewModel(owner, Busy, RefreshCommand);
 			this.owner = owner;
 
 			WhenSet(RepositoryViewModel, nameof(RepositoryViewModel.UnCommited)).Notify(nameof(StatusText));

@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Features.Branching;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
@@ -22,6 +23,7 @@ namespace GitMind.RepositoryViews
 	{
 		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
 
+		private readonly Window owner;
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IGitService gitService = new GitService();
@@ -52,8 +54,8 @@ namespace GitMind.RepositoryViews
 
 
 		public RepositoryViewModel(
-			BusyIndicator busyIndicator, Command refreshManuallyCommand)
-			: this(new ViewModelService(refreshManuallyCommand), busyIndicator)
+			Window owner, BusyIndicator busyIndicator, Command refreshManuallyCommand)
+			: this(owner, new ViewModelService(refreshManuallyCommand), busyIndicator)
 		{
 		}
 
@@ -65,9 +67,11 @@ namespace GitMind.RepositoryViews
 
 
 		public RepositoryViewModel(
+			Window owner,
 			IViewModelService viewModelService,
 			BusyIndicator busyIndicator)
 		{
+			this.owner = owner;
 			this.viewModelService = viewModelService;
 			this.busyIndicator = busyIndicator;
 
@@ -139,6 +143,8 @@ namespace GitMind.RepositoryViews
 		public Command<string> UndoUncommittedFileCommand => AsyncCommand<string>(UndoUncommittedFileAsync);
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
 		public Command<Commit> SwitchToCommitCommand => AsyncCommand<Commit>(SwitchToCommitAsync, CanExecuteSwitchToCommit);
+		public Command<Branch> CreateBranchCommand => AsyncCommand<Branch>(CreateBranchAsync);
+
 
 
 		public Command TryUpdateAllBranchesCommand => Command(
@@ -960,6 +966,28 @@ namespace GitMind.RepositoryViews
 		private bool CanExecuteSwitchToCommit(Commit commit)
 		{
 			return Repository.Status.StatusCount == 0 && Repository.Status.ConflictCount == 0;
+		}
+
+
+
+		private async Task CreateBranchAsync(Branch branch)
+		{
+			BranchDialog dialog = new BranchDialog(owner);
+
+			if (dialog.ShowDialog() == true)
+			{
+				Application.Current.MainWindow.Focus();
+				using (busyIndicator.Progress)
+				{
+					await gitService.CreateBranchAsync(WorkingFolder, dialog.BranchName, branch.TipCommit.Id);
+
+					await RefreshAfterCommandAsync();
+				}
+			}
+			else
+			{
+				Application.Current.MainWindow.Focus();
+			}
 		}
 
 

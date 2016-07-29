@@ -182,6 +182,18 @@
 															</MenuItem.Icon>
 														</MenuItem>
 
+														<!-- Create Branch -->
+														<MenuItem 
+															Header="Create Branch"										
+															Command="{Binding CreateBranchCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;"/>
+																</Border>
+															</MenuItem.Icon>
+														</MenuItem>
+
+
 														<!-- Merge to this branch -->
 														<MenuItem 
 															Header="{Binding MergeBranchText}"

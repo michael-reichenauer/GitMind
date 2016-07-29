@@ -159,7 +159,7 @@ namespace GitMind.Git
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 			if (commit == null)
 			{
-				Log.Warn("Unknown commit id {commitId}");
+				Log.Warn($"Unknown commit id {commitId}");
 				return;
 			}
 
@@ -197,7 +197,28 @@ namespace GitMind.Git
 				return;
 			}
 
-			Log.Warn("To many branches with name _{shortId}");
+			Log.Warn($"To many branches with name {proposedBranchName}");
+		}
+
+
+		public void CreateBranch(string branchName, string commitId)
+		{
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			if (commit == null)
+			{
+				Log.Warn($"Unknown commit id {commitId}");
+				return;
+			}
+
+			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+
+			if (branch != null)
+			{
+				Log.Warn($"Branch already exists {branchName}");
+				return;
+			}
+
+			branch = repository.Branches.Add(branchName, commit);
 		}
 	}
 }
