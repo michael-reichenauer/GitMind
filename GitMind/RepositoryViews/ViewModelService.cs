@@ -447,7 +447,7 @@ namespace GitMind.RepositoryViews
 
 				branch.TipRowIndex = commits.FindIndex(c => c == sourceBranch.TipCommit);
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
-				int height = Converter.ToY(branch.FirstRowIndex - branch.TipRowIndex) + 10;
+				int height = Converter.ToY(branch.FirstRowIndex - branch.TipRowIndex) + 8;
 
 				branch.BranchColumn = FindBranchColumn(addedBranchColumns, branch);
 				addedBranchColumns.Add(branch);
@@ -459,11 +459,11 @@ namespace GitMind.RepositoryViews
 				branch.HoverBrush = Brushes.Transparent;
 				branch.Rect = new Rect(
 					(double)Converter.ToX(branch.BranchColumn) + 3,
-					(double)Converter.ToY(branch.TipRowIndex) + Converter.HalfRow - 5,
+					(double)Converter.ToY(branch.TipRowIndex) + Converter.HalfRow - 6,
 					10,
-					height);
+					height + 4);
 
-				branch.Line = $"M 4,0 L 4,{height}";
+				branch.Line = $"M 4,2 L 4,{height}";
 
 				branch.HoverBrushNormal = branch.Brush;
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
