@@ -395,7 +395,6 @@ namespace GitMind.RepositoryViews
 
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
-				commitViewModel.ToolTip = GetCommitToolTip(commit);
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
 
 				commitViewModel.NotifyAll();
@@ -555,10 +554,8 @@ namespace GitMind.RepositoryViews
 			foreach (CommitViewModel childCommit in mergePoints)
 			{
 				CommitViewModel parentCommit = commitsById[childCommit.Commit.SecondParent.Id];
-				string mergeId = childCommit.ShortId + "-" + parentCommit.ShortId;
-
+	
 				MergeViewModel merge = merges[index++];
-				merge.Id = mergeId;
 
 				SetMerge(merge, branches, childCommit, parentCommit);
 			}
@@ -566,10 +563,8 @@ namespace GitMind.RepositoryViews
 			foreach (Commit childCommit in branchStarts)
 			{
 				CommitViewModel parentCommit = commitsById[childCommit.FirstParent.Id];
-				string mergeId = childCommit.ShortId + "-" + parentCommit.ShortId;
 
 				MergeViewModel merge = merges[index++];
-				merge.Id = mergeId;
 
 				SetMerge(merge, branches, commitsById[childCommit.Id], parentCommit);
 			}
@@ -631,25 +626,6 @@ namespace GitMind.RepositoryViews
 
 			merge.NotifyAll();
 		}
-
-
-		private static string GetCommitToolTip(Commit commit)
-		{
-			string name = commit.Branch.IsMultiBranch ? "MultiBranch" : commit.Branch.Name;
-			string toolTip = $"Commit id: {commit.ShortId}\nBranch: {name}";
-
-			if (commit.Branch.LocalAheadCount > 0)
-			{
-				toolTip += $"\nAhead: {commit.Branch.LocalAheadCount}";
-			}
-			if (commit.Branch.RemoteAheadCount > 0)
-			{
-				toolTip += $"\nBehind: {commit.Branch.RemoteAheadCount}";
-			}
-
-			return toolTip;
-		}
-
 
 
 		private static Branch GetMasterBranch(Repository repository)
