@@ -6,7 +6,7 @@
 				xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 				xmlns:local="clr-namespace:GitMind.Features.Branching"
 				mc:Ignorable="d"
-				Title="Branch" Width="260" Height="170" Background="Black"
+				Title="Branch" Width="260" Height="170" ResizeMode="NoResize" Background="Black"
 				WindowStyle="None" AllowsTransparency="True"
 				BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
 				WindowStartupLocation="CenterOwner">
@@ -73,16 +73,21 @@
 
 			<!-- Commit Message -->
 			<Grid Grid.Row="0" Margin="10,10">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
 				<Grid.ColumnDefinitions>
-					<!-- Message Header -->
 					<ColumnDefinition Width="Auto" />
-					<!-- Message textbox -->
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
 
-				<TextBlock Grid.Column="0" Text="Name:" Foreground="{StaticResource TextBrush}" Margin="0, 5"/>
-
-				<TextBox Grid.Column="1" Name="BranchNameText"
+				<!--Branch name -->
+				<TextBlock  
+					Grid.Row="0" Grid.Column="0" 
+					Text="Name:" Foreground="{StaticResource TextBrush}" Margin="0, 5"/>
+				<TextBox Grid.Row="0" Grid.Column="1" Name="BranchNameText"
 					Text="{Binding BranchName, UpdateSourceTrigger=PropertyChanged}"
 					KeyboardNavigation.TabIndex="0"
 					Margin="10,5,0,5"
@@ -90,6 +95,15 @@
 					BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
 					Foreground="{StaticResource TextBrush}"
 					CaretBrush="{StaticResource TextBrush}"/>
+				
+				<!--Publish option -->
+				<CheckBox 
+					Grid.Row="1" Grid.Column="1" IsChecked="True"
+					Content="Publish"
+					Style="{StaticResource CheckBoxStyle}"
+					KeyboardNavigation.TabIndex="3"
+					Margin="10,5,0,5"/>
+				
 			</Grid>
 
 		

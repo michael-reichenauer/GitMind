@@ -11,7 +11,7 @@
 			<ui:PropertyToVisibilityConverter x:Key="VC"/>
 			
 			<ResourceDictionary.MergedDictionaries>
-				
+				<ResourceDictionary Source="Styles/ColorStyle.xaml"/>
 				<ResourceDictionary Source="Styles\ListBoxScrollbarStyle.xaml"/>
 				<ResourceDictionary Source="Styles\ContextMenuStyle.xaml"/>
 				<ResourceDictionary Source="Styles\ButtonStyle.xaml"/>
@@ -20,6 +20,7 @@
 				<ResourceDictionary Source="Styles\LabelStyle.xaml"/>
 				<ResourceDictionary Source="Styles\RadioButtonStyle.xaml"/>
 				<ResourceDictionary Source="Styles\ComboBoxStyle.xaml"/>
+				<ResourceDictionary Source="Styles\CheckboxStyle.xaml"/>
 				<!--<ResourceDictionary Source="Styles\Theme.xaml"/>-->
 
 			</ResourceDictionary.MergedDictionaries>
