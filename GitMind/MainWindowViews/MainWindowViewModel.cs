@@ -338,9 +338,10 @@ namespace GitMind.MainWindowViews
 			{
 				using (Busy.Progress)
 				{
-					Log.Debug("Committing");
+					Log.Debug("Committing to git repo ...");
 
 					await gitService.CommitAsync(workingFolder, message, list.ToList());
+					Log.Debug("Committed to git repo done");
 					return true;
 				}
 			};
@@ -356,8 +357,10 @@ namespace GitMind.MainWindowViews
 
 			if (dialog.ShowDialog() == true)
 			{
+				Log.Debug("After commit dialog, starting refresh after command");
 				Application.Current.MainWindow.Focus();
 				await RepositoryViewModel.RefreshAfterCommandAsync();
+				Log.Debug("After commit dialog, refresh done");
 			}
 			else
 			{

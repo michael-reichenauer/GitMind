@@ -67,8 +67,8 @@ namespace GitMind.Features.Committing
 				return;
 			}
 
-			Log.Debug($"Commit:\n{Message}");
-			files.ForEach(f => Log.Debug($"  {f}"));
+			Log.Debug($"Commit: \"{Message}\"");
+			files.ForEach(f => Log.Debug($"  {f.Path}"));
 
 			commitAction(Message, files);
 

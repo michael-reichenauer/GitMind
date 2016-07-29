@@ -214,7 +214,7 @@ namespace GitMind.RepositoryViews
 		{
 			return refreshThrottler.Run(async () =>
 			{
-				Log.Debug("Loading repository");
+				Log.Debug("Loading repository ...");
 
 				using (busyIndicator.Progress)
 				{
@@ -227,6 +227,7 @@ namespace GitMind.RepositoryViews
 					await FetchRemoteChangesAsync(Repository);
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository, SpecifiedBranches);
+					Log.Debug("Loaded repository done");
 				}
 			});
 		}
@@ -236,7 +237,7 @@ namespace GitMind.RepositoryViews
 		{
 			return refreshThrottler.Run(async () =>
 			{
-				Log.Debug("Refresh after activating");
+				Log.Debug("Refreshing after activating");
 
 				Repository repository;
 
@@ -253,6 +254,7 @@ namespace GitMind.RepositoryViews
 
 				repository = await GetLocalChangesAsync(Repository);
 				UpdateViewModel(repository, SpecifiedBranches);
+				Log.Debug("Refreshed after activating done");
 			});
 		}
 
@@ -262,7 +264,7 @@ namespace GitMind.RepositoryViews
 		{
 			return refreshThrottler.Run(async () =>
 			{
-				Log.Debug("Auto refresh");
+				Log.Debug("Refreshing after auto timer ...");
 
 				if (DateTime.Now - fetchedTime > FetchInterval)
 				{
@@ -282,6 +284,7 @@ namespace GitMind.RepositoryViews
 				}
 
 				UpdateViewModel(repository, SpecifiedBranches);
+				Log.Debug("Refreshed after auto timer done");
 			});
 		}
 
@@ -290,23 +293,23 @@ namespace GitMind.RepositoryViews
 		{
 			return refreshThrottler.Run(async () =>
 			{
-				Log.Debug("Auto refresh");
+				Log.Debug("Refreshing after command ...");
 
 				await FetchRemoteChangesAsync(Repository);
 
 				Repository repository = await GetLocalChangesAsync(Repository);
 
 				UpdateViewModel(repository, SpecifiedBranches);
+				Log.Debug("Refreshed after command done");
 			});
 		}
-
 
 
 		public Task ManualRefreshAsync()
 		{
 			return refreshThrottler.Run(async () =>
 			{
-				Log.Debug("Manual refresh");
+				Log.Debug("Refreshing after manual trigger ...");
 
 				Repository repository;
 				using (busyIndicator.Progress)
@@ -322,6 +325,8 @@ namespace GitMind.RepositoryViews
 
 				RebuildRepositoryTime = DateTime.Now;
 				UpdateViewModel(repository, SpecifiedBranches);
+				Log.Debug("Refreshed after manual trigger done");
+
 			});
 		}
 
