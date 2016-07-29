@@ -61,7 +61,9 @@ namespace GitMind.RepositoryViews
 		{
 			List<Branch> currentlyShownBranches = GetCurrentlyShownBranches(repositoryViewModel);
 
-			bool isShowing = currentlyShownBranches.Contains(commit.SecondParent.Branch);
+			bool isShowing = 
+				(commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
+				|| (commit.HasFirstParent && commit.Branch != commit.FirstParent.Branch && currentlyShownBranches.Contains(commit.FirstParent.Branch));
 
 			BranchViewModel clickedBranch = repositoryViewModel
 				.Branches.First(b => b.Branch == commit.Branch);
@@ -75,15 +77,32 @@ namespace GitMind.RepositoryViews
 			else
 			{
 				// Closing shown branch
-				BranchViewModel otherBranch = repositoryViewModel.Branches
-					.First(b => b.Branch == commit.SecondParent.Branch);
+				BranchViewModel otherBranch;
 
-				if (clickedBranch.BranchColumn > otherBranch.BranchColumn)
+				if (commit.HasSecondParent)
 				{
-					// Closing the branch that was clicked on since that is to the right
-					otherBranch = clickedBranch;
-					stableCommit = commit.SecondParent;
+					otherBranch = repositoryViewModel.Branches
+						.First(b => b.Branch == commit.SecondParent.Branch);
+
+					if (clickedBranch.BranchColumn > otherBranch.BranchColumn)
+					{
+						// Closing the branch that was clicked on since that is to the right
+						otherBranch = clickedBranch;
+						stableCommit = commit.SecondParent;
+					}
 				}
+				else
+				{
+					otherBranch = repositoryViewModel.Branches
+						.First(b => b.Branch == commit.FirstParent.Branch);
+
+					if (clickedBranch.BranchColumn > otherBranch.BranchColumn)
+					{
+						// Closing the branch that was clicked on since that is to the right
+						otherBranch = clickedBranch;
+						stableCommit = commit.FirstParent;
+					}
+				}	
 
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, otherBranch.Branch);
@@ -540,7 +559,7 @@ namespace GitMind.RepositoryViews
 			var merges = repositoryViewModel.Merges;
 
 			var mergePoints = commits
-				.Where(c => c.IsMergePoint && sourceBranches.Contains(c.Commit.SecondParent.Branch))
+				.Where(c => c.IsMergePoint && c.Commit.HasSecondParent && sourceBranches.Contains(c.Commit.SecondParent.Branch))
 				.ToList();
 
 			var branchStarts = branches.Where(b =>
