@@ -15,7 +15,7 @@ namespace GitMind.Features.Committing
 	internal class CommitDialogViewModel : ViewModel
 	{
 		private readonly string branchName;
-		private readonly Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction;
+		private readonly Func<string, IEnumerable<CommitFile>, Task<bool>> commitActionAsync;
 		private readonly IEnumerable<CommitFile> files;
 		private readonly Command<string> undoUncommittedFileCommand;
 
@@ -26,13 +26,13 @@ namespace GitMind.Features.Committing
 		public CommitDialogViewModel(
 			string branchName,
 			string workingFolder,
-			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction,
+			Func<string, IEnumerable<CommitFile>, Task<bool>> commitActionAsync,
 			IEnumerable<CommitFile> files,
 			Command showUncommittedDiffCommand,
 			Command<string> undoUncommittedFileCommand)
 		{
 			this.branchName = branchName;
-			this.commitAction = commitAction;
+			this.commitActionAsync = commitActionAsync;
 			this.files = files;
 			this.undoUncommittedFileCommand = undoUncommittedFileCommand;
 			ShowUncommittedDiffCommand = showUncommittedDiffCommand;
@@ -60,7 +60,7 @@ namespace GitMind.Features.Committing
 			= new ObservableCollection<CommitFileViewModel>();
 
 
-		private void SetOK(Window window)
+		private async void SetOK(Window window)
 		{
 			if (string.IsNullOrEmpty(Message))
 			{
@@ -70,7 +70,7 @@ namespace GitMind.Features.Committing
 			Log.Debug($"Commit: \"{Message}\"");
 			files.ForEach(f => Log.Debug($"  {f.Path}"));
 
-			commitAction(Message, files);
+			await commitActionAsync(Message, files);
 
 			window.DialogResult = true;
 		}
