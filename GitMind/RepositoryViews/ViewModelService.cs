@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -368,7 +367,8 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.ToggleDetailsCommand,
 				repositoryViewModel.ShowDiffCommand,
 				repositoryViewModel.SetBranchCommand,
-				repositoryViewModel.SwitchToCommitCommand));
+				repositoryViewModel.SwitchToCommitCommand,
+				repositoryViewModel.SwitchBranchCommand));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
@@ -413,7 +413,7 @@ namespace GitMind.RepositoryViews
 
 			SetNumberOfItems(branches, sourceBranches.Count, i => new BranchViewModel(
 				repositoryViewModel.ShowBranchCommand,
-				repositoryViewModel.SwitchBranchCommand, 
+				repositoryViewModel.SwitchBranchCommand,
 				repositoryViewModel.MergeBranchCommand,
 				repositoryViewModel.CreateBranchCommand));
 

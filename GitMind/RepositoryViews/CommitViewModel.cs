@@ -15,12 +15,14 @@ namespace GitMind.RepositoryViews
 			Command toggleDetailsCommand,
 			Command<Commit> showCommitDiffCommand,
 			Command<Commit> setBranchCommand,
-			Command<Commit> switchToCommitCommand)
+			Command<Commit> switchToCommitCommand,
+			Command<Branch> switchToBranchCommand)
 		{
 			ToggleDetailsCommand = toggleDetailsCommand;
 			SetCommitBranchCommand = setBranchCommand.With(() => Commit);
 			ShowCommitDiffCommand = showCommitDiffCommand.With(() => Commit);
 			SwitchToCommitCommand = switchToCommitCommand.With(() => Commit);
+			SwitchToBranchCommand = switchToBranchCommand.With(() => Commit.Branch);
 		}
 
 
@@ -34,7 +36,8 @@ namespace GitMind.RepositoryViews
 		public string Tags => Commit.Tags;
 		public string Tickets => Commit.Tickets;
 		public string BranchTips => Commit.BranchTips;
-		public string CommitBranchText => "Hide branch: " + Commit.Branch.Name;
+		public string CommitBranchText => $"Hide branch: {Commit.Branch.Name}";
+		public string SwitchToBranchText => $"Switch to branch: {Commit.Branch.Name}";
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 
@@ -88,13 +91,11 @@ namespace GitMind.RepositoryViews
 
 
 		public Command ToggleDetailsCommand { get; }
-
 		public Command ShowCommitDiffCommand { get; }
-
 		public Command SetCommitBranchCommand { get; }
-
 		public Command SwitchToCommitCommand { get; }
-		
+		public Command SwitchToBranchCommand { get; }
+
 
 		// Values used by other properties
 		public Commit Commit { get; set; }
