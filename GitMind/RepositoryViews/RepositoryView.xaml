@@ -173,7 +173,7 @@
 
 														<!-- Switch to this branch -->
 														<MenuItem 
-															Header="Switch to this branch"										
+															Header="{Binding SwitchBranchText}"										
 															Command="{Binding SwitchBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
@@ -184,7 +184,7 @@
 
 														<!-- Merge to this branch -->
 														<MenuItem 
-															Header="Merge into this branch"
+															Header="{Binding MergeBranchText}"
 															IsEnabled="{Binding IsMergeable}"
 															ItemsSource="{Binding OtherShownBranches}">
 															<MenuItem.Icon>
