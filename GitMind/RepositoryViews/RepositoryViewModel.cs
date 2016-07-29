@@ -956,7 +956,7 @@ namespace GitMind.RepositoryViews
 					? commit.Branch.Name
 					: $"_tmp_{commit.Branch.Name}";
 
-			await gitService.SwitchToCommitAsync(WorkingFolder, commit.Id, proposedNamed);
+			await gitService.SwitchToCommitAsync(WorkingFolder, commit.CommitId, proposedNamed);
 
 				await RefreshAfterCommandAsync();
 			}
