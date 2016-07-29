@@ -163,14 +163,19 @@ namespace GitMind.Git
 				return;
 			}
 
-
 			// Trying to create a switch branch and check out, but that branch might be "taken"
 			// so we might have to retry a few times
 			for (int i = 0; i < 5; i++)
 			{
-				// Trying to get an existing switch branch 		
+				// Trying to get an existing switch branch with proposed name) at that commit
+				Branch branch = repository.Branches
+					.FirstOrDefault(b => !b.IsRemote && b.FriendlyName == proposedBranchName && b.Tip.Id.Sha == commitId);
 
-				Branch branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
+				if (branch == null)
+				{
+					// Could not find proposed name at that place, try get existing branch at that commit
+					branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
+				}
 
 				string branchName = (i == 0 && !proposedBranchName.StartsWith("_tmp_")) 
 					? proposedBranchName : $"{proposedBranchName}_{i + 1}";
