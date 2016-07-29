@@ -219,6 +219,8 @@ namespace GitMind.Git
 			}
 
 			branch = repository.Branches.Add(branchName, commit);
+
+			repository.Checkout(branch);
 		}
 	}
 }
