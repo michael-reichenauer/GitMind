@@ -172,7 +172,8 @@ namespace GitMind.Git
 
 				Branch branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
 
-				string branchName = (i == 0) ? proposedBranchName : $"{proposedBranchName}_{i + 1}";
+				string branchName = (i == 0 && !proposedBranchName.StartsWith("_tmp_")) 
+					? proposedBranchName : $"{proposedBranchName}_{i + 1}";
 
 				if (branch == null)
 				{
