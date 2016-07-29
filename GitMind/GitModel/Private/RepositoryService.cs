@@ -257,32 +257,32 @@ namespace GitMind.GitModel.Private
 
 		private static void RemoveVirtualCommits(MRepository repository)
 		{
-			MCommit uncommitted;
-			if (repository.Commits.TryGetValue(MCommit.UncommittedId, out uncommitted))
-			{
-				repository.ChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
-				repository.FirstChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
-				repository.Commits.Remove(uncommitted.Id);
-				uncommitted.Branch.CommitIds.Remove(uncommitted.Id);
-				if (uncommitted.Branch.TipCommitId == uncommitted.Id)
-				{
-					uncommitted.Branch.TipCommitId = uncommitted.FirstParentId;
-				}
-			}
-
-
-			//List<MCommit> virtualCommits = repository.Commits.Values.Where(c => c.IsVirtual).ToList();
-			//foreach (MCommit virtualCommit in virtualCommits)
+			//MCommit uncommitted;
+			//if (repository.Commits.TryGetValue(MCommit.UncommittedId, out uncommitted))
 			//{
-			//	repository.ChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
-			//	repository.FirstChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
-			//	repository.Commits.Remove(virtualCommit.Id);
-			//	virtualCommit.Branch.CommitIds.Remove(virtualCommit.Id);
-			//	if (virtualCommit.Branch.TipCommitId == virtualCommit.Id)
+			//	repository.ChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
+			//	repository.FirstChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
+			//	repository.Commits.Remove(uncommitted.Id);
+			//	uncommitted.Branch.CommitIds.Remove(uncommitted.Id);
+			//	if (uncommitted.Branch.TipCommitId == uncommitted.Id)
 			//	{
-			//		virtualCommit.Branch.TipCommitId = virtualCommit.FirstParentId;
+			//		uncommitted.Branch.TipCommitId = uncommitted.FirstParentId;
 			//	}
 			//}
+
+
+			List<MCommit> virtualCommits = repository.Commits.Values.Where(c => c.IsVirtual).ToList();
+			foreach (MCommit virtualCommit in virtualCommits)
+			{
+				repository.ChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
+				repository.FirstChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
+				repository.Commits.Remove(virtualCommit.Id);
+				virtualCommit.Branch.CommitIds.Remove(virtualCommit.Id);
+				if (virtualCommit.Branch.TipCommitId == virtualCommit.Id)
+				{
+					virtualCommit.Branch.TipCommitId = virtualCommit.FirstParentId;
+				}
+			}
 		}
 	}
 }

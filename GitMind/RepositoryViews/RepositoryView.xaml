@@ -379,7 +379,7 @@
 																Foreground="{Binding BranchTipBrush}"
 																HorizontalAlignment="Left"
 																VerticalAlignment="Center"
-																ToolTip="Branch tip of branch with no commits of its own"/>
+																ToolTip="Tip of branch to same commit as parent branch"/>
 
 															<!-- Tag -->
 															<TextBlock 

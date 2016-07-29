@@ -29,6 +29,7 @@ namespace GitMind.GitModel.Private
 			return new Commit(
 				repository,
 				commit.Id,
+				commit.CommitId,
 				commit.ShortId,
 				commit.Subject,
 				commit.Author,

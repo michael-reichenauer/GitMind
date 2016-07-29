@@ -43,10 +43,10 @@ namespace GitMind.RepositoryViews
 			{
 				if (CommitViewModel != null)
 				{
-					if (filesCommitId != CommitViewModel.Id)
+					if (filesCommitId != CommitViewModel.Commit.CommitId)
 					{
 						files.Clear();
-						filesCommitId = CommitViewModel.Id;
+						filesCommitId = CommitViewModel.Commit.CommitId;
 						SetFilesAsync(commitViewModel.Commit).RunInBackground();
 					}
 				}
@@ -88,13 +88,13 @@ namespace GitMind.RepositoryViews
 		private async Task SetFilesAsync(Commit commit)
 		{
 			IEnumerable<CommitFile> commitFiles = await commit.FilesTask;
-			if (filesCommitId == commit.Id)
+			if (filesCommitId == commit.CommitId)
 			{
 				files.Clear();
 				commitFiles.ForEach(f => files.Add(
 					new CommitFileViewModel(undoUncommittedFileCommand)
 					{
-						Id = commit.Id,
+						Id = commit.CommitId,
 						Name = f.Path,
 						Status = f.Status,
 						WorkingFolder = commit.WorkingFolder

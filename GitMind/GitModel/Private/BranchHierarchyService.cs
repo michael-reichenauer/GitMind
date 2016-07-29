@@ -155,16 +155,20 @@ namespace GitMind.GitModel.Private
 
 			foreach (MBranch branch in repository.Branches.Values.Where(b => !b.Commits.Any()))
 			{
-				string branchTipText = $"({branch.Name}) ";
-				if (branch.TipCommit.BranchTips != null
-					&& -1 == branch.TipCommit.BranchTips.IndexOf(branch.Name, StringComparison.Ordinal))
-				{
-					branch.TipCommit.BranchTips += branchTipText;
-				}
-				else
-				{
-					branch.TipCommit.BranchTips = branchTipText;
-				}
+				MCommit commit = new MCommit();
+				commit.IsVirtual = true;
+				commit.Repository = repository;
+				commit.BranchId = branch.Id;
+				commit.BranchName = branch.Name;
+				CopyToCommit(branch, commit);
+				SetChildOfParents(commit);
+				repository.Commits[commit.Id] = commit;
+
+				branch.CommitIds.Add(commit.Id);
+				branch.TipCommitId = commit.Id;
+				branch.FirstCommitId = commit.Id;
+
+				branch.TipCommit.BranchTips = $"{branch.Name} -> ";
 			}
 		}
 
@@ -197,6 +201,52 @@ namespace GitMind.GitModel.Private
 						&& !branch.Value.ParentBranch.ChildBranchNames.Contains(branch.Value.Name))
 					{
 						branch.Value.ParentBranch.ChildBranchNames.Add(branch.Value.Name);
+					}
+				}
+			}
+		}
+
+
+		private static void CopyToCommit(MBranch branch, MCommit commit)
+		{
+			commit.Id = GetId();
+			commit.CommitId = branch.ParentCommit.CommitId;
+			commit.ShortId = commit.CommitId.Substring(0, 6);
+			commit.Subject = branch.ParentCommit.Subject;
+			commit.Author = branch.ParentCommit.Author;
+			commit.AuthorDate = branch.ParentCommit.AuthorDate;
+			commit.CommitDate = branch.ParentCommit.CommitDate + TimeSpan.FromSeconds(1);
+			commit.Tickets = branch.ParentCommit.Tickets;
+			commit.ParentIds = new List<string> { branch.ParentCommitId };
+		}
+
+		private static string GetId()
+		{
+			string id =
+				Guid.NewGuid().ToString().Replace("-", "")
+				+ Guid.NewGuid().ToString().Replace("-", "");
+			return id.Substring(0, 40);
+		}
+
+
+		private static void SetChildOfParents(MCommit commit)
+		{
+			bool isFirstParent = true;
+			foreach (string parentId in commit.ParentIds)
+			{
+				IList<string> childIds = commit.Repository.ChildIds(parentId);
+				if (!childIds.Contains(commit.Id))
+				{
+					childIds.Add(commit.Id);
+				}
+
+				if (isFirstParent)
+				{
+					isFirstParent = false;
+					IList<string> firstChildIds = commit.Repository.FirstChildIds(parentId);
+					if (!firstChildIds.Contains(commit.Id))
+					{
+						firstChildIds.Add(commit.Id);
 					}
 				}
 			}

@@ -48,6 +48,8 @@ namespace GitMind.GitModel.Private
 		public bool IsVirtual { get; set; }
 		[ProtoMember(16)]
 		public string BranchTips { get; set; }
+		[ProtoMember(17)]
+		public string CommitId { get; set; }
 
 
 		public string SubBranchId { get; set; }
