@@ -168,7 +168,7 @@ namespace GitMind.GitModel.Private
 				branch.TipCommitId = commit.Id;
 				branch.FirstCommitId = commit.Id;
 
-				branch.TipCommit.BranchTips = $"{branch.Name} -> ";
+				branch.TipCommit.BranchTips = $"{branch.Name} -> commit: ";
 			}
 		}
 
