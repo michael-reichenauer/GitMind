@@ -144,12 +144,18 @@ namespace GitMind.Git
 			if (branch != null)
 			{
 				repository.Merge(branch, committer, MergeNoFastForward);
-			}		
+			}
 		}
 
 
-		public void SwitchToCommit(string commitId)
+		public void SwitchToCommit(string commitId, string proposedBranchName)
 		{
+			if (string.IsNullOrEmpty(proposedBranchName))
+			{
+				string shortId = commitId.Substring(0, 6);
+				proposedBranchName = $"_tmp_{shortId}";
+			}
+
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 			if (commit == null)
 			{
@@ -157,7 +163,6 @@ namespace GitMind.Git
 				return;
 			}
 
-			string shortId = commitId.Substring(0, 6);
 
 			// Trying to create a switch branch and check out, but that branch might be "taken"
 			// so we might have to retry a few times
@@ -167,11 +172,12 @@ namespace GitMind.Git
 
 				Branch branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
 
-				string tempBranchName = $"_tmp_{shortId}{i}";
+				string branchName = (i == 0) ? proposedBranchName : $"{proposedBranchName}_{i + 1}";
+
 				if (branch == null)
 				{
 					// Try get a previous switch branch				
-					branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == tempBranchName);
+					branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
 				}
 
 				if (branch != null && branch.Tip.Id.Sha != commitId)
@@ -182,7 +188,7 @@ namespace GitMind.Git
 				else if (branch == null)
 				{
 					// No branch with that name so lets create one
-					branch = repository.Branches.Add(tempBranchName, commit);
+					branch = repository.Branches.Add(branchName, commit);
 				}
 
 				repository.Checkout(branch);

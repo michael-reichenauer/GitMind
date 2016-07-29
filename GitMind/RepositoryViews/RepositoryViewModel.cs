@@ -941,7 +941,11 @@ namespace GitMind.RepositoryViews
 		{
 			using (busyIndicator.Progress)
 			{
-				await gitService.SwitchToCommitAsync(WorkingFolder, commit.Id);
+				string proposedNamed = commit == commit.Branch.TipCommit
+					? commit.Branch.Name
+					: $"_tmp_{commit.Branch.Name}";
+
+			await gitService.SwitchToCommitAsync(WorkingFolder, commit.Id, proposedNamed);
 
 				await RefreshAfterCommandAsync();
 			}
