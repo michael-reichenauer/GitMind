@@ -9,7 +9,7 @@
 	xmlns:commiting="clr-namespace:GitMind.Features.Committing"
 	mc:Ignorable="d"
 	Title="Commit" 
-	Width="550" Height="400" Background="Black"
+	Width="390" Height="320" Background="Black"
 	WindowStyle="None" AllowsTransparency="True"
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"		
 	WindowStartupLocation="CenterOwner">
@@ -29,8 +29,7 @@
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding ElementName=CommitDialogWindow}" />
 		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
-		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
-		<KeyBinding Modifiers="Control" Key="Space" Command="{Binding ShowUncommittedDiffCommand}" />
+		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding ShowUncommittedDiffCommand}" />
 	</Window.InputBindings>
 
 
@@ -61,7 +60,7 @@
 						Style="{StaticResource IconButtonStyle}"			
 						Foreground="{StaticResource TextLowBrush}"					
 						Command="{Binding ShowUncommittedDiffCommand}"
-						ToolTip="Show diff of uncommitted changes ..." 
+						ToolTip="Show diff of uncommitted changes ... (Ctrl-Enter)" 
 						WindowChrome.IsHitTestVisibleInChrome="True"/>
 					
 				</StackPanel>
@@ -81,7 +80,7 @@
 		<Grid Grid.Row="1">
 			<Grid.RowDefinitions>
 				<!-- Commit Message -->
-				<RowDefinition Height="115" />
+				<RowDefinition Height="98" />
 				<!-- Grid splitter -->
 				<RowDefinition Height="Auto" />
 				<!-- Commit files -->

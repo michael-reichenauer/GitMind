@@ -20,7 +20,7 @@ namespace GitMind.Features.Committing
 		private readonly Command<string> undoUncommittedFileCommand;
 
 		// private static readonly string TestMessage = 
-		//	"01234567890123456789012345678901234567890123456789012345678901234567890123456789]";
+		// "0123456789001234567890012345678900123456789001234567890]";
 
 
 		public CommitDialogViewModel(
