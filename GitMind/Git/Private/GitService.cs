@@ -605,15 +605,16 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task CreateBranchAsync(string workingFolder, string branchName, string commitId)
+		public async Task CreateBranchAsync(
+			string workingFolder, string branchName, string commitId, bool isPublish)
 		{
-			return Task.Run(() =>
+			await Task.Run(() =>
 			{
 				try
 				{
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
-						gitRepository.CreateBranch(branchName, commitId);
+						gitRepository.CreateBranch(branchName, commitId, isPublish);
 					}
 				}
 				catch (Exception e)
@@ -621,6 +622,22 @@ namespace GitMind.Git.Private
 					Log.Warn($"Failed create branch {branchName}, {e.Message}");
 				}
 			});
+
+
+			if (isPublish)
+			{
+				Log.Debug($"Push {branchName} branch using cmd... {workingFolder}");
+
+				string args = $"push -u origin {branchName}";
+
+				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+
+				pullResult.OnValue(_ => Log.Debug($"Pushed {branchName} branch using cmd"));
+
+				// Ignoring fetch errors for now.
+				pullResult.OnError(e => Log.Warn($"Git push {branchName} branch failed {e.Message}"));
+			}
 		}
 
 

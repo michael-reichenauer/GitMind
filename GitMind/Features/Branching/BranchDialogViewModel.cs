@@ -10,11 +10,24 @@ namespace GitMind.Features.Branching
 		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
 
+		public BranchDialogViewModel()
+		{
+			IsPublish = true;
+		}
+
 		public string BranchName
 		{
 			get { return Get(); }
 			set { Set(value).Notify(nameof(OkCommand)); }
 		}
+
+
+		public bool IsPublish
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
 
 		private void SetOK(Window window)
 		{

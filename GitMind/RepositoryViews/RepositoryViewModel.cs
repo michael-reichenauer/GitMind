@@ -978,7 +978,11 @@ namespace GitMind.RepositoryViews
 				Application.Current.MainWindow.Focus();
 				using (busyIndicator.Progress)
 				{
-					await gitService.CreateBranchAsync(WorkingFolder, dialog.BranchName, branch.TipCommit.Id);
+					string branchName = dialog.BranchName;
+					string commitId = branch.TipCommit.Id;
+					bool isPublish = dialog.IsPublish;
+
+					await gitService.CreateBranchAsync(WorkingFolder, branchName, commitId, isPublish);
 
 					await RefreshAfterCommandAsync();
 				}

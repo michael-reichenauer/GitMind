@@ -98,7 +98,7 @@
 				
 				<!--Publish option -->
 				<CheckBox 
-					Grid.Row="1" Grid.Column="1" IsChecked="True"
+					Grid.Row="1" Grid.Column="1" IsChecked="{Binding IsPublish}"
 					Content="Publish"
 					Style="{StaticResource CheckBoxStyle}"
 					KeyboardNavigation.TabIndex="3"

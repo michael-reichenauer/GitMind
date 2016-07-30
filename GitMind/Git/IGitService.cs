@@ -45,6 +45,6 @@ namespace GitMind.Git
 		Task UndoFileInCurrentBranchAsync(string workingFolder, string path);
 		Task MergeAsync(string workingFolder, string branchName);
 		Task SwitchToCommitAsync(string workingFolder, string commitId, string proposedBranchName);
-		Task CreateBranchAsync(string workingFolder, string branchName, string commitId);
+		Task CreateBranchAsync(string workingFolder, string branchName, string commitId, bool isPublish);
 	}
 }
