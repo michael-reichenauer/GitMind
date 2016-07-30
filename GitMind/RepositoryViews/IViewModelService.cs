@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using GitMind.GitModel;
@@ -8,9 +7,7 @@ namespace GitMind.RepositoryViews
 {
 	internal interface IViewModelService
 	{
-		void UpdateViewModel(RepositoryViewModel repositoryViewModel, IReadOnlyList<Branch> specifiedBranches);
-
-		void Update(RepositoryViewModel repositoryViewModel, IReadOnlyList<string> specifiedBranchNames);
+		void UpdateViewModel(RepositoryViewModel repositoryViewModel);
 
 		int ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit);
 
