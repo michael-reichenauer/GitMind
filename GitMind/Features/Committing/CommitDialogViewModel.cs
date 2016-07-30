@@ -19,8 +19,11 @@ namespace GitMind.Features.Committing
 		private readonly IEnumerable<CommitFile> files;
 		private readonly Command<string> undoUncommittedFileCommand;
 
-		// private static readonly string TestMessage = 
-		// "0123456789001234567890012345678900123456789001234567890]";
+		//private static readonly string TestSubject =
+		//"01234567890123456789012345678901234567890123456789]";
+
+		//private static readonly string TestDescription =
+		//"012345678901234567890123456789012345678901234567890123456789012345678912]";
 
 
 		public CommitDialogViewModel(
@@ -39,6 +42,9 @@ namespace GitMind.Features.Committing
 
 			files.ForEach(f => Files.Add(
 				ToCommitFileViewModel(workingFolder, f)));
+
+			//Subject = TestSubject;
+			//Description = TestDescription;
 		}
 
 
@@ -50,7 +56,15 @@ namespace GitMind.Features.Committing
 
 		public string BranchText => $"Commit on {branchName}";
 
-		public string Message
+		public string Message => $"{Subject?.Trim()}\n\n{Description?.Trim()}";
+		
+		public string Subject
+		{
+			get { return Get(); }
+			set { Set(value).Notify(nameof(OkCommand)); }
+		}
+
+		public string Description
 		{
 			get { return Get(); }
 			set { Set(value).Notify(nameof(OkCommand)); }
@@ -62,7 +76,7 @@ namespace GitMind.Features.Committing
 
 		private async void SetOK(Window window)
 		{
-			if (string.IsNullOrEmpty(Message))
+			if (string.IsNullOrWhiteSpace(Subject))
 			{
 				return;
 			}

@@ -31,7 +31,8 @@ namespace GitMind.Features.Committing
 				files,
 				showUncommittedDiffCommand,
 				undoUncommittedFileCommand);
-			MessageText.Focus();
+
+			SubjectText.Focus();
 		}
 	}
 }
