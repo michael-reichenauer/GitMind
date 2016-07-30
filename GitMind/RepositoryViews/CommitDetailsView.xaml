@@ -168,7 +168,7 @@
 							<Grid.ContextMenu>
 								<ContextMenu>
 
-									<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}">
+									<MenuItem Header="Show file diff ..." Command="{Binding ShowDiffCommand}">
 										<MenuItem.Icon>
 											<Border>
 												<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;"/>

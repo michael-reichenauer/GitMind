@@ -148,7 +148,7 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
 		public Command<Commit> SwitchToCommitCommand => AsyncCommand<Commit>(SwitchToCommitAsync, CanExecuteSwitchToCommit);
 		public Command<Branch> CreateBranchCommand => AsyncCommand<Branch>(CreateBranchAsync);
-
+		public Command<Commit> CreateBranchFromCommitCommand => AsyncCommand<Commit>(CreateBranchFromCommitAsync);
 
 
 		public Command TryUpdateAllBranchesCommand => Command(
@@ -1034,6 +1034,34 @@ namespace GitMind.RepositoryViews
 				{
 					string branchName = dialog.BranchName;
 					string commitId = branch.TipCommit.Id;
+					bool isPublish = dialog.IsPublish;
+
+					await gitService.CreateBranchAsync(WorkingFolder, branchName, commitId, isPublish);
+					SpecifiedBranchNames = new[] { branchName };
+					await RefreshAfterCommandAsync(true);
+				}
+			}
+			else
+			{
+				Application.Current.MainWindow.Focus();
+			}
+
+			isInternalDialog = false;
+		}
+
+
+		private async Task CreateBranchFromCommitAsync(Commit commit)
+		{
+			BranchDialog dialog = new BranchDialog(owner);
+
+			isInternalDialog = true;
+			if (dialog.ShowDialog() == true)
+			{
+				Application.Current.MainWindow.Focus();
+				using (busyIndicator.Progress)
+				{
+					string branchName = dialog.BranchName;
+					string commitId = commit.Id;
 					bool isPublish = dialog.IsPublish;
 
 					await gitService.CreateBranchAsync(WorkingFolder, branchName, commitId, isPublish);

@@ -129,7 +129,7 @@
 							<ContextMenu Name="UncommittedContextMenu">
 
 								<MenuItem 
-									Header="Show uncommitted Diff ..." 
+									Header="Show uncommitted diff ..." 
 									InputGestureText="Ctrl-Enter"
 									Command="{Binding ShowUncommittedDiffCommand}">
 									<MenuItem.Icon>

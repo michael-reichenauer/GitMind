@@ -404,7 +404,8 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.ShowDiffCommand,
 				repositoryViewModel.SetBranchCommand,
 				repositoryViewModel.SwitchToCommitCommand,
-				repositoryViewModel.SwitchBranchCommand));
+				repositoryViewModel.SwitchBranchCommand,
+				repositoryViewModel.CreateBranchFromCommitCommand));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
