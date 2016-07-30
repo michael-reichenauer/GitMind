@@ -18,12 +18,14 @@ namespace GitMind.RepositoryViews
 		public BranchViewModel(
 			Command<Branch> showBranchCommand,
 			Command<Branch> switchBranchCommand,
-			Command<Branch> mergeBranchCommand)
-		{
+			Command<Branch> mergeBranchCommand,
+			Command<Branch> createBranchCommand)
+		{			
 			this.showBranchCommand = showBranchCommand;
 			this.mergeBranchCommand = mergeBranchCommand;
 
 			SwitchBranchCommand = switchBranchCommand.With(() => Branch);
+			CreateBranchCommand = createBranchCommand.With(() => Branch);
 		}
 
 		// UI properties
@@ -43,6 +45,8 @@ namespace GitMind.RepositoryViews
 		public Brush HoverBrushHighlight { get; set; }
 		public string BranchToolTip { get; set; }
 		public bool IsMergeable => Branch.IsMergeable;
+		public string SwitchBranchText => $"Switch to '{Name}'";
+		public string MergeBranchText => $"Merge into '{Name}' from";
 
 		// Values used by UI properties
 		public Branch Branch { get; set; }
@@ -54,6 +58,7 @@ namespace GitMind.RepositoryViews
 
 
 		public Command SwitchBranchCommand { get; }
+		public Command CreateBranchCommand { get; }
 
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }

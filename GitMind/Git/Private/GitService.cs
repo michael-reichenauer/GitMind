@@ -605,6 +605,59 @@ namespace GitMind.Git.Private
 		}
 
 
+		public async Task CreateBranchAsync(
+			string workingFolder, string branchName, string commitId, bool isPublish)
+		{
+			await Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.CreateBranch(branchName, commitId, isPublish);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed create branch {branchName}, {e.Message}");
+				}
+			});
+
+
+			if (isPublish)
+			{
+				Log.Debug($"Push {branchName} branch using cmd... {workingFolder}");
+
+				string args = $"push -u origin {branchName}";
+
+				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+
+				pullResult.OnValue(_ => Log.Debug($"Pushed {branchName} branch using cmd"));
+
+				// Ignoring fetch errors for now.
+				pullResult.OnError(e => Log.Warn($"Git push {branchName} branch failed {e.Message}"));
+			}
+		}
+
+
+		public string GetFullMessage(string workingFolder, string commitId)
+		{
+			try
+			{
+				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				{
+					return gitRepository.GetFullMessage(commitId);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed get full message {commitId}, {e.Message}");
+				return null;
+			}
+		}
+
+
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
 			string gitRepositoryPath, string args)
 		{

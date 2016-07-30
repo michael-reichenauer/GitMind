@@ -159,18 +159,23 @@ namespace GitMind.Git
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 			if (commit == null)
 			{
-				Log.Warn("Unknown commit id {commitId}");
+				Log.Warn($"Unknown commit id {commitId}");
 				return;
 			}
-
 
 			// Trying to create a switch branch and check out, but that branch might be "taken"
 			// so we might have to retry a few times
 			for (int i = 0; i < 5; i++)
 			{
-				// Trying to get an existing switch branch 		
+				// Trying to get an existing switch branch with proposed name) at that commit
+				Branch branch = repository.Branches
+					.FirstOrDefault(b => !b.IsRemote && b.FriendlyName == proposedBranchName && b.Tip.Id.Sha == commitId);
 
-				Branch branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
+				if (branch == null)
+				{
+					// Could not find proposed name at that place, try get existing branch at that commit
+					branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
+				}
 
 				string branchName = (i == 0 && !proposedBranchName.StartsWith("_tmp_")) 
 					? proposedBranchName : $"{proposedBranchName}_{i + 1}";
@@ -197,7 +202,50 @@ namespace GitMind.Git
 				return;
 			}
 
-			Log.Warn("To many branches with name _{shortId}");
+			Log.Warn($"To many branches with name {proposedBranchName}");
+		}
+
+
+		public void CreateBranch(string branchName, string commitId, bool isPublish)
+		{
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			if (commit == null)
+			{
+				Log.Warn($"Unknown commit id {commitId}");
+				return;
+			}
+
+			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+
+
+			if (branch != null)
+			{
+				Log.Warn($"Branch already exists {branchName}");
+				return;
+			}
+
+			branch = repository.Branches.Add(branchName, commit);
+			repository.Checkout(branch);
+
+			Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+
+			if (isPublish && remoteBranch != null)
+			{
+				branch = repository.Branches.Add(branchName, remoteBranch.Tip);
+				repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
+			}
+		}
+
+
+		public string GetFullMessage(string commitId)
+		{
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			if (commit != null)
+			{
+				return commit.Message;
+			}
+
+			return null;
 		}
 	}
 }

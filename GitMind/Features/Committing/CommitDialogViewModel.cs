@@ -15,30 +15,36 @@ namespace GitMind.Features.Committing
 	internal class CommitDialogViewModel : ViewModel
 	{
 		private readonly string branchName;
-		private readonly Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction;
+		private readonly Func<string, IEnumerable<CommitFile>, Task<bool>> commitActionAsync;
 		private readonly IEnumerable<CommitFile> files;
 		private readonly Command<string> undoUncommittedFileCommand;
 
-		// private static readonly string TestMessage = 
-		//	"01234567890123456789012345678901234567890123456789012345678901234567890123456789]";
+		//private static readonly string TestSubject =
+		//"01234567890123456789012345678901234567890123456789]";
+
+		//private static readonly string TestDescription =
+		//"012345678901234567890123456789012345678901234567890123456789012345678912]";
 
 
 		public CommitDialogViewModel(
 			string branchName,
 			string workingFolder,
-			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction,
+			Func<string, IEnumerable<CommitFile>, Task<bool>> commitActionAsync,
 			IEnumerable<CommitFile> files,
 			Command showUncommittedDiffCommand,
 			Command<string> undoUncommittedFileCommand)
 		{
 			this.branchName = branchName;
-			this.commitAction = commitAction;
+			this.commitActionAsync = commitActionAsync;
 			this.files = files;
 			this.undoUncommittedFileCommand = undoUncommittedFileCommand;
 			ShowUncommittedDiffCommand = showUncommittedDiffCommand;
 
 			files.ForEach(f => Files.Add(
 				ToCommitFileViewModel(workingFolder, f)));
+
+			//Subject = TestSubject;
+			//Description = TestDescription;
 		}
 
 
@@ -50,7 +56,15 @@ namespace GitMind.Features.Committing
 
 		public string BranchText => $"Commit on {branchName}";
 
-		public string Message
+		public string Message => $"{Subject?.Trim()}\n\n{Description?.Trim()}";
+		
+		public string Subject
+		{
+			get { return Get(); }
+			set { Set(value).Notify(nameof(OkCommand)); }
+		}
+
+		public string Description
 		{
 			get { return Get(); }
 			set { Set(value).Notify(nameof(OkCommand)); }
@@ -60,17 +74,17 @@ namespace GitMind.Features.Committing
 			= new ObservableCollection<CommitFileViewModel>();
 
 
-		private void SetOK(Window window)
+		private async void SetOK(Window window)
 		{
-			if (string.IsNullOrEmpty(Message))
+			if (string.IsNullOrWhiteSpace(Subject))
 			{
 				return;
 			}
 
-			Log.Debug($"Commit:\n{Message}");
-			files.ForEach(f => Log.Debug($"  {f}"));
+			Log.Debug($"Commit: \"{Message}\"");
+			files.ForEach(f => Log.Debug($"  {f.Path}"));
 
-			commitAction(Message, files);
+			await commitActionAsync(Message, files);
 
 			window.DialogResult = true;
 		}

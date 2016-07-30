@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -13,6 +15,7 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitDetailsViewModel : ViewModel
 	{
+		private readonly IGitService gitService = new GitService();
 		private readonly ObservableCollection<CommitFileViewModel> files =
 			new ObservableCollection<CommitFileViewModel>();
 		private string filesCommitId = null;
@@ -43,10 +46,10 @@ namespace GitMind.RepositoryViews
 			{
 				if (CommitViewModel != null)
 				{
-					if (filesCommitId != CommitViewModel.Id)
+					if (filesCommitId != CommitViewModel.Commit.CommitId)
 					{
 						files.Clear();
-						filesCommitId = CommitViewModel.Id;
+						filesCommitId = CommitViewModel.Commit.CommitId;
 						SetFilesAsync(commitViewModel.Commit).RunInBackground();
 					}
 				}
@@ -60,6 +63,21 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
+		public string Subject
+		{
+			get
+			{
+				string subject = CommitViewModel?.Subject;
+				if (CommitViewModel != null)
+				{
+					string workingFolder = CommitViewModel.Commit.WorkingFolder;
+					string commitId = CommitViewModel.Commit.CommitId;
+					subject = gitService.GetFullMessage(workingFolder, commitId) ?? CommitViewModel?.Subject;
+				}
+
+				return subject;
+			}
+		}
 
 		public string Id => CommitViewModel?.Id;
 		public string ShortId => CommitViewModel?.ShortId;
@@ -70,7 +88,6 @@ namespace GitMind.RepositoryViews
 		public string BranchNameToolTip => SpecifiedBranchName != null ? "Manually specified branch" : null;
 		public string SpecifiedBranchName => CommitViewModel?.Commit?.SpecifiedBranchName;
 		public Brush BranchBrush => CommitViewModel?.Brush;
-		public string Subject => CommitViewModel?.Subject;
 		public Brush SubjectBrush => CommitViewModel?.SubjectBrush;
 		public FontStyle SubjectStyle => CommitViewModel?.SubjectStyle ?? FontStyles.Normal;
 		public string Tags => CommitViewModel?.Tags;
@@ -88,13 +105,13 @@ namespace GitMind.RepositoryViews
 		private async Task SetFilesAsync(Commit commit)
 		{
 			IEnumerable<CommitFile> commitFiles = await commit.FilesTask;
-			if (filesCommitId == commit.Id)
+			if (filesCommitId == commit.CommitId)
 			{
 				files.Clear();
 				commitFiles.ForEach(f => files.Add(
 					new CommitFileViewModel(undoUncommittedFileCommand)
 					{
-						Id = commit.Id,
+						Id = commit.CommitId,
 						Name = f.Path,
 						Status = f.Status,
 						WorkingFolder = commit.WorkingFolder

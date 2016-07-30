@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -62,7 +61,9 @@ namespace GitMind.RepositoryViews
 		{
 			List<Branch> currentlyShownBranches = GetCurrentlyShownBranches(repositoryViewModel);
 
-			bool isShowing = currentlyShownBranches.Contains(commit.SecondParent.Branch);
+			bool isShowing = 
+				(commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
+				|| (commit.HasFirstParent && commit.Branch != commit.FirstParent.Branch && currentlyShownBranches.Contains(commit.FirstParent.Branch));
 
 			BranchViewModel clickedBranch = repositoryViewModel
 				.Branches.First(b => b.Branch == commit.Branch);
@@ -76,15 +77,32 @@ namespace GitMind.RepositoryViews
 			else
 			{
 				// Closing shown branch
-				BranchViewModel otherBranch = repositoryViewModel.Branches
-					.First(b => b.Branch == commit.SecondParent.Branch);
+				BranchViewModel otherBranch;
 
-				if (clickedBranch.BranchColumn > otherBranch.BranchColumn)
+				if (commit.HasSecondParent)
 				{
-					// Closing the branch that was clicked on since that is to the right
-					otherBranch = clickedBranch;
-					stableCommit = commit.SecondParent;
+					otherBranch = repositoryViewModel.Branches
+						.First(b => b.Branch == commit.SecondParent.Branch);
+
+					if (clickedBranch.BranchColumn > otherBranch.BranchColumn)
+					{
+						// Closing the branch that was clicked on since that is to the right
+						otherBranch = clickedBranch;
+						stableCommit = commit.SecondParent;
+					}
 				}
+				else
+				{
+					otherBranch = repositoryViewModel.Branches
+						.First(b => b.Branch == commit.FirstParent.Branch);
+
+					if (clickedBranch.BranchColumn > otherBranch.BranchColumn)
+					{
+						// Closing the branch that was clicked on since that is to the right
+						otherBranch = clickedBranch;
+						stableCommit = commit.FirstParent;
+					}
+				}	
 
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, otherBranch.Branch);
@@ -324,16 +342,34 @@ namespace GitMind.RepositoryViews
 
 		private static int CompareBranches(Branch x, Branch y)
 		{
-			if (y.HasParentBranch && y.ParentBranch == x)
+			if (HasAncestor(y, x))
 			{
 				return -1;
 			}
-			else if (x.HasParentBranch && x.ParentBranch == y)
+			else if (HasAncestor(x, y))
 			{
 				return 1;
 			}
 
 			return 0;
+		}
+
+
+		public static bool HasAncestor(Branch branch, Branch ancestor)
+		{
+			Branch current = branch;
+
+			while (current.HasParentBranch)
+			{
+				if (current.ParentBranch == ancestor)
+				{
+					return true;
+				}
+
+				current = current.ParentBranch;
+			}
+
+			return false;
 		}
 
 
@@ -368,7 +404,8 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.ToggleDetailsCommand,
 				repositoryViewModel.ShowDiffCommand,
 				repositoryViewModel.SetBranchCommand,
-				repositoryViewModel.SwitchToCommitCommand));
+				repositoryViewModel.SwitchToCommitCommand,
+				repositoryViewModel.SwitchBranchCommand));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
@@ -395,7 +432,6 @@ namespace GitMind.RepositoryViews
 
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
-				commitViewModel.ToolTip = GetCommitToolTip(commit);
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
 
 				commitViewModel.NotifyAll();
@@ -413,8 +449,9 @@ namespace GitMind.RepositoryViews
 
 			SetNumberOfItems(branches, sourceBranches.Count, i => new BranchViewModel(
 				repositoryViewModel.ShowBranchCommand,
-				repositoryViewModel.SwitchBranchCommand, 
-				repositoryViewModel.MergeBranchCommand));
+				repositoryViewModel.SwitchBranchCommand,
+				repositoryViewModel.MergeBranchCommand,
+				repositoryViewModel.CreateBranchCommand));
 
 			int index = 0;
 			List<BranchViewModel> addedBranchColumns = new List<BranchViewModel>();
@@ -428,7 +465,7 @@ namespace GitMind.RepositoryViews
 
 				branch.TipRowIndex = commits.FindIndex(c => c == sourceBranch.TipCommit);
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
-				int height = Converter.ToY(branch.FirstRowIndex - branch.TipRowIndex);
+				int height = Converter.ToY(branch.FirstRowIndex - branch.TipRowIndex) + 8;
 
 				branch.BranchColumn = FindBranchColumn(addedBranchColumns, branch);
 				addedBranchColumns.Add(branch);
@@ -440,11 +477,11 @@ namespace GitMind.RepositoryViews
 				branch.HoverBrush = Brushes.Transparent;
 				branch.Rect = new Rect(
 					(double)Converter.ToX(branch.BranchColumn) + 3,
-					(double)Converter.ToY(branch.TipRowIndex) + Converter.HalfRow,
+					(double)Converter.ToY(branch.TipRowIndex) + Converter.HalfRow - 6,
 					10,
-					height);
+					height + 4);
 
-				branch.Line = $"M 4,0 L 4,{height}";
+				branch.Line = $"M 4,2 L 4,{height}";
 
 				branch.HoverBrushNormal = branch.Brush;
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
@@ -540,7 +577,7 @@ namespace GitMind.RepositoryViews
 			var merges = repositoryViewModel.Merges;
 
 			var mergePoints = commits
-				.Where(c => c.IsMergePoint && sourceBranches.Contains(c.Commit.SecondParent.Branch))
+				.Where(c => c.IsMergePoint && c.Commit.HasSecondParent && sourceBranches.Contains(c.Commit.SecondParent.Branch))
 				.ToList();
 
 			var branchStarts = branches.Where(b =>
@@ -554,10 +591,8 @@ namespace GitMind.RepositoryViews
 			foreach (CommitViewModel childCommit in mergePoints)
 			{
 				CommitViewModel parentCommit = commitsById[childCommit.Commit.SecondParent.Id];
-				string mergeId = childCommit.ShortId + "-" + parentCommit.ShortId;
-
+	
 				MergeViewModel merge = merges[index++];
-				merge.Id = mergeId;
 
 				SetMerge(merge, branches, childCommit, parentCommit);
 			}
@@ -565,10 +600,8 @@ namespace GitMind.RepositoryViews
 			foreach (Commit childCommit in branchStarts)
 			{
 				CommitViewModel parentCommit = commitsById[childCommit.FirstParent.Id];
-				string mergeId = childCommit.ShortId + "-" + parentCommit.ShortId;
 
 				MergeViewModel merge = merges[index++];
-				merge.Id = mergeId;
 
 				SetMerge(merge, branches, commitsById[childCommit.Id], parentCommit);
 			}
@@ -630,25 +663,6 @@ namespace GitMind.RepositoryViews
 
 			merge.NotifyAll();
 		}
-
-
-		private static string GetCommitToolTip(Commit commit)
-		{
-			string name = commit.Branch.IsMultiBranch ? "MultiBranch" : commit.Branch.Name;
-			string toolTip = $"Commit id: {commit.ShortId}\nBranch: {name}";
-
-			if (commit.Branch.LocalAheadCount > 0)
-			{
-				toolTip += $"\nAhead: {commit.Branch.LocalAheadCount}";
-			}
-			if (commit.Branch.RemoteAheadCount > 0)
-			{
-				toolTip += $"\nBehind: {commit.Branch.RemoteAheadCount}";
-			}
-
-			return toolTip;
-		}
-
 
 
 		private static Branch GetMasterBranch(Repository repository)

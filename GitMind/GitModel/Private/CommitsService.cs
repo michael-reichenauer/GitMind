@@ -167,6 +167,7 @@ namespace GitMind.GitModel.Private
 			string tickets = GetTickets(subject);
 
 			commit.Id = gitCommit.Id;
+			commit.CommitId = gitCommit.Id;
 			commit.ShortId = gitCommit.ShortId;
 			commit.Subject = GetSubjectWithoutTickets(subject, tickets);
 			commit.Author = gitCommit.Author;
@@ -179,6 +180,7 @@ namespace GitMind.GitModel.Private
 		private static void CopyToCommit(GitStatus gitStatus, MCommit commit, string parentId)
 		{
 			commit.Id = MCommit.UncommittedId;
+			commit.CommitId = MCommit.UncommittedId;
 			commit.ShortId = commit.Id.Substring(0, 6);
 			commit.Subject = $"{gitStatus.Count} uncommitted changes in working folder";
 			commit.Author = "";

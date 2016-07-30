@@ -9,7 +9,7 @@
 	xmlns:commiting="clr-namespace:GitMind.Features.Committing"
 	mc:Ignorable="d"
 	Title="Commit" 
-	Width="550" Height="400" Background="Black"
+	Width="500" Height="380" Background="Black"
 	WindowStyle="None" AllowsTransparency="True"
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"		
 	WindowStartupLocation="CenterOwner">
@@ -29,8 +29,7 @@
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding ElementName=CommitDialogWindow}" />
 		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
-		<KeyBinding Modifiers="Control" Key="D" Command="{Binding ShowUncommittedDiffCommand}" />
-		<KeyBinding Modifiers="Control" Key="Space" Command="{Binding ShowUncommittedDiffCommand}" />
+		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding ShowUncommittedDiffCommand}" />
 	</Window.InputBindings>
 
 
@@ -61,7 +60,7 @@
 						Style="{StaticResource IconButtonStyle}"			
 						Foreground="{StaticResource TextLowBrush}"					
 						Command="{Binding ShowUncommittedDiffCommand}"
-						ToolTip="Show diff of uncommitted changes ..." 
+						ToolTip="Show diff of uncommitted changes ... (Ctrl-Enter)" 
 						WindowChrome.IsHitTestVisibleInChrome="True"/>
 					
 				</StackPanel>
@@ -81,7 +80,7 @@
 		<Grid Grid.Row="1">
 			<Grid.RowDefinitions>
 				<!-- Commit Message -->
-				<RowDefinition Height="115" />
+				<RowDefinition Height="140" />
 				<!-- Grid splitter -->
 				<RowDefinition Height="Auto" />
 				<!-- Commit files -->
@@ -91,21 +90,35 @@
 			</Grid.RowDefinitions>
 
 			<!-- Commit Message -->
-			<Grid Grid.Row="0" Margin="10,10">
+			<Grid Grid.Row="0" Margin="10,10,10,5">
 				<Grid.RowDefinitions>
-					<!-- Message Header -->
+					<!-- Subject header -->
 					<RowDefinition Height="Auto" />
-					<!-- Message textbox -->
+					<!-- Subject -->
+					<RowDefinition Height="Auto" />
+				
+					<!-- Description textbox -->
 					<RowDefinition Height="*" />
 				</Grid.RowDefinitions>
 
-				<TextBlock Grid.Row="0" Text="Message:" Foreground="{StaticResource TextBrush}" Margin="0, 5"/>
+				<TextBlock Grid.Row="0" Text="Message:" Foreground="{StaticResource TextBrush}" Margin="0,0,0,5"/>
 
-				<TextBox Grid.Row="1" Name="MessageText"
-					Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}"
+				<TextBox Grid.Row="1" Name="SubjectText"
+					Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
+					KeyboardNavigation.TabIndex="0"
+					Margin="0"
+					Width="330"
+					HorizontalAlignment="Left"	
+					Background="Transparent"
+					BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+					Foreground="{StaticResource TextBrush}"
+					CaretBrush="{StaticResource TextBrush}"/>
+				
+				<TextBox Grid.Row="3" Name="DescriptionText"
+					Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
 					KeyboardNavigation.TabIndex="0"
 					VerticalAlignment="Stretch"
-					Margin="0"
+					Margin="0,8,0,5"
 					Background="Transparent"
 					BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
 					Foreground="{StaticResource TextBrush}"
@@ -121,39 +134,48 @@
 				Background="Transparent"
 				HorizontalAlignment="Stretch"
 				VerticalAlignment="Center"
-				Height="2"/>
+				Height="2"
+				KeyboardNavigation.IsTabStop="False"/>
 
-			<Border	Grid.Row="2" Margin="10,10"
-				CornerRadius="0" 
-				BorderThickness="1" 
-				BorderBrush="DarkSlateBlue">
+			<Grid Grid.Row="2"  Margin="10,0">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="*" />
+					</Grid.RowDefinitions>
+				
+					<TextBlock Grid.Row="0" Text="Files:" Foreground="{StaticResource TextBrush}" Margin="0,0,0,5"/>
 
-				<ListBox
-					Background="Transparent"
-					KeyboardNavigation.TabIndex="3"
-					ItemsSource="{Binding Files}"
-					Style="{DynamicResource ListBoxScrollbarStyle}"		
-					HorizontalContentAlignment="Stretch">
+				<Border	Grid.Row="1"
+					CornerRadius="0" 
+					BorderThickness="1" 
+					BorderBrush="{StaticResource BorderBrush}">
 
-					<ListBox.ItemTemplate>
-						<DataTemplate DataType="{x:Type repositoryViews:CommitFileViewModel}">
-							<Grid>
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="20" />
-								</Grid.ColumnDefinitions>
+					<ListBox 
+						Background="Transparent"
+						KeyboardNavigation.TabIndex="3"
+						ItemsSource="{Binding Files}"
+						Style="{DynamicResource ListBoxScrollbarStyle}"		
+						HorizontalContentAlignment="Stretch">
 
-								<Label
-									Content="{Binding Name}" 
-									Grid.Column="0"
-									Foreground="{StaticResource TextBrush}"
-									Padding="0"/>
+						<ListBox.ItemTemplate>
+							<DataTemplate DataType="{x:Type repositoryViews:CommitFileViewModel}">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="20" />
+									</Grid.ColumnDefinitions>
 
-								<Label
-									Content="{Binding Status}" 
-									Grid.Column="1"
-									Foreground="DarkGray"
-									Padding="0"/>
+									<Label
+										Content="{Binding Name}" 
+										Grid.Column="0"
+										Foreground="{StaticResource TextBrush}"
+										Padding="0"/>
+
+									<Label
+										Content="{Binding Status}" 
+										Grid.Column="1"
+										Foreground="DarkGray"
+										Padding="0"/>
 
 									<Grid.ContextMenu>
 										<ContextMenu>
@@ -167,15 +189,17 @@
 										</ContextMenu>
 									</Grid.ContextMenu>
 
-								<Grid.InputBindings>
-									<MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowDiffCommand}" />
-								</Grid.InputBindings>
+									<Grid.InputBindings>
+										<MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowDiffCommand}" />
+									</Grid.InputBindings>
 
-							</Grid>
-						</DataTemplate>
-					</ListBox.ItemTemplate>
-				</ListBox>
-			</Border>
+								</Grid>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+				</Border>
+			</Grid>
+	
 
 			<!-- OK and Cancel buttons -->
 			<StackPanel Grid.Row="3" Orientation="Horizontal" 

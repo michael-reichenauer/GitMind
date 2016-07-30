@@ -9,7 +9,6 @@ namespace GitMind.RepositoryViews
 	{
 		// UI properties
 		public int ZIndex => 100;
-		public string Id { get; set; }
 		public string Type => nameof(MergeViewModel);	
 		public Rect Rect { get; set; }
 		public double Width { get; set; }
@@ -21,7 +20,5 @@ namespace GitMind.RepositoryViews
 		// Values that is used to determine if item is visible
 		public int ChildRow { get; set; }
 		public int ParentRow { get; set; }
-
-		public override string ToString() => Id;
 	}
 }

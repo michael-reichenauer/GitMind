@@ -173,7 +173,7 @@
 
 														<!-- Switch to this branch -->
 														<MenuItem 
-															Header="Switch to this branch"										
+															Header="{Binding SwitchBranchText}"										
 															Command="{Binding SwitchBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
@@ -182,9 +182,21 @@
 															</MenuItem.Icon>
 														</MenuItem>
 
+														<!-- Create Branch -->
+														<MenuItem 
+															Header="Create Branch"										
+															Command="{Binding CreateBranchCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;"/>
+																</Border>
+															</MenuItem.Icon>
+														</MenuItem>
+
+
 														<!-- Merge to this branch -->
 														<MenuItem 
-															Header="Merge into this branch"
+															Header="{Binding MergeBranchText}"
 															IsEnabled="{Binding IsMergeable}"
 															ItemsSource="{Binding OtherShownBranches}">
 															<MenuItem.Icon>
@@ -323,6 +335,16 @@
 																</MenuItem>
 
 															<Separator Background="{StaticResource BorderBrush}"/>
+																
+															<MenuItem 
+																Header="{Binding SwitchToBranchText}" 
+																Command="{Binding SwitchToBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
 
 															<MenuItem 
 																Header="Switch to this commit" 
@@ -357,7 +379,7 @@
 																Foreground="{Binding BranchTipBrush}"
 																HorizontalAlignment="Left"
 																VerticalAlignment="Center"
-																ToolTip="Branch tip of branch with no commits of its own"/>
+																ToolTip="Tip of branch to same commit as parent branch"/>
 
 															<!-- Tag -->
 															<TextBlock 

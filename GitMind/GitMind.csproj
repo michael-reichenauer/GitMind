@@ -82,6 +82,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Features\Branching\BranchDialog.xaml.cs">
+      <DependentUpon>BranchDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Branching\BranchDialogViewModel.cs" />
     <Compile Include="Features\Committing\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
     </Compile>
@@ -224,6 +228,10 @@
     <Compile Include="Common\WindowControlButtons.xaml.cs">
       <DependentUpon>WindowControlButtons.xaml</DependentUpon>
     </Compile>
+    <Page Include="Features\Branching\BranchDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Features\Committing\CommitDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -261,6 +269,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Styles\ButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\CheckboxStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\ColorStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -354,6 +370,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Dependencies\git2-785d8c4.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>mkdir "$(ProjectDir)\Dependencies" 2&gt; NUL
