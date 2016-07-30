@@ -340,8 +340,13 @@ namespace GitMind.MainWindowViews
 				{
 					Log.Debug("Committing to git repo ...");
 
-					await gitService.CommitAsync(workingFolder, message, list.ToList());
-					Log.Debug("Committed to git repo done");
+					GitCommit gitCommit = await gitService.CommitAsync(workingFolder, message, list.ToList());
+					if (gitCommit != null)
+					{
+						Log.Debug("Committed to git repo done");
+						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
+					}
+
 					return true;
 				}
 			};

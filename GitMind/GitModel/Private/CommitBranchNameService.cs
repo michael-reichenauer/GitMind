@@ -24,6 +24,25 @@ namespace GitMind.GitModel.Private
 		}
 
 
+		public void SetCommitBranchNames(
+			IReadOnlyList<GitSpecifiedNames> commitBranches,
+			MRepository repository)
+		{
+			foreach (GitSpecifiedNames commitBranch in commitBranches)
+			{
+				MCommit commit;
+				if (repository.Commits.TryGetValue(commitBranch.CommitId, out commit))
+				{
+					// Set branch name unless there is a specified branch name which has higher priority
+					if (string.IsNullOrWhiteSpace(commit.SpecifiedBranchName))
+					{
+						commit.BranchName = commitBranch.BranchName;
+					}
+				}
+			}
+		}
+
+
 		public void SetMasterBranchCommits(MRepository repository)
 		{
 			// Local master

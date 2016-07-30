@@ -986,9 +986,15 @@ namespace GitMind.RepositoryViews
 		{
 			using (busyIndicator.Progress)
 			{
-				await gitService.MergeAsync(WorkingFolder, branch.Name);
+				Branch currentBranch = Repository.CurrentBranch;
+				GitCommit gitCommit = await gitService.MergeAsync(WorkingFolder, branch.Name);
 
-				await RefreshAfterCommandAsync(false);
+				if (gitCommit != null)
+				{
+					Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {gitCommit}");
+					await gitService.SetCommitBranchAsync(WorkingFolder, gitCommit.Id, currentBranch.Name);
+					await RefreshAfterCommandAsync(false);
+				}
 			}
 		}
 
