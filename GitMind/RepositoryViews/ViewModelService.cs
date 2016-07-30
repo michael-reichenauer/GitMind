@@ -342,16 +342,34 @@ namespace GitMind.RepositoryViews
 
 		private static int CompareBranches(Branch x, Branch y)
 		{
-			if (y.HasParentBranch && y.ParentBranch == x)
+			if (HasAncestor(y, x))
 			{
 				return -1;
 			}
-			else if (x.HasParentBranch && x.ParentBranch == y)
+			else if (HasAncestor(x, y))
 			{
 				return 1;
 			}
 
 			return 0;
+		}
+
+
+		public static bool HasAncestor(Branch branch, Branch ancestor)
+		{
+			Branch current = branch;
+
+			while (current.HasParentBranch)
+			{
+				if (current.ParentBranch == ancestor)
+				{
+					return true;
+				}
+
+				current = current.ParentBranch;
+			}
+
+			return false;
 		}
 
 
