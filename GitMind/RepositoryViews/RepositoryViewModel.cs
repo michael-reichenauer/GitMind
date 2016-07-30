@@ -439,6 +439,7 @@ namespace GitMind.RepositoryViews
 			Commits.ForEach(commit => commit.WindowWidth = Width);
 			CommitDetailsViewModel.NotifyAll();
 			NotifyAll();
+			SwitchToCommitCommand.RaiseCanExecuteChanaged();
 
 			VirtualItemsSource.DataChanged(width);
 
@@ -782,10 +783,12 @@ namespace GitMind.RepositoryViews
 
 			using (busyIndicator.Progress)
 			{
+				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 				IEnumerable<Branch> pushableBranches = Repository.Branches
 					.Where(b =>
-						b != uncommittedBranch
+						b != currentBranch
+						&& b != uncommittedBranch
 						&& b.LocalAheadCount > 0
 						&& b.RemoteAheadCount == 0).ToList();
 
@@ -795,6 +798,14 @@ namespace GitMind.RepositoryViews
 					Log.Debug($"Push branch {branch.Name}");
 
 					await gitService.PushBranchAsync(workingFolder, branch.Name);
+				}
+
+				if (uncommittedBranch != currentBranch
+					&& currentBranch.LocalAheadCount > 0
+					&& currentBranch.RemoteAheadCount == 0)
+				{
+					Log.Debug($"Push current branch {currentBranch.Name}");
+					await gitService.PushCurrentBranchAsync(workingFolder);
 				}
 
 				await RefreshAfterCommandAsync(false);
@@ -822,6 +833,7 @@ namespace GitMind.RepositoryViews
 		{
 			using (busyIndicator.Progress)
 			{
+				Log.Debug($"Push current branch");
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
 				await gitService.PushCurrentBranchAsync(workingFolder);
