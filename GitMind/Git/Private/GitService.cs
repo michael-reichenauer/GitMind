@@ -641,6 +641,23 @@ namespace GitMind.Git.Private
 		}
 
 
+		public string GetFullMessage(string workingFolder, string commitId)
+		{
+			try
+			{
+				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				{
+					return gitRepository.GetFullMessage(commitId);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed get full message {commitId}, {e.Message}");
+				return null;
+			}
+		}
+
+
 		private async Task<R<IReadOnlyList<string>>> GitAsync(
 			string gitRepositoryPath, string args)
 		{

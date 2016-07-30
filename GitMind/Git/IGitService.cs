@@ -46,5 +46,6 @@ namespace GitMind.Git
 		Task MergeAsync(string workingFolder, string branchName);
 		Task SwitchToCommitAsync(string workingFolder, string commitId, string proposedBranchName);
 		Task CreateBranchAsync(string workingFolder, string branchName, string commitId, bool isPublish);
+		string GetFullMessage(string workingFolder, string commitId);
 	}
 }

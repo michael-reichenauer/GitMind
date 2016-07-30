@@ -235,5 +235,17 @@ namespace GitMind.Git
 				repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
 			}
 		}
+
+
+		public string GetFullMessage(string commitId)
+		{
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			if (commit != null)
+			{
+				return commit.Message;
+			}
+
+			return null;
+		}
 	}
 }
