@@ -49,13 +49,16 @@ namespace GitMind.RepositoryViews
 			new Dictionary<string, CommitViewModel>();
 
 		private DateTime fetchedTime = DateTime.MinValue;
-		private DateTime RebuildRepositoryTime = DateTime.MinValue;
+		private DateTime FreshRepositoryTime = DateTime.MinValue;
+
 		private static readonly TimeSpan FetchInterval = TimeSpan.FromMinutes(10);
+		private static readonly TimeSpan ActivateFetchInterval = TimeSpan.FromSeconds(10);
+		private static readonly TimeSpan AutoFreshRepositoryInterval = TimeSpan.FromMinutes(10);
+
 		private readonly TaskThrottler refreshThrottler = new TaskThrottler(1);
 
 
-		public RepositoryViewModel(
-			Window owner, BusyIndicator busyIndicator, Command refreshManuallyCommand)
+		public RepositoryViewModel(Window owner, BusyIndicator busyIndicator)
 			: this(owner, new ViewModelService(), busyIndicator)
 		{
 		}
@@ -259,13 +262,13 @@ namespace GitMind.RepositoryViews
 					UpdateViewModel(repository);
 				}
 
-				if (DateTime.Now - fetchedTime > FetchInterval)
+				if (DateTime.Now - fetchedTime > ActivateFetchInterval)
 				{
 					await FetchRemoteChangesAsync(Repository);
+					repository = await GetLocalChangesAsync(Repository);
+					UpdateViewModel(repository);
 				}
-
-				repository = await GetLocalChangesAsync(Repository);
-				UpdateViewModel(repository);
+				
 				Log.Debug("Refreshed after activating done");
 			});
 		}
@@ -289,11 +292,11 @@ namespace GitMind.RepositoryViews
 				}
 
 				Repository repository;
-				if (DateTime.Now - RebuildRepositoryTime > TimeSpan.FromMinutes(10))
+				if (DateTime.Now - FreshRepositoryTime > AutoFreshRepositoryInterval)
 				{
 					Log.Debug("Get fresh repository from scratch");
 					repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
-					RebuildRepositoryTime = DateTime.Now;
+					FreshRepositoryTime = DateTime.Now;
 				}
 				else
 				{
@@ -349,7 +352,7 @@ namespace GitMind.RepositoryViews
 					repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
 				}
 
-				RebuildRepositoryTime = DateTime.Now;
+				FreshRepositoryTime = DateTime.Now;
 				UpdateViewModel(repository);
 				Log.Debug("Refreshed after manual trigger done");
 

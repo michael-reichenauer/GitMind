@@ -56,7 +56,6 @@ namespace GitMind.RepositoryViews
 					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
 
 			repositoryViewModel.HidableBranches.Clear();
-
 			branches
 				.Where(b => b.Name != "master")
 				.OrderBy(b => b.Name)
