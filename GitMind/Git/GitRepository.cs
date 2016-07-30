@@ -56,13 +56,15 @@ namespace GitMind.Git
 		}
 
 
-		public void Commit(string message)
+		public GitCommit Commit(string message)
 		{
 			Signature author = repository.Config.BuildSignature(DateTimeOffset.Now);
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 			CommitOptions commitOptions = new CommitOptions();
 
-			repository.Commit(message, author, committer, commitOptions);
+			Commit commit = repository.Commit(message, author, committer, commitOptions);
+
+			return commit != null ? new GitCommit(commit) : null;
 		}
 
 

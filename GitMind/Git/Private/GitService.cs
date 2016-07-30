@@ -154,7 +154,6 @@ namespace GitMind.Git.Private
 		}
 
 
-
 		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder)
 		{
 			List<GitSpecifiedNames> branchNames = new List<GitSpecifiedNames>();
@@ -162,6 +161,48 @@ namespace GitMind.Git.Private
 			try
 			{
 				string filePath = Path.Combine(workingFolder, ".git", "gitmind.specified");
+				if (File.Exists(filePath))
+				{
+					string[] lines = File.ReadAllLines(filePath);
+					foreach (string line in lines)
+					{
+						string[] parts = line.Split(" ".ToCharArray());
+						branchNames.Add(new GitSpecifiedNames(parts[0], parts[1]?.Trim()));
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to read specified names {e}");
+			}
+
+			return branchNames;
+		}
+
+
+		public Task SetCommitBranchAsync(string workingFolder, string commitId, string branchName)
+		{
+			try
+			{
+				string file = Path.Combine(workingFolder, ".git", "gitmind.commits");
+				File.AppendAllText(file, $"{commitId} {branchName}\n");
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to add specified branch name for {commitId} {branchName}, {e}");
+			}
+
+			return Task.FromResult(true);
+		}
+
+
+		public IReadOnlyList<GitSpecifiedNames> GetCommitBranches(string workingFolder)
+		{
+			List<GitSpecifiedNames> branchNames = new List<GitSpecifiedNames>();
+
+			try
+			{
+				string filePath = Path.Combine(workingFolder, ".git", "gitmind.commits");
 				if (File.Exists(filePath))
 				{
 					string[] lines = File.ReadAllLines(filePath);
@@ -508,7 +549,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths)
+		public Task<GitCommit> CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths)
 		{
 			return Task.Run(() =>
 			{
@@ -518,12 +559,13 @@ namespace GitMind.Git.Private
 					{
 						gitRepository.Add(paths);
 
-						gitRepository.Commit(message);
+						return gitRepository.Commit(message);
 					}
 				}
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to commit, {e.Message}");
+					return null;
 				}
 			});
 		}
