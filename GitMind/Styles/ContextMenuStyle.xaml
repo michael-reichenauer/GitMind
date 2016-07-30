@@ -37,10 +37,10 @@
 		<Setter Property="Margin" Value="5,0"/>
 		<Style.Triggers>
 			<Trigger Property="IsHighlighted" Value="True">
-				<Setter Property="Background" Value="Black"></Setter>
+				<Setter Property="Background" Value="Black"/>
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="False">
-				<Setter Property="Foreground" Value="Gray"></Setter>
+				<Setter Property="Foreground" Value="Gray"/>
 			</Trigger>
 		</Style.Triggers>
 	</Style>
@@ -197,7 +197,7 @@
 				<Setter TargetName="SubmenuBorder" Property="Padding" Value="0,3,0,3" />
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="false"> 
-				<Setter Property="Foreground" Value="Red" />
+				<Setter Property="Foreground" Value="Gray" />
 			</Trigger>
 		</ControlTemplate.Triggers>
 	</ControlTemplate>
