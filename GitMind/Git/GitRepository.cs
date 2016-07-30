@@ -137,7 +137,7 @@ namespace GitMind.Git
 		}
 
 
-		public void MergeBranchNoFastForward(string branchName)
+		public GitCommit MergeBranchNoFastForward(string branchName)
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 
@@ -145,8 +145,11 @@ namespace GitMind.Git
 
 			if (branch != null)
 			{
-				repository.Merge(branch, committer, MergeNoFastForward);
+				MergeResult mergeResult = repository.Merge(branch, committer, MergeNoFastForward);
+				return mergeResult?.Commit != null ? new GitCommit(mergeResult.Commit) : null;
 			}
+
+			return null;
 		}
 
 

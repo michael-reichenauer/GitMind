@@ -609,7 +609,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task MergeAsync(string workingFolder, string branchName)
+		public Task<GitCommit> MergeAsync(string workingFolder, string branchName)
 		{
 			return Task.Run(() =>
 			{
@@ -617,12 +617,13 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
-						gitRepository.MergeBranchNoFastForward(branchName);
+						return gitRepository.MergeBranchNoFastForward(branchName);
 					}
 				}
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to merge {branchName}, {e.Message}");
+					return null;
 				}
 			});
 		}
