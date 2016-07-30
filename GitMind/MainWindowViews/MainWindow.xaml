@@ -89,13 +89,12 @@
 							</ToolTip>
 						</Button.ToolTip>
 						<StackPanel Orientation="Horizontal">
-							<TextBlock 
-								Text="{Binding WorkingFolder}"/>
+							<TextBlock Text="{Binding WorkingFolder}"/>
 							<Path 
 								Margin="5,2,0,0"
 								Stroke="{Binding RepositoryViewModel.CurrentBranchBrush}" 
-								StrokeThickness="4" 
-								Data="M 3,1 L 3,13"/>
+								StrokeThickness="3" 
+								Data="M 3,2 L 3,12"/>
 						</StackPanel>
 					</Button>
 
