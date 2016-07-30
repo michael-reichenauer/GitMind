@@ -359,7 +359,7 @@ namespace GitMind.MainWindowViews
 			{
 				Log.Debug("After commit dialog, starting refresh after command");
 				Application.Current.MainWindow.Focus();
-				await RepositoryViewModel.RefreshAfterCommandAsync();
+				await RepositoryViewModel.RefreshAfterCommandAsync(false);
 				Log.Debug("After commit dialog, refresh done");
 			}
 			else
