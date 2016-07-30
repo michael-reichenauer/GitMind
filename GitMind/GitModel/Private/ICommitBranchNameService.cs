@@ -15,6 +15,9 @@ namespace GitMind.GitModel.Private
 		void SetSpecifiedCommitBranchNames(
 			IReadOnlyList<GitSpecifiedNames> specifiedNames, MRepository repository);
 
+		void SetCommitBranchNames(
+			IReadOnlyList<GitSpecifiedNames> commitBranches, MRepository repository);
+
 		void SetNeighborCommitNames(MRepository repository);
 	}
 }

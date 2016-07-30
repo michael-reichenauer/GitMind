@@ -143,6 +143,9 @@ namespace GitMind.GitModel.Private
 			IReadOnlyList<GitSpecifiedNames> specifiedNames = gitService.GetSpecifiedNames(
 				gitRepositoryPath);
 
+			IReadOnlyList<GitSpecifiedNames> commitBranches = gitService.GetCommitBranches(
+				gitRepositoryPath);
+
 			using (GitRepository gitRepository = gitService.OpenRepository(gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;
@@ -154,7 +157,7 @@ namespace GitMind.GitModel.Private
 				commitsService.AddBranchCommits(gitRepository, gitStatus, repository);
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
-				AnalyzeBranchStructure(repository, specifiedNames, gitStatus, gitRepository);
+				AnalyzeBranchStructure(repository, specifiedNames, commitBranches, gitStatus, gitRepository);
 				t.Log("AnalyzeBranchStructure");		
 			}
 
@@ -167,11 +170,13 @@ namespace GitMind.GitModel.Private
 		private void AnalyzeBranchStructure(
 			MRepository repository, 
 			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames, 
+			IReadOnlyList<GitSpecifiedNames> commitBranches,
 			GitStatus gitStatus, 
 			GitRepository gitRepository)
 		{
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
-		
+			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);
+
 			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
 			
 			commitBranchNameService.SetMasterBranchCommits(repository);

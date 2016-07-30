@@ -34,6 +34,7 @@ namespace GitMind.Git
 		Task SetCommitBranchAsync(string workingFolder, string commitId, string branchName);
 
 		IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder);
+		IReadOnlyList<GitSpecifiedNames> GetCommitBranches(string workingFolder);
 
 		Task FetchBranchAsync(string workingFolder, string branchName);
 		Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder);
@@ -48,6 +49,6 @@ namespace GitMind.Git
 		Task SwitchToCommitAsync(string workingFolder, string commitId, string proposedBranchName);
 		Task CreateBranchAsync(string workingFolder, string branchName, string commitId, bool isPublish);
 		string GetFullMessage(string workingFolder, string commitId);
-		IReadOnlyList<GitSpecifiedNames> GetCommitBranches(string workingFolder);
+		
 	}
 }
