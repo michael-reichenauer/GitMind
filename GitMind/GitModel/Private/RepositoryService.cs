@@ -119,9 +119,10 @@ namespace GitMind.GitModel.Private
 
 
 		public Task SetSpecifiedCommitBranchAsync(
-			string commitId, string branchName, string gitRepositoryPath)
+			string gitRepositoryPath, string rootId, string commitId, string branchName)
 		{
-			return gitService.SetSpecifiedCommitBranchAsync(gitRepositoryPath, commitId, branchName);
+			return gitService.SetSpecifiedCommitBranchAsync(
+				gitRepositoryPath, rootId, commitId, branchName);
 		}
 
 
@@ -176,7 +177,7 @@ namespace GitMind.GitModel.Private
 			MCommit commit = mSubBranch.LatestCommit.FirstAncestors().Last();
 
 			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames = gitService.GetSpecifiedNames(
-				gitRepositoryPath);
+				gitRepositoryPath, commit.Id);
 
 			IReadOnlyList<GitSpecifiedNames> commitBranches = gitService.GetCommitBranches(
 				gitRepositoryPath, commit.Id);

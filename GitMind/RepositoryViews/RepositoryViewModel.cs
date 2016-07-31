@@ -933,7 +933,8 @@ namespace GitMind.RepositoryViews
 				{
 					using (busyIndicator.Progress)
 					{
-						await repositoryService.SetSpecifiedCommitBranchAsync(commit.Id, branchName, workingFolder);
+						string rootId = Repository.RootId;
+						await repositoryService.SetSpecifiedCommitBranchAsync(workingFolder, rootId, commit.Id, branchName);
 						if (!string.IsNullOrWhiteSpace(branchName))
 						{
 							SpecifiedBranchNames = new[] {branchName};
