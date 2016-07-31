@@ -214,7 +214,7 @@ namespace GitMind.Git.Private
 
 					gitRepository.SetCommitNote(rootId, gitNote);
 
-					GitNote gitNote2 = notes.FirstOrDefault(note => note.NameSpace == CommitBranchNoteNameSpace);
+					IReadOnlyList<GitNote> notes2 = gitRepository.GetCommitNotes(rootId);
 				}
 			}
 			catch (Exception e)
