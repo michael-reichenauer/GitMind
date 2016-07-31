@@ -94,7 +94,14 @@
 					Background="Transparent"
 					BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
 					Foreground="{StaticResource TextBrush}"
-					CaretBrush="{StaticResource TextBrush}"/>
+					CaretBrush="{StaticResource TextBrush}">
+					<TextBox.InputBindings>
+						<KeyBinding 
+							Key="Enter" 
+							Command="{Binding OkCommand}"
+							CommandParameter="{Binding ElementName=BranchDialogWindow}"/>
+					</TextBox.InputBindings>
+				</TextBox>
 				
 				<!--Publish option -->
 				<CheckBox 

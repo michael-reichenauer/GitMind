@@ -20,11 +20,13 @@ namespace GitMind.GitModel
 			Lazy<Branch> currentBranch,
 			Lazy<Commit> currentCommit,
 			CommitsFiles commitsFiles,
-			Status status)
+			Status status,
+			string rootId)
 		{
 			MRepository = mRepository;
 			CommitsFiles = commitsFiles;
 			Status = status;
+			RootId = rootId;
 			this.branches = branches;
 			this.commits = commits;
 			this.currentBranch = currentBranch;
@@ -38,5 +40,6 @@ namespace GitMind.GitModel
 		public MRepository MRepository { get; }
 		public CommitsFiles CommitsFiles { get; }
 		public Status Status { get; }
+		public string RootId { get; set; }
 	}
 }

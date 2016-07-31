@@ -112,7 +112,14 @@
 					Background="Transparent"
 					BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
 					Foreground="{StaticResource TextBrush}"
-					CaretBrush="{StaticResource TextBrush}"/>
+					CaretBrush="{StaticResource TextBrush}">
+					<TextBox.InputBindings>
+						<KeyBinding 
+							Key="Enter" 
+							Command="{Binding OkCommand}" 
+							CommandParameter="{Binding ElementName=CommitDialogWindow}"/>
+					</TextBox.InputBindings>
+				</TextBox>
 				
 				<TextBox Grid.Row="3" Name="DescriptionText"
 					Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
