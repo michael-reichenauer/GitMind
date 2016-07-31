@@ -49,6 +49,7 @@ namespace GitMind.Git
 		Task SwitchToCommitAsync(string workingFolder, string commitId, string proposedBranchName);
 		Task CreateBranchAsync(string workingFolder, string branchName, string commitId, bool isPublish);
 		string GetFullMessage(string workingFolder, string commitId);
-		
+
+		Task PushNotesAsync(string workingFolder);
 	}
 }

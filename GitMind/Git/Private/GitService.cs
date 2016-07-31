@@ -246,6 +246,12 @@ namespace GitMind.Git.Private
 				// Sometimes, a fetch to GitHub takes just forever, don't know why
 				await FetchUsingCmdAsync(workingFolder)
 					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
+
+				await FetchNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace)
+					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
+
+				await FetchNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace)
+					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
 			}
 			catch (Exception e)
 			{
@@ -315,6 +321,56 @@ namespace GitMind.Git.Private
 			// Ignoring fetch errors for now
 			fetchResult.OnError(e => Log.Warn($"Git fetch failed {e.Message}"));
 		}
+
+		private async Task PushNotesUsingCmdAsync(string workingFolder, string nameSpace)
+		{
+			// git push origin refs/notes/GitMind.Branches
+			// git notes --ref=GitMind.Branches merge -s cat_sort_uniq refs/notes/origin/GitMind.Branches
+			// git fetch origin refs/notes/GitMind.Branches:refs/notes/origin/GitMind.Branches
+
+			Log.Warn($"Push {nameSpace} notes using cmd ...");
+
+			string args = $"push origin refs/notes/{nameSpace}";
+
+			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+
+			fetchResult.OnValue(_ => Log.Debug($"Pushed notes {nameSpace} using cmd"));
+
+			// Ignoring fetch errors for now
+			fetchResult.OnError(e => Log.Warn($"Git push notes {nameSpace} failed {e.Message}"));
+
+			Log.Warn($"Pushed {nameSpace} notes using cmd");
+		}
+
+
+		private async Task FetchNotesUsingCmdAsync(string workingFolder, string nameSpace)
+		{
+			Log.Warn($"Fetching {nameSpace} notes using cmd ...");
+
+			string args = $"fetch origin refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}";
+
+			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+
+			fetchResult.OnValue(_ => Log.Debug($"Fetched notes {nameSpace} using cmd"));
+
+			// Ignoring fetch errors for now
+			fetchResult.OnError(e => Log.Warn($"Git fetch notes {nameSpace} failed {e.Message}"));
+
+			Log.Debug("Merging fetch notes using cmd ...");
+
+			args = $"git notes --ref={nameSpace} merge -s cat_sort_uniq refs/notes/origin/{nameSpace}";
+
+			R<IReadOnlyList<string>> mergeResult = await GitAsync(workingFolder, args);
+
+			mergeResult.OnValue(_ => Log.Debug($"Merged notes {nameSpace} using cmd"));
+
+			// Ignoring fetch errors for now
+			mergeResult.OnError(e => Log.Warn($"Git merge notes {nameSpace} failed {e.Message}"));
+
+			Log.Warn($"Fetched {nameSpace} notes using cmd");
+		}
+
+
 
 
 		public async Task FetchBranchAsync(string workingFolder, string branchName)
@@ -474,6 +530,13 @@ namespace GitMind.Git.Private
 			{
 				Log.Warn($"Failed to push current branch {workingFolder}, {e.Message}");
 			}
+		}
+
+
+		public async Task PushNotesAsync(string workingFolder)
+		{
+			await PushNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace);
+			await PushNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace);
 		}
 
 
