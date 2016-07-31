@@ -16,7 +16,7 @@ namespace GitMind.Common
 
 		public static void Init()
 		{
-			// Add the event handler for handling UI thread exceptions to the event.		
+			// Add the event handler for handling UI thread exceptions to the event		
 			Application.Current.DispatcherUnhandledException += (s, e) =>
 				HandleException("dispatcher exception", e.Exception);
 
