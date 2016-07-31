@@ -24,7 +24,7 @@ namespace GitMind.Git.Private
 
 		private readonly ICmd cmd;
 		private readonly IGitDiffParser gitDiffParser;
-		
+
 
 
 		public GitService(ICmd cmd, IGitDiffParser gitDiffParser)
@@ -170,7 +170,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		
+
 
 
 		public Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string name)
@@ -733,7 +733,7 @@ namespace GitMind.Git.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to set branch, {e.Message}");
+				Log.Warn($"Failed to set note branch, {e.Message}");
 			}
 		}
 
