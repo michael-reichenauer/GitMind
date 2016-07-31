@@ -338,39 +338,48 @@
 																	</MenuItem.Icon>
 																</MenuItem>
 
-															<Separator Background="{StaticResource BorderBrush}"/>
-																
-															<MenuItem 
-																Header="{Binding SwitchToBranchText}" 
-																Command="{Binding SwitchToBranchCommand}">
+															<MenuItem Header="Switch">
 																<MenuItem.Icon>
 																	<Border>
 																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
 																	</Border>
 																</MenuItem.Icon>
+																<MenuItem 
+																	Header="{Binding SwitchToBranchText}" 
+																	Command="{Binding SwitchToBranchCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
+
+																<MenuItem 
+																	Header="Switch to this commit" 
+																	Command="{Binding SwitchToCommitCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE31C;"/>
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
 															</MenuItem>
 
-															<MenuItem 
-																Header="Switch to this commit" 
-																Command="{Binding SwitchToCommitCommand}">
-																<MenuItem.Icon>
-																	<Border>
-																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE31C;"/>
-																	</Border>
-																</MenuItem.Icon>
-															</MenuItem>
-																
-															<Separator Background="{StaticResource BorderBrush}"/>
-
-
-															<MenuItem 
-																Header="Create branch from this commit ..." 
-																Command="{Binding CreateBranchFromCommitCommand}">
+															<MenuItem Header="Branch">
 																<MenuItem.Icon>
 																	<Border>
 																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;"/>
 																	</Border>
 																</MenuItem.Icon>
+																<MenuItem 
+																	Header="Create branch from this commit ..." 
+																	Command="{Binding CreateBranchFromCommitCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;"/>
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
 															</MenuItem>
 
 														</ContextMenu>
