@@ -91,7 +91,7 @@ namespace GitMind.GitModel.Private
 			}
 
 			Repository repository = ToRepository(mRepository);
-			t.Log($"Created repository: {repository.Branches.Count} commits: {repository.Commits.Count}");
+			t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
 
 			return repository;
 		}
@@ -112,7 +112,7 @@ namespace GitMind.GitModel.Private
 
 			Repository repository = ToRepository(mRepository);
 			t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
-			Log.Debug($"Updated to repository");
+			Log.Debug("Updated to repository");
 
 			return repository;
 		}
@@ -140,11 +140,6 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			string gitRepositoryPath = repository.WorkingFolder;
 
-			IReadOnlyList<GitSpecifiedNames> specifiedNames = gitService.GetSpecifiedNames(
-				gitRepositoryPath);
-
-			IReadOnlyList<GitSpecifiedNames> commitBranches = gitService.GetCommitBranches(
-				gitRepositoryPath);
 
 			using (GitRepository gitRepository = gitService.OpenRepository(gitRepositoryPath))
 			{
@@ -157,7 +152,7 @@ namespace GitMind.GitModel.Private
 				commitsService.AddBranchCommits(gitRepository, gitStatus, repository);
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
-				AnalyzeBranchStructure(repository, specifiedNames, commitBranches, gitStatus, gitRepository);
+				AnalyzeBranchStructure(repository, gitStatus, gitRepository);
 				t.Log("AnalyzeBranchStructure");		
 			}
 
@@ -169,16 +164,27 @@ namespace GitMind.GitModel.Private
 
 		private void AnalyzeBranchStructure(
 			MRepository repository, 
-			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames, 
-			IReadOnlyList<GitSpecifiedNames> commitBranches,
 			GitStatus gitStatus, 
 			GitRepository gitRepository)
 		{
+			string gitRepositoryPath = repository.WorkingFolder;		
+
+			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
+
+			MSubBranch mSubBranch = repository.SubBranches
+				.FirstOrDefault(b => b.Value.Name == "master" && !b.Value.IsRemote).Value;
+			MCommit commit = mSubBranch.LatestCommit.FirstAncestors().Last();
+
+			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames = gitService.GetSpecifiedNames(
+				gitRepositoryPath);
+
+			IReadOnlyList<GitSpecifiedNames> commitBranches = gitService.GetCommitBranches(
+				gitRepositoryPath, commit.Id);
+
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);
 
-			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
-			
+
 			commitBranchNameService.SetMasterBranchCommits(repository);
 
 			branchService.AddInactiveBranches(repository);
@@ -214,6 +220,9 @@ namespace GitMind.GitModel.Private
 			KeyedList<string, Commit> rCommits = new KeyedList<string, Commit>(c => c.Id);
 			Branch currentBranch = null;
 			Commit currentCommit = null;
+			MCommit rootCommit = mRepository.Branches
+				.First(b => b.Value.Name == "master" && b.Value.IsActive)
+				.Value.FirstCommit;
 
 			Repository repository = new Repository(
 				mRepository,
@@ -222,7 +231,8 @@ namespace GitMind.GitModel.Private
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
 				mRepository.CommitsFiles,
-				new Status(mRepository.Status?.Count ?? 0, mRepository.Status?.ConflictCount ?? 0));
+				new Status(mRepository.Status?.Count ?? 0, mRepository.Status?.ConflictCount ?? 0),
+				rootCommit.Id);
 
 			foreach (var mCommit in mRepository.Commits)
 			{

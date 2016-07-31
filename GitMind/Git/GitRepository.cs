@@ -13,6 +13,8 @@ namespace GitMind.Git
 {
 	internal class GitRepository : IDisposable
 	{
+		// string emptyTreeSha = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
+
 		private readonly Repository repository;
 		private static readonly StatusOptions StatusOptions =
 			new StatusOptions { DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
@@ -251,6 +253,40 @@ namespace GitMind.Git
 			}
 
 			return null;
+		}
+
+
+		public IReadOnlyList<GitNote> GetCommitNotes(string commitId)
+		{	
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			if (commit != null)
+			{
+				return commit.Notes
+					.Select(note => new GitNote(note.Namespace ?? "", note.Message))
+					.ToList();
+			}
+			else
+			{
+				Log.Warn($"Could not find commit {commitId}");
+			}
+
+			return new GitNote[0];
+		}
+
+
+		public void SetCommitNote(string commitId, GitNote gitNote)
+		{
+			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
+
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			if (commit != null)
+			{
+				repository.Notes.Add(commit.Id, gitNote.Message, committer, committer, gitNote.NameSpace);
+			}
+			else
+			{
+				Log.Warn($"Could not find commit {commitId}");
+			}
 		}
 	}
 }
