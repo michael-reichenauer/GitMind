@@ -386,7 +386,7 @@ namespace GitMind.Git.Private
 							}
 							catch (NonFastForwardException)
 							{
-								// Failed with fast forward merge, trying no fast forward
+								// Failed with fast forward merge, trying no fast forward.
 								gitRepository.MergeCurrentBranchNoFastForwardy();
 							}
 						}
