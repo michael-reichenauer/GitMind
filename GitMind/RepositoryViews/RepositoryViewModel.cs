@@ -225,8 +225,9 @@ namespace GitMind.RepositoryViews
 			return refreshThrottler.Run(async () =>
 			{
 				Log.Debug("Loading repository ...");
-
-				using (busyIndicator.Progress)
+				bool isRepositoryCached = repositoryService.IsRepositoryCached(WorkingFolder);
+				string statusText = isRepositoryCached ? null : "First time building model";
+				using (busyIndicator.Progress(statusText))
 				{
 					Repository repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
 					UpdateInitialViewModel(repository);
@@ -256,7 +257,7 @@ namespace GitMind.RepositoryViews
 
 				Repository repository;
 
-				using (busyIndicator.Progress)
+				using (busyIndicator.Progress())
 				{
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository);
@@ -341,7 +342,7 @@ namespace GitMind.RepositoryViews
 				Log.Debug("Refreshing after manual trigger ...");
 
 				Repository repository;
-				using (busyIndicator.Progress)
+				using (busyIndicator.Progress("Rebuilding fresh model"))
 				{
 					await FetchRemoteChangesAsync(Repository);
 
@@ -552,7 +553,7 @@ namespace GitMind.RepositoryViews
 
 			CommitPosition commitPosition = TryGetSelectedCommitPosition();
 
-			using (busyIndicator.Progress)
+			using (busyIndicator.Progress())
 			{
 
 				await viewModelService.SetFilterAsync(this, filterText);
@@ -696,7 +697,7 @@ namespace GitMind.RepositoryViews
 		{
 			Log.Debug("Try update all branches");
 
-			using (busyIndicator.Progress)
+			using (busyIndicator.Progress())
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
@@ -750,7 +751,7 @@ namespace GitMind.RepositoryViews
 
 		private async void PullCurrentBranch()
 		{
-			using (busyIndicator.Progress)
+			using (busyIndicator.Progress())
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
@@ -781,7 +782,7 @@ namespace GitMind.RepositoryViews
 		{
 			Log.Debug("Try push all branches");
 
-			using (busyIndicator.Progress)
+			using (busyIndicator.Progress())
 			{
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
@@ -833,7 +834,7 @@ namespace GitMind.RepositoryViews
 
 		private async void PushCurrentBranch()
 		{
-			using (busyIndicator.Progress)
+			using (busyIndicator.Progress())
 			{
 				Log.Debug($"Push current branch");
 				string workingFolder = Repository.MRepository.WorkingFolder;
@@ -932,7 +933,7 @@ namespace GitMind.RepositoryViews
 
 				if (commit.SpecifiedBranchName != branchName)
 				{
-					using (busyIndicator.Progress)
+					using (busyIndicator.Progress())
 					{
 						string rootId = Repository.RootId;
 						await repositoryService.SetSpecifiedCommitBranchAsync(workingFolder, rootId, commit.Id, branchName);
@@ -955,7 +956,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task SwitchBranchAsync(Branch branch)
 		{
-			using (busyIndicator.Progress)
+			using (busyIndicator.Progress())
 			{
 				await gitService.SwitchToBranchAsync(WorkingFolder, branch.Name);
 
@@ -975,7 +976,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task UndoUncommittedFileAsync(string path)
 		{
-			using (busyIndicator.Progress)
+			using (busyIndicator.Progress())
 			{
 				await gitService.UndoFileInCurrentBranchAsync(WorkingFolder, path);
 
@@ -986,7 +987,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task MergeBranchAsync(Branch branch)
 		{
-			using (busyIndicator.Progress)
+			using (busyIndicator.Progress())
 			{
 				Branch currentBranch = Repository.CurrentBranch;
 				GitCommit gitCommit = await gitService.MergeAsync(WorkingFolder, branch.Name);
@@ -1005,7 +1006,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task SwitchToCommitAsync(Commit commit)
 		{
-			using (busyIndicator.Progress)
+			using (busyIndicator.Progress())
 			{
 				string proposedNamed = commit == commit.Branch.TipCommit
 					? commit.Branch.Name
@@ -1033,7 +1034,7 @@ namespace GitMind.RepositoryViews
 			if (dialog.ShowDialog() == true)
 			{
 				Application.Current.MainWindow.Focus();
-				using (busyIndicator.Progress)
+				using (busyIndicator.Progress())
 				{
 					string branchName = dialog.BranchName;
 					string commitId = branch.TipCommit.Id;
@@ -1061,7 +1062,7 @@ namespace GitMind.RepositoryViews
 			if (dialog.ShowDialog() == true)
 			{
 				Application.Current.MainWindow.Focus();
-				using (busyIndicator.Progress)
+				using (busyIndicator.Progress())
 				{
 					string branchName = dialog.BranchName;
 					string commitId = commit.Id;

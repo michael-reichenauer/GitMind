@@ -15,7 +15,7 @@ namespace GitMind.Utils.UI
 		private readonly DispatcherTimer timer = new DispatcherTimer();
 		private int progressCount;
 		private int indicatorIndex;
-
+		private string progressText = null;
 
 		public BusyIndicator(string propertyName, ViewModel viewModel)
 		{
@@ -26,20 +26,18 @@ namespace GitMind.Utils.UI
 
 
 		public string Text { get; private set; }
+		public string ProgressText { get; private set; }
 
 
-		public BusyProgress Progress
+		public BusyProgress Progress(string statusText = null)
 		{
-			get
-			{
-				StartIndicator();
+			StartIndicator(statusText);
 
-				return new BusyProgress(this);
-			}
+			return new BusyProgress(this, statusText);
 		}
 
 
-		public void Done()
+		public void Done(string statusText)
 		{
 			progressCount--;
 
@@ -47,17 +45,19 @@ namespace GitMind.Utils.UI
 			{
 				timer.Stop();
 				indicatorIndex = 0;
+				progressText = null;
 				Set("");
 			}
 		}
 
 
-		private void StartIndicator()
+		private void StartIndicator(string statusText)
 		{
 			progressCount++;
 
 			if (progressCount == 1)
 			{
+				progressText = statusText;
 				indicatorIndex = 0;
 				timer.Interval = InitialIndicatorTime;
 				timer.Start();
@@ -79,6 +79,7 @@ namespace GitMind.Utils.UI
 			{
 				timer.Stop();
 				indicatorIndex = 0;
+				progressText = null;
 				Set("");
 			}
 		}
@@ -87,6 +88,7 @@ namespace GitMind.Utils.UI
 		private void Set(string indicatorText)
 		{
 			Text = indicatorText;
+			ProgressText = progressText;
 			viewModel.OnPropertyChanged(propertyName);
 		}
 

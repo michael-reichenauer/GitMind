@@ -336,7 +336,7 @@ namespace GitMind.MainWindowViews
 
 			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction = async (message, list) =>
 			{
-				using (Busy.Progress)
+				using (Busy.Progress())
 				{
 					Log.Debug("Committing to git repo ...");
 

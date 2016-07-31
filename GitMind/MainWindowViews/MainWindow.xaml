@@ -238,8 +238,10 @@
 					</Button>
 					
 					<!-- Busy Indicator  -->
-					<Label Content="{Binding Busy.Text}" Foreground="DarkOrchid" Margin="10,0" FontSize="10"/>
-					
+					<StackPanel Orientation="Horizontal">
+						<Label Content="{Binding Busy.ProgressText}" Foreground="{StaticResource TextLowBrush}" Margin="10,0,0,0" FontSize="12"/>
+						<Label Content="{Binding Busy.Text}" Foreground="DarkOrchid" Margin="0,0,10,0" FontSize="10"/>
+					</StackPanel>
 				</StackPanel>
 
 

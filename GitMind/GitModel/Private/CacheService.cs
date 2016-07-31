@@ -19,6 +19,13 @@ namespace GitMind.GitModel.Private
 		}
 
 
+		public bool IsRepositoryCached(string workingFolder)
+		{
+			string cachePath = GetCachePath(workingFolder);
+			return File.Exists(cachePath);
+		}
+
+
 		public async Task<MRepository> TryGetRepositoryAsync(string gitRepositoryPath)
 		{
 			//await Task.Yield();

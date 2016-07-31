@@ -56,6 +56,12 @@ namespace GitMind.GitModel.Private
 		}
 
 
+		public bool IsRepositoryCached(string workingFolder)
+		{
+			return cacheService.IsRepositoryCached(workingFolder);
+		}
+
+
 		public Task<Repository> GetCachedOrFreshRepositoryAsync(string workingFolder)
 		{
 			return GetRepositoryAsync(true, workingFolder);
