@@ -96,7 +96,10 @@
 					Foreground="{StaticResource TextBrush}"
 					CaretBrush="{StaticResource TextBrush}">
 					<TextBox.InputBindings>
-						<KeyBinding Key="Enter" Command="{Binding OkCommand}"  />
+						<KeyBinding 
+							Key="Enter" 
+							Command="{Binding OkCommand}"
+							CommandParameter="{Binding ElementName=BranchDialogWindow}"/>
 					</TextBox.InputBindings>
 				</TextBox>
 				
