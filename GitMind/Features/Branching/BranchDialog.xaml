@@ -6,10 +6,10 @@
 				xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 				xmlns:local="clr-namespace:GitMind.Features.Branching"
 				mc:Ignorable="d"
-				Title="Branch" Width="260" Height="170" ResizeMode="NoResize" Background="Black"
+				Title="Branch" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Background="Black"
 				WindowStyle="None" AllowsTransparency="True"
 				BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
-				WindowStartupLocation="CenterOwner">
+				ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
 
 	<!-- Enable "normal" windows behavior with drag and resize,
 	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
@@ -91,6 +91,7 @@
 					Text="{Binding BranchName, UpdateSourceTrigger=PropertyChanged}"
 					KeyboardNavigation.TabIndex="0"
 					Margin="10,5,0,5"
+					Width="200"
 					Background="Transparent"
 					BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
 					Foreground="{StaticResource TextBrush}"
