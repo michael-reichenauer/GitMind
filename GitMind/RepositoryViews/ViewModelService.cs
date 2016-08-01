@@ -228,12 +228,6 @@ namespace GitMind.RepositoryViews
 				List<Commit> commits = await GetFilteredCommitsAsync(repositoryViewModel, filterText);
 				t.Log($"Got filtered {commits.Count} commits");
 
-				if (filterText != repositoryViewModel.FilterText)
-				{
-					Log.Warn($"Filter has changed {filterText} ->" + $"{repositoryViewModel.FilterText}");
-					return;
-				}
-
 				if (repositoryViewModel.PreFilterBranches == null)
 				{
 					// Storing pre-filter mode state to be used when leaving filter mode
@@ -251,22 +245,12 @@ namespace GitMind.RepositoryViews
 			RepositoryViewModel repositoryViewModel, string filterText)
 		{
 			IEnumerable<Commit> commits = null;
-			string filteredText = repositoryViewModel.FilteredText;
-
+		
 			bool isSearchSpecifiedNames = filterText == "$gm:";
 
-			if (StartsWith(filterText, filteredText) && !isSearchSpecifiedNames)
-			{
-				// The previous used filter text is a sub string of the new search, lets just search
-				// these commits
-				commits = repositoryViewModel.Commits.Select(c => c.Commit).ToList();
-			}
-			else
-			{
-				Repository repository = repositoryViewModel.Repository;
+			Repository repository = repositoryViewModel.Repository;
 
-				commits = repository.Commits;
-			}
+			commits = repository.Commits;	
 
 			Log.Debug($"Searching in {commits.Count()} commits");
 
@@ -280,7 +264,7 @@ namespace GitMind.RepositoryViews
 						|| Contains(c.AuthorDateText, filterText)
 						|| Contains(c.Tickets, filterText)
 						|| Contains(c.Tags, filterText)
-						|| Contains(c.Branch.Name, filteredText)
+						|| Contains(c.Branch.Name, filterText)
 						|| (isSearchSpecifiedNames && !string.IsNullOrEmpty(c.SpecifiedBranchName)))
 					.OrderByDescending(c => c.CommitDate)
 					.ToList();

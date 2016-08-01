@@ -184,7 +184,7 @@ namespace GitMind.RepositoryViews
 		public CommitDetailsViewModel CommitDetailsViewModel { get; } 
 
 		public string FilterText { get; private set; } = "";
-		public string FilteredText { get; private set; } = "";
+	//	public string FilteredText { get; private set; } = "";
 
 		public bool IsShowCommitDetails
 		{
@@ -559,13 +559,8 @@ namespace GitMind.RepositoryViews
 				await viewModelService.SetFilterAsync(this, filterText);
 			}
 
-			if (filterText != FilterText)
-			{
-				Log.Warn($"Filter has changed {filterText} ->" + $"{FilterText}");
-				return;
-			}
 
-			FilteredText = filterText;
+			//FilteredText = filterText;
 			TrySetSelectedCommitPosition(commitPosition, true);
 			CommitDetailsViewModel.NotifyAll();
 
