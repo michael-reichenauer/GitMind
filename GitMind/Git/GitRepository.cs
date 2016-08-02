@@ -155,24 +155,18 @@ namespace GitMind.Git
 		}
 
 
-		public void SwitchToCommit(string commitId, string proposedBranchName)
+		public string SwitchToCommit(string commitId, string proposedBranchName)
 		{
-			if (string.IsNullOrEmpty(proposedBranchName))
-			{
-				string shortId = commitId.Substring(0, 6);
-				proposedBranchName = $"_tmp_{shortId}";
-			}
-
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 			if (commit == null)
 			{
 				Log.Warn($"Unknown commit id {commitId}");
-				return;
+				return null;
 			}
 
 			// Trying to create a switch branch and check out, but that branch might be "taken"
 			// so we might have to retry a few times
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < 10; i++)
 			{
 				// Trying to get an existing switch branch with proposed name) at that commit
 				Branch branch = repository.Branches
@@ -184,8 +178,7 @@ namespace GitMind.Git
 					branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
 				}
 
-				string branchName = (i == 0 && !proposedBranchName.StartsWith("_tmp_")) 
-					? proposedBranchName : $"{proposedBranchName}_{i + 1}";
+				string branchName = (i == 0) ? proposedBranchName : $"{commit.Sha.Substring(0, 6)}_{i + 1}";
 
 				if (branch == null)
 				{
@@ -206,10 +199,11 @@ namespace GitMind.Git
 
 				repository.Checkout(branch);
 
-				return;
+				return branchName;
 			}
 
-			Log.Warn($"To many branches with name {proposedBranchName}");
+			Log.Warn($"To many branches with same name");
+			return null;
 		}
 
 

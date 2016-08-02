@@ -405,13 +405,13 @@ namespace GitMind.RepositoryViews
 			Repository = repository;
 			if (string.IsNullOrEmpty(FilterText) && string.IsNullOrEmpty(settingFilterText))
 			{
-				CommitPosition commitPosition = TryGetSelectedCommitPosition();
+				//CommitPosition commitPosition = TryGetSelectedCommitPosition();
 
 				viewModelService.UpdateViewModel(this);
 
 				UpdateViewModel();
 
-				TrySetSelectedCommitPosition(commitPosition);
+				//TrySetSelectedCommitPosition(commitPosition);
 				t.Log("Updated repository view model");
 			}
 		}
@@ -559,8 +559,6 @@ namespace GitMind.RepositoryViews
 				await viewModelService.SetFilterAsync(this, filterText);
 			}
 
-
-			//FilteredText = filterText;
 			TrySetSelectedCommitPosition(commitPosition, true);
 			CommitDetailsViewModel.NotifyAll();
 
@@ -1007,9 +1005,15 @@ namespace GitMind.RepositoryViews
 			{
 				string proposedNamed = commit == commit.Branch.TipCommit
 					? commit.Branch.Name
-					: $"_tmp_{commit.Branch.Name}";
+					: $"_{commit.ShortId}";
 
-			await gitService.SwitchToCommitAsync(WorkingFolder, commit.CommitId, proposedNamed);
+				string branchName = await gitService.SwitchToCommitAsync(
+					WorkingFolder, commit.CommitId, proposedNamed);
+
+				if (branchName != null)
+				{
+					SpecifiedBranchNames = new[] { branchName };
+				}
 
 				await RefreshAfterCommandAsync(false);
 			}
