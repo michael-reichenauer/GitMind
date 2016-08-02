@@ -171,7 +171,7 @@
 
 								<MenuItem
 									Header="Update all branches"
-									InputGestureText="Ctrl+Shift-U"
+									InputGestureText="Ctrl+Shift-Down"
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Grid Margin="0">
@@ -185,7 +185,7 @@
 
 								<MenuItem 
 									Header="{Binding RepositoryViewModel.PullCurrentBranchText}"
-									InputGestureText="Ctrl-U"
+									InputGestureText="Ctrl-Down"
 									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
@@ -211,7 +211,7 @@
 
 								<MenuItem
 									Header="Push all branches"
-									InputGestureText="Ctrl+Shift-P"
+									InputGestureText="Ctrl+Shift-Up"
 									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Grid Margin="0">
@@ -225,7 +225,7 @@
 
 								<MenuItem 
 									Header="{Binding RepositoryViewModel.PushCurrentBranchText}"
-									InputGestureText="Ctrl-P"
+									InputGestureText="Ctrl-Up"
 									Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>

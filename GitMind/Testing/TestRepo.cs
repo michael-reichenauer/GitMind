@@ -10,6 +10,6 @@ namespace GitMind.Testing
 		public static readonly string Path7 = @"d:\My Work\GitMind3";
 		public static readonly string Path8 = @"d:\My Work\GitMind2";
 
-		public static readonly string Path = Path2;
+		public static readonly string Path = Path4;
 	}
 }

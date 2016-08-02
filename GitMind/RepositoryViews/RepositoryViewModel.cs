@@ -729,18 +729,18 @@ namespace GitMind.RepositoryViews
 
 		private bool CanExecuteTryUpdateAllBranches()
 		{
-			return false;
-			//if (!string.IsNullOrEmpty(ConflictsText))
-			//{
-			//	return false;
-			//}
+			//return false;
+			if (!string.IsNullOrEmpty(ConflictsText))
+			{
+				return false;
+			}
 
-			//Branch uncommittedBranch = UnCommited?.Branch;
+			Branch uncommittedBranch = UnCommited?.Branch;
 
-			//return Repository.Branches.Any(
-			//	b => b != uncommittedBranch
-			//	&& b.RemoteAheadCount > 0
-			//	&& b.LocalAheadCount == 0);
+			return Repository.Branches.Any(
+				b => b != uncommittedBranch
+				&& b.RemoteAheadCount > 0
+				&& b.LocalAheadCount == 0);
 		}
 
 
