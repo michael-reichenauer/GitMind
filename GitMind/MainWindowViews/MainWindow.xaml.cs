@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using GitMind.Features.FolderMonitoring;
 using GitMind.Utils;
 
 
@@ -20,6 +21,8 @@ namespace GitMind.MainWindowViews
 
 		private readonly MainWindowViewModel viewModel;
 		private DateTime ActivatedTime = DateTime.MaxValue;
+
+		private readonly FolderMonitorService folderMonitor = new FolderMonitorService();
 
 
 		public MainWindow()
@@ -39,7 +42,15 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public string WorkingFolder {set { viewModel.WorkingFolder = value; } }
+		public string WorkingFolder
+		{
+			set
+			{
+				viewModel.WorkingFolder = value;
+				//folderMonitor.Start(value);
+			}
+		}
+
 
 		public IReadOnlyList<string> BranchNames { set { viewModel.SpecifiedBranchNames = value; } }
 
