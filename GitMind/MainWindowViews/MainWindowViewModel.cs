@@ -195,6 +195,11 @@ namespace GitMind.MainWindowViews
 				return Task.CompletedTask;
 			}
 
+			if (owner.WindowState == WindowState.Minimized)
+			{
+				return Task.CompletedTask;
+			}
+
 			return RepositoryViewModel.AutoRefreshAsync();
 		}
 
