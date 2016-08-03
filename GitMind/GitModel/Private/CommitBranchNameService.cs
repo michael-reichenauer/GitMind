@@ -9,26 +9,26 @@ namespace GitMind.GitModel.Private
 	internal class CommitBranchNameService : ICommitBranchNameService
 	{
 		public void SetSpecifiedCommitBranchNames(
-			IReadOnlyList<GitSpecifiedNames> specifiedNames,
+			IReadOnlyList<BranchName> specifiedNames,
 			MRepository repository)
 		{
-			foreach (GitSpecifiedNames specifiedName in specifiedNames)
+			foreach (BranchName specifiedName in specifiedNames)
 			{
 				MCommit commit;
 				if (repository.Commits.TryGetValue(specifiedName.CommitId, out commit))
 				{
-					commit.SpecifiedBranchName = specifiedName.BranchName;
-					commit.BranchName = specifiedName.BranchName;
+					commit.SpecifiedBranchName = specifiedName.Name;
+					commit.BranchName = specifiedName.Name;
 				}
 			}
 		}
 
 
 		public void SetCommitBranchNames(
-			IReadOnlyList<GitSpecifiedNames> commitBranches,
+			IReadOnlyList<BranchName> commitBranches,
 			MRepository repository)
 		{
-			foreach (GitSpecifiedNames commitBranch in commitBranches)
+			foreach (BranchName commitBranch in commitBranches)
 			{
 				MCommit commit;
 				if (repository.Commits.TryGetValue(commitBranch.CommitId, out commit))
@@ -36,7 +36,7 @@ namespace GitMind.GitModel.Private
 					// Set branch name unless there is a specified branch name which has higher priority
 					if (string.IsNullOrWhiteSpace(commit.SpecifiedBranchName))
 					{
-						commit.BranchName = commitBranch.BranchName;
+						commit.BranchName = commitBranch.Name;
 					}
 				}
 			}

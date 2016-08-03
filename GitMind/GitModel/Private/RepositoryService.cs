@@ -182,10 +182,10 @@ namespace GitMind.GitModel.Private
 				.FirstOrDefault(b => b.Value.Name == "master" && !b.Value.IsRemote).Value;
 			MCommit commit = mSubBranch.LatestCommit.FirstAncestors().Last();
 
-			IReadOnlyList<GitSpecifiedNames> gitSpecifiedNames = gitService.GetSpecifiedNames(
+			IReadOnlyList<BranchName> gitSpecifiedNames = gitService.GetSpecifiedNames(
 				gitRepositoryPath, commit.Id);
 
-			IReadOnlyList<GitSpecifiedNames> commitBranches = gitService.GetCommitBranches(
+			IReadOnlyList<BranchName> commitBranches = gitService.GetCommitBranches(
 				gitRepositoryPath, commit.Id);
 
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);

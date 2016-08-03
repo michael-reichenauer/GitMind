@@ -152,7 +152,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder, string rootId)
+		public IReadOnlyList<BranchName> GetSpecifiedNames(string workingFolder, string rootId)
 		{
 			return GetNoteBranches(workingFolder, ManualBranchNoteNameSpace, rootId);
 		}
@@ -167,7 +167,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public IReadOnlyList<GitSpecifiedNames> GetCommitBranches(string workingFolder, string rootId)
+		public IReadOnlyList<BranchName> GetCommitBranches(string workingFolder, string rootId)
 		{
 			return GetNoteBranches(workingFolder, CommitBranchNoteNameSpace, rootId);
 		}
@@ -731,6 +731,16 @@ namespace GitMind.Git.Private
 		{
 			Log.Warn($"Set {nameSpace}: {commitId} {branchName}");
 
+			//try
+			//{
+			//	string file = Path.Combine(workingFolder, ".git", nameSpace);
+			//	File.AppendAllText(file, $"{commitId} {branchName}\n");
+			//}
+			//catch (Exception e)
+			//{
+			//	Log.Warn($"Failed to add commit name for {commitId} {branchName}, {e}");
+			//}
+
 			try
 			{
 				using (GitRepository gitRepository = OpenRepository(workingFolder))
@@ -758,10 +768,10 @@ namespace GitMind.Git.Private
 		}
 
 
-		private IReadOnlyList<GitSpecifiedNames> GetNoteBranches(
+		private IReadOnlyList<BranchName> GetNoteBranches(
 			string workingFolder, string nameSpace, string rootId)
 		{
-			List<GitSpecifiedNames> branchNames = new List<GitSpecifiedNames>();
+			List<BranchName> branchNames = new List<BranchName>();
 
 			Log.Debug($"Getting {nameSpace} ...");
 
@@ -772,15 +782,7 @@ namespace GitMind.Git.Private
 					IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
 					GitNote note = notes.FirstOrDefault(n => n.NameSpace == nameSpace);
 
-					string[] lines = (note?.Message ?? "").Split("\n".ToCharArray());
-					foreach (string line in lines)
-					{
-						string[] parts = line.Split(" ".ToCharArray());
-						if (parts.Length == 2)
-						{
-							branchNames.Add(new GitSpecifiedNames(parts[0], parts[1]?.Trim()));
-						}
-					}
+					branchNames = ParseBranchNames(note?.Message);
 				}
 			}
 			catch (Exception e)
@@ -789,10 +791,36 @@ namespace GitMind.Git.Private
 			}
 
 			Log.Warn($"Got {branchNames.Count} branches for {nameSpace}");
-			branchNames.ForEach(b => Log.Warn($"   {b.CommitId} {b.BranchName}"));
+			branchNames.ForEach(b => Log.Warn($"   {b.CommitId} {b.Name}"));
 
 			return branchNames;
 		}
+
+
+		private List<BranchName> ParseBranchNames(string text)
+		{
+			List<BranchName> branchNames = new List<BranchName>();
+
+			if (string.IsNullOrWhiteSpace(text))
+			{		
+				return branchNames;
+			}
+
+			string[] lines = text.Split("\n".ToCharArray());
+			foreach (string line in lines)
+			{
+				string[] parts = line.Split(" ".ToCharArray());
+				if (parts.Length == 2)
+				{
+					string commitId = parts[0];
+					string branchName = parts[1].Trim();
+					branchNames.Add(new BranchName(commitId, branchName));
+				}
+			}
+
+			return branchNames;
+		}
+
 
 		private async Task PushNotesUsingCmdAsync(string workingFolder, string nameSpace)
 		{
@@ -833,7 +861,7 @@ namespace GitMind.Git.Private
 			//fetchResult.OnError(e => Log.Warn($"Git fetch notes {nameSpace} failed {e.Message}"));
 
 			//Log.Debug("Merging fetch notes using ...");
-			//IReadOnlyList<GitSpecifiedNames> names = GetNoteBranches(workingFolder, nameSpace, rootId);
+			//IReadOnlyList<BranchName> names = GetNoteBranches(workingFolder, nameSpace, rootId);
 
 			//if (names.Any())
 			//{

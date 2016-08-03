@@ -34,8 +34,8 @@ namespace GitMind.Git
 		Task SetSpecifiedCommitBranchAsync(string workingFolder, string rootId, string commitId, string branchName);
 		Task SetCommitBranchAsync(string workingFolder, string rootId, string commitId, string branchName);
 
-		IReadOnlyList<GitSpecifiedNames> GetSpecifiedNames(string workingFolder, string rootId);
-		IReadOnlyList<GitSpecifiedNames> GetCommitBranches(string workingFolder, string rootId);
+		IReadOnlyList<BranchName> GetSpecifiedNames(string workingFolder, string rootId);
+		IReadOnlyList<BranchName> GetCommitBranches(string workingFolder, string rootId);
 
 		Task FetchBranchAsync(string workingFolder, string branchName);
 		Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder);

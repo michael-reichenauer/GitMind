@@ -163,7 +163,7 @@
     <Compile Include="GitModel\Tag.cs" />
     <Compile Include="Git\GitCommitFiles.cs" />
     <Compile Include="Git\GitFile.cs" />
-    <Compile Include="Git\GitSpecifiedNames.cs" />
+    <Compile Include="Git\BranchName.cs" />
     <Compile Include="Utils\IReadOnlyKeyedList.cs" />
     <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="GitModel\Private\MRepository.cs" />
