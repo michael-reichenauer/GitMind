@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:GitMind.Styles">
+										xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+										xmlns:local="clr-namespace:GitMind.Styles">
 
 	<Style x:Key="BaseButtonStyle" TargetType="{x:Type Button}">
 		<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -17,16 +17,16 @@
 				<ControlTemplate TargetType="{x:Type Button}">
 					<Border 
 						Name="Chrome"
-            Background="{TemplateBinding Background}"
-            BorderBrush="{TemplateBinding BorderBrush}"
-            BorderThickness="{TemplateBinding BorderThickness}"
-            SnapsToDevicePixels="true">
+						Background="{TemplateBinding Background}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						SnapsToDevicePixels="true">
 						<ContentPresenter 
 							Name="Presenter" 
 							Margin="{TemplateBinding Padding}"
 							VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
 							HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-              RecognizesAccessKey="True"
+							RecognizesAccessKey="True"
 							SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
 					</Border>
 					<ControlTemplate.Triggers>
@@ -37,21 +37,21 @@
 							<Setter Property="Background" Value="Black" />
 							<Setter Property="BorderThickness" Value="1" />
 							<Setter Property="BorderBrush" Value="#996495ED" />
-							<Setter Property="Foreground" Value="Lavender" />
+							<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
 						</Trigger>
 						
 						<Trigger Property="IsFocused" Value="True">
 							<Setter Property="Background" Value="Black" />
 							<Setter Property="BorderThickness" Value="1" />
 							<Setter Property="BorderBrush" Value="#996495ED" />
-							<Setter Property="Foreground" Value="Lavender" />
+							<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
 						</Trigger>
 
 						<Trigger Property="IsPressed" Value="True">
 							<Setter Property="Background" Value="#000025" />
 							<Setter Property="BorderThickness" Value="1" />
 							<Setter Property="BorderBrush" Value="#FF6495ED"/>
-							<Setter Property="Foreground" Value="Lavender"/>
+							<Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
 						</Trigger>
 						<!--<Trigger Property="IsFocused" Value="true">
 							<Setter TargetName="Chrome" Property="BorderBrush" Value="Transparent" />

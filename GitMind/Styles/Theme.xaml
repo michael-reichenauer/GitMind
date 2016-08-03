@@ -1779,7 +1779,7 @@
 		<Setter Property="HorizontalContentAlignment" Value="Left"/>
 		<Setter Property="VerticalContentAlignment" Value="Top"/>
 		<Setter Property="Background" Value="Black"/>
-		<Setter Property="Foreground" Value="Lavender" />
+		<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
 		<Setter Property="BorderThickness" Value="1"/>
 		<Setter Property="Template">
 			<Setter.Value>
