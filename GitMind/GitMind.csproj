@@ -61,6 +61,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
@@ -94,6 +95,7 @@
     <Compile Include="Git\GitNote.cs" />
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
+    <Compile Include="Utils\UI\VisibleWindow.cs" />
     <Compile Include="Utils\UI\WpfBindingTraceListener.cs" />
     <Compile Include="RepositoryViews\BranchItem.cs" />
     <Compile Include="RepositoryViews\BranchNameItem.cs" />

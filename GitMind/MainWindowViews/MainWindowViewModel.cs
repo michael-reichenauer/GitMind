@@ -195,7 +195,7 @@ namespace GitMind.MainWindowViews
 				return Task.CompletedTask;
 			}
 
-			if (owner.WindowState == WindowState.Minimized)
+			if (owner.WindowState == WindowState.Minimized || !VisibleWindow.IsVisible(owner))
 			{
 				return Task.CompletedTask;
 			}
