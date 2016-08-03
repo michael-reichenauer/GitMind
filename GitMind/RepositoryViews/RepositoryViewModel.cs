@@ -695,33 +695,32 @@ namespace GitMind.RepositoryViews
 			using (busyIndicator.Progress())
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
+				Branch currentBranch = Repository.CurrentBranch;
+				Branch uncommittedBranch = UnCommited?.Branch;
 
 				await gitService.FetchAsync(workingFolder);
 
-				Branch currentBranch = Repository.CurrentBranch;
-				Branch uncommittedBranch = UnCommited?.Branch;
+				if (uncommittedBranch != currentBranch
+					&& currentBranch.RemoteAheadCount > 0
+					&& currentBranch.LocalAheadCount == 0)
+					{
+					Log.Debug($"Updating current branch {currentBranch.Name}");
+					await gitService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
+				}
+			
 				IEnumerable<Branch> updatableBranches = Repository.Branches
 				 .Where(b =>
-				 b != currentBranch
-				 && b != uncommittedBranch
-				 && b.RemoteAheadCount > 0
-				 && b.LocalAheadCount == 0).ToList();
-
+					 b != currentBranch
+					 && b != uncommittedBranch
+					 && b.RemoteAheadCount > 0
+					 && b.LocalAheadCount == 0).ToList();
 
 				foreach (Branch branch in updatableBranches)
 				{
 					Log.Debug($"Updating branch {branch.Name}");
 
 					await gitService.FetchBranchAsync(workingFolder, branch.Name);
-				}
-
-				if (uncommittedBranch != currentBranch
-					&& currentBranch.RemoteAheadCount > 0
-					&& currentBranch.LocalAheadCount == 0)
-				{
-					Log.Debug($"Updating current branch {currentBranch.Name}");
-					await gitService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
-				}
+				}			
 
 				await RefreshAfterCommandAsync(false);
 			}
@@ -779,22 +778,9 @@ namespace GitMind.RepositoryViews
 
 			using (busyIndicator.Progress())
 			{
+				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
-				IEnumerable<Branch> pushableBranches = Repository.Branches
-					.Where(b =>
-						b != currentBranch
-						&& b != uncommittedBranch
-						&& b.LocalAheadCount > 0
-						&& b.RemoteAheadCount == 0).ToList();
-
-				string workingFolder = Repository.MRepository.WorkingFolder;
-				foreach (Branch branch in pushableBranches)
-				{
-					Log.Debug($"Push branch {branch.Name}");
-
-					await gitService.PushBranchAsync(workingFolder, branch.Name);
-				}
 
 				if (uncommittedBranch != currentBranch
 					&& currentBranch.LocalAheadCount > 0
@@ -803,6 +789,20 @@ namespace GitMind.RepositoryViews
 					Log.Debug($"Push current branch {currentBranch.Name}");
 					await gitService.PushCurrentBranchAsync(workingFolder);
 				}
+
+				IEnumerable<Branch> pushableBranches = Repository.Branches
+					.Where(b =>
+						b != currentBranch
+						&& b != uncommittedBranch
+						&& b.LocalAheadCount > 0
+						&& b.RemoteAheadCount == 0).ToList();
+		
+				foreach (Branch branch in pushableBranches)
+				{
+					Log.Debug($"Push branch {branch.Name}");
+
+					await gitService.PushBranchAsync(workingFolder, branch.Name);
+				}		
 
 				await gitService.PushNotesAsync(workingFolder);
 
