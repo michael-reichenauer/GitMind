@@ -227,9 +227,10 @@ namespace GitMind.RepositoryViews
 				Log.Debug("Loading repository ...");
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(WorkingFolder);
 				string statusText = isRepositoryCached ? null : "First time building model";
+				Repository repository;
 				using (busyIndicator.Progress(statusText))
 				{
-					Repository repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
+					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
 					UpdateInitialViewModel(repository);
 
 					repository = await GetLocalChangesAsync(Repository);
@@ -240,11 +241,49 @@ namespace GitMind.RepositoryViews
 					UpdateViewModel(repository);
 					Log.Debug("Loaded repository done");
 				}
+
+				Log.Debug("Get fresh repository from scratch");
+				FreshRepositoryTime = DateTime.Now;
+				repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
+				UpdateViewModel(repository);
+
 			});
 		}
 
 
-		public Task ActivateRefreshAsync()
+		//public Task ActivateRefreshAsync()
+		//{
+		//	if (isInternalDialog)
+		//	{
+		//		return Task.CompletedTask;
+		//	}
+
+		//	return refreshThrottler.Run(async () =>
+		//	{
+		//		Log.Debug("Refreshing after activating");
+
+		//		Repository repository;
+
+		//		using (busyIndicator.Progress())
+		//		{
+		//			repository = await GetLocalChangesAsync(Repository);
+		//			UpdateViewModel(repository);
+		//		}
+
+		//		if (DateTime.Now - fetchedTime > ActivateFetchInterval)
+		//		{
+		//			await FetchRemoteChangesAsync(Repository);
+		//			repository = await GetLocalChangesAsync(Repository);
+		//			UpdateViewModel(repository);
+		//		}
+				
+		//		Log.Debug("Refreshed after activating done");
+		//	});
+		//}
+
+
+
+		public Task AutoRefreshAsync(bool isRepoChange)
 		{
 			if (isInternalDialog)
 			{
@@ -253,66 +292,38 @@ namespace GitMind.RepositoryViews
 
 			return refreshThrottler.Run(async () =>
 			{
-				Log.Debug("Refreshing after activating");
-
-				Repository repository;
+				Log.Debug("Refreshing after status/repo change ...");
 
 				using (busyIndicator.Progress())
 				{
-					repository = await GetLocalChangesAsync(Repository);
-					UpdateViewModel(repository);
-				}
+					if (DateTime.Now - fetchedTime > FetchInterval)
+					{
+						await FetchRemoteChangesAsync(Repository);
+					}
 
-				if (DateTime.Now - fetchedTime > ActivateFetchInterval)
-				{
-					await FetchRemoteChangesAsync(Repository);
-					repository = await GetLocalChangesAsync(Repository);
+					Repository repository;
+					if (isRepoChange && DateTime.Now - FreshRepositoryTime > AutoFreshRepositoryInterval)
+					{
+						Log.Debug("Get fresh repository from scratch");
+						FreshRepositoryTime = DateTime.Now;
+						repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
+					}
+					else
+					{
+						repository = await GetLocalChangesAsync(Repository);
+					}
+
 					UpdateViewModel(repository);
+					Log.Debug("Refreshed after status/repo change done");
 				}
-				
-				Log.Debug("Refreshed after activating done");
 			});
 		}
 
 
-
-		public Task AutoRefreshAsync()
+		public async Task RefreshAfterCommandAsync(bool useFreshRepository)
 		{
-			if (isInternalDialog)
-			{
-				return Task.CompletedTask;
-			}
-
-			return refreshThrottler.Run(async () =>
-			{
-				Log.Debug("Refreshing after auto timer ...");
-
-				if (DateTime.Now - fetchedTime > FetchInterval)
-				{
-					await FetchRemoteChangesAsync(Repository);
-				}
-
-				Repository repository;
-				if (DateTime.Now - FreshRepositoryTime > AutoFreshRepositoryInterval)
-				{
-					Log.Debug("Get fresh repository from scratch");
-					repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
-					FreshRepositoryTime = DateTime.Now;
-				}
-				else
-				{
-					repository = await GetLocalChangesAsync(Repository);
-				}
-
-				UpdateViewModel(repository);
-				Log.Debug("Refreshed after auto timer done");
-			});
-		}
-
-
-		public Task RefreshAfterCommandAsync(bool useFreshRepository)
-		{
-			return refreshThrottler.Run(async () =>
+			isInternalDialog = true;
+			await refreshThrottler.Run(async () =>
 			{
 				Log.Debug("Refreshing after command ...");
 
@@ -330,8 +341,10 @@ namespace GitMind.RepositoryViews
 				}
 
 				UpdateViewModel(repository);
-				Log.Debug("Refreshed after command done");
+				Log.Debug("Refreshed after command done");		
 			});
+
+			isInternalDialog = false;
 		}
 
 

@@ -91,6 +91,7 @@
       <DependentUpon>CommitDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Features\Committing\CommitDialogViewModel.cs" />
+    <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\GitNote.cs" />
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
