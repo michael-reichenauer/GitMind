@@ -161,6 +161,9 @@ namespace GitMind.Features.FolderMonitoring
 
 			if (now - repoTriggerTime > MaxTriggerTimeout)
 			{
+				statusTriggerTime = now;
+				statusChangeTime = now;
+
 				repoTriggerTime = now;
 				repoChangeTime = now;
 				repoTriggerAction();
@@ -171,6 +174,9 @@ namespace GitMind.Features.FolderMonitoring
 				repoTimer.Stop();
 
 				bool isEndTrigger = repoChangeTime > repoTriggerTime;
+
+				statusTriggerTime = DateTime.MinValue;
+				statusChangeTime = now;
 
 				repoTriggerTime = DateTime.MinValue;
 				repoChangeTime = now;

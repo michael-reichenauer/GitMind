@@ -32,6 +32,9 @@ namespace GitMind.MainWindowViews
 		private readonly Window owner;
 		private bool isLoaded = false;
 
+		private bool isStatusChanged = false;
+		private bool isRepositoryChanged = false;
+
 
 		internal MainWindowViewModel(Window owner)
 		{
@@ -188,7 +191,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public Task AutoRefreshAsync()
+		public Task AutoRefreshAsync(bool isRepoChange)
 		{
 			if (!isLoaded)
 			{
@@ -197,10 +200,15 @@ namespace GitMind.MainWindowViews
 
 			if (owner.WindowState == WindowState.Minimized || !VisibleWindow.IsVisible(owner))
 			{
+				Log.Debug("Not visible");
+				isStatusChanged = true;
+				isRepositoryChanged = isRepositoryChanged || isRepoChange;
 				return Task.CompletedTask;
 			}
 
-			return RepositoryViewModel.AutoRefreshAsync();
+			isStatusChanged = false;
+			isRepositoryChanged = false;
+			return RepositoryViewModel.AutoRefreshAsync(isRepoChange);
 		}
 
 
@@ -211,7 +219,15 @@ namespace GitMind.MainWindowViews
 				return Task.CompletedTask;
 			}
 
-			return RepositoryViewModel.ActivateRefreshAsync();
+			if (isStatusChanged)
+			{
+				bool isRepoChange = isRepositoryChanged;
+				isStatusChanged = false;
+				isRepositoryChanged = false;
+				return RepositoryViewModel.AutoRefreshAsync(isRepoChange);
+			}
+
+			return Task.CompletedTask;
 		}
 
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Utils;
 
@@ -17,7 +16,7 @@ namespace GitMind.MainWindowViews
 		private static readonly TimeSpan AutoRefreshInterval = TimeSpan.FromMinutes(1);
 		private static readonly TimeSpan OnActivatedInterval = TimeSpan.FromSeconds(10);
 
-		private readonly DispatcherTimer autoRefreshTimer = new DispatcherTimer();
+		//private readonly DispatcherTimer autoRefreshTimer = new DispatcherTimer();
 
 		private readonly MainWindowViewModel viewModel;
 		private DateTime ActivatedTime = DateTime.MaxValue;
@@ -34,8 +33,8 @@ namespace GitMind.MainWindowViews
 			// Make sure maximize window does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
 
-			autoRefreshTimer.Tick += AutoRefresh;
-			autoRefreshTimer.Interval = AutoRefreshInterval;
+			//autoRefreshTimer.Tick += AutoRefresh;
+			//autoRefreshTimer.Interval = AutoRefreshInterval;
 
 			viewModel = new MainWindowViewModel(this);
 			DataContext = viewModel;
@@ -46,13 +45,15 @@ namespace GitMind.MainWindowViews
 
 		private void OnStatusChange()
 		{
-			Log.Warn("Status has changed");
+			Log.Warn("Status change");
+			viewModel.AutoRefreshAsync(false).RunInBackground();
 		}
 
 
 		private void OnRepoChange()
 		{
-			Log.Warn("Repo has changed");
+			Log.Warn("Repo change");
+			viewModel.AutoRefreshAsync(true).RunInBackground();
 		}
 
 
@@ -80,22 +81,22 @@ namespace GitMind.MainWindowViews
 			await viewModel.FirstLoadAsync();
 			ActivatedTime = DateTime.Now;
 
-			autoRefreshTimer.Start();
+			//autoRefreshTimer.Start();
 		}
 
 
 
-		private void AutoRefresh(object sender, EventArgs e)
-		{
-			try
-			{
-				viewModel.AutoRefreshAsync().RunInBackground();
-			}
-			catch (Exception ex) when (ex.IsNotFatal())
-			{
-				Log.Error($"Failed to auto refresh {ex}");
-			}
-		}
+		//private void AutoRefresh(object sender, EventArgs e)
+		//{
+		//	try
+		//	{
+		//		viewModel.AutoRefreshAsync().RunInBackground();
+		//	}
+		//	catch (Exception ex) when (ex.IsNotFatal())
+		//	{
+		//		Log.Error($"Failed to auto refresh {ex}");
+		//	}
+		//}
 
 
 		protected override void OnActivated(EventArgs e)
