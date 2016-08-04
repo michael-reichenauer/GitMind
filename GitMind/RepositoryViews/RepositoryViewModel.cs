@@ -320,9 +320,10 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Task RefreshAfterCommandAsync(bool useFreshRepository)
+		public async Task RefreshAfterCommandAsync(bool useFreshRepository)
 		{
-			return refreshThrottler.Run(async () =>
+			isInternalDialog = true;
+			await refreshThrottler.Run(async () =>
 			{
 				Log.Debug("Refreshing after command ...");
 
@@ -340,8 +341,10 @@ namespace GitMind.RepositoryViews
 				}
 
 				UpdateViewModel(repository);
-				Log.Debug("Refreshed after command done");
+				Log.Debug("Refreshed after command done");		
 			});
+
+			isInternalDialog = false;
 		}
 
 
