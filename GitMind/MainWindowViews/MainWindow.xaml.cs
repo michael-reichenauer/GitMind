@@ -22,12 +22,14 @@ namespace GitMind.MainWindowViews
 		private readonly MainWindowViewModel viewModel;
 		private DateTime ActivatedTime = DateTime.MaxValue;
 
-		private readonly FolderMonitorService folderMonitor = new FolderMonitorService();
+		private readonly FolderMonitorService folderMonitor;
 
 
 		public MainWindow()
 		{
 			InitializeComponent();
+
+			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
 
 			// Make sure maximize window does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
@@ -42,12 +44,24 @@ namespace GitMind.MainWindowViews
 		}
 
 
+		private void OnStatusChange()
+		{
+			Log.Warn("Status has changed");
+		}
+
+
+		private void OnRepoChange()
+		{
+			Log.Warn("Repo has changed");
+		}
+
+
 		public string WorkingFolder
 		{
 			set
 			{
 				viewModel.WorkingFolder = value;
-				//folderMonitor.Start(value);
+				folderMonitor.Monitor(value);
 			}
 		}
 

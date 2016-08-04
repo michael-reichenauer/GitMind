@@ -1,98 +1,185 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
-using GitMind.Utils;
+using System.Windows.Threading;
 
 
 namespace GitMind.Features.FolderMonitoring
 {
 	public class FolderMonitorService
 	{
-		private readonly FileSystemWatcher watcher = new FileSystemWatcher();
-		private DateTime changedFiles;
-		private DateTime changedRepo;
+		private const string GitFolder = ".git";
+		private const string GitRefsFolder = "refs";
+		private const string GitHeadFile = "HEAD";
+		private const NotifyFilters NotifyFilters =
+			System.IO.NotifyFilters.LastWrite
+			| System.IO.NotifyFilters.FileName
+			| System.IO.NotifyFilters.DirectoryName;
+		private static readonly TimeSpan MinTriggerTimeout = TimeSpan.FromSeconds(1);
+		private static readonly TimeSpan MaxTriggerTimeout = TimeSpan.FromSeconds(10);
+		private static readonly TimeSpan EndTriggerTimeout = TimeSpan.FromSeconds(5);
 
-		private Timer timer = new Timer(OnTimer);
+		private readonly FileSystemWatcher workFolderWatcher = new FileSystemWatcher();
+		private readonly FileSystemWatcher refsWatcher = new FileSystemWatcher();
+
+		private DateTime statusChangeTime;
+		private DateTime statusTriggerTime;
+		private readonly Action statusTriggerAction;
+		private readonly DispatcherTimer statusTimer;
+
+		private DateTime repoChangeTime;
+		private DateTime repoTriggerTime;
+		private readonly Action repoTriggerAction;
+		private readonly DispatcherTimer repoTimer;
 
 
-
-
-		public FolderMonitorService()
+		public FolderMonitorService(Action statusTriggerAction, Action repoTriggerAction)
 		{
-			
+			this.statusTriggerAction = statusTriggerAction;
+			statusTimer = new DispatcherTimer();
+			statusTimer.Tick += (s, e) => OnStatusTimer();
+			statusTimer.Interval = MinTriggerTimeout;
+			workFolderWatcher.Changed += (s, e) => WorkingFolderChange(e.Name);
+			workFolderWatcher.Created += (s, e) => WorkingFolderChange(e.Name);
+			workFolderWatcher.Deleted += (s, e) => WorkingFolderChange(e.Name);
+			workFolderWatcher.Renamed += (s, e) => WorkingFolderChange(e.Name);
+
+			this.repoTriggerAction = repoTriggerAction;
+			repoTimer = new DispatcherTimer();
+			repoTimer.Tick += (s, e) => OnRepoTimer();
+			repoTimer.Interval = MinTriggerTimeout;
+			refsWatcher.Changed += (s, e) => RefsChange();
+			refsWatcher.Created += (s, e) => RefsChange();
+			refsWatcher.Deleted += (s, e) => RefsChange();
+			refsWatcher.Renamed += (s, e) => RefsChange();
 		}
 
 
-		public void Start(string workingFolder)
+		public void Monitor(string workingFolder)
 		{
-			watcher.Path = workingFolder;
+			workFolderWatcher.EnableRaisingEvents = false;
+			refsWatcher.EnableRaisingEvents = false;
+			statusTimer.Stop();
+			repoTimer.Stop();
 
-			watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.LastAccess
-					| NotifyFilters.FileName | NotifyFilters.DirectoryName;
-			watcher.Filter = "*.*";
-			watcher.IncludeSubdirectories = true;
+			workFolderWatcher.Path = workingFolder;
+			workFolderWatcher.NotifyFilter = NotifyFilters;
+			workFolderWatcher.Filter = "*.*";
+			workFolderWatcher.IncludeSubdirectories = true;
 
-			// Add event handlers.
-			watcher.Changed += OnChanged;
-			watcher.Created += OnChanged;
-			watcher.Deleted += OnChanged;
-			watcher.Renamed += OnRenamed;
+			refsWatcher.Path = Path.Combine(workingFolder, GitFolder, GitRefsFolder);
+			refsWatcher.NotifyFilter = NotifyFilters;
+			refsWatcher.Filter = "*.*";
+			refsWatcher.IncludeSubdirectories = true;
 
-			// Begin watching.
-			changedFiles = DateTime.Now;
-			changedRepo = DateTime.Now;
-			watcher.EnableRaisingEvents = true;
+			statusChangeTime = DateTime.Now;
+			statusTriggerTime = DateTime.MinValue;
+			repoChangeTime = DateTime.Now;
+			repoTriggerTime = DateTime.MinValue;
+			workFolderWatcher.EnableRaisingEvents = true;
+			refsWatcher.EnableRaisingEvents = true;
 		}
 
 
-		private void OnChanged(object source, FileSystemEventArgs e)
+		private void WorkingFolderChange(string name)
 		{
-			CheckChange(e.Name);
+			if (name == GitHeadFile)
+			{
+				RefsChange();
+				return;
+			}
+
+			if (!name.StartsWith(GitFolder))
+			{
+				StatusChange();
+			}
 		}
 
-		private void OnRenamed(object sender, RenamedEventArgs e)
-		{
-			CheckChange(e.Name);
-		}
 
-
-		private void CheckChange(string name)
+		private void StatusChange()
 		{
 			DateTime now = DateTime.Now;
-			if (name.StartsWith(".git\\refs") && name == ".git\\HEAD")
-			{
-				Log.Debug($"Repository change {name}");
-				
-				if (now - changedRepo > TimeSpan.FromMilliseconds(1000))
-				{
-					timer.Change(500, -1);
-				}
 
-				changedRepo = now;
-			}
-			else if (!name.StartsWith(".git"))
+			if (now - statusChangeTime > MinTriggerTimeout)
 			{
-				Log.Debug($"Folder change {name}");
+				statusChangeTime = now;
+				statusTimer.Start();
+			}
+			else
+			{
+				statusChangeTime = DateTime.Now;
 			}
 		}
 
-		private static void OnTimer(object state)
+
+		private void RefsChange()
 		{
-			//if (name.StartsWith(".git\\refs") && name == ".git\\HEAD")
-			//{
-			//	Log.Debug($"Repository change {name}");
+			DateTime now = DateTime.Now;
 
-			//	if (now - changedRepo > TimeSpan.FromMilliseconds(1000))
-			//	{
-			//		timer.Change(500, -1);
-			//	}
+			if (now - repoChangeTime > MinTriggerTimeout)
+			{
+				repoChangeTime = now;
+				repoTimer.Start();
+			}
+			else
+			{
+				repoChangeTime = DateTime.Now;
+			}
+		}
 
-			//	changedRepo = now;
-			//}
-			//else if (!name.StartsWith(".git"))
-			//{
-			//	Log.Debug($"Folder change {name}");
-			//}
+
+		private void OnStatusTimer()
+		{
+			DateTime now = DateTime.Now;
+
+			if (now - statusTriggerTime > MaxTriggerTimeout)
+			{
+				statusTriggerTime = now;
+				statusChangeTime = now;
+				statusTriggerAction();
+			}
+
+			if (now - statusChangeTime > EndTriggerTimeout)
+			{
+				statusTimer.Stop();
+
+				bool isEndTrigger = statusChangeTime > statusTriggerTime;
+
+				statusTriggerTime = DateTime.MinValue;
+				statusChangeTime = now;
+
+				if (isEndTrigger)
+				{
+					statusTriggerAction();
+				}
+			}
+		}
+
+
+		private void OnRepoTimer()
+		{
+			DateTime now = DateTime.Now;
+
+			if (now - repoTriggerTime > MaxTriggerTimeout)
+			{
+				repoTriggerTime = now;
+				repoChangeTime = now;
+				repoTriggerAction();
+			}
+
+			if (now - repoChangeTime > EndTriggerTimeout)
+			{
+				repoTimer.Stop();
+
+				bool isEndTrigger = repoChangeTime > repoTriggerTime;
+
+				repoTriggerTime = DateTime.MinValue;
+				repoChangeTime = now;
+
+				if (isEndTrigger)
+				{
+					repoTriggerAction();
+				}
+			}
 		}
 	}
 }
