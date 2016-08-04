@@ -9,7 +9,7 @@ namespace GitMind.Features.FolderMonitoring
 	{
 		private const string GitFolder = ".git";
 		private const string GitRefsFolder = "refs";
-		private const string GitHeadFile = "HEAD";
+		private static readonly string GitHeadFile = Path.Combine(GitFolder, "HEAD");
 		private const NotifyFilters NotifyFilters =
 			System.IO.NotifyFilters.LastWrite
 			| System.IO.NotifyFilters.FileName
@@ -47,10 +47,10 @@ namespace GitMind.Features.FolderMonitoring
 			repoTimer = new DispatcherTimer();
 			repoTimer.Tick += (s, e) => OnRepoTimer();
 			repoTimer.Interval = MinTriggerTimeout;
-			refsWatcher.Changed += (s, e) => RefsChange();
-			refsWatcher.Created += (s, e) => RefsChange();
-			refsWatcher.Deleted += (s, e) => RefsChange();
-			refsWatcher.Renamed += (s, e) => RefsChange();
+			refsWatcher.Changed += (s, e) => RepoChange();
+			refsWatcher.Created += (s, e) => RepoChange();
+			refsWatcher.Deleted += (s, e) => RepoChange();
+			refsWatcher.Renamed += (s, e) => RepoChange();
 		}
 
 
@@ -84,7 +84,7 @@ namespace GitMind.Features.FolderMonitoring
 		{
 			if (name == GitHeadFile)
 			{
-				RefsChange();
+				RepoChange();
 				return;
 			}
 
@@ -111,7 +111,7 @@ namespace GitMind.Features.FolderMonitoring
 		}
 
 
-		private void RefsChange()
+		private void RepoChange()
 		{
 			DateTime now = DateTime.Now;
 
