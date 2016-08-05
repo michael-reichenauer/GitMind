@@ -426,13 +426,10 @@ namespace GitMind.RepositoryViews
 			Repository = repository;
 			if (string.IsNullOrEmpty(FilterText) && string.IsNullOrEmpty(settingFilterText))
 			{
-				//CommitPosition commitPosition = TryGetSelectedCommitPosition();
-
 				viewModelService.UpdateViewModel(this);
 
 				UpdateViewModel();
 
-				//TrySetSelectedCommitPosition(commitPosition);
 				t.Log("Updated repository view model");
 			}
 		}
@@ -461,7 +458,6 @@ namespace GitMind.RepositoryViews
 			Commits.ForEach(commit => commit.WindowWidth = Width);
 			CommitDetailsViewModel.NotifyAll();
 			NotifyAll();
-			//SwitchToCommitCommand.RaiseCanExecuteChanaged();
 
 			VirtualItemsSource.DataChanged(width);
 
