@@ -52,7 +52,7 @@ namespace GitMind.RepositoryViews
 		public string BranchToolTip { get; set; }
 		public bool IsMergeable => Branch.IsMergeable;
 		public string SwitchBranchText => $"Switch to branch '{Name}'";
-		public string MergeBranchText => $"Merge branch into '{Name}' from";
+		public string MergeBranchText => $"Merge into '{Name}' from";
 
 		// Values used by UI properties
 		public Branch Branch { get; set; }

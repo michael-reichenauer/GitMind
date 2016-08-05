@@ -186,7 +186,7 @@
 															
 														<!-- Create Branch -->
 														<MenuItem 
-															Header="Create Branch"										
+															Header="Create new branch"										
 															Command="{Binding CreateBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
