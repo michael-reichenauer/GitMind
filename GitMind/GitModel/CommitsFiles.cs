@@ -58,7 +58,7 @@ namespace GitMind.GitModel
 			string gitRepositoryPath, string commitId)
 		{
 			IList<CommitFile> files;
-			if (!commitsFiles.TryGetValue(commitId, out files))
+			if (commitId == Commit.UncommittedId || !commitsFiles.TryGetValue(commitId, out files))
 			{
 				nextIdToGet = commitId;
 				await currentTask;

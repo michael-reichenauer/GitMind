@@ -37,6 +37,8 @@ namespace GitMind.RepositoryViews
 					commitViewModel = value;
 					NotifyAll();
 				}
+
+				NotifyAll();
 			}
 		}
 
@@ -44,24 +46,32 @@ namespace GitMind.RepositoryViews
 		{
 			get
 			{
-				if (CommitViewModel != null)
-				{
-					if (filesCommitId != CommitViewModel.Commit.CommitId)
-					{
-						files.Clear();
-						filesCommitId = CommitViewModel.Commit.CommitId;
-						SetFilesAsync(commitViewModel.Commit).RunInBackground();
-					}
-				}
-				else
-				{
-					files.Clear();
-					filesCommitId = null;
-				}
+				SetFiles();
 
 				return files;
 			}
 		}
+
+
+		private void SetFiles()
+		{
+			if (CommitViewModel != null)
+			{
+				if (filesCommitId != CommitViewModel.Commit.CommitId 
+					|| filesCommitId == Commit.UncommittedId)
+				{
+					files.Clear();
+					filesCommitId = CommitViewModel.Commit.CommitId;
+					SetFilesAsync(commitViewModel.Commit).RunInBackground();
+				}
+			}
+			else
+			{
+				files.Clear();
+				filesCommitId = null;
+			}
+		}
+
 
 		public string Subject
 		{
