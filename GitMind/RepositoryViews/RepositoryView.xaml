@@ -92,8 +92,8 @@
 							</Setter>
 
 
-							<Setter Property="Canvas.Top" Value="{Binding Rect.Top}"/>
-							<Setter Property="Canvas.Left" Value="{Binding Rect.Left}"/>
+						<Setter Property="Canvas.Top" Value="{Binding Top}"/>
+						<Setter Property="Canvas.Left" Value="{Binding Left}"/>
 
 							<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
 							<EventSetter Event="MouseDoubleClick" Handler="MouseDobleClick" />
@@ -119,7 +119,7 @@
 									<MultiBinding 
 										Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
 										ConverterParameter="*">
-										<Binding Path="Rect.Height"/>
+									<Binding Path="Height"/>
 										<Binding 
 											Path="Scale"
 											RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>

@@ -97,6 +97,17 @@ namespace GitMind.RepositoryViews
 		public Commit UnCommited
 		{
 			get { return Get<Commit>(); }
+			set
+			{
+				Set(value);
+				StatusText = value?.Subject;
+				Notify(nameof(StatusText));
+			}
+		}
+
+		public string StatusText
+		{
+			get { return Get(); }
 			set { Set(value); }
 		}
 
@@ -167,12 +178,8 @@ namespace GitMind.RepositoryViews
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
-		public IReadOnlyList<BranchItem> ShowableBranches => BranchItem.GetBranches(
-			Repository.Branches
-			.Where(b => b.IsActive && b.Name != "master")
-			.Where(b => !HidableBranches.Any(ab => ab.Branch.Id == b.Id)),
-			ShowBranchCommand,
-			MergeBranchCommand);
+		public ObservableCollection<BranchItem> ShowableBranches { get; }
+		= new ObservableCollection<BranchItem>();
 
 		public ObservableCollection<BranchItem> HidableBranches { get; }
 			= new ObservableCollection<BranchItem>();
@@ -181,10 +188,10 @@ namespace GitMind.RepositoryViews
 			= new ObservableCollection<BranchItem>();
 
 
-		public CommitDetailsViewModel CommitDetailsViewModel { get; } 
+		public CommitDetailsViewModel CommitDetailsViewModel { get; }
 
 		public string FilterText { get; private set; } = "";
-	//	public string FilteredText { get; private set; } = "";
+		//	public string FilteredText { get; private set; } = "";
 
 		public bool IsShowCommitDetails
 		{
@@ -276,7 +283,7 @@ namespace GitMind.RepositoryViews
 		//			repository = await GetLocalChangesAsync(Repository);
 		//			UpdateViewModel(repository);
 		//		}
-				
+
 		//		Log.Debug("Refreshed after activating done");
 		//	});
 		//}
@@ -341,22 +348,23 @@ namespace GitMind.RepositoryViews
 				}
 
 				UpdateViewModel(repository);
-				Log.Debug("Refreshed after command done");		
+				Log.Debug("Refreshed after command done");
 			});
 
 			isInternalDialog = false;
 		}
 
 
-		public Task ManualRefreshAsync()
+		public async Task ManualRefreshAsync()
 		{
-			return refreshThrottler.Run(async () =>
+			using (busyIndicator.Progress("Rebuilding fresh model"))
 			{
-				Log.Debug("Refreshing after manual trigger ...");
-
-				Repository repository;
-				using (busyIndicator.Progress("Rebuilding fresh model"))
+				await refreshThrottler.Run(async () =>
 				{
+					Log.Debug("Refreshing after manual trigger ...");
+
+					Repository repository;
+
 					await FetchRemoteChangesAsync(Repository);
 
 					repository = await GetLocalChangesAsync(Repository);
@@ -364,13 +372,13 @@ namespace GitMind.RepositoryViews
 
 					Log.Debug("Get fresh repository from scratch");
 					repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
-				}
 
-				FreshRepositoryTime = DateTime.Now;
-				UpdateViewModel(repository);
-				Log.Debug("Refreshed after manual trigger done");
 
-			});
+					FreshRepositoryTime = DateTime.Now;
+					UpdateViewModel(repository);
+					Log.Debug("Refreshed after manual trigger done");
+				});
+			}
 		}
 
 
@@ -453,7 +461,7 @@ namespace GitMind.RepositoryViews
 			Commits.ForEach(commit => commit.WindowWidth = Width);
 			CommitDetailsViewModel.NotifyAll();
 			NotifyAll();
-			SwitchToCommitCommand.RaiseCanExecuteChanaged();
+			//SwitchToCommitCommand.RaiseCanExecuteChanaged();
 
 			VirtualItemsSource.DataChanged(width);
 
@@ -513,13 +521,11 @@ namespace GitMind.RepositoryViews
 			get { return Get().Value; }
 			set
 			{
-				if (Set(value).IsSet)
+				Set(value);
+				CommitViewModel commit = value as CommitViewModel;
+				if (commit != null)
 				{
-					CommitViewModel commit = value as CommitViewModel;
-					if (commit != null)
-					{
-						SetCommitsDetails(commit);
-					}
+					SetCommitsDetails(commit);
 				}
 			}
 		}
@@ -716,11 +722,11 @@ namespace GitMind.RepositoryViews
 				if (uncommittedBranch != currentBranch
 					&& currentBranch.RemoteAheadCount > 0
 					&& currentBranch.LocalAheadCount == 0)
-					{
+				{
 					Log.Debug($"Updating current branch {currentBranch.Name}");
 					await gitService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
 				}
-			
+
 				IEnumerable<Branch> updatableBranches = Repository.Branches
 				 .Where(b =>
 					 b != currentBranch
@@ -733,7 +739,7 @@ namespace GitMind.RepositoryViews
 					Log.Debug($"Updating branch {branch.Name}");
 
 					await gitService.FetchBranchAsync(workingFolder, branch.Name);
-				}			
+				}
 
 				await RefreshAfterCommandAsync(false);
 			}
@@ -809,13 +815,13 @@ namespace GitMind.RepositoryViews
 						&& b != uncommittedBranch
 						&& b.LocalAheadCount > 0
 						&& b.RemoteAheadCount == 0).ToList();
-		
+
 				foreach (Branch branch in pushableBranches)
 				{
 					Log.Debug($"Push branch {branch.Name}");
 
 					await gitService.PushBranchAsync(workingFolder, branch.Name);
-				}		
+				}
 
 				await gitService.PushNotesAsync(workingFolder);
 
@@ -947,7 +953,7 @@ namespace GitMind.RepositoryViews
 						await repositoryService.SetSpecifiedCommitBranchAsync(workingFolder, rootId, commit.Id, branchName);
 						if (!string.IsNullOrWhiteSpace(branchName))
 						{
-							SpecifiedBranchNames = new[] {branchName};
+							SpecifiedBranchNames = new[] { branchName };
 						}
 						await RefreshAfterCommandAsync(true);
 					}
@@ -969,7 +975,7 @@ namespace GitMind.RepositoryViews
 				await gitService.SwitchToBranchAsync(WorkingFolder, branch.Name);
 
 				await RefreshAfterCommandAsync(false);
-			}		
+			}
 		}
 
 

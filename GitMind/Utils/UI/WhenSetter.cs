@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 
 
 namespace GitMind.Utils.UI
@@ -17,8 +19,8 @@ namespace GitMind.Utils.UI
 		{
 			this.targetViewModel = targetViewModel;
 			this.sourcePropertyNames = sourcePropertyNames;
-
-			sourceViewModel.PropertyChanged += PropertyChanaged;
+			PropertyChangedEventManager.AddHandler(
+				sourceViewModel, PropertyChanaged, nameof(sourceViewModel.PropertyChanged));
 		}
 
 
@@ -35,7 +37,6 @@ namespace GitMind.Utils.UI
 					targetPropertyNames.ForEach(name => targetViewModel.Notify(name));
 				}
 			}
-
 		}
 
 

@@ -40,12 +40,7 @@ namespace GitMind.MainWindowViews
 		{
 			RepositoryViewModel = new RepositoryViewModel(owner, Busy);
 			this.owner = owner;
-
-			WhenSet(RepositoryViewModel, nameof(RepositoryViewModel.UnCommited)).Notify(nameof(StatusText));
 		}
-
-
-		public string StatusText => RepositoryViewModel.UnCommited?.Subject;
 
 
 		public bool IsInFilterMode => !string.IsNullOrEmpty(SearchBox);
@@ -182,11 +177,6 @@ namespace GitMind.MainWindowViews
 
 		private Task ManualRefreshAsync()
 		{
-			if (!isLoaded)
-			{
-				return Task.CompletedTask;
-			}
-
 			return RepositoryViewModel.ManualRefreshAsync();
 		}
 

@@ -121,10 +121,10 @@
 					<Button 
 						Content="&#xE430;"
 						Style="{StaticResource IconButtonStyle}"
-						Visibility="{Binding StatusText, Converter={StaticResource VC}}"				
+						Visibility="{Binding RepositoryViewModel.StatusText, Converter={StaticResource VC}}"				
 						Foreground="{StaticResource UncomittedBrush}"					
 						Click="Uncommitted_OnClick"
-						ToolTip="{Binding StatusText}">
+						ToolTip="{Binding RepositoryViewModel.StatusText}">
 						<Button.ContextMenu>
 							<ContextMenu Name="UncommittedContextMenu">
 

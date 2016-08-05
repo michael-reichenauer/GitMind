@@ -12,6 +12,10 @@ namespace GitMind.RepositoryViews
 		public string Type => nameof(MergeViewModel);	
 		public Rect Rect { get; set; }
 		public double Width { get; set; }
+		public double Top => Rect.Top;
+		public double Left => Rect.Left;
+		public double Height => Rect.Height;
+
 		public string Line { get; set; }
 		public Brush Brush { get; set; }
 		public int Stroke { get; set; }

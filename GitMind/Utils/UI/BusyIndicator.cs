@@ -4,7 +4,7 @@ using System.Windows.Threading;
 
 namespace GitMind.Utils.UI
 {
-	internal class BusyIndicator
+	internal class BusyIndicator : ViewModel
 	{
 		private readonly string propertyName;
 		private readonly ViewModel viewModel;

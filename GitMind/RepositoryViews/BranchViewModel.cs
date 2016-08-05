@@ -13,7 +13,10 @@ namespace GitMind.RepositoryViews
 	{
 		private readonly Command<Branch> showBranchCommand;
 		private readonly Command<Branch> mergeBranchCommand;
-
+		ObservableCollection<BranchItem> childBranches 
+			= new ObservableCollection<BranchItem>();
+		ObservableCollection<BranchItem> otherShownBranches
+			= new ObservableCollection<BranchItem>();
 
 		public BranchViewModel(
 			Command<Branch> showBranchCommand,
@@ -37,6 +40,9 @@ namespace GitMind.RepositoryViews
 		public bool HasChildren => ChildBranches.Count > 0;
 		public Rect Rect { get; set; }
 		public double Width => Rect.Width;
+		public double Top => Rect.Top;
+		public double Left => Rect.Left;
+		public double Height => Rect.Height;
 		public string Line { get; set; }
 		public int StrokeThickness { get; set; }
 		public Brush Brush { get; set; }
@@ -52,12 +58,29 @@ namespace GitMind.RepositoryViews
 		public Branch Branch { get; set; }
 		public ObservableCollection<BranchItem> ActiveBranches { get; set; }
 		public ObservableCollection<BranchItem> ShownBranches { get; set; }
-		public IReadOnlyList<BranchItem> ChildBranches => GetChildBranches();
-		public IReadOnlyList<BranchItem> OtherShownBranches => GetOtherChownBranches();
+
+		public ObservableCollection<BranchItem> ChildBranches
+		{
+			get
+			{
+				childBranches.Clear();
+				GetChildBranches().ForEach(b => childBranches.Add(b));
+				return childBranches;
+			}
+		}
+
+		public ObservableCollection<BranchItem> OtherShownBranches
+		{
+			get
+			{
+				otherShownBranches.Clear();
+				GetOtherChownBranches().ForEach(b => otherShownBranches.Add(b));
+				return otherShownBranches;
+			}
+		}
 
 
-
-		public Command SwitchBranchCommand { get; }
+	public Command SwitchBranchCommand { get; }
 		public Command CreateBranchCommand { get; }
 
 		// Some values used by Merge items and to determine if item is visible

@@ -20,7 +20,7 @@ namespace GitMind.RepositoryViews
 			new ObservableCollection<CommitFileViewModel>();
 		private string filesCommitId = null;
 		private CommitViewModel commitViewModel;
-		private Command<string> undoUncommittedFileCommand;
+		private readonly Command<string> undoUncommittedFileCommand;
 
 		public CommitDetailsViewModel(Command<string> undoUncommittedFileCommand)
 		{

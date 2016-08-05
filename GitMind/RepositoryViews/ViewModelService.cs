@@ -49,7 +49,6 @@ namespace GitMind.RepositoryViews
 			List<Commit> commits = GetCommits(branches);
 
 			repositoryViewModel.ShownBranches.Clear();
-
 			branches
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.ShownBranches.Add(
@@ -61,6 +60,17 @@ namespace GitMind.RepositoryViews
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.HidableBranches.Add(
 					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
+
+			repositoryViewModel.ShowableBranches.Clear();
+
+			IReadOnlyList < BranchItem > showableBranches = BranchItem.GetBranches(
+			repositoryViewModel.Repository.Branches
+				.Where(b => b.IsActive && b.Name != "master")
+				.Where(b => !repositoryViewModel.HidableBranches.Any(ab => ab.Branch.Id == b.Id)),
+				repositoryViewModel.ShowBranchCommand,
+				repositoryViewModel.MergeBranchCommand);
+
+			showableBranches.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
 
 			UpdateViewModel(repositoryViewModel, branches, commits);
 

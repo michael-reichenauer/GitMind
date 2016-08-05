@@ -119,14 +119,20 @@ namespace GitMind.Utils.UI
 		public Command With(Func<T> parameterFunc)
 		{
 			Command cmd = new Command(() => Execute(parameterFunc()), () => CanExecute(parameterFunc()));
-			CanExecuteChanged += (s, e) => cmd.RaiseCanExecuteChanaged();
+			//CanExecuteChanged += (s, e) => cmd.RaiseCanExecuteChanaged();
 
 			return cmd;
 		}
 
 
 		// NOTE: Should use weak event if command instance is longer than UI object
-		public event EventHandler CanExecuteChanged;
+		//public event EventHandler CanExecuteChanged;
+
+		public event EventHandler CanExecuteChanged
+		{
+			add { CommandManager.RequerySuggested += value; }
+			remove { CommandManager.RequerySuggested -= value; }
+		}
 
 		public bool IsCompleted { get; private set; }
 
@@ -163,7 +169,7 @@ namespace GitMind.Utils.UI
 
 		public void RaiseCanExecuteChanaged()
 		{
-			CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+			CommandManager.InvalidateRequerySuggested();
 		}
 
 

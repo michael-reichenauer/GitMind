@@ -47,6 +47,9 @@ namespace GitMind.RepositoryViews
 		public int YPoint => IsMergePoint ? 2 : 4;
 		public int Size => IsMergePoint ? 10 : 6;
 		public Rect Rect { get; set; }
+		public double Top => Rect.Top;
+		public double Left => Rect.Left;
+		public double Height => Rect.Height;
 		public Brush SubjectBrush { get; set; }
 		public Brush TagBrush { get; set; }
 		public Brush TicketBrush { get; set; }

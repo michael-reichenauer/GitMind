@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using GitMind.GitModel;
@@ -10,11 +11,10 @@ namespace GitMind.RepositoryViews
 {
 	internal class BranchItem : ViewModel
 	{
-		private readonly Lazy<IReadOnlyList<BranchItem>> subItems;
-		private static readonly Lazy<IReadOnlyList<BranchItem>> NoSubItems
-			= new Lazy<IReadOnlyList<BranchItem>>(() => new BranchItem[0]);
-
-
+		private readonly Lazy<ObservableCollection<BranchItem>> subItems;
+		private static readonly Lazy<ObservableCollection<BranchItem>> NoSubItems
+			= new Lazy<ObservableCollection<BranchItem>>(() => new ObservableCollection<BranchItem>());
+		
 		public BranchItem(
 			Branch branch, 
 			Command<Branch> showBranchCommand, 
@@ -39,12 +39,18 @@ namespace GitMind.RepositoryViews
 			Text = name;
 			ShowBranchCommand = showBranchCommand;
 			MergeBranchCommand = mergeBranchCommand;
-			subItems = new Lazy<IReadOnlyList<BranchItem>>(
-				() => GetBranches(prefix, branches, level, showBranchCommand, mergeBranchCommand));
+			subItems = new Lazy<ObservableCollection<BranchItem>>(
+				() =>
+				{
+					ObservableCollection<BranchItem> list = new ObservableCollection<BranchItem>();
+					GetBranches(prefix, branches, level, showBranchCommand, mergeBranchCommand)
+						.ForEach(b => list.Add(b));
+					return list;
+				});
 		}
 
 
-		public IReadOnlyList<BranchItem> Children => subItems.Value;
+		public ObservableCollection<BranchItem> Children => subItems.Value;
 
 
 		public string Text { get; }
