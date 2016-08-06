@@ -40,7 +40,8 @@ namespace GitMind.Git
 					.Added.Select(t => new GitFile(t.FilePath, null, false, true, false, false))
 					.Concat(status.Untracked.Select(t => new GitFile(t.FilePath, null, false, true, false, false)))
 					.Concat(status.Removed.Select(t => new GitFile(t.FilePath, null, false, false, true, false)))
-					.Concat(status.Modified.Select(t => new GitFile(t.FilePath, null, true, false, false, false)))
+					.Concat(status.Missing.Select(t => new GitFile(t.FilePath, null, false, false, true, false)))
+					.Concat(status.Modified.Select(t => new GitFile(t.FilePath, null, true, false, false, false)))				
 					.Concat(status.RenamedInWorkDir.Select(t => new GitFile(
 						t.FilePath, t.IndexToWorkDirRenameDetails.OldFilePath, false, false, false, true)))
 					.Concat(status.RenamedInIndex.Select(t => new GitFile(

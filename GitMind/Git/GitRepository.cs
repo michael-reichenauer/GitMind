@@ -135,7 +135,8 @@ namespace GitMind.Git
 
 		public void UndoFileInCurrentBranch(string path)
 		{
-			repository.CheckoutPaths("HEAD", new[] { path });
+			CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+			repository.CheckoutPaths("HEAD", new[] { path }, options);
 		}
 
 
