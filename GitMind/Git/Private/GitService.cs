@@ -909,7 +909,7 @@ namespace GitMind.Git.Private
 
 		private async Task FetchNotesUsingCmdAsync(string workingFolder, string nameSpace)
 		{
-			Log.Warn($"Fetching {nameSpace} notes using cmd ...");
+			Log.Debug($"Fetching {nameSpace} notes using cmd ...");
 
 			string args = $"fetch origin refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}";
 

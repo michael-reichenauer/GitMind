@@ -88,7 +88,7 @@ namespace GitMind.Features.FolderMonitoring
 				return;
 			}
 
-			if (!name.StartsWith(GitFolder))
+			if (name == null || !name.StartsWith(GitFolder))
 			{
 				StatusChange();
 			}

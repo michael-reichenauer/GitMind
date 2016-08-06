@@ -782,6 +782,8 @@ namespace GitMind.RepositoryViews
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
+				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
+
 				if (uncommittedBranch != currentBranch
 					&& currentBranch.LocalAheadCount > 0
 					&& currentBranch.RemoteAheadCount == 0)
@@ -803,8 +805,6 @@ namespace GitMind.RepositoryViews
 
 					await gitService.PushBranchAsync(workingFolder, branch.Name);
 				}
-
-				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
 
 				await RefreshAfterCommandAsync(false);
 			}
@@ -834,9 +834,9 @@ namespace GitMind.RepositoryViews
 				Log.Debug($"Push current branch");
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
-				await gitService.PushCurrentBranchAsync(workingFolder);
-
 				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
+
+				await gitService.PushCurrentBranchAsync(workingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			}
