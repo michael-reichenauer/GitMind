@@ -56,8 +56,28 @@ namespace GitMind.Features.Committing
 
 		public string BranchText => $"Commit on {branchName}";
 
-		public string Message => $"{Subject?.Trim()}\n\n{Description?.Trim()}";
-		
+		public string Message => GetMessage();
+
+
+		private string GetMessage()
+		{
+			if (!string.IsNullOrWhiteSpace(Subject) && !string.IsNullOrWhiteSpace(Description))
+			{
+				return $"{Subject.Trim()}\n\n{Description.Trim()}";
+			}
+			else if (!string.IsNullOrWhiteSpace(Subject))
+			{
+				return Subject.Trim();
+			}
+			else if (!string.IsNullOrWhiteSpace(Description))
+			{
+				return Description.Trim();
+			}
+
+			return "";
+		}
+
+
 		public string Subject
 		{
 			get { return Get(); }
@@ -76,7 +96,7 @@ namespace GitMind.Features.Committing
 
 		private async void SetOK(Window window)
 		{
-			if (string.IsNullOrWhiteSpace(Subject))
+			if (string.IsNullOrWhiteSpace(Message))
 			{
 				return;
 			}
