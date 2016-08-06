@@ -125,10 +125,9 @@ namespace GitMind.GitModel.Private
 
 
 		public Task SetSpecifiedCommitBranchAsync(
-			string gitRepositoryPath, string rootId, string commitId, string branchName)
+			string gitRepositoryPath, string commitId, string branchName)
 		{
-			return gitService.SetSpecifiedCommitBranchAsync(
-				gitRepositoryPath, rootId, commitId, branchName);
+			return gitService.SetSpecifiedCommitBranchAsync(gitRepositoryPath, commitId, branchName);
 		}
 
 

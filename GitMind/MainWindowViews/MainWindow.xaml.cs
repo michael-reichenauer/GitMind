@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Utils;
 
@@ -13,10 +14,10 @@ namespace GitMind.MainWindowViews
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private static readonly TimeSpan AutoRefreshInterval = TimeSpan.FromMinutes(1);
+		private static readonly TimeSpan remoteCheckInterval = TimeSpan.FromMinutes(10);
 		private static readonly TimeSpan OnActivatedInterval = TimeSpan.FromSeconds(10);
 
-		//private readonly DispatcherTimer autoRefreshTimer = new DispatcherTimer();
+		private readonly DispatcherTimer remoteCheckTimer = new DispatcherTimer();
 
 		private readonly MainWindowViewModel viewModel;
 		private DateTime ActivatedTime = DateTime.MaxValue;
@@ -33,8 +34,8 @@ namespace GitMind.MainWindowViews
 			// Make sure maximize window does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
 
-			//autoRefreshTimer.Tick += AutoRefresh;
-			//autoRefreshTimer.Interval = AutoRefreshInterval;
+			remoteCheckTimer.Tick += RemoteCheck;
+			remoteCheckTimer.Interval = remoteCheckInterval;
 
 			viewModel = new MainWindowViewModel(this);
 			DataContext = viewModel;
@@ -46,14 +47,14 @@ namespace GitMind.MainWindowViews
 		private void OnStatusChange()
 		{
 			Log.Warn("Status change");
-			viewModel.AutoRefreshAsync(false).RunInBackground();
+			viewModel.StatusChangeRefreshAsync(false).RunInBackground();
 		}
 
 
 		private void OnRepoChange()
 		{
 			Log.Warn("Repo change");
-			viewModel.AutoRefreshAsync(true).RunInBackground();
+			viewModel.StatusChangeRefreshAsync(true).RunInBackground();
 		}
 
 
@@ -81,32 +82,20 @@ namespace GitMind.MainWindowViews
 			await viewModel.FirstLoadAsync();
 			ActivatedTime = DateTime.Now;
 
-			//autoRefreshTimer.Start();
+			remoteCheckTimer.Start();
 		}
 
 
 
-		//private void AutoRefresh(object sender, EventArgs e)
-		//{
-		//	try
-		//	{
-		//		viewModel.AutoRefreshAsync().RunInBackground();
-		//	}
-		//	catch (Exception ex) when (ex.IsNotFatal())
-		//	{
-		//		Log.Error($"Failed to auto refresh {ex}");
-		//	}
-		//}
+		private void RemoteCheck(object sender, EventArgs e)
+		{
+			viewModel.AutoRemoteCheckAsync().RunInBackground();
+		}
 
 
 		protected override void OnActivated(EventArgs e)
 		{
-			if (ActivatedTime < DateTime.MaxValue && DateTime.Now - ActivatedTime > OnActivatedInterval)
-			{
-				Log.Debug("Refreshing after activation");
-				viewModel.ActivateRefreshAsync().RunInBackground();
-				ActivatedTime = DateTime.Now;
-			}
+			viewModel.ActivateRefreshAsync().RunInBackground();
 		}
 
 
