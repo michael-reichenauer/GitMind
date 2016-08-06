@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Threading;
+using GitMind.Utils;
 
 
 namespace GitMind.Features.FolderMonitoring
@@ -38,10 +39,10 @@ namespace GitMind.Features.FolderMonitoring
 			statusTimer = new DispatcherTimer();
 			statusTimer.Tick += (s, e) => OnStatusTimer();
 			statusTimer.Interval = MinTriggerTimeout;
-			workFolderWatcher.Changed += (s, e) => WorkingFolderChange(e.Name);
-			workFolderWatcher.Created += (s, e) => WorkingFolderChange(e.Name);
-			workFolderWatcher.Deleted += (s, e) => WorkingFolderChange(e.Name);
-			workFolderWatcher.Renamed += (s, e) => WorkingFolderChange(e.Name);
+			workFolderWatcher.Changed += (s, e) => WorkingFolderChange(e.Name, e.ChangeType);
+			workFolderWatcher.Created += (s, e) => WorkingFolderChange(e.Name, e.ChangeType);
+			workFolderWatcher.Deleted += (s, e) => WorkingFolderChange(e.Name, e.ChangeType);
+			workFolderWatcher.Renamed += (s, e) => WorkingFolderChange(e.Name, e.ChangeType);
 
 			this.repoTriggerAction = repoTriggerAction;
 			repoTimer = new DispatcherTimer();
@@ -80,7 +81,7 @@ namespace GitMind.Features.FolderMonitoring
 		}
 
 
-		private void WorkingFolderChange(string name)
+		private void WorkingFolderChange(string name, WatcherChangeTypes changeType)
 		{
 			if (name == GitHeadFile)
 			{
@@ -90,6 +91,7 @@ namespace GitMind.Features.FolderMonitoring
 
 			if (name == null || !name.StartsWith(GitFolder))
 			{
+				Log.Debug($"Status chage for '{name}' {changeType}");
 				StatusChange();
 			}
 		}
