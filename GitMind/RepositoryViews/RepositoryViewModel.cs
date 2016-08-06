@@ -243,7 +243,7 @@ namespace GitMind.RepositoryViews
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository);
 
-					await FetchRemoteChangesAsync(Repository);
+					await FetchRemoteChangesAsync(Repository, true);
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository);
 					Log.Debug("Loaded repository done");
@@ -264,17 +264,17 @@ namespace GitMind.RepositoryViews
 			{
 				using (busyIndicator.Progress())
 				{
-					await FetchRemoteChangesAsync(Repository);
+					await FetchRemoteChangesAsync(Repository, false);
 				}
 			}
 		}
 
 
-		public async Task RemoteCheckAsync()
+		public async Task AutoRemoteCheckAsync()
 		{
 			if (DateTime.Now - fetchedTime > AutoRemoteCheckInterval)
 			{
-				await FetchRemoteChangesAsync(Repository);
+				await FetchRemoteChangesAsync(Repository, false);
 			}
 		}
 
@@ -318,7 +318,7 @@ namespace GitMind.RepositoryViews
 			{
 				Log.Debug("Refreshing after command ...");
 
-				await FetchRemoteChangesAsync(Repository);
+				await FetchRemoteChangesAsync(Repository, true);
 
 				Repository repository;
 				if (useFreshRepository)
@@ -349,7 +349,7 @@ namespace GitMind.RepositoryViews
 
 					Repository repository;
 
-					await FetchRemoteChangesAsync(Repository);
+					await FetchRemoteChangesAsync(Repository, true);
 
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository);
@@ -397,11 +397,15 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private async Task FetchRemoteChangesAsync(Repository repository)
+		private async Task FetchRemoteChangesAsync(Repository repository, bool isFetchNotes)
 		{
 			Log.Debug("Fetch");
 			await gitService.FetchAsync(repository.MRepository.WorkingFolder);
-			await gitService.FetchNotesAsync(repository.MRepository.WorkingFolder);
+			if (isFetchNotes)
+			{
+				await gitService.FetchNotesAsync(repository.MRepository.WorkingFolder);
+			}
+
 			fetchedTime = DateTime.Now;
 		}
 
