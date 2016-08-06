@@ -744,7 +744,7 @@ namespace GitMind.Git.Private
 		private void SetNoteBranches(
 			string workingFolder, string nameSpace, string commitId, string branchName)
 		{
-			Log.Warn($"Set {nameSpace}: {commitId} {branchName}");
+			Log.Debug($"Set {nameSpace}: {commitId} {branchName}");
 
 			try
 			{
@@ -755,31 +755,6 @@ namespace GitMind.Git.Private
 			{
 				Log.Warn($"Failed to add commit name for {commitId} {branchName}, {e}");
 			}
-
-			//try
-			//{
-			//	using (GitRepository gitRepository = OpenRepository(workingFolder))
-			//	{
-			//		IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
-			//		GitNote gitNote = notes.FirstOrDefault(note => note.NameSpace == nameSpace);
-			//		string commitBranchMessage = $"{commitId} {branchName}\n";
-
-			//		if (gitNote != null)
-			//		{
-			//			gitNote = new GitNote(nameSpace, gitNote.Message + commitBranchMessage);
-			//		}
-			//		else
-			//		{
-			//			gitNote = new GitNote(nameSpace, commitBranchMessage);
-			//		}
-
-			//		gitRepository.SetCommitNote(rootId, gitNote);
-			//	}
-			//}
-			//catch (Exception e)
-			//{
-			//	Log.Warn($"Failed to set note branch, {e.Message}");
-			//}
 		}
 
 
@@ -822,8 +797,7 @@ namespace GitMind.Git.Private
 				Log.Warn($"Failed to get note branches, {e.Message}");
 			}
 
-			Log.Warn($"Got {branchNames.Count} branches for {nameSpace}");
-			branchNames.ForEach(b => Log.Warn($"   {b.CommitId} {b.Name}"));
+			Log.Debug($"Got {branchNames.Count} branches for {nameSpace}");
 
 			return branchNames;
 		}
