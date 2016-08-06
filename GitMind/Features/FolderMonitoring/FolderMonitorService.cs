@@ -174,6 +174,7 @@ namespace GitMind.Features.FolderMonitoring
 			if (now - repoChangeTime > EndTriggerTimeout)
 			{
 				repoTimer.Stop();
+				statusTimer.Stop();
 
 				bool isEndTrigger = repoChangeTime > repoTriggerTime;
 
