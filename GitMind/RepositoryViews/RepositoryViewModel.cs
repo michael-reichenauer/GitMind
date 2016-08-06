@@ -51,9 +51,9 @@ namespace GitMind.RepositoryViews
 		private DateTime fetchedTime = DateTime.MinValue;
 		private DateTime FreshRepositoryTime = DateTime.MinValue;
 
-		private static readonly TimeSpan FetchInterval = TimeSpan.FromMinutes(10);
-		private static readonly TimeSpan ActivateFetchInterval = TimeSpan.FromSeconds(10);
-		private static readonly TimeSpan AutoFreshRepositoryInterval = TimeSpan.FromMinutes(10);
+		private static readonly TimeSpan ActivateRemoteCheckInterval = TimeSpan.FromSeconds(15);
+		private static readonly TimeSpan AutoRemoteCheckInterval = TimeSpan.FromMinutes(9);
+		private static readonly TimeSpan FreshRepositoryInterval = TimeSpan.FromMinutes(10);
 
 		private readonly TaskThrottler refreshThrottler = new TaskThrottler(1);
 
@@ -258,39 +258,28 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		//public Task ActivateRefreshAsync()
-		//{
-		//	if (isInternalDialog)
-		//	{
-		//		return Task.CompletedTask;
-		//	}
-
-		//	return refreshThrottler.Run(async () =>
-		//	{
-		//		Log.Debug("Refreshing after activating");
-
-		//		Repository repository;
-
-		//		using (busyIndicator.Progress())
-		//		{
-		//			repository = await GetLocalChangesAsync(Repository);
-		//			UpdateViewModel(repository);
-		//		}
-
-		//		if (DateTime.Now - fetchedTime > ActivateFetchInterval)
-		//		{
-		//			await FetchRemoteChangesAsync(Repository);
-		//			repository = await GetLocalChangesAsync(Repository);
-		//			UpdateViewModel(repository);
-		//		}
-
-		//		Log.Debug("Refreshed after activating done");
-		//	});
-		//}
+		public async Task ActivateRefreshAsync()
+		{
+			if (DateTime.Now - fetchedTime > ActivateRemoteCheckInterval)
+			{
+				using (busyIndicator.Progress())
+				{
+					await FetchRemoteChangesAsync(Repository);
+				}
+			}
+		}
 
 
+		public async Task RemoteCheckAsync()
+		{
+			if (DateTime.Now - fetchedTime > AutoRemoteCheckInterval)
+			{
+				await FetchRemoteChangesAsync(Repository);
+			}
+		}
 
-		public Task AutoRefreshAsync(bool isRepoChange)
+
+		public Task StatusChangeRefreshAsync(bool isRepoChange)
 		{
 			if (isInternalDialog)
 			{
@@ -303,13 +292,8 @@ namespace GitMind.RepositoryViews
 
 				using (busyIndicator.Progress())
 				{
-					if (DateTime.Now - fetchedTime > FetchInterval)
-					{
-						await FetchRemoteChangesAsync(Repository);
-					}
-
 					Repository repository;
-					if (isRepoChange && DateTime.Now - FreshRepositoryTime > AutoFreshRepositoryInterval)
+					if (isRepoChange && DateTime.Now - FreshRepositoryTime > FreshRepositoryInterval)
 					{
 						Log.Debug("Get fresh repository from scratch");
 						FreshRepositoryTime = DateTime.Now;
@@ -415,6 +399,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task FetchRemoteChangesAsync(Repository repository)
 		{
+			Log.Debug("Fetch");
 			await gitService.FetchAsync(repository.MRepository.WorkingFolder);
 			fetchedTime = DateTime.Now;
 		}
