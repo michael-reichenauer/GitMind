@@ -52,5 +52,6 @@ namespace GitMind.Git
 		string GetFullMessage(string workingFolder, string commitId);
 
 		Task PushNotesAsync(string workingFolder, string rootId);
+		Task FetchNotesAsync(string workingFolder);
 	}
 }

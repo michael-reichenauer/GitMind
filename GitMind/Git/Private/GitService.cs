@@ -242,18 +242,13 @@ namespace GitMind.Git.Private
 		}
 
 
+
 		public async Task FetchAsync(string workingFolder)
 		{
 			try
 			{
 				// Sometimes, a fetch to GitHub takes just forever, don't know why
 				await FetchUsingCmdAsync(workingFolder)
-					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
-
-				await FetchNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace)
-					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
-
-				await FetchNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace)
 					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
 			}
 			catch (Exception e)
@@ -308,6 +303,26 @@ namespace GitMind.Git.Private
 			//{
 			//	await FetchUsingCmdAsync(workingFolder);
 			//}
+		}
+
+
+		public async Task FetchNotesAsync(string workingFolder)
+		{
+			try
+			{
+				// Sometimes, a fetch to GitHub takes just forever, don't know why
+				await FetchNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace)
+					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
+
+				await FetchNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace)
+					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to fetch notes {workingFolder}, {e.Message}");
+			}
+
+			
 		}
 
 

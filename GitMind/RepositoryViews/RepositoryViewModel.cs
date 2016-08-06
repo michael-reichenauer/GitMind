@@ -401,6 +401,7 @@ namespace GitMind.RepositoryViews
 		{
 			Log.Debug("Fetch");
 			await gitService.FetchAsync(repository.MRepository.WorkingFolder);
+			await gitService.FetchNotesAsync(repository.MRepository.WorkingFolder);
 			fetchedTime = DateTime.Now;
 		}
 
