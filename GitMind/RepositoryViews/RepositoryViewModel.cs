@@ -696,7 +696,7 @@ namespace GitMind.RepositoryViews
 		private async void TryUpdateAllBranches()
 		{
 			Log.Debug("Try update all branches");
-
+			isInternalDialog = true;
 			using (busyIndicator.Progress())
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
@@ -750,6 +750,7 @@ namespace GitMind.RepositoryViews
 
 		private async void PullCurrentBranch()
 		{
+			isInternalDialog = true;
 			using (busyIndicator.Progress())
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
@@ -780,7 +781,7 @@ namespace GitMind.RepositoryViews
 		private async void TryPushAllBranches()
 		{
 			Log.Debug("Try push all branches");
-
+			isInternalDialog = true;
 			using (busyIndicator.Progress())
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
@@ -834,6 +835,7 @@ namespace GitMind.RepositoryViews
 
 		private async void PushCurrentBranch()
 		{
+			isInternalDialog = true;
 			using (busyIndicator.Progress())
 			{
 				Log.Debug($"Push current branch");
@@ -956,6 +958,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task SwitchBranchAsync(Branch branch)
 		{
+			isInternalDialog = true;
 			using (busyIndicator.Progress())
 			{
 				await gitService.SwitchToBranchAsync(WorkingFolder, branch.Name);
@@ -979,14 +982,13 @@ namespace GitMind.RepositoryViews
 			using (busyIndicator.Progress())
 			{
 				await gitService.UndoFileInCurrentBranchAsync(WorkingFolder, path);
-
-				await RefreshAfterCommandAsync(false);
 			}
 		}
 
 
 		private async Task MergeBranchAsync(Branch branch)
 		{
+			isInternalDialog = true;
 			using (busyIndicator.Progress())
 			{
 				Branch currentBranch = Repository.CurrentBranch;
@@ -1005,6 +1007,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task SwitchToCommitAsync(Commit commit)
 		{
+			isInternalDialog = true;
 			using (busyIndicator.Progress())
 			{
 				string proposedNamed = commit == commit.Branch.TipCommit
