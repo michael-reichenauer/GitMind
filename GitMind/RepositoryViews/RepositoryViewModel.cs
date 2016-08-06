@@ -804,7 +804,7 @@ namespace GitMind.RepositoryViews
 					await gitService.PushBranchAsync(workingFolder, branch.Name);
 				}
 
-				await gitService.PushNotesAsync(workingFolder);
+				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
 
 				await RefreshAfterCommandAsync(false);
 			}
@@ -836,7 +836,7 @@ namespace GitMind.RepositoryViews
 
 				await gitService.PushCurrentBranchAsync(workingFolder);
 
-				await gitService.PushNotesAsync(workingFolder);
+				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
 
 				await RefreshAfterCommandAsync(false);
 			}
@@ -931,7 +931,7 @@ namespace GitMind.RepositoryViews
 					using (busyIndicator.Progress())
 					{
 						string rootId = Repository.RootId;
-						await repositoryService.SetSpecifiedCommitBranchAsync(workingFolder, rootId, commit.Id, branchName);
+						await repositoryService.SetSpecifiedCommitBranchAsync(workingFolder, commit.Id, branchName);
 						if (!string.IsNullOrWhiteSpace(branchName))
 						{
 							SpecifiedBranchNames = new[] { branchName };
@@ -990,8 +990,7 @@ namespace GitMind.RepositoryViews
 				if (gitCommit != null)
 				{
 					Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {gitCommit.Id}");
-					string rootId = Repository.RootId;
-					await gitService.SetCommitBranchAsync(WorkingFolder, rootId, gitCommit.Id, currentBranch.Name);
+					await gitService.SetCommitBranchAsync(WorkingFolder, gitCommit.Id, currentBranch.Name);
 					await RefreshAfterCommandAsync(false);
 				}
 			}

@@ -354,8 +354,7 @@ namespace GitMind.MainWindowViews
 					{
 						Log.Debug("Committed to git repo done");
 
-						string rootId = RepositoryViewModel.Repository.RootId;
-						await gitService.SetCommitBranchAsync(workingFolder, rootId, gitCommit.Id, branchName);
+						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
 					}
 
 					return true;

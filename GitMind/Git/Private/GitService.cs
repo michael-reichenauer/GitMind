@@ -144,9 +144,9 @@ namespace GitMind.Git.Private
 
 
 		public Task SetSpecifiedCommitBranchAsync(
-			string workingFolder, string rootId, string commitId, string branchName)
+			string workingFolder, string commitId, string branchName)
 		{
-			SetNoteBranches(workingFolder, rootId, ManualBranchNoteNameSpace, commitId, branchName);
+			SetNoteBranches(workingFolder, ManualBranchNoteNameSpace, commitId, branchName);
 
 			return Task.FromResult(true);
 		}
@@ -159,9 +159,9 @@ namespace GitMind.Git.Private
 
 
 		public Task SetCommitBranchAsync(
-			string workingFolder, string rootId, string commitId, string branchName)
+			string workingFolder, string commitId, string branchName)
 		{
-			SetNoteBranches(workingFolder, rootId, CommitBranchNoteNameSpace, commitId, branchName);
+			SetNoteBranches(workingFolder, CommitBranchNoteNameSpace, commitId, branchName);
 
 			return Task.CompletedTask;
 		}
@@ -489,10 +489,10 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task PushNotesAsync(string workingFolder)
+		public async Task PushNotesAsync(string workingFolder, string rootId)
 		{
-			await PushNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace);
-			await PushNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace);
+			await PushNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace, rootId);
+			await PushNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace, rootId);
 		}
 
 
@@ -727,44 +727,44 @@ namespace GitMind.Git.Private
 		}
 
 		private void SetNoteBranches(
-			string workingFolder, string rootId, string nameSpace, string commitId, string branchName)
+			string workingFolder, string nameSpace, string commitId, string branchName)
 		{
 			Log.Warn($"Set {nameSpace}: {commitId} {branchName}");
 
-			//try
-			//{
-			//	string file = Path.Combine(workingFolder, ".git", nameSpace);
-			//	File.AppendAllText(file, $"{commitId} {branchName}\n");
-			//}
-			//catch (Exception e)
-			//{
-			//	Log.Warn($"Failed to add commit name for {commitId} {branchName}, {e}");
-			//}
-
 			try
 			{
-				using (GitRepository gitRepository = OpenRepository(workingFolder))
-				{
-					IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
-					GitNote gitNote = notes.FirstOrDefault(note => note.NameSpace == nameSpace);
-					string commitBranchMessage = $"{commitId} {branchName}\n";
-
-					if (gitNote != null)
-					{
-						gitNote = new GitNote(nameSpace, gitNote.Message + commitBranchMessage);
-					}
-					else
-					{
-						gitNote = new GitNote(nameSpace, commitBranchMessage);
-					}
-
-					gitRepository.SetCommitNote(rootId, gitNote);
-				}
+				string file = Path.Combine(workingFolder, ".git", nameSpace);
+				File.AppendAllText(file, $"{commitId} {branchName}\n");
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to set note branch, {e.Message}");
+				Log.Warn($"Failed to add commit name for {commitId} {branchName}, {e}");
 			}
+
+			//try
+			//{
+			//	using (GitRepository gitRepository = OpenRepository(workingFolder))
+			//	{
+			//		IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
+			//		GitNote gitNote = notes.FirstOrDefault(note => note.NameSpace == nameSpace);
+			//		string commitBranchMessage = $"{commitId} {branchName}\n";
+
+			//		if (gitNote != null)
+			//		{
+			//			gitNote = new GitNote(nameSpace, gitNote.Message + commitBranchMessage);
+			//		}
+			//		else
+			//		{
+			//			gitNote = new GitNote(nameSpace, commitBranchMessage);
+			//		}
+
+			//		gitRepository.SetCommitNote(rootId, gitNote);
+			//	}
+			//}
+			//catch (Exception e)
+			//{
+			//	Log.Warn($"Failed to set note branch, {e.Message}");
+			//}
 		}
 
 
@@ -777,13 +777,30 @@ namespace GitMind.Git.Private
 
 			try
 			{
+
+				string notesText = "";
 				using (GitRepository gitRepository = OpenRepository(workingFolder))
 				{
 					IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
-					GitNote note = notes.FirstOrDefault(n => n.NameSpace == nameSpace);
+					GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
 
-					branchNames = ParseBranchNames(note?.Message);
+					notesText = note?.Message ?? "";
 				}
+
+				try
+				{
+					string file = Path.Combine(workingFolder, ".git", nameSpace);
+					if (File.Exists(file))
+					{
+						notesText += File.ReadAllText(file);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to read local {nameSpace}, {e}");
+				}
+
+				branchNames = ParseBranchNames(notesText );
 			}
 			catch (Exception e)
 			{
@@ -822,69 +839,86 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task PushNotesUsingCmdAsync(string workingFolder, string nameSpace)
+		private async Task PushNotesUsingCmdAsync(string workingFolder, string nameSpace, string rootId)
 		{
-			await Task.Yield();
-			//// git push origin refs/notes/GitMind.Branches
-			//// git notes --ref=GitMind.Branches merge -s cat_sort_uniq refs/notes/origin/GitMind.Branches
-			//// git fetch origin refs/notes/GitMind.Branches:refs/notes/origin/GitMind.Branches
+			// git push origin refs/notes/GitMind.Branches
+			// git notes --ref=GitMind.Branches merge -s cat_sort_uniq refs/notes/origin/GitMind.Branches
+			// git fetch origin refs/notes/GitMind.Branches:refs/notes/origin/GitMind.Branches
 
-			//await FetchNotesUsingCmdAsync(workingFolder, nameSpace);
+			await FetchNotesUsingCmdAsync(workingFolder, nameSpace);
 
-			//Log.Warn($"Push {nameSpace} notes using cmd ...");
+			string notesText = "";
+			using (GitRepository gitRepository = OpenRepository(workingFolder))
+			{
+				IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
+				GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
 
-			//string args = $"push origin refs/notes/{nameSpace}";
+				notesText = note?.Message ?? "";
+			}
 
-			//R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+			try
+			{
+				string file = Path.Combine(workingFolder, ".git", nameSpace);
+				if (File.Exists(file))
+				{
+					notesText += File.ReadAllText(file);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to read local {nameSpace}, {e}");
+			}
 
-			//fetchResult.OnValue(_ => Log.Debug($"Pushed notes {nameSpace} using cmd"));
+			try
+			{
+				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				{
+					GitNote gitNote = new GitNote(nameSpace, notesText);
+				
+					gitRepository.SetCommitNote(rootId, gitNote);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to set note branch, {e.Message}");
+			}
 
-			//// Ignoring fetch errors for now
-			//fetchResult.OnError(e => Log.Warn($"Git push notes {nameSpace} failed {e.Message}"));
 
-			//Log.Warn($"Pushed {nameSpace} notes using cmd");
+			Log.Warn($"Push {nameSpace} notes using cmd ...");
+
+			string args = $"push origin refs/notes/{nameSpace}";
+
+			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+
+			fetchResult.OnValue(_ =>
+			{
+				Log.Debug($"Pushed notes {nameSpace} using cmd");
+				string file = Path.Combine(workingFolder, ".git", nameSpace);
+				if (File.Exists(file))
+				{
+					File.Delete(file);
+				}
+			});
+
+			// Ignoring fetch errors for now
+			fetchResult.OnError(e => Log.Warn($"Git push notes {nameSpace} failed {e.Message}"));
+
+			Log.Warn($"Pushed {nameSpace} notes using cmd");
 		}
 
 
 		private async Task FetchNotesUsingCmdAsync(string workingFolder, string nameSpace)
 		{
-			await Task.Yield();
-			//Log.Warn($"Fetching {nameSpace} notes using cmd ...");
+			Log.Warn($"Fetching {nameSpace} notes using cmd ...");
 
-			//string args = $"fetch origin refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}";
+			string args = $"fetch origin refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}";
 
-			//R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
 
-			//fetchResult.OnValue(_ => Log.Debug($"Fetched notes {nameSpace} using cmd"));
+			fetchResult.OnValue(_ => Log.Debug($"Fetched notes {nameSpace} using cmd"));
 
-			//// Ignoring fetch errors for now
-			//fetchResult.OnError(e => Log.Warn($"Git fetch notes {nameSpace} failed {e.Message}"));
-
-			//Log.Debug("Merging fetch notes using ...");
-			//IReadOnlyList<BranchName> names = GetNoteBranches(workingFolder, nameSpace, rootId);
-
-			//if (names.Any())
-			//{
-
-			//}
-
-
-			//Log.Debug("Merging fetch notes using cmd ...");
-
-			//args = $"git notes --ref={nameSpace} merge -s cat_sort_uniq refs/notes/origin/{nameSpace}";
-
-			//R<IReadOnlyList<string>> mergeResult = await GitAsync(workingFolder, args);
-
-			//mergeResult.OnValue(_ => Log.Debug($"Merged notes {nameSpace} using cmd"));
-
-			//// Ignoring fetch errors for now
-			//mergeResult.OnError(e => Log.Warn($"Git merge notes {nameSpace} failed {e.Message}"));
-
-
-			//Log.Debug("Merged fetch notes using ...");
-
-			//Log.Warn($"Fetched {nameSpace} notes using cmd");
+			// Ignoring fetch errors for now
+			fetchResult.OnError(e => Log.Warn($"Git fetch notes {nameSpace} failed {e.Message}"));
 		}
-
 	}
 }

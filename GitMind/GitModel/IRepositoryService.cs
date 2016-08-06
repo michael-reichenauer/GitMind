@@ -13,6 +13,6 @@ namespace GitMind.GitModel
 
 		Task<Repository> UpdateRepositoryAsync(Repository repository);
 
-		Task SetSpecifiedCommitBranchAsync(string gitRepositoryPath, string rootId, string commitId, string branchName);
+		Task SetSpecifiedCommitBranchAsync(string gitRepositoryPath, string commitId, string branchName);
 	}
 }
