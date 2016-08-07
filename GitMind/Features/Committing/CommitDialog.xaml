@@ -186,10 +186,24 @@
 
 									<Grid.ContextMenu>
 										<ContextMenu>
+											
 											<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}">
 												<MenuItem.Icon>
 													<Border>
 														<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
+													</Border>
+												</MenuItem.Icon>
+											</MenuItem>
+
+											<Separator Background="{StaticResource BorderBrush}"/>
+											
+											<MenuItem Header="Undo file change" Command="{Binding UndoUncommittedFileCommand}">	
+												<MenuItem.Icon>
+													<Border>
+														<TextBlock 
+															Style="{StaticResource MenuIconStyle}"
+															Text="&#xE042;"
+															Foreground="{StaticResource UndoBrush}"/>
 													</Border>
 												</MenuItem.Icon>
 											</MenuItem>

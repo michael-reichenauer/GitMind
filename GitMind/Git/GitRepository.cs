@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -15,6 +16,7 @@ namespace GitMind.Git
 	{
 		// string emptyTreeSha = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
 
+		private readonly string workingFolder;
 		private readonly Repository repository;
 		private static readonly StatusOptions StatusOptions =
 			new StatusOptions { DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
@@ -27,8 +29,9 @@ namespace GitMind.Git
 
 
 
-		public GitRepository(Repository repository)
+		public GitRepository(string workingFolder, Repository repository)
 		{
+			this.workingFolder = workingFolder;
 			this.repository = repository;
 		}
 
@@ -135,7 +138,33 @@ namespace GitMind.Git
 
 		public void UndoFileInCurrentBranch(string path)
 		{
-			repository.CheckoutPaths("HEAD", new[] { path });
+			GitStatus gitStatus = GetGitStatus();
+
+			GitFile gitFile = gitStatus.CommitFiles.Files.FirstOrDefault(f => f.File == path);
+
+			if (gitFile != null)
+			{
+				if (gitFile.IsModified || gitFile.IsDeleted)
+				{
+					CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
+					repository.CheckoutPaths("HEAD", new[] {path}, options);
+				}
+
+				if (gitFile.IsAdded || gitFile.IsRenamed)
+				{
+					string fullPath = Path.Combine(workingFolder, path);
+					if (File.Exists(fullPath))
+					{
+						File.Delete(fullPath);
+					}
+				}
+
+				if (gitFile.IsRenamed)
+				{
+					CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+					repository.CheckoutPaths("HEAD", new[] { gitFile.OldFile }, options);
+				}
+			}
 		}
 
 
@@ -280,6 +309,38 @@ namespace GitMind.Git
 			else
 			{
 				Log.Warn($"Could not find commit {commitId}");
+			}
+		}
+
+
+		public void UndoCleanWorkingFolde()
+		{
+			repository.Reset(ResetMode.Hard);
+
+			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
+			foreach (StatusEntry statusEntry in repositoryStatus.Ignored.Concat(repositoryStatus.Untracked))
+			{
+				string path = statusEntry.FilePath;
+				try
+				{
+					string fullPath = Path.Combine(workingFolder, path);
+
+					if (File.Exists(fullPath))
+					{
+						Log.Debug($"Delete file {fullPath}");
+						File.Delete(fullPath);
+					}
+					else if (Directory.Exists(fullPath))
+					{
+						Log.Debug($"Delete folder {fullPath}");
+						Directory.Delete(fullPath, true);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to delete {path}, {e.Message}");
+					throw;
+				}				
 			}
 		}
 	}

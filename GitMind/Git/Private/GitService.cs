@@ -50,7 +50,7 @@ namespace GitMind.Git.Private
 
 		public GitRepository OpenRepository(string workingFolder)
 		{
-			return new GitRepository(new LibGit2Sharp.Repository(workingFolder));
+			return new GitRepository(workingFolder, new LibGit2Sharp.Repository(workingFolder));
 		}
 
 
@@ -324,6 +324,35 @@ namespace GitMind.Git.Private
 
 			
 		}
+
+
+		public async Task UndoCleanWorkingFolderAsync(string workingFolder)
+		{
+			try
+			{
+				Log.Debug("Undo and clean ...");
+
+				await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							gitRepository.UndoCleanWorkingFolde();
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to undo and clean, {e.Message}");
+					}
+				});
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to undo and clean {workingFolder}, {e.Message}");
+			}
+		}
+
 
 
 		private async Task FetchUsingCmdAsync(string workingFolder)
@@ -873,7 +902,7 @@ namespace GitMind.Git.Private
 			}
 
 
-			Log.Warn($"Push {nameSpace} notes using cmd ...");
+			Log.Debug($"Push {nameSpace} notes using cmd ...");
 
 			string args = $"push origin refs/notes/{nameSpace}";
 
@@ -892,7 +921,7 @@ namespace GitMind.Git.Private
 			// Ignoring fetch errors for now
 			fetchResult.OnError(e => Log.Warn($"Git push notes {nameSpace} failed {e.Message}"));
 
-			Log.Warn($"Pushed {nameSpace} notes using cmd");
+			Log.Debug($"Pushed {nameSpace} notes using cmd");
 		}
 
 

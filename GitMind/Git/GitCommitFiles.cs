@@ -27,7 +27,7 @@ namespace GitMind.Git
 			}
 		}
 
-		public GitCommitFiles(string commitId, RepositoryStatus status)
+		public GitCommitFiles(string commitId, RepositoryStatus status, ConflictCollection conflicts)
 		{
 			Id = commitId;
 			if (status == null)
@@ -38,9 +38,10 @@ namespace GitMind.Git
 			{
 				List<GitFile> files = status
 					.Added.Select(t => new GitFile(t.FilePath, null, false, true, false, false))
-					.Concat(status.Untracked.Select(t => new GitFile(t.FilePath, null, false, true, false, false)))
+					.Concat(GetUntracked(status, conflicts))
 					.Concat(status.Removed.Select(t => new GitFile(t.FilePath, null, false, false, true, false)))
-					.Concat(status.Modified.Select(t => new GitFile(t.FilePath, null, true, false, false, false)))
+					.Concat(status.Missing.Select(t => new GitFile(t.FilePath, null, false, false, true, false)))
+					.Concat(status.Modified.Select(t => new GitFile(t.FilePath, null, true, false, false, false)))				
 					.Concat(status.RenamedInWorkDir.Select(t => new GitFile(
 						t.FilePath, t.IndexToWorkDirRenameDetails.OldFilePath, false, false, false, true)))
 					.Concat(status.RenamedInIndex.Select(t => new GitFile(
@@ -93,5 +94,27 @@ namespace GitMind.Git
 
 		public string Id { get; set; }
 		public IReadOnlyList<GitFile> Files { get; set; }
+
+
+		private static IReadOnlyList<GitFile> GetUntracked(RepositoryStatus status, ConflictCollection conflicts)
+		{
+			List<GitFile> untracked = new List<GitFile>();
+			// When there are conflicts, tools create temp files like these, lets filter them. 
+			IEnumerable<string> conflictFiles = conflicts.Select(c => c.Ours.Path + ".LOCAL.")
+				.Concat(conflicts.Select(c => c.Ancestor.Path + ".BASE."))
+				.Concat(conflicts.Select(c => c.Theirs.Path + ".REMOTE."))
+				.ToList();
+
+
+			foreach (StatusEntry statusEntry in status.Untracked)
+			{
+				if (!conflictFiles.Any(f => statusEntry.FilePath.StartsWith(f)))
+				{
+					untracked.Add(new GitFile(statusEntry.FilePath, null, false, true, false, false));
+				}
+			}
+
+			return untracked;
+		}
 	}
 }

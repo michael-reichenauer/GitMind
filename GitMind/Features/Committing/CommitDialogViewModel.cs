@@ -54,6 +54,22 @@ namespace GitMind.Features.Committing
 
 		public Command ShowUncommittedDiffCommand { get; }
 
+		public Command<string> UndoUncommittedFileCommand => Command<string>(UndoUncommittedFile);
+
+
+		private void UndoUncommittedFile(string path)
+		{
+			CommitFileViewModel file = Files.FirstOrDefault(f => f.Name == path);
+
+			if (file != null)
+			{
+				undoUncommittedFileCommand.Execute(path);
+
+				Files.Remove(file);
+			}
+		}
+
+
 		public string BranchText => $"Commit on {branchName}";
 
 		public string Message => GetMessage();
@@ -96,7 +112,7 @@ namespace GitMind.Features.Committing
 
 		private async void SetOK(Window window)
 		{
-			if (string.IsNullOrWhiteSpace(Message))
+			if (string.IsNullOrWhiteSpace(Message) || Files.Count == 0)
 			{
 				return;
 			}
@@ -112,7 +128,7 @@ namespace GitMind.Features.Committing
 
 		private CommitFileViewModel ToCommitFileViewModel(string workingFolder, CommitFile file)
 		{
-			return new CommitFileViewModel(undoUncommittedFileCommand)
+			return new CommitFileViewModel(UndoUncommittedFileCommand)
 			{
 				WorkingFolder = workingFolder,
 				Id = Commit.UncommittedId,

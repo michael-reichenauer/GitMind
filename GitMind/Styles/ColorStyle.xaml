@@ -11,6 +11,7 @@
 
 	<SolidColorBrush x:Key="BorderBrush" Color="DarkSlateBlue" />
 	<SolidColorBrush x:Key="TicketBrush" Color="#F25B54" />
+	<SolidColorBrush x:Key="UndoBrush" Color="#F75B54" />
 	<SolidColorBrush x:Key="TagBrush" Color="#42C650" />
 	<SolidColorBrush x:Key="BranchTipsBrush" Color="Aqua" />
 	<SolidColorBrush x:Key="CurrentCommitIndicatorBrush" Color="LightSteelBlue" />

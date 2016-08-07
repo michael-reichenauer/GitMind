@@ -182,7 +182,7 @@ namespace GitMind.MainWindowViews
 
 		public Task AutoRemoteCheckAsync()
 		{
-			return RepositoryViewModel.RemoteCheckAsync();
+			return RepositoryViewModel.AutoRemoteCheckAsync();
 		}
 
 
