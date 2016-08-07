@@ -118,7 +118,10 @@ namespace GitMind.RepositoryViews
 			if (filesCommitId == commit.CommitId)
 			{
 				files.Clear();
-				commitFiles.ForEach(f => files.Add(
+				commitFiles
+					.OrderBy(f => f.Status, 
+					Comparer<string>.Create((s1, s2) => s1 == "C" ? 1 : s2 == "C"? 1 : 0))
+					.ForEach(f => files.Add(
 					new CommitFileViewModel(f, undoUncommittedFileCommand)
 					{
 						Id = commit.CommitId,
