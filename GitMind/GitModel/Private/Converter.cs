@@ -47,21 +47,5 @@ namespace GitMind.GitModel.Private
 				commit.IsUncommitted,
 				commit.IsVirtual);
 		}
-
-
-		public static CommitFile ToCommitFile(GitFile gitFile)
-		{
-			string status = gitFile.IsAdded
-				? "a"
-				: gitFile.IsDeleted
-					? "d"
-					: gitFile.IsModified
-						? "m"
-						: gitFile.IsRenamed
-							? "r"
-							: "";
-
-			return new CommitFile(gitFile.File, gitFile.OldFile, status);
-		}
 	}
 }

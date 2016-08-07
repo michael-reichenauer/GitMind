@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp;
 
@@ -29,7 +30,14 @@ namespace GitMind.Git
 			if (commitId == GitCommit.UncommittedId)
 			{
 				// Current working folder uncommitted changes
-				return diff.Compare<Patch>(null, true, null, DefultCompareOptions);
+				return diff.Compare<Patch>(
+					repository.Head.Tip.Tree,
+					DiffTargets.WorkingDirectory,
+					(IEnumerable<string>)null,
+					null,
+					DefultCompareOptions);
+
+				//return diff.Compare<Patch>(null, true, null, DefultCompareOptions);
 			}
 
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
@@ -72,8 +80,15 @@ namespace GitMind.Git
 		{
 			if (commitId == GitCommit.UncommittedId)
 			{
-				// Current working folder uncommitted changes
-				return diff.Compare<Patch>(new[] { filePath }, true, null, DefultFileCompareOptions);
+				return diff.Compare<Patch>(
+					repository.Head.Tip.Tree,
+					DiffTargets.WorkingDirectory | DiffTargets.WorkingDirectory,
+					new[] { filePath },
+					null,
+					DefultFileCompareOptions);
+
+				//Current working folder uncommitted changes
+				//return diff.Compare<Patch>(new[] { filePath }, true, null, DefultFileCompareOptions);
 			}
 
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));

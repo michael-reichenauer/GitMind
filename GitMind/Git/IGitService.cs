@@ -54,5 +54,7 @@ namespace GitMind.Git
 		Task PushNotesAsync(string workingFolder, string rootId);
 		Task FetchNotesAsync(string workingFolder);
 		Task UndoCleanWorkingFolderAsync(string workingFolder);
+		void GetFile(string workingFolder, string fileId, string filePath);
+		Task ResolveAsync(string workingFolder, string path);
 	}
 }

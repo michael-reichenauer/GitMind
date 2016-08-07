@@ -354,6 +354,49 @@ namespace GitMind.Git.Private
 		}
 
 
+		public void GetFile(string workingFolder, string fileId, string filePath)
+		{
+			try
+			{
+				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				{
+					gitRepository.GetFile(fileId, filePath);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to get file contents, {e.Message}");
+			}
+		}
+
+
+		public async Task ResolveAsync(string workingFolder, string path)
+		{
+			try
+			{
+				Log.Debug("Resolve ...");
+
+				await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							gitRepository.Resolve(path);
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to resolve, {e.Message}");
+					}
+				});
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to resolve {path}, {e.Message}");
+			}
+		}
+
 
 		private async Task FetchUsingCmdAsync(string workingFolder)
 		{

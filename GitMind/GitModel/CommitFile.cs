@@ -1,3 +1,4 @@
+using GitMind.Git;
 using ProtoBuf;
 
 
@@ -13,14 +14,18 @@ namespace GitMind.GitModel
 
 		public string OldPath { get; set; }
 
+		public Conflict Conflict { get; set; }
+
+
 		public CommitFile()
 		{		
 		}
 
-		public CommitFile(string path, string oldPath, string status)
+		public CommitFile(string path, string oldPath, Conflict conflict, string status)
 		{
 			Path = path;
 			OldPath = oldPath;
+			Conflict = conflict;
 			Status = status;
 		}
 	}
