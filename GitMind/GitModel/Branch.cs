@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace GitMind.GitModel
 {
-	// Some extra Branch
+	// Some extra Branch and otther dum
 	internal class Branch
 	{
 		private readonly Repository repository;
