@@ -583,7 +583,7 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
-						gitRepository.UndoFileInCurrentBranch(path);
+						gitRepository.UndoFileInCurrentBranch(workingFolder, path);
 					}
 				}
 				catch (Exception e)
@@ -873,7 +873,7 @@ namespace GitMind.Git.Private
 			}
 
 
-			Log.Warn($"Push {nameSpace} notes using cmd ...");
+			Log.Debug($"Push {nameSpace} notes using cmd ...");
 
 			string args = $"push origin refs/notes/{nameSpace}";
 
@@ -892,7 +892,7 @@ namespace GitMind.Git.Private
 			// Ignoring fetch errors for now
 			fetchResult.OnError(e => Log.Warn($"Git push notes {nameSpace} failed {e.Message}"));
 
-			Log.Warn($"Pushed {nameSpace} notes using cmd");
+			Log.Debug($"Pushed {nameSpace} notes using cmd");
 		}
 
 

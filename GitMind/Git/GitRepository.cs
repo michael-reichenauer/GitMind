@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -133,10 +134,35 @@ namespace GitMind.Git
 		}
 
 
-		public void UndoFileInCurrentBranch(string path)
+		public void UndoFileInCurrentBranch(string workingFolder, string path)
 		{
-			CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
-			repository.CheckoutPaths("HEAD", new[] { path }, options);
+			GitStatus gitStatus = GetGitStatus();
+
+			GitFile gitFile = gitStatus.CommitFiles.Files.FirstOrDefault(f => f.File == path);
+
+			if (gitFile != null)
+			{
+				if (gitFile.IsModified || gitFile.IsDeleted)
+				{
+					CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
+					repository.CheckoutPaths("HEAD", new[] {path}, options);
+				}
+
+				if (gitFile.IsAdded || gitFile.IsRenamed)
+				{
+					string fullPath = Path.Combine(workingFolder, path);
+					if (File.Exists(fullPath))
+					{
+						File.Delete(fullPath);
+					}
+				}
+
+				if (gitFile.IsRenamed)
+				{
+					CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+					repository.CheckoutPaths("HEAD", new[] { gitFile.OldFile }, options);
+				}
+			}
 		}
 
 
