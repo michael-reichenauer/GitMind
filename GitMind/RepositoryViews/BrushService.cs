@@ -20,12 +20,13 @@ namespace GitMind.RepositoryViews
 		public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightGreen;
 		public SolidColorBrush RemoteAheadBrush { get; } = BrushFromHex("#BBBBFB");
 
-		public SolidColorBrush ConflictBrush { get; } = BrushFromHex("#FCB9B6");
+		public static SolidColorBrush ConflictBrush { get; } = BrushFromHex("#FCB9B6");
 
 		public SolidColorBrush UnCommittedBrush { get; } = Brushes.BurlyWood;
 		public static SolidColorBrush BranchTipBrush { get; } = Brushes.Aqua;
 
 		public static SolidColorBrush TagBrush { get; } = BrushFromHex("#42C650");
+		public static SolidColorBrush TextBrush { get; } = Brushes.Lavender;
 		public static SolidColorBrush TicketBrush { get; } = BrushFromHex("#F25B54");
 		public static Brush DimBrush { get; } = Brushes.DimGray;
 

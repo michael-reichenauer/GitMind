@@ -9,7 +9,6 @@ namespace GitMind.RepositoryViews
 		SolidColorBrush SubjectBrush { get; }
 		SolidColorBrush LocalAheadBrush { get; }
 		SolidColorBrush RemoteAheadBrush { get; }
-		SolidColorBrush ConflictBrush { get; }
 		SolidColorBrush UnCommittedBrush { get; }
 
 		Brush GetDarkerBrush(Brush brush);

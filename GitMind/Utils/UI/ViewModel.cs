@@ -178,6 +178,21 @@ namespace GitMind.Utils.UI
 		}
 
 
+		protected Command AsyncCommand(
+			Func<Task> executeMethodAsync, Func<bool> canExecuteMethod, [CallerMemberName] string memberName = "")
+		{
+			ICommand command;
+			if (!commands.TryGetValue(memberName, out command))
+			{
+
+				command = new Command(executeMethodAsync, canExecuteMethod);
+				commands[memberName] = command;
+			}
+
+			return (Command)command;
+		}
+
+
 		protected Command<T> AsyncCommand<T>(
 			Func<T, Task> executeMethodAsync, [CallerMemberName] string memberName = "")
 		{

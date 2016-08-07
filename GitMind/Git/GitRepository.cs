@@ -19,13 +19,13 @@ namespace GitMind.Git
 		private readonly string workingFolder;
 		private readonly Repository repository;
 		private static readonly StatusOptions StatusOptions =
-			new StatusOptions { DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
+			new StatusOptions {DetectRenamesInWorkDir = true, DetectRenamesInIndex = true};
 		private static readonly MergeOptions MergeFastForwardOnly =
-			new MergeOptions { FastForwardStrategy = FastForwardStrategy.FastForwardOnly };
+			new MergeOptions {FastForwardStrategy = FastForwardStrategy.FastForwardOnly};
 		private static readonly MergeOptions MergeDefault =
-			new MergeOptions { FastForwardStrategy = FastForwardStrategy.Default };
+			new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default};
 		private static readonly MergeOptions MergeNoFastForward =
-			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward };
+			new MergeOptions {FastForwardStrategy = FastForwardStrategy.NoFastForward};
 
 
 
@@ -48,6 +48,7 @@ namespace GitMind.Git
 		public GitDiff Diff => new GitDiff(repository.Diff, repository);
 
 		public string UserName => repository.Config.GetValueOrDefault<string>("user.name");
+
 
 		public void Dispose()
 		{
@@ -106,6 +107,7 @@ namespace GitMind.Git
 			}
 		}
 
+
 		private GitStatus GetGitStatus()
 		{
 			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
@@ -161,8 +163,8 @@ namespace GitMind.Git
 
 				if (gitFile.IsRenamed)
 				{
-					CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
-					repository.CheckoutPaths("HEAD", new[] { gitFile.OldFile }, options);
+					CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
+					repository.CheckoutPaths("HEAD", new[] {gitFile.OldFile}, options);
 				}
 			}
 		}
@@ -280,7 +282,7 @@ namespace GitMind.Git
 
 
 		public IReadOnlyList<GitNote> GetCommitNotes(string commitId)
-		{	
+		{
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 			if (commit != null)
 			{
@@ -340,8 +342,32 @@ namespace GitMind.Git
 				{
 					Log.Warn($"Failed to delete {path}, {e.Message}");
 					throw;
-				}				
+				}
 			}
+		}
+
+
+		public void GetFile(string fileId, string filePath)
+		{
+			Blob blob = repository.Lookup<Blob>(new ObjectId(fileId));
+
+			if (blob != null)
+			{
+				using (var stream = File.Create(filePath))
+				{
+					blob.GetContentStream().CopyTo(stream);
+				}
+			}
+		}
+
+		public void Resolve(string path)
+		{
+			repository.Index.Add(path);
+
+			// Temp workaround to trigger status update after resolving conflicts, ill be handled better
+			string tempPath = Path.Combine(workingFolder, path +".tmp");
+			File.AppendAllText(tempPath, "tmp");
+			File.Delete(tempPath);
 		}
 	}
 }
