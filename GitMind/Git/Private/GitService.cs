@@ -50,7 +50,7 @@ namespace GitMind.Git.Private
 
 		public GitRepository OpenRepository(string workingFolder)
 		{
-			return new GitRepository(new LibGit2Sharp.Repository(workingFolder));
+			return new GitRepository(workingFolder, new LibGit2Sharp.Repository(workingFolder));
 		}
 
 
@@ -326,6 +326,35 @@ namespace GitMind.Git.Private
 		}
 
 
+		public async Task UndoCleanWorkingFolderAsync(string workingFolder)
+		{
+			try
+			{
+				Log.Debug("Undo and clean ...");
+
+				await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							gitRepository.UndoCleanWorkingFolde();
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to undo and clean, {e.Message}");
+					}
+				});
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to undo and clean {workingFolder}, {e.Message}");
+			}
+		}
+
+
+
 		private async Task FetchUsingCmdAsync(string workingFolder)
 		{
 			Log.Debug("Fetching repository using cmd ...");
@@ -583,7 +612,7 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
-						gitRepository.UndoFileInCurrentBranch(workingFolder, path);
+						gitRepository.UndoFileInCurrentBranch(path);
 					}
 				}
 				catch (Exception e)

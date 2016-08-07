@@ -16,6 +16,7 @@ namespace GitMind.Git
 	{
 		// string emptyTreeSha = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
 
+		private readonly string workingFolder;
 		private readonly Repository repository;
 		private static readonly StatusOptions StatusOptions =
 			new StatusOptions { DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
@@ -28,8 +29,9 @@ namespace GitMind.Git
 
 
 
-		public GitRepository(Repository repository)
+		public GitRepository(string workingFolder, Repository repository)
 		{
+			this.workingFolder = workingFolder;
 			this.repository = repository;
 		}
 
@@ -134,7 +136,7 @@ namespace GitMind.Git
 		}
 
 
-		public void UndoFileInCurrentBranch(string workingFolder, string path)
+		public void UndoFileInCurrentBranch(string path)
 		{
 			GitStatus gitStatus = GetGitStatus();
 
@@ -307,6 +309,38 @@ namespace GitMind.Git
 			else
 			{
 				Log.Warn($"Could not find commit {commitId}");
+			}
+		}
+
+
+		public void UndoCleanWorkingFolde()
+		{
+			repository.Reset(ResetMode.Hard);
+
+			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
+			foreach (StatusEntry statusEntry in repositoryStatus.Ignored.Concat(repositoryStatus.Untracked))
+			{
+				string path = statusEntry.FilePath;
+				try
+				{
+					string fullPath = Path.Combine(workingFolder, path);
+
+					if (File.Exists(fullPath))
+					{
+						Log.Debug($"Delete file {fullPath}");
+						File.Delete(fullPath);
+					}
+					else if (Directory.Exists(fullPath))
+					{
+						Log.Debug($"Delete folder {fullPath}");
+						Directory.Delete(fullPath, true);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to delete {path}, {e.Message}");
+					throw;
+				}				
 			}
 		}
 	}

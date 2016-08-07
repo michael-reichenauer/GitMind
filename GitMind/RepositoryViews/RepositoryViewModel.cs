@@ -160,6 +160,9 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> SwitchToCommitCommand => AsyncCommand<Commit>(SwitchToCommitAsync, CanExecuteSwitchToCommit);
 		public Command<Branch> CreateBranchCommand => AsyncCommand<Branch>(CreateBranchAsync);
 		public Command<Commit> CreateBranchFromCommitCommand => AsyncCommand<Commit>(CreateBranchFromCommitAsync);
+		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
+
+
 
 
 		public Command TryUpdateAllBranchesCommand => Command(
@@ -1087,6 +1090,18 @@ namespace GitMind.RepositoryViews
 			}
 
 			isInternalDialog = false;
+		}
+
+
+		private async Task UndoCleanWorkingFolderAsync()
+		{
+			await Task.Yield();
+
+			isInternalDialog = true;
+
+			await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
+
+			await RefreshAfterCommandAsync(true);
 		}
 
 
