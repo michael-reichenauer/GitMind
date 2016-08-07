@@ -156,7 +156,7 @@
 							<Label
 								Content="{Binding Name}" 
 								Grid.Column="0"
-								Foreground="{StaticResource TextBrush}"
+								Foreground="{Binding FileNameBrush}"
 								Padding="0"/>
 
 							<Label
