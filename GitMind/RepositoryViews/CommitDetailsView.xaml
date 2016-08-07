@@ -178,6 +178,16 @@
 
 									<Separator Background="{StaticResource BorderBrush}"/>
 
+									<MenuItem Header="Merge conflicts ..." Command="{Binding ShowDiffCommand}">
+										<MenuItem.Icon>
+											<Border>
+												<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE259;"/>
+											</Border>
+										</MenuItem.Icon>
+									</MenuItem>
+									
+									<Separator Background="{StaticResource BorderBrush}"/>
+
 									<MenuItem 
 										Header="Undo file change" 
 										Command="{Binding UndoUncommittedFileCommand}"
