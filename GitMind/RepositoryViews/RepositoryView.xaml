@@ -344,6 +344,7 @@
 																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
 																	</Border>
 																</MenuItem.Icon>
+																
 																<MenuItem 
 																	Header="{Binding SwitchToBranchText}" 
 																	Command="{Binding SwitchToBranchCommand}">

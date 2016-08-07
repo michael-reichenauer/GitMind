@@ -35,6 +35,8 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
+		public bool HasConflicts => file.Status == "C";
+
 		public Brush FileNameBrush => file.Status != "C" 
 			? BrushService.TextBrush : BrushService.ConflictBrush;
 
@@ -46,6 +48,7 @@ namespace GitMind.RepositoryViews
 		public Command UndoUncommittedFileCommand { get; }
 
 		public Command MergeConflictsCommand => AsyncCommand(MergeConflictsAsync);
+
 
 		public Command ResolveCommand => AsyncCommand(ResolveAsync);
 
