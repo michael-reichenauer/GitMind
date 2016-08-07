@@ -128,7 +128,7 @@ namespace GitMind.Features.Committing
 
 		private CommitFileViewModel ToCommitFileViewModel(string workingFolder, CommitFile file)
 		{
-			return new CommitFileViewModel(UndoUncommittedFileCommand)
+			return new CommitFileViewModel(file, UndoUncommittedFileCommand)
 			{
 				WorkingFolder = workingFolder,
 				Id = Commit.UncommittedId,

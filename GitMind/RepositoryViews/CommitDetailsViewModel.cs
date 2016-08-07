@@ -119,7 +119,7 @@ namespace GitMind.RepositoryViews
 			{
 				files.Clear();
 				commitFiles.ForEach(f => files.Add(
-					new CommitFileViewModel(undoUncommittedFileCommand)
+					new CommitFileViewModel(f, undoUncommittedFileCommand)
 					{
 						Id = commit.CommitId,
 						Name = f.Path,

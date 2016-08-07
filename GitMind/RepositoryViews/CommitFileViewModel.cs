@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -6,13 +7,16 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitFileViewModel : ViewModel
 	{
+		private readonly CommitFile file;
 		private readonly IDiffService diffService = new DiffService();
 
 
-		public CommitFileViewModel(Command<string> undoUncommittedFileCommand)
+		public CommitFileViewModel(CommitFile file, Command<string> undoUncommittedFileCommand)
 		{
+			this.file = file;
 			UndoUncommittedFileCommand = undoUncommittedFileCommand.With(() => Name);
 		}
+
 
 		public string Id { get; set; }
 
@@ -36,5 +40,20 @@ namespace GitMind.RepositoryViews
 			() => diffService.ShowFileDiffAsync(WorkingFolder, Id, Name));
 
 		public Command UndoUncommittedFileCommand { get; }
+
+		public Command MergeConflictsCommand => AsyncCommand(MergeConflictsAsync);
+
+		public Command ResolveCommand => AsyncCommand(ResolveAsync);
+
+
+		private Task MergeConflictsAsync()
+		{
+			return diffService.MergeConflictsAsync(WorkingFolder, Id, file.Path, file.Conflict);
+		}
+
+		private Task ResolveAsync()
+		{
+			return diffService.ResolveAsync(WorkingFolder, file.Path);
+		}
 	}
 }

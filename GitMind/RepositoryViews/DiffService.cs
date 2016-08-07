@@ -68,6 +68,44 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		public async Task MergeConflictsAsync(string workingFolder, string id, string path, Conflict conflict)
+		{
+			string p4mergeExe;
+			if (!IsDiffSupported(out p4mergeExe))
+			{
+				return;
+			}
+
+			string fullPath = Path.Combine(workingFolder, path);
+			string extension = Path.GetExtension(fullPath);
+			string yoursPath = Path.ChangeExtension(fullPath, "YOURS" + extension);
+			string basePath = Path.ChangeExtension(fullPath, "BASE" + extension);
+			string theirsPath = Path.ChangeExtension(fullPath, "THEIRS" + extension);
+
+			gitService.GetFile(workingFolder, conflict.OursId, yoursPath);
+			gitService.GetFile(workingFolder, conflict.TheirsId, theirsPath);
+			gitService.GetFile(workingFolder, conflict.BaseId, basePath);
+
+			if (File.Exists(yoursPath) && File.Exists(theirsPath) && File.Exists(basePath))
+			{
+				await Task.Run(() =>
+				{
+					cmd.Run(p4mergeExe, $"\"{basePath}\" \"{theirsPath}\"  \"{yoursPath}\" \"{fullPath}\"");
+				});
+
+				File.Delete(yoursPath);
+				File.Delete(theirsPath);
+				File.Delete(basePath);
+			}
+		}
+
+
+		public Task ResolveAsync(string workingFolder, string path)
+		{
+			return gitService.ResolveAsync(workingFolder, path);
+		}
+
+
 		public async Task ShowFileDiffAsync(string workingFolder, string commitId, string name)
 		{
 			string p4mergeExe;

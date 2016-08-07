@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.Utils;
@@ -19,7 +18,7 @@ namespace GitMind.GitModel
 		private string nextIdToGet;
 
 		public static CommitFile[] InProgress =
-			{ new CommitFile("      Retrieving files, please retry in a while ... ", null, "") };
+			{ new CommitFile("      Retrieving files, please retry in a while ... ", null, null, "") };
 		private static readonly List<CommitFile> EmptyFileList = Enumerable.Empty<CommitFile>().ToList();
 
 		public int Count => commitsFiles.Count;
@@ -68,14 +67,15 @@ namespace GitMind.GitModel
 					return Enumerable.Empty<CommitFile>();
 				}
 
-				Task<R<GitCommitFiles>> commitsFilesForCommitTask = 
+				Task<R<GitCommitFiles>> commitsFilesForCommitTask =
 					gitService.GetFilesForCommitAsync(gitRepositoryPath, commitId);
 				currentTask = commitsFilesForCommitTask;
 				var commitsFilesForCommit = await commitsFilesForCommitTask;
 
 				if (commitsFilesForCommit.HasValue)
 				{
-					files = commitsFilesForCommit.Value.Files.Select(f => new CommitFile(f.File, f.OldFile, ToStatus(f))).ToList();
+					files = commitsFilesForCommit.Value.Files
+						.Select(f => new CommitFile(f.File, f.OldFile, f.Conflict, ToStatus(f))).ToList();
 					commitsFiles[commitId] = files;
 					return files;
 				}
@@ -83,8 +83,8 @@ namespace GitMind.GitModel
 				Log.Warn($"Failed to get files for {commitId}");
 				return Enumerable.Empty<CommitFile>();
 			}
-				
-			return files;		
+
+			return files;
 		}
 
 
@@ -105,6 +105,10 @@ namespace GitMind.GitModel
 			else if (gitFile.IsRenamed)
 			{
 				return "R";
+			}
+			else if (gitFile.IsConflict)
+			{
+				return "C";
 			}
 
 			return "";
