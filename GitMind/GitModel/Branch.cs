@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace GitMind.GitModel
 {
+	// A Branch
 	internal class Branch
 	{
 		private readonly Repository repository;
