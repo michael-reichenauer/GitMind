@@ -18,7 +18,8 @@ namespace GitMind.GitModel
 
 		public Commit(
 			Repository repository, 
-			string id, 
+			string id,
+			string commitId, 
 			string shortId, 
 			string subject, 
 			string author, 
@@ -41,6 +42,7 @@ namespace GitMind.GitModel
 			this.childIds = childIds;
 			this.branchId = branchId;
 			Id = id;
+			CommitId = commitId;
 			ShortId = shortId;
 			Subject = subject;
 			Author = author;
@@ -59,6 +61,7 @@ namespace GitMind.GitModel
 
 
 		public string Id { get; }
+		public string CommitId { get; }
 		public string ShortId { get; }
 		public string Subject { get; }
 		public string Author { get; }
@@ -80,11 +83,12 @@ namespace GitMind.GitModel
 		public IEnumerable<Commit> Children => childIds.Select(id => repository.Commits[id]);
 		public Branch Branch => repository.Branches[branchId];
 		public bool IsMergePoint => parentIds.Count > 1;
-		public bool IsCurrent => this == repository.CurrentCommit;
+		public bool IsCurrent => CommitId == repository.CurrentCommit.Id
+			&& repository.CurrentBranch == Branch;
 		public string WorkingFolder => repository.MRepository.WorkingFolder;
 
 		//public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
-		public Task<IEnumerable<CommitFile>> FilesTask => repository.CommitsFiles.GetAsync(WorkingFolder, Id);
+		public Task<IEnumerable<CommitFile>> FilesTask => repository.CommitsFiles.GetAsync(WorkingFolder, CommitId);
 
 
 

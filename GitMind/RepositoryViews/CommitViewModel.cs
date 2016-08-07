@@ -1,10 +1,6 @@
-using System;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using GitMind.GitModel;
-using GitMind.GitModel.Private;
 using GitMind.Utils.UI;
 
 
@@ -12,31 +8,28 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitViewModel : ViewModel
 	{
-		private readonly ICommand refreshManuallyCommand;
-		private readonly IDiffService diffService = new DiffService();
-		private readonly IRepositoryService repositoryService = new RepositoryService();
-
-
 		private int windowWidth;
-		private static readonly SolidColorBrush HoverBrushColor =
-			(SolidColorBrush)(new BrushConverter().ConvertFrom("#996495ED"));
 
 
-		public CommitViewModel
-			(ICommand refreshManuallyCommand,
-			ICommand toggleDetailsCommand)
+		public CommitViewModel(
+			Command toggleDetailsCommand,
+			Command<Commit> showCommitDiffCommand,
+			Command<Commit> setBranchCommand,
+			Command<Commit> switchToCommitCommand,
+			Command<Branch> switchToBranchCommand,
+			Command<Commit> createBranchFromCommitCommand)
 		{
 			ToggleDetailsCommand = toggleDetailsCommand;
-			this.refreshManuallyCommand = refreshManuallyCommand;
+			SetCommitBranchCommand = setBranchCommand.With(() => Commit);
+			ShowCommitDiffCommand = showCommitDiffCommand.With(() => Commit);
+			SwitchToCommitCommand = switchToCommitCommand.With(() => Commit);
+			SwitchToBranchCommand = switchToBranchCommand.With(() => Commit.Branch);
+			CreateBranchFromCommitCommand = createBranchFromCommitCommand.With(() => Commit);
 		}
 
 
-		public Commit Commit { get; set; }
-
 		public int ZIndex => 0;
-
 		public string Type => nameof(CommitViewModel);
-
 		public string Id => Commit.Id;
 		public string ShortId => Commit.ShortId;
 		public string Author => Commit.Author;
@@ -45,29 +38,28 @@ namespace GitMind.RepositoryViews
 		public string Tags => Commit.Tags;
 		public string Tickets => Commit.Tickets;
 		public string BranchTips => Commit.BranchTips;
-		public string CommitBranchText => "Hide branch: " + Commit.Branch.Name;
+		public string CommitBranchText => $"Hide branch: {Commit.Branch.Name}";
+		public string SwitchToBranchText => $"Switch to branch: {Commit.Branch.Name}";
 		public string CommitBranchName => Commit.Branch.Name;
-		public bool IsMergePoint => Commit.IsMergePoint && Commit.Branch != Commit.SecondParent.Branch;
 		public bool IsCurrent => Commit.IsCurrent;
 
-		public Action HideBranch { get; set; }
-		public int RowIndex { get; set; }
-
-		public int BranchColumn { get; set; }
 		public int XPoint { get; set; }
 		public int YPoint => IsMergePoint ? 2 : 4;
 		public int Size => IsMergePoint ? 10 : 6;
 		public Rect Rect { get; set; }
+		public double Top => Rect.Top;
+		public double Left => Rect.Left;
+		public double Height => Rect.Height;
 		public Brush SubjectBrush { get; set; }
 		public Brush TagBrush { get; set; }
 		public Brush TicketBrush { get; set; }
 		public Brush BranchTipBrush { get; set; }
 		public FontWeight SubjectWeight { get; set; }
-		
+
 		public string ToolTip { get; set; }
 		public Brush Brush { get; set; }
 		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
-		public Brush HoverBrush => HoverBrushColor;
+		public Brush HoverBrush => BrushService.HoverBrushColor;
 
 
 		public double Width
@@ -103,13 +95,22 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public ICommand ToggleDetailsCommand { get; }
+		public Command ToggleDetailsCommand { get; }
+		public Command ShowCommitDiffCommand { get; }
+		public Command SetCommitBranchCommand { get; }
+		public Command SwitchToCommitCommand { get; }
+		public Command SwitchToBranchCommand { get; }
+		public Command CreateBranchFromCommitCommand { get; }
 
-		public Command HideBranchCommand => Command(HideBranch);
+		// Values used by other properties
+		public Commit Commit { get; set; }
+		public bool IsMergePoint => 
+			(Commit.IsMergePoint && Commit.Branch != Commit.SecondParent.Branch)
+			|| (Commit.HasFirstParent && Commit.Branch != Commit.FirstParent.Branch);
 
-		public Command ShowDiffCommand => Command(() => diffService.ShowDiffAsync(Id, Commit.WorkingFolder));
-
-		public Command SetCommitBranchCommand => AsyncCommand(SetBranch);
+		// Value used by merge and that determine if item is visible
+		public int BranchColumn { get; set; }
+		public int RowIndex { get; set; }
 
 
 		public void SetDim()
@@ -123,9 +124,6 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public override string ToString() => $"{ShortId} {Subject} {Date}";
-
-
 		public void SetNormal(Brush subjectBrush)
 		{
 			SubjectBrush = subjectBrush;
@@ -137,36 +135,6 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private async Task SetBranch()
-		{
-			SetBranchPromptDialog dialog = new SetBranchPromptDialog();
-			dialog.PromptText = Commit.SpecifiedBranchName;
-			dialog.IsAutomatically = string.IsNullOrEmpty(Commit.SpecifiedBranchName);
-			foreach (Branch childBranch in Commit.Branch.GetChildBranches())
-			{
-				if (!childBranch.IsMultiBranch && !childBranch.Name.StartsWith("_"))
-				{
-					dialog.AddBranchName(childBranch.Name);
-				}
-			}
-
-			if (dialog.ShowDialog() == true)
-			{
-				Application.Current.MainWindow.Focus();
-				string branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
-				string workingFolder = Commit.WorkingFolder;
-
-				if (Commit.SpecifiedBranchName != branchName)
-				{
-					await repositoryService.SetSpecifiedCommitBranchAsync(Id, branchName, workingFolder);
-
-					refreshManuallyCommand.Execute(null);
-				}
-			}
-			else
-			{
-				Application.Current.MainWindow.Focus();
-			}
-		}
+		public override string ToString() => $"{ShortId} {Subject} {Date}";
 	}
 }

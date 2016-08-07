@@ -7,20 +7,22 @@ namespace GitMind.RepositoryViews
 {
 	internal class MergeViewModel : ViewModel
 	{
+		// UI properties
 		public int ZIndex => 100;
-		public string Id { get; set; }
-
-		public string Type => nameof(MergeViewModel);
-
-		public int ChildRow { get; set; }
-		public int ParentRow { get; set; }
+		public string Type => nameof(MergeViewModel);	
 		public Rect Rect { get; set; }
 		public double Width { get; set; }
+		public double Top => Rect.Top;
+		public double Left => Rect.Left;
+		public double Height => Rect.Height;
+
 		public string Line { get; set; }
 		public Brush Brush { get; set; }
 		public int Stroke { get; set; }
 		public string StrokeDash => "";
 
-		public override string ToString() => Id;
+		// Values that is used to determine if item is visible
+		public int ChildRow { get; set; }
+		public int ParentRow { get; set; }
 	}
 }

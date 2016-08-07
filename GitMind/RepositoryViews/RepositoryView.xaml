@@ -28,11 +28,12 @@
 				IsTextSearchEnabled="False"
 				Padding="4"		
 				Style="{DynamicResource ListBoxScrollbarStyle}" 
+				SelectionMode="Extended"
 				SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" 
 				SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 
 				<ListBox.InputBindings>
-					<KeyBinding Key="Space" Command="{Binding ToggleDetailsCommand}" />
+					<KeyBinding Key="Enter" Command="{Binding ToggleDetailsCommand}" />
 				</ListBox.InputBindings>
 
 				<ListBox.ItemsPanel>
@@ -91,8 +92,8 @@
 							</Setter>
 
 
-							<Setter Property="Canvas.Top" Value="{Binding Rect.Top}"/>
-							<Setter Property="Canvas.Left" Value="{Binding Rect.Left}"/>
+						<Setter Property="Canvas.Top" Value="{Binding Top}"/>
+						<Setter Property="Canvas.Left" Value="{Binding Left}"/>
 
 							<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
 							<EventSetter Event="MouseDoubleClick" Handler="MouseDobleClick" />
@@ -118,7 +119,7 @@
 									<MultiBinding 
 										Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
 										ConverterParameter="*">
-										<Binding Path="Rect.Height"/>
+									<Binding Path="Height"/>
 										<Binding 
 											Path="Scale"
 											RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
@@ -170,8 +171,57 @@
 													<Grid.ContextMenu>
 														<ContextMenu>
 
-															<!-- Show child branch meu item -->
-															<MenuItem 
+														<!-- Switch to this branch -->
+														<MenuItem 
+															Header="{Binding SwitchBranchText}"										
+															Command="{Binding SwitchBranchCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
+																</Border>
+															</MenuItem.Icon>
+														</MenuItem>
+
+														<Separator Background="{StaticResource BorderBrush}"/>
+															
+														<!-- Create Branch -->
+														<MenuItem 
+															Header="Create new branch"										
+															Command="{Binding CreateBranchCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;"/>
+																</Border>
+															</MenuItem.Icon>
+														</MenuItem>
+
+
+														<!-- Merge to this branch -->
+														<MenuItem 
+															Header="{Binding MergeBranchText}"
+															IsEnabled="{Binding IsMergeable}"
+															ItemsSource="{Binding OtherShownBranches}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B3;"/>
+																</Border>
+															</MenuItem.Icon>
+															<MenuItem.Resources>
+																<HierarchicalDataTemplate 
+																	DataType="{x:Type local:BranchItem}"
+																	ItemsSource="{Binding Children}">
+																	<MenuItem 
+																		Header="{Binding Text}" 
+																		Command="{Binding MergeBranchCommand}"
+																		CommandParameter="{Binding Branch}"/>
+																</HierarchicalDataTemplate>
+															</MenuItem.Resources>
+														</MenuItem>
+
+														<Separator Background="{StaticResource BorderBrush}"/>
+															
+														<!-- Show child branch meu item -->
+														<MenuItem 
 																Header="Show child branch"
 																IsEnabled="{Binding HasChildren}"
 																ItemsSource="{Binding ChildBranches}">
@@ -191,6 +241,7 @@
 																</HierarchicalDataTemplate>
 															</MenuItem.Resources>
 														</MenuItem>
+
 													</ContextMenu>
 												</Grid.ContextMenu>
 											</Grid>
@@ -251,7 +302,7 @@
 														</Button>
 													</Canvas>
 
-													<Grid Grid.Column="1">
+													<Grid Grid.Column="1" Background="Transparent">
 														<Grid.ColumnDefinitions>
 															<!-- Margin and current commit indicator -->
 															<ColumnDefinition Width="15" />
@@ -266,31 +317,76 @@
 														<Grid.ContextMenu>
 															<ContextMenu>
 																<MenuItem 
-																Header="Show Diff ..." 
-																InputGestureText="Enter"
-																Command="{Binding ShowDiffCommand}" 
-																CommandParameter="{Binding Id}">
+																	Header="Toggle commit details" 
+																	InputGestureText="Enter"
+																	Command="{Binding ToggleDetailsCommand}">
 																	<MenuItem.Icon>
 																		<Border>
-																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;"/>
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
+																
+																<MenuItem 
+																	Header="Show commit diff ..." 
+																	InputGestureText="Ctrl-D"
+																	Command="{Binding ShowCommitDiffCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;"/>
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
 
-															<MenuItem 
-																Header="Toggle commit details" 
-																InputGestureText="Space"
-																Command="{Binding ToggleDetailsCommand}">
+															<MenuItem Header="Switch">
 																<MenuItem.Icon>
 																	<Border>
-																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;"/>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
 																	</Border>
 																</MenuItem.Icon>
+																
+																<MenuItem 
+																	Header="{Binding SwitchToBranchText}" 
+																	Command="{Binding SwitchToBranchCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
+
+																<MenuItem 
+																	Header="Switch to this commit" 
+																	Command="{Binding SwitchToCommitCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE31C;"/>
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
 															</MenuItem>
+
+															<MenuItem Header="Branch">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;"/>
+																	</Border>
+																</MenuItem.Icon>
+																<MenuItem 
+																	Header="Create branch from this commit ..." 
+																	Command="{Binding CreateBranchFromCommitCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;"/>
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
+															</MenuItem>
+
 														</ContextMenu>
 														</Grid.ContextMenu>
 
-														<!-- Current commit indicator (and margin when not current)-->
+														<!-- Current commit indicator (and margin when not current) .-->
 														<Ellipse
 															Grid.Column="0"
 															Margin="0,1,3,0"
@@ -310,7 +406,7 @@
 																Foreground="{Binding BranchTipBrush}"
 																HorizontalAlignment="Left"
 																VerticalAlignment="Center"
-																ToolTip="Branch tip of branch with no commits of its own"/>
+																ToolTip="Tip of branch to same commit as parent branch"/>
 
 															<!-- Tag -->
 															<TextBlock 

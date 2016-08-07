@@ -12,7 +12,7 @@ namespace GitMind.GitModel.Private
 				repository,
 				branch.Id,
 				branch.Name,
-				branch.LatestCommitId,
+				branch.TipCommitId,
 				branch.FirstCommitId,
 				branch.ParentCommitId,
 				branch.Commits.Select(c => c.Id).ToList(),
@@ -29,6 +29,7 @@ namespace GitMind.GitModel.Private
 			return new Commit(
 				repository,
 				commit.Id,
+				commit.CommitId,
 				commit.ShortId,
 				commit.Subject,
 				commit.Author,
@@ -45,22 +46,6 @@ namespace GitMind.GitModel.Private
 				commit.IsRemoteAhead,
 				commit.IsUncommitted,
 				commit.IsVirtual);
-		}
-
-
-		public static CommitFile ToCommitFile(GitFile gitFile)
-		{
-			string status = gitFile.IsAdded
-				? "a"
-				: gitFile.IsDeleted
-					? "d"
-					: gitFile.IsModified
-						? "m"
-						: gitFile.IsRenamed
-							? "r"
-							: "";
-
-			return new CommitFile(gitFile.File, status);
 		}
 	}
 }

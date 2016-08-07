@@ -33,7 +33,7 @@ namespace GitMind.Utils
 			try
 			{
 				List<string> lines = new List<string>();
-				// Log.Debug($"Cmd: {path} {args}");
+				Log.Debug($"Cmd: {path} {args}");
 
 				var process = new Process
 				{

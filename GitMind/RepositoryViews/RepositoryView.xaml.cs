@@ -25,6 +25,7 @@ namespace GitMind.RepositoryViews
 		{
 			viewModel = (RepositoryViewModel)DataContext;
 			viewModel.Canvas = (ZoomableCanvas)sender;
+			viewModel.ListBox = ItemsListBox;
 
 			ItemsListBox.Focus();
 		}
@@ -54,7 +55,7 @@ namespace GitMind.RepositoryViews
 			Point viewPoint = e.GetPosition(ItemsListBox);
 			if (viewPoint.X > viewModel.GraphWidth)
 			{
-				viewModel.ToggleDetailsCommand.Execute(null);
+				viewModel.ToggleDetailsCommand.Execute();
 			}
 		}
 

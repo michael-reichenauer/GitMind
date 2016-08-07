@@ -14,8 +14,15 @@ namespace GitMind.GitModel.Private
 
 		public async Task CacheAsync(MRepository repository)
 		{
-			await Task.Yield();
+			//await Task.Yield();
 			await WriteRepository(repository);
+		}
+
+
+		public bool IsRepositoryCached(string workingFolder)
+		{
+			string cachePath = GetCachePath(workingFolder);
+			return File.Exists(cachePath);
 		}
 
 
@@ -94,28 +101,56 @@ namespace GitMind.GitModel.Private
 
 		private void Serialize<T>(string cachePath, T data)
 		{
-			string tempPath = cachePath + ".tmp." + Guid.NewGuid();
-			string tempPath2 = cachePath + ".tmp." + Guid.NewGuid();
-
-			using (var file = File.Create(tempPath))
+			try
 			{
-				Serializer.Serialize(file, data);
-			}
+				string tempPath = cachePath + ".tmp." + Guid.NewGuid();
+				string tempPath2 = cachePath + ".tmp." + Guid.NewGuid();
 
-			if (File.Exists(cachePath))
-			{
-				File.Move(cachePath, tempPath2);
-			}
+				SerializeData(data, tempPath);
 
-			File.Move(tempPath, cachePath);
-
-			Task.Run(() =>
-			{
-				if (File.Exists(tempPath2))
+				if (File.Exists(cachePath))
 				{
-					File.Delete(tempPath2);
+					File.Move(cachePath, tempPath2);
 				}
-			}).RunInBackground();
+
+				if (File.Exists(tempPath))
+				{
+					File.Move(tempPath, cachePath);
+				}
+
+				Task.Run(() =>
+				{
+					if (File.Exists(tempPath2))
+					{
+						File.Delete(tempPath2);
+					}
+				}).RunInBackground();
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to serialize data {e.Message}");
+			}		
+		}
+
+
+		private static void SerializeData<T>(T data, string path)
+		{
+			try
+			{
+				using (var file = File.Create(path))
+				{
+					Serializer.Serialize(file, data);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to serialize data {e.Message}");
+
+				if (File.Exists(path))
+				{
+					File.Delete(path);
+				}
+			}			
 		}
 
 

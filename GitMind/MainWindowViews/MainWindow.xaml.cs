@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using GitMind.Features.FolderMonitoring;
 using GitMind.Utils;
 
 
@@ -13,24 +14,28 @@ namespace GitMind.MainWindowViews
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private static readonly TimeSpan AutoRefreshInterval = TimeSpan.FromMinutes(1);
+		private static readonly TimeSpan remoteCheckInterval = TimeSpan.FromMinutes(10);
 		private static readonly TimeSpan OnActivatedInterval = TimeSpan.FromSeconds(10);
 
-		private readonly DispatcherTimer autoRefreshTimer = new DispatcherTimer();
+		private readonly DispatcherTimer remoteCheckTimer = new DispatcherTimer();
 
 		private readonly MainWindowViewModel viewModel;
 		private DateTime ActivatedTime = DateTime.MaxValue;
+
+		private readonly FolderMonitorService folderMonitor;
 
 
 		public MainWindow()
 		{
 			InitializeComponent();
 
+			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
+
 			// Make sure maximize window does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
 
-			autoRefreshTimer.Tick += AutoRefresh;
-			autoRefreshTimer.Interval = AutoRefreshInterval;
+			remoteCheckTimer.Tick += RemoteCheck;
+			remoteCheckTimer.Interval = remoteCheckInterval;
 
 			viewModel = new MainWindowViewModel(this);
 			DataContext = viewModel;
@@ -39,7 +44,29 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public string WorkingFolder {set { viewModel.WorkingFolder = value; } }
+		private void OnStatusChange()
+		{
+			Log.Warn("Status change");
+			viewModel.StatusChangeRefreshAsync(false).RunInBackground();
+		}
+
+
+		private void OnRepoChange()
+		{
+			Log.Warn("Repo change");
+			viewModel.StatusChangeRefreshAsync(true).RunInBackground();
+		}
+
+
+		public string WorkingFolder
+		{
+			set
+			{
+				viewModel.WorkingFolder = value;
+				folderMonitor.Monitor(value);
+			}
+		}
+
 
 		public IReadOnlyList<string> BranchNames { set { viewModel.SpecifiedBranchNames = value; } }
 
@@ -55,32 +82,20 @@ namespace GitMind.MainWindowViews
 			await viewModel.FirstLoadAsync();
 			ActivatedTime = DateTime.Now;
 
-			autoRefreshTimer.Start();
+			remoteCheckTimer.Start();
 		}
 
 
 
-		private void AutoRefresh(object sender, EventArgs e)
+		private void RemoteCheck(object sender, EventArgs e)
 		{
-			try
-			{
-				viewModel.AutoRefreshAsync().RunInBackground();
-			}
-			catch (Exception ex) when (ex.IsNotFatal())
-			{
-				Log.Error($"Failed to auto refresh {ex}");
-			}
+			viewModel.AutoRemoteCheckAsync().RunInBackground();
 		}
 
 
 		protected override void OnActivated(EventArgs e)
 		{
-			if (ActivatedTime < DateTime.MaxValue && DateTime.Now - ActivatedTime > OnActivatedInterval)
-			{
-				Log.Debug("Refreshing after activation");
-				viewModel.ActivateRefreshAsync().RunInBackground();
-				ActivatedTime = DateTime.Now;
-			}
+			viewModel.ActivateRefreshAsync().RunInBackground();
 		}
 
 
@@ -124,6 +139,20 @@ namespace GitMind.MainWindowViews
 		{
 			RemoteAheadContextMenu.PlacementTarget = this;
 			RemoteAheadContextMenu.IsOpen = true;
+		}
+
+
+		private void LocalAhead_OnClick(object sender, RoutedEventArgs e)
+		{
+			LocalAheadContextMenu.PlacementTarget = this;
+			LocalAheadContextMenu.IsOpen = true;
+		}
+
+
+		private void Uncommitted_OnClick(object sender, RoutedEventArgs e)
+		{
+			UncommittedContextMenu.PlacementTarget = this;
+			UncommittedContextMenu.IsOpen = true;
 		}
 	}
 }

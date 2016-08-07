@@ -22,10 +22,10 @@
 					<!--Show Branch menu item -->
 					<MenuItem 
 						Header="Show branch"
-						ItemsSource="{Binding RepositoryViewModel.AllBranches}">
+						ItemsSource="{Binding RepositoryViewModel.ShowableBranches}">
 						<MenuItem.Icon>
 							<Border>
-								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;" FontSize="14"/>
+								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
 							</Border>
 						</MenuItem.Icon>
 						<MenuItem.Resources>
@@ -44,10 +44,10 @@
 					<!--Hide Branch menu item -->
 					<MenuItem 
 						Header="Hide branch" 
-						ItemsSource="{Binding RepositoryViewModel.ActiveBranches}">
+						ItemsSource="{Binding RepositoryViewModel.HidableBranches}">
 						<MenuItem.Icon>
 							<Border>
-								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CB;" FontSize="14"/>
+								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CB;"/>
 							</Border>
 						</MenuItem.Icon>
 						<MenuItem.ItemContainerStyle>
@@ -58,19 +58,6 @@
 							</Style>
 						</MenuItem.ItemContainerStyle>
 					</MenuItem>
-
-					<Separator Background="{StaticResource BorderBrush}"/>
-
-					<MenuItem 
-						Header="Toggle commit details" 
-						InputGestureText="Space"
-						Command="{Binding RepositoryViewModel.ToggleDetailsCommand}">
-					<MenuItem.Icon>
-						<Border>
-							<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;"/>
-						</Border>
-					</MenuItem.Icon>
-				</MenuItem>
 
 				<Separator Background="{StaticResource BorderBrush}"/>
 
@@ -83,6 +70,23 @@
 						</Border>
 					</MenuItem.Icon>
 				</MenuItem>
+
+				<Separator Background="{StaticResource BorderBrush}"/>
+
+				<!-- Toggle commit details menu item -->
+				<MenuItem 
+					Header="Reset and clean working folder" 
+					Command="{Binding RepositoryViewModel.UndoCleanWorkingFolderCommand}">
+					<MenuItem.Icon>
+						<Border>
+							<TextBlock 
+								Style="{StaticResource MenuIconStyle}" 
+								Text="&#xE042;"
+								Foreground="{StaticResource UndoBrush}"/>
+						</Border>
+					</MenuItem.Icon>
+				</MenuItem>
+
 
 
 				<Separator Background="{StaticResource BorderBrush}"/>
@@ -102,13 +106,15 @@
 					InputGestureText="F1"
 					Command="{Binding HelpCommand}">
 					<MenuItem.Icon>
-						<Border>
+						<Grid>
 							<TextBlock 
-								Style="{StaticResource MenuIconStyle}" 
-								Text=" ? "
-								FontWeight="Bold"
-								FontFamily="Segoe UI"/>
-						</Border>
+								Foreground="{StaticResource TextBrush}"
+								Margin="12,0,12,0"
+								FontSize="16"
+								Text="?"
+								Padding="0"
+								FontWeight="Bold"/>
+						</Grid>
 					</MenuItem.Icon>
 				</MenuItem>
 

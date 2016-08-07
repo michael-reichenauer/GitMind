@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Git;
 using ProtoBuf;
 
 
@@ -9,7 +10,7 @@ namespace GitMind.GitModel.Private
 	[ProtoContract]
 	public class MRepository
 	{
-		public static string CurrentVersion = "9";
+		public static string CurrentVersion = "10";
 
 		[ProtoMember(1)]
 		public string Version { get; set; } = CurrentVersion;
@@ -34,6 +35,8 @@ namespace GitMind.GitModel.Private
 			= new Dictionary<string, MSubBranch>();
 
 		public string WorkingFolder { get; set; }
+
+		public GitStatus Status { get; set; }
 
 		public IList<string> ChildIds(string commitId)
 		{

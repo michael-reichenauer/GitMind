@@ -7,7 +7,7 @@
 //	internal class GitRepo : IGitRepo
 //	{
 //		//private readonly IReadOnlyList<GitTag> tags;
-//		private readonly IReadOnlyList<GitSpecifiedNames> specifiedNames;
+//		private readonly IReadOnlyList<BranchName> specifiedNames;
 //		//private static readonly IReadOnlyList<GitTag> noTags = new List<GitTag>();
 
 //		//private readonly Dictionary<string, GitCommit> commits = new Dictionary<string, GitCommit>();
@@ -25,7 +25,7 @@
 //			//IReadOnlyList<GitBranch> branches, 
 //			//IReadOnlyList<GitCommit> commits, 
 //			//IReadOnlyList<GitTag> tags,
-//			IReadOnlyList<GitSpecifiedNames> specifiedNames
+//			IReadOnlyList<BranchName> specifiedNames
 //			//GitCommit currentCommit,
 //			//GitBranch currentBranch
 //			)
@@ -47,7 +47,7 @@
 
 //		//public GitBranch CurrentBranch { get; }
 
-//		public IReadOnlyList<GitSpecifiedNames> GetSpecifiedNameses() => specifiedNames;
+//		public IReadOnlyList<BranchName> GetSpecifiedNameses() => specifiedNames;
 
 
 //		//public IReadOnlyList<string> GetCommitChildren(string commitId) => GetChildren(commitId);
@@ -94,7 +94,7 @@
 
 //		//public GitBranch TryGetBranchByLatestCommiId(string latestCommitId)
 //		//{
-//		//	return branches.FirstOrDefault(branch => branch.LatestCommitId == latestCommitId);
+//		//	return branches.FirstOrDefault(branch => branch.TipCommitId == latestCommitId);
 //		//}
 
 

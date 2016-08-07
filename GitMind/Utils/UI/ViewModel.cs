@@ -118,6 +118,21 @@ namespace GitMind.Utils.UI
 			return (Command<T>)command;
 		}
 
+		protected Command<T> Command<T>(
+			Action<T> executeMethod, Func<T, bool> canExecuteMethod, [CallerMemberName] string memberName = "")
+		{
+			ICommand command;
+			if (!commands.TryGetValue(memberName, out command))
+			{
+
+				command = new Command<T>(executeMethod, canExecuteMethod);
+				commands[memberName] = command;
+			}
+
+			return (Command<T>)command;
+		}
+
+
 		protected Command Command(Action executeMethod, [CallerMemberName] string memberName = "")
 		{
 			ICommand command;
@@ -160,6 +175,50 @@ namespace GitMind.Utils.UI
 			}
 
 			return (Command)command;
+		}
+
+
+		protected Command AsyncCommand(
+			Func<Task> executeMethodAsync, Func<bool> canExecuteMethod, [CallerMemberName] string memberName = "")
+		{
+			ICommand command;
+			if (!commands.TryGetValue(memberName, out command))
+			{
+
+				command = new Command(executeMethodAsync, canExecuteMethod);
+				commands[memberName] = command;
+			}
+
+			return (Command)command;
+		}
+
+
+		protected Command<T> AsyncCommand<T>(
+			Func<T, Task> executeMethodAsync, [CallerMemberName] string memberName = "")
+		{
+			ICommand command;
+			if (!commands.TryGetValue(memberName, out command))
+			{
+
+				command = new Command<T>(executeMethodAsync);
+				commands[memberName] = command;
+			}
+
+			return (Command<T>)command;
+		}
+
+		protected Command<T> AsyncCommand<T>(
+			Func<T, Task> executeMethodAsync, Func<T, bool> canExecuteMethod, [CallerMemberName] string memberName = "")
+		{
+			ICommand command;
+			if (!commands.TryGetValue(memberName, out command))
+			{
+
+				command = new Command<T>(executeMethodAsync, canExecuteMethod);
+				commands[memberName] = command;
+			}
+
+			return (Command<T>)command;
 		}
 	}
 }

@@ -72,7 +72,7 @@ namespace GitMind.RepositoryViews
 					BranchViewModel branch = branches[i];
 
 					if (IsVisable(
-						viewAreaTopIndex, viewAreaBottomIndex, branch.LatestRowIndex, branch.FirstRowIndex))
+						viewAreaTopIndex, viewAreaBottomIndex, branch.TipRowIndex, branch.FirstRowIndex))
 					{
 						yield return i + minBranchIndex;
 					}

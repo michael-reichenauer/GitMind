@@ -47,7 +47,7 @@
 					<RowDefinition Height="auto"/>
 					<RowDefinition Height="auto"/>
 					<RowDefinition Height="auto"/>
-					<RowDefinition Height="auto"/>
+					<RowDefinition Height="*"/>
 				</Grid.RowDefinitions>
 				
 				<Label
@@ -85,18 +85,6 @@
 						Command="{Binding CommitViewModel.SetCommitBranchCommand}"
 						ToolTip="Manually specify a branch for this commit ..." />
 				</StackPanel>
-				
-				<Label
-					Content="Branch tips:"
-					Grid.Column="0" Grid.Row="2"
-					Visibility="{Binding BranchTips, Converter={StaticResource VC}}"
-					Style="{StaticResource HeaderLabelStyle}"/>
-				<TextBox Grid.Column="1" Grid.Row="2"
-					Text="{Binding BranchTips, Mode=OneWay}"
-					Visibility="{Binding BranchTips, Converter={StaticResource VC}}"
-					Style="{StaticResource LabelStyle}" 
-					Foreground="{StaticResource BranchTipsBrush}"
-					ToolTip="Branch tip of branch with no commits of its own."/>
 
 				<Label
 					Content="Tags:"
@@ -168,7 +156,7 @@
 							<Label
 								Content="{Binding Name}" 
 								Grid.Column="0"
-								Foreground="{StaticResource TextBrush}"
+								Foreground="{Binding FileNameBrush}"
 								Padding="0"/>
 
 							<Label
@@ -179,13 +167,63 @@
 
 							<Grid.ContextMenu>
 								<ContextMenu>
-									<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}">
+
+									<MenuItem Header="Show file diff ..." Command="{Binding ShowDiffCommand}">
 										<MenuItem.Icon>
 											<Border>
-												<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
+												<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;"/>
 											</Border>
 										</MenuItem.Icon>
 									</MenuItem>
+
+									<Separator 
+										Background="{StaticResource BorderBrush}"
+										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}"/>
+
+									<MenuItem 
+										Header="Resolve Conflicts" 
+										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}">
+										<MenuItem.Icon>
+											<Border>
+												<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE259;"/>
+											</Border>
+										</MenuItem.Icon>
+										
+										<MenuItem Header="Merge conflict ..." Command="{Binding MergeConflictsCommand}">
+											<MenuItem.Icon>
+												<Border>
+													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE259;"/>
+												</Border>
+											</MenuItem.Icon>
+										</MenuItem>
+
+										<MenuItem Header="Set Resolved" Command="{Binding ResolveCommand}">
+											<MenuItem.Icon>
+												<Border>
+													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE876;"/>
+												</Border>
+											</MenuItem.Icon>
+										</MenuItem>
+									</MenuItem>
+
+									<Separator 
+										Background="{StaticResource BorderBrush}"
+										Visibility="{Binding IsUncommitted, Converter={StaticResource VC}}"/>
+
+									<MenuItem 
+										Header="Undo file change" 
+										Command="{Binding UndoUncommittedFileCommand}"
+										Visibility="{Binding IsUncommitted, Converter={StaticResource VC}}">
+										<MenuItem.Icon>
+											<Border>
+												<TextBlock 
+													Style="{StaticResource MenuIconStyle}" 
+													Foreground="{StaticResource UndoBrush}"
+													Text="&#xE042;"/>
+											</Border>
+										</MenuItem.Icon>
+									</MenuItem>
+
 								</ContextMenu>
 							</Grid.ContextMenu>
 
