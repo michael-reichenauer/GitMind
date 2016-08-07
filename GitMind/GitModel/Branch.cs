@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 
 namespace GitMind.GitModel
 {
-	// A Branch
+	// Some extra Branch
 	internal class Branch
 	{
 		private readonly Repository repository;
@@ -60,10 +59,10 @@ namespace GitMind.GitModel
 		public bool HasParentBranch => parentBranchId != null;
 		public Branch ParentBranch => repository.Branches[parentBranchId];
 		public bool IsCurrentBranch => repository.CurrentBranch == this;
-		public bool IsMergeable => 
+		public bool IsMergeable =>
 			IsCurrentBranch
-		  && repository.Status.ConflictCount == 0
-		  && repository.Status.StatusCount == 0;
+			&& repository.Status.ConflictCount == 0
+			&& repository.Status.StatusCount == 0;
 
 
 		public IEnumerable<Branch> GetChildBranches()
