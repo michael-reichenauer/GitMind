@@ -930,6 +930,16 @@ namespace GitMind.Git.Private
 				Log.Warn($"Failed to read local {nameSpace}, {e}");
 			}
 
+			if (string.IsNullOrWhiteSpace(notesText))
+			{
+				Log.Warn("Notes is empty, no need to push notes");
+				return;
+			}
+			else
+			{
+				Log.Warn($"Setting notes:\n{notesText}");
+			}
+
 			try
 			{
 				using (GitRepository gitRepository = OpenRepository(workingFolder))

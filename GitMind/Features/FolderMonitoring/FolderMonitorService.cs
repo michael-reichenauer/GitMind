@@ -48,10 +48,10 @@ namespace GitMind.Features.FolderMonitoring
 			repoTimer = new DispatcherTimer();
 			repoTimer.Tick += (s, e) => OnRepoTimer();
 			repoTimer.Interval = MinTriggerTimeout;
-			refsWatcher.Changed += (s, e) => RepoChange();
-			refsWatcher.Created += (s, e) => RepoChange();
-			refsWatcher.Deleted += (s, e) => RepoChange();
-			refsWatcher.Renamed += (s, e) => RepoChange();
+			refsWatcher.Changed += (s, e) => RepoChange(e.Name, e.ChangeType);
+			refsWatcher.Created += (s, e) => RepoChange(e.Name, e.ChangeType);
+			refsWatcher.Deleted += (s, e) => RepoChange(e.Name, e.ChangeType);
+			refsWatcher.Renamed += (s, e) => RepoChange(e.Name, e.ChangeType);
 		}
 
 
@@ -85,7 +85,7 @@ namespace GitMind.Features.FolderMonitoring
 		{
 			if (name == GitHeadFile)
 			{
-				RepoChange();
+				RepoChange(name, changeType);
 				return;
 			}
 
@@ -113,8 +113,10 @@ namespace GitMind.Features.FolderMonitoring
 		}
 
 
-		private void RepoChange()
+		private void RepoChange(string name, WatcherChangeTypes changeType)
 		{
+			Log.Debug($"Status chage for '{name}' {changeType}");
+
 			DateTime now = DateTime.Now;
 
 			if (now - repoChangeTime > MinTriggerTimeout)
