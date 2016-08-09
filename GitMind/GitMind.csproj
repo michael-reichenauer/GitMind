@@ -93,6 +93,7 @@
     <Compile Include="Features\Committing\CommitDialogViewModel.cs" />
     <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
+    <Compile Include="Git\GitConflict.cs" />
     <Compile Include="Git\GitNote.cs" />
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />

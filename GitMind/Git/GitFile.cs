@@ -1,29 +1,11 @@
 namespace GitMind.Git
 {
-	public class Conflict
-	{
-		public string Path { get; }
-		public string OursId { get; }
-		public string TheirsId { get;  }
-		public string BaseId { get; }
-
-
-		public Conflict(string path, string oursId, string theirsId, string baseId)
-		{
-			Path = path;
-			OursId = oursId;
-			TheirsId = theirsId;
-			BaseId = baseId;
-		}
-	}
-
-
 	public class GitFile
 	{
 		public GitFile(
 			string file, 
 			string oldFile,
-			Conflict conflict,
+			GitConflict conflict,
 			bool isModified,
 			bool isAdded, 
 			bool isDeleted,
@@ -43,7 +25,7 @@ namespace GitMind.Git
 
 		public string File { get; }
 		public string OldFile { get; }
-		public Conflict Conflict { get;  }
+		public GitConflict Conflict { get;  }
 		public bool IsModified { get; }
 		public bool IsAdded { get; }
 		public bool IsDeleted { get; }

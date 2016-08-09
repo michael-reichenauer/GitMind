@@ -56,9 +56,9 @@ namespace GitMind.Git
 		}
 
 
-		private Conflict ToConflict(LibGit2Sharp.Conflict conflict)
+		private GitConflict ToConflict(LibGit2Sharp.Conflict conflict)
 		{
-			return new Conflict(
+			return new GitConflict(
 				conflict.Ours.Path,
 				conflict.Ours.Id.Sha,
 				conflict.Theirs.Id.Sha,

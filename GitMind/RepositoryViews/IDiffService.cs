@@ -11,7 +11,7 @@ namespace GitMind.RepositoryViews
 		Task ShowFileDiffAsync(string workingFolder, string commitId, string name);
 		Task ShowDiffRangeAsync(string id1, string id2, string workingFolder);
 
-		Task MergeConflictsAsync(string workingFolder, string id, string path, Conflict conflict);
+		Task MergeConflictsAsync(string workingFolder, string id, string path, GitConflict gitConflict);
 		Task ResolveAsync(string workingFolder, string path);
 	}
 }
