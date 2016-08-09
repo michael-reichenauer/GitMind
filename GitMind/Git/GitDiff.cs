@@ -30,14 +30,14 @@ namespace GitMind.Git
 			if (commitId == GitCommit.UncommittedId)
 			{
 				// Current working folder uncommitted changes
-				return diff.Compare<Patch>(
-					repository.Head.Tip.Tree,
-					DiffTargets.WorkingDirectory,
-					(IEnumerable<string>)null,
-					null,
-					DefultCompareOptions);
+				//return diff.Compare<Patch>(
+				//	repository.Head.Tip.Tree,
+				//	DiffTargets.WorkingDirectory,
+				//	(IEnumerable<string>)null,
+				//	null,
+				//	DefultCompareOptions);
 
-				//return diff.Compare<Patch>(null, true, null, DefultCompareOptions);
+				return diff.Compare<Patch>(null, true, null, DefultCompareOptions);
 			}
 
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));

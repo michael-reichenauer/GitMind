@@ -56,7 +56,7 @@ namespace GitMind.RepositoryViews
 
 		public Brush GetDarkerBrush(Brush brush)
 		{
-			int index = brushes.IndexOf(brush); 
+			int index = brushes.IndexOf(brush);
 
 			return darkBrushes[index];
 		}
@@ -78,11 +78,24 @@ namespace GitMind.RepositoryViews
 
 
 		private void InitBrushes()
-		{			
-			for (int i = 0; i < 100; i += 4)
+		{
+			//for (int i = 0; i < 100; i += 4)
+			//{
+			//	Color colorFromHsl = ColorFromHSL((double)i / 100, 0.85, 0.57);
+			//	SolidColorBrush brush = new SolidColorBrush(colorFromHsl);
+
+			//	SolidColorBrush darkerBrush = DarkBrush(brush);
+			//	SolidColorBrush lighterBrush = LightBrush(brush);
+
+			//	brushes.Add(brush);
+			//	darkBrushes.Add(darkerBrush);
+			//	lighterBrushes.Add(lighterBrush);
+			//}
+
+
+			foreach (Color color in _kellysMaxContrastSet)
 			{
-				Color colorFromHsl = ColorFromHSL((double)i / 100, 0.85, 0.57);
-				SolidColorBrush brush = new SolidColorBrush(colorFromHsl);		
+				SolidColorBrush brush = new SolidColorBrush(color);
 
 				SolidColorBrush darkerBrush = DarkBrush(brush);
 				SolidColorBrush lighterBrush = LightBrush(brush);
@@ -92,12 +105,13 @@ namespace GitMind.RepositoryViews
 				lighterBrushes.Add(lighterBrush);
 			}
 
+
 			SolidColorBrush darker = DarkBrush(MasterBranchBrush);
 			SolidColorBrush lighter = LightBrush(MasterBranchBrush);
-			
+
 			brushes.Add(MasterBranchBrush);
 			darkBrushes.Add(darker);
-			lighterBrushes.Add(lighter);	
+			lighterBrushes.Add(lighter);
 
 			darker = DarkBrush(MultiBranchBrush);
 			lighter = LightBrush(MultiBranchBrush);
@@ -194,6 +208,41 @@ namespace GitMind.RepositoryViews
 				return temp1 + ((temp2 - temp1) * ((2.0 / 3.0) - temp3) * 6.0);
 			else
 				return temp1;
+		}
+
+		private static readonly IReadOnlyList<Color> _kellysMaxContrastSet = new List<Color>
+		{
+			UIntToColor(0xFFFFB300), //Vivid Yellow
+			UIntToColor(0xFF803E75), //Strong Purple
+			UIntToColor(0xFFFF6800), //Vivid Orange
+			UIntToColor(0xFFA6BDD7), //Very Light Blue
+			UIntToColor(0xFFC10020), //Vivid Red
+			UIntToColor(0xFFCEA262), //Grayish Yellow
+			//UIntToColor(0xFF817066), //Medium Gray
+
+			//The following will not be good for people with defective color vision
+			UIntToColor(0xFF007D34), //Vivid Green
+			UIntToColor(0xFFF6768E), //Strong Purplish Pink
+			UIntToColor(0xFF00538A), //Strong Blue
+			UIntToColor(0xFFFF7A5C), //Strong Yellowish Pink
+			UIntToColor(0xFF53377A), //Strong Violet
+			UIntToColor(0xFFFF8E00), //Vivid Orange Yellow
+			UIntToColor(0xFFB32851), //Strong Purplish Red
+			UIntToColor(0xFFF4C800), //Vivid Greenish Yellow
+			UIntToColor(0xFF7F180D), //Strong Reddish Brown
+			UIntToColor(0xFF93AA00), //Vivid Yellowish Green
+			//UIntToColor(0xFF593315), //Deep Yellowish Brown
+			UIntToColor(0xFFF13A13), //Vivid Reddish Orange
+			//UIntToColor(0xFF232C16), //Dark Olive Green
+		};
+
+		private static Color UIntToColor(uint color)
+		{
+			var a = (byte)(color >> 24);
+			var r = (byte)(color >> 16);
+			var g = (byte)(color >> 8);
+			var b = (byte)(color >> 0);
+			return Color.FromArgb(a, r, g, b);
 		}
 	}
 }
