@@ -15,5 +15,9 @@ namespace GitMind.Git
 			TheirsId = theirsId;
 			BaseId = baseId;
 		}
+
+		public bool IsBothModified => OursId != null && TheirsId != null && BaseId != null;
+		public bool IsTheirsDeleted => OursId != null && TheirsId == null;
+		public bool IsOursDeleted => OursId == null && TheirsId != null;
 	}
 }

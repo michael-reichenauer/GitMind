@@ -6,31 +6,25 @@ namespace GitMind.Git
 			string file, 
 			string oldFile,
 			GitConflict conflict,
-			bool isModified,
-			bool isAdded, 
-			bool isDeleted,
-			bool isRenamed,
-			bool isConflict)
+			GitFileStatus status)
 		{
+
 			File = file;
 			OldFile = oldFile;
 			Conflict = conflict;
-
-			IsModified = isModified;
-			IsAdded = isAdded;
-			IsDeleted = isDeleted;
-			IsRenamed = isRenamed;
-			IsConflict = isConflict;
+			Status = status;
 		}
 
 		public string File { get; }
 		public string OldFile { get; }
 		public GitConflict Conflict { get;  }
-		public bool IsModified { get; }
-		public bool IsAdded { get; }
-		public bool IsDeleted { get; }
-		public bool IsRenamed { get; }
-		public bool IsConflict { get; }
+		public GitFileStatus Status { get; }
+
+		public bool IsModified => Status.HasFlag(GitFileStatus.Modified);
+		public bool IsAdded => Status.HasFlag(GitFileStatus.Added);
+		public bool IsDeleted => Status.HasFlag(GitFileStatus.Deleted);
+		public bool IsRenamed => Status.HasFlag(GitFileStatus.Renamed);
+		public bool IsConflict => Status.HasFlag(GitFileStatus.Conflict);
 
 		public override string ToString() => File;
 	}
