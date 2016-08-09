@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using System.Windows.Media;
+using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -35,9 +36,9 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
-		public bool HasConflicts => file.Status == "C";
+		public bool HasConflicts => file.Status.HasFlag(GitFileStatus.Conflict);
 
-		public Brush FileNameBrush => file.Status != "C" 
+		public Brush FileNameBrush => file.Status != GitFileStatus.Conflict 
 			? BrushService.TextBrush : BrushService.ConflictBrush;
 
 		public bool IsUncommitted => Id == Commit.UncommittedId;

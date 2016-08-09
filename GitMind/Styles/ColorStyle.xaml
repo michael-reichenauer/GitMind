@@ -19,6 +19,7 @@
 	<SolidColorBrush x:Key="RemoteAheadBrush" Color="#BBBBFB" />
 	<SolidColorBrush x:Key="LocalAheadBrush" Color="LightGreen" />
 	<SolidColorBrush x:Key="ConflictBrush" Color="#F25B54" />
+	<SolidColorBrush x:Key="ResolvedBrush" Color="LightGreen" />
 
 	<SolidColorBrush x:Key="UncomittedBrush" Color="BurlyWood" />
 

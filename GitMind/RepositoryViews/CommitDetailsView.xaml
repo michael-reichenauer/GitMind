@@ -181,7 +181,7 @@
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}"/>
 
 									<MenuItem 
-										Header="Resolve Conflicts" 
+										Header="Conflicts" 
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}">
 										<MenuItem.Icon>
 											<Border>
@@ -197,10 +197,66 @@
 											</MenuItem.Icon>
 										</MenuItem>
 
+										<MenuItem Header="Use yours" Command="{Binding MergeConflictsCommand}">
+											<MenuItem.Icon>
+												<Border>
+													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5D8;"/>
+												</Border>
+											</MenuItem.Icon>
+										</MenuItem>
+										
+										<MenuItem Header="Use theirs" Command="{Binding MergeConflictsCommand}">
+											<MenuItem.Icon>
+												<Border>
+													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DB;"/>
+												</Border>
+											</MenuItem.Icon>
+										</MenuItem>
+
+										<MenuItem Header="Use base" Command="{Binding MergeConflictsCommand}">
+											<MenuItem.Icon>
+												<Border>
+													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE042;"/>
+												</Border>
+											</MenuItem.Icon>
+										</MenuItem>
+
+
+										<MenuItem Header="Delete" Command="{Binding MergeConflictsCommand}">
+											<MenuItem.Icon>
+												<Border>
+													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE14C;"/>
+												</Border>
+											</MenuItem.Icon>
+										</MenuItem>
+
+										<Separator Background="{StaticResource BorderBrush}"/>
+
+										<MenuItem Header="Show your diff" Command="{Binding MergeConflictsCommand}">
+											<MenuItem.Icon>
+												<Border>
+													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;"/>
+												</Border>
+											</MenuItem.Icon>
+										</MenuItem>
+
+										<MenuItem Header="Show their diff" Command="{Binding MergeConflictsCommand}">
+											<MenuItem.Icon>
+												<Border>
+													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;"/>
+												</Border>
+											</MenuItem.Icon>
+										</MenuItem>
+
+										<Separator Background="{StaticResource BorderBrush}"/>
+
 										<MenuItem Header="Set Resolved" Command="{Binding ResolveCommand}">
 											<MenuItem.Icon>
 												<Border>
-													<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE876;"/>
+													<TextBlock 
+														Style="{StaticResource MenuIconStyle}" 
+														Text="&#xE876;"
+														Foreground="{StaticResource ResolvedBrush}"/>
 												</Border>
 											</MenuItem.Icon>
 										</MenuItem>

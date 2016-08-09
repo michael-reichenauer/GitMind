@@ -492,8 +492,7 @@ namespace GitMind.RepositoryViews
 			UnCommited = uncommitted;
 
 			ConflictsText = Repository.Status.ConflictCount > 0
-				? $"Conflicts in {Repository.Status.ConflictCount} files\n\n" +
-				"User other tool to resolve conflicts for now."
+				? $"Conflicts in {Repository.Status.ConflictCount} files\""
 				: null;
 		}
 

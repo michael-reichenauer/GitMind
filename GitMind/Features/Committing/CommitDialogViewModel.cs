@@ -133,7 +133,7 @@ namespace GitMind.Features.Committing
 				WorkingFolder = workingFolder,
 				Id = Commit.UncommittedId,
 				Name = file.Path,
-				Status = file.Status
+				Status = file.StatusText
 			};
 		}
 	}

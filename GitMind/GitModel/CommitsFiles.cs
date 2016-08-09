@@ -17,8 +17,7 @@ namespace GitMind.GitModel
 		private Task currentTask = Task.FromResult(true);
 		private string nextIdToGet;
 
-		public static CommitFile[] InProgress =
-			{ new CommitFile("      Retrieving files, please retry in a while ... ", null, null, "") };
+
 		private static readonly List<CommitFile> EmptyFileList = Enumerable.Empty<CommitFile>().ToList();
 
 		public int Count => commitsFiles.Count;
@@ -45,7 +44,7 @@ namespace GitMind.GitModel
 				{
 					Log.Warn($"Commit {commitId} not cached");
 
-					return InProgress;
+					return Enumerable.Empty<CommitFile>();
 				}
 
 				return files;
@@ -75,7 +74,7 @@ namespace GitMind.GitModel
 				if (commitsFilesForCommit.HasValue)
 				{
 					files = commitsFilesForCommit.Value.Files
-						.Select(f => new CommitFile(f.File, f.OldFile, f.Conflict, ToStatus(f))).ToList();
+						.Select(f => new CommitFile(f)).ToList();
 					commitsFiles[commitId] = files;
 					return files;
 				}
@@ -88,30 +87,5 @@ namespace GitMind.GitModel
 		}
 
 
-		private string ToStatus(GitFile gitFile)
-		{
-			if (gitFile.IsAdded)
-			{
-				return "A";
-			}
-			else if (gitFile.IsDeleted)
-			{
-				return "D";
-			}
-			else if (gitFile.IsRenamed && gitFile.IsModified)
-			{
-				return "RM";
-			}
-			else if (gitFile.IsRenamed)
-			{
-				return "R";
-			}
-			else if (gitFile.IsConflict)
-			{
-				return "C";
-			}
-
-			return "";
-		}
 	}
 }
