@@ -183,7 +183,8 @@
 
 								<Separator Background="{StaticResource BorderBrush}"/>
 
-								<MenuItem 
+								<MenuItem
+									IsEnabled="False"
 									Header="{Binding RepositoryViewModel.PullCurrentBranchText}"
 									InputGestureText="Ctrl-Down"
 									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
