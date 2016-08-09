@@ -37,7 +37,7 @@ namespace GitMind.Utils
 
 		////		private static void BubbleSort<T>(IList<T> list, IComparer<T> comparer)
 		////		{
-		////			bool swapped;
+		////			bool swapped;;
 		////			do
 		////			{
 		////				swapped = false;
