@@ -18,11 +18,11 @@ namespace GitMind.RepositoryViews
 		private static readonly string Base = "BASE";
 		private static readonly string Yours = "YOURS";
 		private static readonly string Theirs = "THEIRS";
-		private static readonly string UseBase = "USEBASE";
-		private static readonly string UseYours = "USEYOURS";
-		private static readonly string UseTheirs = "USETHEIRS";
-		private static readonly string Deleted = "DELETED";
-		private static readonly string Merged = "MERGED";
+		//private static readonly string UseBase = "USEBASE";
+		//private static readonly string UseYours = "USEYOURS";
+		//private static readonly string UseTheirs = "USETHEIRS";
+		//private static readonly string Deleted = "DELETED";
+		//private static readonly string Merged = "MERGED";
 		private static readonly string ConflictMarker = "<<<<<<< HEAD";
 
 		private readonly IGitService gitService;
@@ -106,13 +106,13 @@ namespace GitMind.RepositoryViews
 			{
 				await Task.Run(() =>
 				{
-					cmd.Run(p4mergeExe, $"\"{basePath}\" \"{theirsPath}\"  \"{yoursPath}\" \"{fullPath}\"");
+					cmd.Run(p4mergeExe, $"\"{basePath}\" \"{theirsPath}\"  \"{yoursPath}\" \"{fullPath}\"");			
+				});
 
-					if (!HasConflicts(workingFolder, file))
-					{
-						MarkAs(workingFolder, file, Merged);
-					}
-				});		
+				if (!HasConflicts(workingFolder, file))
+				{
+					await gitService.ResolveAsync(workingFolder, file.Path);
+				}
 			}
 
 			CleanTempPaths(workingFolder, file);
@@ -130,33 +130,32 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Task ResolveAsync(string workingFolder, CommitFile file)
-		{
-			CleanTempPaths(workingFolder, file);
-			return gitService.ResolveAsync(workingFolder, file.Path);
-		}
+		//public Task ResolveAsync(string workingFolder, CommitFile file)
+		//{
+		//	CleanTempPaths(workingFolder, file);
+		//	return gitService.ResolveAsync(workingFolder, file.Path);
+		//}
 
 
-		public bool CanResolve(string workingFolder, CommitFile file)
-		{
-			return 
-				IsMerged(workingFolder, file) 
-				|| IsDeleted(workingFolder, file)
-				|| IsUseBase(workingFolder, file)
-				|| IsUseYours(workingFolder, file)
-				|| IsUseTheirs(workingFolder, file);		
-		}
+		//public bool CanResolve(string workingFolder, CommitFile file)
+		//{
+		//	return 
+		//		IsMerged(workingFolder, file) 
+		//		|| IsDeleted(workingFolder, file)
+		//		|| IsUseBase(workingFolder, file)
+		//		|| IsUseYours(workingFolder, file)
+		//		|| IsUseTheirs(workingFolder, file);		
+		//}
 
 
 
-		public Task UseYoursAsync(string workingFolder, CommitFile file)
+		public async Task UseYoursAsync(string workingFolder, CommitFile file)
 		{
 			CleanTempPaths(workingFolder, file);
 
 			UseFile(workingFolder, file, file.Conflict.OursId);
-			MarkAs(workingFolder, file, UseYours);
 
-			return Task.CompletedTask;
+			await gitService.ResolveAsync(workingFolder, file.Path);
 		}
 
 
@@ -169,13 +168,13 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Task UseTheirsAsync(string workingFolder, CommitFile file)
+		public async Task UseTheirsAsync(string workingFolder, CommitFile file)
 		{
 			CleanTempPaths(workingFolder, file);
 
 			UseFile(workingFolder, file, file.Conflict.TheirsId);
-			MarkAs(workingFolder, file, UseTheirs);
-			return Task.CompletedTask;
+
+			await gitService.ResolveAsync(workingFolder, file.Path);
 		}
 
 
@@ -187,13 +186,12 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Task UseBaseAsync(string workingFolder, CommitFile file)
+		public async Task UseBaseAsync(string workingFolder, CommitFile file)
 		{	
 			CleanTempPaths(workingFolder, file);
 			UseFile(workingFolder, file, file.Conflict.BaseId);
-			MarkAs(workingFolder, file, UseBase);
 
-			return Task.CompletedTask;
+			await gitService.ResolveAsync(workingFolder, file.Path);
 		}
 
 
@@ -205,23 +203,20 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Task DeleteAsync(string workingFolder, CommitFile file)
+		public async Task DeleteAsync(string workingFolder, CommitFile file)
 		{
 			CleanTempPaths(workingFolder, file);
 			string fullPath = Path.Combine(workingFolder, file.Path);
 
 			DeletePath(fullPath);
-			MarkAs(workingFolder, file, Deleted);
 
-			return Task.CompletedTask;
+			await gitService.ResolveAsync(workingFolder, file.Path);
 		}
 
 
 		public bool CanDelete(string workingFolder, CommitFile file)
 		{
-			return 
-				file.Status.HasFlag(GitFileStatus.Conflict)
-				&& !CanMergeConflict(file);
+			return file.Status.HasFlag(GitFileStatus.Conflict);
 		}
 
 
@@ -280,35 +275,35 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public bool IsUseYours(string workingFolder, CommitFile file)
-		{
-			string path = GetPath(workingFolder, file, UseYours);
-			return File.Exists(path);
-		}
+		//public bool IsUseYours(string workingFolder, CommitFile file)
+		//{
+		//	string path = GetPath(workingFolder, file, UseYours);
+		//	return File.Exists(path);
+		//}
 
-		public bool IsUseTheirs(string workingFolder, CommitFile file)
-		{
-			string path = GetPath(workingFolder, file, UseTheirs);
-			return File.Exists(path);
-		}
+		//public bool IsUseTheirs(string workingFolder, CommitFile file)
+		//{
+		//	string path = GetPath(workingFolder, file, UseTheirs);
+		//	return File.Exists(path);
+		//}
 
-		public bool IsUseBase(string workingFolder, CommitFile file)
-		{
-			string path = GetPath(workingFolder, file, UseBase);
-			return File.Exists(path);
-		}
+		//public bool IsUseBase(string workingFolder, CommitFile file)
+		//{
+		//	string path = GetPath(workingFolder, file, UseBase);
+		//	return File.Exists(path);
+		//}
 
-		public bool IsDeleted(string workingFolder, CommitFile file)
-		{
-			string path = GetPath(workingFolder, file, Deleted);
-			return File.Exists(path);
-		}
+		//public bool IsDeleted(string workingFolder, CommitFile file)
+		//{
+		//	string path = GetPath(workingFolder, file, Deleted);
+		//	return File.Exists(path);
+		//}
 
-		public bool IsMerged(string workingFolder, CommitFile file)
-		{
-			string path = GetPath(workingFolder, file, Merged);
-			return File.Exists(path);
-		}
+		//public bool IsMerged(string workingFolder, CommitFile file)
+		//{
+		//	string path = GetPath(workingFolder, file, Merged);
+		//	return File.Exists(path);
+		//}
 
 
 		public IReadOnlyList<string> GetAllTempNames()
@@ -318,11 +313,11 @@ namespace GitMind.RepositoryViews
 			names.Add(Base);
 			names.Add(Yours);
 			names.Add(Theirs);
-			names.Add(Deleted);
-			names.Add(Merged);
-			names.Add(UseBase);
-			names.Add(UseYours);
-			names.Add(UseTheirs);
+			//names.Add(Deleted);
+			//names.Add(Merged);
+			//names.Add(UseBase);
+			//names.Add(UseYours);
+			//names.Add(UseTheirs);
 			return names;
 		}
 
@@ -332,11 +327,11 @@ namespace GitMind.RepositoryViews
 			DeletePath(GetPath(workingFolder, file, Base));
 			DeletePath(GetPath(workingFolder, file, Yours));
 			DeletePath(GetPath(workingFolder, file, Theirs));
-			DeletePath(GetPath(workingFolder, file, Deleted));
-			DeletePath(GetPath(workingFolder, file, Merged));
-			DeletePath(GetPath(workingFolder, file, UseBase));
-			DeletePath(GetPath(workingFolder, file, UseYours));
-			DeletePath(GetPath(workingFolder, file, UseTheirs));
+			//DeletePath(GetPath(workingFolder, file, Deleted));
+			//DeletePath(GetPath(workingFolder, file, Merged));
+			//DeletePath(GetPath(workingFolder, file, UseBase));
+			//DeletePath(GetPath(workingFolder, file, UseYours));
+			//DeletePath(GetPath(workingFolder, file, UseTheirs));
 		}
 
 
@@ -386,11 +381,11 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private static void MarkAs(string workingFolder, CommitFile file, string mark)
-		{
-			string path = GetPath(workingFolder, file, mark);
-			File.AppendAllText(path, $"File set to {mark}.");
-		}
+		//private static void MarkAs(string workingFolder, CommitFile file, string mark)
+		//{
+		//	string path = GetPath(workingFolder, file, mark);
+		//	File.AppendAllText(path, $"File set to {mark}.");
+		//}
 
 
 		private static string GetPath(string workingFolder, CommitFile file, string type)
@@ -423,6 +418,5 @@ namespace GitMind.RepositoryViews
 				File.Delete(path);
 			}
 		}
-
 	}
 }

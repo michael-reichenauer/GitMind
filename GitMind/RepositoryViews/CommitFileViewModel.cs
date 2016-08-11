@@ -38,11 +38,11 @@ namespace GitMind.RepositoryViews
 
 		public bool HasConflicts => file.Status.HasFlag(GitFileStatus.Conflict);
 		public bool HasNotConflicts => !HasConflicts;
-		public bool IsMerged => diffService.IsMerged(WorkingFolder, file);
-		public bool IsDeleted => diffService.IsDeleted(WorkingFolder, file);
-		public bool IsUseBase => diffService.IsUseBase(WorkingFolder, file);
-		public bool IsUseYours => diffService.IsUseYours(WorkingFolder, file);
-		public bool IsUseTheirs => diffService.IsUseTheirs(WorkingFolder, file);
+		//public bool IsMerged => diffService.IsMerged(WorkingFolder, file);
+		//public bool IsDeleted => diffService.IsDeleted(WorkingFolder, file);
+		//public bool IsUseBase => diffService.IsUseBase(WorkingFolder, file);
+		//public bool IsUseYours => diffService.IsUseYours(WorkingFolder, file);
+		//public bool IsUseTheirs => diffService.IsUseTheirs(WorkingFolder, file);
 
 		public Brush FileNameBrush => file.Status != GitFileStatus.Conflict 
 			? BrushService.TextBrush : BrushService.ConflictBrush;
@@ -58,9 +58,9 @@ namespace GitMind.RepositoryViews
 			() => diffService.MergeConflictsAsync(WorkingFolder, Id, file),
 			() => diffService.CanMergeConflict(file));
 
-		public Command ResolveCommand => AsyncCommand(
-			() => diffService.ResolveAsync(WorkingFolder, file),
-			() => diffService.CanResolve(WorkingFolder, file));
+		//public Command ResolveCommand => AsyncCommand(
+		//	() => diffService.ResolveAsync(WorkingFolder, file),
+		//	() => diffService.CanResolve(WorkingFolder, file));
 
 		public Command UseYoursCommand => AsyncCommand(
 			() => diffService.UseYoursAsync(WorkingFolder, file),

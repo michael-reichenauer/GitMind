@@ -181,8 +181,6 @@
 
 									<MenuItem 
 										Header="Merge conflicts ..."
-										IsCheckable="{Binding IsMerged, Mode=OneWay}"
-										IsChecked="{Binding IsMerged, Mode=OneWay}"
 										Command="{Binding MergeConflictsCommand}"
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}">
 										<MenuItem.Icon>
@@ -198,8 +196,6 @@
 
 									<MenuItem 
 										Header="Use yours"
-										IsCheckable="{Binding IsUseYours, Mode=OneWay}"
-										IsChecked="{Binding IsUseYours, Mode=OneWay}"
 										Command="{Binding UseYoursCommand}"
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}">
 										<MenuItem.Icon>
@@ -211,8 +207,6 @@
 
 									<MenuItem 
 										Header="Use theirs"
-										IsCheckable="{Binding IsUseTheirs, Mode=OneWay}"
-										IsChecked="{Binding IsUseTheirs, Mode=OneWay}"
 										Command="{Binding UseTheirsCommand}"
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}">
 										<MenuItem.Icon>
@@ -224,8 +218,6 @@
 
 									<MenuItem 
 										Header="Use base"
-										IsCheckable="{Binding IsUseBase, Mode=OneWay}"
-										IsChecked="{Binding IsUseBase, Mode=OneWay}"
 										Command="{Binding UseBaseCommand}"
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}">
 										<MenuItem.Icon>
@@ -238,8 +230,6 @@
 
 									<MenuItem 
 										Header="Delete"
-										IsCheckable="{Binding IsDeleted, Mode=OneWay}"
-										IsChecked="{Binding IsDeleted, Mode=OneWay}"
 										Command="{Binding DeleteConflictCommand}"
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}">
 										<MenuItem.Icon>
@@ -275,7 +265,7 @@
 										</MenuItem.Icon>
 									</MenuItem>
 
-									<Separator 
+									<!--<Separator 
 										Background="{StaticResource BorderBrush}"
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}"/>
 
@@ -291,7 +281,7 @@
 														Foreground="{StaticResource ResolvedBrush}"/>
 											</Border>
 										</MenuItem.Icon>
-									</MenuItem>
+									</MenuItem>-->
 
 									<Separator 
 										Background="{StaticResource BorderBrush}"
