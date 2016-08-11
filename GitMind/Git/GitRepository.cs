@@ -362,10 +362,19 @@ namespace GitMind.Git
 
 		public void Resolve(string path)
 		{
-			repository.Index.Add(path);
+			string fullPath = Path.Combine(workingFolder, path);
+			Log.Debug($"Resolving {path}");
+			if (File.Exists(fullPath))
+			{
+				repository.Index.Add(path);
+			}
+			else
+			{
+				repository.Remove(path);				
+			}
 
 			// Temp workaround to trigger status update after resolving conflicts, ill be handled better
-			string tempPath = Path.Combine(workingFolder, path +".tmp");
+			string tempPath = fullPath + ".tmp";
 			File.AppendAllText(tempPath, "tmp");
 			File.Delete(tempPath);
 		}

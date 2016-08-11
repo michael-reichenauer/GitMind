@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.RepositoryViews;
 using LibGit2Sharp;
 
 
@@ -8,6 +9,8 @@ namespace GitMind.Git
 {
 	public class GitCommitFiles
 	{
+		private readonly IDiffService diffService = new DiffService();
+
 		public GitCommitFiles(string commitId, TreeChanges treeChanges)
 		{
 			Id = commitId;
@@ -114,18 +117,18 @@ namespace GitMind.Git
 		public IReadOnlyList<GitFile> Files { get; set; }
 
 
-		private static IReadOnlyList<GitFile> GetUntracked(RepositoryStatus status, ConflictCollection conflicts)
+		private IReadOnlyList<GitFile> GetUntracked(RepositoryStatus status, ConflictCollection conflicts)
 		{
 			List<GitFile> untracked = new List<GitFile>();
 
 			// When there are conflicts, tools create temp files like these, lets filter them. 
+			IReadOnlyList<string> tempNames = diffService.GetAllTempNames();
 			foreach (StatusEntry statusEntry in status.Untracked)
 			{
 				string filePath = statusEntry.FilePath;
-				if (!(-1 != filePath.IndexOf(".BASE.", StringComparison.Ordinal) 
-					|| -1 != filePath.IndexOf(".THEIRS.", StringComparison.Ordinal) 
-					|| -1 != filePath.IndexOf(".YOURS.", StringComparison.Ordinal)))
-				{			
+
+				if (!tempNames.Any(name => -1 != filePath.IndexOf($".{name}.", StringComparison.Ordinal)))
+				{
 					untracked.Add(new GitFile(filePath, null, null, GitFileStatus.Added));
 				}
 			}
