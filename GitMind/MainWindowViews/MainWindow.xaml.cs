@@ -20,16 +20,12 @@ namespace GitMind.MainWindowViews
 		private readonly DispatcherTimer remoteCheckTimer = new DispatcherTimer();
 
 		private readonly MainWindowViewModel viewModel;
-		private DateTime ActivatedTime = DateTime.MaxValue;
-
-		private readonly FolderMonitorService folderMonitor;
+	
 
 
 		public MainWindow()
 		{
 			InitializeComponent();
-
-			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
 
 			// Make sure maximize window does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
@@ -44,27 +40,11 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private void OnStatusChange()
-		{
-			Log.Warn("Status change");
-			viewModel.StatusChangeRefreshAsync(false).RunInBackground();
-		}
-
-
-		private void OnRepoChange()
-		{
-			Log.Warn("Repo change");
-			viewModel.StatusChangeRefreshAsync(true).RunInBackground();
-		}
 
 
 		public string WorkingFolder
 		{
-			set
-			{
-				viewModel.WorkingFolder = value;
-				folderMonitor.Monitor(value);
-			}
+			set {viewModel.WorkingFolder = value;}
 		}
 
 
@@ -80,7 +60,6 @@ namespace GitMind.MainWindowViews
 		private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
 		{
 			await viewModel.FirstLoadAsync();
-			ActivatedTime = DateTime.Now;
 
 			remoteCheckTimer.Start();
 		}

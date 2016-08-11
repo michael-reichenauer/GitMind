@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Features.Committing;
+using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
@@ -29,6 +30,8 @@ namespace GitMind.MainWindowViews
 		private readonly IGitService gitService = new GitService();
 
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
+		private readonly FolderMonitorService folderMonitor;
+
 		private readonly Window owner;
 		private bool isLoaded = false;
 
@@ -40,6 +43,7 @@ namespace GitMind.MainWindowViews
 		{
 			RepositoryViewModel = new RepositoryViewModel(owner, Busy);
 			this.owner = owner;
+			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
 		}
 
 
@@ -61,6 +65,7 @@ namespace GitMind.MainWindowViews
 				if (Set(value).IsSet)
 				{
 					RepositoryViewModel.WorkingFolder = value;
+					folderMonitor.Monitor(value);
 					Notify(nameof(Title));
 				}
 			}
@@ -168,6 +173,19 @@ namespace GitMind.MainWindowViews
 			}
 		}
 
+
+		private void OnStatusChange()
+		{
+			Log.Warn("Status change");
+			StatusChangeRefreshAsync(false).RunInBackground();
+		}
+
+
+		private void OnRepoChange()
+		{
+			Log.Warn("Repo change");
+			StatusChangeRefreshAsync(true).RunInBackground();
+		}
 
 		private bool IsUncommitted()
 		{

@@ -100,11 +100,10 @@
 
 
 					<!-- Conflict status -->
-					<Button
-						IsEnabled="False"
-						ToolTipService.ShowOnDisabled="True"			
+					<Button		
 						Style="{StaticResource IconButtonStyle}"
-						Visibility="{Binding RepositoryViewModel.ConflictsText, Converter={StaticResource VC}}"			
+						Visibility="{Binding RepositoryViewModel.ConflictsText, Converter={StaticResource VC}}"
+						Command="{Binding RepositoryViewModel.ShowUncommittedDetailsCommand}"
 						ToolTip="{Binding RepositoryViewModel.ConflictsText}">
 						<TextBlock					
 							FontFamily="{StaticResource IconFont}"
@@ -121,7 +120,7 @@
 					<Button 
 						Content="&#xE430;"
 						Style="{StaticResource IconButtonStyle}"
-						Visibility="{Binding RepositoryViewModel.StatusText, Converter={StaticResource VC}}"				
+						Visibility="{Binding RepositoryViewModel.IsUncommitted, Converter={StaticResource VC}}"				
 						Foreground="{StaticResource UncomittedBrush}"					
 						Click="Uncommitted_OnClick"
 						ToolTip="{Binding RepositoryViewModel.StatusText}">
