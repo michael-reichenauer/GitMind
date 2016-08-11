@@ -407,7 +407,7 @@ namespace GitMind.RepositoryViews
 
 			return
 				File.Exists(fullPath) 
-				&& !File.ReadAllLines(fullPath).Any(line => line.StartsWith(ConflictMarker));
+				&& File.ReadAllLines(fullPath).Any(line => line.StartsWith(ConflictMarker));
 		}
 
 

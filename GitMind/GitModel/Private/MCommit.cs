@@ -55,7 +55,8 @@ namespace GitMind.GitModel.Private
 		public string SubBranchId { get; set; }
 		public string FromSubjectBranchName { get; set; }
 		public List<MSubBranch> BranchTipBranches { get; set; } = new List<MSubBranch>();
-		
+		public bool HasConflicts { get; set; }
+
 		public bool HasBranchName => !string.IsNullOrEmpty(BranchName);
 		public bool HasFirstParent => ParentIds.Count > 0;
 		public bool HasSecondParent => ParentIds.Count > 1;

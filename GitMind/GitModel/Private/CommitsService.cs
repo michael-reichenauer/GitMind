@@ -186,7 +186,9 @@ namespace GitMind.GitModel.Private
 			if (gitStatus.ConflictCount > 0)
 			{
 				commit.Subject = $"{gitStatus.ConflictCount} conflicts and " + commit.Subject;
+				commit.HasConflicts = true;;
 			}
+
 			commit.Author = "";
 			commit.AuthorDate = DateTime.Now;
 			commit.CommitDate = DateTime.Now;

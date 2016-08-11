@@ -20,46 +20,25 @@
 				<ContextMenu Name="HamburgerContextMenu">
 
 					<!--Show Branch menu item -->
-					<MenuItem 
+				<MenuItem 
 						Header="Show branch"
 						ItemsSource="{Binding RepositoryViewModel.ShowableBranches}">
-						<MenuItem.Icon>
-							<Border>
-								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
-							</Border>
-						</MenuItem.Icon>
-						<MenuItem.Resources>
-							<HierarchicalDataTemplate 
+					<MenuItem.Icon>
+						<Border>
+							<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
+						</Border>
+					</MenuItem.Icon>
+					<MenuItem.Resources>
+						<HierarchicalDataTemplate 
 								DataType="{x:Type commitsHistory:BranchItem}"
 								ItemsSource="{Binding Children}">
-							
-								<MenuItem 
+							<MenuItem 
 									Header="{Binding Text}" 
 									Command="{Binding ShowBranchCommand}"
 									CommandParameter="{Binding Branch}"/>
-							</HierarchicalDataTemplate>
-						</MenuItem.Resources>
-					</MenuItem>
-
-					<!--Hide Branch menu item -->
-					<MenuItem 
-						Header="Hide branch" 
-						ItemsSource="{Binding RepositoryViewModel.HidableBranches}">
-						<MenuItem.Icon>
-							<Border>
-								<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CB;"/>
-							</Border>
-						</MenuItem.Icon>
-						<MenuItem.ItemContainerStyle>
-							<Style TargetType="MenuItem">
-								<Setter Property="Header" Value="{Binding Text}"/>
-								<Setter Property="Command" Value="{Binding DataContext.RepositoryViewModel.HideBranchCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
-								<Setter Property="CommandParameter" Value="{Binding Branch}"/>
-							</Style>
-						</MenuItem.ItemContainerStyle>
-					</MenuItem>
-
-				<Separator Background="{StaticResource BorderBrush}"/>
+						</HierarchicalDataTemplate>
+					</MenuItem.Resources>
+				</MenuItem>
 
 				<MenuItem 
 					Header="Open working folder ..." 

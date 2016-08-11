@@ -682,7 +682,11 @@ namespace GitMind.RepositoryViews
 		public Brush GetSubjectBrush(Commit commit)
 		{
 			Brush subjectBrush;
-			if (commit.IsUncommitted)
+			if (commit.HasConflicts)
+			{
+				subjectBrush = BrushService.ConflictBrush;
+			}
+			else if (commit.IsUncommitted)
 			{
 				subjectBrush = brushService.UnCommittedBrush;
 			}
