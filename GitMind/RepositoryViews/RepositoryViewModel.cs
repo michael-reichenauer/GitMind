@@ -101,11 +101,18 @@ namespace GitMind.RepositoryViews
 			{
 				Set(value);
 				StatusText = value?.Subject;
+				IsUncommitted = value != null && !value.HasConflicts;
 				Notify(nameof(StatusText));
 			}
 		}
 
 		public string StatusText
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public bool IsUncommitted
 		{
 			get { return Get(); }
 			set { Set(value); }
@@ -152,6 +159,7 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
+		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
 		public Command<Branch> SwitchBranchCommand => AsyncCommand<Branch>(SwitchBranchAsync, CanExecuteSwitchBranch);
@@ -688,6 +696,12 @@ namespace GitMind.RepositoryViews
 			IsShowCommitDetails = !IsShowCommitDetails;
 		}
 
+		private void ShowUncommittedDetails()
+		{
+			SelectedIndex = 0;
+			ScrollTo(0);
+			IsShowCommitDetails = true;
+		}
 
 		private void ShowCurrentBranch()
 		{
