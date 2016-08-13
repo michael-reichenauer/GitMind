@@ -163,9 +163,9 @@ namespace GitMind.RepositoryViews
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
 		public Command<Branch> SwitchBranchCommand => AsyncCommand<Branch>(SwitchBranchAsync, CanExecuteSwitchBranch);
+		public Command<Commit> SwitchToCommitCommand => AsyncCommand<Commit>(SwitchToCommitAsync, CanExecuteSwitchToCommit);
 		public Command<string> UndoUncommittedFileCommand => AsyncCommand<string>(UndoUncommittedFileAsync);
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
-		public Command<Commit> SwitchToCommitCommand => AsyncCommand<Commit>(SwitchToCommitAsync, CanExecuteSwitchToCommit);
 		public Command<Branch> CreateBranchCommand => AsyncCommand<Branch>(CreateBranchAsync);
 		public Command<Commit> CreateBranchFromCommitCommand => AsyncCommand<Commit>(CreateBranchFromCommitAsync);
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
@@ -988,6 +988,7 @@ namespace GitMind.RepositoryViews
 		{
 			return
 				Repository.Status.ConflictCount == 0
+				&& !Repository.Status.IsMerging
 				&& Repository.CurrentBranch.Id != branch.Id;
 		}
 
@@ -1045,7 +1046,10 @@ namespace GitMind.RepositoryViews
 
 		private bool CanExecuteSwitchToCommit(Commit commit)
 		{
-			return Repository.Status.StatusCount == 0 && Repository.Status.ConflictCount == 0;
+			return 
+				Repository.Status.StatusCount == 0
+				&& !Repository.Status.IsMerging
+				&& Repository.Status.ConflictCount == 0;
 		}
 
 
