@@ -13,9 +13,9 @@ namespace GitMind.RepositoryViews
 	{
 		private readonly Command<Branch> showBranchCommand;
 		private readonly Command<Branch> mergeBranchCommand;
-		ObservableCollection<BranchItem> childBranches 
+		private readonly ObservableCollection<BranchItem> childBranches 
 			= new ObservableCollection<BranchItem>();
-		ObservableCollection<BranchItem> otherShownBranches
+		private readonly ObservableCollection<BranchItem> otherShownBranches
 			= new ObservableCollection<BranchItem>();
 
 		public BranchViewModel(
@@ -29,6 +29,7 @@ namespace GitMind.RepositoryViews
 
 			SwitchBranchCommand = switchBranchCommand.With(() => Branch);
 			CreateBranchCommand = createBranchCommand.With(() => Branch);
+			MergeBranchCommand = mergeBranchCommand.With(() => Branch);
 		}
 
 		// UI properties
@@ -52,7 +53,8 @@ namespace GitMind.RepositoryViews
 		public string BranchToolTip { get; set; }
 		public bool IsMergeable => Branch.IsMergeable;
 		public string SwitchBranchText => $"Switch to branch '{Name}'";
-		public string MergeBranchText => $"Merge into '{Name}' from";
+		public string MergeToBranchText => $"Merge to branch '{CurrentBranchName}'";
+		public string CurrentBranchName { get; set; }
 
 		// Values used by UI properties
 		public Branch Branch { get; set; }
@@ -69,19 +71,10 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		public ObservableCollection<BranchItem> OtherShownBranches
-		{
-			get
-			{
-				otherShownBranches.Clear();
-				GetOtherChownBranches().ForEach(b => otherShownBranches.Add(b));
-				return otherShownBranches;
-			}
-		}
-
-
-	public Command SwitchBranchCommand { get; }
+	
+		public Command SwitchBranchCommand { get; }
 		public Command CreateBranchCommand { get; }
+		public Command MergeBranchCommand { get; }
 
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }
@@ -118,18 +111,5 @@ namespace GitMind.RepositoryViews
 				showBranchCommand,
 				mergeBranchCommand);
 		}
-
-
-		private IReadOnlyList<BranchItem> GetOtherChownBranches()
-		{
-			return BranchItem.GetBranches(
-				ShownBranches
-					.Where(b => b.Branch != Branch)
-					.Select(b => b.Branch)
-				.ToList(),
-				showBranchCommand,
-				mergeBranchCommand);
-		}
-
 	}
 }

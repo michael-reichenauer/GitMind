@@ -480,6 +480,7 @@ namespace GitMind.RepositoryViews
 				branch.HoverBrushNormal = branch.Brush;
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
 				branch.BranchToolTip = GetBranchToolTip(branch);
+				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name;
 
 				branch.NotifyAll();
 			}

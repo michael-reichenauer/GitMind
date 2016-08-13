@@ -1021,7 +1021,6 @@ namespace GitMind.RepositoryViews
 		}
 
 
-
 		private async Task SwitchToCommitAsync(Commit commit)
 		{
 			isInternalDialog = true;
