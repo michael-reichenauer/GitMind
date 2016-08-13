@@ -31,6 +31,7 @@ namespace GitMind.Features.FolderMonitoring
 		private DateTime repoTriggerTime;
 		private readonly Action repoTriggerAction;
 		private readonly DispatcherTimer repoTimer;
+		private string currentFolder = null;
 
 
 		public FolderMonitorService(Action statusTriggerAction, Action repoTriggerAction)
@@ -39,24 +40,25 @@ namespace GitMind.Features.FolderMonitoring
 			statusTimer = new DispatcherTimer();
 			statusTimer.Tick += (s, e) => OnStatusTimer();
 			statusTimer.Interval = MinTriggerTimeout;
-			workFolderWatcher.Changed += (s, e) => WorkingFolderChange(e.Name, e.ChangeType);
-			workFolderWatcher.Created += (s, e) => WorkingFolderChange(e.Name, e.ChangeType);
-			workFolderWatcher.Deleted += (s, e) => WorkingFolderChange(e.Name, e.ChangeType);
-			workFolderWatcher.Renamed += (s, e) => WorkingFolderChange(e.Name, e.ChangeType);
+			workFolderWatcher.Changed += (s, e) => WorkingFolderChange(e.FullPath, e.Name, e.ChangeType);
+			workFolderWatcher.Created += (s, e) => WorkingFolderChange(e.FullPath, e.Name, e.ChangeType);
+			workFolderWatcher.Deleted += (s, e) => WorkingFolderChange(e.FullPath, e.Name, e.ChangeType);
+			workFolderWatcher.Renamed += (s, e) => WorkingFolderChange(e.FullPath, e.Name, e.ChangeType);
 
 			this.repoTriggerAction = repoTriggerAction;
 			repoTimer = new DispatcherTimer();
 			repoTimer.Tick += (s, e) => OnRepoTimer();
 			repoTimer.Interval = MinTriggerTimeout;
-			refsWatcher.Changed += (s, e) => RepoChange(e.Name, e.ChangeType);
-			refsWatcher.Created += (s, e) => RepoChange(e.Name, e.ChangeType);
-			refsWatcher.Deleted += (s, e) => RepoChange(e.Name, e.ChangeType);
-			refsWatcher.Renamed += (s, e) => RepoChange(e.Name, e.ChangeType);
+			refsWatcher.Changed += (s, e) => RepoChange(e.FullPath, e.Name, e.ChangeType);
+			refsWatcher.Created += (s, e) => RepoChange(e.FullPath, e.Name, e.ChangeType);
+			refsWatcher.Deleted += (s, e) => RepoChange(e.FullPath, e.Name, e.ChangeType);
+			refsWatcher.Renamed += (s, e) => RepoChange(e.FullPath, e.Name, e.ChangeType);
 		}
 
 
 		public void Monitor(string workingFolder)
 		{
+			currentFolder = workingFolder;
 			workFolderWatcher.EnableRaisingEvents = false;
 			refsWatcher.EnableRaisingEvents = false;
 			statusTimer.Stop();
@@ -81,17 +83,17 @@ namespace GitMind.Features.FolderMonitoring
 		}
 
 
-		private void WorkingFolderChange(string name, WatcherChangeTypes changeType)
+		private void WorkingFolderChange(string fullPath, string path, WatcherChangeTypes changeType)
 		{
-			if (name == GitHeadFile)
+			if (path == GitHeadFile)
 			{
-				RepoChange(name, changeType);
+				RepoChange(fullPath, path, changeType);
 				return;
 			}
 
-			if (name == null || !name.StartsWith(GitFolder))
+			if (path == null || !path.StartsWith(GitFolder))
 			{
-				Log.Debug($"Status chage for '{name}' {changeType}");
+				// Log.Debug($"Status chage for '{fullPath}' {changeType}");
 				StatusChange();
 			}
 		}
@@ -113,9 +115,18 @@ namespace GitMind.Features.FolderMonitoring
 		}
 
 
-		private void RepoChange(string name, WatcherChangeTypes changeType)
+		private void RepoChange(string fullPath, string path, WatcherChangeTypes changeType)
 		{
-			Log.Debug($"Status chage for '{name}' {changeType}");
+			if (Path.GetExtension(fullPath) == ".lock")
+			{
+				return;
+			}
+			else if (Directory.Exists(fullPath))
+			{
+				return;
+			}
+
+			Log.Debug($"Repo change for '{fullPath}' {changeType}");
 
 			DateTime now = DateTime.Now;
 

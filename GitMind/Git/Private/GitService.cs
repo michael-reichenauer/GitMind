@@ -311,10 +311,8 @@ namespace GitMind.Git.Private
 			try
 			{
 				// Sometimes, a fetch to GitHub takes just forever, don't know why
-				await FetchNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace)
-					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
-
-				await FetchNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace)
+				await FetchNotesUsingCmdAsync(
+					workingFolder, CommitBranchNoteNameSpace, ManualBranchNoteNameSpace)
 					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
 			}
 			catch (Exception e)
@@ -906,23 +904,13 @@ namespace GitMind.Git.Private
 			// git notes --ref=GitMind.Branches merge -s cat_sort_uniq refs/notes/origin/GitMind.Branches
 			// git fetch origin refs/notes/GitMind.Branches:refs/notes/origin/GitMind.Branches
 
-			await FetchNotesUsingCmdAsync(workingFolder, nameSpace);
-
-			string notesText = "";
-			using (GitRepository gitRepository = OpenRepository(workingFolder))
-			{
-				IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
-				GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
-
-				notesText = note?.Message ?? "";
-			}
-
+			string addedNotesText = "";
 			try
 			{
 				string file = Path.Combine(workingFolder, ".git", nameSpace);
 				if (File.Exists(file))
 				{
-					notesText += File.ReadAllText(file);
+					addedNotesText = File.ReadAllText(file);
 				}
 			}
 			catch (Exception e)
@@ -930,15 +918,28 @@ namespace GitMind.Git.Private
 				Log.Warn($"Failed to read local {nameSpace}, {e}");
 			}
 
-			if (string.IsNullOrWhiteSpace(notesText))
+			if (string.IsNullOrWhiteSpace(addedNotesText))
 			{
 				Log.Warn("Notes is empty, no need to push notes");
 				return;
 			}
 			else
 			{
-				Log.Warn($"Setting notes:\n{notesText}");
+				Log.Warn($"Adding notes:\n{addedNotesText}");
 			}
+
+			await FetchNotesUsingCmdAsync(workingFolder, nameSpace);
+
+			string originNotesText = "";
+			using (GitRepository gitRepository = OpenRepository(workingFolder))
+			{
+				IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
+				GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
+
+				originNotesText = note?.Message ?? "";
+			}
+
+			string notesText = originNotesText + addedNotesText;
 
 			try
 			{
@@ -990,6 +991,22 @@ namespace GitMind.Git.Private
 
 			// Ignoring fetch errors for now
 			fetchResult.OnError(e => Log.Warn($"Git fetch notes {nameSpace} failed {e.Message}"));
+		}
+
+
+		private async Task FetchNotesUsingCmdAsync(string workingFolder, string nameSpace, string nameSpace2)
+		{
+			Log.Debug($"Fetching {nameSpace} and {nameSpace2} notes using cmd ...");
+
+			string args = $"fetch origin refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}";
+			args += $" refs/notes/{nameSpace2}:refs/notes/origin/{nameSpace2}";
+
+			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+
+			fetchResult.OnValue(_ => Log.Debug($"Fetched notes {nameSpace} and {nameSpace2} using cmd"));
+
+			// Ignoring fetch errors for now
+			fetchResult.OnError(e => Log.Warn($"Git failed to notes {e.Message}"));
 		}
 	}
 }
