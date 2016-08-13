@@ -17,7 +17,8 @@ namespace GitMind.RepositoryViews
 			Command<Commit> setBranchCommand,
 			Command<Commit> switchToCommitCommand,
 			Command<Branch> switchToBranchCommand,
-			Command<Commit> createBranchFromCommitCommand)
+			Command<Commit> createBranchFromCommitCommand,
+			Command undoUncommittedChangesCommand)
 		{
 			ToggleDetailsCommand = toggleDetailsCommand;
 			SetCommitBranchCommand = setBranchCommand.With(() => Commit);
@@ -25,6 +26,7 @@ namespace GitMind.RepositoryViews
 			SwitchToCommitCommand = switchToCommitCommand.With(() => Commit);
 			SwitchToBranchCommand = switchToBranchCommand.With(() => Commit.Branch);
 			CreateBranchFromCommitCommand = createBranchFromCommitCommand.With(() => Commit);
+			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
 		}
 
 
@@ -42,6 +44,7 @@ namespace GitMind.RepositoryViews
 		public string SwitchToBranchText => $"Switch to branch: {Commit.Branch.Name}";
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
+		public bool IsUncommitted => Commit.Id == Commit.UncommittedId;
 
 		public int XPoint { get; set; }
 		public int YPoint => IsMergePoint ? 2 : 4;
@@ -101,6 +104,7 @@ namespace GitMind.RepositoryViews
 		public Command SwitchToCommitCommand { get; }
 		public Command SwitchToBranchCommand { get; }
 		public Command CreateBranchFromCommitCommand { get; }
+		public Command UndoUncommittedChangesCommand { get; }
 
 		// Values used by other properties
 		public Commit Commit { get; set; }

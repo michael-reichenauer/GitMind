@@ -328,6 +328,26 @@
 																	</MenuItem.Icon>
 																</MenuItem>
 
+															<MenuItem Header="Undo" Visibility="{Binding IsUncommitted, Converter={StaticResource VC}}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE042;"/>
+																	</Border>
+																</MenuItem.Icon>
+																<MenuItem 
+																	Header="Undo uncommitted changes" 
+																	Command="{Binding UndoUncommittedChangesCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock 
+																				Style="{StaticResource MenuIconStyle}" 
+																				Text="&#xE042;"
+																				Foreground="{StaticResource UndoBrush}"/>
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
+															</MenuItem>
+
 															<MenuItem Header="Switch">
 																<MenuItem.Icon>
 																	<Border>

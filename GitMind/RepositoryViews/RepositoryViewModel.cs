@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Common;
 using GitMind.Features.Branching;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -169,8 +170,7 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> CreateBranchCommand => AsyncCommand<Branch>(CreateBranchAsync);
 		public Command<Commit> CreateBranchFromCommitCommand => AsyncCommand<Commit>(CreateBranchFromCommitAsync);
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
-
-
+		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
 
 
 		public Command TryUpdateAllBranchesCommand => Command(
@@ -529,6 +529,7 @@ namespace GitMind.RepositoryViews
 		public ListBox ListBox { get; set; }
 		public IReadOnlyList<Branch> PreFilterBranches { get; set; }
 		public CommitViewModel PreFilterSelectedItem { get; set; }
+
 
 
 		private void SetCommitsDetails(CommitViewModel commit)
@@ -1124,12 +1125,31 @@ namespace GitMind.RepositoryViews
 			await Task.Yield();
 
 			isInternalDialog = true;
+			using (busyIndicator.Progress())
+			{
+				await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
 
-			await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
-
-			await RefreshAfterCommandAsync(true);
+				await RefreshAfterCommandAsync(true);
+			}
 		}
 
+
+		private async Task UndoUncommittedChangesAsync()
+		{
+			await Task.Yield();
+			isInternalDialog = true;
+
+			ProgressDialog.Show(owner, "Undo uncommitted changes ...", async () =>
+			{
+				await Task.Delay(15000);
+			});
+
+			//await Task.Delay(2000);
+			//// await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
+
+			//await RefreshAfterCommandAsync(true);
+
+		}
 
 
 		public void Clicked(Point position, bool isControl)
