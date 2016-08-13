@@ -215,27 +215,27 @@ namespace GitMind.RepositoryViews
 		private static readonly IReadOnlyList<Color> _kellysMaxContrastSet = new List<Color>
 		{
 			UIntToColor(0xFFFFB300), //Vivid Yellow
-			UIntToColor(0xFF803E75), //Strong Purple
+			UIntToColor(0xFFA12B8E), //Strong Purple
 			UIntToColor(0xFFFF6800), //Vivid Orange
-			UIntToColor(0xFFA6BDD7), //Very Light Blue
-			UIntToColor(0xFFC10020), //Vivid Red
+			UIntToColor(0xFF6892C0), //Very Light Blue
+			UIntToColor(0xFFDF334E), //Vivid Red
 			UIntToColor(0xFFCEA262), //Grayish Yellow
-			//UIntToColor(0xFF817066), //Medium Gray
+			UIntToColor(0xFFAD7E62), //Medium Gray
 
 			//The following will not be good for people with defective color vision
-			UIntToColor(0xFF007D34), //Vivid Green
+			UIntToColor(0xFF0FA94E), //Vivid Green
 			UIntToColor(0xFFF6768E), //Strong Purplish Pink
-			UIntToColor(0xFF00538A), //Strong Blue
+			UIntToColor(0xFF05588E), //Strong Blue
 			UIntToColor(0xFFFF7A5C), //Strong Yellowish Pink
-			UIntToColor(0xFF53377A), //Strong Violet
+			UIntToColor(0xFF6D568D), //Strong Violet
 			UIntToColor(0xFFFF8E00), //Vivid Orange Yellow
-			UIntToColor(0xFFB32851), //Strong Purplish Red
+			UIntToColor(0xFFB04B6A), //Strong Purplish Red
 			UIntToColor(0xFFF4C800), //Vivid Greenish Yellow
-			UIntToColor(0xFF7F180D), //Strong Reddish Brown
+			UIntToColor(0xFFA5574F), //Strong Reddish Brown
 			UIntToColor(0xFF93AA00), //Vivid Yellowish Green
-			//UIntToColor(0xFF593315), //Deep Yellowish Brown
+			UIntToColor(0xFF9C5E2C), //Deep Yellowish Brown
 			UIntToColor(0xFFF13A13), //Vivid Reddish Orange
-			//UIntToColor(0xFF232C16), //Dark Olive Green
+			UIntToColor(0xFF526931), //Dark Olive Green
 		};
 
 		private static Color UIntToColor(uint color)
