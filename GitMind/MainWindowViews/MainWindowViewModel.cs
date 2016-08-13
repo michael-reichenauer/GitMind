@@ -360,6 +360,7 @@ namespace GitMind.MainWindowViews
 			string workingFolder = RepositoryViewModel.WorkingFolder;
 
 			IEnumerable<CommitFile> commitFiles = await RepositoryViewModel.UnCommited.FilesTask;
+			string commitMessage = RepositoryViewModel.Repository.Status.Message;
 
 			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction = async (message, list) =>
 			{
@@ -385,6 +386,7 @@ namespace GitMind.MainWindowViews
 				workingFolder,
 				commitAction,
 				commitFiles,
+				commitMessage,
 				ShowUncommittedDiffCommand,
 				RepositoryViewModel.UndoUncommittedFileCommand);
 

@@ -17,26 +17,26 @@ namespace GitMind.GitModel
 		private readonly string branchId;
 
 		public Commit(
-			Repository repository,
+			Repository repository, 
 			string id, 
-			string commitId,
+			string commitId, 
 			string shortId, 
-			string subject, 
+			string subject,
 			string author, 
 			DateTime authorDate, 
-			DateTime commitDate, 
+			DateTime commitDate,
 			string tags, 
 			string tickets, 
 			string branchTips, 
 			IReadOnlyList<string> parentIds, 
 			IReadOnlyList<string> childIds, 
 			string branchId, 
-			string specifiedBranchName,
-			bool isLocalAhead,
-			bool isRemoteAhead, 
+			string specifiedBranchName, 
+			bool isLocalAhead, bool isRemoteAhead, 
 			bool isUncommitted, 
 			bool isVirtual, 
-			bool hasConflicts)
+			bool hasConflicts, 
+			bool isMerging)
 		{
 			this.repository = repository;
 			this.parentIds = parentIds;
@@ -59,6 +59,7 @@ namespace GitMind.GitModel
 			IsUncommitted = isUncommitted;
 			IsVirtual = isVirtual;
 			HasConflicts = hasConflicts;
+			IsMerging = isMerging;
 		}
 
 
@@ -79,6 +80,7 @@ namespace GitMind.GitModel
 		public bool IsUncommitted { get; }
 		public bool IsVirtual { get; }
 		public bool HasConflicts { get; }
+		public bool IsMerging { get; }
 		public bool HasFirstParent => parentIds.Count > 0;
 		public bool HasSecondParent => parentIds.Count > 1;
 		public Commit FirstParent => repository.Commits[parentIds[0]];

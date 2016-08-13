@@ -46,7 +46,8 @@ namespace GitMind.GitModel.Private
 				commit.IsRemoteAhead,
 				commit.IsUncommitted,
 				commit.IsVirtual,
-				commit.HasConflicts);
+				commit.HasConflicts,
+				commit.IsMerging);
 		}
 	}
 }

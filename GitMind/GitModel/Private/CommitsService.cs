@@ -188,6 +188,11 @@ namespace GitMind.GitModel.Private
 				commit.Subject = $"{gitStatus.ConflictCount} conflicts and " + commit.Subject;
 				commit.HasConflicts = true;;
 			}
+			if (gitStatus.IsMerging)
+			{
+				commit.Subject = "Merge in progress: " + commit.Subject;
+				commit.IsMerging = true;
+			}
 
 			commit.Author = "";
 			commit.AuthorDate = DateTime.Now;

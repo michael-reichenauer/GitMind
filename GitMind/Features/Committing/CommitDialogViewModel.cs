@@ -31,6 +31,7 @@ namespace GitMind.Features.Committing
 			string workingFolder,
 			Func<string, IEnumerable<CommitFile>, Task<bool>> commitActionAsync,
 			IEnumerable<CommitFile> files,
+			string commitMessage,
 			Command showUncommittedDiffCommand,
 			Command<string> undoUncommittedFileCommand)
 		{
@@ -43,6 +44,16 @@ namespace GitMind.Features.Committing
 			files.ForEach(f => Files.Add(
 				ToCommitFileViewModel(workingFolder, f)));
 
+			if (!string.IsNullOrWhiteSpace(commitMessage))
+			{
+				string[] lines = commitMessage.Split("\n".ToCharArray());
+				Subject = lines[0];
+
+				if (lines.Length > 1)
+				{
+					Description = string.Join("\n", lines.Skip(1));
+				}
+			}
 			//Subject = TestSubject;
 			//Description = TestDescription;
 		}

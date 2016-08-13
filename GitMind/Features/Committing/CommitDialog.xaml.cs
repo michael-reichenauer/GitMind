@@ -19,20 +19,31 @@ namespace GitMind.Features.Committing
 			string workingFolder,
 			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction,
 			IEnumerable<CommitFile> files,
+			string commitMessage,
 			Command showUncommittedDiffCommand,
 			Command<string> undoUncommittedFileCommand)
 		{
 			Owner = owner;
 			InitializeComponent();
-			DataContext = new CommitDialogViewModel(
+			CommitDialogViewModel viewModel = new CommitDialogViewModel(
 				branchName,
 				workingFolder,
 				commitAction,
 				files,
+				commitMessage,
 				showUncommittedDiffCommand,
 				undoUncommittedFileCommand);
 
-			SubjectText.Focus();
+			DataContext = viewModel;
+
+			if (string.IsNullOrWhiteSpace(viewModel.Subject))
+			{
+				SubjectText.Focus();
+			}
+			else
+			{
+				DescriptionText.Focus();
+			}			
 		}
 	}
 }
