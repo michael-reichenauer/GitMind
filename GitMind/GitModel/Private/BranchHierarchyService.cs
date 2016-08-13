@@ -22,7 +22,7 @@ namespace GitMind.GitModel.Private
 		{
 			foreach (var subBranch in repository.SubBranches)
 			{
-				MCommit LatestCommit = subBranch.Value.LatestCommit;
+				MCommit LatestCommit = subBranch.Value.TipCommit;
 				if (LatestCommit.BranchId != null)
 				{
 					if (LatestCommit.BranchName == subBranch.Value.Name)
@@ -37,7 +37,7 @@ namespace GitMind.GitModel.Private
 				}
 				else
 				{
-					IEnumerable<MCommit> commits = subBranch.Value.LatestCommit.CommitAndFirstAncestors()
+					IEnumerable<MCommit> commits = subBranch.Value.TipCommit.CommitAndFirstAncestors()
 						.TakeWhile(c => c.BranchName == subBranch.Value.Name);
 
 					bool foundParent = false;
@@ -99,11 +99,11 @@ namespace GitMind.GitModel.Private
 
 					var activeTip = groupByBranch
 						.Where(b => b.Value.IsActive)
-						.OrderByDescending(b => b.Value.LatestCommit.CommitDate)
+						.OrderByDescending(b => b.Value.TipCommit.CommitDate)
 						.FirstOrDefault();
 					if (activeTip.Value != null)
 					{
-						branch.TipCommitId = activeTip.Value.LatestCommitId;
+						branch.TipCommitId = activeTip.Value.TipCommitId;
 					}
 
 					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);

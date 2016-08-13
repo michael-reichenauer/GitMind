@@ -5,7 +5,7 @@ namespace GitMind.GitModel.Private
 		public string SubBranchId { get; set; }
 		public string BranchId { get; set; }
 		public string Name { get; set; }
-		public string LatestCommitId { get; set; }
+		public string TipCommitId { get; set; }
 		public string FirstCommitId { get; set; }
 		public string ParentCommitId { get; set; }
 		public bool IsMultiBranch { get; set; }
@@ -15,7 +15,7 @@ namespace GitMind.GitModel.Private
 
 		public MRepository Repository { get; set; }
 
-		public MCommit LatestCommit => Repository.Commits[LatestCommitId];
+		public MCommit TipCommit => Repository.Commits[TipCommitId];
 		public MCommit ParentCommit => Repository.Commits[ParentCommitId];
 		public bool IsLocal => !IsRemote;
 

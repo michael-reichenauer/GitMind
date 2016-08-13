@@ -179,7 +179,7 @@ namespace GitMind.GitModel.Private
 
 			MSubBranch mSubBranch = repository.SubBranches
 				.FirstOrDefault(b => b.Value.Name == "master" && !b.Value.IsRemote).Value;
-			MCommit commit = mSubBranch.LatestCommit.FirstAncestors().Last();
+			MCommit commit = mSubBranch.TipCommit.FirstAncestors().Last();
 
 			IReadOnlyList<BranchName> gitSpecifiedNames = gitService.GetSpecifiedNames(
 				gitRepositoryPath, commit.Id);
