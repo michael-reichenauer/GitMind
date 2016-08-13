@@ -1065,6 +1065,11 @@ namespace GitMind.RepositoryViews
 				{
 					string branchName = dialog.BranchName;
 					string commitId = branch.TipCommit.Id;
+					if (commitId == Commit.UncommittedId)
+					{
+						commitId = branch.TipCommit.FirstParent.Id;
+					}
+
 					bool isPublish = dialog.IsPublish;
 
 					await gitService.CreateBranchAsync(WorkingFolder, branchName, commitId, isPublish);
@@ -1093,6 +1098,11 @@ namespace GitMind.RepositoryViews
 				{
 					string branchName = dialog.BranchName;
 					string commitId = commit.Id;
+					if (commitId == Commit.UncommittedId)
+					{
+						commitId = commit.FirstParent.CommitId;
+					}
+
 					bool isPublish = dialog.IsPublish;
 
 					await gitService.CreateBranchAsync(WorkingFolder, branchName, commitId, isPublish);

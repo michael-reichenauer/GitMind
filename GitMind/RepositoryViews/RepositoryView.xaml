@@ -200,7 +200,7 @@
 														<MenuItem 
 															Header="{Binding MergeToBranchText}"
 															IsEnabled="{Binding IsMergeable}"
-															Command="{Binding MergeToBranchCommand}">
+															Command="{Binding MergeBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
 																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B3;"/>
