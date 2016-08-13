@@ -39,9 +39,8 @@ namespace GitMind.Common
 
 			hasFailed = true;
 
-			string errorMessage = $"Unhandled {errorType}\n{exception}";
-			Log.Error(errorMessage);
-
+			string errorMessage = $"Unhandled {errorType}";
+			
 			if (Debugger.IsAttached)
 			{
 				// NOTE: If you end up here a task resulted in an unhandled exception
@@ -54,8 +53,11 @@ namespace GitMind.Common
 		}
 
 
-		public static void Shutdown(string errorMessage, Exception e)
+		public static void Shutdown(string message, Exception e)
 		{
+			string errorMessage = $"{message}:\n{e}";
+			Log.Error(errorMessage);
+
 			var dispatcher = GetApplicationDispatcher();
 			if (dispatcher.CheckAccess())
 			{
