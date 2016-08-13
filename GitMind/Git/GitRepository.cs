@@ -25,7 +25,7 @@ namespace GitMind.Git
 		private static readonly MergeOptions MergeDefault =
 			new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default};
 		private static readonly MergeOptions MergeNoFastForward =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.NoFastForward};
+			new MergeOptions {FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false};
 
 
 
