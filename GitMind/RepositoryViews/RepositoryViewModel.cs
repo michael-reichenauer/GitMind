@@ -93,6 +93,10 @@ namespace GitMind.RepositoryViews
 		public Repository Repository { get; private set; }
 
 
+		public void SetIsInternalDialog(bool isInternal)
+		{
+			isInternalDialog = isInternal;
+		}
 
 
 		public Commit UnCommited
@@ -1139,9 +1143,13 @@ namespace GitMind.RepositoryViews
 			await Task.Yield();
 			isInternalDialog = true;
 
-			ProgressDialog.Show(owner, "Undo uncommitted changes ...", async () =>
+			Progress.ShowDialog(owner, async progress =>
 			{
-				await Task.Delay(15000);
+				progress.SetText("Undo uncommitted changes ...");
+				await Task.Delay(5000);
+				progress.SetText("Checking status ...");
+				await Task.Delay(5000);
+				return "";
 			});
 
 			//await Task.Delay(2000);

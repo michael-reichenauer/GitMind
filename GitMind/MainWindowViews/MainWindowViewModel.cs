@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Common;
 using GitMind.Features.Committing;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
@@ -362,29 +363,12 @@ namespace GitMind.MainWindowViews
 			IEnumerable<CommitFile> commitFiles = await RepositoryViewModel.UnCommited.FilesTask;
 			string commitMessage = RepositoryViewModel.Repository.Status.Message;
 
-			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction = async (message, list) =>
-			{
-				using (Busy.Progress())
-				{
-					Log.Debug("Committing to git repo ...");
-
-					GitCommit gitCommit = await gitService.CommitAsync(workingFolder, message, list.ToList());
-					if (gitCommit != null)
-					{
-						Log.Debug("Committed to git repo done");
-
-						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
-					}
-
-					return true;
-				}
-			};
+			RepositoryViewModel.SetIsInternalDialog(true);
 
 			CommitDialog dialog = new CommitDialog(
 				owner,
 				branchName,
 				workingFolder,
-				commitAction,
 				commitFiles,
 				commitMessage,
 				ShowUncommittedDiffCommand,
@@ -392,14 +376,29 @@ namespace GitMind.MainWindowViews
 
 			if (dialog.ShowDialog() == true)
 			{
-				Log.Debug("After commit dialog, starting refresh after command");
+				Progress.ShowDialog(owner, "Commiting ...", async () =>
+				{
+					GitCommit gitCommit = await gitService.CommitAsync(
+						workingFolder, dialog.CommitMessage, dialog.CommitFiles);
+
+					if (gitCommit != null)
+					{
+						Log.Debug("Committed to git repo done");
+
+						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
+
+						await RepositoryViewModel.RefreshAfterCommandAsync(false);
+					}
+				});
+
 				Application.Current.MainWindow.Focus();
-				await RepositoryViewModel.RefreshAfterCommandAsync(false);
+				RepositoryViewModel.SetIsInternalDialog(false);
 				Log.Debug("After commit dialog, refresh done");
 			}
 			else
-			{
+			{			
 				Application.Current.MainWindow.Focus();
+				RepositoryViewModel.SetIsInternalDialog(false);
 			}
 		}
 

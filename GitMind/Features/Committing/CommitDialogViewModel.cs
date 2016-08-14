@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
@@ -15,8 +13,7 @@ namespace GitMind.Features.Committing
 	internal class CommitDialogViewModel : ViewModel
 	{
 		private readonly string branchName;
-		private readonly Func<string, IEnumerable<CommitFile>, Task<bool>> commitActionAsync;
-		private readonly IEnumerable<CommitFile> files;
+
 		private readonly Command<string> undoUncommittedFileCommand;
 
 		//private static readonly string TestSubject =
@@ -29,15 +26,14 @@ namespace GitMind.Features.Committing
 		public CommitDialogViewModel(
 			string branchName,
 			string workingFolder,
-			Func<string, IEnumerable<CommitFile>, Task<bool>> commitActionAsync,
 			IEnumerable<CommitFile> files,
 			string commitMessage,
 			Command showUncommittedDiffCommand,
 			Command<string> undoUncommittedFileCommand)
 		{
 			this.branchName = branchName;
-			this.commitActionAsync = commitActionAsync;
-			this.files = files;
+			CommitFiles = files.ToList();
+
 			this.undoUncommittedFileCommand = undoUncommittedFileCommand;
 			ShowUncommittedDiffCommand = showUncommittedDiffCommand;
 
@@ -84,6 +80,7 @@ namespace GitMind.Features.Committing
 		public string BranchText => $"Commit on {branchName}";
 
 		public string Message => GetMessage();
+		public IReadOnlyList<CommitFile> CommitFiles { get; }
 
 
 		private string GetMessage()
@@ -121,7 +118,7 @@ namespace GitMind.Features.Committing
 			= new ObservableCollection<CommitFileViewModel>();
 
 
-		private async void SetOK(Window window)
+		private void SetOK(Window window)
 		{
 			if (string.IsNullOrWhiteSpace(Message) || Files.Count == 0)
 			{
@@ -129,9 +126,6 @@ namespace GitMind.Features.Committing
 			}
 
 			Log.Debug($"Commit: \"{Message}\"");
-			files.ForEach(f => Log.Debug($"  {f.Path}"));
-
-			await commitActionAsync(Message, files);
 
 			window.DialogResult = true;
 		}
