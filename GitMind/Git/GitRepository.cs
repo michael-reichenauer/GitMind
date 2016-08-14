@@ -316,8 +316,10 @@ namespace GitMind.Git
 		}
 
 
-		public void UndoCleanWorkingFolder()
+		public int UndoCleanWorkingFolder()
 		{
+			int failedCount = 0;
+
 			repository.Reset(ResetMode.Hard);
 
 			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
@@ -342,8 +344,11 @@ namespace GitMind.Git
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to delete {path}, {e.Message}");
+					failedCount++;
 				}
 			}
+
+			return failedCount;
 		}
 
 

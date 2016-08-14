@@ -1166,7 +1166,7 @@ namespace GitMind.RepositoryViews
 					await RefreshAfterCommandAsync(true);
 				});
 			}
-			
+
 			Application.Current.MainWindow.Focus();
 
 			isInternalDialog = false;
@@ -1199,7 +1199,7 @@ namespace GitMind.RepositoryViews
 			}
 
 			Application.Current.MainWindow.Focus();
-			
+
 			isInternalDialog = false;
 			return Task.CompletedTask;
 		}
@@ -1207,15 +1207,28 @@ namespace GitMind.RepositoryViews
 
 		private async Task UndoCleanWorkingFolderAsync()
 		{
+			int failedCount = 0;
 			await Task.Yield();
 
 			isInternalDialog = true;
 			Progress.ShowDialog(owner, $"Undo changes and clean working folder {WorkingFolder} ...", async () =>
 			{
-				await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
+				failedCount = await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});
+
+			if (failedCount != 0)
+			{
+				MessageBox.Show(
+					Application.Current.MainWindow,
+					$"Failed to delete {failedCount} locked items.",
+					"GitMind - Error",
+					MessageBoxButton.OK,
+					MessageBoxImage.Warning);
+			}
+
+			isInternalDialog = true;
 		}
 
 
@@ -1230,6 +1243,8 @@ namespace GitMind.RepositoryViews
 
 				await RefreshAfterCommandAsync(false);
 			});
+
+			isInternalDialog = true;
 		}
 
 

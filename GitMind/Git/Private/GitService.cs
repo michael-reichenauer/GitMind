@@ -324,24 +324,25 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task UndoCleanWorkingFolderAsync(string workingFolder)
+		public async Task<int> UndoCleanWorkingFolderAsync(string workingFolder)
 		{
 			try
 			{
 				Log.Debug("Undo and clean ...");
 
-				await Task.Run(() =>
+				return await Task.Run(() =>
 				{
 					try
 					{
 						using (GitRepository gitRepository = OpenRepository(workingFolder))
 						{
-							gitRepository.UndoCleanWorkingFolder();
+							return gitRepository.UndoCleanWorkingFolder();
 						}
 					}
 					catch (Exception e)
 					{
 						Log.Warn($"Failed to undo and clean, {e.Message}");
+						return 1;
 					}
 				});
 			}
@@ -349,6 +350,8 @@ namespace GitMind.Git.Private
 			{
 				Log.Warn($"Failed to undo and clean {workingFolder}, {e.Message}");
 			}
+
+			return 1;
 		}
 
 
