@@ -1149,7 +1149,6 @@ namespace GitMind.RepositoryViews
 				await Task.Delay(5000);
 				progress.SetText("Checking status ...");
 				await Task.Delay(5000);
-				return "";
 			});
 
 			//await Task.Delay(2000);
