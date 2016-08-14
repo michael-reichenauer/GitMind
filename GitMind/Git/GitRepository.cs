@@ -316,9 +316,9 @@ namespace GitMind.Git
 		}
 
 
-		public int UndoCleanWorkingFolder()
+		public IReadOnlyList<string> UndoCleanWorkingFolder()
 		{
-			int failedCount = 0;
+			List<string> failedPaths = new List<string>();
 
 			repository.Reset(ResetMode.Hard);
 
@@ -326,10 +326,9 @@ namespace GitMind.Git
 			foreach (StatusEntry statusEntry in repositoryStatus.Ignored.Concat(repositoryStatus.Untracked))
 			{
 				string path = statusEntry.FilePath;
+				string fullPath = Path.Combine(workingFolder, path);
 				try
 				{
-					string fullPath = Path.Combine(workingFolder, path);
-
 					if (File.Exists(fullPath))
 					{
 						Log.Debug($"Delete file {fullPath}");
@@ -344,11 +343,11 @@ namespace GitMind.Git
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to delete {path}, {e.Message}");
-					failedCount++;
+					failedPaths.Add(fullPath);
 				}
 			}
 
-			return failedCount;
+			return failedPaths;
 		}
 
 

@@ -1207,22 +1207,32 @@ namespace GitMind.RepositoryViews
 
 		private async Task UndoCleanWorkingFolderAsync()
 		{
-			int failedCount = 0;
+			IReadOnlyList<string> failedPaths = new string[0];
 			await Task.Yield();
 
 			isInternalDialog = true;
 			Progress.ShowDialog(owner, $"Undo changes and clean working folder {WorkingFolder} ...", async () =>
 			{
-				failedCount = await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
+				failedPaths = await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});
 
-			if (failedCount != 0)
+			if (failedPaths.Any())
 			{
+				string text = $"Failed to undo and clean working folder.\nSome items where locked:\n";
+				foreach (string path in failedPaths.Take(10))
+				{
+					text += $"\n   {path}";
+				}
+				if (failedPaths.Count > 10)
+				{
+					text += "   ...";
+				}
+
 				MessageBox.Show(
 					Application.Current.MainWindow,
-					$"Failed to delete {failedCount} locked items.",
+					text,
 					"GitMind - Error",
 					MessageBoxButton.OK,
 					MessageBoxImage.Warning);
