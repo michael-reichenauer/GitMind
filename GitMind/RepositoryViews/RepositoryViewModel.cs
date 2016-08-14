@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Common;
+using GitMind.Common.ProgressHandling;
 using GitMind.Features.Branching;
 using GitMind.Git;
 using GitMind.Git.Private;

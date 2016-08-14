@@ -3,7 +3,7 @@ using System.Windows.Threading;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Common
+namespace GitMind.Common.ProgressHandling
 {
 	internal class ProgressDialogViewModel : ViewModel
 	{

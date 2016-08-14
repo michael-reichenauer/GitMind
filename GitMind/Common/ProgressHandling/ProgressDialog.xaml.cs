@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 
 
-namespace GitMind.Common
+namespace GitMind.Common.ProgressHandling
 {
 	/// <summary>
 	/// Interaction logic for ProgressDialog.xaml

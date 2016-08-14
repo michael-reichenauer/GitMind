@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 
 
-namespace GitMind.Common
+namespace GitMind.Common.ProgressHandling
 {
 	internal interface IProgressWorker
 	{

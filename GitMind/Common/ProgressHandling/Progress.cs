@@ -5,7 +5,7 @@ using System.Windows;
 using GitMind.Utils;
 
 
-namespace GitMind.Common
+namespace GitMind.Common.ProgressHandling
 {
 	public class Progress : IProgressWorker
 	{
