@@ -14,18 +14,18 @@ namespace GitMind.Git
 {
 	internal class GitRepository : IDisposable
 	{
-		// string emptyTreeSha = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
+		// string emptyTreeSha = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";;
 
 		private readonly string workingFolder;
 		private readonly Repository repository;
 		private static readonly StatusOptions StatusOptions =
-			new StatusOptions {DetectRenamesInWorkDir = true, DetectRenamesInIndex = true};
+			new StatusOptions { DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
 		private static readonly MergeOptions MergeFastForwardOnly =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.FastForwardOnly};
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.FastForwardOnly };
 		private static readonly MergeOptions MergeDefault =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default};
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.Default };
 		private static readonly MergeOptions MergeNoFastForward =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false};
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
 
 
 
@@ -149,8 +149,8 @@ namespace GitMind.Git
 			{
 				if (gitFile.IsModified || gitFile.IsDeleted)
 				{
-					CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
-					repository.CheckoutPaths("HEAD", new[] {path}, options);
+					CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+					repository.CheckoutPaths("HEAD", new[] { path }, options);
 				}
 
 				if (gitFile.IsAdded || gitFile.IsRenamed)
@@ -164,8 +164,8 @@ namespace GitMind.Git
 
 				if (gitFile.IsRenamed)
 				{
-					CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
-					repository.CheckoutPaths("HEAD", new[] {gitFile.OldFile}, options);
+					CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+					repository.CheckoutPaths("HEAD", new[] { gitFile.OldFile }, options);
 				}
 			}
 		}
@@ -402,7 +402,7 @@ namespace GitMind.Git
 			}
 			else
 			{
-				repository.Remove(path);				
+				repository.Remove(path);
 			}
 
 			// Temp workaround to trigger status update after resolving conflicts, ill be handled better
