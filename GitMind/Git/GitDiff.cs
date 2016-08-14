@@ -11,11 +11,13 @@ namespace GitMind.Git
 		private readonly Repository repository;
 		private static readonly SimilarityOptions DetectRenames =
 			new SimilarityOptions { RenameDetectionMode = RenameDetectionMode.Renames };
+		private static readonly StatusOptions StatusOptions =
+			new StatusOptions { DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
 
 		private static readonly CompareOptions DefultCompareOptions = new CompareOptions
-			{ ContextLines = 5, Similarity = DetectRenames };
+		{ ContextLines = 5, Similarity = DetectRenames };
 		private static readonly CompareOptions DefultFileCompareOptions = new CompareOptions
-			{ ContextLines = 10000, Similarity = DetectRenames };
+		{ ContextLines = 10000, Similarity = DetectRenames };
 
 
 		public GitDiff(Diff diff, Repository repository)
@@ -29,15 +31,25 @@ namespace GitMind.Git
 		{
 			if (commitId == GitCommit.UncommittedId)
 			{
-				// Current working folder uncommitted changes
-				//return diff.Compare<Patch>(
-				//	repository.Head.Tip.Tree,
-				//	DiffTargets.WorkingDirectory,
-				//	(IEnumerable<string>)null,
-				//	null,
-				//	DefultCompareOptions);
+				RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
 
-				return diff.Compare<Patch>(null, true, null, DefultCompareOptions);
+				List<string> files = repositoryStatus
+					.Where(s => !s.State.HasFlag(FileStatus.Ignored))
+					.SelectMany(GetStatusFiles)
+					.ToList();
+
+				// Current working folder uncommitted changes
+				string compare;
+				compare = diff.Compare<Patch>(
+					repository.Head.Tip.Tree,
+					DiffTargets.WorkingDirectory,
+					files,
+					null,
+					DefultCompareOptions);
+
+				//compare = diff.Compare<Patch>(null, true, null, DefultCompareOptions);
+
+				return compare;
 			}
 
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
@@ -59,8 +71,34 @@ namespace GitMind.Git
 			return "";
 		}
 
+
+		private IEnumerable<string> GetStatusFiles(StatusEntry statusEntry)
+		{
+			if (statusEntry.State.HasFlag(FileStatus.RenamedInIndex))
+			{
+				return new[]
+				{
+					statusEntry.HeadToIndexRenameDetails.OldFilePath,
+					statusEntry.HeadToIndexRenameDetails.NewFilePath
+				};
+			}
+			else if (statusEntry.State.HasFlag(FileStatus.RenamedInWorkdir))
+			{
+				return new[]
+				{
+					statusEntry.IndexToWorkDirRenameDetails.OldFilePath,
+					statusEntry.IndexToWorkDirRenameDetails.NewFilePath
+				};
+			}
+			else
+			{
+				return new[] { statusEntry.FilePath };
+			}
+		}
+
+
 		public string GetPatchRange(string id1, string id2)
-		{		
+		{
 			Commit commit1 = repository.Lookup<Commit>(new ObjectId(id1));
 			Commit commit2 = repository.Lookup<Commit>(new ObjectId(id2));
 

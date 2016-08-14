@@ -175,7 +175,17 @@ namespace GitMind.Git
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 
-			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			Branch localbranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+
+			Branch branch = localbranch ?? remoteBranch;
+			if (localbranch != null && remoteBranch != null)
+			{
+				if (remoteBranch.Tip.Committer.When.LocalDateTime > localbranch.Tip.Committer.When.LocalDateTime)
+				{
+					branch = remoteBranch;
+				}
+			}
 
 			if (branch != null)
 			{
@@ -316,18 +326,19 @@ namespace GitMind.Git
 		}
 
 
-		public void UndoCleanWorkingFolder()
+		public IReadOnlyList<string> UndoCleanWorkingFolder()
 		{
+			List<string> failedPaths = new List<string>();
+
 			repository.Reset(ResetMode.Hard);
 
 			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
 			foreach (StatusEntry statusEntry in repositoryStatus.Ignored.Concat(repositoryStatus.Untracked))
 			{
 				string path = statusEntry.FilePath;
+				string fullPath = Path.Combine(workingFolder, path);
 				try
 				{
-					string fullPath = Path.Combine(workingFolder, path);
-
 					if (File.Exists(fullPath))
 					{
 						Log.Debug($"Delete file {fullPath}");
@@ -342,8 +353,11 @@ namespace GitMind.Git
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to delete {path}, {e.Message}");
+					failedPaths.Add(fullPath);
 				}
 			}
+
+			return failedPaths;
 		}
 
 

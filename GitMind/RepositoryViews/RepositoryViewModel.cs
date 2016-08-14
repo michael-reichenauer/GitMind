@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Branching;
 using GitMind.Features.Committing;
@@ -1088,6 +1089,20 @@ namespace GitMind.RepositoryViews
 		private async Task MergeBranchAsync(Branch branch)
 		{
 			isInternalDialog = true;
+
+			if (branch == Repository.CurrentBranch)
+			{
+				MessageDialog.ShowWarning(owner, "You cannot merge current branch into it self.");
+				return;
+			}
+
+			if (Repository.Status.ConflictCount > 0 || Repository.Status.StatusCount > 0)
+			{
+				MessageDialog.ShowInformation(
+					owner, "You must first commit uncommitted changes before merging.");
+				return;
+			}
+
 			Progress.ShowDialog(owner, $"Merge branch {branch.Name} ...", async () =>
 			{
 				Branch currentBranch = Repository.CurrentBranch;
@@ -1101,6 +1116,12 @@ namespace GitMind.RepositoryViews
 
 				await RefreshAfterCommandAsync(false);
 			});
+
+			if (Repository.Status.StatusCount == 0)
+			{
+				MessageDialog.ShowInformation(owner, "No changes in this merge.");
+				return;
+			}
 
 			if (Repository.Status.ConflictCount == 0)
 			{
@@ -1150,7 +1171,6 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			if (dialog.ShowDialog() == true)
 			{
-				Application.Current.MainWindow.Focus();
 				Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
 				{
 					string branchName = dialog.BranchName;
@@ -1167,10 +1187,8 @@ namespace GitMind.RepositoryViews
 					await RefreshAfterCommandAsync(true);
 				});
 			}
-			else
-			{
-				Application.Current.MainWindow.Focus();
-			}
+
+			Application.Current.MainWindow.Focus();
 
 			isInternalDialog = false;
 			return Task.CompletedTask;
@@ -1184,7 +1202,6 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			if (dialog.ShowDialog() == true)
 			{
-				Application.Current.MainWindow.Focus();
 				Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
 				{
 					string branchName = dialog.BranchName;
@@ -1201,10 +1218,8 @@ namespace GitMind.RepositoryViews
 					await RefreshAfterCommandAsync(true);
 				});
 			}
-			else
-			{
-				Application.Current.MainWindow.Focus();
-			}
+
+			Application.Current.MainWindow.Focus();
 
 			isInternalDialog = false;
 			return Task.CompletedTask;
@@ -1213,15 +1228,33 @@ namespace GitMind.RepositoryViews
 
 		private async Task UndoCleanWorkingFolderAsync()
 		{
+			IReadOnlyList<string> failedPaths = new string[0];
 			await Task.Yield();
 
 			isInternalDialog = true;
 			Progress.ShowDialog(owner, $"Undo changes and clean working folder {WorkingFolder} ...", async () =>
 			{
-				await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
+				failedPaths = await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});
+
+			if (failedPaths.Any())
+			{
+				string text = $"Failed to undo and clean working folder.\nSome items where locked:\n";
+				foreach (string path in failedPaths.Take(10))
+				{
+					text += $"\n   {path}";
+				}
+				if (failedPaths.Count > 10)
+				{
+					text += "   ...";
+				}
+
+				MessageDialog.ShowWarning(owner, text);
+			}
+
+			isInternalDialog = true;
 		}
 
 
@@ -1236,6 +1269,8 @@ namespace GitMind.RepositoryViews
 
 				await RefreshAfterCommandAsync(false);
 			});
+
+			isInternalDialog = true;
 		}
 
 

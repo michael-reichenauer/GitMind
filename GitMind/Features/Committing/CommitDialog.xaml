@@ -132,7 +132,14 @@
 					CaretBrush="{StaticResource TextBrush}"
 					VerticalScrollBarVisibility="Auto"
 					TextWrapping="Wrap" 
-					AcceptsReturn="True"/>
+					AcceptsReturn="True">
+					<TextBox.InputBindings>
+						<KeyBinding 
+							Modifiers="Shift" Key="Enter" 
+							Command="{Binding OkCommand}" 
+							CommandParameter="{Binding ElementName=CommitDialogWindow}"/>
+					</TextBox.InputBindings>
+				</TextBox>
 				
 			</Grid>
 
