@@ -855,12 +855,11 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private async void PushCurrentBranch()
+		private void PushCurrentBranch()
 		{
 			isInternalDialog = true;
-			using (busyIndicator.Progress())
+			Progress.ShowDialog(owner, "Push current branch ...", async () =>
 			{
-				Log.Debug($"Push current branch");
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
 				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
@@ -868,7 +867,7 @@ namespace GitMind.RepositoryViews
 				await gitService.PushCurrentBranchAsync(workingFolder);
 
 				await RefreshAfterCommandAsync(false);
-			}
+			});
 		}
 
 

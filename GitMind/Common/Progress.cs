@@ -22,6 +22,7 @@ namespace GitMind.Common
 
 		public void SetText(string text)
 		{
+			Log.Debug($"Progress status: {text}");
 			progressTextSetter(text);
 		}
 
@@ -103,11 +104,13 @@ namespace GitMind.Common
 		private static object ShowImpl(
 			Window owner, string text, Func<Progress, Task<object>> progressAction)
 		{
+			Log.Debug($"Progress status: {text}");
 			Progress progress = new Progress(progressAction);
 
 			ProgressDialog progressDialog = new ProgressDialog(owner, text, progress);
 			progressDialog.ShowDialog();
 
+			Log.Debug("Progress done");
 			if (progress.exception != null)
 			{
 				ExceptionDispatchInfo.Capture(progress.exception).Throw();
