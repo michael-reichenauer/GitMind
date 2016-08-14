@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Branching;
 using GitMind.Features.Committing;
@@ -1102,6 +1103,12 @@ namespace GitMind.RepositoryViews
 				await RefreshAfterCommandAsync(false);
 			});
 
+			if (Repository.Status.StatusCount == 0)
+			{
+				MessageDialog.ShowInformation(owner, "No changes in this merge.");
+				return;
+			}
+
 			if (Repository.Status.ConflictCount == 0)
 			{
 				await CommitChangesAsync();
@@ -1230,12 +1237,7 @@ namespace GitMind.RepositoryViews
 					text += "   ...";
 				}
 
-				MessageBox.Show(
-					Application.Current.MainWindow,
-					text,
-					"GitMind - Error",
-					MessageBoxButton.OK,
-					MessageBoxImage.Warning);
+				MessageDialog.ShowWarning(owner, text);
 			}
 
 			isInternalDialog = true;
