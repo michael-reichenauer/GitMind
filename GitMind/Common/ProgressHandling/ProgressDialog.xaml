@@ -44,7 +44,11 @@
 		</StackPanel>
 
 		<!-- Progress indicator -->
-		<Label Grid.Row="1" Width="198"
-			Content="{Binding IndicatorText}" Foreground="DarkOrchid" Margin="10,0,10,10" FontSize="10"/>
+		<Label
+			Grid.Row="1" 
+			Width="198" HorizontalAlignment="Left"
+			Content="{Binding IndicatorText}" 
+			Foreground="DarkOrchid" FontSize="10"
+			Margin="10,0,10,10" />
 	</Grid>
 </Window>
