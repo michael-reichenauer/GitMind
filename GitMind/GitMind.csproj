@@ -83,6 +83,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Common\ProgressHandling\IProgressWorker.cs" />
+    <Compile Include="Common\ProgressHandling\Progress.cs" />
+    <Compile Include="Common\ProgressHandling\ProgressDialog.xaml.cs">
+      <DependentUpon>ProgressDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
     <Compile Include="Features\Branching\BranchDialog.xaml.cs">
       <DependentUpon>BranchDialog.xaml</DependentUpon>
     </Compile>
@@ -235,6 +241,10 @@
     <Compile Include="Common\WindowControlButtons.xaml.cs">
       <DependentUpon>WindowControlButtons.xaml</DependentUpon>
     </Compile>
+    <Page Include="Common\ProgressHandling\ProgressDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Features\Branching\BranchDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

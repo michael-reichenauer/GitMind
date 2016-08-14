@@ -316,7 +316,7 @@ namespace GitMind.Git
 		}
 
 
-		public void UndoCleanWorkingFolde()
+		public void UndoCleanWorkingFolder()
 		{
 			repository.Reset(ResetMode.Hard);
 
@@ -342,7 +342,38 @@ namespace GitMind.Git
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to delete {path}, {e.Message}");
-					throw;
+				}
+			}
+		}
+
+
+		public void UndoWorkingFolder()
+		{
+			Log.Debug("Undo changes in working folder");
+			repository.Reset(ResetMode.Hard);
+
+			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
+			foreach (StatusEntry statusEntry in repositoryStatus.Untracked)
+			{
+				string path = statusEntry.FilePath;
+				try
+				{
+					string fullPath = Path.Combine(workingFolder, path);
+
+					if (File.Exists(fullPath))
+					{
+						Log.Debug($"Delete file {fullPath}");
+						File.Delete(fullPath);
+					}
+					else if (Directory.Exists(fullPath))
+					{
+						Log.Debug($"Delete folder {fullPath}");
+						Directory.Delete(fullPath, true);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to delete {path}, {e.Message}");
 				}
 			}
 		}

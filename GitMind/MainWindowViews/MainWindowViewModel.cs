@@ -8,6 +8,8 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Common;
+using GitMind.Common.ProgressHandling;
 using GitMind.Features.Committing;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
@@ -174,17 +176,17 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private void OnStatusChange()
+		private void OnStatusChange(DateTime triggerTime)
 		{
 			Log.Warn("Status change");
-			StatusChangeRefreshAsync(false).RunInBackground();
+			StatusChangeRefreshAsync(triggerTime, false).RunInBackground();
 		}
 
 
-		private void OnRepoChange()
+		private void OnRepoChange(DateTime triggerTime)
 		{
 			Log.Warn("Repo change");
-			StatusChangeRefreshAsync(true).RunInBackground();
+			StatusChangeRefreshAsync(triggerTime, true).RunInBackground();
 		}
 
 		private bool IsUncommitted()
@@ -204,7 +206,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public Task StatusChangeRefreshAsync(bool isRepoChange)
+		public Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
 		{
 			if (!isLoaded)
 			{
@@ -221,7 +223,7 @@ namespace GitMind.MainWindowViews
 
 			//isStatusChanged = false;
 			//isRepositoryChanged = false;
-			return RepositoryViewModel.StatusChangeRefreshAsync(isRepoChange);
+			return RepositoryViewModel.StatusChangeRefreshAsync(triggerTime, isRepoChange);
 		}
 
 
@@ -362,29 +364,12 @@ namespace GitMind.MainWindowViews
 			IEnumerable<CommitFile> commitFiles = await RepositoryViewModel.UnCommited.FilesTask;
 			string commitMessage = RepositoryViewModel.Repository.Status.Message;
 
-			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction = async (message, list) =>
-			{
-				using (Busy.Progress())
-				{
-					Log.Debug("Committing to git repo ...");
-
-					GitCommit gitCommit = await gitService.CommitAsync(workingFolder, message, list.ToList());
-					if (gitCommit != null)
-					{
-						Log.Debug("Committed to git repo done");
-
-						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
-					}
-
-					return true;
-				}
-			};
+			RepositoryViewModel.SetIsInternalDialog(true);
 
 			CommitDialog dialog = new CommitDialog(
 				owner,
 				branchName,
 				workingFolder,
-				commitAction,
 				commitFiles,
 				commitMessage,
 				ShowUncommittedDiffCommand,
@@ -392,14 +377,29 @@ namespace GitMind.MainWindowViews
 
 			if (dialog.ShowDialog() == true)
 			{
-				Log.Debug("After commit dialog, starting refresh after command");
+				Progress.ShowDialog(owner, $"Commit current branch {branchName} ...", async () =>
+				{
+					GitCommit gitCommit = await gitService.CommitAsync(
+						workingFolder, dialog.CommitMessage, dialog.CommitFiles);
+
+					if (gitCommit != null)
+					{
+						Log.Debug("Committed to git repo done");
+
+						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
+
+						await RepositoryViewModel.RefreshAfterCommandAsync(false);
+					}
+				});
+
 				Application.Current.MainWindow.Focus();
-				await RepositoryViewModel.RefreshAfterCommandAsync(false);
+				RepositoryViewModel.SetIsInternalDialog(false);
 				Log.Debug("After commit dialog, refresh done");
 			}
 			else
-			{
+			{			
 				Application.Current.MainWindow.Focus();
+				RepositoryViewModel.SetIsInternalDialog(false);
 			}
 		}
 

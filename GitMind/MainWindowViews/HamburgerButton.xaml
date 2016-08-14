@@ -51,19 +51,26 @@
 				</MenuItem>
 
 				<Separator Background="{StaticResource BorderBrush}"/>
-
-				<!-- Toggle commit details menu item -->
-				<MenuItem 
-					Header="Reset and clean working folder" 
-					Command="{Binding RepositoryViewModel.UndoCleanWorkingFolderCommand}">
+					
+				<!-- Undo -->
+				<MenuItem Header="Undo">
 					<MenuItem.Icon>
 						<Border>
-							<TextBlock 
-								Style="{StaticResource MenuIconStyle}" 
-								Text="&#xE042;"
-								Foreground="{StaticResource UndoBrush}"/>
+							<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE042;"/>
 						</Border>
 					</MenuItem.Icon>
+					<MenuItem 
+						Header="Undo changes and clean ignored files" 
+						Command="{Binding RepositoryViewModel.UndoCleanWorkingFolderCommand}">
+						<MenuItem.Icon>
+							<Border>
+								<TextBlock 
+									Style="{StaticResource MenuIconStyle}" 
+									Text="&#xE042;"
+									Foreground="{StaticResource UndoBrush}"/>
+							</Border>
+						</MenuItem.Icon>
+					</MenuItem>
 				</MenuItem>
 
 

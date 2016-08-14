@@ -15,8 +15,6 @@ namespace GitMind.RepositoryViews
 		private readonly Command<Branch> mergeBranchCommand;
 		private readonly ObservableCollection<BranchItem> childBranches 
 			= new ObservableCollection<BranchItem>();
-		private readonly ObservableCollection<BranchItem> otherShownBranches
-			= new ObservableCollection<BranchItem>();
 
 		public BranchViewModel(
 			Command<Branch> showBranchCommand,

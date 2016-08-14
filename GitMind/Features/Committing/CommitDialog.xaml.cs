@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using GitMind.GitModel;
@@ -13,11 +14,12 @@ namespace GitMind.Features.Committing
 	/// </summary>
 	public partial class CommitDialog : Window
 	{
+		private readonly CommitDialogViewModel viewModel;
+
 		public CommitDialog(
 			Window owner,
 			string branchName,
 			string workingFolder,
-			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction,
 			IEnumerable<CommitFile> files,
 			string commitMessage,
 			Command showUncommittedDiffCommand,
@@ -25,10 +27,9 @@ namespace GitMind.Features.Committing
 		{
 			Owner = owner;
 			InitializeComponent();
-			CommitDialogViewModel viewModel = new CommitDialogViewModel(
+			viewModel = new CommitDialogViewModel(
 				branchName,
 				workingFolder,
-				commitAction,
 				files,
 				commitMessage,
 				showUncommittedDiffCommand,
@@ -45,5 +46,10 @@ namespace GitMind.Features.Committing
 				DescriptionText.Focus();
 			}			
 		}
+
+
+		public string CommitMessage => viewModel.Message;
+
+		public IReadOnlyList<CommitFile> CommitFiles => viewModel.CommitFiles;
 	}
 }
