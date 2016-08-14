@@ -1157,17 +1157,10 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			Progress.ShowDialog(owner, $"Undo changes in working folder {WorkingFolder} ...", async () =>
 			{
-				await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
+				await gitService.UndoWorkingFolderAsync(WorkingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});
-
-
-			//await Task.Delay(2000);
-			//// await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
-
-			//await RefreshAfterCommandAsync(true);
-
 		}
 
 
