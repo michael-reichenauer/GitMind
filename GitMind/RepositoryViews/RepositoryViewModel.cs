@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Branching;
+using GitMind.Features.Committing;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
@@ -175,7 +176,9 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> CreateBranchFromCommitCommand => AsyncCommand<Commit>(CreateBranchFromCommitAsync);
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
 		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
-
+		public Command CommitCommand => Command(CommitChanges, () => IsUncommitted);
+		public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, () => IsUncommitted);
+		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
 
 		public Command TryUpdateAllBranchesCommand => Command(
 			TryUpdateAllBranches, CanExecuteTryUpdateAllBranches);
@@ -1010,6 +1013,71 @@ namespace GitMind.RepositoryViews
 			});
 
 			return Task.CompletedTask;
+		}
+
+		private async void CommitChanges()
+		{
+			string branchName = UnCommited.Branch.Name;
+			string workingFolder = WorkingFolder;
+
+			IEnumerable<CommitFile> commitFiles = await UnCommited.FilesTask;
+			string commitMessage = Repository.Status.Message;
+
+			SetIsInternalDialog(true);
+
+			CommitDialog dialog = new CommitDialog(
+				owner,
+				branchName,
+				workingFolder,
+				commitFiles,
+				commitMessage,
+				ShowUncommittedDiffCommand,
+				UndoUncommittedFileCommand);
+
+			if (dialog.ShowDialog() == true)
+			{
+				Progress.ShowDialog(owner, $"Commit current branch {branchName} ...", async () =>
+				{
+					GitCommit gitCommit = await gitService.CommitAsync(
+						workingFolder, dialog.CommitMessage, dialog.CommitFiles);
+
+					if (gitCommit != null)
+					{
+						Log.Debug("Committed to git repo done");
+
+						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
+
+						await RefreshAfterCommandAsync(false);
+					}
+				});
+
+				Application.Current.MainWindow.Focus();
+				SetIsInternalDialog(false);
+				Log.Debug("After commit dialog, refresh done");
+			}
+			else
+			{
+				Application.Current.MainWindow.Focus();
+				SetIsInternalDialog(false);
+			}
+		}
+
+
+		private async void ShowUncommittedDiff()
+		{
+			await diffService.ShowDiffAsync(Commit.UncommittedId, WorkingFolder);
+		}
+
+
+
+		private async void ShowSelectedDiff()
+		{
+			CommitViewModel commit = SelectedItem as CommitViewModel;
+
+			if (commit != null)
+			{
+				await diffService.ShowDiffAsync(commit.Commit.Id, WorkingFolder);
+			}
 		}
 
 

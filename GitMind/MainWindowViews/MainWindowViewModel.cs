@@ -116,11 +116,11 @@ namespace GitMind.MainWindowViews
 
 		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
 
-		public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, IsUncommitted);
+		//public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, IsUncommitted);
 
-		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
+//		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
 
-		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
+		
 
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
@@ -346,71 +346,6 @@ namespace GitMind.MainWindowViews
 			if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
-			}
-		}
-
-
-		private async void ShowUncommittedDiff()
-		{
-			await diffService.ShowDiffAsync(Commit.UncommittedId, WorkingFolder);
-		}
-
-
-		private async void CommitChanges()
-		{
-			string branchName = RepositoryViewModel.UnCommited.Branch.Name;
-			string workingFolder = RepositoryViewModel.WorkingFolder;
-
-			IEnumerable<CommitFile> commitFiles = await RepositoryViewModel.UnCommited.FilesTask;
-			string commitMessage = RepositoryViewModel.Repository.Status.Message;
-
-			RepositoryViewModel.SetIsInternalDialog(true);
-
-			CommitDialog dialog = new CommitDialog(
-				owner,
-				branchName,
-				workingFolder,
-				commitFiles,
-				commitMessage,
-				ShowUncommittedDiffCommand,
-				RepositoryViewModel.UndoUncommittedFileCommand);
-
-			if (dialog.ShowDialog() == true)
-			{
-				Progress.ShowDialog(owner, $"Commit current branch {branchName} ...", async () =>
-				{
-					GitCommit gitCommit = await gitService.CommitAsync(
-						workingFolder, dialog.CommitMessage, dialog.CommitFiles);
-
-					if (gitCommit != null)
-					{
-						Log.Debug("Committed to git repo done");
-
-						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
-
-						await RepositoryViewModel.RefreshAfterCommandAsync(false);
-					}
-				});
-
-				Application.Current.MainWindow.Focus();
-				RepositoryViewModel.SetIsInternalDialog(false);
-				Log.Debug("After commit dialog, refresh done");
-			}
-			else
-			{			
-				Application.Current.MainWindow.Focus();
-				RepositoryViewModel.SetIsInternalDialog(false);
-			}
-		}
-
-
-		private async void ShowSelectedDiff()
-		{
-			CommitViewModel commit = RepositoryViewModel.SelectedItem as CommitViewModel;
-
-			if (commit != null)
-			{
-				await diffService.ShowDiffAsync(commit.Commit.Id, WorkingFolder);
 			}
 		}
 
