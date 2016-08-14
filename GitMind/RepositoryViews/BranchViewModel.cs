@@ -49,7 +49,7 @@ namespace GitMind.RepositoryViews
 		public Brush HoverBrushNormal { get; set; }
 		public Brush HoverBrushHighlight { get; set; }
 		public string BranchToolTip { get; set; }
-		public bool IsMergeable => Branch.IsMergeable;
+		public bool IsMergeable => true;
 		public string SwitchBranchText => $"Switch to branch '{Name}'";
 		public string MergeToBranchText => $"Merge to branch '{CurrentBranchName}'";
 		public string CurrentBranchName { get; set; }

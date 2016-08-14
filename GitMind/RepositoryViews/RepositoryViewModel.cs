@@ -1089,6 +1089,20 @@ namespace GitMind.RepositoryViews
 		private async Task MergeBranchAsync(Branch branch)
 		{
 			isInternalDialog = true;
+
+			if (branch == Repository.CurrentBranch)
+			{
+				MessageDialog.ShowWarning(owner, "You cannot merge current a branch into it self.");
+				return;
+			}
+
+			if (Repository.Status.ConflictCount > 0 || Repository.Status.StatusCount > 0)
+			{
+				MessageDialog.ShowInformation(
+					owner, "You must first commit uncommitted changes before merging.");
+				return;
+			}
+
 			Progress.ShowDialog(owner, $"Merge branch {branch.Name} ...", async () =>
 			{
 				Branch currentBranch = Repository.CurrentBranch;
