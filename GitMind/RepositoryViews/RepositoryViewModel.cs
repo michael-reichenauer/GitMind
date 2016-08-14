@@ -176,7 +176,7 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> CreateBranchFromCommitCommand => AsyncCommand<Commit>(CreateBranchFromCommitAsync);
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
 		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
-		public Command CommitCommand => Command(CommitChanges, () => IsUncommitted);
+		public Command CommitCommand => AsyncCommand(CommitChangesAsync, () => IsUncommitted);
 		public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, () => IsUncommitted);
 		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
 
@@ -1015,7 +1015,7 @@ namespace GitMind.RepositoryViews
 			return Task.CompletedTask;
 		}
 
-		private async void CommitChanges()
+		private async Task CommitChangesAsync()
 		{
 			string branchName = UnCommited.Branch.Name;
 			string workingFolder = WorkingFolder;
@@ -1081,7 +1081,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private Task MergeBranchAsync(Branch branch)
+		private async Task MergeBranchAsync(Branch branch)
 		{
 			isInternalDialog = true;
 			Progress.ShowDialog(owner, $"Merge branch {branch.Name} ...", async () =>
@@ -1098,7 +1098,7 @@ namespace GitMind.RepositoryViews
 				await RefreshAfterCommandAsync(false);
 			});
 
-			return Task.CompletedTask;
+			await CommitChangesAsync();
 		}
 
 
