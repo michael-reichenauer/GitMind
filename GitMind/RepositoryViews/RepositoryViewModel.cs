@@ -1150,7 +1150,6 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			if (dialog.ShowDialog() == true)
 			{
-				Application.Current.MainWindow.Focus();
 				Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
 				{
 					string branchName = dialog.BranchName;
@@ -1167,10 +1166,8 @@ namespace GitMind.RepositoryViews
 					await RefreshAfterCommandAsync(true);
 				});
 			}
-			else
-			{
-				Application.Current.MainWindow.Focus();
-			}
+			
+			Application.Current.MainWindow.Focus();
 
 			isInternalDialog = false;
 			return Task.CompletedTask;
@@ -1184,7 +1181,6 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			if (dialog.ShowDialog() == true)
 			{
-				Application.Current.MainWindow.Focus();
 				Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
 				{
 					string branchName = dialog.BranchName;
@@ -1201,11 +1197,9 @@ namespace GitMind.RepositoryViews
 					await RefreshAfterCommandAsync(true);
 				});
 			}
-			else
-			{
-				Application.Current.MainWindow.Focus();
-			}
 
+			Application.Current.MainWindow.Focus();
+			
 			isInternalDialog = false;
 			return Task.CompletedTask;
 		}
