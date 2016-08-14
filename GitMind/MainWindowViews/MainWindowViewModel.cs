@@ -376,7 +376,7 @@ namespace GitMind.MainWindowViews
 
 			if (dialog.ShowDialog() == true)
 			{
-				Progress.ShowDialog(owner, "Commiting ...", async () =>
+				Progress.ShowDialog(owner, $"Commit current branch {branchName} ...", async () =>
 				{
 					GitCommit gitCommit = await gitService.CommitAsync(
 						workingFolder, dialog.CommitMessage, dialog.CommitFiles);

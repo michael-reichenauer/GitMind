@@ -800,11 +800,11 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private async void TryPushAllBranches()
+		private void TryPushAllBranches()
 		{
 			Log.Debug("Try push all branches");
 			isInternalDialog = true;
-			using (busyIndicator.Progress())
+			Progress.ShowDialog(owner, "Push all branches ...", async progress =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
@@ -813,10 +813,10 @@ namespace GitMind.RepositoryViews
 				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
 
 				if (uncommittedBranch != currentBranch
-					&& currentBranch.LocalAheadCount > 0
-					&& currentBranch.RemoteAheadCount == 0)
+				    && currentBranch.LocalAheadCount > 0
+				    && currentBranch.RemoteAheadCount == 0)
 				{
-					Log.Debug($"Push current branch {currentBranch.Name}");
+					progress.SetText($"Push current branch {currentBranch.Name} ...");
 					await gitService.PushCurrentBranchAsync(workingFolder);
 				}
 
@@ -829,13 +829,13 @@ namespace GitMind.RepositoryViews
 
 				foreach (Branch branch in pushableBranches)
 				{
-					Log.Debug($"Push branch {branch.Name}");
+					progress.SetText($"Push branch {branch.Name} ...");
 
 					await gitService.PushBranchAsync(workingFolder, branch.Name);
 				}
 
 				await RefreshAfterCommandAsync(false);
-			}
+			});
 		}
 
 
@@ -858,7 +858,8 @@ namespace GitMind.RepositoryViews
 		private void PushCurrentBranch()
 		{
 			isInternalDialog = true;
-			Progress.ShowDialog(owner, "Push current branch ...", async () =>
+			Progress.ShowDialog(
+				owner, $"Push current branch {Repository.CurrentBranch.Name} ...", async () =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
