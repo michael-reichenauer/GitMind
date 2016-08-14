@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using GitMind.Common;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Branching;
 using GitMind.Git;
@@ -724,8 +723,8 @@ namespace GitMind.RepositoryViews
 				await gitService.FetchAsync(workingFolder);
 
 				if (uncommittedBranch != currentBranch
-				    && currentBranch.RemoteAheadCount > 0
-				    && currentBranch.LocalAheadCount == 0)
+						&& currentBranch.RemoteAheadCount > 0
+						&& currentBranch.LocalAheadCount == 0)
 				{
 					progress.SetText($"Update current branch {currentBranch.Name} ...");
 					await gitService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
@@ -813,8 +812,8 @@ namespace GitMind.RepositoryViews
 				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
 
 				if (uncommittedBranch != currentBranch
-				    && currentBranch.LocalAheadCount > 0
-				    && currentBranch.RemoteAheadCount == 0)
+						&& currentBranch.LocalAheadCount > 0
+						&& currentBranch.RemoteAheadCount == 0)
 				{
 					progress.SetText($"Push current branch {currentBranch.Name} ...");
 					await gitService.PushCurrentBranchAsync(workingFolder);
@@ -962,7 +961,7 @@ namespace GitMind.RepositoryViews
 						await repositoryService.SetSpecifiedCommitBranchAsync(workingFolder, commit.Id, branchName);
 						if (!string.IsNullOrWhiteSpace(branchName))
 						{
-							SpecifiedBranchNames = new[] {branchName};
+							SpecifiedBranchNames = new[] { branchName };
 						}
 
 						await RefreshAfterCommandAsync(true);
@@ -1048,7 +1047,7 @@ namespace GitMind.RepositoryViews
 
 				if (branchName != null)
 				{
-					SpecifiedBranchNames = new[] {branchName};
+					SpecifiedBranchNames = new[] { branchName };
 				}
 
 				await RefreshAfterCommandAsync(false);
@@ -1060,7 +1059,7 @@ namespace GitMind.RepositoryViews
 
 		private bool CanExecuteSwitchToCommit(Commit commit)
 		{
-			return 
+			return
 				Repository.Status.StatusCount == 0
 				&& !Repository.Status.IsMerging
 				&& Repository.Status.ConflictCount == 0;
@@ -1088,7 +1087,7 @@ namespace GitMind.RepositoryViews
 					bool isPublish = dialog.IsPublish;
 
 					await gitService.CreateBranchAsync(WorkingFolder, branchName, commitId, isPublish);
-					SpecifiedBranchNames = new[] {branchName};
+					SpecifiedBranchNames = new[] { branchName };
 					await RefreshAfterCommandAsync(true);
 				});
 			}
@@ -1122,7 +1121,7 @@ namespace GitMind.RepositoryViews
 					bool isPublish = dialog.IsPublish;
 
 					await gitService.CreateBranchAsync(WorkingFolder, branchName, commitId, isPublish);
-					SpecifiedBranchNames = new[] {branchName};
+					SpecifiedBranchNames = new[] { branchName };
 					await RefreshAfterCommandAsync(true);
 				});
 			}
