@@ -14,18 +14,18 @@ namespace GitMind.Git
 {
 	internal class GitRepository : IDisposable
 	{
-		// string emptyTreeSha = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
+		// string emptyTreeSha = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";;
 
 		private readonly string workingFolder;
 		private readonly Repository repository;
 		private static readonly StatusOptions StatusOptions =
-			new StatusOptions {DetectRenamesInWorkDir = true, DetectRenamesInIndex = true};
+			new StatusOptions { DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
 		private static readonly MergeOptions MergeFastForwardOnly =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.FastForwardOnly};
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.FastForwardOnly };
 		private static readonly MergeOptions MergeDefault =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default};
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.Default };
 		private static readonly MergeOptions MergeNoFastForward =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.NoFastForward};
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
 
 
 
@@ -112,7 +112,8 @@ namespace GitMind.Git
 		{
 			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
 			ConflictCollection conflicts = repository.Index.Conflicts;
-			return new GitStatus(repositoryStatus, conflicts);
+			bool isFullyMerged = repository.Index.IsFullyMerged;
+			return new GitStatus(repositoryStatus, conflicts, repository.Info, isFullyMerged);
 		}
 
 
@@ -148,8 +149,8 @@ namespace GitMind.Git
 			{
 				if (gitFile.IsModified || gitFile.IsDeleted)
 				{
-					CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
-					repository.CheckoutPaths("HEAD", new[] {path}, options);
+					CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+					repository.CheckoutPaths("HEAD", new[] { path }, options);
 				}
 
 				if (gitFile.IsAdded || gitFile.IsRenamed)
@@ -163,8 +164,8 @@ namespace GitMind.Git
 
 				if (gitFile.IsRenamed)
 				{
-					CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
-					repository.CheckoutPaths("HEAD", new[] {gitFile.OldFile}, options);
+					CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+					repository.CheckoutPaths("HEAD", new[] { gitFile.OldFile }, options);
 				}
 			}
 		}
@@ -174,7 +175,17 @@ namespace GitMind.Git
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 
-			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			Branch localbranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+
+			Branch branch = localbranch ?? remoteBranch;
+			if (localbranch != null && remoteBranch != null)
+			{
+				if (remoteBranch.Tip.Committer.When.LocalDateTime > localbranch.Tip.Committer.When.LocalDateTime)
+				{
+					branch = remoteBranch;
+				}
+			}
 
 			if (branch != null)
 			{
@@ -315,12 +326,48 @@ namespace GitMind.Git
 		}
 
 
-		public void UndoCleanWorkingFolde()
+		public IReadOnlyList<string> UndoCleanWorkingFolder()
 		{
+			List<string> failedPaths = new List<string>();
+
 			repository.Reset(ResetMode.Hard);
 
 			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
 			foreach (StatusEntry statusEntry in repositoryStatus.Ignored.Concat(repositoryStatus.Untracked))
+			{
+				string path = statusEntry.FilePath;
+				string fullPath = Path.Combine(workingFolder, path);
+				try
+				{
+					if (File.Exists(fullPath))
+					{
+						Log.Debug($"Delete file {fullPath}");
+						File.Delete(fullPath);
+					}
+					else if (Directory.Exists(fullPath))
+					{
+						Log.Debug($"Delete folder {fullPath}");
+						Directory.Delete(fullPath, true);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to delete {path}, {e.Message}");
+					failedPaths.Add(fullPath);
+				}
+			}
+
+			return failedPaths;
+		}
+
+
+		public void UndoWorkingFolder()
+		{
+			Log.Debug("Undo changes in working folder");
+			repository.Reset(ResetMode.Hard);
+
+			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
+			foreach (StatusEntry statusEntry in repositoryStatus.Untracked)
 			{
 				string path = statusEntry.FilePath;
 				try
@@ -341,7 +388,6 @@ namespace GitMind.Git
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to delete {path}, {e.Message}");
-					throw;
 				}
 			}
 		}
@@ -362,10 +408,19 @@ namespace GitMind.Git
 
 		public void Resolve(string path)
 		{
-			repository.Index.Add(path);
+			string fullPath = Path.Combine(workingFolder, path);
+			Log.Debug($"Resolving {path}");
+			if (File.Exists(fullPath))
+			{
+				repository.Index.Add(path);
+			}
+			else
+			{
+				repository.Remove(path);
+			}
 
 			// Temp workaround to trigger status update after resolving conflicts, ill be handled better
-			string tempPath = Path.Combine(workingFolder, path +".tmp");
+			string tempPath = fullPath + ".tmp";
 			File.AppendAllText(tempPath, "tmp");
 			File.Delete(tempPath);
 		}

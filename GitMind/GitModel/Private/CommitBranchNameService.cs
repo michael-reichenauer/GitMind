@@ -98,12 +98,13 @@ namespace GitMind.GitModel.Private
 		{
 			IEnumerable<MSubBranch> branches = repository.SubBranches.Values
 				.Where(b =>
-					b.LatestCommit.BranchId == null
-					&& b.LatestCommit.SubBranchId == null);
+					repository.Commits.ContainsKey(b.TipCommitId)
+					&& b.TipCommit.BranchId == null
+					&& b.TipCommit.SubBranchId == null);
 
 			foreach (MSubBranch branch in branches)
 			{ 
-				MCommit branchTip = branch.LatestCommit;
+				MCommit branchTip = branch.TipCommit;
 
 				if (!branchTip.HasFirstChild)
 				{
@@ -116,7 +117,7 @@ namespace GitMind.GitModel.Private
 
 		private static void SetMasterBranchCommits(MRepository repository, MSubBranch subBranch)
 		{
-			string commitId = subBranch.LatestCommitId;
+			string commitId = subBranch.TipCommitId;
 			while (commitId != null)
 			{
 				MCommit commit = repository.Commits[commitId];
@@ -124,7 +125,7 @@ namespace GitMind.GitModel.Private
 				if (commit.BranchName == subBranch.Name && commit.SubBranchId != null)
 				{
 					// Do not break if commit is the tip
-					if (!(commit.Id == subBranch.LatestCommitId && commit.SubBranchId == subBranch.SubBranchId))
+					if (!(commit.Id == subBranch.TipCommitId && commit.SubBranchId == subBranch.SubBranchId))
 					{
 						break;
 					}
@@ -147,12 +148,12 @@ namespace GitMind.GitModel.Private
 		{
 			IEnumerable<MSubBranch> branches = repository.SubBranches.Values
 				.Where(b =>
-					b.LatestCommit.BranchId == null
+					b.TipCommit.BranchId == null
 					&& b.IsActive);
 
 			foreach (MSubBranch branch in branches)
 			{
-				MCommit branchTip = branch.LatestCommit;
+				MCommit branchTip = branch.TipCommit;
 
 				MCommit last = TryFindFirstAncestorWithSameName(branchTip, branch.Name);
 

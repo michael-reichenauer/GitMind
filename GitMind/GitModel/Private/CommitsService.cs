@@ -183,6 +183,17 @@ namespace GitMind.GitModel.Private
 			commit.CommitId = MCommit.UncommittedId;
 			commit.ShortId = commit.Id.Substring(0, 6);
 			commit.Subject = $"{gitStatus.Count} uncommitted changes in working folder";
+			if (gitStatus.ConflictCount > 0)
+			{
+				commit.Subject = $"{gitStatus.ConflictCount} conflicts and " + commit.Subject;
+				commit.HasConflicts = true;;
+			}
+			if (gitStatus.IsMerging)
+			{
+				commit.Subject = "Merge in progress: " + commit.Subject;
+				commit.IsMerging = true;
+			}
+
 			commit.Author = "";
 			commit.AuthorDate = DateTime.Now;
 			commit.CommitDate = DateTime.Now;

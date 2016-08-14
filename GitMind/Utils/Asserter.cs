@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Windows;
+using GitMind.Common;
 
 
 namespace GitMind.Utils
@@ -36,9 +36,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Fail(errorMessage, memberName, sourceFilePath, sourceLineNumber);
-
-			return new InvalidOperationException();
+			return Fail(errorMessage, memberName, sourceFilePath, sourceLineNumber);
 		}
 
 
@@ -48,13 +46,11 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Fail(error.Message, memberName, sourceFilePath, sourceLineNumber);
-
-			return new InvalidOperationException();
+			return Fail(error.Message, memberName, sourceFilePath, sourceLineNumber);
 		}
 
 
-		private static void Fail(
+		private static Exception Fail(
 			 string error, string memberName, string sourceFilePath, int sourceLineNumber)
 		{
 			StackTrace stackTrace = new StackTrace(true);
@@ -62,34 +58,10 @@ namespace GitMind.Utils
 			string message =
 				$"Fail {error} at\n{sourceFilePath}({sourceLineNumber}) {memberName}\n\n{stackTrace}";
 
-			ShowError(message);
+			Exception exception = new InvalidOperationException(message);
 
-			CloseProgram(message);
-			
-		}
-
-
-		private static void CloseProgram(string message)
-		{
-			if (Debugger.IsAttached)
-			{
-				Debugger.Break();
-			}
-
-			Environment.FailFast(message);
-		}
-
-
-		private static void ShowError(string message)
-		{
-			Log.Error(message);
-
-			MessageBox.Show(
-				Application.Current.MainWindow,
-				message,
-				"GitMind - Asserter",
-				MessageBoxButton.OK,
-				MessageBoxImage.Error);
+			ExceptionHandling.Shutdown("Assert failed", exception);
+			return exception;
 		}
 	}
 }

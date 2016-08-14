@@ -8,7 +8,10 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Common;
+using GitMind.Common.ProgressHandling;
 using GitMind.Features.Committing;
+using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
@@ -29,6 +32,8 @@ namespace GitMind.MainWindowViews
 		private readonly IGitService gitService = new GitService();
 
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
+		private readonly FolderMonitorService folderMonitor;
+
 		private readonly Window owner;
 		private bool isLoaded = false;
 
@@ -40,6 +45,7 @@ namespace GitMind.MainWindowViews
 		{
 			RepositoryViewModel = new RepositoryViewModel(owner, Busy);
 			this.owner = owner;
+			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
 		}
 
 
@@ -61,6 +67,7 @@ namespace GitMind.MainWindowViews
 				if (Set(value).IsSet)
 				{
 					RepositoryViewModel.WorkingFolder = value;
+					folderMonitor.Monitor(value);
 					Notify(nameof(Title));
 				}
 			}
@@ -109,11 +116,11 @@ namespace GitMind.MainWindowViews
 
 		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
 
-		public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, IsUncommitted);
+		//public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, IsUncommitted);
 
-		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
+//		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
 
-		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
+		
 
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
@@ -169,6 +176,19 @@ namespace GitMind.MainWindowViews
 		}
 
 
+		private void OnStatusChange(DateTime triggerTime)
+		{
+			Log.Warn("Status change");
+			StatusChangeRefreshAsync(triggerTime, false).RunInBackground();
+		}
+
+
+		private void OnRepoChange(DateTime triggerTime)
+		{
+			Log.Warn("Repo change");
+			StatusChangeRefreshAsync(triggerTime, true).RunInBackground();
+		}
+
 		private bool IsUncommitted()
 		{
 			return RepositoryViewModel.UnCommited != null;
@@ -186,7 +206,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public Task StatusChangeRefreshAsync(bool isRepoChange)
+		public Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
 		{
 			if (!isLoaded)
 			{
@@ -203,7 +223,7 @@ namespace GitMind.MainWindowViews
 
 			//isStatusChanged = false;
 			//isRepositoryChanged = false;
-			return RepositoryViewModel.StatusChangeRefreshAsync(isRepoChange);
+			return RepositoryViewModel.StatusChangeRefreshAsync(triggerTime, isRepoChange);
 		}
 
 
@@ -326,71 +346,6 @@ namespace GitMind.MainWindowViews
 			if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
-			}
-		}
-
-
-		private async void ShowUncommittedDiff()
-		{
-			await diffService.ShowDiffAsync(Commit.UncommittedId, WorkingFolder);
-		}
-
-
-		private async void CommitChanges()
-		{
-			string branchName = RepositoryViewModel.UnCommited.Branch.Name;
-			string workingFolder = RepositoryViewModel.WorkingFolder;
-
-			IEnumerable<CommitFile> commitFiles = await RepositoryViewModel.UnCommited.FilesTask;
-
-			Func<string, IEnumerable<CommitFile>, Task<bool>> commitAction = async (message, list) =>
-			{
-				using (Busy.Progress())
-				{
-					Log.Debug("Committing to git repo ...");
-
-					GitCommit gitCommit = await gitService.CommitAsync(workingFolder, message, list.ToList());
-					if (gitCommit != null)
-					{
-						Log.Debug("Committed to git repo done");
-
-						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
-					}
-
-					return true;
-				}
-			};
-
-			CommitDialog dialog = new CommitDialog(
-				owner,
-				branchName,
-				workingFolder,
-				commitAction,
-				commitFiles,
-				ShowUncommittedDiffCommand,
-				RepositoryViewModel.UndoUncommittedFileCommand);
-
-			if (dialog.ShowDialog() == true)
-			{
-				Log.Debug("After commit dialog, starting refresh after command");
-				Application.Current.MainWindow.Focus();
-				await RepositoryViewModel.RefreshAfterCommandAsync(false);
-				Log.Debug("After commit dialog, refresh done");
-			}
-			else
-			{
-				Application.Current.MainWindow.Focus();
-			}
-		}
-
-
-		private async void ShowSelectedDiff()
-		{
-			CommitViewModel commit = RepositoryViewModel.SelectedItem as CommitViewModel;
-
-			if (commit != null)
-			{
-				await diffService.ShowDiffAsync(commit.Commit.Id, WorkingFolder);
 			}
 		}
 

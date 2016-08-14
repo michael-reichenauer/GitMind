@@ -399,7 +399,9 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.SetBranchCommand,
 				repositoryViewModel.SwitchToCommitCommand,
 				repositoryViewModel.SwitchBranchCommand,
-				repositoryViewModel.CreateBranchFromCommitCommand));
+				repositoryViewModel.CreateBranchFromCommitCommand,
+				repositoryViewModel.UndoCleanWorkingFolderCommand,
+				repositoryViewModel.UndoUncommittedChangesCommand));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
@@ -480,6 +482,7 @@ namespace GitMind.RepositoryViews
 				branch.HoverBrushNormal = branch.Brush;
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
 				branch.BranchToolTip = GetBranchToolTip(branch);
+				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name;
 
 				branch.NotifyAll();
 			}
@@ -682,7 +685,15 @@ namespace GitMind.RepositoryViews
 		public Brush GetSubjectBrush(Commit commit)
 		{
 			Brush subjectBrush;
-			if (commit.IsUncommitted)
+			if (commit.HasConflicts)
+			{
+				subjectBrush = BrushService.ConflictBrush;
+			}
+			else if (commit.IsMerging)
+			{
+				subjectBrush = BrushService.MergeBrush;
+			}
+			else if (commit.IsUncommitted)
 			{
 				subjectBrush = brushService.UnCommittedBrush;
 			}

@@ -323,9 +323,11 @@ namespace GitMind.Installation.Private
 			string pathsVariables = (string)Registry.CurrentUser.OpenSubKey(keyName)
 				.GetValue("PATH", "", RegistryValueOptions.DoNotExpandEnvironmentNames);
 
+			pathsVariables = pathsVariables.Trim();
+
 			if (!pathsVariables.Contains(folderPath))
 			{
-				if (!pathsVariables.EndsWith(";"))
+				if (!string.IsNullOrEmpty(pathsVariables) && !pathsVariables.EndsWith(";"))
 				{
 					pathsVariables += ";";
 				}

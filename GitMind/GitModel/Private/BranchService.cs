@@ -48,8 +48,8 @@ namespace GitMind.GitModel.Private
 				if (!gitStatus.OK && gitBranch.Name == currentBranch.Name && !gitBranch.IsRemote)
 				{
 					// Setting virtual uncommitted commit as tip of the current branch
-					subBranch.LatestCommitId = MCommit.UncommittedId;
-					subBranch.LatestCommit.SubBranchId = subBranch.SubBranchId;
+					subBranch.TipCommitId = MCommit.UncommittedId;
+					subBranch.TipCommit.SubBranchId = subBranch.SubBranchId;
 				}
 			}
 		}
@@ -59,7 +59,7 @@ namespace GitMind.GitModel.Private
 		{
 			// Get the list of active branch tips
 			List<string> activeBranches = repository.SubBranches
-				.Where(b => b.Value.IsActive).Select(b => b.Value.LatestCommitId)
+				.Where(b => b.Value.IsActive).Select(b => b.Value.TipCommitId)
 				.ToList();
 
 			// Commits which has no child, which has this commit as a first parent, i.e. it is the 
@@ -77,7 +77,7 @@ namespace GitMind.GitModel.Private
 				{
 					Repository = repository,
 					SubBranchId = Guid.NewGuid().ToString(),
-					LatestCommitId = commit.Id,
+					TipCommitId = commit.Id,
 				};
 
 				string branchName = TryFindBranchName(commit);
@@ -114,7 +114,7 @@ namespace GitMind.GitModel.Private
 							Repository = repository,
 							Name = branchName,
 							SubBranchId = Guid.NewGuid().ToString(),
-							LatestCommitId = commit.Id,
+							TipCommitId = commit.Id,
 						};
 
 						subBranch.IsAnonymous = IsBranchNameAnonyous(branchName);
@@ -164,7 +164,7 @@ namespace GitMind.GitModel.Private
 							Repository = repository,
 							SubBranchId = Guid.NewGuid().ToString(),
 							Name = branchName,
-							LatestCommitId = commit.Id,
+							TipCommitId = commit.Id,
 							IsActive = false,
 						};
 
@@ -185,7 +185,7 @@ namespace GitMind.GitModel.Private
 
 		private void SetSubBranchCommits(MSubBranch subBranch)
 		{
-			foreach (MCommit commit in subBranch.LatestCommit.FirstAncestors()
+			foreach (MCommit commit in subBranch.TipCommit.FirstAncestors()
 				.TakeWhile(c =>
 					c.BranchId == null
 					&& c.SubBranchId == null
@@ -212,7 +212,7 @@ namespace GitMind.GitModel.Private
 				Repository = repository,
 				SubBranchId = Guid.NewGuid().ToString(),
 				Name = branchName,
-				LatestCommitId = gitBranch.TipId,
+				TipCommitId = gitBranch.TipId,
 				IsActive = true,
 				IsRemote = gitBranch.IsRemote
 			};

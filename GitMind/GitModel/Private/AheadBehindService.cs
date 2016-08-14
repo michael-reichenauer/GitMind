@@ -69,14 +69,14 @@ namespace GitMind.GitModel.Private
 		private static void MarkRemoteCommits(MRepository repository)
 		{
 			var remoteSubBranches = repository.SubBranches.Where(b => b.Value.IsActive && b.Value.IsRemote);
-			remoteSubBranches.ForEach(branch => MarkIsRemoteAhead(branch.Value.LatestCommit));
+			remoteSubBranches.ForEach(branch => MarkIsRemoteAhead(branch.Value.TipCommit));
 		}
 
 
 		private static void MarkLocalCommits(MRepository repository)
 		{
 			var localSubBranches = repository.SubBranches.Where(b => b.Value.IsActive && b.Value.IsLocal);
-			localSubBranches.ForEach(branch => MarkIsLocalAhead(branch.Value.LatestCommit));
+			localSubBranches.ForEach(branch => MarkIsLocalAhead(branch.Value.TipCommit));
 		}
 
 

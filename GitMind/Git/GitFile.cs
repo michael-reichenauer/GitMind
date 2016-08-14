@@ -1,54 +1,30 @@
 namespace GitMind.Git
 {
-	public class Conflict
-	{
-		public string Path { get; }
-		public string OursId { get; }
-		public string TheirsId { get;  }
-		public string BaseId { get; }
-
-
-		public Conflict(string path, string oursId, string theirsId, string baseId)
-		{
-			Path = path;
-			OursId = oursId;
-			TheirsId = theirsId;
-			BaseId = baseId;
-		}
-	}
-
-
 	public class GitFile
 	{
 		public GitFile(
 			string file, 
 			string oldFile,
-			Conflict conflict,
-			bool isModified,
-			bool isAdded, 
-			bool isDeleted,
-			bool isRenamed,
-			bool isConflict)
+			GitConflict conflict,
+			GitFileStatus status)
 		{
+
 			File = file;
 			OldFile = oldFile;
 			Conflict = conflict;
-
-			IsModified = isModified;
-			IsAdded = isAdded;
-			IsDeleted = isDeleted;
-			IsRenamed = isRenamed;
-			IsConflict = isConflict;
+			Status = status;
 		}
 
 		public string File { get; }
 		public string OldFile { get; }
-		public Conflict Conflict { get;  }
-		public bool IsModified { get; }
-		public bool IsAdded { get; }
-		public bool IsDeleted { get; }
-		public bool IsRenamed { get; }
-		public bool IsConflict { get; }
+		public GitConflict Conflict { get;  }
+		public GitFileStatus Status { get; }
+
+		public bool IsModified => Status.HasFlag(GitFileStatus.Modified);
+		public bool IsAdded => Status.HasFlag(GitFileStatus.Added);
+		public bool IsDeleted => Status.HasFlag(GitFileStatus.Deleted);
+		public bool IsRenamed => Status.HasFlag(GitFileStatus.Renamed);
+		public bool IsConflict => Status.HasFlag(GitFileStatus.Conflict);
 
 		public override string ToString() => File;
 	}

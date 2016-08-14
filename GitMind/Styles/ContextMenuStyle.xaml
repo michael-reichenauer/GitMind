@@ -83,7 +83,7 @@
 					<ColumnDefinition Width="13" />
 				</Grid.ColumnDefinitions>
 				<ContentPresenter Name="Icon" Margin="0" VerticalAlignment="Center" ContentSource="Icon" />
-				<Border 
+				<Border Grid.Column="0"
 					Name="Check"
 					Width="13"
 					Height="13"
@@ -91,16 +91,16 @@
 					Margin="6,0,6,0"
 					Background="Black"
 					BorderThickness="1"
-					BorderBrush="#5082a4">
+					BorderBrush="Transparent">
 					<Path
 						Name="CheckMark"
-						Width="7"
-						Height="7"
+						Width="14"
+						Height="14"
 						Visibility="Hidden"
 						SnapsToDevicePixels="False"
 						Stroke="{StaticResource TextBrush}"
 						StrokeThickness="2"
-						Data="M 0 0 L 7 7 M 0 7 L 7 0" />
+						Data="M 2 5 L 5 10 11 2" />
 				</Border>
 				<ContentPresenter 
 					Name="HeaderHost"
