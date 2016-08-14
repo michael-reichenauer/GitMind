@@ -1024,9 +1024,10 @@ namespace GitMind.RepositoryViews
 				if (gitCommit != null)
 				{
 					Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {gitCommit.Id}");
-					await gitService.SetCommitBranchAsync(WorkingFolder, gitCommit.Id, currentBranch.Name);
-					await RefreshAfterCommandAsync(false);
+					await gitService.SetCommitBranchAsync(WorkingFolder, gitCommit.Id, currentBranch.Name);	
 				}
+
+				await RefreshAfterCommandAsync(false);
 			});
 
 			return Task.CompletedTask;
