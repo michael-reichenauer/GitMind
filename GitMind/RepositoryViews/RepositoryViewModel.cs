@@ -21,6 +21,9 @@ using GitMind.Utils.UI.VirtualCanvas;
 
 namespace GitMind.RepositoryViews
 {
+	/// <summary>
+	/// View model
+	/// </summary>
 	internal class RepositoryViewModel : ViewModel
 	{
 		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
@@ -1092,7 +1095,7 @@ namespace GitMind.RepositoryViews
 				if (gitCommit != null)
 				{
 					Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {gitCommit.Id}");
-					await gitService.SetCommitBranchAsync(WorkingFolder, gitCommit.Id, currentBranch.Name);	
+					await gitService.SetCommitBranchAsync(WorkingFolder, gitCommit.Id, currentBranch.Name);
 				}
 
 				await RefreshAfterCommandAsync(false);
