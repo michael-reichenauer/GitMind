@@ -1034,6 +1034,7 @@ namespace GitMind.RepositoryViews
 				workingFolder,
 				commitFiles,
 				commitMessage,
+				Repository.Status.IsMerging,
 				ShowUncommittedDiffCommand,
 				UndoUncommittedFileCommand);
 
@@ -1101,7 +1102,10 @@ namespace GitMind.RepositoryViews
 				await RefreshAfterCommandAsync(false);
 			});
 
-			await CommitChangesAsync();
+			if (Repository.Status.ConflictCount == 0)
+			{
+				await CommitChangesAsync();
+			}
 		}
 
 

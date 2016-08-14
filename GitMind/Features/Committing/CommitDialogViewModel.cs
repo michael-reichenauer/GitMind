@@ -28,6 +28,7 @@ namespace GitMind.Features.Committing
 			string workingFolder,
 			IEnumerable<CommitFile> files,
 			string commitMessage,
+			bool isMerging,
 			Command showUncommittedDiffCommand,
 			Command<string> undoUncommittedFileCommand)
 		{
@@ -50,6 +51,8 @@ namespace GitMind.Features.Committing
 					Description = string.Join("\n", lines.Skip(1));
 				}
 			}
+
+			BranchText = isMerging ? $"Commit merge to {branchName}" : $"Commit on {branchName}";
 			//Subject = TestSubject;
 			//Description = TestDescription;
 		}
@@ -77,7 +80,7 @@ namespace GitMind.Features.Committing
 		}
 
 
-		public string BranchText => $"Commit on {branchName}";
+		public string BranchText { get; }
 
 		public string Message => GetMessage();
 		public IReadOnlyList<CommitFile> CommitFiles { get; }

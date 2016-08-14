@@ -22,6 +22,7 @@ namespace GitMind.Features.Committing
 			string workingFolder,
 			IEnumerable<CommitFile> files,
 			string commitMessage,
+			bool isMerging,
 			Command showUncommittedDiffCommand,
 			Command<string> undoUncommittedFileCommand)
 		{
@@ -32,6 +33,7 @@ namespace GitMind.Features.Committing
 				workingFolder,
 				files,
 				commitMessage,
+				isMerging,
 				showUncommittedDiffCommand,
 				undoUncommittedFileCommand);
 
