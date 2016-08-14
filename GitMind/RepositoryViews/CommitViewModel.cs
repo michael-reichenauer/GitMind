@@ -18,6 +18,7 @@ namespace GitMind.RepositoryViews
 			Command<Commit> switchToCommitCommand,
 			Command<Branch> switchToBranchCommand,
 			Command<Commit> createBranchFromCommitCommand,
+			Command undoCleanWorkingFolderCommand,
 			Command undoUncommittedChangesCommand)
 		{
 			ToggleDetailsCommand = toggleDetailsCommand;
@@ -27,6 +28,7 @@ namespace GitMind.RepositoryViews
 			SwitchToBranchCommand = switchToBranchCommand.With(() => Commit.Branch);
 			CreateBranchFromCommitCommand = createBranchFromCommitCommand.With(() => Commit);
 			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
+			UndoCleanWorkingFolderCommand = undoCleanWorkingFolderCommand;
 		}
 
 
@@ -105,6 +107,7 @@ namespace GitMind.RepositoryViews
 		public Command SwitchToBranchCommand { get; }
 		public Command CreateBranchFromCommitCommand { get; }
 		public Command UndoUncommittedChangesCommand { get; }
+		public Command UndoCleanWorkingFolderCommand { get; }
 
 		// Values used by other properties
 		public Commit Commit { get; set; }
