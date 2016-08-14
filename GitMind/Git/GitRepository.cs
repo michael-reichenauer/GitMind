@@ -181,7 +181,7 @@ namespace GitMind.Git
 			Branch branch = localbranch ?? remoteBranch;
 			if (localbranch != null && remoteBranch != null)
 			{
-				if (remoteBranch.Tip.Committer.When.LocalDateTime > localbranch.Tip.Committer.When.LocalDateTime)
+				if (remoteBranch.Tip.Committer.When.LocalDateTime < localbranch.Tip.Committer.When.LocalDateTime)
 				{
 					branch = remoteBranch;
 				}
