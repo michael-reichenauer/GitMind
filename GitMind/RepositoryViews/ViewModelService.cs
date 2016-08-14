@@ -400,8 +400,8 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.SwitchToCommitCommand,
 				repositoryViewModel.SwitchBranchCommand,
 				repositoryViewModel.CreateBranchFromCommitCommand,
-				repositoryViewModel.UndoUncommittedChangesCommand,
-				repositoryViewModel.UndoCleanWorkingFolderCommand));
+				repositoryViewModel.UndoCleanWorkingFolderCommand,
+				repositoryViewModel.UndoUncommittedChangesCommand));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
