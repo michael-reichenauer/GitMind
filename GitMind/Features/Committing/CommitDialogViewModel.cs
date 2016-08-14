@@ -44,7 +44,14 @@ namespace GitMind.Features.Committing
 			if (!string.IsNullOrWhiteSpace(commitMessage))
 			{
 				string[] lines = commitMessage.Split("\n".ToCharArray());
-				Subject = lines[0];
+				string subject = lines[0];
+				string mergeSubjectSuffix = $" into {branchName}";
+				if (!subject.EndsWith(mergeSubjectSuffix))
+				{
+					subject += mergeSubjectSuffix;
+				}
+
+				Subject = subject;
 
 				if (lines.Length > 1)
 				{
