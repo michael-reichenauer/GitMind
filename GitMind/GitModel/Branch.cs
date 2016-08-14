@@ -59,10 +59,7 @@ namespace GitMind.GitModel
 		public bool HasParentBranch => parentBranchId != null;
 		public Branch ParentBranch => repository.Branches[parentBranchId];
 		public bool IsCurrentBranch => repository.CurrentBranch == this;
-		public bool IsMergeable =>
-			!IsCurrentBranch
-			&& repository.Status.ConflictCount == 0
-			&& repository.Status.StatusCount == 0;
+		public bool IsMergeable => !IsCurrentBranch;
 
 
 		public IEnumerable<Branch> GetChildBranches()
