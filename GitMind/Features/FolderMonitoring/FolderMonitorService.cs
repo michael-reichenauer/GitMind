@@ -24,17 +24,16 @@ namespace GitMind.Features.FolderMonitoring
 
 		private DateTime statusChangeTime;
 		private DateTime statusTriggerTime;
-		private readonly Action statusTriggerAction;
+		private readonly Action<DateTime> statusTriggerAction;
 		private readonly DispatcherTimer statusTimer;
 
 		private DateTime repoChangeTime;
 		private DateTime repoTriggerTime;
-		private readonly Action repoTriggerAction;
+		private readonly Action<DateTime> repoTriggerAction;
 		private readonly DispatcherTimer repoTimer;
-		private string currentFolder = null;
+	
 
-
-		public FolderMonitorService(Action statusTriggerAction, Action repoTriggerAction)
+		public FolderMonitorService(Action<DateTime> statusTriggerAction, Action<DateTime> repoTriggerAction)
 		{
 			this.statusTriggerAction = statusTriggerAction;
 			statusTimer = new DispatcherTimer();
@@ -58,7 +57,6 @@ namespace GitMind.Features.FolderMonitoring
 
 		public void Monitor(string workingFolder)
 		{
-			currentFolder = workingFolder;
 			workFolderWatcher.EnableRaisingEvents = false;
 			refsWatcher.EnableRaisingEvents = false;
 			statusTimer.Stop();
@@ -145,12 +143,13 @@ namespace GitMind.Features.FolderMonitoring
 		private void OnStatusTimer()
 		{
 			DateTime now = DateTime.Now;
+			DateTime triggerTime = statusChangeTime;
 
 			if (now - statusTriggerTime > MaxTriggerTimeout)
 			{
 				statusTriggerTime = now;
 				statusChangeTime = now;
-				statusTriggerAction();
+				statusTriggerAction(triggerTime);
 			}
 
 			if (now - statusChangeTime > EndTriggerTimeout)
@@ -164,7 +163,7 @@ namespace GitMind.Features.FolderMonitoring
 
 				if (isEndTrigger)
 				{
-					statusTriggerAction();
+					statusTriggerAction(triggerTime);
 				}
 			}
 		}
@@ -173,6 +172,7 @@ namespace GitMind.Features.FolderMonitoring
 		private void OnRepoTimer()
 		{
 			DateTime now = DateTime.Now;
+			DateTime triggerTime = repoChangeTime;
 
 			if (now - repoTriggerTime > MaxTriggerTimeout)
 			{
@@ -181,7 +181,7 @@ namespace GitMind.Features.FolderMonitoring
 
 				repoTriggerTime = now;
 				repoChangeTime = now;
-				repoTriggerAction();
+				repoTriggerAction(triggerTime);
 			}
 
 			if (now - repoChangeTime > EndTriggerTimeout)
@@ -199,7 +199,7 @@ namespace GitMind.Features.FolderMonitoring
 
 				if (isEndTrigger)
 				{
-					repoTriggerAction();
+					repoTriggerAction(triggerTime);
 				}
 			}
 		}

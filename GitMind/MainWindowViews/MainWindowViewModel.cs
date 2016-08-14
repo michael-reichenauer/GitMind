@@ -175,17 +175,17 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private void OnStatusChange()
+		private void OnStatusChange(DateTime triggerTime)
 		{
 			Log.Warn("Status change");
-			StatusChangeRefreshAsync(false).RunInBackground();
+			StatusChangeRefreshAsync(triggerTime, false).RunInBackground();
 		}
 
 
-		private void OnRepoChange()
+		private void OnRepoChange(DateTime triggerTime)
 		{
 			Log.Warn("Repo change");
-			StatusChangeRefreshAsync(true).RunInBackground();
+			StatusChangeRefreshAsync(triggerTime, true).RunInBackground();
 		}
 
 		private bool IsUncommitted()
@@ -205,7 +205,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public Task StatusChangeRefreshAsync(bool isRepoChange)
+		public Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
 		{
 			if (!isLoaded)
 			{
@@ -222,7 +222,7 @@ namespace GitMind.MainWindowViews
 
 			//isStatusChanged = false;
 			//isRepositoryChanged = false;
-			return RepositoryViewModel.StatusChangeRefreshAsync(isRepoChange);
+			return RepositoryViewModel.StatusChangeRefreshAsync(triggerTime, isRepoChange);
 		}
 
 

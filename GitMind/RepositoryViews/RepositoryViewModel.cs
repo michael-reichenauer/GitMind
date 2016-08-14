@@ -294,7 +294,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Task StatusChangeRefreshAsync(bool isRepoChange)
+		public Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
 		{
 			if (isInternalDialog)
 			{
@@ -308,11 +308,12 @@ namespace GitMind.RepositoryViews
 				using (busyIndicator.Progress())
 				{
 					Repository repository;
-					if (isRepoChange && DateTime.Now - FreshRepositoryTime > FreshRepositoryInterval)
+					if (isRepoChange && triggerTime - FreshRepositoryTime > FreshRepositoryInterval)
 					{
 						Log.Debug("Get fresh repository from scratch");
 						FreshRepositoryTime = DateTime.Now;
 						repository = await repositoryService.GetFreshRepositoryAsync(WorkingFolder);
+						FreshRepositoryTime = DateTime.Now;
 					}
 					else
 					{
