@@ -1141,11 +1141,11 @@ namespace GitMind.RepositoryViews
 			await Task.Yield();
 
 			isInternalDialog = true;
-			Progress.ShowDialog(owner, $"Undo and clean working folder {WorkingFolder} ...", async () =>
+			Progress.ShowDialog(owner, $"Undo changes and clean working folder {WorkingFolder} ...", async () =>
 			{
 				await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
 
-				await RefreshAfterCommandAsync(true);
+				await RefreshAfterCommandAsync(false);
 			});
 		}
 
@@ -1153,15 +1153,15 @@ namespace GitMind.RepositoryViews
 		private async Task UndoUncommittedChangesAsync()
 		{
 			await Task.Yield();
-			isInternalDialog = true;
 
-			Progress.ShowDialog(owner, async progress =>
+			isInternalDialog = true;
+			Progress.ShowDialog(owner, $"Undo changes in working folder {WorkingFolder} ...", async () =>
 			{
-				progress.SetText("Undo uncommitted changes ...");
-				await Task.Delay(5000);
-				progress.SetText("Checking status ...");
-				await Task.Delay(5000);
+				await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
+
+				await RefreshAfterCommandAsync(false);
 			});
+
 
 			//await Task.Delay(2000);
 			//// await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);

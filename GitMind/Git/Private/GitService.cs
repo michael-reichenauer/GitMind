@@ -336,7 +336,7 @@ namespace GitMind.Git.Private
 					{
 						using (GitRepository gitRepository = OpenRepository(workingFolder))
 						{
-							gitRepository.UndoCleanWorkingFolde();
+							gitRepository.UndoCleanWorkingFolder();
 						}
 					}
 					catch (Exception e)
@@ -348,6 +348,34 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to undo and clean {workingFolder}, {e.Message}");
+			}
+		}
+
+
+		public async Task UndoWorkingFolderAsync(string workingFolder)
+		{
+			try
+			{
+				Log.Debug("Undo ...");
+
+				await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							gitRepository.UndoWorkingFolder();
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to undo, {e.Message}");
+					}
+				});
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to undo {workingFolder}, {e.Message}");
 			}
 		}
 

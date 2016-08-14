@@ -316,7 +316,7 @@ namespace GitMind.Git
 		}
 
 
-		public void UndoCleanWorkingFolde()
+		public void UndoCleanWorkingFolder()
 		{
 			repository.Reset(ResetMode.Hard);
 
@@ -342,9 +342,14 @@ namespace GitMind.Git
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to delete {path}, {e.Message}");
-					throw;
 				}
 			}
+		}
+
+
+		public void UndoWorkingFolder()
+		{
+			repository.Reset(ResetMode.Hard);
 		}
 
 

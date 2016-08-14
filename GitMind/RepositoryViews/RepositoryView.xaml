@@ -334,8 +334,9 @@
 																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE042;"/>
 																	</Border>
 																</MenuItem.Icon>
+																
 																<MenuItem 
-																	Header="Undo uncommitted changes" 
+																	Header="Undo changes" 
 																	Command="{Binding UndoUncommittedChangesCommand}">
 																	<MenuItem.Icon>
 																		<Border>
@@ -346,6 +347,21 @@
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
+
+
+																<MenuItem 
+																	Header="Undo changes and clean ignored files" 
+																	Command="{Binding UndoCleanWorkingFolderCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock 
+																				Style="{StaticResource MenuIconStyle}" 
+																				Text="&#xE042;"
+																				Foreground="{StaticResource UndoBrush}"/>
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
+
 															</MenuItem>
 
 															<MenuItem Header="Switch">
