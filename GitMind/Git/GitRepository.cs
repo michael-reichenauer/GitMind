@@ -175,7 +175,17 @@ namespace GitMind.Git
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 
-			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			Branch localbranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+
+			Branch branch = localbranch ?? remoteBranch;
+			if (localbranch != null && remoteBranch != null)
+			{
+				if (remoteBranch.Tip.Committer.When.LocalDateTime > localbranch.Tip.Committer.When.LocalDateTime)
+				{
+					branch = remoteBranch;
+				}
+			}
 
 			if (branch != null)
 			{
