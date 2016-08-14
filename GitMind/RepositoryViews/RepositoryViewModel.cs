@@ -1092,7 +1092,7 @@ namespace GitMind.RepositoryViews
 
 			if (branch == Repository.CurrentBranch)
 			{
-				MessageDialog.ShowWarning(owner, "You cannot merge current a branch into it self.");
+				MessageDialog.ShowWarning(owner, "You cannot merge current branch into it self.");
 				return;
 			}
 
