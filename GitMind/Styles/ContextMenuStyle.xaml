@@ -75,7 +75,7 @@
 	
 		<!-- MR order for highlight --> 
 		<Border Name="Border" BorderThickness="1">
-			<Grid>
+			<Grid Background="{StaticResource BackgroundBrush}">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" SharedSizeGroup="Icon" />
 					<ColumnDefinition Width="*" />
@@ -113,6 +113,7 @@
 					Text="{TemplateBinding InputGestureText}"
 					Margin="30,0,0,0"
 					HorizontalAlignment="Left"
+					Background="{StaticResource BackgroundBrush}"
 					TextAlignment="Left"
 					DockPanel.Dock="Left" />
 			</Grid>
@@ -157,6 +158,7 @@
 					Text="{TemplateBinding InputGestureText}"
 					Margin="5,2,2,2"
 					HorizontalAlignment="Left"
+					Background="Transparent"
 					DockPanel.Dock="Right" />
 				<Path 
 					Grid.Column="3"
