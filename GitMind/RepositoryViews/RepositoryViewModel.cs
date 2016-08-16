@@ -256,19 +256,19 @@ namespace GitMind.RepositoryViews
 			{
 				Log.Debug("Loading repository ...");
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(WorkingFolder);
-				string statusText = isRepositoryCached ? "Loading ..." : "First time, building model ...";
+				string statusText = isRepositoryCached ? "Loading ..." : "First time, building new model ...";
 
 				Progress.ShowDialog(owner, statusText, async () =>
 				{
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
 					UpdateInitialViewModel(repository);
-
-					repository = await GetLocalChangesAsync(Repository);
-					UpdateViewModel(repository);
 				});
-
+			
 				using (busyIndicator.Progress())
 				{
+					repository = await GetLocalChangesAsync(Repository);
+					UpdateViewModel(repository);
+
 					await FetchRemoteChangesAsync(Repository, true);
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository);
@@ -367,7 +367,7 @@ namespace GitMind.RepositoryViews
 
 		public Task ManualRefreshAsync()
 		{
-			Progress.ShowDialog(owner, "Rebuilding fresh model", async () =>
+			Progress.ShowDialog(owner, "Rebuilding new model", async () =>
 			{
 				await refreshThrottler.Run(async () =>
 				{
