@@ -76,6 +76,7 @@
 					<Button 	
 						Style="{StaticResource BaseButtonStyle}"
 						FontSize="12"
+						Foreground="{StaticResource TextBrush}"
 						Command="{Binding RepositoryViewModel.ShowCurrentBranchCommand}"
 						Margin="2,0,10,0">
 						<Button.ToolTip>
@@ -83,7 +84,7 @@
 								BorderThickness="2"
 								BorderBrush="{Binding RepositoryViewModel.CurrentBranchBrush}">
 								<StackPanel Orientation="Horizontal">
-									<TextBlock Text="Current branch: " Foreground="{StaticResource TextBrush}"/>
+									<TextBlock Text="Show current branch " Foreground="{StaticResource TextBrush}"/>
 									<TextBlock Text="{Binding RepositoryViewModel.CurrentBranchName}" Foreground="{StaticResource TextBrush}"/>
 								</StackPanel>
 							</ToolTip>

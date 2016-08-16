@@ -310,7 +310,7 @@ namespace GitMind.RepositoryViews
 			Branch[] masterBranches = { masterBranch };
 
 			List<Branch> branchesInRepo = new List<Branch>();
-			foreach (Branch branch in branches)
+			foreach (Branch branch in branches.Where(b => b != null))
 			{
 				Branch branchInRepo = repositoryViewModel.Repository.Branches
 					.FirstOrDefault(b => b.Id == branch.Id);
