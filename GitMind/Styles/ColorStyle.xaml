@@ -6,17 +6,21 @@
 	<SolidColorBrush x:Key="SelectedItemBorderBrush" Color="#FF6495ED"/>
 	<SolidColorBrush x:Key="SelectedItemBackgroundBrush" Color="#000025" />
 	<SolidColorBrush x:Key="HoverItemBrush" Color="#996495ED" />
-	<SolidColorBrush x:Key="TextBrush" Color="Lavender" />
+	<SolidColorBrush x:Key="BackgroundBrush" Color="#FF0E0E0E" />
+	<SolidColorBrush x:Key="TextBrush" Color="#FFD4D4D4" />
 	<SolidColorBrush x:Key="TextLowBrush" Color="LightSteelBlue" />
 
-	<SolidColorBrush x:Key="BorderBrush" Color="DarkSlateBlue" />
+	<SolidColorBrush x:Key="BorderBrush" Color="#FF5C4CB5" />
 	<SolidColorBrush x:Key="TicketBrush" Color="#F25B54" />
 	<SolidColorBrush x:Key="UndoBrush" Color="#F75B54" />
 	<SolidColorBrush x:Key="TagBrush" Color="#42C650" />
 	<SolidColorBrush x:Key="BranchTipsBrush" Color="Aqua" />
 	<SolidColorBrush x:Key="CurrentCommitIndicatorBrush" Color="LightSteelBlue" />
-
+		
 	<SolidColorBrush x:Key="RemoteAheadBrush" Color="#BBBBFB" />
+	<SolidColorBrush x:Key="BusyBrush" Color="#FFE540FF" />
+	<SolidColorBrush x:Key="ScrollbarBrush" Color="DarkOrchid" />
+	
 	<SolidColorBrush x:Key="LocalAheadBrush" Color="LightGreen" />
 	<SolidColorBrush x:Key="ConflictBrush" Color="#F25B54" />
 	<SolidColorBrush x:Key="ResolvedBrush" Color="LightGreen" />

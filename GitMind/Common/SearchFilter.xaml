@@ -30,7 +30,7 @@
 					Height="20"
 					Margin="3,0"
 					Padding="0"
-					Background="Black"
+					Background="{StaticResource BackgroundBrush}"
 					Text="{Binding SearchBox, UpdateSourceTrigger=PropertyChanged}"
 					Foreground="{StaticResource TextBrush}"
 					HorizontalAlignment="Right"

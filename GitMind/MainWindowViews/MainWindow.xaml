@@ -43,7 +43,7 @@
 
 
 	<!-- Main window -->
-	<Grid Background="Black">
+	<Grid Background="{StaticResource BackgroundBrush}">
 		<Grid.RowDefinitions>
 			<!-- Title and tool bar -->
 			<RowDefinition Height="Auto" />
@@ -83,7 +83,7 @@
 								BorderThickness="2"
 								BorderBrush="{Binding RepositoryViewModel.CurrentBranchBrush}">
 								<StackPanel Orientation="Horizontal">
-									<TextBlock Text="Current branch: " Foreground="{StaticResource TextLowBrush}"/>
+									<TextBlock Text="Current branch: " Foreground="{StaticResource TextBrush}"/>
 									<TextBlock Text="{Binding RepositoryViewModel.CurrentBranchName}" Foreground="{StaticResource TextBrush}"/>
 								</StackPanel>
 							</ToolTip>
@@ -239,8 +239,8 @@
 					
 					<!-- Busy Indicator  -->
 					<StackPanel Orientation="Horizontal">
-						<Label Content="{Binding Busy.ProgressText}" Foreground="{StaticResource TextLowBrush}" Margin="10,0,0,0" FontSize="12"/>
-						<Label Content="{Binding Busy.Text}" Foreground="DarkOrchid" Margin="0,0,10,0" FontSize="10"/>
+						<Label Content="{Binding Busy.ProgressText}" Foreground="{StaticResource TextBrush}" Margin="10,0,0,0" FontSize="12"/>
+						<Label Content="{Binding Busy.Text}" Foreground="{StaticResource BusyBrush}" Margin="0,0,10,0" FontSize="10"/>
 					</StackPanel>
 				</StackPanel>
 

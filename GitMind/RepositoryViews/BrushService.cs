@@ -16,7 +16,7 @@ namespace GitMind.RepositoryViews
 		private readonly List<Brush> darkBrushes = new List<Brush>();
 		private readonly List<Brush> lighterBrushes = new List<Brush>();
 
-		public SolidColorBrush SubjectBrush { get; } = Brushes.White;
+		public SolidColorBrush SubjectBrush { get; } = BrushFromHex("#D4D4D4");
 		public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightGreen;
 		public SolidColorBrush RemoteAheadBrush { get; } = BrushFromHex("#BBBBFB");
 
@@ -27,7 +27,7 @@ namespace GitMind.RepositoryViews
 		public static SolidColorBrush BranchTipBrush { get; } = Brushes.Aqua;
 
 		public static SolidColorBrush TagBrush { get; } = BrushFromHex("#42C650");
-		public static SolidColorBrush TextBrush { get; } = Brushes.Lavender;
+		public static SolidColorBrush TextBrush { get; } = BrushFromHex("#D4D4D4");
 		public static SolidColorBrush TicketBrush { get; } = BrushFromHex("#F25B54");
 		public static Brush DimBrush { get; } = Brushes.DimGray;
 

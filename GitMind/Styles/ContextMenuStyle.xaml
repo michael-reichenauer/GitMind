@@ -7,11 +7,11 @@
 	<!-- Separator -->
 	<Style TargetType="{x:Type Separator}">
 		<Setter Property="Height" Value="1" />
-		<Setter Property="Background" Value="DarkSlateBlue" />
+		<Setter Property="Background" Value="{StaticResource BorderBrush}" />
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type Separator}">
-					<Rectangle Height="{TemplateBinding Height}" Fill="DarkSlateBlue" />
+					<Rectangle Height="{TemplateBinding Height}" Fill="{StaticResource BorderBrush}" />
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
@@ -21,7 +21,7 @@
 	<Style x:Key="MenuIconStyle" TargetType="{x:Type TextBlock}">
 		<Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Material Icons"/>
 		<Setter Property="FontSize" Value="18"/>
-		<Setter Property="Foreground" Value="LightSteelBlue"/>
+		<Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
 		<Setter Property="Padding" Value="0"/>
 		<Setter Property="Margin" Value="6,0,6,0"/>
@@ -30,14 +30,14 @@
 
 	<!-- Outer menu items -->
 	<Style TargetType="{x:Type MenuItem}">
-		<Setter Property="Background" Value="Black"/>
+		<Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
 		<Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
 		<Setter Property="FontFamily" Value="Segoe UI"/>
 		<Setter Property="FontSize" Value="12"/>
 		<Setter Property="Margin" Value="5,0"/>
 		<Style.Triggers>
 			<Trigger Property="IsHighlighted" Value="True">
-				<Setter Property="Background" Value="Black"/>
+				<Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="False">
 				<Setter Property="Foreground" Value="Gray"/>
@@ -55,14 +55,14 @@
 				<ControlTemplate TargetType="{x:Type ContextMenu}">
 
 					<!-- Here is where you change the border thickness to zero on the menu-->
-					<Border BorderThickness="2" x:Name="Border" BorderBrush="DarkSlateBlue" Background="Black">
+					<Border BorderThickness="2" x:Name="Border" BorderBrush="{StaticResource BorderBrush}" Background="{StaticResource BackgroundBrush}">
 						<StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True" />
 					</Border>
 					
 					<!-- main background when not selected -->
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsMouseOver" Value="true">
-							<Setter TargetName="Border" Property="Background" Value="Black" />
+							<Setter TargetName="Border" Property="Background" Value="{StaticResource BackgroundBrush}" />
 						</Trigger>
 					</ControlTemplate.Triggers>
 				</ControlTemplate>
@@ -89,7 +89,7 @@
 					Height="13"
 					Visibility="Collapsed"
 					Margin="6,0,6,0"
-					Background="Black"
+					Background="{StaticResource BackgroundBrush}"
 					BorderThickness="1"
 					BorderBrush="Transparent">
 					<Path
@@ -134,7 +134,7 @@
 				<Setter TargetName="Border" Property="BorderBrush" Value="#996495ED" />
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="false">
-				<Setter Property="Foreground" Value="Black" />
+				<Setter Property="Foreground" Value="{StaticResource BackgroundBrush}" />
 			</Trigger>
 		</ControlTemplate.Triggers>
 	</ControlTemplate>
@@ -177,8 +177,8 @@
 					<Border 
 						Name="SubmenuBorder"
 						SnapsToDevicePixels="True"
-						Background="Black"
-						BorderBrush="DarkSlateBlue"
+						Background="{StaticResource BackgroundBrush}"
+						BorderBrush="{StaticResource BorderBrush}"
 						BorderThickness="2">
 						<StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
 					</Border>
@@ -191,7 +191,7 @@
 				<Setter TargetName="Icon" Property="Visibility" Value="Collapsed" />
 			</Trigger>
 			<Trigger Property="IsHighlighted" Value="true">
-				<Setter TargetName="Border" Property="Background" Value="Black" />
+				<Setter TargetName="Border" Property="Background" Value="{StaticResource BackgroundBrush}" />
 			</Trigger>
 			<Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="True">
 				<Setter TargetName="SubmenuBorder" Property="Padding" Value="0,3,0,3" />

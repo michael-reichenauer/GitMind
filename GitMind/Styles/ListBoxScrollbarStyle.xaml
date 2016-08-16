@@ -6,10 +6,10 @@
 
 	<Style x:Key="ListBoxScrollbarStyle" TargetType="{x:Type ListBox}">
 
-		<Setter Property="Background" Value="Black"/>
-		<Setter Property="BorderBrush" Value="Black"/>
+		<Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+		<Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
 		<Setter Property="BorderThickness" Value="1"/>
-		<Setter Property="Foreground" Value="Black"/>
+		<Setter Property="Foreground" Value="{StaticResource BackgroundBrush}"/>
 		<Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
 		<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
 		<Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
@@ -87,9 +87,9 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type Thumb}">
-					<Rectangle Width="10" Fill="DarkOrchid" RadiusX="2" RadiusY="2">
+					<Rectangle Width="10" Fill="{StaticResource ScrollbarBrush}" RadiusX="2" RadiusY="2">
 						<!--<Rectangle.Effect>
-								<DropShadowEffect ShadowDepth="0" BlurRadius="1" Color="DarkOrchid" />
+								<DropShadowEffect ShadowDepth="0" BlurRadius="1" Color="{StaticResource ScrollbarBrush}" />
 							</Rectangle.Effect>-->
 					</Rectangle>
 				</ControlTemplate>
@@ -130,7 +130,7 @@
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type ScrollBar}">
 					<Grid x:Name="Bg" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
-						<Border Width="1" Background="DarkOrchid" HorizontalAlignment="Center"/>
+						<Border Width="1" Background="{StaticResource ScrollbarBrush}" HorizontalAlignment="Center"/>
 						<Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsMouseOver}">
 
 							<Track.Thumb>

@@ -6,7 +6,7 @@
 	<!-- Tool tip style -->
 	<Style x:Key="{x:Type ToolTip}" TargetType="ToolTip">
 
-		<Setter Property="Background" Value="Black" />
+		<Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
 		<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
 		<Setter Property="BorderBrush" Value="#FF6495ED" />
 		<Setter Property="BorderThickness" Value="1" />

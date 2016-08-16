@@ -6,7 +6,8 @@
 				xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 				xmlns:local="clr-namespace:GitMind.Features.Branching"
 				mc:Ignorable="d"
-				Title="Branch" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Background="Black"
+				Title="Branch" SizeToContent="WidthAndHeight" ResizeMode="NoResize" 
+				Background="{StaticResource BackgroundBrush}"
 				WindowStyle="None" AllowsTransparency="True"
 				BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
 				ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
@@ -43,7 +44,7 @@
 					Orientation="Horizontal">
 
 					<TextBlock Text="Create Branch" 							
-						Foreground="{StaticResource TextLowBrush}"
+						Foreground="{StaticResource TextBrush}"
 						Margin="10, 5"/>
 
 				</StackPanel>
