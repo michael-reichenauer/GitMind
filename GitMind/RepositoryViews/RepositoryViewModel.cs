@@ -160,7 +160,7 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
-		public string PullCurrentBranchText => $"Pull current branch '{CurrentBranchName}'";
+		public string PullCurrentBranchText => $"Update current branch '{CurrentBranchName}'";
 
 		public string PushCurrentBranchText => $"Push current branch '{CurrentBranchName}'";
 
