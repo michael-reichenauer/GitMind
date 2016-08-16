@@ -57,6 +57,13 @@ namespace GitMind.Features.FolderMonitoring
 
 		public void Monitor(string workingFolder)
 		{
+			string refsPath = Path.Combine(workingFolder, GitFolder, GitRefsFolder);
+			if (!Directory.Exists(workingFolder) || !Directory.Exists(refsPath))
+			{
+				Log.Warn($"Either {workingFolder} or {refsPath} does not exist.");
+				return;
+			}
+
 			workFolderWatcher.EnableRaisingEvents = false;
 			refsWatcher.EnableRaisingEvents = false;
 			statusTimer.Stop();
@@ -67,7 +74,8 @@ namespace GitMind.Features.FolderMonitoring
 			workFolderWatcher.Filter = "*.*";
 			workFolderWatcher.IncludeSubdirectories = true;
 
-			refsWatcher.Path = Path.Combine(workingFolder, GitFolder, GitRefsFolder);
+			
+			refsWatcher.Path = refsPath;
 			refsWatcher.NotifyFilter = NotifyFilters;
 			refsWatcher.Filter = "*.*";
 			refsWatcher.IncludeSubdirectories = true;
