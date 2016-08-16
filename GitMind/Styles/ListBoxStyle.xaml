@@ -12,7 +12,7 @@
 					<Border 
 						Name="ItemBorder"
 						CornerRadius="0" 
-						BorderBrush="Black"
+						BorderBrush="{StaticResource BackgroundBrush}"
 						BorderThickness="1" 
 						Margin="2,1"
 						Background="{StaticResource ItemBrush}">
@@ -52,7 +52,7 @@
 					<Border 
 						Name="ItemBorder"
 						CornerRadius="0" 
-						BorderBrush="Black"
+						BorderBrush="{StaticResource BackgroundBrush}"
 						BorderThickness="1" 
 						Margin="2,1"
 						Background="{StaticResource ItemBrush}">

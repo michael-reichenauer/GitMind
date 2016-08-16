@@ -23,7 +23,7 @@
 													BorderBrush="{TemplateBinding BorderBrush}" 
 													BorderThickness="{TemplateBinding BorderThickness}"/>
 								<Path x:Name="CheckMark" 
-												Stroke="{StaticResource TextLowBrush}" 
+												Stroke="{StaticResource TextBrush}" 
 												StrokeThickness="2"
 												SnapsToDevicePixels="False" 
 												Data="M 2 5 L 5 10 11 2"/>

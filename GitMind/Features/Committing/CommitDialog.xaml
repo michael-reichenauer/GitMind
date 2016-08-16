@@ -9,7 +9,7 @@
 	xmlns:commiting="clr-namespace:GitMind.Features.Committing"
 	mc:Ignorable="d"
 	Title="Commit" 
-	Width="500" Height="380" Background="Black"
+	Width="500" Height="380" Background="{StaticResource BackgroundBrush}"
 	WindowStyle="None" AllowsTransparency="True"
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"		
 	WindowStartupLocation="CenterOwner">
@@ -33,7 +33,7 @@
 	</Window.InputBindings>
 
 
-	<Grid Background="Black">
+	<Grid Background="{StaticResource BackgroundBrush}">
 		<Grid.RowDefinitions>
 			<!-- Title and tool bar -->
 			<RowDefinition Height="Auto" />
@@ -49,7 +49,7 @@
 					Orientation="Horizontal">
 
 					<TextBlock Text="{Binding BranchText}" 							
-						Foreground="{StaticResource TextLowBrush}"
+						Foreground="{StaticResource TextBrush}"
 						Margin="10, 5"/>
 					
 					<!-- diff button -->
@@ -57,8 +57,7 @@
 						Content="&#xE915;"
 						KeyboardNavigation.IsTabStop="False"
 						HorizontalAlignment="Left"	
-						Style="{StaticResource IconButtonStyle}"			
-						Foreground="{StaticResource TextLowBrush}"					
+						Style="{StaticResource IconButtonStyle}"						
 						Command="{Binding ShowUncommittedDiffCommand}"
 						ToolTip="Show diff of uncommitted changes ... (Ctrl-Enter)" 
 						WindowChrome.IsHitTestVisibleInChrome="True"/>

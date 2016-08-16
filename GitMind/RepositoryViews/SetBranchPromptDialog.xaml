@@ -10,7 +10,7 @@
 	Width="350" Height="280" ResizeMode="NoResize"
 	WindowStyle="None" AllowsTransparency="True"
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
-	Background="Black"
+	Background="{StaticResource BackgroundBrush}"
 	WindowStartupLocation="CenterOwner">
 
 	<!-- Enable "normal" windows behavior with drag and resize,
@@ -26,7 +26,7 @@
 	</Window.Resources>
 
 
-	<Grid Background="Black">
+	<Grid Background="{StaticResource BackgroundBrush}">
 		<Grid.RowDefinitions>
 			<!-- Title and tool bar -->
 			<RowDefinition Height="Auto" />

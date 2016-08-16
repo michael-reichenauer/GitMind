@@ -148,7 +148,8 @@ namespace GitMind.GitModel.Private
 		{
 			IEnumerable<MSubBranch> branches = repository.SubBranches.Values
 				.Where(b =>
-					b.TipCommit.BranchId == null
+					repository.Commits.ContainsKey(b.TipCommitId)
+					&& b.TipCommit.BranchId == null
 					&& b.IsActive);
 
 			foreach (MSubBranch branch in branches)
