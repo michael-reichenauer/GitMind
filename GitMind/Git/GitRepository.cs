@@ -198,7 +198,7 @@ namespace GitMind.Git
 				{
 					RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
 
-					if (!repositoryStatus.Any())
+					if (!repositoryStatus.IsDirty)
 					{
 						// Empty merge with no changes, lets reset merge since there is nothing to merge
 						repository.Reset(ResetMode.Hard);
