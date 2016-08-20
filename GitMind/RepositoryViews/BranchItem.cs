@@ -70,7 +70,9 @@ namespace GitMind.RepositoryViews
 		{
 			if (branches.Count() < 20)
 			{
-				return branches.Select(b => new BranchItem(b, showBranchCommand, mergeBranchCommand)).ToList();
+				return branches
+					.Select(b => new BranchItem(b, showBranchCommand, mergeBranchCommand))
+					.ToList();
 			}
 
 			return GetBranches("", branches, 0, showBranchCommand, mergeBranchCommand);
@@ -84,18 +86,33 @@ namespace GitMind.RepositoryViews
 			Command<Branch> showBranchCommand,
 			Command<Branch> mergeBranchCommand)
 		{
-			List<BranchItem> list = new List<BranchItem>();
+			List<BranchItem> localItems = level != 0 
+				? Enumerable.Empty<BranchItem>().ToList()
+				: branches
+					.Where(b => b.IsLocal)
+					.Take(10)
+					.Select(b => new BranchItem(b, showBranchCommand, mergeBranchCommand))
+					.ToList();
+
+			List<BranchItem> allItems = new List<BranchItem>();
 
 			foreach (Branch branch in branches.Where(b => b.Name.StartsWith(prefix)))
 			{
 				string[] nameParts = branch.Name.Split("/".ToCharArray());
 				if (nameParts.Length == level + 1)
 				{
-					list.Add(new BranchItem(branch, showBranchCommand, mergeBranchCommand));
+					if (level == 0 && !localItems.Any(b => b.Branch == branch))
+					{
+						localItems.Add(new BranchItem(branch, showBranchCommand, mergeBranchCommand));
+					}
+					else if (level != 0)
+					{
+						allItems.Add(new BranchItem(branch, showBranchCommand, mergeBranchCommand));
+					}
 				}
-				else if (!list.Any(n => n.Text == nameParts[level]))
+				else if (!allItems.Any(n => n.Text == nameParts[level]))
 				{
-					list.Add(new BranchItem(
+					allItems.Add(new BranchItem(
 						prefix + nameParts[level] + "/",
 						nameParts[level],
 						branches,
@@ -105,9 +122,15 @@ namespace GitMind.RepositoryViews
 				}
 			}
 
-			return list
+			allItems = allItems
 				.OrderBy(n => n.Branch != null)
 				.ThenBy(b => b.Text)
+				.ToList();
+
+			return 
+				localItems
+				.OrderBy(b => b.Text)
+				.Concat(allItems)
 				.ToList();
 		}
 	}

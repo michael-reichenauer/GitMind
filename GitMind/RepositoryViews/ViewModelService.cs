@@ -63,14 +63,16 @@ namespace GitMind.RepositoryViews
 
 			repositoryViewModel.ShowableBranches.Clear();
 
-			IReadOnlyList < BranchItem > showableBranches = BranchItem.GetBranches(
-			repositoryViewModel.Repository.Branches
+			IEnumerable<Branch> showableBranches = repositoryViewModel.Repository.Branches
 				.Where(b => b.IsActive && b.Name != "master")
-				.Where(b => !repositoryViewModel.HidableBranches.Any(ab => ab.Branch.Id == b.Id)),
+				.Where(b => !repositoryViewModel.HidableBranches.Any(ab => ab.Branch.Id == b.Id));
+
+			IReadOnlyList<BranchItem> showableBrancheItemss = BranchItem.GetBranches(
+				showableBranches,
 				repositoryViewModel.ShowBranchCommand,
 				repositoryViewModel.MergeBranchCommand);
 
-			showableBranches.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
+			showableBrancheItemss.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
 
 			UpdateViewModel(repositoryViewModel, branches, commits);
 

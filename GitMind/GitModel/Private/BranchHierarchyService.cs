@@ -106,6 +106,11 @@ namespace GitMind.GitModel.Private
 						branch.TipCommitId = activeTip.Value.TipCommitId;
 					}
 
+					var activeSubBranches = groupByBranch.Where(b => b.Value.IsActive).ToList();
+					branch.IsActive = activeSubBranches.Any();
+					branch.IsLocal = activeSubBranches.Any(b =>  b.Value.IsLocal);
+					branch.IsRemote = activeSubBranches.Any(b => b.Value.IsRemote);
+
 					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);
 				}
 			}

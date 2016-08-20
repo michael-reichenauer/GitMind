@@ -201,7 +201,7 @@ namespace GitMind.RepositoryViews
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
 		public ObservableCollection<BranchItem> ShowableBranches { get; }
-		= new ObservableCollection<BranchItem>();
+			= new ObservableCollection<BranchItem>();
 
 		public ObservableCollection<BranchItem> HidableBranches { get; }
 			= new ObservableCollection<BranchItem>();

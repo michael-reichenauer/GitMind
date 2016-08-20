@@ -1,5 +1,4 @@
 using System.Linq;
-using GitMind.Git;
 
 
 namespace GitMind.GitModel.Private
@@ -19,6 +18,8 @@ namespace GitMind.GitModel.Private
 				branch.ParentBranchId,
 				branch.ChildBranchNames.ToList(),
 				branch.IsActive,
+				branch.IsLocal,
+				branch.IsRemote,
 				branch.IsMultiBranch,
 				branch.LocalAheadCount,
 				branch.RemoteAheadCount);
