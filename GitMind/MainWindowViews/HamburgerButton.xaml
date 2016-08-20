@@ -41,6 +41,26 @@
 				</MenuItem>
 					
 				<MenuItem 
+						Header="Delete branch"
+						ItemsSource="{Binding RepositoryViewModel.ShowableBranches}">
+					<MenuItem.Icon>
+						<Border>
+							<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
+						</Border>
+					</MenuItem.Icon>
+					<MenuItem.Resources>
+						<HierarchicalDataTemplate 
+								DataType="{x:Type commitsHistory:BranchItem}"
+								ItemsSource="{Binding Children}">
+							<MenuItem 
+									Header="{Binding Text}" 
+									Command="{Binding BranchCommand}"
+									CommandParameter="{Binding Branch}"/>
+						</HierarchicalDataTemplate>
+					</MenuItem.Resources>
+				</MenuItem>
+
+				<MenuItem 
 					Header="Refresh"
 					InputGestureText="F5"
 					Command="{Binding RefreshCommand}">
@@ -67,7 +87,7 @@
 				<MenuItem Header="Undo">
 					<MenuItem.Icon>
 						<Border>
-							<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE042;"/>
+							<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE166;"/>
 						</Border>
 					</MenuItem.Icon>
 					<MenuItem 
@@ -77,7 +97,7 @@
 							<Border>
 								<TextBlock 
 									Style="{StaticResource MenuIconStyle}" 
-									Text="&#xE042;"
+									Text="&#xE166;"
 									Foreground="{StaticResource UndoBrush}"/>
 							</Border>
 						</MenuItem.Icon>
