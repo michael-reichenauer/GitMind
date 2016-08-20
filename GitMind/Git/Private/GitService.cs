@@ -426,6 +426,34 @@ namespace GitMind.Git.Private
 		}
 
 
+		public async Task DeleteBranchAsync(string workingFolder, string branchName, bool isRemote)
+		{
+			try
+			{
+				Log.Debug($"Delete branch {branchName} ...");
+
+				await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							gitRepository.DeleteBranch(branchName, isRemote);
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
+					}
+				});
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
+			}
+		}
+
+
 		private async Task FetchUsingCmdAsync(string workingFolder)
 		{
 			Log.Debug("Fetching repository using cmd ...");

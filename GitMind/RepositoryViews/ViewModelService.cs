@@ -62,16 +62,29 @@ namespace GitMind.RepositoryViews
 					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
 
 			repositoryViewModel.ShowableBranches.Clear();
-
 			IEnumerable<Branch> showableBranches = repositoryViewModel.Repository.Branches
 				.Where(b => b.IsActive && b.Name != "master")
 				.Where(b => !repositoryViewModel.HidableBranches.Any(ab => ab.Branch.Id == b.Id));
-
-			IReadOnlyList<BranchItem> showableBrancheItemss = BranchItem.GetBranches(
+			IReadOnlyList<BranchItem> showableBrancheItems = BranchItem.GetBranches(
 				showableBranches,
 				repositoryViewModel.ShowBranchCommand);
+			showableBrancheItems.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
 
-			showableBrancheItemss.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
+			repositoryViewModel.DeletableLocalBranches.Clear();
+			IEnumerable<Branch> deletableLocalBranches = repositoryViewModel.Repository.Branches
+				.Where(b => b.IsActive && b.Name != "master" && b.IsLocal);
+			IReadOnlyList<BranchItem> deletableLocalBrancheItems = BranchItem.GetBranches(
+				deletableLocalBranches,
+				repositoryViewModel.DeleteLocalBranchCommand);
+			deletableLocalBrancheItems.ForEach(b => repositoryViewModel.DeletableLocalBranches.Add(b));
+
+			repositoryViewModel.DeletableRemoteBranches.Clear();
+			IEnumerable<Branch> deletableRemoteBranches = repositoryViewModel.Repository.Branches
+				.Where(b => b.IsActive && b.Name != "master" && b.IsRemote);
+			IReadOnlyList<BranchItem> deletableRemoteBrancheItems = BranchItem.GetBranches(
+				deletableRemoteBranches,
+				repositoryViewModel.DeleteRemoteBranchCommand);
+			deletableRemoteBrancheItems.ForEach(b => repositoryViewModel.DeletableRemoteBranches.Add(b));
 
 			UpdateViewModel(repositoryViewModel, branches, commits);
 

@@ -166,6 +166,8 @@ namespace GitMind.RepositoryViews
 
 
 		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
+		public Command<Branch> DeleteLocalBranchCommand => Command<Branch>(DeleteLocalBranch);
+		public Command<Branch> DeleteRemoteBranchCommand => Command<Branch>(DeleteRemoteBranch);
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
@@ -201,6 +203,12 @@ namespace GitMind.RepositoryViews
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
 		public ObservableCollection<BranchItem> ShowableBranches { get; }
+			= new ObservableCollection<BranchItem>();
+
+		public ObservableCollection<BranchItem> DeletableLocalBranches { get; }
+			= new ObservableCollection<BranchItem>();
+
+		public ObservableCollection<BranchItem> DeletableRemoteBranches { get; }
 			= new ObservableCollection<BranchItem>();
 
 		public ObservableCollection<BranchItem> HidableBranches { get; }
@@ -694,7 +702,6 @@ namespace GitMind.RepositoryViews
 		{
 			viewModelService.ShowBranch(this, branch);
 		}
-
 
 		private void HideBranch(Branch branch)
 		{
@@ -1197,6 +1204,24 @@ namespace GitMind.RepositoryViews
 			return Task.CompletedTask;
 		}
 
+
+		private void DeleteLocalBranch(Branch branch)
+		{
+			Progress.ShowDialog(owner, $"Delete local branch {branch.Name} ...", async () =>
+			{
+				await gitService.DeleteBranchAsync(WorkingFolder, branch.Name, false);
+				await RefreshAfterCommandAsync(true);
+			});
+		}
+
+		private void DeleteRemoteBranch(Branch branch)
+		{
+			Progress.ShowDialog(owner, $"Delete remote branch {branch.Name} ...", async () =>
+			{
+				await gitService.DeleteBranchAsync(WorkingFolder, branch.Name, true);
+				await RefreshAfterCommandAsync(true);
+			});
+		}
 
 		private Task CreateBranchFromCommitAsync(Commit commit)
 		{

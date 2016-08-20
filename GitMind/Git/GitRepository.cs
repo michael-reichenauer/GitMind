@@ -449,5 +449,11 @@ namespace GitMind.Git
 			File.AppendAllText(tempPath, "tmp");
 			File.Delete(tempPath);
 		}
+
+
+		public void DeleteBranch(string branchName, bool isRemote)
+		{
+			repository.Branches.Remove(branchName, isRemote);
+		}
 	}
 }
