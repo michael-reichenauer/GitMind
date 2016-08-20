@@ -190,7 +190,22 @@ namespace GitMind.Git
 			if (branch != null)
 			{
 				MergeResult mergeResult = repository.Merge(branch, committer, MergeNoFastForward);
-				return mergeResult?.Commit != null ? new GitCommit(mergeResult.Commit) : null;
+				if (mergeResult?.Commit != null)
+				{
+					return new GitCommit(mergeResult.Commit);
+				}
+				else
+				{
+					RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
+
+					if (!repositoryStatus.Any())
+					{
+						// Empty merge with no changes, lets reset merge since there is nothing to merge
+						repository.Reset(ResetMode.Hard);
+					}
+
+					return null;
+				}
 			}
 
 			return null;
