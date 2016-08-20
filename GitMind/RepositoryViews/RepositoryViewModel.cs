@@ -1213,21 +1213,40 @@ namespace GitMind.RepositoryViews
 				return;
 			}
 
-			Progress.ShowDialog(owner, $"Delete local branch {branch.Name} ...", async () =>
+			DeleteBranch(branch, false, $"Delete local branch {branch.Name} ...");
+		}
+
+
+		private void DeleteRemoteBranch(Branch branch)
+		{
+			DeleteBranch(branch, true, $"Delete remote branch {branch.Name} ...");
+		}
+
+
+		private void DeleteBranch(Branch branch, bool isRemote, string progressText)
+		{
+			Progress.ShowDialog(owner, progressText, async () =>
 			{
-				await gitService.DeleteBranchAsync(WorkingFolder, branch.Name, false);
+				bool isDeleted = await gitService.TryDeleteBranchAsync(
+					WorkingFolder, branch.Name, isRemote, false);
+
+				if (!isDeleted)
+				{
+					if (MessageDialog.ShowWarningAskYesNo(owner,
+						$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
+					{
+						await gitService.TryDeleteBranchAsync(WorkingFolder, branch.Name, isRemote, true);
+					}
+					else
+					{
+						return;
+					}
+				}
+
 				await RefreshAfterCommandAsync(true);
 			});
 		}
 
-		private void DeleteRemoteBranch(Branch branch)
-		{
-			Progress.ShowDialog(owner, $"Delete remote branch {branch.Name} ...", async () =>
-			{
-				await gitService.DeleteBranchAsync(WorkingFolder, branch.Name, true);
-				await RefreshAfterCommandAsync(true);
-			});
-		}
 
 		private Task CreateBranchFromCommitAsync(Commit commit)
 		{

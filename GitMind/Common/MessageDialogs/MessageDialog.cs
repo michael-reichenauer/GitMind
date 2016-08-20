@@ -30,5 +30,17 @@ namespace GitMind.Common.MessageDialogs
 				MessageBoxButton.OK,
 				MessageBoxImage.Information);
 		}
+
+
+		public static bool ShowWarningAskYesNo(Window owner, string message, string title = null)
+		{
+			return MessageBoxResult.Yes == MessageBox.Show(
+				owner,
+				message,
+				title ?? "GitMind",
+				MessageBoxButton.YesNo,
+				MessageBoxImage.Warning,
+				MessageBoxResult.No);
+		}
 	}
 }

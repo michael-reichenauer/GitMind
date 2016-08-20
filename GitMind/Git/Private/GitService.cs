@@ -426,28 +426,32 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task DeleteBranchAsync(string workingFolder, string branchName, bool isRemote)
+		public async Task<bool> TryDeleteBranchAsync(
+			string workingFolder, string branchName, bool isRemote, bool isUseForce)
 		{
+			bool isDeleted = false;
 			try
 			{
 				Log.Debug($"Delete branch {branchName} ...");
 
-				await Task.Run(() =>
+				isDeleted = await Task.Run(() =>
 				{
 					try
 					{
 						using (GitRepository gitRepository = OpenRepository(workingFolder))
 						{
-							gitRepository.DeleteBranch(branchName, isRemote);
+							return gitRepository.TryDeleteBranch(branchName, isRemote, isUseForce);
 						}
 					}
 					catch (Exception e)
 					{
 						Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
+						return false;
 					}
 				});
 
-				if (isRemote)
+
+				if (isDeleted && isRemote)
 				{
 					try
 					{
@@ -455,24 +459,33 @@ namespace GitMind.Git.Private
 
 						string args = $"push origin :{branchName}";
 
-						R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+						R<IReadOnlyList<string>> pushResult = await GitAsync(workingFolder, args)
 							.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
 
-						pullResult.OnValue(_ => Log.Debug($"Pushed delete {branchName} branch using cmd"));
-
-						// Ignoring fetch errors for now.
-						pullResult.OnError(e => Log.Warn($"Git push delete {branchName} branch failed {e.Message}"));
+						if (pushResult.HasValue)
+						{
+							Log.Debug($"Pushed delete {branchName} branch using cmd");
+							return true;
+						}
+						else
+						{
+							Log.Warn($"Git push delete {branchName} branch failed {pushResult}");
+						}
 					}
 					catch (Exception e)
 					{
 						Log.Warn($"Failed to push delete {branchName} branch {workingFolder}, {e.Message}");
 					}
+
+					isDeleted = false;
 				}
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
+				Log.Warn($"Failed to delete branch {branchName}, {e.Message}");				
 			}
+
+			return isDeleted;
 		}
 
 

@@ -57,6 +57,6 @@ namespace GitMind.Git
 		Task UndoWorkingFolderAsync(string workingFolder);
 		void GetFile(string workingFolder, string fileId, string filePath);
 		Task ResolveAsync(string workingFolder, string path);
-		Task DeleteBranchAsync(string workingFolder, string branchName, bool isRemote);
+		Task<bool> TryDeleteBranchAsync(string workingFolder, string branchName, bool isRemote, bool isUseForce);
 	}
 }
