@@ -99,7 +99,12 @@ namespace GitMind.Git
 		{
 			foreach (CommitFile commitFile in paths)
 			{
-				repository.Index.Add(commitFile.Path);
+				string fullPath = Path.Combine(workingFolder, commitFile.Path);
+				if (File.Exists(fullPath))
+				{
+					repository.Index.Add(commitFile.Path);
+				}
+
 				if (commitFile.OldPath != null)
 				{
 					repository.Index.Remove(commitFile.OldPath);
