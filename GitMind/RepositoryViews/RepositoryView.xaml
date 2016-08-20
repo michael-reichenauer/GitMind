@@ -331,7 +331,10 @@
 															<MenuItem Header="Undo" Visibility="{Binding IsUncommitted, Converter={StaticResource VC}}">
 																<MenuItem.Icon>
 																	<Border>
-																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE166;"/>
+																		<TextBlock 
+																			Style="{StaticResource MenuIconStyle}" 
+																			Text="&#xE166;"
+																			Foreground="{StaticResource UndoBrush}"/>
 																	</Border>
 																</MenuItem.Icon>
 																
