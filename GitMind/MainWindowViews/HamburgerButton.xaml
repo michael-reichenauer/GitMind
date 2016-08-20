@@ -103,7 +103,6 @@
 
 					<MenuItem 
 						Header="Delete remote branch"
-						IsEnabled="False"
 						ItemsSource="{Binding RepositoryViewModel.DeletableRemoteBranches}">
 						<MenuItem.Icon>
 							<Border>

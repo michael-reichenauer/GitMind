@@ -446,6 +446,28 @@ namespace GitMind.Git.Private
 						Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
 					}
 				});
+
+				if (isRemote)
+				{
+					try
+					{
+						Log.Debug($"Push delete branch {branchName} branch using cmd... {workingFolder}");
+
+						string args = $"push origin :{branchName}";
+
+						R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+							.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+
+						pullResult.OnValue(_ => Log.Debug($"Pushed delete {branchName} branch using cmd"));
+
+						// Ignoring fetch errors for now.
+						pullResult.OnError(e => Log.Warn($"Git push delete {branchName} branch failed {e.Message}"));
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to push delete {branchName} branch {workingFolder}, {e.Message}");
+					}
+				}
 			}
 			catch (Exception e)
 			{
@@ -467,9 +489,6 @@ namespace GitMind.Git.Private
 			// Ignoring fetch errors for now
 			fetchResult.OnError(e => Log.Warn($"Git fetch failed {e.Message}"));
 		}
-
-
-
 
 
 		public async Task FetchBranchAsync(string workingFolder, string branchName)

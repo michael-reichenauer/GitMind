@@ -1207,6 +1207,12 @@ namespace GitMind.RepositoryViews
 
 		private void DeleteLocalBranch(Branch branch)
 		{
+			if (branch == Repository.CurrentBranch)
+			{
+				MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
+				return;
+			}
+
 			Progress.ShowDialog(owner, $"Delete local branch {branch.Name} ...", async () =>
 			{
 				await gitService.DeleteBranchAsync(WorkingFolder, branch.Name, false);
