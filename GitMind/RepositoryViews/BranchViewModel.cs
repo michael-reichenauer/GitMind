@@ -106,8 +106,7 @@ namespace GitMind.RepositoryViews
 					.Where(b => !ActiveBranches.Any(ab => ab.Branch == b))
 					.Take(50)
 					.ToList(),
-				showBranchCommand,
-				mergeBranchCommand);
+				showBranchCommand);
 		}
 	}
 }

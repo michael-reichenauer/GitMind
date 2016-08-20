@@ -155,7 +155,7 @@
 															Color="White" 
 															ShadowDepth="0" 
 															Direction="0" 
-															BlurRadius="25"  />
+															BlurRadius="15"  />
 													</Path.Effect>
 												</Path>
 
@@ -226,7 +226,7 @@
 																	ItemsSource="{Binding Children}">
 																	<MenuItem 
 																		Header="{Binding Text}" 
-																		Command="{Binding ShowBranchCommand}"
+																		Command="{Binding BranchCommand}"
 																		CommandParameter="{Binding Branch}"/>
 																</HierarchicalDataTemplate>
 															</MenuItem.Resources>

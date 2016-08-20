@@ -69,8 +69,7 @@ namespace GitMind.RepositoryViews
 
 			IReadOnlyList<BranchItem> showableBrancheItemss = BranchItem.GetBranches(
 				showableBranches,
-				repositoryViewModel.ShowBranchCommand,
-				repositoryViewModel.MergeBranchCommand);
+				repositoryViewModel.ShowBranchCommand);
 
 			showableBrancheItemss.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
 

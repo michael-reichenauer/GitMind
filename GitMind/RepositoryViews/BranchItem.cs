@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Input;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -14,18 +13,26 @@ namespace GitMind.RepositoryViews
 		private readonly Lazy<ObservableCollection<BranchItem>> subItems;
 		private static readonly Lazy<ObservableCollection<BranchItem>> NoSubItems
 			= new Lazy<ObservableCollection<BranchItem>>(() => new ObservableCollection<BranchItem>());
-		
+
 		public BranchItem(
-			Branch branch, 
-			Command<Branch> showBranchCommand, 
+			Branch branch,
+			Command<Branch> branchCommand)
+			: this(branch, branchCommand, null)
+		{
+		}
+
+		public BranchItem(
+			Branch branch,
+			Command<Branch> showBranchCommand,
 			Command<Branch> mergeBranchCommand)
 		{
 			Text = branch.Name;
 			Branch = branch;
-			ShowBranchCommand = showBranchCommand;
+			BranchCommand = showBranchCommand;
 			MergeBranchCommand = mergeBranchCommand;
 			subItems = NoSubItems;
 		}
+
 
 
 		private BranchItem(
@@ -33,17 +40,15 @@ namespace GitMind.RepositoryViews
 			string name,
 			IEnumerable<Branch> branches,
 			int level,
-			Command<Branch> showBranchCommand,
-			Command<Branch> mergeBranchCommand)
+			Command<Branch> branchCommand)
 		{
 			Text = name;
-			ShowBranchCommand = showBranchCommand;
-			MergeBranchCommand = mergeBranchCommand;
+			BranchCommand = branchCommand;
 			subItems = new Lazy<ObservableCollection<BranchItem>>(
 				() =>
 				{
 					ObservableCollection<BranchItem> list = new ObservableCollection<BranchItem>();
-					GetBranches(prefix, branches, level, showBranchCommand, mergeBranchCommand)
+					GetBranches(prefix, branches, level, branchCommand)
 						.ForEach(b => list.Add(b));
 					return list;
 				});
@@ -57,41 +62,39 @@ namespace GitMind.RepositoryViews
 
 		public Branch Branch { get; }
 
-		public Command<Branch> ShowBranchCommand { get; }
+		public Command<Branch> BranchCommand { get; }
 
 		public Command<Branch> MergeBranchCommand { get; }
 
 
 
 		public static IReadOnlyList<BranchItem> GetBranches(
-			IEnumerable<Branch> branches, 
-			Command<Branch> showBranchCommand, 
-			Command<Branch> mergeBranchCommand)
+			IEnumerable<Branch> branches,
+			Command<Branch> branchCommand)
 		{
 			if (branches.Count() < 20)
 			{
 				return branches
-					.Select(b => new BranchItem(b, showBranchCommand, mergeBranchCommand))
+					.Select(b => new BranchItem(b, branchCommand))
 					.ToList();
 			}
 
-			return GetBranches("", branches, 0, showBranchCommand, mergeBranchCommand);
+			return GetBranches("", branches, 0, branchCommand);
 		}
 
 
 		private static IReadOnlyList<BranchItem> GetBranches(
-			string prefix, 
+			string prefix,
 			IEnumerable<Branch> branches,
-			int level, 
-			Command<Branch> showBranchCommand,
-			Command<Branch> mergeBranchCommand)
+			int level,
+			Command<Branch> showBranchCommand)
 		{
-			List<BranchItem> localItems = level != 0 
+			List<BranchItem> localItems = level != 0
 				? Enumerable.Empty<BranchItem>().ToList()
 				: branches
 					.Where(b => b.IsLocal)
 					.Take(10)
-					.Select(b => new BranchItem(b, showBranchCommand, mergeBranchCommand))
+					.Select(b => new BranchItem(b, showBranchCommand))
 					.ToList();
 
 			List<BranchItem> allItems = new List<BranchItem>();
@@ -103,11 +106,11 @@ namespace GitMind.RepositoryViews
 				{
 					if (level == 0 && !localItems.Any(b => b.Branch == branch))
 					{
-						localItems.Add(new BranchItem(branch, showBranchCommand, mergeBranchCommand));
+						localItems.Add(new BranchItem(branch, showBranchCommand));
 					}
 					else if (level != 0)
 					{
-						allItems.Add(new BranchItem(branch, showBranchCommand, mergeBranchCommand));
+						allItems.Add(new BranchItem(branch, showBranchCommand));
 					}
 				}
 				else if (!allItems.Any(n => n.Text == nameParts[level]))
@@ -117,8 +120,7 @@ namespace GitMind.RepositoryViews
 						nameParts[level],
 						branches,
 						level + 1,
-						showBranchCommand,
-						mergeBranchCommand));
+						showBranchCommand));
 				}
 			}
 
@@ -127,7 +129,7 @@ namespace GitMind.RepositoryViews
 				.ThenBy(b => b.Text)
 				.ToList();
 
-			return 
+			return
 				localItems
 				.OrderBy(b => b.Text)
 				.Concat(allItems)

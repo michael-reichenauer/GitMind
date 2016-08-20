@@ -34,7 +34,7 @@
 								ItemsSource="{Binding Children}">
 							<MenuItem 
 									Header="{Binding Text}" 
-									Command="{Binding ShowBranchCommand}"
+									Command="{Binding BranchCommand}"
 									CommandParameter="{Binding Branch}"/>
 						</HierarchicalDataTemplate>
 					</MenuItem.Resources>
