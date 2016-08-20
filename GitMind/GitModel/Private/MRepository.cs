@@ -64,7 +64,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		internal CommitsFiles CommitsFiles { get; set; }
+		internal CommitsFiles CommitsFiles { get; set; } = new CommitsFiles();
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
 

@@ -89,7 +89,6 @@ namespace GitMind.GitModel.Private
 				Log.Debug("No cached repository");
 				mRepository = new MRepository();
 				mRepository.WorkingFolder = workingFolder;
-				mRepository.CommitsFiles = new CommitsFiles();
 
 				await UpdateAsync(mRepository);
 				t.Log("Updated mRepository");
@@ -189,7 +188,6 @@ namespace GitMind.GitModel.Private
 
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);
-
 
 			commitBranchNameService.SetMasterBranchCommits(repository);
 
