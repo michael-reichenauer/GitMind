@@ -104,6 +104,11 @@ namespace GitMind.Git
 				{
 					repository.Index.Remove(commitFile.OldPath);
 				}
+
+				if (commitFile.Status == GitFileStatus.Deleted)
+				{
+					repository.Remove(commitFile.Path);
+				}
 			}
 		}
 

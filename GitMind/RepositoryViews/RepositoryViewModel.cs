@@ -1122,7 +1122,7 @@ namespace GitMind.RepositoryViews
 
 			if (Repository.Status.StatusCount == 0)
 			{
-				MessageDialog.ShowInformation(owner, "No changes in this merge.");
+				MessageDialog.ShowInformation(owner, "No changes in this merge, nothing to merge.");
 				return;
 			}
 
