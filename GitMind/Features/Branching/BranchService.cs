@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Windows;
+using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -128,6 +129,70 @@ namespace GitMind.Features.Branching
 				commit.Repository.Status.StatusCount == 0
 				&& !commit.Repository.Status.IsMerging
 				&& commit.Repository.Status.ConflictCount == 0;
+		}
+
+
+		public void DeleteLocalBranch(IRepositoryCommands repositoryCommands, Branch branch)
+		{
+			using (repositoryCommands.DisableStatus())
+			{
+				Window owner = repositoryCommands.Owner;
+
+				if (branch == branch.Repository.CurrentBranch)
+				{
+					MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
+					return;
+				}
+
+				DeleteBranch(repositoryCommands, branch, false, $"Delete local branch {branch.Name} ...");
+			}
+		}
+
+
+		public void DeleteRemoteBranch(IRepositoryCommands repositoryCommands, Branch branch)
+		{
+			using (repositoryCommands.DisableStatus())
+			{
+				DeleteBranch(repositoryCommands, branch, true, $"Delete remote branch {branch.Name} ...");
+			}
+		}
+
+
+		private void DeleteBranch(
+			IRepositoryCommands repositoryCommands,
+			Branch branch, 
+			bool isRemote, 
+			string progressText)
+		{
+			string workingFolder = repositoryCommands.WorkingFolder;
+			Window owner = repositoryCommands.Owner;
+
+			if (branch.Name == "master")
+			{
+				MessageDialog.ShowWarning(owner, "You cannot delete master branch.");
+				return;
+			}
+
+			Progress.ShowDialog(owner, progressText, async () =>
+			{
+				bool isDeleted = await gitService.TryDeleteBranchAsync(
+					workingFolder, branch.Name, isRemote, false);
+
+				if (!isDeleted)
+				{
+					if (MessageDialog.ShowWarningAskYesNo(owner,
+						$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
+					{
+						await gitService.TryDeleteBranchAsync(workingFolder, branch.Name, isRemote, true);
+					}
+					else
+					{
+						return;
+					}
+				}
+
+				await repositoryCommands.RefreshAfterCommandAsync(true);
+			});
 		}
 	}
 }
