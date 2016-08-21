@@ -8,5 +8,6 @@ namespace GitMind.Features.Branching
 	internal interface ICreateBranchService
 	{
 		Task CreateBranchAsync(RepositoryViewModel viewModel, Branch branch);
+		Task CreateBranchFromCommitAsync(RepositoryViewModel viewModel, Commit commit);
 	}
 }

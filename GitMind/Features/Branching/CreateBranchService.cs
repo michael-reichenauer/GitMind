@@ -26,35 +26,40 @@ namespace GitMind.Features.Branching
 
 		public Task CreateBranchAsync(RepositoryViewModel viewModel, Branch branch)
 		{
+			return CreateBranchFromCommitAsync(viewModel, branch.TipCommit);
+		}
+
+
+		public Task CreateBranchFromCommitAsync(RepositoryViewModel viewModel, Commit commit)
+		{
 			string workingFolder = viewModel.WorkingFolder;
 			Window owner = viewModel.Owner;
 
-			viewModel.SetIsInternalDialog(true);
-
 			CrateBranchDialog dialog = new CrateBranchDialog(owner);
+
+			viewModel.SetIsInternalDialog(true);
 			if (dialog.ShowDialog() == true)
 			{
 				Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
 				{
 					string branchName = dialog.BranchName;
-					string commitId = branch.TipCommit.Id;
+					string commitId = commit.Id;
 					if (commitId == Commit.UncommittedId)
 					{
-						commitId = branch.TipCommit.FirstParent.Id;
+						commitId = commit.FirstParent.CommitId;
 					}
 
 					bool isPublish = dialog.IsPublish;
 
 					await gitService.CreateBranchAsync(workingFolder, branchName, commitId, isPublish);
 					viewModel.AddSpecifiedBranch(branchName);
-		
 					await viewModel.RefreshAfterCommandAsync(true);
 				});
 			}
 
 			owner.Focus();
-			viewModel.SetIsInternalDialog(false);
 
+			viewModel.SetIsInternalDialog(false);
 			return Task.CompletedTask;
 		}
 	}

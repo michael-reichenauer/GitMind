@@ -180,7 +180,8 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
 		public Command<Branch> CreateBranchCommand => AsyncCommand<Branch>(
 			branch => createBranchService.CreateBranchAsync(this, branch));
-		public Command<Commit> CreateBranchFromCommitCommand => AsyncCommand<Commit>(CreateBranchFromCommitAsync);
+		public Command<Commit> CreateBranchFromCommitCommand => AsyncCommand<Commit>(
+			commit => createBranchService.CreateBranchFromCommitAsync(this, commit));
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
 		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
 		public Command CommitCommand => AsyncCommand(CommitChangesAsync, () => IsUncommitted);
@@ -1231,36 +1232,6 @@ namespace GitMind.RepositoryViews
 			});
 		}
 
-
-		private Task CreateBranchFromCommitAsync(Commit commit)
-		{
-			CrateBranchDialog dialog = new CrateBranchDialog(Owner);
-
-			isInternalDialog = true;
-			if (dialog.ShowDialog() == true)
-			{
-				Progress.ShowDialog(Owner, $"Create branch {dialog.BranchName} ...", async () =>
-				{
-					string branchName = dialog.BranchName;
-					string commitId = commit.Id;
-					if (commitId == Commit.UncommittedId)
-					{
-						commitId = commit.FirstParent.CommitId;
-					}
-
-					bool isPublish = dialog.IsPublish;
-
-					await gitService.CreateBranchAsync(WorkingFolder, branchName, commitId, isPublish);
-					SpecifiedBranchNames = new[] { branchName };
-					await RefreshAfterCommandAsync(true);
-				});
-			}
-
-			Application.Current.MainWindow.Focus();
-
-			isInternalDialog = false;
-			return Task.CompletedTask;
-		}
 
 
 		private async Task UndoCleanWorkingFolderAsync()
