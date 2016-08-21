@@ -182,7 +182,6 @@ namespace GitMind.RepositoryViews
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
 
-		public Command<Commit> SwitchToCommitCommand => AsyncCommand<Commit>(SwitchToCommitAsync, CanExecuteSwitchToCommit);
 		public Command<string> UndoUncommittedFileCommand => AsyncCommand<string>(UndoUncommittedFileAsync);
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
 
@@ -1128,39 +1127,6 @@ namespace GitMind.RepositoryViews
 			{
 				await CommitChangesAsync();
 			}
-		}
-
-
-		private Task SwitchToCommitAsync(Commit commit)
-		{
-			isInternalDialog = true;
-			Progress.ShowDialog(Owner, "Switch to commit ...", async () =>
-			{
-				string proposedNamed = commit == commit.Branch.TipCommit
-					? commit.Branch.Name
-					: $"_{commit.ShortId}";
-
-				string branchName = await gitService.SwitchToCommitAsync(
-					WorkingFolder, commit.CommitId, proposedNamed);
-
-				if (branchName != null)
-				{
-					SpecifiedBranchNames = new[] { branchName };
-				}
-
-				await RefreshAfterCommandAsync(false);
-			});
-
-			return Task.CompletedTask;
-		}
-
-
-		private bool CanExecuteSwitchToCommit(Commit commit)
-		{
-			return
-				Repository.Status.StatusCount == 0
-				&& !Repository.Status.IsMerging
-				&& Repository.Status.ConflictCount == 0;
 		}
 
 

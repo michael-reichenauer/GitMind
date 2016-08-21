@@ -19,7 +19,6 @@ namespace GitMind.RepositoryViews
 			Command toggleDetailsCommand,
 			Command<Commit> showCommitDiffCommand,
 			Command<Commit> setBranchCommand,
-			Command<Commit> switchToCommitCommand,
 			Command undoCleanWorkingFolderCommand,
 			Command undoUncommittedChangesCommand)
 		{
@@ -27,7 +26,6 @@ namespace GitMind.RepositoryViews
 			ToggleDetailsCommand = toggleDetailsCommand;
 			SetCommitBranchCommand = setBranchCommand.With(() => Commit);
 			ShowCommitDiffCommand = showCommitDiffCommand.With(() => Commit);
-			SwitchToCommitCommand = switchToCommitCommand.With(() => Commit);
 			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
 			UndoCleanWorkingFolderCommand = undoCleanWorkingFolderCommand;
 		}
@@ -104,7 +102,10 @@ namespace GitMind.RepositoryViews
 		public Command ToggleDetailsCommand { get; }
 		public Command ShowCommitDiffCommand { get; }
 		public Command SetCommitBranchCommand { get; }
-		public Command SwitchToCommitCommand { get; }
+		public Command SwitchToCommitCommand => Command(
+			() => branchService.SwitchToBranchCommitAsync(repositoryCommands, Commit),
+			() => branchService.CanExecuteSwitchToBranchCommit(Commit));
+
 		public Command SwitchToBranchCommand => Command(
 			() => branchService.SwitchBranchAsync(repositoryCommands, Commit.Branch),
 			() => branchService.CanExecuteSwitchBranch(Commit.Branch));

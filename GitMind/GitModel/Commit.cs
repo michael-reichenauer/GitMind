@@ -11,7 +11,6 @@ namespace GitMind.GitModel
 	{
 		public static readonly string UncommittedId = MCommit.UncommittedId;
 
-		private readonly Repository repository;
 		private readonly IReadOnlyList<string> parentIds;
 		private readonly IReadOnlyList<string> childIds;
 		private readonly string branchId;
@@ -38,7 +37,7 @@ namespace GitMind.GitModel
 			bool hasConflicts, 
 			bool isMerging)
 		{
-			this.repository = repository;
+			this.Repository = repository;
 			this.parentIds = parentIds;
 			this.childIds = childIds;
 			this.branchId = branchId;
@@ -83,17 +82,18 @@ namespace GitMind.GitModel
 		public bool IsMerging { get; }
 		public bool HasFirstParent => parentIds.Count > 0;
 		public bool HasSecondParent => parentIds.Count > 1;
-		public Commit FirstParent => repository.Commits[parentIds[0]];
-		public Commit SecondParent => repository.Commits[parentIds[1]];
-		public IEnumerable<Commit> Children => childIds.Select(id => repository.Commits[id]);
-		public Branch Branch => repository.Branches[branchId];
+		public Commit FirstParent => Repository.Commits[parentIds[0]];
+		public Commit SecondParent => Repository.Commits[parentIds[1]];
+		public IEnumerable<Commit> Children => childIds.Select(id => Repository.Commits[id]);
+		public Branch Branch => Repository.Branches[branchId];
 		public bool IsMergePoint => parentIds.Count > 1;
-		public bool IsCurrent => CommitId == repository.CurrentCommit.Id
-			&& repository.CurrentBranch == Branch;
-		public string WorkingFolder => repository.MRepository.WorkingFolder;
+		public bool IsCurrent => CommitId == Repository.CurrentCommit.Id
+			&& Repository.CurrentBranch == Branch;
+		public string WorkingFolder => Repository.MRepository.WorkingFolder;
+		public Repository Repository { get; }
 
 		//public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
-		public Task<IEnumerable<CommitFile>> FilesTask => repository.CommitsFiles.GetAsync(WorkingFolder, CommitId);
+		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(WorkingFolder, CommitId);
 
 
 

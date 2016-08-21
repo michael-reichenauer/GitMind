@@ -90,5 +90,44 @@ namespace GitMind.Features.Branching
 				&& !branch.Repository.Status.IsMerging
 				&& branch.Repository.CurrentBranch.Id != branch.Id;
 		}
+
+
+
+		public Task SwitchToBranchCommitAsync(IRepositoryCommands repositoryCommands, Commit commit)
+		{
+			string workingFolder = repositoryCommands.WorkingFolder;
+			Window owner = repositoryCommands.Owner;
+
+			using (repositoryCommands.DisableStatus())
+			{
+				Progress.ShowDialog(owner, "Switch to commit ...", async () =>
+				{
+					string proposedNamed = commit == commit.Branch.TipCommit
+						? commit.Branch.Name
+						: $"_{commit.ShortId}";
+
+					string branchName = await gitService.SwitchToCommitAsync(
+						workingFolder, commit.CommitId, proposedNamed);
+
+					if (branchName != null)
+					{
+						repositoryCommands.AddSpecifiedBranch(branchName);
+					}
+
+					await repositoryCommands.RefreshAfterCommandAsync(false);
+				});
+
+				return Task.CompletedTask;
+			}
+		}
+
+
+		public bool CanExecuteSwitchToBranchCommit(Commit commit)
+		{
+			return
+				commit.Repository.Status.StatusCount == 0
+				&& !commit.Repository.Status.IsMerging
+				&& commit.Repository.Status.ConflictCount == 0;
+		}
 	}
 }

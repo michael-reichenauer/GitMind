@@ -12,5 +12,7 @@ namespace GitMind.Features.Branching
 		Task CreateBranchFromCommitAsync(IRepositoryCommands repositoryCommands, Commit commit);
 		Task SwitchBranchAsync(IRepositoryCommands repositoryCommands, Branch branch);
 		bool CanExecuteSwitchBranch(Branch branch);
+		Task SwitchToBranchCommitAsync(IRepositoryCommands repositoryCommands, Commit commit);
+		bool CanExecuteSwitchToBranchCommit(Commit commit);
 	}
 }

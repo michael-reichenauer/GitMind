@@ -412,7 +412,6 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.ToggleDetailsCommand,
 				repositoryViewModel.ShowDiffCommand,
 				repositoryViewModel.SetBranchCommand,
-				repositoryViewModel.SwitchToCommitCommand,
 				repositoryViewModel.UndoCleanWorkingFolderCommand,
 				repositoryViewModel.UndoUncommittedChangesCommand));
 
