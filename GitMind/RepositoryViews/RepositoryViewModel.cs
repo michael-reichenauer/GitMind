@@ -29,12 +29,12 @@ namespace GitMind.RepositoryViews
 	{
 		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
 
-		private readonly Window owner;
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IGitService gitService = new GitService();
 		private readonly IBrushService brushService = new BrushService();
 		private readonly IDiffService diffService = new DiffService();
+		private readonly ICreateBranchService createBranchService = new CreateBranchService();
 
 		private readonly BusyIndicator busyIndicator;
 
@@ -81,7 +81,7 @@ namespace GitMind.RepositoryViews
 			IViewModelService viewModelService,
 			BusyIndicator busyIndicator)
 		{
-			this.owner = owner;
+			this.Owner = owner;
 			this.viewModelService = viewModelService;
 			this.busyIndicator = busyIndicator;
 
@@ -178,7 +178,8 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> SwitchToCommitCommand => AsyncCommand<Commit>(SwitchToCommitAsync, CanExecuteSwitchToCommit);
 		public Command<string> UndoUncommittedFileCommand => AsyncCommand<string>(UndoUncommittedFileAsync);
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
-		public Command<Branch> CreateBranchCommand => AsyncCommand<Branch>(CreateBranchAsync);
+		public Command<Branch> CreateBranchCommand => AsyncCommand<Branch>(
+			branch => createBranchService.CreateBranchAsync(this, branch));
 		public Command<Commit> CreateBranchFromCommitCommand => AsyncCommand<Commit>(CreateBranchFromCommitAsync);
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
 		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
@@ -257,6 +258,12 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		public void AddSpecifiedBranch(string branchName)
+		{
+			SpecifiedBranchNames = new[] { branchName };
+		}
+
+
 		public Task FirstLoadAsync()
 		{
 			Repository repository;
@@ -266,7 +273,7 @@ namespace GitMind.RepositoryViews
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(WorkingFolder);
 				string statusText = isRepositoryCached ? "Loading ..." : "First time, building new model ...";
 
-				Progress.ShowDialog(owner, statusText, async () =>
+				Progress.ShowDialog(Owner, statusText, async () =>
 				{
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
 					UpdateInitialViewModel(repository);
@@ -375,7 +382,7 @@ namespace GitMind.RepositoryViews
 
 		public Task ManualRefreshAsync()
 		{
-			Progress.ShowDialog(owner, "Rebuilding new model", async () =>
+			Progress.ShowDialog(Owner, "Rebuilding new model", async () =>
 			{
 				await refreshThrottler.Run(async () =>
 				{
@@ -548,7 +555,7 @@ namespace GitMind.RepositoryViews
 		public ListBox ListBox { get; set; }
 		public IReadOnlyList<Branch> PreFilterBranches { get; set; }
 		public CommitViewModel PreFilterSelectedItem { get; set; }
-
+		public Window Owner { get; }
 
 
 		private void SetCommitsDetails(CommitViewModel commit)
@@ -731,7 +738,7 @@ namespace GitMind.RepositoryViews
 		{
 			Log.Debug("Try update all branches");
 			isInternalDialog = true;
-			Progress.ShowDialog(owner, "Update all branches ...", async progress =>
+			Progress.ShowDialog(Owner, "Update all branches ...", async progress =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
@@ -789,7 +796,7 @@ namespace GitMind.RepositoryViews
 		{
 			isInternalDialog = true;
 			string branchName = Repository.CurrentBranch.Name;
-			Progress.ShowDialog(owner, $"Update current branch {branchName} ...", async () =>
+			Progress.ShowDialog(Owner, $"Update current branch {branchName} ...", async () =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
@@ -820,7 +827,7 @@ namespace GitMind.RepositoryViews
 		{
 			Log.Debug("Try push all branches");
 			isInternalDialog = true;
-			Progress.ShowDialog(owner, "Push all branches ...", async progress =>
+			Progress.ShowDialog(Owner, "Push all branches ...", async progress =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
@@ -875,7 +882,7 @@ namespace GitMind.RepositoryViews
 		{
 			isInternalDialog = true;
 			Progress.ShowDialog(
-				owner, $"Push current branch {Repository.CurrentBranch.Name} ...", async () =>
+				Owner, $"Push current branch {Repository.CurrentBranch.Name} ...", async () =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
@@ -973,7 +980,7 @@ namespace GitMind.RepositoryViews
 
 				if (commit.SpecifiedBranchName != branchName)
 				{
-					Progress.ShowDialog(owner, $"Set commit branch name {branchName} ...", async () =>
+					Progress.ShowDialog(Owner, $"Set commit branch name {branchName} ...", async () =>
 					{
 						await repositoryService.SetSpecifiedCommitBranchAsync(workingFolder, commit.Id, branchName);
 						if (!string.IsNullOrWhiteSpace(branchName))
@@ -998,7 +1005,7 @@ namespace GitMind.RepositoryViews
 		private Task SwitchBranchAsync(Branch branch)
 		{
 			isInternalDialog = true;
-			Progress.ShowDialog(owner, $"Switch to branch {branch.Name} ...", async () =>
+			Progress.ShowDialog(Owner, $"Switch to branch {branch.Name} ...", async () =>
 			{
 				await gitService.SwitchToBranchAsync(WorkingFolder, branch.Name);
 
@@ -1021,7 +1028,7 @@ namespace GitMind.RepositoryViews
 
 		private Task UndoUncommittedFileAsync(string path)
 		{
-			Progress.ShowDialog(owner, $"Undo file change in {path} ...", async () =>
+			Progress.ShowDialog(Owner, $"Undo file change in {path} ...", async () =>
 			{
 				await gitService.UndoFileInCurrentBranchAsync(WorkingFolder, path);
 			});
@@ -1040,7 +1047,7 @@ namespace GitMind.RepositoryViews
 			SetIsInternalDialog(true);
 
 			CommitDialog dialog = new CommitDialog(
-				owner,
+				Owner,
 				branchName,
 				workingFolder,
 				commitFiles,
@@ -1051,7 +1058,7 @@ namespace GitMind.RepositoryViews
 
 			if (dialog.ShowDialog() == true)
 			{
-				Progress.ShowDialog(owner, $"Commit current branch {branchName} ...", async () =>
+				Progress.ShowDialog(Owner, $"Commit current branch {branchName} ...", async () =>
 				{
 					GitCommit gitCommit = await gitService.CommitAsync(
 						workingFolder, dialog.CommitMessage, dialog.CommitFiles);
@@ -1102,18 +1109,18 @@ namespace GitMind.RepositoryViews
 
 			if (branch == Repository.CurrentBranch)
 			{
-				MessageDialog.ShowWarning(owner, "You cannot merge current branch into it self.");
+				MessageDialog.ShowWarning(Owner, "You cannot merge current branch into it self.");
 				return;
 			}
 
 			if (Repository.Status.ConflictCount > 0 || Repository.Status.StatusCount > 0)
 			{
 				MessageDialog.ShowInformation(
-					owner, "You must first commit uncommitted changes before merging.");
+					Owner, "You must first commit uncommitted changes before merging.");
 				return;
 			}
 
-			Progress.ShowDialog(owner, $"Merge branch {branch.Name} ...", async () =>
+			Progress.ShowDialog(Owner, $"Merge branch {branch.Name} ...", async () =>
 			{
 				Branch currentBranch = Repository.CurrentBranch;
 				GitCommit gitCommit = await gitService.MergeAsync(WorkingFolder, branch.Name);
@@ -1129,7 +1136,7 @@ namespace GitMind.RepositoryViews
 
 			if (Repository.Status.StatusCount == 0)
 			{
-				MessageDialog.ShowInformation(owner, "No changes in this merge, nothing to merge.");
+				MessageDialog.ShowInformation(Owner, "No changes in this merge, nothing to merge.");
 				return;
 			}
 
@@ -1143,7 +1150,7 @@ namespace GitMind.RepositoryViews
 		private Task SwitchToCommitAsync(Commit commit)
 		{
 			isInternalDialog = true;
-			Progress.ShowDialog(owner, "Switch to commit ...", async () =>
+			Progress.ShowDialog(Owner, "Switch to commit ...", async () =>
 			{
 				string proposedNamed = commit == commit.Branch.TipCommit
 					? commit.Branch.Name
@@ -1174,42 +1181,13 @@ namespace GitMind.RepositoryViews
 
 
 
-		private Task CreateBranchAsync(Branch branch)
-		{
-			CrateBranchDialog dialog = new CrateBranchDialog(owner);
-
-			isInternalDialog = true;
-			if (dialog.ShowDialog() == true)
-			{
-				Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
-				{
-					string branchName = dialog.BranchName;
-					string commitId = branch.TipCommit.Id;
-					if (commitId == Commit.UncommittedId)
-					{
-						commitId = branch.TipCommit.FirstParent.Id;
-					}
-
-					bool isPublish = dialog.IsPublish;
-
-					await gitService.CreateBranchAsync(WorkingFolder, branchName, commitId, isPublish);
-					SpecifiedBranchNames = new[] { branchName };
-					await RefreshAfterCommandAsync(true);
-				});
-			}
-
-			Application.Current.MainWindow.Focus();
-
-			isInternalDialog = false;
-			return Task.CompletedTask;
-		}
 
 
 		private void DeleteLocalBranch(Branch branch)
 		{
 			if (branch == Repository.CurrentBranch)
 			{
-				MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
+				MessageDialog.ShowWarning(Owner, "You cannot delete current local branch.");
 				return;
 			}
 
@@ -1227,18 +1205,18 @@ namespace GitMind.RepositoryViews
 		{
 			if (branch.Name == "master")
 			{
-				MessageDialog.ShowWarning(owner, "You cannot delete master branch.");
+				MessageDialog.ShowWarning(Owner, "You cannot delete master branch.");
 				return;
 			}
 
-			Progress.ShowDialog(owner, progressText, async () =>
+			Progress.ShowDialog(Owner, progressText, async () =>
 			{
 				bool isDeleted = await gitService.TryDeleteBranchAsync(
 					WorkingFolder, branch.Name, isRemote, false);
 
 				if (!isDeleted)
 				{
-					if (MessageDialog.ShowWarningAskYesNo(owner,
+					if (MessageDialog.ShowWarningAskYesNo(Owner,
 						$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
 					{
 						await gitService.TryDeleteBranchAsync(WorkingFolder, branch.Name, isRemote, true);
@@ -1256,12 +1234,12 @@ namespace GitMind.RepositoryViews
 
 		private Task CreateBranchFromCommitAsync(Commit commit)
 		{
-			CrateBranchDialog dialog = new CrateBranchDialog(owner);
+			CrateBranchDialog dialog = new CrateBranchDialog(Owner);
 
 			isInternalDialog = true;
 			if (dialog.ShowDialog() == true)
 			{
-				Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
+				Progress.ShowDialog(Owner, $"Create branch {dialog.BranchName} ...", async () =>
 				{
 					string branchName = dialog.BranchName;
 					string commitId = commit.Id;
@@ -1291,7 +1269,7 @@ namespace GitMind.RepositoryViews
 			await Task.Yield();
 
 			isInternalDialog = true;
-			Progress.ShowDialog(owner, $"Undo changes and clean working folder {WorkingFolder} ...", async () =>
+			Progress.ShowDialog(Owner, $"Undo changes and clean working folder {WorkingFolder} ...", async () =>
 			{
 				failedPaths = await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
 
@@ -1310,7 +1288,7 @@ namespace GitMind.RepositoryViews
 					text += "   ...";
 				}
 
-				MessageDialog.ShowWarning(owner, text);
+				MessageDialog.ShowWarning(Owner, text);
 			}
 
 			isInternalDialog = true;
@@ -1322,7 +1300,7 @@ namespace GitMind.RepositoryViews
 			await Task.Yield();
 
 			isInternalDialog = true;
-			Progress.ShowDialog(owner, $"Undo changes in working folder {WorkingFolder} ...", async () =>
+			Progress.ShowDialog(Owner, $"Undo changes in working folder {WorkingFolder} ...", async () =>
 			{
 				await gitService.UndoWorkingFolderAsync(WorkingFolder);
 
