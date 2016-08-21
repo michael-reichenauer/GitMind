@@ -512,11 +512,20 @@ namespace GitMind.RepositoryViews
 
 			if (branch.Branch.LocalAheadCount > 0)
 			{
-				toolTip += $"\nAhead: {branch.Branch.LocalAheadCount}";
+				toolTip += $"\nLocal ahead: {branch.Branch.LocalAheadCount}";
 			}
+			else if (branch.Branch.IsLocal)
+			{
+				toolTip += "\nLocal";
+			}
+
 			if (branch.Branch.RemoteAheadCount > 0)
 			{
-				toolTip += $"\nBehind: {branch.Branch.RemoteAheadCount}";
+				toolTip += $"\nRemote ahead: {branch.Branch.RemoteAheadCount}";
+			}
+			else if (branch.Branch.IsRemote)
+			{
+				toolTip += "\nRemote";
 			}
 
 			if (branch.Branch.ChildBranchNames.Count > 1)
