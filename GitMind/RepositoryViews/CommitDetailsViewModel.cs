@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Features.Committing;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
@@ -15,17 +16,21 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitDetailsViewModel : ViewModel
 	{
+		private readonly ICommitService commitService = new CommitService();
 		private readonly IGitService gitService = new GitService();
+		private readonly IRepositoryCommands repositoryCommands;
+
 		private readonly ObservableCollection<CommitFileViewModel> files =
 			new ObservableCollection<CommitFileViewModel>();
 		private string filesCommitId = null;
 		private CommitViewModel commitViewModel;
-		private readonly Command<string> undoUncommittedFileCommand;
 
-		public CommitDetailsViewModel(Command<string> undoUncommittedFileCommand)
+
+		public CommitDetailsViewModel(IRepositoryCommands repositoryCommands)
 		{
-			this.undoUncommittedFileCommand = undoUncommittedFileCommand;
+			this.repositoryCommands = repositoryCommands;
 		}
+
 
 		public CommitViewModel CommitViewModel
 		{
@@ -105,12 +110,11 @@ namespace GitMind.RepositoryViews
 		public string BranchTips => CommitViewModel?.BranchTips;
 
 		public Command EditBranchCommand => CommitViewModel.SetCommitBranchCommand;
-
+		public Command<string> UndoUncommittedFileCommand => Command<string>(
+			path => commitService.UndoUncommittedFileAsync(repositoryCommands, path));
 
 
 		public override string ToString() => $"{Id} {Subject}";
-
-
 
 		private async Task SetFilesAsync(Commit commit)
 		{
@@ -123,7 +127,7 @@ namespace GitMind.RepositoryViews
 					Comparer<GitFileStatus>.Create(
 						(s1, s2) => s1 == GitFileStatus.Conflict ? 1 : s2 == GitFileStatus.Conflict ? 1 : 0))
 					.ForEach(f => files.Add(
-					new CommitFileViewModel(f, undoUncommittedFileCommand)
+					new CommitFileViewModel(f, UndoUncommittedFileCommand)
 					{
 						Id = commit.CommitId,
 						Name = f.Path,

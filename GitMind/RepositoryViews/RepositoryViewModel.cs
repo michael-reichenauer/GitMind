@@ -37,6 +37,7 @@ namespace GitMind.RepositoryViews
 		private readonly IBrushService brushService = new BrushService();
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IBranchService branchService = new BranchService();
+		private readonly ICommitService commitService = new CommitService();
 
 		private readonly BusyIndicator busyIndicator;
 
@@ -93,7 +94,7 @@ namespace GitMind.RepositoryViews
 			filterTriggerTimer.Tick += FilterTrigger;
 			filterTriggerTimer.Interval = FilterDelay;
 
-			CommitDetailsViewModel = new CommitDetailsViewModel(UndoUncommittedFileCommand);
+			CommitDetailsViewModel = new CommitDetailsViewModel(this);
 		}
 
 
@@ -184,14 +185,21 @@ namespace GitMind.RepositoryViews
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
 
-		public Command<string> UndoUncommittedFileCommand => AsyncCommand<string>(UndoUncommittedFileAsync);
-		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
+		
+		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(
+			branch => branchService.MergeBranchAsync(this, branch));
 
 
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
 		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
-		public Command CommitCommand => AsyncCommand(CommitChangesAsync, () => IsUncommitted);
-		public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, () => IsUncommitted);
+		public Command CommitCommand => AsyncCommand(
+			() => commitService.CommitChangesAsync(this), 
+			() => IsUncommitted);
+
+		public Command ShowUncommittedDiffCommand => Command(
+			() => commitService.ShowUncommittedDiff(this),
+			() => IsUncommitted);
+
 		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
 
 		public Command TryUpdateAllBranchesCommand => Command(
@@ -1010,73 +1018,6 @@ namespace GitMind.RepositoryViews
 
 
 
-
-		private Task UndoUncommittedFileAsync(string path)
-		{
-			Progress.ShowDialog(Owner, $"Undo file change in {path} ...", async () =>
-			{
-				await gitService.UndoFileInCurrentBranchAsync(WorkingFolder, path);
-			});
-
-			return Task.CompletedTask;
-		}
-
-		private async Task CommitChangesAsync()
-		{
-			string branchName = UnCommited.Branch.Name;
-			string workingFolder = WorkingFolder;
-
-			IEnumerable<CommitFile> commitFiles = await UnCommited.FilesTask;
-			string commitMessage = Repository.Status.Message;
-
-			SetIsInternalDialog(true);
-
-			CommitDialog dialog = new CommitDialog(
-				Owner,
-				branchName,
-				workingFolder,
-				commitFiles,
-				commitMessage,
-				Repository.Status.IsMerging,
-				ShowUncommittedDiffCommand,
-				UndoUncommittedFileCommand);
-
-			if (dialog.ShowDialog() == true)
-			{
-				Progress.ShowDialog(Owner, $"Commit current branch {branchName} ...", async () =>
-				{
-					GitCommit gitCommit = await gitService.CommitAsync(
-						workingFolder, dialog.CommitMessage, dialog.CommitFiles);
-
-					if (gitCommit != null)
-					{
-						Log.Debug("Committed to git repo done");
-
-						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
-
-						await RefreshAfterCommandAsync(false);
-					}
-				});
-
-				Application.Current.MainWindow.Focus();
-				SetIsInternalDialog(false);
-				Log.Debug("After commit dialog, refresh done");
-			}
-			else
-			{
-				Application.Current.MainWindow.Focus();
-				SetIsInternalDialog(false);
-			}
-		}
-
-
-		private async void ShowUncommittedDiff()
-		{
-			await diffService.ShowDiffAsync(Commit.UncommittedId, WorkingFolder);
-		}
-
-
-
 		private async void ShowSelectedDiff()
 		{
 			CommitViewModel commit = SelectedItem as CommitViewModel;
@@ -1086,54 +1027,6 @@ namespace GitMind.RepositoryViews
 				await diffService.ShowDiffAsync(commit.Commit.Id, WorkingFolder);
 			}
 		}
-
-
-		private async Task MergeBranchAsync(Branch branch)
-		{
-			isInternalDialog = true;
-
-			if (branch == Repository.CurrentBranch)
-			{
-				MessageDialog.ShowWarning(Owner, "You cannot merge current branch into it self.");
-				return;
-			}
-
-			if (Repository.Status.ConflictCount > 0 || Repository.Status.StatusCount > 0)
-			{
-				MessageDialog.ShowInformation(
-					Owner, "You must first commit uncommitted changes before merging.");
-				return;
-			}
-
-			Progress.ShowDialog(Owner, $"Merge branch {branch.Name} ...", async () =>
-			{
-				Branch currentBranch = Repository.CurrentBranch;
-				GitCommit gitCommit = await gitService.MergeAsync(WorkingFolder, branch.Name);
-
-				if (gitCommit != null)
-				{
-					Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {gitCommit.Id}");
-					await gitService.SetCommitBranchAsync(WorkingFolder, gitCommit.Id, currentBranch.Name);
-				}
-
-				await RefreshAfterCommandAsync(false);
-			});
-
-			if (Repository.Status.StatusCount == 0)
-			{
-				MessageDialog.ShowInformation(Owner, "No changes in this merge, nothing to merge.");
-				return;
-			}
-
-			if (Repository.Status.ConflictCount == 0)
-			{
-				await CommitChangesAsync();
-			}
-		}
-
-
-
-
 
 
 		private async Task UndoCleanWorkingFolderAsync()

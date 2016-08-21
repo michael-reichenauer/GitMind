@@ -12,10 +12,9 @@ namespace GitMind.Features.Committing
 {
 	internal class CommitDialogViewModel : ViewModel
 	{
-		private readonly string branchName;
-
-		private readonly Command<string> undoUncommittedFileCommand;
-
+		private readonly ICommitService commitService = new CommitService();
+		private readonly IRepositoryCommands repositoryCommands;
+	
 		//private static readonly string TestSubject =
 		//"01234567890123456789012345678901234567890123456789]";
 
@@ -24,19 +23,16 @@ namespace GitMind.Features.Committing
 
 
 		public CommitDialogViewModel(
+			IRepositoryCommands repositoryCommands,
 			string branchName,
 			string workingFolder,
 			IEnumerable<CommitFile> files,
 			string commitMessage,
-			bool isMerging,
-			Command showUncommittedDiffCommand,
-			Command<string> undoUncommittedFileCommand)
+			bool isMerging)
 		{
-			this.branchName = branchName;
 			CommitFiles = files.ToList();
 
-			this.undoUncommittedFileCommand = undoUncommittedFileCommand;
-			ShowUncommittedDiffCommand = showUncommittedDiffCommand;
+			this.repositoryCommands = repositoryCommands;
 
 			files.ForEach(f => Files.Add(
 				ToCommitFileViewModel(workingFolder, f)));
@@ -69,7 +65,8 @@ namespace GitMind.Features.Committing
 
 		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
-		public Command ShowUncommittedDiffCommand { get; }
+		public Command ShowUncommittedDiffCommand => AsyncCommand(
+			() => commitService.ShowUncommittedDiff(repositoryCommands));
 
 		public Command<string> UndoUncommittedFileCommand => Command<string>(UndoUncommittedFile);
 
@@ -80,7 +77,7 @@ namespace GitMind.Features.Committing
 
 			if (file != null)
 			{
-				undoUncommittedFileCommand.Execute(path);
+				commitService.UndoUncommittedFileAsync(repositoryCommands, path);
 
 				Files.Remove(file);
 			}

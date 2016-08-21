@@ -2,10 +2,12 @@
 using System.Windows;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
+using GitMind.Features.Committing;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
+using GitMind.Utils;
 
 
 namespace GitMind.Features.Branching
@@ -13,15 +15,19 @@ namespace GitMind.Features.Branching
 	internal class BranchService : IBranchService
 	{
 		private readonly IGitService gitService;
+		private readonly ICommitService commitService;
 
 		public BranchService()
-			: this(new GitService())
+			: this(new GitService(), new CommitService())
 		{
 		}
 
-		public BranchService(IGitService gitService)
+		public BranchService(
+			IGitService gitService,
+			ICommitService commitService)
 		{
 			this.gitService = gitService;
+			this.commitService = commitService;
 		}
 
 
@@ -193,6 +199,55 @@ namespace GitMind.Features.Branching
 
 				await repositoryCommands.RefreshAfterCommandAsync(true);
 			});
+		}
+
+
+		public async Task MergeBranchAsync(IRepositoryCommands repositoryCommands, Branch branch)
+		{
+			string workingFolder = repositoryCommands.WorkingFolder;
+			Window owner = repositoryCommands.Owner;
+
+			using (repositoryCommands.DisableStatus())
+			{
+
+				if (branch == branch. Repository.CurrentBranch)
+				{
+					MessageDialog.ShowWarning(owner, "You cannot merge current branch into it self.");
+					return;
+				}
+
+				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.StatusCount > 0)
+				{
+					MessageDialog.ShowInformation(
+						owner, "You must first commit uncommitted changes before merging.");
+					return;
+				}
+
+				Progress.ShowDialog(owner, $"Merge branch {branch.Name} ...", async () =>
+				{
+					Branch currentBranch = branch.Repository.CurrentBranch;
+					GitCommit gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
+
+					if (gitCommit != null)
+					{
+						Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {gitCommit.Id}");
+						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, currentBranch.Name);
+					}
+
+					await repositoryCommands.RefreshAfterCommandAsync(false);
+				});
+
+				if (repositoryCommands.Repository.Status.StatusCount == 0)
+				{
+					MessageDialog.ShowInformation(owner, "No changes in this merge, nothing to merge.");
+					return;
+				}
+
+				if (branch.Repository.Status.ConflictCount == 0)
+				{
+					await commitService.CommitChangesAsync(repositoryCommands);
+				}
+			}
 		}
 	}
 }
