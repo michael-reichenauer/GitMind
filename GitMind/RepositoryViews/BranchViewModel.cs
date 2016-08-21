@@ -24,7 +24,6 @@ namespace GitMind.RepositoryViews
 		public BranchViewModel(
 			IRepositoryCommands repositoryCommands,
 			Command<Branch> showBranchCommand,
-			Command<Branch> switchBranchCommand,
 			Command<Branch> mergeBranchCommand,
 			Command<Branch> deleteLocalBranchCommand,
 			Command<Branch> deleteRemoteBranchCommand)
@@ -34,8 +33,6 @@ namespace GitMind.RepositoryViews
 			this.deleteLocalBranchCommand = deleteLocalBranchCommand;
 			this.deleteRemoteBranchCommand = deleteRemoteBranchCommand;
 
-
-			SwitchBranchCommand = switchBranchCommand.With(() => Branch);
 			MergeBranchCommand = mergeBranchCommand.With(() => Branch);
 		}
 
@@ -79,8 +76,10 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-	
-		public Command SwitchBranchCommand { get; }
+		public Command SwitchBranchCommand => Command(
+			() => branchService.SwitchBranchAsync(repositoryCommands, Branch),
+			() => branchService.CanExecuteSwitchBranch(Branch));
+
 		public Command CreateBranchCommand => Command(
 			() => branchService.CreateBranchAsync(repositoryCommands, Branch));
 

@@ -62,5 +62,33 @@ namespace GitMind.Features.Branching
 				return Task.CompletedTask;
 			}
 		}
+
+
+		public Task SwitchBranchAsync(IRepositoryCommands repositoryCommands, Branch branch)
+		{
+			string workingFolder = repositoryCommands.WorkingFolder;
+			Window owner = repositoryCommands.Owner;
+
+			using (repositoryCommands.DisableStatus())
+			{
+				Progress.ShowDialog(owner, $"Switch to branch {branch.Name} ...", async () =>
+				{
+					await gitService.SwitchToBranchAsync(workingFolder, branch.Name);
+
+					await repositoryCommands.RefreshAfterCommandAsync(false);
+				});
+
+				return Task.CompletedTask;
+			}
+		}
+
+
+		public bool CanExecuteSwitchBranch(Branch branch)
+		{
+			return
+				branch.Repository.Status.ConflictCount == 0
+				&& !branch.Repository.Status.IsMerging
+				&& branch.Repository.CurrentBranch.Id != branch.Id;
+		}
 	}
 }

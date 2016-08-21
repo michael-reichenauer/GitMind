@@ -413,7 +413,6 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.ShowDiffCommand,
 				repositoryViewModel.SetBranchCommand,
 				repositoryViewModel.SwitchToCommitCommand,
-				repositoryViewModel.SwitchBranchCommand,
 				repositoryViewModel.UndoCleanWorkingFolderCommand,
 				repositoryViewModel.UndoUncommittedChangesCommand));
 
@@ -460,7 +459,6 @@ namespace GitMind.RepositoryViews
 			SetNumberOfItems(branches, sourceBranches.Count, i => new BranchViewModel(
 				repositoryViewModel,
 				repositoryViewModel.ShowBranchCommand,
-				repositoryViewModel.SwitchBranchCommand,
 				repositoryViewModel.MergeBranchCommand,
 				repositoryViewModel.DeleteLocalBranchCommand,
 				repositoryViewModel.DeleteRemoteBranchCommand));
