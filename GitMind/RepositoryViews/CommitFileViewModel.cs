@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using System.Windows.Media;
+using GitMind.Features.Committing;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
@@ -9,9 +10,11 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitFileViewModel : ViewModel
 	{
-		private readonly CommitFile file;
 		private readonly IDiffService diffService = new DiffService();
-		
+
+		private readonly CommitFile file;
+
+
 
 		public CommitFileViewModel(CommitFile file, Command<string> undoUncommittedFileCommand)
 		{

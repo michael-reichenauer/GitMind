@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Features.Branching;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -11,22 +12,27 @@ namespace GitMind.RepositoryViews
 {
 	internal class BranchViewModel : ViewModel
 	{
+		private readonly IBranchService branchService = new BranchService();
+		private readonly IRepositoryCommands repositoryCommands;
 		private readonly Command<Branch> showBranchCommand;
-		private readonly Command<Branch> mergeBranchCommand;
+		private readonly Command<Branch> deleteLocalBranchCommand;
+		private readonly Command<Branch> deleteRemoteBranchCommand;
+
 		private readonly ObservableCollection<BranchItem> childBranches 
 			= new ObservableCollection<BranchItem>();
 
 		public BranchViewModel(
+			IRepositoryCommands repositoryCommands,
 			Command<Branch> showBranchCommand,
-			Command<Branch> switchBranchCommand,
 			Command<Branch> mergeBranchCommand,
-			Command<Branch> createBranchCommand)
-		{			
+			Command<Branch> deleteLocalBranchCommand,
+			Command<Branch> deleteRemoteBranchCommand)
+		{
+			this.repositoryCommands = repositoryCommands;
 			this.showBranchCommand = showBranchCommand;
-			this.mergeBranchCommand = mergeBranchCommand;
+			this.deleteLocalBranchCommand = deleteLocalBranchCommand;
+			this.deleteRemoteBranchCommand = deleteRemoteBranchCommand;
 
-			SwitchBranchCommand = switchBranchCommand.With(() => Branch);
-			CreateBranchCommand = createBranchCommand.With(() => Branch);
 			MergeBranchCommand = mergeBranchCommand.With(() => Branch);
 		}
 
@@ -53,6 +59,7 @@ namespace GitMind.RepositoryViews
 		public string SwitchBranchText => $"Switch to branch '{Name}'";
 		public string MergeToBranchText => $"Merge to branch '{CurrentBranchName}'";
 		public string CurrentBranchName { get; set; }
+		public bool CanDeleteBranch => Branch.IsLocal || Branch.IsRemote;
 
 		// Values used by UI properties
 		public Branch Branch { get; set; }
@@ -69,10 +76,19 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-	
-		public Command SwitchBranchCommand { get; }
-		public Command CreateBranchCommand { get; }
+		public Command SwitchBranchCommand => Command(
+			() => branchService.SwitchBranchAsync(repositoryCommands, Branch),
+			() => branchService.CanExecuteSwitchBranch(Branch));
+
+		public Command CreateBranchCommand => Command(
+			() => branchService.CreateBranchAsync(repositoryCommands, Branch));
+
 		public Command MergeBranchCommand { get; }
+		public Command DeleteLocalBranchCommand => 
+			Command(() => deleteLocalBranchCommand.Execute(Branch), () => Branch.IsLocal);
+		public Command DeleteRemoteBranchCommand =>
+			Command(() => deleteRemoteBranchCommand.Execute(Branch), () => Branch.IsRemote);
+
 
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }
@@ -106,8 +122,7 @@ namespace GitMind.RepositoryViews
 					.Where(b => !ActiveBranches.Any(ab => ab.Branch == b))
 					.Take(50)
 					.ToList(),
-				showBranchCommand,
-				mergeBranchCommand);
+				showBranchCommand);
 		}
 	}
 }

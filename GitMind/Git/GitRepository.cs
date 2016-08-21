@@ -99,10 +99,20 @@ namespace GitMind.Git
 		{
 			foreach (CommitFile commitFile in paths)
 			{
-				repository.Index.Add(commitFile.Path);
+				string fullPath = Path.Combine(workingFolder, commitFile.Path);
+				if (File.Exists(fullPath))
+				{
+					repository.Index.Add(commitFile.Path);
+				}
+
 				if (commitFile.OldPath != null)
 				{
 					repository.Index.Remove(commitFile.OldPath);
+				}
+
+				if (commitFile.Status == GitFileStatus.Deleted)
+				{
+					repository.Remove(commitFile.Path);
 				}
 			}
 		}
@@ -190,7 +200,22 @@ namespace GitMind.Git
 			if (branch != null)
 			{
 				MergeResult mergeResult = repository.Merge(branch, committer, MergeNoFastForward);
-				return mergeResult?.Commit != null ? new GitCommit(mergeResult.Commit) : null;
+				if (mergeResult?.Commit != null)
+				{
+					return new GitCommit(mergeResult.Commit);
+				}
+				else
+				{
+					RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
+
+					if (!repositoryStatus.IsDirty)
+					{
+						// Empty merge with no changes, lets reset merge since there is nothing to merge
+						repository.Reset(ResetMode.Hard);
+					}
+
+					return null;
+				}
 			}
 
 			return null;
@@ -423,6 +448,55 @@ namespace GitMind.Git
 			string tempPath = fullPath + ".tmp";
 			File.AppendAllText(tempPath, "tmp");
 			File.Delete(tempPath);
+		}
+
+
+		public bool TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
+		{
+			if (!isUseForce && !IsBranchMerged(branchName, isRemote))
+			{
+				return false;
+			}
+
+			repository.Branches.Remove(branchName, isRemote);
+
+			return true;
+		}
+
+
+		public bool IsBranchMerged(string branchName, bool isRemote)
+		{
+			Branch branch = repository.Branches[isRemote ? "origin/" + branchName : branchName];
+
+			return IsBranchMerged(branch);
+		}
+
+
+		private bool IsBranchMerged(Branch thisBranch)
+		{
+			string tipId = thisBranch.Tip.Sha;
+
+			foreach (var branch in repository.Branches.Where(b => b!= thisBranch))
+			{
+				if (branch.Tip.Sha == tipId)
+				{
+					return true;
+				}
+			}
+
+			foreach (var branch in repository.Branches.Where(b => b != thisBranch))
+			{
+				var commits = repository.Commits
+					.QueryBy(new CommitFilter { IncludeReachableFrom = branch })
+					.Where(c => c.Sha == tipId);
+
+				if (commits.Any())
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 	}
 }

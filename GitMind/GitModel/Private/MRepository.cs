@@ -10,7 +10,7 @@ namespace GitMind.GitModel.Private
 	[ProtoContract]
 	public class MRepository
 	{
-		public static string CurrentVersion = "10";
+		public static string CurrentVersion = "11";
 
 		[ProtoMember(1)]
 		public string Version { get; set; } = CurrentVersion;
@@ -64,7 +64,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		internal CommitsFiles CommitsFiles { get; set; }
+		internal CommitsFiles CommitsFiles { get; set; } = new CommitsFiles();
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
 

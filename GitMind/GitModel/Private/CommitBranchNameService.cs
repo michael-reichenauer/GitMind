@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using GitMind.Git;
 using GitMind.Utils;
@@ -96,17 +97,25 @@ namespace GitMind.GitModel.Private
 
 		public void SetBranchTipCommitsNames(MRepository repository)
 		{
+			repository.SubBranches.Values
+				.Where(b => !repository.Commits.ContainsKey(b.TipCommitId))
+				.ForEach(b =>
+				{
+					Log.Warn($"Branch with no tip {b.Name}");
+					Debugger.Break();
+				});
+
 			IEnumerable<MSubBranch> branches = repository.SubBranches.Values
 				.Where(b =>
-					repository.Commits.ContainsKey(b.TipCommitId)
-					&& b.TipCommit.BranchId == null
+					b.TipCommit.BranchId == null
 					&& b.TipCommit.SubBranchId == null);
 
 			foreach (MSubBranch branch in branches)
 			{ 
 				MCommit branchTip = branch.TipCommit;
 
-				if (!branchTip.HasFirstChild)
+				if (!branchTip.HasFirstChild 
+					&& !branches.Any(b => b.Name != branch.Name && b.TipCommitId == branch.TipCommitId))
 				{
 					branchTip.BranchName = branch.Name;
 					branchTip.SubBranchId = branch.SubBranchId;
@@ -148,8 +157,7 @@ namespace GitMind.GitModel.Private
 		{
 			IEnumerable<MSubBranch> branches = repository.SubBranches.Values
 				.Where(b =>
-					repository.Commits.ContainsKey(b.TipCommitId)
-					&& b.TipCommit.BranchId == null
+					b.TipCommit.BranchId == null
 					&& b.IsActive);
 
 			foreach (MSubBranch branch in branches)

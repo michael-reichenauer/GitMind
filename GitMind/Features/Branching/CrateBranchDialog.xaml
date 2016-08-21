@@ -1,4 +1,4 @@
-﻿<Window x:Class="GitMind.Features.Branching.BranchDialog"
+﻿<Window x:Class="GitMind.Features.Branching.CrateBranchDialog"
 				Name="BranchDialogWindow"
 				xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 				xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -15,7 +15,7 @@
 	<!-- Enable "normal" windows behavior with drag and resize,
 	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
 	<Window.Resources>
-		<Style TargetType="{x:Type local:BranchDialog}">
+		<Style TargetType="{x:Type local:CrateBranchDialog}">
 			<Setter Property="WindowChrome.WindowChrome">
 				<Setter.Value>
 					<WindowChrome />

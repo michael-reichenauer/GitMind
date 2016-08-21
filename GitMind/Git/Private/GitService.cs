@@ -320,7 +320,7 @@ namespace GitMind.Git.Private
 				Log.Warn($"Failed to fetch notes {workingFolder}, {e.Message}");
 			}
 
-			
+
 		}
 
 
@@ -342,7 +342,7 @@ namespace GitMind.Git.Private
 					catch (Exception e)
 					{
 						Log.Warn($"Failed to undo and clean, {e.Message}");
-						return new [] { $"Error {e.Message}" };
+						return new[] { $"Error {e.Message}" };
 					}
 				});
 			}
@@ -426,6 +426,94 @@ namespace GitMind.Git.Private
 		}
 
 
+		public Task<bool> TryDeleteBranchAsync(
+			string workingFolder, string branchName, bool isRemote, bool isUseForce)
+		{
+			if (isRemote)
+			{
+				return TryDeleteRemoteBranchAsync(workingFolder, branchName, isUseForce);
+			}
+			else
+			{
+				return TryDeleteLocalBranchAsync(workingFolder, branchName, isUseForce);
+			}
+		}
+
+
+		private async Task<bool> TryDeleteLocalBranchAsync(
+			string workingFolder, string branchName, bool isUseForce)
+		{
+			try
+			{
+				Log.Debug($"Delete branch {branchName} ...");
+
+				return await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							return gitRepository.TryDeleteBranch(branchName, false, isUseForce);
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
+						return false;
+					}
+				});
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
+				return false;
+			}
+		}
+
+		private async Task<bool> TryDeleteRemoteBranchAsync(
+			string workingFolder, string branchName, bool isUseForce)
+		{
+			Log.Debug($"Delete branch {branchName} ...");
+
+			try
+			{
+				Log.Debug($"Push delete branch {branchName} branch using cmd... {workingFolder}");
+
+				if (!isUseForce)
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						if (!gitRepository.IsBranchMerged(branchName, true))
+						{
+							return false;
+						}
+					}
+				}
+
+				string args = $"push origin :{branchName}";
+
+				R<IReadOnlyList<string>> pushResult = await GitAsync(workingFolder, args)
+					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+
+				if (pushResult.HasValue)
+				{
+					Log.Debug($"Pushed delete {branchName} branch using cmd");
+					return true;
+				}
+				else
+				{
+					Log.Warn($"Git push delete {branchName} branch failed {pushResult}");
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to push delete {branchName} branch {workingFolder}, {e.Message}");
+			}
+
+			return false;
+		}
+
+
 		private async Task FetchUsingCmdAsync(string workingFolder)
 		{
 			Log.Debug("Fetching repository using cmd ...");
@@ -439,9 +527,6 @@ namespace GitMind.Git.Private
 			// Ignoring fetch errors for now
 			fetchResult.OnError(e => Log.Warn($"Git fetch failed {e.Message}"));
 		}
-
-
-
 
 
 		public async Task FetchBranchAsync(string workingFolder, string branchName)
@@ -890,7 +975,7 @@ namespace GitMind.Git.Private
 					Log.Warn($"Failed to read local {nameSpace}, {e}");
 				}
 
-				branchNames = ParseBranchNames(notesText );
+				branchNames = ParseBranchNames(notesText);
 			}
 			catch (Exception e)
 			{
@@ -908,7 +993,7 @@ namespace GitMind.Git.Private
 			List<BranchName> branchNames = new List<BranchName>();
 
 			if (string.IsNullOrWhiteSpace(text))
-			{		
+			{
 				return branchNames;
 			}
 
@@ -976,7 +1061,7 @@ namespace GitMind.Git.Private
 				using (GitRepository gitRepository = OpenRepository(workingFolder))
 				{
 					GitNote gitNote = new GitNote(nameSpace, notesText);
-				
+
 					gitRepository.SetCommitNote(rootId, gitNote);
 				}
 			}

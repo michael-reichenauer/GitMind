@@ -7,7 +7,7 @@
 	xmlns:mainWindowViews="clr-namespace:GitMind.MainWindowViews"
 	xmlns:ui="clr-namespace:GitMind.Utils.UI"
 	Title="{Binding Title}"	Icon="Application.ico"
-	Width="1050" Height="800"
+	Width="800" Height="695"
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
 	WindowStyle="None" AllowsTransparency="True"
 	Loaded="MainWindow_OnLoaded"

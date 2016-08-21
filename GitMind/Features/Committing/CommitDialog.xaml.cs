@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using GitMind.GitModel;
+using GitMind.RepositoryViews;
 using GitMind.Utils.UI;
 
 
@@ -16,26 +17,24 @@ namespace GitMind.Features.Committing
 	{
 		private readonly CommitDialogViewModel viewModel;
 
-		public CommitDialog(
+		internal CommitDialog(
 			Window owner,
+			IRepositoryCommands repositoryCommands,
 			string branchName,
 			string workingFolder,
 			IEnumerable<CommitFile> files,
 			string commitMessage,
-			bool isMerging,
-			Command showUncommittedDiffCommand,
-			Command<string> undoUncommittedFileCommand)
+			bool isMerging)
 		{
 			Owner = owner;
 			InitializeComponent();
 			viewModel = new CommitDialogViewModel(
+				repositoryCommands,
 				branchName,
 				workingFolder,
 				files,
 				commitMessage,
-				isMerging,
-				showUncommittedDiffCommand,
-				undoUncommittedFileCommand);
+				isMerging);
 
 			DataContext = viewModel;
 
@@ -51,6 +50,8 @@ namespace GitMind.Features.Committing
 
 
 		public string CommitMessage => viewModel.Message;
+
+		public bool IsChanged => viewModel.IsChanged;
 
 		public IReadOnlyList<CommitFile> CommitFiles => viewModel.CommitFiles;
 	}

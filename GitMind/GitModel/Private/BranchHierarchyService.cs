@@ -101,10 +101,15 @@ namespace GitMind.GitModel.Private
 						.Where(b => b.Value.IsActive)
 						.OrderByDescending(b => b.Value.TipCommit.CommitDate)
 						.FirstOrDefault();
-					if (activeTip.Value != null)
+					if (branch.TipCommitId == null && activeTip.Value != null)
 					{
 						branch.TipCommitId = activeTip.Value.TipCommitId;
 					}
+
+					var activeSubBranches = groupByBranch.Where(b => b.Value.IsActive).ToList();
+					branch.IsActive = activeSubBranches.Any();
+					branch.IsLocal = activeSubBranches.Any(b =>  b.Value.IsLocal);
+					branch.IsRemote = activeSubBranches.Any(b => b.Value.IsRemote);
 
 					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);
 				}
