@@ -9,16 +9,16 @@ using GitMind.RepositoryViews;
 
 namespace GitMind.Features.Branching
 {
-	internal class CreateBranchService : ICreateBranchService
+	internal class BranchService : IBranchService
 	{
 		private readonly IGitService gitService;
 
-		public CreateBranchService()
+		public BranchService()
 			: this(new GitService())
 		{
 		}
 
-		public CreateBranchService(IGitService gitService)
+		public BranchService(IGitService gitService)
 		{
 			this.gitService = gitService;
 		}

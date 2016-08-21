@@ -9,7 +9,7 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitViewModel : ViewModel
 	{
-		private readonly ICreateBranchService createBranchService = new CreateBranchService();
+		private readonly IBranchService branchService = new BranchService();
 		private readonly IRepositoryCommands repositoryCommands;
 		private int windowWidth;
 
@@ -109,7 +109,7 @@ namespace GitMind.RepositoryViews
 		public Command SwitchToCommitCommand { get; }
 		public Command SwitchToBranchCommand { get; }
 		public Command CreateBranchFromCommitCommand => Command(
-			() => createBranchService.CreateBranchFromCommitAsync(repositoryCommands, Commit));
+			() => branchService.CreateBranchFromCommitAsync(repositoryCommands, Commit));
 
 		public Command UndoUncommittedChangesCommand { get; }
 		public Command UndoCleanWorkingFolderCommand { get; }

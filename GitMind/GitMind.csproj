@@ -94,8 +94,8 @@
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Features\Branching\CreateBranchDialogViewModel.cs" />
-    <Compile Include="Features\Branching\CreateBranchService.cs" />
-    <Compile Include="Features\Branching\ICreateBranchService.cs" />
+    <Compile Include="Features\Branching\BranchService.cs" />
+    <Compile Include="Features\Branching\IBranchService.cs" />
     <Compile Include="Features\Committing\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
     </Compile>

@@ -5,7 +5,7 @@ using GitMind.RepositoryViews;
 
 namespace GitMind.Features.Branching
 {
-	internal interface ICreateBranchService
+	internal interface IBranchService
 	{
 		Task CreateBranchAsync(IRepositoryCommands repositoryCommands, Branch branch);
 

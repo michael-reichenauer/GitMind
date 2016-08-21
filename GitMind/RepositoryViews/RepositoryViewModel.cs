@@ -18,6 +18,8 @@ using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
+using BranchService = GitMind.Features.Branching.BranchService;
+using IBranchService = GitMind.Features.Branching.IBranchService;
 
 
 namespace GitMind.RepositoryViews
@@ -34,7 +36,7 @@ namespace GitMind.RepositoryViews
 		private readonly IGitService gitService = new GitService();
 		private readonly IBrushService brushService = new BrushService();
 		private readonly IDiffService diffService = new DiffService();
-		private readonly ICreateBranchService createBranchService = new CreateBranchService();
+		private readonly IBranchService branchService = new BranchService();
 
 		private readonly BusyIndicator busyIndicator;
 
