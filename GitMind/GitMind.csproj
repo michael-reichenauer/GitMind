@@ -107,6 +107,8 @@
     <Compile Include="Git\GitFileStatus.cs" />
     <Compile Include="Git\GitNote.cs" />
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
+    <Compile Include="RepositoryViews\DisabledStatus.cs" />
+    <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
     <Compile Include="Utils\UI\VisibleWindow.cs" />
     <Compile Include="Utils\UI\WpfBindingTraceListener.cs" />

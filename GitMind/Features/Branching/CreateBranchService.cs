@@ -24,43 +24,43 @@ namespace GitMind.Features.Branching
 		}
 
 
-		public Task CreateBranchAsync(RepositoryViewModel viewModel, Branch branch)
+		public Task CreateBranchAsync(IRepositoryCommands repositoryCommands, Branch branch)
 		{
-			return CreateBranchFromCommitAsync(viewModel, branch.TipCommit);
+			return CreateBranchFromCommitAsync(repositoryCommands, branch.TipCommit);
 		}
 
 
-		public Task CreateBranchFromCommitAsync(RepositoryViewModel viewModel, Commit commit)
+		public Task CreateBranchFromCommitAsync(IRepositoryCommands repositoryCommands, Commit commit)
 		{
-			string workingFolder = viewModel.WorkingFolder;
-			Window owner = viewModel.Owner;
-
-			CrateBranchDialog dialog = new CrateBranchDialog(owner);
-
-			viewModel.SetIsInternalDialog(true);
-			if (dialog.ShowDialog() == true)
+			using (repositoryCommands.DisableStatus())
 			{
-				Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
+				string workingFolder = repositoryCommands.WorkingFolder;
+				Window owner = repositoryCommands.Owner;
+
+				CrateBranchDialog dialog = new CrateBranchDialog(owner);
+
+				if (dialog.ShowDialog() == true)
 				{
-					string branchName = dialog.BranchName;
-					string commitId = commit.Id;
-					if (commitId == Commit.UncommittedId)
+					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
 					{
-						commitId = commit.FirstParent.CommitId;
-					}
+						string branchName = dialog.BranchName;
+						string commitId = commit.Id;
+						if (commitId == Commit.UncommittedId)
+						{
+							commitId = commit.FirstParent.CommitId;
+						}
 
-					bool isPublish = dialog.IsPublish;
+						bool isPublish = dialog.IsPublish;
 
-					await gitService.CreateBranchAsync(workingFolder, branchName, commitId, isPublish);
-					viewModel.AddSpecifiedBranch(branchName);
-					await viewModel.RefreshAfterCommandAsync(true);
-				});
+						await gitService.CreateBranchAsync(workingFolder, branchName, commitId, isPublish);
+						repositoryCommands.AddSpecifiedBranch(branchName);
+
+						await repositoryCommands.RefreshAfterCommandAsync(true);
+					});
+				}
+
+				return Task.CompletedTask;
 			}
-
-			owner.Focus();
-
-			viewModel.SetIsInternalDialog(false);
-			return Task.CompletedTask;
 		}
 	}
 }

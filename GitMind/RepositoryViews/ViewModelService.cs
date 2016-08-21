@@ -408,12 +408,12 @@ namespace GitMind.RepositoryViews
 			var commitsById = repositoryViewModel.CommitsById;
 
 			SetNumberOfItems(commits, sourceCommits.Count, i => new CommitViewModel(
+				repositoryViewModel,
 				repositoryViewModel.ToggleDetailsCommand,
 				repositoryViewModel.ShowDiffCommand,
 				repositoryViewModel.SetBranchCommand,
 				repositoryViewModel.SwitchToCommitCommand,
 				repositoryViewModel.SwitchBranchCommand,
-				repositoryViewModel.CreateBranchFromCommitCommand,
 				repositoryViewModel.UndoCleanWorkingFolderCommand,
 				repositoryViewModel.UndoUncommittedChangesCommand));
 
@@ -458,10 +458,10 @@ namespace GitMind.RepositoryViews
 			var branches = repositoryViewModel.Branches;
 
 			SetNumberOfItems(branches, sourceBranches.Count, i => new BranchViewModel(
+				repositoryViewModel,
 				repositoryViewModel.ShowBranchCommand,
 				repositoryViewModel.SwitchBranchCommand,
 				repositoryViewModel.MergeBranchCommand,
-				repositoryViewModel.CreateBranchCommand,
 				repositoryViewModel.DeleteLocalBranchCommand,
 				repositoryViewModel.DeleteRemoteBranchCommand));
 

@@ -25,7 +25,7 @@ namespace GitMind.RepositoryViews
 	/// <summary>
 	/// View model
 	/// </summary>
-	internal class RepositoryViewModel : ViewModel
+	internal class RepositoryViewModel : ViewModel, IRepositoryCommands
 	{
 		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
 
@@ -97,6 +97,11 @@ namespace GitMind.RepositoryViews
 
 		public Repository Repository { get; private set; }
 
+
+		public DisabledStatus DisableStatus()
+		{
+			return new DisabledStatus(this);
+		}
 
 		public void SetIsInternalDialog(bool isInternal)
 		{
@@ -178,10 +183,8 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> SwitchToCommitCommand => AsyncCommand<Commit>(SwitchToCommitAsync, CanExecuteSwitchToCommit);
 		public Command<string> UndoUncommittedFileCommand => AsyncCommand<string>(UndoUncommittedFileAsync);
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
-		public Command<Branch> CreateBranchCommand => AsyncCommand<Branch>(
-			branch => createBranchService.CreateBranchAsync(this, branch));
-		public Command<Commit> CreateBranchFromCommitCommand => AsyncCommand<Commit>(
-			commit => createBranchService.CreateBranchFromCommitAsync(this, commit));
+
+
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
 		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
 		public Command CommitCommand => AsyncCommand(CommitChangesAsync, () => IsUncommitted);
