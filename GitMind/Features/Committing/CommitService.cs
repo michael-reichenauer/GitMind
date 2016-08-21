@@ -72,6 +72,13 @@ namespace GitMind.Features.Committing
 
 					Log.Debug("After commit dialog, refresh done");
 				}
+				else if (dialog.IsChanged)
+				{
+					Progress.ShowDialog(owner, "Updating status ...", async () =>
+					{
+						await repositoryCommands.RefreshAfterCommandAsync(false);
+					});
+				}
 			}
 		}
 

@@ -51,6 +51,8 @@ namespace GitMind.Features.Committing
 
 		public string CommitMessage => viewModel.Message;
 
+		public bool IsChanged => viewModel.IsChanged;
+
 		public IReadOnlyList<CommitFile> CommitFiles => viewModel.CommitFiles;
 	}
 }

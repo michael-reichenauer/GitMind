@@ -70,6 +70,7 @@ namespace GitMind.Features.Committing
 
 		public Command<string> UndoUncommittedFileCommand => Command<string>(UndoUncommittedFile);
 
+		public bool IsChanged { get; private set; }
 
 		private void UndoUncommittedFile(string path)
 		{
@@ -80,6 +81,7 @@ namespace GitMind.Features.Committing
 				commitService.UndoUncommittedFileAsync(repositoryCommands, path);
 
 				Files.Remove(file);
+				IsChanged = true;
 			}
 		}
 
