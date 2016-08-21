@@ -453,9 +453,7 @@ namespace GitMind.Git
 
 		public bool TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
 		{
-			Branch branch = repository.Branches[isRemote ? "origin/" + branchName : branchName];
-
-			if (!isUseForce && !IsBranchMerged(branch))
+			if (!isUseForce && !IsBranchMerged(branchName, isRemote))
 			{
 				return false;
 			}
@@ -463,6 +461,14 @@ namespace GitMind.Git
 			repository.Branches.Remove(branchName, isRemote);
 
 			return true;
+		}
+
+
+		public bool IsBranchMerged(string branchName, bool isRemote)
+		{
+			Branch branch = repository.Branches[isRemote ? "origin/" + branchName : branchName];
+
+			return IsBranchMerged(branch);
 		}
 
 

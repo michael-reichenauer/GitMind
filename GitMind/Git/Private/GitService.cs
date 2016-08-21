@@ -479,7 +479,15 @@ namespace GitMind.Git.Private
 			{
 				Log.Debug($"Push delete branch {branchName} branch using cmd... {workingFolder}");
 
-				string args = isUseForce ? $"push --force origin :{branchName}" : $"push origin :{branchName}";
+				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				{
+					if (!gitRepository.IsBranchMerged(branchName, true))
+					{
+						return false;
+					}
+				}
+
+				string args = $"push origin :{branchName}";
 
 				R<IReadOnlyList<string>> pushResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
