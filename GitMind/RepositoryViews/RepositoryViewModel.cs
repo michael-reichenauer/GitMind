@@ -1176,7 +1176,7 @@ namespace GitMind.RepositoryViews
 
 		private Task CreateBranchAsync(Branch branch)
 		{
-			BranchDialog dialog = new BranchDialog(owner);
+			CrateBranchDialog dialog = new CrateBranchDialog(owner);
 
 			isInternalDialog = true;
 			if (dialog.ShowDialog() == true)
@@ -1256,7 +1256,7 @@ namespace GitMind.RepositoryViews
 
 		private Task CreateBranchFromCommitAsync(Commit commit)
 		{
-			BranchDialog dialog = new BranchDialog(owner);
+			CrateBranchDialog dialog = new CrateBranchDialog(owner);
 
 			isInternalDialog = true;
 			if (dialog.ShowDialog() == true)

@@ -90,10 +90,10 @@
       <DependentUpon>ProgressDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
-    <Compile Include="Features\Branching\BranchDialog.xaml.cs">
-      <DependentUpon>BranchDialog.xaml</DependentUpon>
+    <Compile Include="Features\Branching\CrateBranchDialog.xaml.cs">
+      <DependentUpon>CrateBranchDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Branching\BranchDialogViewModel.cs" />
+    <Compile Include="Features\Branching\CreateBranchDialogViewModel.cs" />
     <Compile Include="Features\Committing\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
     </Compile>
@@ -246,7 +246,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Branching\BranchDialog.xaml">
+    <Page Include="Features\Branching\CrateBranchDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
