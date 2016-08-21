@@ -101,7 +101,7 @@ namespace GitMind.GitModel.Private
 						.Where(b => b.Value.IsActive)
 						.OrderByDescending(b => b.Value.TipCommit.CommitDate)
 						.FirstOrDefault();
-					if (activeTip.Value != null)
+					if (branch.TipCommitId == null && activeTip.Value != null)
 					{
 						branch.TipCommitId = activeTip.Value.TipCommitId;
 					}
