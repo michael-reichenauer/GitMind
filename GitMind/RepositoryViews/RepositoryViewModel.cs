@@ -1225,6 +1225,12 @@ namespace GitMind.RepositoryViews
 
 		private void DeleteBranch(Branch branch, bool isRemote, string progressText)
 		{
+			if (branch.Name == "master")
+			{
+				MessageDialog.ShowWarning(owner, "You cannot delete master branch.");
+				return;
+			}
+
 			Progress.ShowDialog(owner, progressText, async () =>
 			{
 				bool isDeleted = await gitService.TryDeleteBranchAsync(
