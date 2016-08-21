@@ -62,15 +62,29 @@ namespace GitMind.RepositoryViews
 					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
 
 			repositoryViewModel.ShowableBranches.Clear();
-
-			IReadOnlyList < BranchItem > showableBranches = BranchItem.GetBranches(
-			repositoryViewModel.Repository.Branches
+			IEnumerable<Branch> showableBranches = repositoryViewModel.Repository.Branches
 				.Where(b => b.IsActive && b.Name != "master")
-				.Where(b => !repositoryViewModel.HidableBranches.Any(ab => ab.Branch.Id == b.Id)),
-				repositoryViewModel.ShowBranchCommand,
-				repositoryViewModel.MergeBranchCommand);
+				.Where(b => !repositoryViewModel.HidableBranches.Any(ab => ab.Branch.Id == b.Id));
+			IReadOnlyList<BranchItem> showableBrancheItems = BranchItem.GetBranches(
+				showableBranches,
+				repositoryViewModel.ShowBranchCommand);
+			showableBrancheItems.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
 
-			showableBranches.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
+			repositoryViewModel.DeletableLocalBranches.Clear();
+			IEnumerable<Branch> deletableLocalBranches = repositoryViewModel.Repository.Branches
+				.Where(b => b.IsActive && b.Name != "master" && b.IsLocal);
+			IReadOnlyList<BranchItem> deletableLocalBrancheItems = BranchItem.GetBranches(
+				deletableLocalBranches,
+				repositoryViewModel.DeleteLocalBranchCommand);
+			deletableLocalBrancheItems.ForEach(b => repositoryViewModel.DeletableLocalBranches.Add(b));
+
+			repositoryViewModel.DeletableRemoteBranches.Clear();
+			IEnumerable<Branch> deletableRemoteBranches = repositoryViewModel.Repository.Branches
+				.Where(b => b.IsActive && b.Name != "master" && b.IsRemote);
+			IReadOnlyList<BranchItem> deletableRemoteBrancheItems = BranchItem.GetBranches(
+				deletableRemoteBranches,
+				repositoryViewModel.DeleteRemoteBranchCommand);
+			deletableRemoteBrancheItems.ForEach(b => repositoryViewModel.DeletableRemoteBranches.Add(b));
 
 			UpdateViewModel(repositoryViewModel, branches, commits);
 
@@ -80,7 +94,7 @@ namespace GitMind.RepositoryViews
 
 		private void UpdateViewModel(
 			RepositoryViewModel repositoryViewModel,
-			IReadOnlyList<Branch> branches, 
+			IReadOnlyList<Branch> branches,
 			List<Commit> commits)
 		{
 			UpdateBranches(branches, commits, repositoryViewModel);
@@ -255,12 +269,12 @@ namespace GitMind.RepositoryViews
 			RepositoryViewModel repositoryViewModel, string filterText)
 		{
 			IEnumerable<Commit> commits = null;
-		
+
 			bool isSearchSpecifiedNames = filterText == "$gm:";
 
 			Repository repository = repositoryViewModel.Repository;
 
-			commits = repository.Commits;	
+			commits = repository.Commits;
 
 			Log.Debug($"Searching in {commits.Count()} commits");
 
@@ -447,7 +461,9 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.ShowBranchCommand,
 				repositoryViewModel.SwitchBranchCommand,
 				repositoryViewModel.MergeBranchCommand,
-				repositoryViewModel.CreateBranchCommand));
+				repositoryViewModel.CreateBranchCommand,
+				repositoryViewModel.DeleteLocalBranchCommand,
+				repositoryViewModel.DeleteRemoteBranchCommand));
 
 			int index = 0;
 			List<BranchViewModel> addedBranchColumns = new List<BranchViewModel>();
@@ -498,11 +514,20 @@ namespace GitMind.RepositoryViews
 
 			if (branch.Branch.LocalAheadCount > 0)
 			{
-				toolTip += $"\nAhead: {branch.Branch.LocalAheadCount}";
+				toolTip += $"\nLocal branch ahead: {branch.Branch.LocalAheadCount}";
 			}
+			else if (branch.Branch.IsLocal)
+			{
+				toolTip += "\nLocal branch";
+			}
+
 			if (branch.Branch.RemoteAheadCount > 0)
 			{
-				toolTip += $"\nBehind: {branch.Branch.RemoteAheadCount}";
+				toolTip += $"\nRemote branch ahead: {branch.Branch.RemoteAheadCount}";
+			}
+			else if (branch.Branch.IsRemote)
+			{
+				toolTip += "\nRemote branch";
 			}
 
 			if (branch.Branch.ChildBranchNames.Count > 1)

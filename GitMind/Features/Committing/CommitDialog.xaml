@@ -208,7 +208,7 @@
 													<Border>
 														<TextBlock 
 															Style="{StaticResource MenuIconStyle}"
-															Text="&#xE042;"
+															Text="&#xE166;"
 															Foreground="{StaticResource UndoBrush}"/>
 													</Border>
 												</MenuItem.Icon>

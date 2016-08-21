@@ -20,7 +20,7 @@
 				<ContextMenu Name="HamburgerContextMenu">
 
 					<!--Show Branch menu item -->
-				<MenuItem 
+					<MenuItem 
 						Header="Show branch"
 						ItemsSource="{Binding RepositoryViewModel.ShowableBranches}">
 					<MenuItem.Icon>
@@ -34,12 +34,12 @@
 								ItemsSource="{Binding Children}">
 							<MenuItem 
 									Header="{Binding Text}" 
-									Command="{Binding ShowBranchCommand}"
+									Command="{Binding BranchCommand}"
 									CommandParameter="{Binding Branch}"/>
 						</HierarchicalDataTemplate>
 					</MenuItem.Resources>
 				</MenuItem>
-					
+
 				<MenuItem 
 					Header="Refresh"
 					InputGestureText="F5"
@@ -62,12 +62,79 @@
 				</MenuItem>
 
 				<Separator Background="{StaticResource BorderBrush}"/>
-					
+
+				<!-- Delete branch -->
+				<MenuItem Header="Delete branch">
+					<MenuItem.Icon>
+						<Border>
+							<TextBlock 
+								Style="{StaticResource MenuIconStyle}" 
+								FontSize="14"
+								Margin="9,0,7,0"
+								Text="&#xE14E;"
+								Foreground="{StaticResource UndoBrush}"/>
+						</Border>
+					</MenuItem.Icon>
+
+					<MenuItem 
+							Header="Delete local branch"
+							ItemsSource="{Binding RepositoryViewModel.DeletableLocalBranches}">
+						<MenuItem.Icon>
+							<Border>
+								<TextBlock 
+									Style="{StaticResource MenuIconStyle}" 
+									FontSize="14"
+									Margin="9,0,7,0"
+									Foreground="{StaticResource UndoBrush}"
+									Text="&#xE14E;"/>
+							</Border>
+						</MenuItem.Icon>
+						<MenuItem.Resources>
+							<HierarchicalDataTemplate 
+								DataType="{x:Type commitsHistory:BranchItem}"
+								ItemsSource="{Binding Children}">
+								<MenuItem 
+										Header="{Binding Text}" 
+										Command="{Binding BranchCommand}"
+										CommandParameter="{Binding Branch}"/>
+							</HierarchicalDataTemplate>
+						</MenuItem.Resources>
+					</MenuItem>
+
+					<MenuItem 
+						Header="Delete remote branch"
+						ItemsSource="{Binding RepositoryViewModel.DeletableRemoteBranches}">
+						<MenuItem.Icon>
+							<Border>
+								<TextBlock 
+									Style="{StaticResource MenuIconStyle}" 
+									FontSize="14"
+									Margin="9,0,7,0"
+									Foreground="{StaticResource UndoBrush}"
+									Text="&#xE14E;"/>
+							</Border>
+						</MenuItem.Icon>
+						<MenuItem.Resources>
+							<HierarchicalDataTemplate 
+									DataType="{x:Type commitsHistory:BranchItem}"
+									ItemsSource="{Binding Children}">
+								<MenuItem 
+										Header="{Binding Text}" 
+										Command="{Binding BranchCommand}"
+										CommandParameter="{Binding Branch}"/>
+							</HierarchicalDataTemplate>
+						</MenuItem.Resources>
+					</MenuItem>
+				</MenuItem>
+
 				<!-- Undo -->
 				<MenuItem Header="Undo">
 					<MenuItem.Icon>
 						<Border>
-							<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE042;"/>
+							<TextBlock 
+								Style="{StaticResource MenuIconStyle}" 
+								Text="&#xE166;" 
+								Foreground="{StaticResource UndoBrush}"/>
 						</Border>
 					</MenuItem.Icon>
 					<MenuItem 
@@ -77,7 +144,7 @@
 							<Border>
 								<TextBlock 
 									Style="{StaticResource MenuIconStyle}" 
-									Text="&#xE042;"
+									Text="&#xE166;"
 									Foreground="{StaticResource UndoBrush}"/>
 							</Border>
 						</MenuItem.Icon>

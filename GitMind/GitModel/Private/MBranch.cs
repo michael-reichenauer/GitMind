@@ -24,15 +24,19 @@ namespace GitMind.GitModel.Private
 		public bool IsMultiBranch { get; set; }
 		[ProtoMember(8)]
 		public bool IsActive { get; set; }
-		[ProtoMember(9)]	
-		public int LocalAheadCount { get; set; }
+		[ProtoMember(9)]
+		public bool IsLocal { get; set; }
 		[ProtoMember(10)]
-		public int RemoteAheadCount { get; set; }
-		[ProtoMember(11)]
-		public bool IsLocalAndRemote { get; set; }
+		public bool IsRemote { get; set; }
+		[ProtoMember(11)]	
+		public int LocalAheadCount { get; set; }
 		[ProtoMember(12)]
-		public List<string> ChildBranchNames { get; set; } = new List<string>();
+		public int RemoteAheadCount { get; set; }
 		[ProtoMember(13)]
+		public bool IsLocalAndRemote { get; set; }
+		[ProtoMember(14)]
+		public List<string> ChildBranchNames { get; set; } = new List<string>();
+		[ProtoMember(15)]
 		public List<string> CommitIds { get; set; } = new List<string>();
 
 

@@ -296,7 +296,7 @@
 												<TextBlock 
 													Style="{StaticResource MenuIconStyle}" 
 													Foreground="{StaticResource UndoBrush}"
-													Text="&#xE042;"/>
+													Text="&#xE166;"/>
 											</Border>
 										</MenuItem.Icon>
 									</MenuItem>

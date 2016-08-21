@@ -166,6 +166,8 @@ namespace GitMind.RepositoryViews
 
 
 		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
+		public Command<Branch> DeleteLocalBranchCommand => Command<Branch>(DeleteLocalBranch);
+		public Command<Branch> DeleteRemoteBranchCommand => Command<Branch>(DeleteRemoteBranch);
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
@@ -201,7 +203,13 @@ namespace GitMind.RepositoryViews
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
 		public ObservableCollection<BranchItem> ShowableBranches { get; }
-		= new ObservableCollection<BranchItem>();
+			= new ObservableCollection<BranchItem>();
+
+		public ObservableCollection<BranchItem> DeletableLocalBranches { get; }
+			= new ObservableCollection<BranchItem>();
+
+		public ObservableCollection<BranchItem> DeletableRemoteBranches { get; }
+			= new ObservableCollection<BranchItem>();
 
 		public ObservableCollection<BranchItem> HidableBranches { get; }
 			= new ObservableCollection<BranchItem>();
@@ -694,7 +702,6 @@ namespace GitMind.RepositoryViews
 		{
 			viewModelService.ShowBranch(this, branch);
 		}
-
 
 		private void HideBranch(Branch branch)
 		{
@@ -1195,6 +1202,49 @@ namespace GitMind.RepositoryViews
 
 			isInternalDialog = false;
 			return Task.CompletedTask;
+		}
+
+
+		private void DeleteLocalBranch(Branch branch)
+		{
+			if (branch == Repository.CurrentBranch)
+			{
+				MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
+				return;
+			}
+
+			DeleteBranch(branch, false, $"Delete local branch {branch.Name} ...");
+		}
+
+
+		private void DeleteRemoteBranch(Branch branch)
+		{
+			DeleteBranch(branch, true, $"Delete remote branch {branch.Name} ...");
+		}
+
+
+		private void DeleteBranch(Branch branch, bool isRemote, string progressText)
+		{
+			Progress.ShowDialog(owner, progressText, async () =>
+			{
+				bool isDeleted = await gitService.TryDeleteBranchAsync(
+					WorkingFolder, branch.Name, isRemote, false);
+
+				if (!isDeleted)
+				{
+					if (MessageDialog.ShowWarningAskYesNo(owner,
+						$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
+					{
+						await gitService.TryDeleteBranchAsync(WorkingFolder, branch.Name, isRemote, true);
+					}
+					else
+					{
+						return;
+					}
+				}
+
+				await RefreshAfterCommandAsync(true);
+			});
 		}
 
 
