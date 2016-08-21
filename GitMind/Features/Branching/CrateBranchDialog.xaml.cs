@@ -4,19 +4,19 @@
 namespace GitMind.Features.Branching
 {
 	/// <summary>
-	/// Interaction logic for BranchDialog.xaml
+	/// Interaction logic for CrateBranchDialog.xaml
 	/// </summary>
-	public partial class BranchDialog : Window
+	public partial class CrateBranchDialog : Window
 	{
-		private readonly BranchDialogViewModel viewModel;
+		private readonly CreateBranchDialogViewModel viewModel;
 
 
-		public BranchDialog(Window owner)
+		public CrateBranchDialog(Window owner)
 		{
 			Owner = owner;
 			InitializeComponent();
 
-			viewModel = new BranchDialogViewModel();
+			viewModel = new CreateBranchDialogViewModel();
 			DataContext = viewModel;
 			BranchNameText.Focus();
 		}

@@ -4,13 +4,13 @@ using GitMind.Utils.UI;
 
 namespace GitMind.Features.Branching
 {
-	internal class BranchDialogViewModel : ViewModel
+	internal class CreateBranchDialogViewModel : ViewModel
 	{
 		public Command<Window> OkCommand => Command<Window>(SetOK);
 		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
 
-		public BranchDialogViewModel()
+		public CreateBranchDialogViewModel()
 		{
 			IsPublish = true;
 		}

@@ -90,14 +90,18 @@
       <DependentUpon>ProgressDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
-    <Compile Include="Features\Branching\BranchDialog.xaml.cs">
-      <DependentUpon>BranchDialog.xaml</DependentUpon>
+    <Compile Include="Features\Branching\CrateBranchDialog.xaml.cs">
+      <DependentUpon>CrateBranchDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Branching\BranchDialogViewModel.cs" />
+    <Compile Include="Features\Branching\CreateBranchDialogViewModel.cs" />
+    <Compile Include="Features\Branching\BranchService.cs" />
+    <Compile Include="Features\Branching\IBranchService.cs" />
     <Compile Include="Features\Committing\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Features\Committing\CommitDialogViewModel.cs" />
+    <Compile Include="Features\Committing\CommitService.cs" />
+    <Compile Include="Features\Committing\ICommitService.cs" />
     <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\GitConflict.cs" />
@@ -105,6 +109,8 @@
     <Compile Include="Git\GitFileStatus.cs" />
     <Compile Include="Git\GitNote.cs" />
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
+    <Compile Include="RepositoryViews\DisabledStatus.cs" />
+    <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
     <Compile Include="Utils\UI\VisibleWindow.cs" />
     <Compile Include="Utils\UI\WpfBindingTraceListener.cs" />
@@ -246,7 +252,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Branching\BranchDialog.xaml">
+    <Page Include="Features\Branching\CrateBranchDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

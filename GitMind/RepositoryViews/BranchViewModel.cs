@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Features.Branching;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -11,6 +12,8 @@ namespace GitMind.RepositoryViews
 {
 	internal class BranchViewModel : ViewModel
 	{
+		private readonly IBranchService branchService = new BranchService();
+		private readonly IRepositoryCommands repositoryCommands;
 		private readonly Command<Branch> showBranchCommand;
 		private readonly Command<Branch> deleteLocalBranchCommand;
 		private readonly Command<Branch> deleteRemoteBranchCommand;
@@ -19,20 +22,17 @@ namespace GitMind.RepositoryViews
 			= new ObservableCollection<BranchItem>();
 
 		public BranchViewModel(
+			IRepositoryCommands repositoryCommands,
 			Command<Branch> showBranchCommand,
-			Command<Branch> switchBranchCommand,
 			Command<Branch> mergeBranchCommand,
-			Command<Branch> createBranchCommand,
 			Command<Branch> deleteLocalBranchCommand,
 			Command<Branch> deleteRemoteBranchCommand)
-		{			
+		{
+			this.repositoryCommands = repositoryCommands;
 			this.showBranchCommand = showBranchCommand;
 			this.deleteLocalBranchCommand = deleteLocalBranchCommand;
 			this.deleteRemoteBranchCommand = deleteRemoteBranchCommand;
 
-
-			SwitchBranchCommand = switchBranchCommand.With(() => Branch);
-			CreateBranchCommand = createBranchCommand.With(() => Branch);
 			MergeBranchCommand = mergeBranchCommand.With(() => Branch);
 		}
 
@@ -76,9 +76,13 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-	
-		public Command SwitchBranchCommand { get; }
-		public Command CreateBranchCommand { get; }
+		public Command SwitchBranchCommand => Command(
+			() => branchService.SwitchBranchAsync(repositoryCommands, Branch),
+			() => branchService.CanExecuteSwitchBranch(Branch));
+
+		public Command CreateBranchCommand => Command(
+			() => branchService.CreateBranchAsync(repositoryCommands, Branch));
+
 		public Command MergeBranchCommand { get; }
 		public Command DeleteLocalBranchCommand => 
 			Command(() => deleteLocalBranchCommand.Execute(Branch), () => Branch.IsLocal);

@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Features.Branching;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -8,25 +9,23 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitViewModel : ViewModel
 	{
+		private readonly IBranchService branchService = new BranchService();
+		private readonly IRepositoryCommands repositoryCommands;
 		private int windowWidth;
 
 
 		public CommitViewModel(
+			IRepositoryCommands repositoryCommands,
 			Command toggleDetailsCommand,
 			Command<Commit> showCommitDiffCommand,
 			Command<Commit> setBranchCommand,
-			Command<Commit> switchToCommitCommand,
-			Command<Branch> switchToBranchCommand,
-			Command<Commit> createBranchFromCommitCommand,
 			Command undoCleanWorkingFolderCommand,
 			Command undoUncommittedChangesCommand)
 		{
+			this.repositoryCommands = repositoryCommands;
 			ToggleDetailsCommand = toggleDetailsCommand;
 			SetCommitBranchCommand = setBranchCommand.With(() => Commit);
 			ShowCommitDiffCommand = showCommitDiffCommand.With(() => Commit);
-			SwitchToCommitCommand = switchToCommitCommand.With(() => Commit);
-			SwitchToBranchCommand = switchToBranchCommand.With(() => Commit.Branch);
-			CreateBranchFromCommitCommand = createBranchFromCommitCommand.With(() => Commit);
 			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
 			UndoCleanWorkingFolderCommand = undoCleanWorkingFolderCommand;
 		}
@@ -103,9 +102,17 @@ namespace GitMind.RepositoryViews
 		public Command ToggleDetailsCommand { get; }
 		public Command ShowCommitDiffCommand { get; }
 		public Command SetCommitBranchCommand { get; }
-		public Command SwitchToCommitCommand { get; }
-		public Command SwitchToBranchCommand { get; }
-		public Command CreateBranchFromCommitCommand { get; }
+		public Command SwitchToCommitCommand => Command(
+			() => branchService.SwitchToBranchCommitAsync(repositoryCommands, Commit),
+			() => branchService.CanExecuteSwitchToBranchCommit(Commit));
+
+		public Command SwitchToBranchCommand => Command(
+			() => branchService.SwitchBranchAsync(repositoryCommands, Commit.Branch),
+			() => branchService.CanExecuteSwitchBranch(Commit.Branch));
+
+		public Command CreateBranchFromCommitCommand => Command(
+			() => branchService.CreateBranchFromCommitAsync(repositoryCommands, Commit));
+
 		public Command UndoUncommittedChangesCommand { get; }
 		public Command UndoCleanWorkingFolderCommand { get; }
 
