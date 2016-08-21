@@ -114,7 +114,8 @@ namespace GitMind.GitModel.Private
 			{ 
 				MCommit branchTip = branch.TipCommit;
 
-				if (!branchTip.HasFirstChild)
+				if (!branchTip.HasFirstChild 
+					&& !branches.Any(b => b.Name != branch.Name && b.TipCommitId == branch.TipCommitId))
 				{
 					branchTip.BranchName = branch.Name;
 					branchTip.SubBranchId = branch.SubBranchId;
