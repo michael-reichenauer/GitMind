@@ -479,11 +479,14 @@ namespace GitMind.Git.Private
 			{
 				Log.Debug($"Push delete branch {branchName} branch using cmd... {workingFolder}");
 
-				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				if (!isUseForce)
 				{
-					if (!gitRepository.IsBranchMerged(branchName, true))
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
-						return false;
+						if (!gitRepository.IsBranchMerged(branchName, true))
+						{
+							return false;
+						}
 					}
 				}
 
