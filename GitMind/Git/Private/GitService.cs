@@ -826,10 +826,13 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
+					Log.Debug($"Create branch {branchName} at {commitId}, publish: {isPublish} ...");
 					using (GitRepository gitRepository = OpenRepository(workingFolder))
 					{
 						gitRepository.CreateBranch(branchName, commitId, isPublish);
 					}
+
+					Log.Debug($"Created branch {branchName} at {commitId}, publish: {isPublish} ...");
 				}
 				catch (Exception e)
 				{

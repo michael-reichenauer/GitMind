@@ -48,6 +48,7 @@ namespace GitMind.Features.Branching
 
 				if (dialog.ShowDialog() == true)
 				{
+					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
 					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
 					{
 						string branchName = dialog.BranchName;
@@ -60,6 +61,8 @@ namespace GitMind.Features.Branching
 						bool isPublish = dialog.IsPublish;
 
 						await gitService.CreateBranchAsync(workingFolder, branchName, commitId, isPublish);
+
+						Log.Debug($"Created branch {dialog.BranchName}, from {commit.Branch}");
 						repositoryCommands.AddSpecifiedBranch(branchName);
 
 						await repositoryCommands.RefreshAfterCommandAsync(true);
@@ -223,9 +226,10 @@ namespace GitMind.Features.Branching
 					return;
 				}
 
-				Progress.ShowDialog(owner, $"Merge branch {branch.Name} ...", async () =>
-				{
-					Branch currentBranch = branch.Repository.CurrentBranch;
+				Branch currentBranch = branch.Repository.CurrentBranch;
+				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...", 
+					async () =>
+				{			
 					GitCommit gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
 
 					if (gitCommit != null)

@@ -21,6 +21,7 @@ namespace GitMind.Settings
 
 		public static readonly string ProgramName = "GitMind";
 		public static readonly string ProgramFileName = ProgramName + ".exe";
+		public static readonly string ProgramLogName = ProgramName + ".log";
 		private static readonly string ProgramShortcutFileName = ProgramName + ".lnk";
 		private static readonly string SettingsFileName = "settings";
 
@@ -164,6 +165,13 @@ namespace GitMind.Settings
 
 			return gitService.GetCurrentRootPath(path)
 				.OnError(e => Log.Debug($"Not a working folder {path}, {e}"));
+		}
+
+
+		public static string GetLogFilePath()
+		{
+			string folderPath = GetProgramDataFolderPath();
+			return Path.Combine(folderPath, ProgramLogName);
 		}
 	}
 }
