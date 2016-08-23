@@ -94,7 +94,7 @@ namespace GitMind.Utils
 			{
 				try
 				{
-					File.AppendAllText(LogPath, text + "\n");
+					File.AppendAllText(LogPath, text + Environment.NewLine);
 
 					long length = new FileInfo(LogPath).Length;
 
