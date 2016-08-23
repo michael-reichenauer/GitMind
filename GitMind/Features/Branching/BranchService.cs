@@ -48,6 +48,7 @@ namespace GitMind.Features.Branching
 
 				if (dialog.ShowDialog() == true)
 				{
+					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
 					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
 					{
 						string branchName = dialog.BranchName;
@@ -60,6 +61,8 @@ namespace GitMind.Features.Branching
 						bool isPublish = dialog.IsPublish;
 
 						await gitService.CreateBranchAsync(workingFolder, branchName, commitId, isPublish);
+
+						Log.Debug($"Created branch {dialog.BranchName}, from {commit.Branch}");
 						repositoryCommands.AddSpecifiedBranch(branchName);
 
 						await repositoryCommands.RefreshAfterCommandAsync(true);
