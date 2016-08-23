@@ -225,7 +225,7 @@ namespace GitMind.RepositoryViews
 			//The following will not be good for people with defective color vision
 			UIntToColor(0xFF0FA94E), //Vivid Green
 			UIntToColor(0xFFF6768E), //Strong Purplish Pink
-			UIntToColor(0xFF05588E), //Strong Blue
+			UIntToColor(0xFF085E95), //Strong Blue
 			UIntToColor(0xFFFF7A5C), //Strong Yellowish Pink
 			UIntToColor(0xFF6D568D), //Strong Violet
 			UIntToColor(0xFFFF8E00), //Vivid Orange Yellow
@@ -235,7 +235,7 @@ namespace GitMind.RepositoryViews
 			UIntToColor(0xFF93AA00), //Vivid Yellowish Green
 			UIntToColor(0xFF9C5E2C), //Deep Yellowish Brown
 			UIntToColor(0xFFF13A13), //Vivid Reddish Orange
-			UIntToColor(0xFF526931), //Dark Olive Green
+			UIntToColor(0xFF86A854), //Dark Olive Green
 		};
 
 		private static Color UIntToColor(uint color)
