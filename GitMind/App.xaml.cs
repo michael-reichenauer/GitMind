@@ -23,7 +23,7 @@ namespace GitMind
 	public partial class App : Application, ISingleInstanceApp
 	{
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
-		private readonly ICommandLine commandLine = new CommandLine();
+		private ICommandLine commandLine;
 		private readonly IInstaller installer = new Installer();
 
 		private static Mutex programMutex;
@@ -35,6 +35,7 @@ namespace GitMind
 		public static void Main()
 		{
 			AssemblyResolver.Activate();
+			Log.Debug($"Args: '{string.Join("','", Environment.GetCommandLineArgs())}'");
 
 			App application = new App();
 			application.StartProgram();
@@ -62,6 +63,13 @@ namespace GitMind
 			Log.Debug($"Got second instance argument ... '{string.Join(",", args)}'");
 			Application.Current.MainWindow.Activate();
 			return true;
+		}
+
+
+		protected override void OnExit(ExitEventArgs e)
+		{
+			Log.Debug("Exit program");
+			base.OnExit(e);
 		}
 
 
@@ -99,6 +107,7 @@ namespace GitMind
 
 		private void StartProgram()
 		{
+			commandLine = new CommandLine();
 			ExceptionHandling.Init();
 			WpfBindingTraceListener.Register();
 

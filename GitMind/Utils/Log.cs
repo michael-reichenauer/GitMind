@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -19,7 +20,7 @@ namespace GitMind.Utils
 		private static readonly IPEndPoint LocalLogEndPoint = new IPEndPoint(IPAddress.Loopback, 40000);
 
 		private static readonly string LogPath = ProgramPaths.GetLogFilePath();
-
+		private static int ProcessID = Process.GetCurrentProcess().Id;
 
 		public static void Debug(
 			string msg,
@@ -95,7 +96,7 @@ namespace GitMind.Utils
 				try
 				{
 					File.AppendAllText(
-						LogPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} {text}{Environment.NewLine}");
+						LogPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}{Environment.NewLine}");
 
 					long length = new FileInfo(LogPath).Length;
 
