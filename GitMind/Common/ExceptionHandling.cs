@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using GitMind.Common.MessageDialogs;
 using GitMind.Utils;
 
 
@@ -86,12 +87,8 @@ namespace GitMind.Common
 
 			hasDisplayedErrorMessageBox = true;
 
-			MessageBox.Show(
-				Application.Current.MainWindow,
-				errorMessage,
-				"GitMind - Unhandled Exception",
-				MessageBoxButton.OK,
-				MessageBoxImage.Error);
+			MessageDialog.ShowError(
+				Application.Current.MainWindow, errorMessage, "GitMind - Unhandled Exception");
 		}
 
 

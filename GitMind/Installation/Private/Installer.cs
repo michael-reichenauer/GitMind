@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Windows;
+using GitMind.Common.MessageDialogs;
 using GitMind.Settings;
 using GitMind.Utils;
 using Microsoft.Win32;
@@ -46,7 +47,7 @@ namespace GitMind.Installation.Private
 		public void InstallNormal()
 		{
 			Log.Debug("Install normal.");
-			if (MessageBoxResult.OK != MessageBox.Show(
+			if (!MessageDialog.ShowAskOkCancel(
 				Application.Current.MainWindow,
 				"Welcome to the GitMind setup.\n\n" +
 				" This will:\n" +
@@ -54,9 +55,7 @@ namespace GitMind.Installation.Private
 				" - Add a 'GitMind' context menu item in Windows File Explorer.\n" +
 				" - Make GitMind command available in Command Prompt window.\n\n" +
 				"Click OK to install GitMind or Cancel to exit Setup.",
-				SetupTitle,
-				MessageBoxButton.OKCancel,
-				MessageBoxImage.Information))
+				SetupTitle))
 			{
 				return;
 			}
@@ -68,12 +67,10 @@ namespace GitMind.Installation.Private
 
 			InstallSilent();
 
-			MessageBox.Show(
+			MessageDialog.ShowInfo(
 				Application.Current.MainWindow,
 				"Setup has finished installing GitMind.",
-				SetupTitle,
-				MessageBoxButton.OK,
-				MessageBoxImage.Information);
+				SetupTitle);
 
 			StartInstalled();
 		}
@@ -100,11 +97,8 @@ namespace GitMind.Installation.Private
 					}
 
 					Log.Debug("GitMind instance is already running, needs to be closed.");
-					if (MessageBoxResult.OK != MessageBox.Show(
-						"Please close all instances of GitMind before continue the installation.",
-						ProgramPaths.ProgramName,
-						MessageBoxButton.OKCancel,
-						MessageBoxImage.Warning))
+					if (!MessageDialog.ShowAskOkCancel(
+						"Please close all instances of GitMind before continue the installation."))
 					{
 						return false;
 					}
@@ -139,11 +133,8 @@ namespace GitMind.Installation.Private
 				return;
 			}
 
-			if (MessageBoxResult.OK != MessageBox.Show(
-				"Do you want to uninstall GitMind?",
-				ProgramPaths.ProgramName,
-				MessageBoxButton.OKCancel,
-				MessageBoxImage.Question))
+			if (!MessageDialog.ShowAskOkCancel(
+				"Do you want to uninstall GitMind?"))
 			{
 				return;
 			}
@@ -155,11 +146,7 @@ namespace GitMind.Installation.Private
 
 			UninstallSilent();
 
-			MessageBox.Show(
-				"Uninstallation of GitMind is completed.",
-				ProgramPaths.ProgramName,
-				MessageBoxButton.OK,
-				MessageBoxImage.Information);
+			MessageDialog.ShowInfo("Uninstallation of GitMind is completed.");
 		}
 
 

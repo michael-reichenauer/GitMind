@@ -221,7 +221,7 @@ namespace GitMind.Features.Branching
 
 				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.StatusCount > 0)
 				{
-					MessageDialog.ShowInformation(
+					MessageDialog.ShowInfo(
 						owner, "You must first commit uncommitted changes before merging.");
 					return;
 				}
@@ -243,7 +243,7 @@ namespace GitMind.Features.Branching
 
 				if (repositoryCommands.Repository.Status.StatusCount == 0)
 				{
-					MessageDialog.ShowInformation(owner, "No changes in this merge, nothing to merge.");
+					MessageDialog.ShowInfo(owner, "No changes in this merge, nothing to merge.");
 					return;
 				}
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using GitMind.Common.MessageDialogs;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
@@ -303,11 +304,9 @@ namespace GitMind.RepositoryViews
 
 			if (!File.Exists(p4mergeExe))
 			{
-				MessageBox.Show(
-					"Could not locate compatible diff tool.\nPlease install Perforce p4merge.",
-					ProgramPaths.ProgramName,
-					MessageBoxButton.OK,
-					MessageBoxImage.Warning);
+				MessageDialog.ShowWarning(
+					Application.Current.MainWindow,
+					"Could not locate compatible diff tool.\nPlease install Perforce p4merge.");
 				return false;
 			}
 
