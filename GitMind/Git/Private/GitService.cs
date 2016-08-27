@@ -672,7 +672,7 @@ namespace GitMind.Git.Private
 			{
 				Log.Debug($"Push current branch using cmd... {workingFolder}");
 
-				string args = "push";
+				string args = "push origin HEAD";
 
 				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
@@ -845,7 +845,7 @@ namespace GitMind.Git.Private
 			{
 				Log.Debug($"Push {branchName} branch using cmd... {workingFolder}");
 
-				string args = $"push -u origin {branchName}";
+				string args = $"push --set-upstream origin {branchName}";
 
 				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
 					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
