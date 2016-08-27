@@ -229,7 +229,7 @@ namespace GitMind.Features.Branching
 				Branch currentBranch = branch.Repository.CurrentBranch;
 				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...", 
 					async () =>
-				{			
+				{				
 					GitCommit gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
 
 					if (gitCommit != null)
@@ -238,6 +238,7 @@ namespace GitMind.Features.Branching
 						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, currentBranch.Name);
 					}
 
+					repositoryCommands.SetCurrentMerging(branch);
 					await repositoryCommands.RefreshAfterCommandAsync(false);
 				});
 
@@ -248,7 +249,7 @@ namespace GitMind.Features.Branching
 				}
 
 				if (branch.Repository.Status.ConflictCount == 0)
-				{
+				{				
 					await commitService.CommitChangesAsync(repositoryCommands);
 				}
 			}

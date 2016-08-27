@@ -67,6 +67,8 @@ namespace GitMind.RepositoryViews
 		private readonly TaskThrottler refreshThrottler = new TaskThrottler(1);
 
 
+
+
 		public RepositoryViewModel(Window owner, BusyIndicator busyIndicator)
 			: this(owner, new ViewModelService(), busyIndicator)
 		{
@@ -100,6 +102,7 @@ namespace GitMind.RepositoryViews
 
 		public Repository Repository { get; private set; }
 
+		public Branch MergingBranch { get; private set; }
 
 		public DisabledStatus DisableStatus()
 		{
@@ -392,6 +395,12 @@ namespace GitMind.RepositoryViews
 			});
 
 			isInternalDialog = false;
+		}
+
+
+		public void SetCurrentMerging(Branch branch)
+		{
+			MergingBranch = branch;
 		}
 
 
