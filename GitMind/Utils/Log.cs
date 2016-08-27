@@ -94,7 +94,7 @@ namespace GitMind.Utils
 			{
 				try
 				{
-					File.AppendAllText(LogPath, text + Environment.NewLine);
+					File.AppendAllText(LogPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} {text}{Environment.NewLine}");
 
 					long length = new FileInfo(LogPath).Length;
 
