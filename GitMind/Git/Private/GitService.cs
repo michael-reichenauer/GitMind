@@ -1038,12 +1038,12 @@ namespace GitMind.Git.Private
 
 			if (string.IsNullOrWhiteSpace(addedNotesText))
 			{
-				Log.Warn("Notes is empty, no need to push notes");
+				Log.Debug("Notes is empty, no need to push notes");
 				return;
 			}
 			else
 			{
-				Log.Warn($"Adding notes:\n{addedNotesText}");
+				Log.Debug($"Adding notes:\n{addedNotesText}");
 			}
 
 			await FetchNotesUsingCmdAsync(workingFolder, nameSpace);
