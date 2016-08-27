@@ -25,21 +25,22 @@
 			BorderThickness="1" 
 			BorderBrush="{StaticResource BorderBrush}">
 
-			<Grid>
+			<Grid Margin="0,3,0,0">
 				<Grid.Resources>
 					<Style x:Key="HeaderLabelStyle" TargetType="Label">
-						<Setter Property="Padding" Value="3,1" />
+						<Setter Property="Padding" Value="5,0" />
 						<Setter Property="FontWeight" Value="Bold" />
 						<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
 					</Style>
 					<Style x:Key="TextLabelStyle" TargetType="Label">
-						<Setter Property="Padding" Value="3,1" />
+						<Setter Property="Padding" Value="3,0" />
 						<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
 					</Style>
 				</Grid.Resources>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="75" />
 					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="30" />
 				</Grid.ColumnDefinitions>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="auto"/>
@@ -63,6 +64,14 @@
 						Content=""			
 						Style="{StaticResource HeaderLabelStyle}"/>
 				</StackPanel>
+
+				<!-- diff button -->
+				<Button Grid.Column="2" Grid.Row="0"
+					Content="&#xE915;"
+					KeyboardNavigation.IsTabStop="False"
+					Style="{StaticResource IconButtonStyle}"						
+					Command="{Binding ShowCommitDiffCommand}"
+					ToolTip="Show commit diff ... (Ctrl-D)"/>
 
 				<Label
 					Content="Branch:"
@@ -109,14 +118,11 @@
 					Visibility="{Binding Tickets, Converter={StaticResource VC}}"
 					Style="{StaticResource LabelStyle}" 
 					Foreground="{StaticResource TicketBrush}"/>
-				
-				<Label
-					Content="Subject:"
-					Grid.Column="0" Grid.Row="5"
-					Style="{StaticResource HeaderLabelStyle}"/>
-				<ScrollViewer Grid.Column="1" Grid.Row="5" 
+
+				<ScrollViewer Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" 
 					VerticalScrollBarVisibility="Auto">
 					<TextBox
+						Margin="0,5,0,0"
 						Text="{Binding Subject, Mode=OneWay}"
 						Style="{StaticResource LabelStyle}"
 						Foreground="{Binding SubjectBrush}"		

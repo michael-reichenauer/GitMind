@@ -112,7 +112,7 @@ namespace GitMind.RepositoryViews
 		public Command EditBranchCommand => CommitViewModel.SetCommitBranchCommand;
 		public Command<string> UndoUncommittedFileCommand => Command<string>(
 			path => commitService.UndoUncommittedFileAsync(repositoryCommands, path));
-
+		public Command ShowCommitDiffCommand => CommitViewModel.ShowCommitDiffCommand;
 
 		public override string ToString() => $"{Id} {Subject}";
 
