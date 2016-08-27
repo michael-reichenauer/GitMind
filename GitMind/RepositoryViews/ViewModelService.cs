@@ -10,6 +10,9 @@ using GitMind.Utils;
 
 namespace GitMind.RepositoryViews
 {
+	/// <summary>
+	/// ViewModelService
+	/// </summary>
 	internal class ViewModelService : IViewModelService
 	{
 		private readonly IBrushService brushService = new BrushService();
