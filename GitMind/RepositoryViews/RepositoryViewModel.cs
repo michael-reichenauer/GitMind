@@ -9,7 +9,6 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
-using GitMind.Features.Branching;
 using GitMind.Features.Committing;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -177,18 +176,18 @@ namespace GitMind.RepositoryViews
 
 
 		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
+		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
 		public Command<Branch> DeleteLocalBranchCommand => Command<Branch>(
 			branch => branchService.DeleteLocalBranch(this, branch));
 		public Command<Branch> DeleteRemoteBranchCommand => Command<Branch>(
 			branch => branchService.DeleteRemoteBranch(this, branch));
-		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
 
-		
+
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(
 			branch => branchService.MergeBranchAsync(this, branch));
 
@@ -196,7 +195,7 @@ namespace GitMind.RepositoryViews
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
 		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
 		public Command CommitCommand => AsyncCommand(
-			() => commitService.CommitChangesAsync(this), 
+			() => commitService.CommitChangesAsync(this),
 			() => IsUncommitted);
 
 		public Command ShowUncommittedDiffCommand => Command(
@@ -296,7 +295,7 @@ namespace GitMind.RepositoryViews
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
 					UpdateInitialViewModel(repository);
 				});
-			
+
 				using (busyIndicator.Progress())
 				{
 					repository = await GetLocalChangesAsync(Repository);

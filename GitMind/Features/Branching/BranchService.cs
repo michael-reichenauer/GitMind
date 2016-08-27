@@ -49,7 +49,7 @@ namespace GitMind.Features.Branching
 				if (dialog.ShowDialog() == true)
 				{
 					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
-					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
+					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async progress =>
 					{
 						string branchName = dialog.BranchName;
 						string commitId = commit.Id;
@@ -58,13 +58,23 @@ namespace GitMind.Features.Branching
 							commitId = commit.FirstParent.CommitId;
 						}
 
-						bool isPublish = dialog.IsPublish;
+						await gitService.CreateBranchAsync(workingFolder, branchName, commitId);
+						Log.Debug($"Created branch {branchName}, from {commit.Branch}");
 
-						await gitService.CreateBranchAsync(workingFolder, branchName, commitId, isPublish);
+						if (dialog.IsPublish)
+						{
+							progress.SetText($"Publish branch {dialog.BranchName}...");
 
-						Log.Debug($"Created branch {dialog.BranchName}, from {commit.Branch}");
+							bool isPublished = await gitService.PublishBranchAsync(workingFolder, branchName);
+							if (!isPublished)
+							{
+								MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
+							}
+						}
+						
 						repositoryCommands.AddSpecifiedBranch(branchName);
 
+						progress.SetText("Updating status ...");
 						await repositoryCommands.RefreshAfterCommandAsync(true);
 					});
 				}
@@ -110,7 +120,7 @@ namespace GitMind.Features.Branching
 
 			using (repositoryCommands.DisableStatus())
 			{
-				Progress.ShowDialog(owner, "Switch to commit ...", async () =>
+				Progress.ShowDialog(owner, "Switch to commit ...", async progress =>
 				{
 					string proposedNamed = commit == commit.Branch.TipCommit
 						? commit.Branch.Name

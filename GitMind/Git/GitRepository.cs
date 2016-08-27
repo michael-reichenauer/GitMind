@@ -274,7 +274,7 @@ namespace GitMind.Git
 		}
 
 
-		public void CreateBranch(string branchName, string commitId, bool isPublish)
+		public void CreateBranch(string branchName, string commitId)
 		{
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 			if (commit == null)
@@ -285,7 +285,6 @@ namespace GitMind.Git
 
 			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
 
-
 			if (branch != null)
 			{
 				Log.Warn($"Branch already exists {branchName}");
@@ -293,11 +292,24 @@ namespace GitMind.Git
 			}
 
 			branch = repository.Branches.Add(branchName, commit);
+
 			repository.Checkout(branch);
+		}
 
-			Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
 
-			if (isPublish && remoteBranch != null)
+		public void PublishBranch(string branchName)
+		{
+			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			if (branch == null)
+			{
+				Log.Warn($"Local branch does not exists {branchName}");
+				return;
+			}
+
+			Branch remoteBranch = repository.Branches
+				.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+
+			if (remoteBranch != null)
 			{
 				branch = repository.Branches.Add(branchName, remoteBranch.Tip);
 				repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
