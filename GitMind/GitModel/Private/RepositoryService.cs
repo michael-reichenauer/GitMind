@@ -130,12 +130,32 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private Task UpdateAsync(MRepository mRepository)
+		private Task<MRepository> UpdateAsync(MRepository mRepository)
 		{
-			return Task.Run(() =>
+			return Task.Run(() => UpdateRepository(mRepository));
+		}
+
+
+		private MRepository UpdateRepository(MRepository repository)
+		{
+			string workingFolder = repository.WorkingFolder;
+
+			try
 			{
-				Update(mRepository);
-			});
+				Update(repository);
+			}
+			catch (Exception e)
+			{
+				Log.Error($"Failed to update repository {e}");
+				
+				Log.Debug("Retry from scratch using a new repository ...");
+				
+				repository = new MRepository();
+				repository.WorkingFolder = workingFolder;
+				Update(repository);
+			}
+
+			return repository;
 		}
 
 
@@ -144,7 +164,6 @@ namespace GitMind.GitModel.Private
 			Log.Debug("Updating repository");
 			Timing t = new Timing();
 			string gitRepositoryPath = repository.WorkingFolder;
-
 
 			using (GitRepository gitRepository = gitService.OpenRepository(gitRepositoryPath))
 			{
@@ -158,13 +177,11 @@ namespace GitMind.GitModel.Private
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
 				AnalyzeBranchStructure(repository, gitStatus, gitRepository);
-				t.Log("AnalyzeBranchStructure");		
+				t.Log("AnalyzeBranchStructure");
 			}
 
 			t.Log("Done");
 		}
-
-
 
 
 		private void AnalyzeBranchStructure(
