@@ -10,6 +10,9 @@ using GitMind.Utils;
 
 namespace GitMind.RepositoryViews
 {
+	/// <summary>
+	/// ViewModelService
+	/// </summary>
 	internal class ViewModelService : IViewModelService
 	{
 		private readonly IBrushService brushService = new BrushService();
@@ -604,7 +607,16 @@ namespace GitMind.RepositoryViews
 				.Select(b => b.Branch.FirstCommit)
 				.ToList();
 
-			SetNumberOfItems(merges, mergePoints.Count + branchStarts.Count, _ => new MergeViewModel());
+			bool isMergeInProgress =
+				repositoryViewModel.Repository.Status.IsMerging
+				&& branches.Any(b => b.Branch == repositoryViewModel.Repository.CurrentBranch)
+				&& repositoryViewModel.MergingBranch != null
+				&& branches.Any(b => b.Branch.Id == repositoryViewModel.MergingBranch.Id)
+				&& repositoryViewModel.Repository.Commits.Contains(Commit.UncommittedId);
+
+			int mergeCount = mergePoints.Count + branchStarts.Count + (isMergeInProgress ? 1 : 0);
+
+			SetNumberOfItems(merges, mergeCount, _ => new MergeViewModel());
 
 			int index = 0;
 			foreach (CommitViewModel childCommit in mergePoints)
@@ -623,6 +635,14 @@ namespace GitMind.RepositoryViews
 				MergeViewModel merge = merges[index++];
 
 				SetMerge(merge, branches, commitsById[childCommit.Id], parentCommit);
+			}
+
+			if (isMergeInProgress)
+			{
+				string mergeSourceId = repositoryViewModel.MergingBranch.TipCommit.Id;
+				CommitViewModel parentCommit = commitsById[mergeSourceId];
+				MergeViewModel merge = merges[index++];
+				SetMerge(merge, branches, commitsById[Commit.UncommittedId], parentCommit);
 			}
 		}
 

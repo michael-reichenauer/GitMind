@@ -178,14 +178,14 @@ namespace GitMind.MainWindowViews
 
 		private void OnStatusChange(DateTime triggerTime)
 		{
-			Log.Warn("Status change");
+			Log.Debug("Status change");
 			StatusChangeRefreshAsync(triggerTime, false).RunInBackground();
 		}
 
 
 		private void OnRepoChange(DateTime triggerTime)
 		{
-			Log.Warn("Repo change");
+			Log.Debug("Repo change");
 			StatusChangeRefreshAsync(triggerTime, true).RunInBackground();
 		}
 

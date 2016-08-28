@@ -49,7 +49,7 @@ namespace GitMind.Features.Branching
 				if (dialog.ShowDialog() == true)
 				{
 					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
-					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async () =>
+					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async progress =>
 					{
 						string branchName = dialog.BranchName;
 						string commitId = commit.Id;
@@ -58,13 +58,23 @@ namespace GitMind.Features.Branching
 							commitId = commit.FirstParent.CommitId;
 						}
 
-						bool isPublish = dialog.IsPublish;
+						await gitService.CreateBranchAsync(workingFolder, branchName, commitId);
+						Log.Debug($"Created branch {branchName}, from {commit.Branch}");
 
-						await gitService.CreateBranchAsync(workingFolder, branchName, commitId, isPublish);
+						if (dialog.IsPublish)
+						{
+							progress.SetText($"Publish branch {dialog.BranchName}...");
 
-						Log.Debug($"Created branch {dialog.BranchName}, from {commit.Branch}");
+							bool isPublished = await gitService.PublishBranchAsync(workingFolder, branchName);
+							if (!isPublished)
+							{
+								MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
+							}
+						}
+						
 						repositoryCommands.AddSpecifiedBranch(branchName);
 
+						progress.SetText("Updating status ...");
 						await repositoryCommands.RefreshAfterCommandAsync(true);
 					});
 				}
@@ -110,7 +120,7 @@ namespace GitMind.Features.Branching
 
 			using (repositoryCommands.DisableStatus())
 			{
-				Progress.ShowDialog(owner, "Switch to commit ...", async () =>
+				Progress.ShowDialog(owner, "Switch to commit ...", async progress =>
 				{
 					string proposedNamed = commit == commit.Branch.TipCommit
 						? commit.Branch.Name
@@ -221,7 +231,7 @@ namespace GitMind.Features.Branching
 
 				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.StatusCount > 0)
 				{
-					MessageDialog.ShowInformation(
+					MessageDialog.ShowInfo(
 						owner, "You must first commit uncommitted changes before merging.");
 					return;
 				}
@@ -229,7 +239,7 @@ namespace GitMind.Features.Branching
 				Branch currentBranch = branch.Repository.CurrentBranch;
 				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...", 
 					async () =>
-				{			
+				{				
 					GitCommit gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
 
 					if (gitCommit != null)
@@ -238,17 +248,18 @@ namespace GitMind.Features.Branching
 						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, currentBranch.Name);
 					}
 
+					repositoryCommands.SetCurrentMerging(branch);
 					await repositoryCommands.RefreshAfterCommandAsync(false);
 				});
 
 				if (repositoryCommands.Repository.Status.StatusCount == 0)
 				{
-					MessageDialog.ShowInformation(owner, "No changes in this merge, nothing to merge.");
+					MessageDialog.ShowInfo(owner, "No changes in this merge, nothing to merge.");
 					return;
 				}
 
 				if (branch.Repository.Status.ConflictCount == 0)
-				{
+				{				
 					await commitService.CommitChangesAsync(repositoryCommands);
 				}
 			}

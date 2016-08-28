@@ -48,7 +48,7 @@ namespace GitMind.Git
 		Task UndoFileInCurrentBranchAsync(string workingFolder, string path);
 		Task<GitCommit> MergeAsync(string workingFolder, string branchName);
 		Task<string> SwitchToCommitAsync(string workingFolder, string commitId, string proposedBranchName);
-		Task CreateBranchAsync(string workingFolder, string branchName, string commitId, bool isPublish);
+		Task CreateBranchAsync(string workingFolder, string branchName, string commitId);
 		string GetFullMessage(string workingFolder, string commitId);
 
 		Task PushNotesAsync(string workingFolder, string rootId);
@@ -58,5 +58,6 @@ namespace GitMind.Git
 		void GetFile(string workingFolder, string fileId, string filePath);
 		Task ResolveAsync(string workingFolder, string path);
 		Task<bool> TryDeleteBranchAsync(string workingFolder, string branchName, bool isRemote, bool isUseForce);
+		Task<bool> PublishBranchAsync(string workingFolder, string branchName);
 	}
 }
