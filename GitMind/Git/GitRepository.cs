@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using GitMind.GitModel;
 using GitMind.Utils;
 using LibGit2Sharp;
@@ -463,10 +464,23 @@ namespace GitMind.Git
 		}
 
 
-		public void PushCurrentBranch()
+		public void PushCurrentBranch(ICredentialHandler credentialHandler)
 		{
 			Branch currentBranch = repository.Head;
-			repository.Network.Push(currentBranch, new PushOptions());
+
+			PushOptions pushOptions = new PushOptions();
+			pushOptions.CredentialsProvider = (url, usernameFromUrl, types) =>
+			{
+				NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
+
+				return new SecureUsernamePasswordCredentials
+				{
+					Username = credential.UserName,
+					Password = credential.SecurePassword
+				};
+			};
+
+			repository.Network.Push(currentBranch, pushOptions);
 		}
 
 

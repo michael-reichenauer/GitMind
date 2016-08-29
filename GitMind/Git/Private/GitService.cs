@@ -668,7 +668,7 @@ namespace GitMind.Git.Private
 		//}
 
 
-		public async Task PushCurrentBranchAsync(string workingFolder)
+		public async Task PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler)
 		{
 			Log.Debug($"Push current branch ... {workingFolder}");
 
@@ -682,7 +682,7 @@ namespace GitMind.Git.Private
 						using (GitRepository gitRepository = OpenRepository(workingFolder))
 						{
 							Log.Debug("Before push");
-							gitRepository.PushCurrentBranch();
+							gitRepository.PushCurrentBranch(credentialHandler);
 							Log.Debug("After push");
 						}
 

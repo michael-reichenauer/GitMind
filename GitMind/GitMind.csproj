@@ -104,11 +104,14 @@
     <Compile Include="Features\Committing\ICommitService.cs" />
     <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
+    <Compile Include="RepositoryViews\CredentialHandler.cs" />
     <Compile Include="Git\GitConflict.cs" />
     <Compile Include="Git\GitConflictStatus.cs" />
     <Compile Include="Git\GitFileStatus.cs" />
     <Compile Include="Git\GitNote.cs" />
+    <Compile Include="Git\ICredentialHandler.cs" />
     <Compile Include="Installation\Private\AssemblyResolver.cs" />
+    <Compile Include="RepositoryViews\CredentialsDialog.cs" />
     <Compile Include="RepositoryViews\DisabledStatus.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />

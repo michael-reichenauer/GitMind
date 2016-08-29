@@ -40,7 +40,7 @@ namespace GitMind.Git
 		Task FetchBranchAsync(string workingFolder, string branchName);
 		Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder);
 		Task MergeCurrentBranchAsync(string workingFolder);
-		Task PushCurrentBranchAsync(string workingFolder);
+		Task PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler);
 		Task PushBranchAsync(string workingFolder, string name);
 
 		Task<GitCommit> CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths);

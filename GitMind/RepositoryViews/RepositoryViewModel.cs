@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Common.MessageDialogs;
@@ -17,8 +17,10 @@ using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
+using Application = System.Windows.Application;
 using BranchService = GitMind.Features.Branching.BranchService;
 using IBranchService = GitMind.Features.Branching.IBranchService;
+using ListBox = System.Windows.Controls.ListBox;
 
 
 namespace GitMind.RepositoryViews
@@ -863,7 +865,8 @@ namespace GitMind.RepositoryViews
 						&& currentBranch.RemoteAheadCount == 0)
 				{
 					progress.SetText($"Push current branch {currentBranch.Name} ...");
-					await gitService.PushCurrentBranchAsync(workingFolder);
+					CredentialHandler credentialHandler = new CredentialHandler(Owner);
+					await gitService.PushCurrentBranchAsync(workingFolder, credentialHandler);
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
@@ -909,9 +912,11 @@ namespace GitMind.RepositoryViews
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
+				CredentialHandler credentialHandler = new CredentialHandler(Owner);
+
 				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
 
-				await gitService.PushCurrentBranchAsync(workingFolder);
+				await gitService.PushCurrentBranchAsync(workingFolder, credentialHandler);
 
 				await RefreshAfterCommandAsync(false);
 			});
