@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Net;
+using System.Net.Mime;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using GitMind.Git;
+using Application = System.Windows.Application;
 
 
 namespace GitMind.RepositoryViews
@@ -12,6 +15,7 @@ namespace GitMind.RepositoryViews
 	{
 		private readonly Window owner;
 
+		private NetworkCredential networkCredential = null;
 
 		public CredentialHandler(Window owner)
 		{
@@ -23,6 +27,22 @@ namespace GitMind.RepositoryViews
 		{
 			string message = $"Enter credentials for {url}";
 
+			var dispatcher = GetApplicationDispatcher();
+			if (dispatcher.CheckAccess())
+			{
+				ShowDialog(usernameFromUrl, message);
+			}
+			else
+			{
+				dispatcher.Invoke(() => ShowDialog(usernameFromUrl, message));
+			}
+
+			return networkCredential;
+		}
+
+
+		private void ShowDialog(string usernameFromUrl, string message)
+		{
 			System.Windows.Forms.IWin32Window ownerHandle = new WindowWrapper(owner);
 
 			CredentialsDialog dialog = new CredentialsDialog("<target>", "GitMind", message);
@@ -30,11 +50,15 @@ namespace GitMind.RepositoryViews
 			dialog.Name = usernameFromUrl;
 			if (dialog.Show(ownerHandle) == DialogResult.OK)
 			{
-				return new NetworkCredential(dialog.Name, dialog.Password);
+				networkCredential = new NetworkCredential(dialog.Name, dialog.Password);
 			}
 
-			return null;
+			networkCredential = null;
 		}
+
+
+		private static Dispatcher GetApplicationDispatcher() =>
+			Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
 
 
 		//private static bool Login(string name)
