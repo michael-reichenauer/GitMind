@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using GitMind.Git;
+using GitMind.Utils;
 using Application = System.Windows.Application;
 
 
@@ -15,7 +16,9 @@ namespace GitMind.RepositoryViews
 	{
 		private readonly Window owner;
 
+		private CredentialsDialog dialog;
 		private NetworkCredential networkCredential = null;
+
 
 		public CredentialHandler(Window owner)
 		{
@@ -25,28 +28,60 @@ namespace GitMind.RepositoryViews
 
 		public NetworkCredential GetCredential(string url, string usernameFromUrl)
 		{
-			string message = $"Enter credentials for {url}";
+			string message = $"Enter credentials for:\n{url}";
+			Uri uri = null;
+
+			string target = null;
+			if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri))
+			{
+				target = uri.Host;
+			}
 
 			var dispatcher = GetApplicationDispatcher();
 			if (dispatcher.CheckAccess())
 			{
-				ShowDialog(usernameFromUrl, message);
+				ShowDialog(target, usernameFromUrl, message);
 			}
 			else
 			{
-				dispatcher.Invoke(() => ShowDialog(usernameFromUrl, message));
+				dispatcher.Invoke(() => ShowDialog(target, usernameFromUrl, message));
 			}
 
 			return networkCredential;
 		}
 
 
-		private void ShowDialog(string usernameFromUrl, string message)
+		public void SetConfirm(bool isConfirmed)
+		{
+			if (dialog == null)
+			{
+				return;
+			}
+
+			if (isConfirmed && dialog.SaveChecked)
+			{
+				dialog.Confirm(true);
+			}
+			else
+			{
+				try
+				{
+					dialog.Confirm(false);
+				}
+				catch (ApplicationException e)
+				{
+					Log.Warn($"Error {e}");
+				}
+			}
+		}
+
+
+		private void ShowDialog(string target, string usernameFromUrl, string message)
 		{
 			System.Windows.Forms.IWin32Window ownerHandle = new WindowWrapper(owner);
 
 			networkCredential = null;
-			CredentialsDialog dialog = new CredentialsDialog("<target>", "GitMind", message);
+			dialog = new CredentialsDialog(target, "GitMind", message);
 
 			dialog.Name = usernameFromUrl;
 			if (dialog.Show(ownerHandle) == DialogResult.OK)
