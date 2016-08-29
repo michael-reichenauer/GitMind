@@ -112,7 +112,7 @@ namespace GitMind.RepositoryViews
 		//			//{
 		//			//	try
 		//			//	{
-		//			//		dialog.Confirm(false);
+		//			//		dialog.Confirm(false);;
 		//			//	}
 		//			//	catch (ApplicationException e)
 		//			//	{
