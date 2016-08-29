@@ -34,7 +34,7 @@ namespace GitMind.RepositoryViews
 				target = uri.Host;
 			}
 
-			string message = $"Enter credentials for:\n{target ?? url}";
+			string message = $"Enter credentials for: {target ?? url}";
 
 			var dispatcher = GetApplicationDispatcher();
 			if (dispatcher.CheckAccess())
