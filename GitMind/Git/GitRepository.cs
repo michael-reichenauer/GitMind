@@ -465,7 +465,7 @@ namespace GitMind.Git
 
 		public void PushCurrentBranch()
 		{
-			Branch currentBranch = repository.Branches["HEAD"];
+			Branch currentBranch = repository.Head;
 			repository.Network.Push(currentBranch, new PushOptions());
 		}
 
