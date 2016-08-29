@@ -475,15 +475,15 @@ namespace GitMind.Git
 				{
 					NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
 
-					if (credential == null)
-					{
-						return null;
-					}
+					//if (credential == null)
+					//{
+					//	return null;
+					//}
 
 					return new UsernamePasswordCredentials
 					{
-						Username = credential.UserName,
-						Password = credential.Password
+						Username = credential?.UserName,
+						Password = credential?.Password
 					};
 				};
 
