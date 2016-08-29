@@ -475,10 +475,10 @@ namespace GitMind.Git
 				{
 					NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
 
-					//if (credential == null)
-					//{
-					//	return null;
-					//}
+					if (credential == null)
+					{
+						throw new NoCredentialException();
+					}
 
 					return new UsernamePasswordCredentials
 					{
@@ -494,10 +494,12 @@ namespace GitMind.Git
 				Log.Error($"Error {e}");
 				throw;
 			}
-			
 		}
 
 
+		private class NoCredentialException : Exception
+		{			
+		}
 
 		public bool TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
 		{
