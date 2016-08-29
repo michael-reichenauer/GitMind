@@ -45,15 +45,14 @@ namespace GitMind.RepositoryViews
 		{
 			System.Windows.Forms.IWin32Window ownerHandle = new WindowWrapper(owner);
 
+			networkCredential = null;
 			CredentialsDialog dialog = new CredentialsDialog("<target>", "GitMind", message);
 
 			dialog.Name = usernameFromUrl;
 			if (dialog.Show(ownerHandle) == DialogResult.OK)
 			{
 				networkCredential = new NetworkCredential(dialog.Name, dialog.Password);
-			}
-
-			networkCredential = null;
+			}		
 		}
 
 

@@ -672,7 +672,7 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Push current branch ... {workingFolder}");
 
-			CancellationTokenSource cts = new CancellationTokenSource(FetchTimeout);
+			//CancellationTokenSource cts = new CancellationTokenSource(FetchTimeout);
 			try
 			{
 				await Task.Run(() =>
@@ -702,8 +702,8 @@ namespace GitMind.Git.Private
 							return true;
 						}
 					}
-				})
-				.WithCancellation(cts.Token);
+				});
+				//.WithCancellation(cts.Token);
 			}
 			catch (Exception e)
 			{
