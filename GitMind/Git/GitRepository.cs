@@ -466,21 +466,30 @@ namespace GitMind.Git
 
 		public void PushCurrentBranch(ICredentialHandler credentialHandler)
 		{
-			Branch currentBranch = repository.Head;
-
-			PushOptions pushOptions = new PushOptions();
-			pushOptions.CredentialsProvider = (url, usernameFromUrl, types) =>
+			try
 			{
-				NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
+				Branch currentBranch = repository.Head;
 
-				return new UsernamePasswordCredentials
+				PushOptions pushOptions = new PushOptions();
+				pushOptions.CredentialsProvider = (url, usernameFromUrl, types) =>
 				{
-					Username = credential.UserName,
-					Password = credential.Password
-				};
-			};
+					NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
 
-			repository.Network.Push(currentBranch, pushOptions);
+					return new UsernamePasswordCredentials
+					{
+						Username = credential.UserName,
+						Password = credential.Password
+					};
+				};
+
+				repository.Network.Push(currentBranch, pushOptions);
+			}
+			catch (Exception e)
+			{
+				Log.Error($"Error {e}");
+				throw;
+			}
+			
 		}
 
 
