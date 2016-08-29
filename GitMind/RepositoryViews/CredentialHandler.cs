@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Net.Mime;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
@@ -28,14 +27,14 @@ namespace GitMind.RepositoryViews
 
 		public NetworkCredential GetCredential(string url, string usernameFromUrl)
 		{
-			string message = $"Enter credentials for:\n{url}";
 			Uri uri = null;
-
 			string target = null;
 			if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri))
 			{
 				target = uri.Host;
 			}
+
+			string message = $"Enter credentials for:\n{target ?? url}";
 
 			var dispatcher = GetApplicationDispatcher();
 			if (dispatcher.CheckAccess())
@@ -87,7 +86,7 @@ namespace GitMind.RepositoryViews
 			if (dialog.Show(ownerHandle) == DialogResult.OK)
 			{
 				networkCredential = new NetworkCredential(dialog.Name, dialog.Password);
-			}		
+			}
 		}
 
 

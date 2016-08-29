@@ -488,11 +488,18 @@ namespace GitMind.Git
 				};
 
 				repository.Network.Push(currentBranch, pushOptions);
+
+				credentialHandler.SetConfirm(true);
+			}
+			catch (NoCredentialException)
+			{
+				Log.Debug("Canceled enter credentials");
+				credentialHandler.SetConfirm(false);
 			}
 			catch (Exception e)
 			{
 				Log.Error($"Error {e}");
-				throw;
+				credentialHandler.SetConfirm(false);
 			}
 		}
 
