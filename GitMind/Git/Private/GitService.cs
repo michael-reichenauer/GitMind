@@ -245,64 +245,66 @@ namespace GitMind.Git.Private
 
 		public async Task FetchAsync(string workingFolder)
 		{
-			try
-			{
-				// Sometimes, a fetch to GitHub takes just forever, don't know why
-				await FetchUsingCmdAsync(workingFolder)
-					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to fetch {workingFolder}, {e.Message}");
-			}
-
-			//Log.Debug($"Fetching repository in {workingFolder} ...");
-
-			//CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-			//bool result = false;
 			//try
 			//{
-			//	result = await Task.Run(() =>
-			//	{
-			//		try
-			//		{
-			//			using (GitRepository gitRepository = OpenRepository(workingFolder))
-			//			{
-			//				Log.Debug("Before fetch");
-			//				gitRepository.Fetch();
-			//				Log.Debug("After fetch");
-			//			}
-
-			//			Log.Debug("Fetched repository");
-			//			return true;
-			//		}
-			//		catch (Exception e)
-			//		{
-			//			if (e.Message == "Unsupported URL protocol")
-			//			{
-			//				Log.Debug("Unsupported URL protocol");
-			//				return false;
-			//			}
-			//			else
-			//			{
-			//				Log.Warn($"Failed to fetch, {e.Message}");
-			//				return true;
-			//			}
-			//		}
-			//	})
-			//	.WithCancellation(cts.Token);
+			//	// Sometimes, a fetch to GitHub takes just forever, don't know why
+			//	await FetchUsingCmdAsync(workingFolder)
+			//		.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
 			//}
 			//catch (Exception e)
 			//{
-			//	Log.Warn($"Failed to fetch {e}");
-			//	result = false;
+			//	Log.Warn($"Failed to fetch {workingFolder}, {e.Message}");
 			//}
 
-			//Log.Debug("???????");
-			//if (!result)
-			//{
-			//	await FetchUsingCmdAsync(workingFolder);
-			//}
+			//Log.Debug($"Fetching repository in {workingFolder} ...");
+
+			Log.Warn("Fetching .... ");
+			CancellationTokenSource cts = new CancellationTokenSource(FetchTimeout);
+			bool result = false;
+			try
+			{
+				result = await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							Log.Debug("Before fetch");
+							gitRepository.Fetch();
+							Log.Debug("After fetch");
+						}
+
+						Log.Debug("Fetched repository");
+						return true;
+					}
+					catch (Exception e)
+					{
+						if (e.Message == "Unsupported URL protocol")
+						{
+							Log.Warn("Unsupported URL protocol");
+							return false;
+						}
+						else
+						{
+							Log.Warn($"Failed to fetch, {e.Message}");
+							return true;
+						}
+					}
+				})
+				.WithCancellation(cts.Token);
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to fetch {e}");
+				result = false;
+			}
+
+			Log.Warn("Done fetching");
+			if (!result)
+			{
+				Log.Warn("Failed to fetch");
+				//await FetchUsingCmdAsync(workingFolder);
+			}
 		}
 
 
@@ -514,19 +516,19 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task FetchUsingCmdAsync(string workingFolder)
-		{
-			Log.Debug("Fetching repository using cmd ...");
+		//private async Task FetchUsingCmdAsync(string workingFolder)
+		//{
+		//	Log.Debug("Fetching repository using cmd ...");
 
-			string args = "fetch";
+		//	string args = "fetch";
 
-			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+		//	R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
 
-			fetchResult.OnValue(_ => Log.Debug("Fetched repository using cmd"));
+		//	fetchResult.OnValue(_ => Log.Debug("Fetched repository using cmd"));
 
-			// Ignoring fetch errors for now
-			fetchResult.OnError(e => Log.Warn($"Git fetch failed {e.Message}"));
-		}
+		//	// Ignoring fetch errors for now
+		//	fetchResult.OnError(e => Log.Warn($"Git fetch failed {e.Message}"));
+		//}
 
 
 		public async Task FetchBranchAsync(string workingFolder, string branchName)
@@ -668,25 +670,68 @@ namespace GitMind.Git.Private
 
 		public async Task PushCurrentBranchAsync(string workingFolder)
 		{
+			Log.Debug($"Push current branch ... {workingFolder}");
+
+			CancellationTokenSource cts = new CancellationTokenSource(FetchTimeout);
 			try
 			{
-				Log.Debug($"Push current branch using cmd... {workingFolder}");
+				await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							Log.Debug("Before push");
+							gitRepository.PushCurrentBranch();
+							Log.Debug("After push");
+						}
 
-				string args = "push origin HEAD";
-
-				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
-					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
-
-				pullResult.OnValue(_ => Log.Debug("Pushed current branch using cmd"));
-
-				// Ignoring fetch errors for now
-				pullResult.OnError(e => Log.Warn($"Git push current branch failed {e.Message}"));
+						Log.Debug("push current branch");
+						return true;
+					}
+					catch (Exception e)
+					{
+						if (e.Message == "Unsupported URL protocol")
+						{
+							Log.Warn("Unsupported URL protocol");
+							return false;
+						}
+						else
+						{
+							Log.Warn($"Failed to push, {e.Message}");
+							return true;
+						}
+					}
+				})
+				.WithCancellation(cts.Token);
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to push current branch {workingFolder}, {e.Message}");
+				Log.Warn($"Failed to push {e}");
 			}
+
+
+			//try
+			//{
+			//	Log.Debug($"Push current branch using cmd... {workingFolder}");
+
+			//	string args = "push origin HEAD";
+
+			//	R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+			//		.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+
+			//	pullResult.OnValue(_ => Log.Debug("Pushed current branch using cmd"));
+
+			//	// Ignoring fetch errors for now
+			//	pullResult.OnError(e => Log.Warn($"Git push current branch failed {e.Message}"));
+			//}
+			//catch (Exception e)
+			//{
+			//	Log.Warn($"Failed to push current branch {workingFolder}, {e.Message}");
+			//}
 		}
+
+
 
 
 		public async Task PushNotesAsync(string workingFolder, string rootId)

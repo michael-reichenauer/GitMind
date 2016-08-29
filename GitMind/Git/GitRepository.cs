@@ -463,6 +463,14 @@ namespace GitMind.Git
 		}
 
 
+		public void PushCurrentBranch()
+		{
+			Branch currentBranch = repository.Branches["HEAD"];
+			repository.Network.Push(currentBranch, new PushOptions());
+		}
+
+
+
 		public bool TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
 		{
 			if (!isUseForce && !IsBranchMerged(branchName, isRemote))
