@@ -41,7 +41,7 @@ namespace GitMind.Git
 		Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder);
 		Task MergeCurrentBranchAsync(string workingFolder);
 		Task PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler);
-		Task PushBranchAsync(string workingFolder, string name);
+		Task PushBranchAsync(string workingFolder, string branchName, ICredentialHandler credentialHandler);
 
 		Task<GitCommit> CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths);
 		Task SwitchToBranchAsync(string workingFolder, string branchName);
@@ -51,13 +51,13 @@ namespace GitMind.Git
 		Task CreateBranchAsync(string workingFolder, string branchName, string commitId);
 		string GetFullMessage(string workingFolder, string commitId);
 
-		Task PushNotesAsync(string workingFolder, string rootId);
+		Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler);
 		Task FetchNotesAsync(string workingFolder);
 		Task<IReadOnlyList<string>> UndoCleanWorkingFolderAsync(string workingFolder);
 		Task UndoWorkingFolderAsync(string workingFolder);
 		void GetFile(string workingFolder, string fileId, string filePath);
 		Task ResolveAsync(string workingFolder, string path);
-		Task<bool> TryDeleteBranchAsync(string workingFolder, string branchName, bool isRemote, bool isUseForce);
-		Task<bool> PublishBranchAsync(string workingFolder, string branchName);
+		Task<bool> TryDeleteBranchAsync(string workingFolder, string branchName, bool isRemote, bool isUseForce, ICredentialHandler credentialHandler);
+		Task<bool> PublishBranchAsync(string workingFolder, string branchName, ICredentialHandler credentialHandler);
 	}
 }

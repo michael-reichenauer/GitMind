@@ -63,6 +63,22 @@ namespace GitMind.Git
 		}
 
 
+		public void FetchBranch(string branchName)
+		{
+			Remote remote = repository.Network.Remotes["origin"];
+
+			repository.Network.Fetch(remote, new []{ $"{branchName}:{branchName}" });
+		}
+
+
+		public void FetchRefsBranch(string refs)
+		{
+			Remote remote = repository.Network.Remotes["origin"];
+
+			repository.Network.Fetch(remote, new[] { refs });
+		}
+
+
 		public GitCommit Commit(string message)
 		{
 			Signature author = repository.Config.BuildSignature(DateTimeOffset.Now);
@@ -470,22 +486,7 @@ namespace GitMind.Git
 			{
 				Branch currentBranch = repository.Head;
 
-				PushOptions pushOptions = new PushOptions();
-				pushOptions.CredentialsProvider = (url, usernameFromUrl, types) =>
-				{
-					NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
-
-					if (credential == null)
-					{
-						throw new NoCredentialException();
-					}
-
-					return new UsernamePasswordCredentials
-					{
-						Username = credential?.UserName,
-						Password = credential?.Password
-					};
-				};
+				PushOptions pushOptions = GetPushOptions(credentialHandler);
 
 				repository.Network.Push(currentBranch, pushOptions);
 
@@ -503,10 +504,71 @@ namespace GitMind.Git
 			}
 		}
 
+		public void PushBranch(string branchName, ICredentialHandler credentialHandler)
+		{
+			try
+			{
+				PushOptions pushOptions = GetPushOptions(credentialHandler);
+
+				Remote remote = repository.Network.Remotes["origin"];
+
+				// Using a refspec, like you would use with git push...
+				repository.Network.Push(remote, pushRefSpec: $"{branchName}:{branchName}", pushOptions: pushOptions);
+
+				credentialHandler.SetConfirm(true);
+			}
+			catch (NoCredentialException)
+			{
+				Log.Debug("Canceled enter credentials");
+				credentialHandler.SetConfirm(false);
+			}
+			catch (Exception e)
+			{
+				Log.Error($"Error {e}");
+				credentialHandler.SetConfirm(false);
+			}
+		}
+
+
+		private static PushOptions GetPushOptions(ICredentialHandler credentialHandler)
+		{
+			PushOptions pushOptions = new PushOptions();
+			pushOptions.CredentialsProvider = (url, usernameFromUrl, types) =>
+			{
+				NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
+
+				if (credential == null)
+				{
+					throw new NoCredentialException();
+				}
+
+				return new UsernamePasswordCredentials
+				{
+					Username = credential?.UserName,
+					Password = credential?.Password
+				};
+			};
+
+			return pushOptions;
+		}
+
 
 		private class NoCredentialException : Exception
 		{			
 		}
+
+		public void DeleteRemoteBranch(string branchName, ICredentialHandler credentialHandler)
+		{
+			PushOptions pushOptions = GetPushOptions(credentialHandler);
+
+			Remote remote = repository.Network.Remotes["origin"];
+
+			// Using a refspec, like you would use with git push...
+			repository.Network.Push(remote, pushRefSpec: $":{branchName}", pushOptions: pushOptions);
+
+			credentialHandler.SetConfirm(true);
+		}
+
 
 		public bool TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
 		{

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
@@ -18,35 +19,63 @@ namespace GitMind.RepositoryViews
 		private CredentialsDialog dialog;
 		private NetworkCredential networkCredential = null;
 
+		private CancellationTokenSource cts = new CancellationTokenSource();
+		private System.Threading.Timer timer;
+		private TimeSpan cancelTimeout = TimeSpan.MaxValue;
+
+
+		private void Cancel(object state)
+		{
+			cts.Cancel();
+		}
+
 
 		public CredentialHandler(Window owner)
 		{
 			this.owner = owner;
+			timer = new System.Threading.Timer(Cancel);
 		}
 
 
 		public NetworkCredential GetCredential(string url, string usernameFromUrl)
 		{
-			Uri uri = null;
-			string target = null;
-			if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri))
+			try
 			{
-				target = uri.Host;
+				// Disable timer (if started)
+				if (cancelTimeout != TimeSpan.MaxValue)
+				{
+					timer.Change(TimeSpan.MaxValue, TimeSpan.Zero);
+				}
+
+				Uri uri = null;
+				string target = null;
+				if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri))
+				{
+					target = uri.Host;
+				}
+
+				string message = $"Enter credentials for: {target ?? url}";
+
+				var dispatcher = GetApplicationDispatcher();
+				if (dispatcher.CheckAccess())
+				{
+					ShowDialog(target, usernameFromUrl, message);
+				}
+				else
+				{
+					dispatcher.Invoke(() => ShowDialog(target, usernameFromUrl, message));
+				}
+
+				return networkCredential;
 			}
-
-			string message = $"Enter credentials for: {target ?? url}";
-
-			var dispatcher = GetApplicationDispatcher();
-			if (dispatcher.CheckAccess())
+			finally 
 			{
-				ShowDialog(target, usernameFromUrl, message);
-			}
-			else
-			{
-				dispatcher.Invoke(() => ShowDialog(target, usernameFromUrl, message));
-			}
-
-			return networkCredential;
+				// Enable timer (if started)
+				if (cancelTimeout != TimeSpan.MaxValue)
+				{
+					timer.Change(cancelTimeout, TimeSpan.Zero);
+				}
+			}	
 		}
 
 
@@ -72,6 +101,15 @@ namespace GitMind.RepositoryViews
 					Log.Warn($"Error {e}");
 				}
 			}
+		}
+
+
+		public CancellationToken GetTimeoutToken(TimeSpan timeout)
+		{
+			cancelTimeout = timeout;
+			timer.Change(cancelTimeout, TimeSpan.Zero);
+
+			return cts.Token;
 		}
 
 

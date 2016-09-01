@@ -22,8 +22,8 @@ namespace GitMind.Git.Private
 		//private static readonly string CommitBranchNoteOriginNameSpace = "origin/GitMind.Branches";
 		//private static readonly string ManualBranchNoteOriginNameSpace = "GitMind.Branches.Manual";
 
-		private static readonly string LegacyGitPath = @"C:\Program Files (x86)\Git\bin\git.exe";
-		private static readonly string GitPath = @"C:\Program Files\Git\bin\git.exe";
+		//private static readonly string LegacyGitPath = @"C:\Program Files (x86)\Git\bin\git.exe";
+		//private static readonly string GitPath = @"C:\Program Files\Git\bin\git.exe";
 
 		private readonly ICmd cmd;
 		private readonly IGitDiffParser gitDiffParser;
@@ -429,11 +429,15 @@ namespace GitMind.Git.Private
 
 
 		public Task<bool> TryDeleteBranchAsync(
-			string workingFolder, string branchName, bool isRemote, bool isUseForce)
+			string workingFolder, 
+			string branchName,
+			bool isRemote,
+			bool isUseForce, 
+			ICredentialHandler credentialHandler)
 		{
 			if (isRemote)
 			{
-				return TryDeleteRemoteBranchAsync(workingFolder, branchName, isUseForce);
+				return TryDeleteRemoteBranchAsync(workingFolder, branchName, isUseForce, credentialHandler);
 			}
 			else
 			{
@@ -473,39 +477,56 @@ namespace GitMind.Git.Private
 		}
 
 		private async Task<bool> TryDeleteRemoteBranchAsync(
-			string workingFolder, string branchName, bool isUseForce)
+			string workingFolder, string branchName, bool isUseForce, ICredentialHandler credentialHandler)
 		{
 			Log.Debug($"Delete branch {branchName} ...");
+
+			CancellationToken ct = credentialHandler.GetTimeoutToken(PushTimeout);
 
 			try
 			{
 				Log.Debug($"Push delete branch {branchName} branch using cmd... {workingFolder}");
-
-				if (!isUseForce)
+				return await Task.Run(() =>
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					try
 					{
-						if (!gitRepository.IsBranchMerged(branchName, true))
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
 						{
-							return false;
+							if (!isUseForce)
+							{
+								if (!gitRepository.IsBranchMerged(branchName, true))
+								{
+									return false;
+								}
+							}
+
+							gitRepository.DeleteRemoteBranch(branchName, credentialHandler);
+							return true;
 						}
 					}
-				}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
+						return false;
+					}
+				})
+				.WithCancellation(ct);
 
-				string args = $"push origin :{branchName}";
 
-				R<IReadOnlyList<string>> pushResult = await GitAsync(workingFolder, args)
-					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+				//string args = $"push origin :{branchName}";
 
-				if (pushResult.HasValue)
-				{
-					Log.Debug($"Pushed delete {branchName} branch using cmd");
-					return true;
-				}
-				else
-				{
-					Log.Warn($"Git push delete {branchName} branch failed {pushResult}");
-				}
+				//R<IReadOnlyList<string>> pushResult = await GitAsync(workingFolder, args)
+				//	.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+
+				//if (pushResult.HasValue)
+				//{
+				//	Log.Debug($"Pushed delete {branchName} branch using cmd");
+				//	return true;
+				//}
+				//else
+				//{
+				//	Log.Warn($"Git push delete {branchName} branch failed {pushResult}");
+				//}
 			}
 			catch (Exception e)
 			{
@@ -535,17 +556,32 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-				Log.Debug("Update branch using cmd fetch...");
+				await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							gitRepository.FetchBranch(branchName);
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to fetch, {e.Message}");
+					}
+				});
 
-				string args = $"fetch origin {branchName}:{branchName}";
+				//Log.Debug("Update branch using cmd fetch...");
 
-				R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args)
-					.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
+				//string args = $"fetch origin {branchName}:{branchName}";
 
-				fetchResult.OnValue(_ => Log.Debug("updated branch using cmd fetch"));
+				//R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args)
+				//	.WithCancellation(new CancellationTokenSource(UpdateTimeout).Token);
 
-				// Ignoring fetch errors for now
-				fetchResult.OnError(e => Log.Warn($"Git update branch fetch failed {e.Message}"));
+				//fetchResult.OnValue(_ => Log.Debug("updated branch using cmd fetch"));
+
+				//// Ignoring fetch errors for now
+				//fetchResult.OnError(e => Log.Warn($"Git update branch fetch failed {e.Message}"));
 			}
 			catch (Exception e)
 			{
@@ -672,7 +708,7 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Push current branch ... {workingFolder}");
 
-			//CancellationTokenSource cts = new CancellationTokenSource(FetchTimeout);
+			CancellationToken ct = credentialHandler.GetTimeoutToken(PushTimeout);
 			try
 			{
 				await Task.Run(() =>
@@ -702,8 +738,8 @@ namespace GitMind.Git.Private
 							return true;
 						}
 					}
-				});
-				//.WithCancellation(cts.Token);
+				})
+				.WithCancellation(ct);
 			}
 			catch (Exception e)
 			{
@@ -734,32 +770,48 @@ namespace GitMind.Git.Private
 
 
 
-		public async Task PushNotesAsync(string workingFolder, string rootId)
+		public async Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler)
 		{
-			await PushNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace, rootId);
-			await PushNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace, rootId);
+			await PushNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace, rootId, credentialHandler);
+			await PushNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace, rootId, credentialHandler);
 		}
 
 
-		public async Task PushBranchAsync(string workingFolder, string name)
+		public async Task PushBranchAsync(
+			string workingFolder, string branchName, ICredentialHandler credentialHandler)
 		{
 			try
 			{
-				Log.Debug($"Push {name} branch using cmd... {workingFolder}");
+				await Task.Run(() =>
+				{
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							gitRepository.PushBranch(branchName, credentialHandler);
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to push branch {branchName}, {e.Message}");
+					}
+				});
 
-				string args = $"push origin {name}:{name}";
+				//Log.Debug($"Push {name} branch using cmd... {workingFolder}");
 
-				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
-					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+				//string args = $"push origin {name}:{name}";
 
-				pullResult.OnValue(_ => Log.Debug($"Pushed {name} branch using cmd"));
+				//R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+				//	.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
 
-				// Ignoring fetch errors for now.
-				pullResult.OnError(e => Log.Warn($"Git push {name} branch failed {e.Message}"));
+				//pullResult.OnValue(_ => Log.Debug($"Pushed {name} branch using cmd"));
+
+				//// Ignoring fetch errors for now.
+				//pullResult.OnError(e => Log.Warn($"Git push {name} branch failed {e.Message}"));
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to push {name} branch {workingFolder}, {e.Message}");
+				Log.Warn($"Failed to push {branchName} branch {workingFolder}, {e.Message}");
 			}
 		}
 
@@ -886,25 +938,46 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<bool> PublishBranchAsync(string workingFolder, string branchName)
+		public async Task<bool> PublishBranchAsync(
+			string workingFolder, string branchName, ICredentialHandler credentialHandler)
 		{
 			try
 			{
-				Log.Debug($"Push {branchName} branch using cmd... {workingFolder}");
 
-				string args = $"push --set-upstream origin {branchName}";
-
-				R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
-					.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
-
-				if (pullResult.HasValue)
+				return await Task.Run(() =>
 				{
-					Log.Debug($"Pushed {branchName} branch using cmd");
-					return true;
-				}
+					try
+					{
+						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						{
+							gitRepository.PublishBranch(branchName);
 
-				// Ignoring fetch errors for now.
-				Log.Warn($"Git push {branchName} branch failed ");
+							gitRepository.PushBranch(branchName, credentialHandler);
+							return true;
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed publish to {branchName}, {e.Message}");
+						return false;
+					}
+				});
+
+				//Log.Debug($"Push {branchName} branch using cmd... {workingFolder}");
+
+				//string args = $"push --set-upstream origin {branchName}";
+
+				//R<IReadOnlyList<string>> pullResult = await GitAsync(workingFolder, args)
+				//	.WithCancellation(new CancellationTokenSource(PushTimeout).Token);
+
+				//if (pullResult.HasValue)
+				//{
+				//	Log.Debug($"Pushed {branchName} branch using cmd");
+				//	return true;
+				//}
+
+				//// Ignoring fetch errors for now.
+				//Log.Warn($"Git push {branchName} branch failed ");
 			}
 			catch (Exception e)
 			{
@@ -932,59 +1005,60 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task<R<IReadOnlyList<string>>> GitAsync(
-			string gitRepositoryPath, string args)
-		{
-			string gitArgs = gitRepositoryPath != null ? $"--git-dir \"{gitRepositoryPath}\\.git\" {args}" : args;
+		//private async Task<R<IReadOnlyList<string>>> GitAsync(
+		//	string gitRepositoryPath, string args)
+		//{
+		//	string gitArgs = gitRepositoryPath != null ? $"--git-dir \"{gitRepositoryPath}\\.git\" {args}" : args;
 
-			return await Task.Run(() => GitCommand(gitArgs));
-		}
-
-
-		private R<IReadOnlyList<string>> GitCommand(string gitArgs)
-		{
-			R<string> gitBinPath = GetGitBinPath();
-			if (gitBinPath.IsFaulted) return gitBinPath.Error;
-
-			CmdResult result = cmd.Run(gitBinPath.Value, gitArgs);
-
-			if (0 == result.ExitCode || 1 == result.ExitCode)
-			{
-				return R.From(result.Output);
-			}
-			else
-			{
-				Log.Warn($"Error: git {gitArgs}, {result.ExitCode}, {string.Join("\n", result.Error)}");
-				return GitCommandError.With(result.ToString());
-			}
-		}
+		//	return await Task.Run(() => GitCommand(gitArgs));
+		//}
 
 
-		private R<string> GetGitBinPath()
-		{
-			if (File.Exists(GitPath))
-			{
-				return GitPath;
-			}
-			else if (File.Exists(LegacyGitPath))
-			{
-				return LegacyGitPath;
-			}
-			else
-			{
-				string appdataPath = Environment.GetFolderPath(
-					Environment.SpecialFolder.LocalApplicationData);
+		//private R<IReadOnlyList<string>> GitCommand(string gitArgs)
+		//{
+		//	R<string> gitBinPath = GetGitBinPath();
+		//	if (gitBinPath.IsFaulted) return gitBinPath.Error;
 
-				string gitPath = Path.Combine(appdataPath, "Programs", "Git", "cmd", "git.exe");
+		//	CmdResult result = cmd.Run(gitBinPath.Value, gitArgs);
 
-				if (File.Exists(gitPath))
-				{
-					return gitPath;
-				}
-			}
+		//	if (0 == result.ExitCode || 1 == result.ExitCode)
+		//	{
+		//		return R.From(result.Output);
+		//	}
+		//	else
+		//	{
+		//		Log.Warn($"Error: git {gitArgs}, {result.ExitCode}, {string.Join("\n", result.Error)}");
+		//		return GitCommandError.With(result.ToString());
+		//	}
+		//}
 
-			return GitNotInstalledError.With("Git binary not found");
-		}
+
+		//private R<string> GetGitBinPath()
+		//{
+		//	if (File.Exists(GitPath))
+		//	{
+		//		return GitPath;
+		//	}
+		//	else if (File.Exists(LegacyGitPath))
+		//	{
+		//		return LegacyGitPath;
+		//	}
+		//	else
+		//	{
+		//		string appdataPath = Environment.GetFolderPath(
+		//			Environment.SpecialFolder.LocalApplicationData);
+
+		//		string gitPath = Path.Combine(appdataPath, "Programs", "Git", "cmd", "git.exe");
+
+		//		if (File.Exists(gitPath))
+		//		{
+		//			return gitPath;
+		//		}
+		//	}
+
+		//	return GitNotInstalledError.With("Git binary not found");
+		//}
+
 
 		private void SetNoteBranches(
 			string workingFolder, string nameSpace, string commitId, string branchName)
@@ -1073,7 +1147,8 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task PushNotesUsingCmdAsync(string workingFolder, string nameSpace, string rootId)
+		private async Task PushNotesUsingCmdAsync(
+			string workingFolder, string nameSpace, string rootId, ICredentialHandler credentialHandler)
 		{
 			// git push origin refs/notes/GitMind.Branches
 			// git notes --ref=GitMind.Branches merge -s cat_sort_uniq refs/notes/origin/GitMind.Branches
@@ -1131,57 +1206,117 @@ namespace GitMind.Git.Private
 			}
 
 
-			Log.Debug($"Push {nameSpace} notes using cmd ...");
-
-			string args = $"push origin refs/notes/{nameSpace}";
-
-			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
-
-			fetchResult.OnValue(_ =>
+			await Task.Run(() =>
 			{
-				Log.Debug($"Pushed notes {nameSpace} using cmd");
-				string file = Path.Combine(workingFolder, ".git", nameSpace);
-				if (File.Exists(file))
+				try
 				{
-					File.Delete(file);
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.PushBranch($"refs/notes/{nameSpace}", credentialHandler);
+
+						Log.Debug($"Pushed notes {nameSpace}");
+						string file = Path.Combine(workingFolder, ".git", nameSpace);
+						if (File.Exists(file))
+						{
+							File.Delete(file);
+						}
+
+						return true;
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed push notes to {nameSpace}, {e.Message}");
+					return false;
 				}
 			});
 
-			// Ignoring fetch errors for now
-			fetchResult.OnError(e => Log.Warn($"Git push notes {nameSpace} failed {e.Message}"));
 
-			Log.Debug($"Pushed {nameSpace} notes using cmd");
+			//Log.Debug($"Push {nameSpace} notes using cmd ...");
+
+			//string args = $"push origin refs/notes/{nameSpace}";
+
+			//R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+
+			//fetchResult.OnValue(_ =>
+			//{
+			//	Log.Debug($"Pushed notes {nameSpace} using cmd");
+			//	string file = Path.Combine(workingFolder, ".git", nameSpace);
+			//	if (File.Exists(file))
+			//	{
+			//		File.Delete(file);
+			//	}
+			//});
+
+			//// Ignoring fetch errors for now
+			//fetchResult.OnError(e => Log.Warn($"Git push notes {nameSpace} failed {e.Message}"));
+
+			//Log.Debug($"Pushed {nameSpace} notes using cmd");
 		}
 
 
 		private async Task FetchNotesUsingCmdAsync(string workingFolder, string nameSpace)
 		{
-			Log.Debug($"Fetching {nameSpace} notes using cmd ...");
+			Log.Debug($"Fetching {nameSpace} notes ...");
+			await Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.FetchRefsBranch($"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}");
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to fetch, {e.Message}");
+				}
+			});
 
-			string args = $"fetch origin refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}";
 
-			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+			//Log.Debug($"Fetching {nameSpace} notes using cmd ...");
 
-			fetchResult.OnValue(_ => Log.Debug($"Fetched notes {nameSpace} using cmd"));
+			//string args = $"fetch origin refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}";
 
-			// Ignoring fetch errors for now
-			fetchResult.OnError(e => Log.Warn($"Git fetch notes {nameSpace} failed {e.Message}"));
+			//R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+
+			//fetchResult.OnValue(_ => Log.Debug($"Fetched notes {nameSpace} using cmd"));
+
+			//// Ignoring fetch errors for now
+			//fetchResult.OnError(e => Log.Warn($"Git fetch notes {nameSpace} failed {e.Message}"));
 		}
 
 
 		private async Task FetchNotesUsingCmdAsync(string workingFolder, string nameSpace, string nameSpace2)
 		{
-			Log.Debug($"Fetching {nameSpace} and {nameSpace2} notes using cmd ...");
+			Log.Debug($"Fetching {nameSpace} and {nameSpace2} ...");
 
-			string args = $"fetch origin refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}";
-			args += $" refs/notes/{nameSpace2}:refs/notes/origin/{nameSpace2}";
+			await Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					{
+						gitRepository.FetchRefsBranch($"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}");
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to fetch, {e.Message}");
+				}
+			});
 
-			R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+			//Log.Debug($"Fetching {nameSpace} and {nameSpace2} notes using cmd ...");
 
-			fetchResult.OnValue(_ => Log.Debug($"Fetched notes {nameSpace} and {nameSpace2} using cmd"));
+			//string args = $"fetch origin refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}";
+			//args += $" refs/notes/{nameSpace2}:refs/notes/origin/{nameSpace2}";
 
-			// Ignoring fetch errors for now
-			fetchResult.OnError(e => Log.Warn($"Git failed to notes {e.Message}"));
+			//R<IReadOnlyList<string>> fetchResult = await GitAsync(workingFolder, args);
+
+			//fetchResult.OnValue(_ => Log.Debug($"Fetched notes {nameSpace} and {nameSpace2} using cmd"));
+
+			//// Ignoring fetch errors for now
+			//fetchResult.OnError(e => Log.Warn($"Git failed to notes {e.Message}"));
 		}
 	}
 }

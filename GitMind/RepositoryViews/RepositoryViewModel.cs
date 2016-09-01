@@ -105,6 +105,12 @@ namespace GitMind.RepositoryViews
 
 		public Branch MergingBranch { get; private set; }
 
+		public CredentialHandler GetCredentialsHandler()
+		{
+			return new CredentialHandler(Owner);
+		}
+
+
 		public DisabledStatus DisableStatus()
 		{
 			return new DisabledStatus(this);
@@ -858,7 +864,7 @@ namespace GitMind.RepositoryViews
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
-				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
+				await gitService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
 				if (uncommittedBranch != currentBranch
 						&& currentBranch.LocalAheadCount > 0
@@ -880,7 +886,7 @@ namespace GitMind.RepositoryViews
 				{
 					progress.SetText($"Push branch {branch.Name} ...");
 
-					await gitService.PushBranchAsync(workingFolder, branch.Name);
+					await gitService.PushBranchAsync(workingFolder, branch.Name, GetCredentialsHandler());
 				}
 
 				await RefreshAfterCommandAsync(false);
@@ -910,13 +916,11 @@ namespace GitMind.RepositoryViews
 			Progress.ShowDialog(
 				Owner, $"Push current branch {Repository.CurrentBranch.Name} ...", async () =>
 			{
-				string workingFolder = Repository.MRepository.WorkingFolder;
+				string workingFolder = Repository.MRepository.WorkingFolder;			
 
-				CredentialHandler credentialHandler = new CredentialHandler(Owner);
+				await gitService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
-				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
-
-				await gitService.PushCurrentBranchAsync(workingFolder, credentialHandler);
+				await gitService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
 
 				await RefreshAfterCommandAsync(false);
 			});
