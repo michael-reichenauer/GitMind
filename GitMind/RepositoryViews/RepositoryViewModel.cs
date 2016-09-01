@@ -291,18 +291,24 @@ namespace GitMind.RepositoryViews
 
 		public Task FirstLoadAsync()
 		{
+			
 			Repository repository;
 			return refreshThrottler.Run(async () =>
 			{
 				Log.Debug("Loading repository ...");
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(WorkingFolder);
-				string statusText = isRepositoryCached ? "Loading ..." : "First time, building new model ...";
+				string statusText = isRepositoryCached ? "Loading ..." : "First time, building new model ...";		
 
 				Progress.ShowDialog(Owner, statusText, async () =>
 				{
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
 					UpdateInitialViewModel(repository);
 				});
+
+				if (!gitService.IsSupportedRemoteUrl(WorkingFolder))
+				{
+					MessageDialog.ShowWarning(Owner, "Unsupported URL protocol for remote access.");
+				}		
 
 				using (busyIndicator.Progress())
 				{

@@ -59,5 +59,6 @@ namespace GitMind.Git
 		Task ResolveAsync(string workingFolder, string path);
 		Task<bool> TryDeleteBranchAsync(string workingFolder, string branchName, bool isRemote, bool isUseForce, ICredentialHandler credentialHandler);
 		Task<bool> PublishBranchAsync(string workingFolder, string branchName, ICredentialHandler credentialHandler);
+		bool IsSupportedRemoteUrl(string workingFolder);
 	}
 }

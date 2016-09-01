@@ -59,7 +59,8 @@ namespace GitMind.Git
 
 		public void Fetch()
 		{
-			repository.Fetch("origin");
+			FetchOptions options = new FetchOptions { Prune = true };
+			repository.Fetch("origin", options);
 		}
 
 
@@ -616,6 +617,13 @@ namespace GitMind.Git
 			}
 
 			return false;
+		}
+
+
+		public bool IsSupportedRemoteUrl()
+		{
+			return !repository.Network.Remotes
+				.Any(remote => remote.Url.StartsWith("ssh:", StringComparison.OrdinalIgnoreCase));
 		}
 	}
 }

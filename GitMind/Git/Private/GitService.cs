@@ -988,6 +988,24 @@ namespace GitMind.Git.Private
 		}
 
 
+		public bool IsSupportedRemoteUrl(string workingFolder)
+		{
+			try
+			{
+				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				{
+					return gitRepository.IsSupportedRemoteUrl();
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed get check remote access url, {e.Message}");			
+			}
+
+			return false;
+		}
+
+
 		public string GetFullMessage(string workingFolder, string commitId)
 		{
 			try

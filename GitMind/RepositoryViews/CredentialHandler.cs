@@ -19,8 +19,8 @@ namespace GitMind.RepositoryViews
 		private CredentialsDialog dialog;
 		private NetworkCredential networkCredential = null;
 
-		private CancellationTokenSource cts = new CancellationTokenSource();
-		private System.Threading.Timer timer;
+		private readonly CancellationTokenSource cts = new CancellationTokenSource();
+		private readonly System.Threading.Timer timer;
 		private TimeSpan cancelTimeout = TimeSpan.MaxValue;
 
 
