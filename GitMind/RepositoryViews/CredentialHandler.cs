@@ -41,7 +41,7 @@ namespace GitMind.RepositoryViews
 		{
 			try
 			{
-				// Disable timer (if started)
+				// Disable timer (if started).
 				if (cancelTimeout != TimeSpan.MaxValue)
 				{
 					timer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -68,14 +68,14 @@ namespace GitMind.RepositoryViews
 
 				return networkCredential;
 			}
-			finally 
+			finally
 			{
 				// Enable timer (if started)
 				if (cancelTimeout != TimeSpan.MaxValue)
 				{
 					timer.Change(cancelTimeout, TimeSpan.Zero);
 				}
-			}	
+			}
 		}
 
 
