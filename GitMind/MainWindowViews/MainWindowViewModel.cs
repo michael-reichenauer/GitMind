@@ -75,7 +75,7 @@ namespace GitMind.MainWindowViews
 
 
 		public string Title => WorkingFolder != null
-			? $"{Path.GetFileNameWithoutExtension(WorkingFolder)} - GitMind" : "GitMind";
+		? $"{Path.GetFileName(WorkingFolder)} - GitMind" : "GitMind";
 
 
 		public string SearchBox
