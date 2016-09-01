@@ -2,19 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
-using GitMind.Common;
-using GitMind.Common.ProgressHandling;
-using GitMind.Features.Committing;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
 using GitMind.Git.Private;
-using GitMind.GitModel;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.RepositoryViews;
@@ -35,16 +30,18 @@ namespace GitMind.MainWindowViews
 		private readonly FolderMonitorService folderMonitor;
 
 		private readonly Window owner;
+		private readonly Action setSearchFocus;
 		private bool isLoaded = false;
 
 		//private bool isStatusChanged = false;
 		//private bool isRepositoryChanged = false;
 
 
-		internal MainWindowViewModel(Window owner)
+		internal MainWindowViewModel(Window owner, Action setSearchFocus)
 		{
 			RepositoryViewModel = new RepositoryViewModel(owner, Busy);
 			this.owner = owner;
+			this.setSearchFocus = setSearchFocus;
 			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
 		}
 
@@ -118,9 +115,9 @@ namespace GitMind.MainWindowViews
 
 		//public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, IsUncommitted);
 
-//		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
+		//		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
 
-		
+
 
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
@@ -142,6 +139,10 @@ namespace GitMind.MainWindowViews
 
 		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
 
+		public Command SearchCommand => Command(Search);
+
+
+	
 
 		public async Task FirstLoadAsync()
 		{
@@ -203,6 +204,12 @@ namespace GitMind.MainWindowViews
 		public Task AutoRemoteCheckAsync()
 		{
 			return RepositoryViewModel.AutoRemoteCheckAsync();
+		}
+
+
+		private void Search()
+		{
+			setSearchFocus();
 		}
 
 
