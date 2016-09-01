@@ -307,7 +307,9 @@ namespace GitMind.RepositoryViews
 
 				if (!gitService.IsSupportedRemoteUrl(WorkingFolder))
 				{
-					MessageDialog.ShowWarning(Owner, "Unsupported URL protocol for remote access.");
+					MessageDialog.ShowWarning(Owner,
+						"SSH URL protocol is not yet supported for remote access.\n" + 
+						"Use git:// or https:// instead.");
 				}		
 
 				using (busyIndicator.Progress())
