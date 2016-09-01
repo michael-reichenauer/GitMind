@@ -382,7 +382,9 @@ namespace GitMind.RepositoryViews
 		/// <param name="value">True if the credentials should be persisted.</param>
 		public void Confirm(bool value)
 		{
-			switch (CREDUI.ConfirmCredentials(this.Target, value))
+			CREDUI.ReturnCodes confirmCredentials = CREDUI.ConfirmCredentials(this.Target, value);
+
+			switch (confirmCredentials)
 			{
 				case CREDUI.ReturnCodes.NO_ERROR:
 					break;
@@ -392,9 +394,10 @@ namespace GitMind.RepositoryViews
 					break;
 
 				default:
-					throw new ApplicationException("Credential confirmation failed.");
+					throw new ApplicationException("Credential confirmation failed. " + confirmCredentials);
 			}
 		}
+
 
 		/// <summary>Returns a DialogResult indicating the user action.</summary>
 		/// <param name="owner">The System.Windows.Forms.IWin32Window the dialog will display in front of.</param>

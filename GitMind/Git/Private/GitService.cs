@@ -258,7 +258,7 @@ namespace GitMind.Git.Private
 
 			//Log.Debug($"Fetching repository in {workingFolder} ...");
 
-			Log.Warn("Fetching .... ");
+			Log.Debug("Fetching .... ");
 			CancellationTokenSource cts = new CancellationTokenSource(FetchTimeout);
 			bool result = false;
 			try
@@ -299,7 +299,7 @@ namespace GitMind.Git.Private
 				result = false;
 			}
 
-			Log.Warn("Done fetching");
+			Log.Debug("Done fetching");
 			if (!result)
 			{
 				Log.Warn("Failed to fetch");

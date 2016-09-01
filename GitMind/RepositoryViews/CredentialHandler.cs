@@ -44,7 +44,7 @@ namespace GitMind.RepositoryViews
 				// Disable timer (if started)
 				if (cancelTimeout != TimeSpan.MaxValue)
 				{
-					timer.Change(TimeSpan.MaxValue, TimeSpan.Zero);
+					timer.Change(Timeout.Infinite, Timeout.Infinite);
 				}
 
 				Uri uri = null;
