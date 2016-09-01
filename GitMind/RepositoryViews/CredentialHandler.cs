@@ -90,7 +90,7 @@ namespace GitMind.RepositoryViews
 			{
 				dialog.Confirm(true);
 			}
-			else
+			else if (dialog.SaveChecked)
 			{
 				try
 				{
@@ -98,7 +98,7 @@ namespace GitMind.RepositoryViews
 				}
 				catch (ApplicationException e)
 				{
-					Log.Warn($"Error {e}");
+					Log.Warn($"Error {e.Message}");
 				}
 			}
 		}
