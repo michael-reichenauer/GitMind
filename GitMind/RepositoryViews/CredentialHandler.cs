@@ -121,7 +121,6 @@ namespace GitMind.RepositoryViews
 			dialog = new CredentialsDialog(target, "GitMind", message);
 
 			dialog.Name = usernameFromUrl;
-			dialog.AlwaysDisplay = true;
 
 			if (dialog.Show(ownerHandle) == DialogResult.OK)
 			{
