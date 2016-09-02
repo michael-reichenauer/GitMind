@@ -35,7 +35,7 @@
 					Foreground="{StaticResource TextBrush}"
 					HorizontalAlignment="Right"
 					VerticalAlignment="Center"
-					ToolTip="Type words to search for"/>
+					ToolTip="Type words to search for (Ctrl-F)"/>
 
 				<!-- Clear filter button -->
 				<Button 
