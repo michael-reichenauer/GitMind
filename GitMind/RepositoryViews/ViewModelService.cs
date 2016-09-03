@@ -482,10 +482,10 @@ namespace GitMind.RepositoryViews
 				addedBranchColumns.Add(branch);
 				maxColumn = Math.Max(branch.BranchColumn, maxColumn);
 
-				branch.SetNormal();
-
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 				branch.HoverBrush = Brushes.Transparent;
+				
+
 				branch.Rect = new Rect(
 					(double)Converter.ToX(branch.BranchColumn) + 3,
 					(double)Converter.ToY(branch.TipRowIndex) + Converter.HalfRow - 6,
@@ -496,8 +496,11 @@ namespace GitMind.RepositoryViews
 
 				branch.HoverBrushNormal = branch.Brush;
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
+				branch.DimBrushHighlight = brushService.GetLighterLighterBrush(branch.Brush);
 				branch.BranchToolTip = GetBranchToolTip(branch);
 				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name;
+
+				branch.SetNormal();
 
 				branch.NotifyAll();
 			}

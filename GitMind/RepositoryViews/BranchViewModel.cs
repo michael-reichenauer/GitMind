@@ -54,6 +54,7 @@ namespace GitMind.RepositoryViews
 		public Brush HoverBrush { get; set; }
 		public Brush HoverBrushNormal { get; set; }
 		public Brush HoverBrushHighlight { get; set; }
+		public Color DimColor { get; set; }
 		public string BranchToolTip { get; set; }
 		public bool IsMergeable => Branch.IsMergeable;
 		public string SwitchBranchText => $"Switch to branch '{Name}'";
@@ -94,22 +95,25 @@ namespace GitMind.RepositoryViews
 		public int BranchColumn { get; set; }
 		public int TipRowIndex { get; set; }
 		public int FirstRowIndex { get; set; }
+		public Brush DimBrushHighlight { get; set; }
 
 
 		public void SetNormal()
 		{
-			StrokeThickness = 2;
+			StrokeThickness = Branch.IsCurrentBranch ? 3 : 2;
 			Brush = HoverBrushNormal;
+			DimColor = ((SolidColorBrush)HoverBrushHighlight).Color;
 
-			Notify(nameof(StrokeThickness), nameof(Brush));
+			Notify(nameof(StrokeThickness), nameof(Brush), nameof(DimColor));
 		}
 
 
 		public void SetHighlighted()
 		{
-			StrokeThickness = 3;
+			StrokeThickness = Branch.IsCurrentBranch ? 4 : 3;
 			Brush = HoverBrushHighlight;
-			Notify(nameof(StrokeThickness), nameof(Brush));
+			DimColor = ((SolidColorBrush)DimBrushHighlight).Color;
+			Notify(nameof(StrokeThickness), nameof(Brush), nameof(DimColor));
 		}
 
 		public override string ToString() => $"{Name}";

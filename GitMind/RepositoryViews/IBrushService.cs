@@ -15,5 +15,6 @@ namespace GitMind.RepositoryViews
 		Brush GetLighterBrush(Brush brush);
 
 		Brush GetBranchBrush(Branch branch);
+		Brush GetLighterLighterBrush(Brush brush);
 	}
 }
