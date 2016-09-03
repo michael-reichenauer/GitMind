@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using GitMind.GitModel;
 using GitMind.Utils;
 using LibGit2Sharp;
-using Branch = LibGit2Sharp.Branch;
-using Commit = LibGit2Sharp.Commit;
-using Repository = LibGit2Sharp.Repository;
+
 
 
 namespace GitMind.Git
@@ -34,6 +31,11 @@ namespace GitMind.Git
 		{
 			this.workingFolder = workingFolder;
 			this.repository = repository;
+		}
+
+		public static GitRepository Open(string folder)
+		{
+			return new GitRepository(folder, new Repository(folder));
 		}
 
 
@@ -113,9 +115,9 @@ namespace GitMind.Git
 		}
 
 
-		public void Add(IReadOnlyList<CommitFile> paths)
+		public void Add(IReadOnlyList<GitModel.CommitFile> paths)
 		{
-			foreach (CommitFile commitFile in paths)
+			foreach (GitModel.CommitFile commitFile in paths)
 			{
 				string fullPath = Path.Combine(workingFolder, commitFile.Path);
 				if (File.Exists(fullPath))

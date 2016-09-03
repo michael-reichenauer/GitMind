@@ -165,7 +165,7 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			string gitRepositoryPath = repository.WorkingFolder;
 
-			using (GitRepository gitRepository = gitService.OpenRepository(gitRepositoryPath))
+			using (GitRepository gitRepository = GitRepository.Open(gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;
 				repository.Status = gitStatus;

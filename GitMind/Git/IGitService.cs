@@ -9,8 +9,6 @@ namespace GitMind.Git
 {
 	internal interface IGitService
 	{
-		GitRepository OpenRepository(string workingFolder);
-
 		Task FetchAsync(string workingFolder);
 
 		Task<R<string>> GetCurrentBranchNameAsync(string workingFolder);

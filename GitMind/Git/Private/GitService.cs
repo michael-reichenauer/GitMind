@@ -35,11 +35,6 @@ namespace GitMind.Git.Private
 
 
 
-		public GitRepository OpenRepository(string workingFolder)
-		{
-			return new GitRepository(workingFolder, new LibGit2Sharp.Repository(workingFolder));
-		}
-
 
 		public Task<R<string>> GetCurrentBranchNameAsync(string workingFolder)
 		{
@@ -47,7 +42,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						return R.From(gitRepository.Head.Name);
 					}
@@ -91,7 +86,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						return R.From(gitRepository.Status);
 					}
@@ -111,7 +106,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						if (commitId == GitCommit.UncommittedId)
 						{
@@ -169,7 +164,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						string patch = gitRepository.Diff.GetFilePatch(commitId, name);
 
@@ -191,7 +186,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						string patch = gitRepository.Diff.GetPatch(commitId);
 
@@ -213,7 +208,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						string patch = gitRepository.Diff.GetPatchRange(id1, id2);
 
@@ -241,7 +236,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							Log.Debug("Before fetch");
 							gitRepository.Fetch();
@@ -309,7 +304,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							return gitRepository.UndoCleanWorkingFolder();
 						}
@@ -339,7 +334,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							gitRepository.UndoWorkingFolder();
 						}
@@ -361,7 +356,7 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 				{
 					gitRepository.GetFile(fileId, filePath);
 				}
@@ -383,7 +378,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							gitRepository.Resolve(path);
 						}
@@ -430,7 +425,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							return gitRepository.TryDeleteBranch(branchName, false, isUseForce);
 						}
@@ -463,7 +458,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							if (!isUseForce)
 							{
@@ -502,7 +497,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							gitRepository.FetchBranch(branchName);
 						}
@@ -530,7 +525,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							gitRepository.MergeCurrentBranchFastForwardOnly();
 						}
@@ -558,7 +553,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							try
 							{
@@ -595,7 +590,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							Log.Debug("Before push");
 							gitRepository.PushCurrentBranch(credentialHandler);
@@ -646,7 +641,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							gitRepository.PushBranch(branchName, credentialHandler);
 						}
@@ -670,7 +665,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						gitRepository.Add(paths);
 
@@ -692,7 +687,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						gitRepository.Checkout(branchName);
 					}
@@ -711,7 +706,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						gitRepository.UndoFileInCurrentBranch(path);
 					}
@@ -730,7 +725,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						return gitRepository.MergeBranchNoFastForward(branchName);
 					}
@@ -750,7 +745,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						return gitRepository.SwitchToCommit(commitId, proposedBranchName);
 					}
@@ -771,7 +766,7 @@ namespace GitMind.Git.Private
 				try
 				{
 					Log.Debug($"Create branch {branchName} at {commitId} ...");
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						gitRepository.CreateBranch(branchName, commitId);
 					}
@@ -795,7 +790,7 @@ namespace GitMind.Git.Private
 				{
 					try
 					{
-						using (GitRepository gitRepository = OpenRepository(workingFolder))
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 						{
 							gitRepository.PublishBranch(branchName, credentialHandler);
 							return true;
@@ -821,7 +816,7 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 				{
 					return gitRepository.IsSupportedRemoteUrl();
 				}
@@ -839,7 +834,7 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 				{
 					return gitRepository.GetFullMessage(commitId);
 				}
@@ -880,7 +875,7 @@ namespace GitMind.Git.Private
 			{
 
 				string notesText = "";
-				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 				{
 					IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
 					GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
@@ -973,7 +968,7 @@ namespace GitMind.Git.Private
 			await FetchNotesUsingCmdAsync(workingFolder, nameSpace);
 
 			string originNotesText = "";
-			using (GitRepository gitRepository = OpenRepository(workingFolder))
+			using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 			{
 				IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
 				GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
@@ -985,7 +980,7 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				using (GitRepository gitRepository = OpenRepository(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 				{
 					GitNote gitNote = new GitNote(nameSpace, notesText);
 
@@ -1002,7 +997,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						gitRepository.PushBranch($"refs/notes/{nameSpace}", credentialHandler);
 
@@ -1032,7 +1027,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						gitRepository.FetchRefsBranch($"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}");
 					}
@@ -1053,7 +1048,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					using (GitRepository gitRepository = OpenRepository(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
 						gitRepository.FetchRefsBranch($"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}");
 					}
