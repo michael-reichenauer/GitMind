@@ -75,39 +75,81 @@ namespace GitMind.GitModel.Private
 
 		private static void MarkLocalCommits(MRepository repository)
 		{
-			var localSubBranches = repository.SubBranches.Where(b => b.Value.IsActive && b.Value.IsLocal);
-			localSubBranches.ForEach(branch => MarkIsLocalAhead(branch.Value.TipCommit));
+			var localSubBranches = repository.SubBranches.Values
+				.Where(b => b.IsActive && b.IsLocal);
+
+			localSubBranches.ForEach(branch => MarkIsLocalAhead(branch.TipCommit));
 		}
 
 
 		private static void MarkIsLocalAhead(MCommit commit)
 		{
-			if (!commit.IsLocalAheadMarker)
-			{
-				if (!commit.IsUncommitted)
-				{
-					commit.IsLocalAheadMarker = true;
-				}
+			Stack<MCommit> stack = new Stack<MCommit>();
+			stack.Push(commit);
 
-				foreach (MCommit parent in commit.Parents)
+			while (stack.Any())
+			{
+				commit = stack.Pop();
+
+				if (!commit.IsLocalAheadMarker)
 				{
-					MarkIsLocalAhead(parent);
+					if (!commit.IsUncommitted)
+					{
+						commit.IsLocalAheadMarker = true;
+					}
+
+					foreach (MCommit parent in commit.Parents)
+					{
+						stack.Push(parent);
+					}
 				}
 			}
+
+
+			//if (!commit.IsLocalAheadMarker)
+			//{
+			//	if (!commit.IsUncommitted)
+			//	{
+			//		commit.IsLocalAheadMarker = true;
+			//	}
+
+			//	foreach (MCommit parent in commit.Parents)
+			//	{
+			//		MarkIsLocalAhead(parent);
+			//	}
+			//}
 		}
 
 
 		private static void MarkIsRemoteAhead(MCommit commit)
 		{
-			if (!commit.IsRemoteAheadMarker)
-			{
-				commit.IsRemoteAheadMarker = true;
+			Stack<MCommit> stack = new Stack<MCommit>();
+			stack.Push(commit);
 
-				foreach (MCommit parent in commit.Parents)
+			while (stack.Any())
+			{
+				commit = stack.Pop();
+
+				if (!commit.IsRemoteAheadMarker)
 				{
-					MarkIsRemoteAhead(parent);
+					commit.IsRemoteAheadMarker = true;
+
+					foreach (MCommit parent in commit.Parents)
+					{
+						stack.Push(parent);
+					}
 				}
 			}
+
+			//if (!commit.IsRemoteAheadMarker)
+			//{
+			//	commit.IsRemoteAheadMarker = true;
+
+			//	foreach (MCommit parent in commit.Parents)
+			//	{
+			//		MarkIsRemoteAhead(parent);
+			//	}
+			//}
 		}
 	}
 }
