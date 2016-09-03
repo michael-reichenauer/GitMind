@@ -39,6 +39,8 @@
 		<KeyBinding Modifiers="Control+Shift" Key="Up" Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}" />
 		<KeyBinding Modifiers="Control" Key="Down" Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}" />
 		<KeyBinding Modifiers="Control+Shift" Key="Down" Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}" />
+		<KeyBinding Modifiers="Control" Key="F" Command="{Binding SearchCommand}" />
+
 	</Window.InputBindings>
 
 
@@ -268,7 +270,7 @@
 				<StackPanel Grid.Column="2" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
 					
 					<!-- Search and filter box  -->
-					<common:SearchFilter/>
+					<common:SearchFilter x:Name="Search"/>
 
 					<!-- The 3 minimize, maximize and close window control buttons in the title bar -->
 					<common:WindowControlButtons/>

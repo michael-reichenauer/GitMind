@@ -65,7 +65,8 @@ namespace GitMind.Features.Branching
 						{
 							progress.SetText($"Publish branch {dialog.BranchName}...");
 
-							bool isPublished = await gitService.PublishBranchAsync(workingFolder, branchName);
+							bool isPublished = await gitService.PublishBranchAsync(
+								workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
 							if (!isPublished)
 							{
 								MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
@@ -195,14 +196,15 @@ namespace GitMind.Features.Branching
 			Progress.ShowDialog(owner, progressText, async () =>
 			{
 				bool isDeleted = await gitService.TryDeleteBranchAsync(
-					workingFolder, branch.Name, isRemote, false);
+					workingFolder, branch.Name, isRemote, false, repositoryCommands.GetCredentialsHandler());
 
 				if (!isDeleted)
 				{
 					if (MessageDialog.ShowWarningAskYesNo(owner,
 						$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
 					{
-						await gitService.TryDeleteBranchAsync(workingFolder, branch.Name, isRemote, true);
+						await gitService.TryDeleteBranchAsync(
+							workingFolder, branch.Name, isRemote, true, repositoryCommands.GetCredentialsHandler());
 					}
 					else
 					{
