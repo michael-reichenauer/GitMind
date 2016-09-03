@@ -315,23 +315,39 @@ namespace GitMind.Git
 		}
 
 
-		public void PublishBranch(string branchName)
+		public void PublishBranch(string branchName, ICredentialHandler credentialHandler)
 		{
-			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
-			if (branch == null)
+			Branch localBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			if (localBranch == null)
 			{
 				Log.Warn($"Local branch does not exists {branchName}");
 				return;
 			}
 
+			PushOptions pushOptions = GetPushOptions(credentialHandler);
+
+			// Check if corresponding remote branch exists
 			Branch remoteBranch = repository.Branches
-				.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+				.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);			
 
 			if (remoteBranch != null)
 			{
-				branch = repository.Branches.Add(branchName, remoteBranch.Tip);
-				repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
+				// Remote branch exists, so connect local and remote branch
+				localBranch = repository.Branches.Add(branchName, remoteBranch.Tip);
+				repository.Branches.Update(localBranch, b => b.TrackedBranch = remoteBranch.CanonicalName);
 			}
+			else
+			{
+				// Remote branch does not yet exists
+				Remote remote = repository.Network.Remotes["origin"];
+
+				repository.Branches.Update(
+					localBranch,
+					b => b.Remote = remote.Name,
+					b => b.UpstreamBranch = localBranch.CanonicalName);
+			}
+
+			repository.Network.Push(localBranch, pushOptions);
 		}
 
 

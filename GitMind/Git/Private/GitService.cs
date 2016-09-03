@@ -788,8 +788,6 @@ namespace GitMind.Git.Private
 					{
 						using (GitRepository gitRepository = OpenRepository(workingFolder))
 						{
-							gitRepository.PublishBranch(branchName);
-
 							gitRepository.PushBranch(branchName, credentialHandler);
 						}
 					}
@@ -945,16 +943,13 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-
 				return await Task.Run(() =>
 				{
 					try
 					{
 						using (GitRepository gitRepository = OpenRepository(workingFolder))
 						{
-							gitRepository.PublishBranch(branchName);
-
-							gitRepository.PushBranch(branchName, credentialHandler);
+							gitRepository.PublishBranch(branchName, credentialHandler);
 							return true;
 						}
 					}
