@@ -25,7 +25,6 @@ namespace GitMindTest.Utils
 			Assert.AreEqual(idNull1, idNull2);
 			Assert.AreEqual(new Id(null), new Id(null));
 
-			Assert.IsTrue(idSome1 == idSome1);
 			Assert.IsTrue(idSome1 == idSome2);
 			Assert.IsTrue(idNull1 == idNull2);
 			Assert.IsTrue(new Id(null) == new Id(null));
@@ -51,7 +50,6 @@ namespace GitMindTest.Utils
 			Assert.AreEqual(idNull1, idNull2);
 			Assert.AreEqual(new IdImpl(null), new IdImpl(null));
 
-			Assert.IsTrue(idSome1 == idSome1);
 			Assert.IsTrue(idSome1 == idSome2);
 			Assert.IsTrue(idNull1 == idNull2);
 			Assert.IsTrue(new Id(null) == new Id(null));
@@ -105,6 +103,8 @@ namespace GitMindTest.Utils
 			}
 
 			public bool Equals(IdImpl other) => this == other;
+
+			public override bool Equals(object obj) => obj is IdImpl && Equals((IdImpl)obj);
 
 			public static bool operator ==(IdImpl obj1, IdImpl obj2) =>
 				Equatable.IsEqual(obj1, obj2, (o1, o2) => o1.id == o2.id);
