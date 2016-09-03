@@ -12,7 +12,8 @@
 	<StackPanel Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
 		
 		<!-- Minimize button-->
-		<Button 
+		<Button
+			Margin="5,0,0,0"
 			Style="{StaticResource IconButtonStyle}" 
 			Content="&#xE15B;" 
 			Padding="4,4,4,0" 
