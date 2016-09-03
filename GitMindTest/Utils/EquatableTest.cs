@@ -88,7 +88,7 @@ namespace GitMindTest.Utils
 				this.id = id;
 			}
 
-			protected override bool IsEqual(Id value) => id == value.id;
+			protected override bool IsEqual(Id other) => id == other.id;
 			protected override int GetHash() => id?.GetHashCode() ?? 0;
 		}
 

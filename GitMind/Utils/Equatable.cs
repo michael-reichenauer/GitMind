@@ -19,19 +19,19 @@ namespace GitMind.Utils
 		//	 	this.id = id;
 		//	 }
 		//
-		//	 protected override bool IsEqual(Id value) => id == value.id;
+		//	 protected override bool IsEqual(Id other) => id == other.id;
 		//	 protected override int GetHash() => id?.GetHashCode() ?? 0;
 		// }
-		protected abstract bool IsEqual(T value);
+		protected abstract bool IsEqual(T other);
 
 		protected abstract int GetHash();
 
 		public bool Equals(T other) => (other != null) && IsEqual(other);
 
-		public override bool Equals(object obj) => obj is T && Equals((T)obj);
+		public override bool Equals(object other) => other is T && Equals((T)other);
 
 		public static bool operator ==(Equatable<T> obj1, Equatable<T> obj2) =>
-			Equatable.IsEqual<T>(obj1, obj2);
+			Equatable.IsEqual(obj1, obj2);
 
 		public static bool operator !=(Equatable<T> obj1, Equatable<T> obj2) => !(obj1 == obj2);
 
@@ -55,7 +55,7 @@ namespace GitMind.Utils
 		//	 }
 		//
 		//	 public bool Equals(Id other) => this == other;
-		//   public override bool Equals(object obj) => obj is Id && Equals((Id)obj);
+		//   public override bool Equals(object other) => other is Id && Equals((Id)other);
 		//	 public static bool operator ==(Id obj1, Id obj2) =>
 		//	 	Equatable.IsEqual(obj1, obj2, (o1, o2) => o1.id == o2.id);
 		//	 public static bool operator !=(Id obj1, Id obj2) => !(obj1 == obj2);

@@ -43,10 +43,6 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Error GitNotInstalledError { get; } = new Error("Compatible git installation not found");
-		public Error GitCommandError { get; } = new Error("Git command failed: ");
-
-
 
 		public GitRepository OpenRepository(string workingFolder)
 		{

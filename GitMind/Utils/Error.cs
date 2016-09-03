@@ -1,82 +1,66 @@
 using System;
+using System.CodeDom;
 
 
 namespace GitMind.Utils
 {
-	public class Error : IEquatable<Error>
+	public class Error : Equatable<Error>
 	{
-		private readonly Guid errorCode;
+		private readonly Exception exception = null;
 
-
-		public Error(string message = "")
-			: this(Guid.NewGuid(), message)
+		private Error(string message = null)
+			: this(null, message)
 		{
 		}
 
-		private Error(Guid errorCode, string message)
+		private Error(Exception exception, string message = null)
 		{
-			this.errorCode = errorCode;
-			Message = message ?? "";
+			this.exception = exception;
+			Message = message ?? exception?.Message ?? "";
 		}
 
-		public static Error From(Exception e) => new Error(e.Message);
+		public string Message { get; }
+
+		public static Error From(Exception e) => new Error(e);
+
 		public static Error From(string message = "") => new Error(message);
 
 		public static Error None = new Error();
-		public string Message { get; }
+
+
+		public bool Is<T>()
+		{
+			return this is T || exception?.GetType() is T;
+		}
+
+
+		protected override bool IsEqual(Error other)
+		{
+			return 
+				(exception == null && other.exception == null && GetType() == other.GetType())
+				|| other.GetType().IsInstanceOfType(this)
+				|| (GetType() == other.GetType() && exception != null && other.exception != null 
+					&& other.exception.GetType().IsInstanceOfType(this));
+		}
+
+		protected override int GetHash() => 0;
+
 		public override string ToString() => Message;
 
 
-		public Error With(string message)
-		{
-			return new Error(errorCode, Message + " " + message);
-		}
+		//public Error With(string message)
+		//{
+		//	return new Error(errorCode, Message + " " + message);
+		//}
 
-		public Error With(Error error)
-		{
-			return new Error(errorCode, Message + " " + error);
-		}
+		//public Error With(Error error)
+		//{
+		//	return new Error(errorCode, Message + " " + error);
+		//}
 
-		public Error With(R result)
-		{
-			return new Error(errorCode, Message + " " + result);
-		}
-
-
-		public bool Equals(Error other)
-		{
-			return (other != null) && (errorCode == other.errorCode);
-		}
-
-		public override bool Equals(object obj)
-		{
-			return obj is Error && Equals((Error)obj);
-		}
-
-		public static bool operator ==(Error obj1, Error obj2)
-		{
-			if (ReferenceEquals(obj1, null) && ReferenceEquals(obj2, null))
-			{
-				return true;
-			}
-			else if (ReferenceEquals(obj1, null) || ReferenceEquals(obj2, null))
-			{
-				return false;
-			}
-			else
-			{
-				return obj1.Equals(obj2);
-			}
-		}
-
-		public static bool operator !=(Error obj1, Error obj2)
-		{
-			return !(obj1 == obj2);
-		}
-
-		public override int GetHashCode()
-		{
-			return errorCode.GetHashCode();
-		}
+		//public Error With(R result)
+		//{
+		//	return new Error(errorCode, Message + " " + result);
+		//}	
 	}
 }
