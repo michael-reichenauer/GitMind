@@ -30,6 +30,8 @@
 	<Window.InputBindings>
 		<KeyBinding Key="Escape" Command="{Binding EscapeCommand}" />
 		<KeyBinding Modifiers="Shift" Key="Escape" Command="{Binding ExitCommand}" />
+		<KeyBinding Modifiers="Alt" Key="F4" Command="{Binding ExitCommand}" />
+		<KeyBinding Modifiers="Ctrl" Key="Q" Command="{Binding ExitCommand}" />
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
 		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding RepositoryViewModel.ShowUncommittedDiffCommand}" />
