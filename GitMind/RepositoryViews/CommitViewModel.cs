@@ -120,7 +120,8 @@ namespace GitMind.RepositoryViews
 		public Commit Commit { get; set; }
 		public bool IsMergePoint => 
 			(Commit.IsMergePoint && Commit.Branch != Commit.SecondParent.Branch)
-			|| (Commit.HasFirstParent && Commit.Branch != Commit.FirstParent.Branch);
+			|| (Commit.HasFirstParent && Commit.Branch != Commit.FirstParent.Branch)
+			|| (!Commit.HasFirstChild && Commit.Branch.Name != "master");
 
 		// Value used by merge and that determine if item is visible
 		public int BranchColumn { get; set; }

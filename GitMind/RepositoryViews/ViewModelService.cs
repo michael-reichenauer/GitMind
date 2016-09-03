@@ -115,8 +115,11 @@ namespace GitMind.RepositoryViews
 			List<Branch> currentlyShownBranches = repositoryViewModel.SpecifiedBranches.ToList();
 
 			bool isShowing =
-				(commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
-				|| (commit.HasFirstParent && commit.Branch != commit.FirstParent.Branch && currentlyShownBranches.Contains(commit.FirstParent.Branch));
+				!commit.HasFirstChild
+				|| (commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
+				|| (commit.HasFirstParent 
+					&& commit.Branch != commit.FirstParent.Branch 
+					&& currentlyShownBranches.Contains(commit.FirstParent.Branch));
 
 			BranchViewModel clickedBranch = repositoryViewModel
 				.Branches.First(b => b.Branch == commit.Branch);
@@ -132,7 +135,7 @@ namespace GitMind.RepositoryViews
 				// Closing shown branch
 				BranchViewModel otherBranch;
 
-				if (commit.HasSecondParent)
+				if (commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
 				{
 					otherBranch = repositoryViewModel.Branches
 						.First(b => b.Branch == commit.SecondParent.Branch);
@@ -143,6 +146,12 @@ namespace GitMind.RepositoryViews
 						otherBranch = clickedBranch;
 						stableCommit = commit.SecondParent;
 					}
+				}
+				else if (!commit.HasFirstChild)
+				{
+					// A branch tip, closing the clicked branch
+					otherBranch = clickedBranch;
+					stableCommit = commit.Branch.ParentCommit;
 				}
 				else
 				{
@@ -443,6 +452,11 @@ namespace GitMind.RepositoryViews
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
+
+				if (!commit.HasFirstChild)
+				{
+					commitViewModel.BrushInner = brushService.GetDarkerBrush(commitViewModel.Brush);
+				}
 
 				commitViewModel.NotifyAll();
 			}

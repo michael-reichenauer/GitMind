@@ -48,7 +48,8 @@ namespace GitMind.GitModel.Private
 				commit.IsUncommitted,
 				commit.IsVirtual,
 				commit.HasConflicts,
-				commit.IsMerging);
+				commit.IsMerging,
+				commit.HasFirstChild);
 		}
 	}
 }
