@@ -50,7 +50,7 @@ namespace GitMind.Utils
 			}
 
 			return new R<T>(value);
-		} 
+		}
 
 
 		public T Value
@@ -67,7 +67,7 @@ namespace GitMind.Utils
 		}
 
 		public bool HasValue => !IsFaulted;
-		
+
 
 
 		public R<T> OnError(Action<Error> errorAction)
