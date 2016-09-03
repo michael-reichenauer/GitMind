@@ -581,7 +581,7 @@ namespace GitMind.Git
 			Remote remote = repository.Network.Remotes["origin"];
 
 			// Using a refspec, like you would use with git push...
-			repository.Network.Push(remote, pushRefSpec: $":{branchName}", pushOptions: pushOptions);
+			repository.Network.Push(remote, pushRefSpec: $":refs/heads/{branchName}", pushOptions: pushOptions);
 
 			credentialHandler.SetConfirm(true);
 		}
