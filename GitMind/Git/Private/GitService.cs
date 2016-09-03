@@ -788,6 +788,8 @@ namespace GitMind.Git.Private
 					{
 						using (GitRepository gitRepository = OpenRepository(workingFolder))
 						{
+							gitRepository.PublishBranch(branchName);
+
 							gitRepository.PushBranch(branchName, credentialHandler);
 						}
 					}
