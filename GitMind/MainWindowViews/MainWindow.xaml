@@ -284,6 +284,7 @@
 
 		<!-- Repository view -->
 		<repositoryViews:RepositoryView 
+			x:Name="RepositoryView"
 			Grid.Row="1"
 			DataContext="{Binding RepositoryViewModel}"/>
 

@@ -39,13 +39,13 @@
 
 				<!-- Clear filter button -->
 				<Button 
-					Content="&#xE14C;"					
+					Content="&#xE15E;"					
 					Style="{StaticResource IconButtonStyle}"
-					FontSize="12"					
+					FontSize="14"					
 					Padding="2,3,2,3"
 					IsEnabled="{Binding IsInFilterMode}"
 					Command="{Binding ClearFilterCommand}"
-					ToolTip="Clear filter (Esc)"/>
+					ToolTip="Return to branch view (Esc)"/>
 
 		</StackPanel>
 

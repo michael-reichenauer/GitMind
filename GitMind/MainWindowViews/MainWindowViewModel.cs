@@ -31,17 +31,22 @@ namespace GitMind.MainWindowViews
 
 		private readonly Window owner;
 		private readonly Action setSearchFocus;
+		private readonly Action setRepositoryViewFocus;
 		private bool isLoaded = false;
 
 		//private bool isStatusChanged = false;
 		//private bool isRepositoryChanged = false;
 
 
-		internal MainWindowViewModel(Window owner, Action setSearchFocus)
+		internal MainWindowViewModel(
+			Window owner,
+			Action setSearchFocus,
+			Action setRepositoryViewFocus)
 		{
 			RepositoryViewModel = new RepositoryViewModel(owner, Busy);
 			this.owner = owner;
 			this.setSearchFocus = setSearchFocus;
+			this.setRepositoryViewFocus = setRepositoryViewFocus;
 			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
 		}
 
@@ -251,10 +256,12 @@ namespace GitMind.MainWindowViews
 			if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
+				setRepositoryViewFocus();
 			}
 			else if (RepositoryViewModel.IsShowCommitDetails)
 			{
 				RepositoryViewModel.IsShowCommitDetails = false;
+				setRepositoryViewFocus();
 			}
 			else
 			{
@@ -353,6 +360,7 @@ namespace GitMind.MainWindowViews
 			if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
+				setRepositoryViewFocus();
 			}
 		}
 
