@@ -66,8 +66,7 @@ namespace GitMind.RepositoryViews
 
 			repositoryViewModel.ShowableBranches.Clear();
 			IEnumerable<Branch> showableBranches = repositoryViewModel.Repository.Branches
-				.Where(b => b.IsActive && b.Name != "master")
-				.Where(b => !repositoryViewModel.HidableBranches.Any(ab => ab.Branch.Id == b.Id));
+				.Where(b => b.IsActive);
 			IReadOnlyList<BranchItem> showableBrancheItems = BranchItem.GetBranches(
 				showableBranches,
 				repositoryViewModel.ShowBranchCommand);
