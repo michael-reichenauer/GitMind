@@ -211,38 +211,13 @@ namespace GitMind.Git.Private
 		{
 			return UseRepoAsync(workingFolder, repo => 
 				repo.TryDeleteBranch(branchName, false, isUseForce));
-
-			//try
-			//{
-			//	Log.Debug($"Delete branch {branchName} ...");
-
-			//	return await Task.Run(() =>
-			//	{
-			//		try
-			//		{
-			//			using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-			//			{
-			//				return gitRepository.TryDeleteBranch(branchName, false, isUseForce);
-			//			}
-			//		}
-			//		catch (Exception e)
-			//		{
-			//			Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
-			//			return false;
-			//		}
-			//	});
-			//}
-			//catch (Exception e)
-			//{
-			//	Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
-			//	return false;
-			//}
 		}
+
 
 		private Task<R> TryDeleteRemoteBranchAsync(
 			string workingFolder, string branchName, bool isUseForce, ICredentialHandler credentialHandler)
 		{
-			return UseRepoAsync(workingFolder, repo =>
+			return UseRepoAsync(workingFolder, PushTimeout, repo =>
 			{
 				if (!isUseForce)
 				{
@@ -256,47 +231,6 @@ namespace GitMind.Git.Private
 
 				return R.Ok;
 			});
-
-
-			//Log.Debug($"Delete branch {branchName} ...");
-
-			//CancellationToken ct = credentialHandler.GetTimeoutToken(PushTimeout);
-
-			//try
-			//{
-			//	Log.Debug($"Push delete branch {branchName} branch ... {workingFolder}");
-			//	return await Task.Run(() =>
-			//	{
-			//		try
-			//		{
-			//			using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-			//			{
-			//				if (!isUseForce)
-			//				{
-			//					if (!gitRepository.IsBranchMerged(branchName, true))
-			//					{
-			//						return false;
-			//					}
-			//				}
-
-			//				gitRepository.DeleteRemoteBranch(branchName, credentialHandler);
-			//				return true;
-			//			}
-			//		}
-			//		catch (Exception e)
-			//		{
-			//			Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
-			//			return false;
-			//		}
-			//	})
-			//	.WithCancellation(ct);
-			//}
-			//catch (Exception e)
-			//{
-			//	Log.Warn($"Failed to push delete {branchName} branch {workingFolder}, {e.Message}");
-			//}
-
-			//return false;
 		}
 
 
