@@ -153,12 +153,26 @@ namespace GitMind.Git.Private
 		}
 
 
+		public Task FetchBranchAsync(string workingFolder, string branchName)
+		{
+			return UseRepoAsync(workingFolder, repo => repo.FetchBranch(branchName));
+		}
+
+
 		public async Task FetchAllNotesAsync(string workingFolder)
 		{
 			string[] noteRefs = {
 				$"refs/notes/{CommitBranchNoteNameSpace}:refs/notes/origin/{CommitBranchNoteNameSpace}",
 				$"refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
 			};
+
+			await UseRepoAsync(workingFolder, FetchTimeout, repo => repo.FetchRefs(noteRefs));
+		}
+
+
+		private async Task FetchNotesAsync(string workingFolder, string nameSpace)
+		{
+			string[] noteRefs = { $"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}" };
 
 			await UseRepoAsync(workingFolder, FetchTimeout, repo => repo.FetchRefs(noteRefs));
 		}
@@ -231,32 +245,6 @@ namespace GitMind.Git.Private
 
 				return R.Ok;
 			});
-		}
-
-
-		public async Task FetchBranchAsync(string workingFolder, string branchName)
-		{
-			try
-			{
-				await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							gitRepository.FetchBranch(branchName);
-						}
-					}
-					catch (Exception e)
-					{
-						Log.Warn($"Failed to fetch, {e.Message}");
-					}
-				});
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to fetch branch fetch {workingFolder}, {e.Message}");
-			}
 		}
 
 
@@ -762,14 +750,6 @@ namespace GitMind.Git.Private
 					return false;
 				}
 			});
-		}
-
-
-		private async Task FetchNotesAsync(string workingFolder, string nameSpace)
-		{
-			string[] noteRefs = { $"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}" };
-
-			await UseRepoAsync(workingFolder, FetchTimeout, repo => repo.FetchRefs(noteRefs));
 		}
 
 
