@@ -182,31 +182,9 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task ResolveAsync(string workingFolder, string path)
+		public Task ResolveAsync(string workingFolder, string path)
 		{
-			try
-			{
-				Log.Debug("Resolve ...");
-
-				await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							gitRepository.Resolve(path);
-						}
-					}
-					catch (Exception e)
-					{
-						Log.Warn($"Failed to resolve, {e.Message}");
-					}
-				});
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to resolve {path}, {e.Message}");
-			}
+			return UseRepoAsync(workingFolder, repo => repo.Resolve(path));
 		}
 
 
