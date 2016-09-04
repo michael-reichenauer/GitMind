@@ -235,7 +235,7 @@ namespace GitMind.Git.Private
 			string workingFolder, string branchName, bool isUseForce)
 		{
 			Log.Debug($"Try delete local branch {branchName}, use force: {isUseForce}  ...");
-			return UseRepoAsync(workingFolder, repo => 
+			return UseRepoAsync(workingFolder, repo =>
 				repo.TryDeleteBranch(branchName, false, isUseForce));
 		}
 
@@ -273,9 +273,9 @@ namespace GitMind.Git.Private
 			{
 				// First try to update using fast forward merge only
 				R result = repo.MergeCurrentBranchFastForwardOnly();
-			
+
 				if (result.Error.Is<NonFastForwardException>())
-				{ 
+				{
 					// Failed with fast forward merge, trying no fast forward.
 					repo.MergeCurrentBranchNoFastForward();
 				}
@@ -286,7 +286,7 @@ namespace GitMind.Git.Private
 		public Task PushCurrentBranchAsync(
 			string workingFolder, ICredentialHandler credentialHandler)
 		{
-			return UseRepoAsync(workingFolder, PushTimeout, 
+			return UseRepoAsync(workingFolder, PushTimeout,
 				repo => repo.PushCurrentBranch(credentialHandler));
 		}
 
@@ -313,7 +313,7 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Commit {paths.Count} files: {message} ...");
 			return UseRepoAsync(workingFolder,
-				repo => 
+				repo =>
 				{
 					repo.Add(paths);
 					return repo.Commit(message);
@@ -456,7 +456,7 @@ namespace GitMind.Git.Private
 			{
 				Log.Warn($"Failed to parse notes text, error: {e}\n text:\n{text}");
 			}
-		
+
 			return branchNames;
 		}
 
@@ -503,7 +503,7 @@ namespace GitMind.Git.Private
 
 				return note?.Message ?? "";
 			})
-			.Or("");	
+			.Or("");
 
 			string notesText = originNotesText + addedNotesText;
 
@@ -519,7 +519,7 @@ namespace GitMind.Git.Private
 				{
 					File.Delete(file);
 				}
-			}); 
+			});
 		}
 
 
@@ -580,7 +580,7 @@ namespace GitMind.Git.Private
 
 
 		private static R<T> UseRepo<T>(
-			string workingFolder, 
+			string workingFolder,
 			Func<GitRepository, T> doFunction,
 			[CallerMemberName] string memberName = "")
 		{
@@ -658,7 +658,6 @@ namespace GitMind.Git.Private
 				return Task.FromResult(new R(error));
 			}
 		}
-
 
 
 		private static Task<R<T>> UseRepoAsync<T>(
