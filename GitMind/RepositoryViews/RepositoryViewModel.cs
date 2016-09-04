@@ -1056,7 +1056,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task UndoCleanWorkingFolderAsync()
 		{
-			IReadOnlyList<string> failedPaths = new string[0];
+			R<IReadOnlyList<string>> failedPaths = R.From(new string[0].AsReadOnlyList());
 			await Task.Yield();
 
 			isInternalDialog = true;
@@ -1067,14 +1067,18 @@ namespace GitMind.RepositoryViews
 				await RefreshAfterCommandAsync(false);
 			});
 
-			if (failedPaths.Any())
+			if (failedPaths.IsFaulted)
+			{
+				MessageDialog.ShowWarning(Owner, failedPaths.ToString());
+			}
+			else if (failedPaths.Value.Any())
 			{
 				string text = $"Failed to undo and clean working folder.\nSome items where locked:\n";
-				foreach (string path in failedPaths.Take(10))
+				foreach (string path in failedPaths.Value.Take(10))
 				{
 					text += $"\n   {path}";
 				}
-				if (failedPaths.Count > 10)
+				if (failedPaths.Value.Count > 10)
 				{
 					text += "   ...";
 				}

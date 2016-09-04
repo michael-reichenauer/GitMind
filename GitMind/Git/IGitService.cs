@@ -44,7 +44,7 @@ namespace GitMind.Git
 
 		Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler);
 		Task FetchAllNotesAsync(string workingFolder);
-		Task<IReadOnlyList<string>> UndoCleanWorkingFolderAsync(string workingFolder);
+		Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync(string workingFolder);
 		Task UndoWorkingFolderAsync(string workingFolder);
 		void GetFile(string workingFolder, string fileId, string filePath);
 		Task ResolveAsync(string workingFolder, string path);

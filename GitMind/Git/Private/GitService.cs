@@ -164,33 +164,9 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<IReadOnlyList<string>> UndoCleanWorkingFolderAsync(string workingFolder)
+		public Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync(string workingFolder)
 		{
-			try
-			{
-				Log.Debug("Undo and clean ...");
-
-				return await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							return gitRepository.UndoCleanWorkingFolder();
-						}
-					}
-					catch (Exception e)
-					{
-						Log.Warn($"Failed to undo and clean, {e.Message}");
-						return new[] { $"Error {e.Message}" };
-					}
-				});
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to undo and clean {workingFolder}, {e.Message}");
-				return new[] { $"Error {e.Message}" };
-			}
+			return UseRepoAsync(workingFolder, repo => repo.UndoCleanWorkingFolder());
 		}
 
 
