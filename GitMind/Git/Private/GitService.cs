@@ -130,29 +130,18 @@ namespace GitMind.Git.Private
 			{
 				string patch = repo.Diff.GetPatch(commitId);
 
-				return await gitDiffParser.ParseAsync(commitId, patch);	
+				return await gitDiffParser.ParseAsync(commitId, patch);
 			});
 		}
 
 
 		public Task<R<CommitDiff>> GetCommitDiffRangeAsync(string workingFolder, string id1, string id2)
 		{
-			return Task.Run(async () =>
+			return DoAsync(workingFolder, async repo =>
 			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						string patch = gitRepository.Diff.GetPatchRange(id1, id2);
+				string patch = repo.Diff.GetPatchRange(id1, id2);
 
-						return R.From(await gitDiffParser.ParseAsync(null, patch));
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to get diff, {e.Message}");
-					return Error.From(e);
-				}
+				return await gitDiffParser.ParseAsync(null, patch);
 			});
 		}
 
@@ -330,10 +319,10 @@ namespace GitMind.Git.Private
 
 
 		public Task<bool> TryDeleteBranchAsync(
-			string workingFolder, 
+			string workingFolder,
 			string branchName,
 			bool isRemote,
-			bool isUseForce, 
+			bool isUseForce,
 			ICredentialHandler credentialHandler)
 		{
 			if (isRemote)
@@ -756,7 +745,7 @@ namespace GitMind.Git.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed get check remote access url, {e.Message}");			
+				Log.Warn($"Failed get check remote access url, {e.Message}");
 			}
 
 			return false;
