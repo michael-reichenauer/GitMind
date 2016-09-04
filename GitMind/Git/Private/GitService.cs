@@ -248,31 +248,9 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder)
+		public Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder)
 		{
-			try
-			{
-				Log.Debug("Merge current branch fast forward ...");
-
-				await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							gitRepository.MergeCurrentBranchFastForwardOnly();
-						}
-					}
-					catch (Exception e)
-					{
-						Log.Warn($"Failed to merge current branch, {e.Message}");
-					}
-				});
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to merge current branch {workingFolder}, {e.Message}");
-			}
+			return UseRepoAsync(workingFolder, repo => repo.MergeCurrentBranchFastForwardOnly());
 		}
 
 
