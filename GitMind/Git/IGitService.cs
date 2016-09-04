@@ -40,7 +40,7 @@ namespace GitMind.Git
 		Task<R<GitCommit>> MergeAsync(string workingFolder, string branchName);
 		Task<R<string>> SwitchToCommitAsync(string workingFolder, string commitId, string proposedBranchName);
 		Task CreateBranchAsync(string workingFolder, string branchName, string commitId);
-		string GetFullMessage(string workingFolder, string commitId);
+		R<string> GetFullMessage(string workingFolder, string commitId);
 
 		Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler);
 		Task FetchAllNotesAsync(string workingFolder);

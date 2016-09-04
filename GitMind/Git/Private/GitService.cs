@@ -371,22 +371,10 @@ namespace GitMind.Git.Private
 		}
 
 
-		public string GetFullMessage(string workingFolder, string commitId)
+		public R<string> GetFullMessage(string workingFolder, string commitId)
 		{
 			Log.Debug($"Get full commit message for commit {commitId} ...");
-
-			try
-			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-				{
-					return gitRepository.GetFullMessage(commitId);
-				}
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed get full message {commitId}, {e.Message}");
-				return null;
-			}
+			return UseRepo(workingFolder, repo => repo.GetFullMessage(commitId));
 		}
 
 
