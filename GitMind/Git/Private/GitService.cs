@@ -294,8 +294,8 @@ namespace GitMind.Git.Private
 		public async Task PushNotesAsync(
 			string workingFolder, string rootId, ICredentialHandler credentialHandler)
 		{
-			await PushNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace, rootId, credentialHandler);
-			await PushNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace, rootId, credentialHandler);
+			await PushNotesAsync(workingFolder, CommitBranchNoteNameSpace, rootId, credentialHandler);
+			await PushNotesAsync(workingFolder, ManualBranchNoteNameSpace, rootId, credentialHandler);
 		}
 
 
@@ -461,7 +461,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task PushNotesUsingCmdAsync(
+		private async Task PushNotesAsync(
 			string workingFolder, string nameSpace, string rootId, ICredentialHandler credentialHandler)
 		{
 			Log.Debug($"Push notes {nameSpace} at root commit {rootId} ...");
@@ -496,58 +496,31 @@ namespace GitMind.Git.Private
 
 			await FetchNotesAsync(workingFolder, nameSpace);
 
-			string originNotesText = "";
-			using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+			string originNotesText = UseRepo(workingFolder, repo =>
 			{
-				IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
+				IReadOnlyList<GitNote> notes = repo.GetCommitNotes(rootId);
 				GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
 
-				originNotesText = note?.Message ?? "";
-			}
+				return note?.Message ?? "";
+			})
+			.Or("");	
 
 			string notesText = originNotesText + addedNotesText;
 
-			try
+			UseRepo(workingFolder, repo =>
+				repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
+
+			await UseRepoAsync(workingFolder, repo =>
 			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				repo.PushRefs($"refs/notes/{nameSpace}", credentialHandler);
+
+				string file = Path.Combine(workingFolder, ".git", nameSpace);
+				if (File.Exists(file))
 				{
-					GitNote gitNote = new GitNote(nameSpace, notesText);
-
-					gitRepository.SetCommitNote(rootId, gitNote);
+					File.Delete(file);
 				}
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to set note branch, {e.Message}");
-			}
-
-
-			await Task.Run(() =>
-			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						gitRepository.PushRefs($"refs/notes/{nameSpace}", credentialHandler);
-
-						Log.Debug($"Pushed notes {nameSpace}");
-						string file = Path.Combine(workingFolder, ".git", nameSpace);
-						if (File.Exists(file))
-						{
-							File.Delete(file);
-						}
-
-						return true;
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed push notes to {nameSpace}, {e.Message}");
-					return false;
-				}
-			});
+			}); 
 		}
-
 
 
 		private static R UseRepo(
