@@ -407,7 +407,7 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				Log.Debug($"Push delete branch {branchName} branch using cmd... {workingFolder}");
+				Log.Debug($"Push delete branch {branchName} branch ... {workingFolder}");
 				return await Task.Run(() =>
 				{
 					try
