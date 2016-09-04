@@ -178,17 +178,7 @@ namespace GitMind.Git.Private
 
 		public void GetFile(string workingFolder, string fileId, string filePath)
 		{
-			try
-			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-				{
-					gitRepository.GetFile(fileId, filePath);
-				}
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to get file contents, {e.Message}");
-			}
+			UseRepo(workingFolder, repo => repo.GetFile(fileId, filePath));
 		}
 
 
@@ -852,60 +842,38 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static Task<R<T>> UseRepoAsync<T>(
+
+		private static R UseRepo(
 			string workingFolder,
-			Func<GitRepository, T> doFunction,
+			Action<GitRepository> doAction,
 			[CallerMemberName] string memberName = "")
 		{
-			return Task.Run(() =>
+			Log.Debug($"{memberName} in {workingFolder} ...");
+			try
 			{
-				Log.Debug($"{memberName} in {workingFolder} ...");
-				try
+				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						T functionResult = doFunction(gitRepository);
+					doAction(gitRepository);
 
-						R<T> result = R.From(functionResult);
+					Log.Debug($"Done {memberName} in {workingFolder}");
 
-						Log.Debug($"Done {memberName} in {workingFolder}");
-
-						return result;
-					}
+					return R.Ok;
 				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-					return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
-				}
-			});
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+			}
 		}
+
 
 		private static Task<R> UseRepoAsync(
 			string workingFolder,
 			Action<GitRepository> doAction,
 			[CallerMemberName] string memberName = "")
 		{
-			return Task.Run(() =>
-			{
-				Log.Debug($"{memberName} in {workingFolder} ...");
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						doAction(gitRepository);
-
-						Log.Debug($"Done {memberName} in {workingFolder}");
-
-						return R.Ok;
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-					return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
-				}
-			});
+			return Task.Run(() => UseRepo(workingFolder, doAction, memberName));
 		}
 
 
@@ -919,28 +887,8 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				return Task.Run(() =>
-				{
-					Log.Debug($"{memberName} in {workingFolder} ...");
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							doAction(gitRepository);
-
-							Log.Debug($"Done {memberName} in {workingFolder}");
-
-							return R.Ok;
-						}
-					}
-					catch (Exception e)
-					{
-						Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-						return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
-					}
-				},
-				cts.Token)
-				.WithCancellation(cts.Token);
+				return Task.Run(() => UseRepo(workingFolder, doAction, memberName), cts.Token)
+					.WithCancellation(cts.Token);
 			}
 			catch (OperationCanceledException e)
 			{
@@ -948,6 +896,42 @@ namespace GitMind.Git.Private
 				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
 				return Task.FromResult(new R(error));
 			}
+		}
+
+
+		private static R<T> UseRepo<T>(
+			string workingFolder, 
+			Func<GitRepository, T> doFunction,
+			[CallerMemberName] string memberName = "")
+		{
+			Log.Debug($"{memberName} in {workingFolder} ...");
+			try
+			{
+				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				{
+					T functionResult = doFunction(gitRepository);
+
+					R<T> result = R.From(functionResult);
+
+					Log.Debug($"Done {memberName} in {workingFolder}");
+
+					return result;
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+			}
+		}
+
+
+		private static Task<R<T>> UseRepoAsync<T>(
+			string workingFolder,
+			Func<GitRepository, T> doFunction,
+			[CallerMemberName] string memberName = "")
+		{
+			return Task.Run(() => UseRepo(workingFolder, doFunction, memberName));
 		}
 
 
