@@ -549,7 +549,7 @@ namespace GitMind.RepositoryViews
 			RemoteAheadText = remoteAheadText;
 
 			IEnumerable<Branch> localAheadBranches = Repository.Branches
-				.Where(b => b.LocalAheadCount > 0).ToList();
+				.Where(b => b.IsLocal && b.IsRemote && b.IsActive && b.LocalAheadCount > 0).ToList();
 
 			string localAheadText = localAheadBranches.Any()
 				? "Branches with local commits:\n" : null;
