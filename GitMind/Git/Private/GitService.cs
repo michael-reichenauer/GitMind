@@ -65,13 +65,13 @@ namespace GitMind.Git.Private
 
 		public Task<R<GitStatus>> GetStatusAsync(string workingFolder)
 		{
-			return DoAsync(workingFolder, repo => repo.Status);
+			return UseRepoAsync(workingFolder, repo => repo.Status);
 		}
 
 
 		public Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId)
 		{
-			return DoAsync(workingFolder, repo =>
+			return UseRepoAsync(workingFolder, repo =>
 			{
 				if (commitId == GitCommit.UncommittedId)
 				{
@@ -115,7 +115,7 @@ namespace GitMind.Git.Private
 
 		public Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string name)
 		{
-			return DoAsync(workingFolder, async repo =>
+			return UseRepoAsync(workingFolder, async repo =>
 			{
 				string patch = repo.Diff.GetFilePatch(commitId, name);
 
@@ -126,7 +126,7 @@ namespace GitMind.Git.Private
 
 		public Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId)
 		{
-			return DoAsync(workingFolder, async repo =>
+			return UseRepoAsync(workingFolder, async repo =>
 			{
 				string patch = repo.Diff.GetPatch(commitId);
 
@@ -137,7 +137,7 @@ namespace GitMind.Git.Private
 
 		public Task<R<CommitDiff>> GetCommitDiffRangeAsync(string workingFolder, string id1, string id2)
 		{
-			return DoAsync(workingFolder, async repo =>
+			return UseRepoAsync(workingFolder, async repo =>
 			{
 				string patch = repo.Diff.GetPatchRange(id1, id2);
 
@@ -149,7 +149,7 @@ namespace GitMind.Git.Private
 
 		public async Task FetchAsync(string workingFolder)
 		{
-			await DoAsync(workingFolder, FetchTimeout, repo => repo.Fetch());
+			await UseRepoAsync(workingFolder, FetchTimeout, repo => repo.Fetch());
 		}
 
 
@@ -160,7 +160,7 @@ namespace GitMind.Git.Private
 				$"refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
 			};
 
-			await DoAsync(workingFolder, repo => repo.FetchRefs(noteRefs));
+			await UseRepoAsync(workingFolder, FetchTimeout, repo => repo.FetchRefs(noteRefs));
 		}
 
 
@@ -894,11 +894,11 @@ namespace GitMind.Git.Private
 		{
 			string[] noteRefs = { $"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}" };
 
-			await DoAsync(workingFolder, repo => repo.FetchRefs(noteRefs));
+			await UseRepoAsync(workingFolder, FetchTimeout, repo => repo.FetchRefs(noteRefs));
 		}
 
 
-		private static Task<R<T>> DoAsync<T>(
+		private static Task<R<T>> UseRepoAsync<T>(
 			string workingFolder,
 			Func<GitRepository, T> doFunction,
 			[CallerMemberName] string memberName = "")
@@ -927,7 +927,7 @@ namespace GitMind.Git.Private
 			});
 		}
 
-		private static Task<R> DoAsync(
+		private static Task<R> UseRepoAsync(
 			string workingFolder,
 			Action<GitRepository> doAction,
 			[CallerMemberName] string memberName = "")
@@ -955,7 +955,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static Task<R> DoAsync(
+		private static Task<R> UseRepoAsync(
 			string workingFolder,
 			TimeSpan timeout,
 			Action<GitRepository> doAction,
@@ -997,7 +997,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static Task<R<T>> DoAsync<T>(
+		private static Task<R<T>> UseRepoAsync<T>(
 			string workingFolder,
 			Func<GitRepository, Task<T>> doFunction,
 			[CallerMemberName] string memberName = "")
