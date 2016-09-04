@@ -270,50 +270,12 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler)
+		public Task PushCurrentBranchAsync(
+			string workingFolder, ICredentialHandler credentialHandler)
 		{
-			Log.Debug($"Push current branch ... {workingFolder}");
-
-			CancellationToken ct = credentialHandler.GetTimeoutToken(PushTimeout);
-			try
-			{
-				await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							Log.Debug("Before push");
-							gitRepository.PushCurrentBranch(credentialHandler);
-							Log.Debug("After push");
-						}
-
-						Log.Debug("push current branch");
-						return true;
-					}
-					catch (Exception e)
-					{
-						if (e.Message == "Unsupported URL protocol")
-						{
-							Log.Warn("Unsupported URL protocol");
-							return false;
-						}
-						else
-						{
-							Log.Warn($"Failed to push, {e.Message}");
-							return true;
-						}
-					}
-				})
-				.WithCancellation(ct);
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to push {e}");
-			}
+			return UseRepoAsync(workingFolder, PushTimeout, 
+				repo => repo.PushCurrentBranch(credentialHandler));
 		}
-
-
 
 
 		public async Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler)
@@ -594,7 +556,7 @@ namespace GitMind.Git.Private
 				Log.Warn($"Failed to get note branches, {e.Message}");
 			}
 
-			Log.Debug($"Got {branchNames.Count} branches for {nameSpace}");
+			Log.Debug($"Got {branchNames.Count} branch names for {nameSpace}");
 
 			return branchNames;
 		}
