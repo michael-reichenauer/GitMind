@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.GitModel;
@@ -34,67 +35,72 @@ namespace GitMind.Git.Private
 		}
 
 
-
-
-		public Task<R<string>> GetCurrentBranchNameAsync(string workingFolder)
-		{
-			return Task.Run(() =>
-			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						return R.From(gitRepository.Head.Name);
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to get current branch name, {e.Message}");
-					return Error.From(e);
-				}
-			});
-		}
-
-
 		public R<string> GetCurrentRootPath(string workingFolder)
 		{
 			try
 			{
-				while (!string.IsNullOrEmpty(workingFolder))
+				string folder = workingFolder;
+				while (!string.IsNullOrEmpty(folder))
 				{
-					if (LibGit2Sharp.Repository.IsValid(workingFolder))
+					if (LibGit2Sharp.Repository.IsValid(folder))
 					{
-						return workingFolder;
+						return folder;
 					}
 
-					workingFolder = Path.GetDirectoryName(workingFolder);
+					folder = Path.GetDirectoryName(folder);
 				}
 
-				return Error.From("No working folder");
+				return Error.From($"No working folder {workingFolder}");
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to get working folder, {e.Message}");
-				return Error.From(e);
+				return Error.From(e, $"Failed to root of working folder {workingFolder}, {e.Message}");
 			}
 		}
 
 
 		public Task<R<GitStatus>> GetStatusAsync(string workingFolder)
 		{
+			return Async(() =>
+			{
+				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				{
+					return gitRepository.Status;
+				}
+			});
+
+			//return Task.Run(() =>
+			//{
+			//	try
+			//	{
+			//		using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+			//		{
+			//			return R.From(gitRepository.Status);
+			//		}
+			//	}
+			//	catch (Exception e)
+			//	{
+			//		return Error.From(e, $"Failed to get current branch name, {e.Message}");
+			//	}
+			//});
+		}
+
+		public Task<R<T>> Async<T>(Func<T> func, [CallerMemberName] string memberName = "")
+		{
 			return Task.Run(() =>
 			{
+				Log.Debug($"Start {memberName} ...");
 				try
 				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						return R.From(gitRepository.Status);
-					}
+					return R.From(func());
 				}
 				catch (Exception e)
 				{
-					Log.Warn($"Failed to get current branch name, {e.Message}");
-					return Error.From(e);
+					return Error.From(e, $"Failed, {e.Message}");
+				}
+				finally
+				{
+					Log.Debug($"Done {memberName} ...");
 				}
 			});
 		}

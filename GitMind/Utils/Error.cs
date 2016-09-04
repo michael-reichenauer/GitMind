@@ -1,11 +1,13 @@
 using System;
 using System.CodeDom;
+using System.Diagnostics;
 
 
 namespace GitMind.Utils
 {
 	public class Error : Equatable<Error>
 	{
+		private static readonly string none = "none";
 		private readonly Exception exception = null;
 
 		private Error(string message = null)
@@ -15,17 +17,34 @@ namespace GitMind.Utils
 
 		private Error(Exception exception, string message = null)
 		{
+			Message = message ?? "";
 			this.exception = exception;
-			Message = message ?? exception?.Message ?? "";
+
+			if (message != null && exception != null)
+			{
+				Message = $"{message}, {exception.Message}";
+			}
+			else if (exception != null)
+			{
+				Message = exception.Message;
+			}
+
+			if (message != none)
+			{
+				Log.Warn($"Error: {Message}");
+			}
 		}
+
 
 		public string Message { get; }
 
 		public static Error From(Exception e) => new Error(e);
 
+		public static Error From(Exception e, string message) => new Error(e, message);
+
 		public static Error From(string message = "") => new Error(message);
 
-		public static Error None = new Error();
+		public static Error None = new Error(none);
 
 
 		public bool Is<T>()
