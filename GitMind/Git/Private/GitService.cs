@@ -278,37 +278,19 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler)
+		public async Task PushNotesAsync(
+			string workingFolder, string rootId, ICredentialHandler credentialHandler)
 		{
 			await PushNotesUsingCmdAsync(workingFolder, CommitBranchNoteNameSpace, rootId, credentialHandler);
 			await PushNotesUsingCmdAsync(workingFolder, ManualBranchNoteNameSpace, rootId, credentialHandler);
 		}
 
 
-		public async Task PushBranchAsync(
+		public Task PushBranchAsync(
 			string workingFolder, string branchName, ICredentialHandler credentialHandler)
 		{
-			try
-			{
-				await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							gitRepository.PushBranch(branchName, credentialHandler);
-						}
-					}
-					catch (Exception e)
-					{
-						Log.Warn($"Failed to push branch {branchName}, {e.Message}");
-					}
-				});
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to push {branchName} branch {workingFolder}, {e.Message}");
-			}
+			return UseRepoAsync(workingFolder, PushTimeout,
+				repo => repo.PushBranch(branchName, credentialHandler));
 		}
 
 
