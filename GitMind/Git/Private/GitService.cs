@@ -398,41 +398,30 @@ namespace GitMind.Git.Private
 		private IReadOnlyList<BranchName> GetNoteBranches(
 			string workingFolder, string nameSpace, string rootId)
 		{
-			List<BranchName> branchNames = new List<BranchName>();
+			Log.Debug($"Getting notes {nameSpace} from root commit {rootId} ...");
 
-			Log.Debug($"Getting notes {nameSpace} ...");
+			string notesText = UseRepo(workingFolder, repo =>
+			{
+				IReadOnlyList<GitNote> notes = repo.GetCommitNotes(rootId);
+				GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
+				return note?.Message ?? "";
+			})
+			.Or("");
 
 			try
 			{
-
-				string notesText = "";
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				string file = Path.Combine(workingFolder, ".git", nameSpace);
+				if (File.Exists(file))
 				{
-					IReadOnlyList<GitNote> notes = gitRepository.GetCommitNotes(rootId);
-					GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
-
-					notesText = note?.Message ?? "";
+					notesText += File.ReadAllText(file);
 				}
-
-				try
-				{
-					string file = Path.Combine(workingFolder, ".git", nameSpace);
-					if (File.Exists(file))
-					{
-						notesText += File.ReadAllText(file);
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to read local {nameSpace}, {e}");
-				}
-
-				branchNames = ParseBranchNames(notesText);
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to get note branches, {e.Message}");
+				Log.Warn($"Failed to read local {nameSpace}, {e}");
 			}
+
+			List<BranchName> branchNames = ParseBranchNames(notesText);
 
 			Log.Debug($"Got {branchNames.Count} branch names for {nameSpace}");
 
@@ -444,23 +433,30 @@ namespace GitMind.Git.Private
 		{
 			List<BranchName> branchNames = new List<BranchName>();
 
-			if (string.IsNullOrWhiteSpace(text))
+			try
 			{
-				return branchNames;
-			}
-
-			string[] lines = text.Split("\n".ToCharArray());
-			foreach (string line in lines)
-			{
-				string[] parts = line.Split(" ".ToCharArray());
-				if (parts.Length == 2)
+				if (string.IsNullOrWhiteSpace(text))
 				{
-					string commitId = parts[0];
-					string branchName = parts[1].Trim();
-					branchNames.Add(new BranchName(commitId, branchName));
+					return branchNames;
+				}
+
+				string[] lines = text.Split("\n".ToCharArray());
+				foreach (string line in lines)
+				{
+					string[] parts = line.Split(" ".ToCharArray());
+					if (parts.Length == 2)
+					{
+						string commitId = parts[0];
+						string branchName = parts[1].Trim();
+						branchNames.Add(new BranchName(commitId, branchName));
+					}
 				}
 			}
-
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to parse notes text, error: {e}\n text:\n{text}");
+			}
+		
 			return branchNames;
 		}
 
