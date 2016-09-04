@@ -294,25 +294,15 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<GitCommit> CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths)
+		public Task<R<GitCommit>> CommitAsync(
+			string workingFolder, string message, IReadOnlyList<CommitFile> paths)
 		{
-			return Task.Run(() =>
-			{
-				try
+			return UseRepoAsync(workingFolder,
+				repo => 
 				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						gitRepository.Add(paths);
-
-						return gitRepository.Commit(message);
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to commit, {e.Message}");
-					return null;
-				}
-			});
+					repo.Add(paths);
+					return repo.Commit(message);
+				});
 		}
 
 

@@ -34,7 +34,7 @@ namespace GitMind.Git
 		Task PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler);
 		Task PushBranchAsync(string workingFolder, string branchName, ICredentialHandler credentialHandler);
 
-		Task<GitCommit> CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths);
+		Task<R<GitCommit>> CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths);
 		Task SwitchToBranchAsync(string workingFolder, string branchName);
 		Task UndoFileInCurrentBranchAsync(string workingFolder, string path);
 		Task<GitCommit> MergeAsync(string workingFolder, string branchName);
