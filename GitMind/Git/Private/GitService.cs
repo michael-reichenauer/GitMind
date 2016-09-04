@@ -350,26 +350,10 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task CreateBranchAsync(string workingFolder, string branchName, string commitId)
+		public Task CreateBranchAsync(string workingFolder, string branchName, string commitId)
 		{
 			Log.Debug($"Create branch {branchName} at commit {commitId} ...");
-			await Task.Run(() =>
-			{
-				try
-				{
-					Log.Debug($"Create branch {branchName} at {commitId} ...");
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						gitRepository.CreateBranch(branchName, commitId);
-					}
-
-					Log.Debug($"Created branch {branchName} at {commitId}...");
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed create branch {branchName}, {e.Message}");
-				}
-			});
+			return UseRepoAsync(workingFolder, repo => repo.CreateBranch(branchName, commitId));
 		}
 
 
