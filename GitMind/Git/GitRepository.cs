@@ -74,11 +74,11 @@ namespace GitMind.Git
 		}
 
 
-		public void FetchRefs(string refs)
+		public void FetchRefs(string[] refs)
 		{
 			Remote remote = repository.Network.Remotes["origin"];
 
-			repository.Network.Fetch(remote, new[] { refs });
+			repository.Network.Fetch(remote, refs);
 		}
 
 

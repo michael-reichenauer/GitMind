@@ -43,7 +43,7 @@ namespace GitMind.Git
 		string GetFullMessage(string workingFolder, string commitId);
 
 		Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler);
-		Task FetchNotesAsync(string workingFolder);
+		Task FetchAllNotesAsync(string workingFolder);
 		Task<IReadOnlyList<string>> UndoCleanWorkingFolderAsync(string workingFolder);
 		Task UndoWorkingFolderAsync(string workingFolder);
 		void GetFile(string workingFolder, string fileId, string filePath);

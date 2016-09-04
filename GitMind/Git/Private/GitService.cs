@@ -146,28 +146,21 @@ namespace GitMind.Git.Private
 		}
 
 
-		 
+
 		public async Task FetchAsync(string workingFolder)
 		{
-			await DoAsync(workingFolder, FetchTimeout, repo => repo.Fetch());	
+			await DoAsync(workingFolder, FetchTimeout, repo => repo.Fetch());
 		}
 
 
-		public async Task FetchNotesAsync(string workingFolder)
+		public async Task FetchAllNotesAsync(string workingFolder)
 		{
-			try
-			{
-				// Sometimes, a fetch to GitHub takes just forever, don't know why
-				await FetchNotesUsingCmdAsync(
-					workingFolder, CommitBranchNoteNameSpace, ManualBranchNoteNameSpace)
-					.WithCancellation(new CancellationTokenSource(FetchTimeout).Token);
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to fetch notes {workingFolder}, {e.Message}");
-			}
+			string[] noteRefs = {
+				$"refs/notes/{CommitBranchNoteNameSpace}:refs/notes/origin/{CommitBranchNoteNameSpace}",
+				$"refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
+			};
 
-
+			await DoAsync(workingFolder, repo => repo.FetchRefs(noteRefs));
 		}
 
 
@@ -842,7 +835,7 @@ namespace GitMind.Git.Private
 				Log.Debug($"Adding notes:\n{addedNotesText}");
 			}
 
-			await FetchNotesUsingCmdAsync(workingFolder, nameSpace);
+			await FetchNotesAsync(workingFolder, nameSpace);
 
 			string originNotesText = "";
 			using (GitRepository gitRepository = GitRepository.Open(workingFolder))
@@ -897,44 +890,11 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task FetchNotesUsingCmdAsync(string workingFolder, string nameSpace)
+		private async Task FetchNotesAsync(string workingFolder, string nameSpace)
 		{
-			Log.Debug($"Fetching {nameSpace} notes ...");
-			await Task.Run(() =>
-			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						gitRepository.FetchRefs($"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}");
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to fetch, {e.Message}");
-				}
-			});
-		}
+			string[] noteRefs = { $"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}" };
 
-
-		private async Task FetchNotesUsingCmdAsync(string workingFolder, string nameSpace, string nameSpace2)
-		{
-			Log.Debug($"Fetching {nameSpace} and {nameSpace2} ...");
-
-			await Task.Run(() =>
-			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						gitRepository.FetchRefs($"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}");
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to fetch, {e.Message}");
-				}
-			});
+			await DoAsync(workingFolder, repo => repo.FetchRefs(noteRefs));
 		}
 
 
@@ -966,6 +926,34 @@ namespace GitMind.Git.Private
 				}
 			});
 		}
+
+		private static Task<R> DoAsync(
+			string workingFolder,
+			Action<GitRepository> doAction,
+			[CallerMemberName] string memberName = "")
+		{
+			return Task.Run(() =>
+			{
+				Log.Debug($"{memberName} in {workingFolder} ...");
+				try
+				{
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+					{
+						doAction(gitRepository);
+
+						Log.Debug($"Done {memberName} in {workingFolder}");
+
+						return R.Ok;
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
+					return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				}
+			});
+		}
+
 
 		private static Task<R> DoAsync(
 			string workingFolder,
