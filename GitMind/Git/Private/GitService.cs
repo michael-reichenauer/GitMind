@@ -35,26 +35,30 @@ namespace GitMind.Git.Private
 		}
 
 
-		public R<string> GetCurrentRootPath(string workingFolder)
+		public R<string> GetCurrentRootPath(string folder)
 		{
 			try
 			{
-				string folder = workingFolder;
-				while (!string.IsNullOrEmpty(folder))
+				// The specified folder, might be a sub folder of the root working folder,
+				// lets try to find root folder by testing folder and then its parent folders
+				// until a root folder is found or no root folder is found.
+				string rootFolder = folder;
+				while (!string.IsNullOrEmpty(rootFolder))
 				{
-					if (LibGit2Sharp.Repository.IsValid(folder))
+					if (LibGit2Sharp.Repository.IsValid(rootFolder))
 					{
-						return folder;
+						return rootFolder;
 					}
 
-					folder = Path.GetDirectoryName(folder);
+					// Get the parent folder to test that
+					rootFolder = Path.GetDirectoryName(rootFolder);
 				}
 
-				return Error.From($"No working folder {workingFolder}");
+				return Error.From($"No working folder {folder}");
 			}
 			catch (Exception e)
 			{
-				return Error.From(e, $"Failed to root of working folder {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to root of working folder {folder}, {e.Message}");
 			}
 		}
 
@@ -88,12 +92,6 @@ namespace GitMind.Git.Private
 		}
 
 
-		public IReadOnlyList<BranchName> GetSpecifiedNames(string workingFolder, string rootId)
-		{
-			return GetNoteBranches(workingFolder, ManualBranchNoteNameSpace, rootId);
-		}
-
-
 		public Task SetCommitBranchAsync(
 			string workingFolder, string commitId, string branchName)
 		{
@@ -103,33 +101,25 @@ namespace GitMind.Git.Private
 		}
 
 
+		public IReadOnlyList<BranchName> GetSpecifiedNames(string workingFolder, string rootId)
+		{
+			return GetNoteBranches(workingFolder, ManualBranchNoteNameSpace, rootId);
+		}
+
+
 		public IReadOnlyList<BranchName> GetCommitBranches(string workingFolder, string rootId)
 		{
 			return GetNoteBranches(workingFolder, CommitBranchNoteNameSpace, rootId);
 		}
 
 
-
-
-
 		public Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string name)
 		{
-			return Task.Run(async () =>
+			return DoAsync(workingFolder, async repo =>
 			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						string patch = gitRepository.Diff.GetFilePatch(commitId, name);
+				string patch = repo.Diff.GetFilePatch(commitId, name);
 
-						return R.From(await gitDiffParser.ParseAsync(commitId, patch, false));
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to get diff, {e.Message}");
-					return Error.From(e);
-				}
+				return await gitDiffParser.ParseAsync(commitId, patch, false);
 			});
 		}
 
@@ -1027,7 +1017,37 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
-						R<T> result = R.From(doFunction(gitRepository));
+						T functionResult = doFunction(gitRepository);
+
+						R<T> result = R.From(functionResult);
+
+						Log.Debug($"Done {memberName} in {workingFolder}");
+
+						return result;
+					}
+				}
+				catch (Exception e)
+				{
+					return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				}
+			});
+		}
+
+		private static Task<R<T>> DoAsync<T>(
+			string workingFolder,
+			Func<GitRepository, Task<T>> doFunction,
+			[CallerMemberName] string memberName = "")
+		{
+			return Task.Run(async () =>
+			{
+				Log.Debug($"Start {memberName} in {workingFolder} ...");
+				try
+				{
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+					{
+						T functionResult = await doFunction(gitRepository);
+
+						R<T> result = R.From(functionResult);
 
 						Log.Debug($"Done {memberName} in {workingFolder}");
 
