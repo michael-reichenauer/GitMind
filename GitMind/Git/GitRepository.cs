@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using GitMind.GitModel;
+using System.Net;
 using GitMind.Utils;
 using LibGit2Sharp;
-using Branch = LibGit2Sharp.Branch;
-using Commit = LibGit2Sharp.Commit;
-using Repository = LibGit2Sharp.Repository;
+
 
 
 namespace GitMind.Git
@@ -35,6 +33,11 @@ namespace GitMind.Git
 			this.repository = repository;
 		}
 
+		public static GitRepository Open(string folder)
+		{
+			return new GitRepository(folder, new Repository(folder));
+		}
+
 
 		public IEnumerable<GitBranch> Branches => repository.Branches.Select(b => new GitBranch(b));
 
@@ -58,7 +61,24 @@ namespace GitMind.Git
 
 		public void Fetch()
 		{
-			repository.Fetch("origin");
+			FetchOptions options = new FetchOptions { Prune = true };
+			repository.Fetch("origin", options);
+		}
+
+
+		public void FetchBranch(string branchName)
+		{
+			Remote remote = repository.Network.Remotes["origin"];
+
+			repository.Network.Fetch(remote, new []{ $"{branchName}:{branchName}" });
+		}
+
+
+		public void FetchRefs(string[] refs)
+		{
+			Remote remote = repository.Network.Remotes["origin"];
+
+			repository.Network.Fetch(remote, refs);
 		}
 
 
@@ -74,14 +94,23 @@ namespace GitMind.Git
 		}
 
 
-		public void MergeCurrentBranchFastForwardOnly()
+		public R MergeCurrentBranchFastForwardOnly()
 		{
-			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
-			repository.MergeFetchedRefs(committer, MergeFastForwardOnly);
+			try
+			{
+				Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
+				repository.MergeFetchedRefs(committer, MergeFastForwardOnly);
+
+				return R.Ok;
+			}
+			catch (Exception e)
+			{
+				return Error.From(e);
+			}			
 		}
 
 
-		public void MergeCurrentBranchNoFastForwardy()
+		public void MergeCurrentBranchNoFastForward()
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 			repository.MergeFetchedRefs(committer, MergeNoFastForward);
@@ -95,9 +124,9 @@ namespace GitMind.Git
 		}
 
 
-		public void Add(IReadOnlyList<CommitFile> paths)
+		public void Add(IReadOnlyList<GitModel.CommitFile> paths)
 		{
-			foreach (CommitFile commitFile in paths)
+			foreach (GitModel.CommitFile commitFile in paths)
 			{
 				string fullPath = Path.Combine(workingFolder, commitFile.Path);
 				if (File.Exists(fullPath))
@@ -123,6 +152,7 @@ namespace GitMind.Git
 			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
 			ConflictCollection conflicts = repository.Index.Conflicts;
 			bool isFullyMerged = repository.Index.IsFullyMerged;
+
 			return new GitStatus(repositoryStatus, conflicts, repository.Info, isFullyMerged);
 		}
 
@@ -297,23 +327,39 @@ namespace GitMind.Git
 		}
 
 
-		public void PublishBranch(string branchName)
+		public void PublishBranch(string branchName, ICredentialHandler credentialHandler)
 		{
-			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
-			if (branch == null)
+			Branch localBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			if (localBranch == null)
 			{
 				Log.Warn($"Local branch does not exists {branchName}");
 				return;
 			}
 
+			PushOptions pushOptions = GetPushOptions(credentialHandler);
+
+			// Check if corresponding remote branch exists
 			Branch remoteBranch = repository.Branches
-				.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+				.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);			
 
 			if (remoteBranch != null)
 			{
-				branch = repository.Branches.Add(branchName, remoteBranch.Tip);
-				repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
+				// Remote branch exists, so connect local and remote branch
+				localBranch = repository.Branches.Add(branchName, remoteBranch.Tip);
+				repository.Branches.Update(localBranch, b => b.TrackedBranch = remoteBranch.CanonicalName);
 			}
+			else
+			{
+				// Remote branch does not yet exists
+				Remote remote = repository.Network.Remotes["origin"];
+
+				repository.Branches.Update(
+					localBranch,
+					b => b.Remote = remote.Name,
+					b => b.UpstreamBranch = localBranch.CanonicalName);
+			}
+
+			repository.Network.Push(localBranch, pushOptions);
 		}
 
 
@@ -463,16 +509,113 @@ namespace GitMind.Git
 		}
 
 
-		public bool TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
+		public void PushCurrentBranch(ICredentialHandler credentialHandler)
+		{
+			try
+			{
+				Branch currentBranch = repository.Head;
+
+				PushOptions pushOptions = GetPushOptions(credentialHandler);
+
+				repository.Network.Push(currentBranch, pushOptions);
+
+				credentialHandler.SetConfirm(true);
+			}
+			catch (NoCredentialException)
+			{
+				Log.Debug("Canceled enter credentials");
+				credentialHandler.SetConfirm(false);
+			}
+			catch (Exception e)
+			{
+				Log.Error($"Error {e}");
+				credentialHandler.SetConfirm(false);
+			}
+		}
+
+
+		public void PushRefs(string refs, ICredentialHandler credentialHandler)
+		{
+			try
+			{
+				PushOptions pushOptions = GetPushOptions(credentialHandler);
+
+				Remote remote = repository.Network.Remotes["origin"];
+
+				// Using a refspec, like you would use with git push...
+				repository.Network.Push(remote, pushRefSpec: $"{refs}:{refs}", pushOptions: pushOptions);
+
+				credentialHandler.SetConfirm(true);
+			}
+			catch (NoCredentialException)
+			{
+				Log.Debug("Canceled enter credentials");
+				credentialHandler.SetConfirm(false);
+			}
+			catch (Exception e)
+			{
+				Log.Error($"Error {e}");
+				credentialHandler.SetConfirm(false);
+			}
+		}
+
+
+		public void PushBranch(string branchName, ICredentialHandler credentialHandler)
+		{
+			PushRefs($"refs/heads/{branchName}", credentialHandler);
+		}
+
+
+		private static PushOptions GetPushOptions(ICredentialHandler credentialHandler)
+		{
+			PushOptions pushOptions = new PushOptions();
+			pushOptions.CredentialsProvider = (url, usernameFromUrl, types) =>
+			{
+				NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
+
+				if (credential == null)
+				{
+					throw new NoCredentialException();
+				}
+
+				return new UsernamePasswordCredentials
+				{
+					Username = credential?.UserName,
+					Password = credential?.Password
+				};
+			};
+
+			return pushOptions;
+		}
+
+
+		private class NoCredentialException : Exception
+		{			
+		}
+
+		public void DeleteRemoteBranch(string branchName, ICredentialHandler credentialHandler)
+		{
+			PushOptions pushOptions = GetPushOptions(credentialHandler);
+
+			Remote remote = repository.Network.Remotes["origin"];
+
+			// Using a refspec, like you would use with git push...
+			repository.Network.Push(remote, pushRefSpec: $":refs/heads/{branchName}", pushOptions: pushOptions);
+
+			credentialHandler.SetConfirm(true);
+		}
+
+
+		public R TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
 		{
 			if (!isUseForce && !IsBranchMerged(branchName, isRemote))
 			{
-				return false;
+				return Error.From("Branch is no fully merged.");
 			}
 
 			repository.Branches.Remove(branchName, isRemote);
 
-			return true;
+			return R.Ok;
 		}
 
 
@@ -509,6 +652,13 @@ namespace GitMind.Git
 			}
 
 			return false;
+		}
+
+
+		public bool IsSupportedRemoteUrl()
+		{
+			return !repository.Network.Remotes
+				.Any(remote => remote.Url.StartsWith("ssh:", StringComparison.OrdinalIgnoreCase));
 		}
 	}
 }

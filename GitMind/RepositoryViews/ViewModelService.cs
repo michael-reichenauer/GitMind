@@ -66,8 +66,7 @@ namespace GitMind.RepositoryViews
 
 			repositoryViewModel.ShowableBranches.Clear();
 			IEnumerable<Branch> showableBranches = repositoryViewModel.Repository.Branches
-				.Where(b => b.IsActive && b.Name != "master")
-				.Where(b => !repositoryViewModel.HidableBranches.Any(ab => ab.Branch.Id == b.Id));
+				.Where(b => b.IsActive);
 			IReadOnlyList<BranchItem> showableBrancheItems = BranchItem.GetBranches(
 				showableBranches,
 				repositoryViewModel.ShowBranchCommand);
@@ -116,8 +115,11 @@ namespace GitMind.RepositoryViews
 			List<Branch> currentlyShownBranches = repositoryViewModel.SpecifiedBranches.ToList();
 
 			bool isShowing =
-				(commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
-				|| (commit.HasFirstParent && commit.Branch != commit.FirstParent.Branch && currentlyShownBranches.Contains(commit.FirstParent.Branch));
+				!commit.HasFirstChild
+				|| (commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
+				|| (commit.HasFirstParent 
+					&& commit.Branch != commit.FirstParent.Branch 
+					&& currentlyShownBranches.Contains(commit.FirstParent.Branch));
 
 			BranchViewModel clickedBranch = repositoryViewModel
 				.Branches.First(b => b.Branch == commit.Branch);
@@ -133,7 +135,7 @@ namespace GitMind.RepositoryViews
 				// Closing shown branch
 				BranchViewModel otherBranch;
 
-				if (commit.HasSecondParent)
+				if (commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
 				{
 					otherBranch = repositoryViewModel.Branches
 						.First(b => b.Branch == commit.SecondParent.Branch);
@@ -144,6 +146,12 @@ namespace GitMind.RepositoryViews
 						otherBranch = clickedBranch;
 						stableCommit = commit.SecondParent;
 					}
+				}
+				else if (!commit.HasFirstChild)
+				{
+					// A branch tip, closing the clicked branch
+					otherBranch = clickedBranch;
+					stableCommit = commit.Branch.ParentCommit;
 				}
 				else
 				{
@@ -445,6 +453,11 @@ namespace GitMind.RepositoryViews
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
 
+				if (!commit.HasFirstChild)
+				{
+					commitViewModel.BrushInner = brushService.GetDarkerBrush(commitViewModel.Brush);
+				}
+
 				commitViewModel.NotifyAll();
 			}
 		}
@@ -483,10 +496,10 @@ namespace GitMind.RepositoryViews
 				addedBranchColumns.Add(branch);
 				maxColumn = Math.Max(branch.BranchColumn, maxColumn);
 
-				branch.SetNormal();
-
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 				branch.HoverBrush = Brushes.Transparent;
+				
+
 				branch.Rect = new Rect(
 					(double)Converter.ToX(branch.BranchColumn) + 3,
 					(double)Converter.ToY(branch.TipRowIndex) + Converter.HalfRow - 6,
@@ -497,8 +510,11 @@ namespace GitMind.RepositoryViews
 
 				branch.HoverBrushNormal = branch.Brush;
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
+				branch.DimBrushHighlight = brushService.GetLighterLighterBrush(branch.Brush);
 				branch.BranchToolTip = GetBranchToolTip(branch);
 				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name;
+
+				branch.SetNormal();
 
 				branch.NotifyAll();
 			}

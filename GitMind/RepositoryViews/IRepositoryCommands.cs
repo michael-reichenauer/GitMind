@@ -11,6 +11,7 @@ namespace GitMind.RepositoryViews
 		Window Owner { get; }
 		Repository Repository { get;  }
 		Commit UnCommited { get; }
+		CredentialHandler GetCredentialsHandler();
 
 		DisabledStatus DisableStatus();
 		void AddSpecifiedBranch(string branchName);

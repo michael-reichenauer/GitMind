@@ -87,7 +87,8 @@ namespace GitMind.RepositoryViews
 				{
 					string workingFolder = CommitViewModel.Commit.WorkingFolder;
 					string commitId = CommitViewModel.Commit.CommitId;
-					subject = gitService.GetFullMessage(workingFolder, commitId) ?? CommitViewModel?.Subject;
+					subject = gitService.GetFullMessage(workingFolder, commitId)
+						.Or(CommitViewModel?.Subject);
 				}
 
 				return subject;
@@ -112,7 +113,7 @@ namespace GitMind.RepositoryViews
 		public Command EditBranchCommand => CommitViewModel.SetCommitBranchCommand;
 		public Command<string> UndoUncommittedFileCommand => Command<string>(
 			path => commitService.UndoUncommittedFileAsync(repositoryCommands, path));
-		public Command ShowCommitDiffCommand => CommitViewModel.ShowCommitDiffCommand;
+		public Command ShowCommitDiffCommand => CommitViewModel?.ShowCommitDiffCommand;
 
 		public override string ToString() => $"{Id} {Subject}";
 

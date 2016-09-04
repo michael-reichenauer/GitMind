@@ -2,19 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
-using GitMind.Common;
-using GitMind.Common.ProgressHandling;
-using GitMind.Features.Committing;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
 using GitMind.Git.Private;
-using GitMind.GitModel;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.RepositoryViews;
@@ -35,16 +30,23 @@ namespace GitMind.MainWindowViews
 		private readonly FolderMonitorService folderMonitor;
 
 		private readonly Window owner;
+		private readonly Action setSearchFocus;
+		private readonly Action setRepositoryViewFocus;
 		private bool isLoaded = false;
 
 		//private bool isStatusChanged = false;
 		//private bool isRepositoryChanged = false;
 
 
-		internal MainWindowViewModel(Window owner)
+		internal MainWindowViewModel(
+			Window owner,
+			Action setSearchFocus,
+			Action setRepositoryViewFocus)
 		{
 			RepositoryViewModel = new RepositoryViewModel(owner, Busy);
 			this.owner = owner;
+			this.setSearchFocus = setSearchFocus;
+			this.setRepositoryViewFocus = setRepositoryViewFocus;
 			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
 		}
 
@@ -75,7 +77,7 @@ namespace GitMind.MainWindowViews
 
 
 		public string Title => WorkingFolder != null
-			? $"{Path.GetFileNameWithoutExtension(WorkingFolder)} - GitMind" : "GitMind";
+		? $"{Path.GetFileName(WorkingFolder)} - GitMind" : "GitMind";
 
 
 		public string SearchBox
@@ -118,9 +120,9 @@ namespace GitMind.MainWindowViews
 
 		//public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, IsUncommitted);
 
-//		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
+		//		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
 
-		
+
 
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
@@ -142,6 +144,10 @@ namespace GitMind.MainWindowViews
 
 		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
 
+		public Command SearchCommand => Command(Search);
+
+
+	
 
 		public async Task FirstLoadAsync()
 		{
@@ -206,6 +212,12 @@ namespace GitMind.MainWindowViews
 		}
 
 
+		private void Search()
+		{
+			setSearchFocus();
+		}
+
+
 		public Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
 		{
 			if (!isLoaded)
@@ -244,10 +256,12 @@ namespace GitMind.MainWindowViews
 			if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
+				setRepositoryViewFocus();
 			}
 			else if (RepositoryViewModel.IsShowCommitDetails)
 			{
 				RepositoryViewModel.IsShowCommitDetails = false;
+				setRepositoryViewFocus();
 			}
 			else
 			{
@@ -346,6 +360,7 @@ namespace GitMind.MainWindowViews
 			if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
+				setRepositoryViewFocus();
 			}
 		}
 

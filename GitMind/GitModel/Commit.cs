@@ -35,7 +35,8 @@ namespace GitMind.GitModel
 			bool isUncommitted, 
 			bool isVirtual, 
 			bool hasConflicts, 
-			bool isMerging)
+			bool isMerging,
+			bool hasFirstChild)
 		{
 			this.Repository = repository;
 			this.parentIds = parentIds;
@@ -59,6 +60,7 @@ namespace GitMind.GitModel
 			IsVirtual = isVirtual;
 			HasConflicts = hasConflicts;
 			IsMerging = isMerging;
+			HasFirstChild = hasFirstChild;
 		}
 
 
@@ -80,6 +82,7 @@ namespace GitMind.GitModel
 		public bool IsVirtual { get; }
 		public bool HasConflicts { get; }
 		public bool IsMerging { get; }
+		public bool HasFirstChild { get; set; }
 		public bool HasFirstParent => parentIds.Count > 0;
 		public bool HasSecondParent => parentIds.Count > 1;
 		public Commit FirstParent => Repository.Commits[parentIds[0]];

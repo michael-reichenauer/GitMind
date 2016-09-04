@@ -33,7 +33,10 @@ namespace GitMind.MainWindowViews
 			remoteCheckTimer.Tick += RemoteCheck;
 			remoteCheckTimer.Interval = remoteCheckInterval;
 
-			viewModel = new MainWindowViewModel(this);
+			viewModel = new MainWindowViewModel(
+				this, 
+				() => Search.SearchBox.Focus(),
+				() => RepositoryView.ItemsListBox.Focus());
 			DataContext = viewModel;
 
 			Activate();

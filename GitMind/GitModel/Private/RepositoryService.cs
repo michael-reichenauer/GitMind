@@ -126,7 +126,7 @@ namespace GitMind.GitModel.Private
 		public Task SetSpecifiedCommitBranchAsync(
 			string gitRepositoryPath, string commitId, string branchName)
 		{
-			return gitService.SetSpecifiedCommitBranchAsync(gitRepositoryPath, commitId, branchName);
+			return gitService.SetManualCommitBranchAsync(gitRepositoryPath, commitId, branchName);
 		}
 
 
@@ -165,7 +165,7 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			string gitRepositoryPath = repository.WorkingFolder;
 
-			using (GitRepository gitRepository = gitService.OpenRepository(gitRepositoryPath))
+			using (GitRepository gitRepository = GitRepository.Open(gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;
 				repository.Status = gitStatus;

@@ -12,9 +12,10 @@ namespace GitMind.Utils
 			Error = error;
 		}
 
-
 		public Error Error { get; }
+
 		public bool IsFaulted => Error != Error.None;
+		public bool IsOk => Error == Error.None;
 
 		public static R<T> From<T>(T result) => new R<T>(result);
 
@@ -50,7 +51,7 @@ namespace GitMind.Utils
 			}
 
 			return new R<T>(value);
-		} 
+		}
 
 
 		public T Value
@@ -67,7 +68,6 @@ namespace GitMind.Utils
 		}
 
 		public bool HasValue => !IsFaulted;
-		
 
 
 		public R<T> OnError(Action<Error> errorAction)

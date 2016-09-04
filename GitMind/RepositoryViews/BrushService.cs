@@ -15,6 +15,7 @@ namespace GitMind.RepositoryViews
 		private readonly List<Brush> brushes = new List<Brush>();
 		private readonly List<Brush> darkBrushes = new List<Brush>();
 		private readonly List<Brush> lighterBrushes = new List<Brush>();
+		private readonly List<Brush> lighterLighterBrushes = new List<Brush>();
 
 		public SolidColorBrush SubjectBrush { get; } = BrushFromHex("#D4D4D4");
 		public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightGreen;
@@ -71,6 +72,12 @@ namespace GitMind.RepositoryViews
 			return lighterBrushes[index];
 		}
 
+		public Brush GetLighterLighterBrush(Brush brush)
+		{
+			int index = brushes.IndexOf(brush);
+
+			return lighterLighterBrushes[index];
+		}
 
 		private Brush GetBrush(string name)
 		{
@@ -101,26 +108,32 @@ namespace GitMind.RepositoryViews
 
 				SolidColorBrush darkerBrush = DarkBrush(brush);
 				SolidColorBrush lighterBrush = LightBrush(brush);
+				SolidColorBrush lighterLighterBrush = LightBrush(lighterBrush);
 
 				brushes.Add(brush);
 				darkBrushes.Add(darkerBrush);
 				lighterBrushes.Add(lighterBrush);
+				lighterLighterBrushes.Add(lighterLighterBrush);
 			}
 
 
 			SolidColorBrush darker = DarkBrush(MasterBranchBrush);
 			SolidColorBrush lighter = LightBrush(MasterBranchBrush);
+			SolidColorBrush lighterLighter = LightBrush(lighter);
 
 			brushes.Add(MasterBranchBrush);
 			darkBrushes.Add(darker);
 			lighterBrushes.Add(lighter);
+			lighterLighterBrushes.Add(lighterLighter);
 
 			darker = DarkBrush(MultiBranchBrush);
 			lighter = LightBrush(MultiBranchBrush);
+			lighterLighter = LightBrush(lighter);
 
 			brushes.Add(MultiBranchBrush);
 			darkBrushes.Add(darker);
 			lighterBrushes.Add(lighter);
+			lighterLighterBrushes.Add(lighterLighter);
 		}
 
 

@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Common.MessageDialogs;
@@ -17,8 +17,10 @@ using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
+using Application = System.Windows.Application;
 using BranchService = GitMind.Features.Branching.BranchService;
 using IBranchService = GitMind.Features.Branching.IBranchService;
+using ListBox = System.Windows.Controls.ListBox;
 
 
 namespace GitMind.RepositoryViews
@@ -102,6 +104,12 @@ namespace GitMind.RepositoryViews
 		public Repository Repository { get; private set; }
 
 		public Branch MergingBranch { get; private set; }
+
+		public CredentialHandler GetCredentialsHandler()
+		{
+			return new CredentialHandler(Owner);
+		}
+
 
 		public DisabledStatus DisableStatus()
 		{
@@ -283,18 +291,26 @@ namespace GitMind.RepositoryViews
 
 		public Task FirstLoadAsync()
 		{
+			
 			Repository repository;
 			return refreshThrottler.Run(async () =>
 			{
 				Log.Debug("Loading repository ...");
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(WorkingFolder);
-				string statusText = isRepositoryCached ? "Loading ..." : "First time, building new model ...";
+				string statusText = isRepositoryCached ? "Loading ..." : "First time, building new model ...";		
 
 				Progress.ShowDialog(Owner, statusText, async () =>
 				{
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(WorkingFolder);
 					UpdateInitialViewModel(repository);
 				});
+
+				if (!gitService.IsSupportedRemoteUrl(WorkingFolder))
+				{
+					MessageDialog.ShowWarning(Owner,
+						"SSH URL protocol is not yet supported for remote access.\n" + 
+						"Use git:// or https:// instead.");
+				}		
 
 				using (busyIndicator.Progress())
 				{
@@ -463,7 +479,7 @@ namespace GitMind.RepositoryViews
 			await gitService.FetchAsync(repository.MRepository.WorkingFolder);
 			if (isFetchNotes)
 			{
-				await gitService.FetchNotesAsync(repository.MRepository.WorkingFolder);
+				await gitService.FetchAllNotesAsync(repository.MRepository.WorkingFolder);
 			}
 
 			fetchedTime = DateTime.Now;
@@ -533,7 +549,7 @@ namespace GitMind.RepositoryViews
 			RemoteAheadText = remoteAheadText;
 
 			IEnumerable<Branch> localAheadBranches = Repository.Branches
-				.Where(b => b.LocalAheadCount > 0).ToList();
+				.Where(b => b.IsLocal && b.IsRemote && b.IsActive && b.LocalAheadCount > 0).ToList();
 
 			string localAheadText = localAheadBranches.Any()
 				? "Branches with local commits:\n" : null;
@@ -792,7 +808,7 @@ namespace GitMind.RepositoryViews
 				}
 
 				progress.SetText("Update all branches ...");
-				await gitService.FetchNotesAsync(workingFolder);
+				await gitService.FetchAllNotesAsync(workingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});
@@ -826,7 +842,7 @@ namespace GitMind.RepositoryViews
 				await gitService.FetchAsync(workingFolder);
 				await gitService.MergeCurrentBranchAsync(workingFolder);
 
-				await gitService.FetchNotesAsync(workingFolder);
+				await gitService.FetchAllNotesAsync(workingFolder);
 				await RefreshAfterCommandAsync(false);
 			});
 		}
@@ -856,14 +872,15 @@ namespace GitMind.RepositoryViews
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
-				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
+				await gitService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
 				if (uncommittedBranch != currentBranch
 						&& currentBranch.LocalAheadCount > 0
 						&& currentBranch.RemoteAheadCount == 0)
 				{
 					progress.SetText($"Push current branch {currentBranch.Name} ...");
-					await gitService.PushCurrentBranchAsync(workingFolder);
+					CredentialHandler credentialHandler = new CredentialHandler(Owner);
+					await gitService.PushCurrentBranchAsync(workingFolder, credentialHandler);
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
@@ -877,7 +894,7 @@ namespace GitMind.RepositoryViews
 				{
 					progress.SetText($"Push branch {branch.Name} ...");
 
-					await gitService.PushBranchAsync(workingFolder, branch.Name);
+					await gitService.PushBranchAsync(workingFolder, branch.Name, GetCredentialsHandler());
 				}
 
 				await RefreshAfterCommandAsync(false);
@@ -907,11 +924,11 @@ namespace GitMind.RepositoryViews
 			Progress.ShowDialog(
 				Owner, $"Push current branch {Repository.CurrentBranch.Name} ...", async () =>
 			{
-				string workingFolder = Repository.MRepository.WorkingFolder;
+				string workingFolder = Repository.MRepository.WorkingFolder;			
 
-				await gitService.PushNotesAsync(workingFolder, Repository.RootId);
+				await gitService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
-				await gitService.PushCurrentBranchAsync(workingFolder);
+				await gitService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
 
 				await RefreshAfterCommandAsync(false);
 			});
@@ -1039,7 +1056,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task UndoCleanWorkingFolderAsync()
 		{
-			IReadOnlyList<string> failedPaths = new string[0];
+			R<IReadOnlyList<string>> failedPaths = R.From(new string[0].AsReadOnlyList());
 			await Task.Yield();
 
 			isInternalDialog = true;
@@ -1050,14 +1067,18 @@ namespace GitMind.RepositoryViews
 				await RefreshAfterCommandAsync(false);
 			});
 
-			if (failedPaths.Any())
+			if (failedPaths.IsFaulted)
+			{
+				MessageDialog.ShowWarning(Owner, failedPaths.ToString());
+			}
+			else if (failedPaths.Value.Any())
 			{
 				string text = $"Failed to undo and clean working folder.\nSome items where locked:\n";
-				foreach (string path in failedPaths.Take(10))
+				foreach (string path in failedPaths.Value.Take(10))
 				{
 					text += $"\n   {path}";
 				}
-				if (failedPaths.Count > 10)
+				if (failedPaths.Value.Count > 10)
 				{
 					text += "   ...";
 				}

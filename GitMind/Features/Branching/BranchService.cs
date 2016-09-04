@@ -65,8 +65,9 @@ namespace GitMind.Features.Branching
 						{
 							progress.SetText($"Publish branch {dialog.BranchName}...");
 
-							bool isPublished = await gitService.PublishBranchAsync(workingFolder, branchName);
-							if (!isPublished)
+							R publish = await gitService.PublishBranchAsync(
+								workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
+							if (publish.IsFaulted)
 							{
 								MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
 							}
@@ -126,12 +127,12 @@ namespace GitMind.Features.Branching
 						? commit.Branch.Name
 						: $"_{commit.ShortId}";
 
-					string branchName = await gitService.SwitchToCommitAsync(
+					R<string> branchName = await gitService.SwitchToCommitAsync(
 						workingFolder, commit.CommitId, proposedNamed);
 
-					if (branchName != null)
+					if (branchName.HasValue)
 					{
-						repositoryCommands.AddSpecifiedBranch(branchName);
+						repositoryCommands.AddSpecifiedBranch(branchName.Value);
 					}
 
 					await repositoryCommands.RefreshAfterCommandAsync(false);
@@ -194,15 +195,16 @@ namespace GitMind.Features.Branching
 
 			Progress.ShowDialog(owner, progressText, async () =>
 			{
-				bool isDeleted = await gitService.TryDeleteBranchAsync(
-					workingFolder, branch.Name, isRemote, false);
+				R deleted = await gitService.TryDeleteBranchAsync(
+					workingFolder, branch.Name, isRemote, false, repositoryCommands.GetCredentialsHandler());
 
-				if (!isDeleted)
+				if (deleted.IsFaulted)
 				{
 					if (MessageDialog.ShowWarningAskYesNo(owner,
 						$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
 					{
-						await gitService.TryDeleteBranchAsync(workingFolder, branch.Name, isRemote, true);
+						await gitService.TryDeleteBranchAsync(
+							workingFolder, branch.Name, isRemote, true, repositoryCommands.GetCredentialsHandler());
 					}
 					else
 					{
@@ -240,12 +242,14 @@ namespace GitMind.Features.Branching
 				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...", 
 					async () =>
 				{				
-					GitCommit gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
+					R<GitCommit> gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
 
-					if (gitCommit != null)
+					// Need to check value != null, since commit may not have been done, but merge is still OK
+					if (gitCommit.HasValue && gitCommit.Value != null)
 					{
-						Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {gitCommit.Id}");
-						await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, currentBranch.Name);
+						string commitId = gitCommit.Value.Id;
+						Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {commitId}");
+						await gitService.SetCommitBranchAsync(workingFolder, commitId, currentBranch.Name);
 					}
 
 					repositoryCommands.SetCurrentMerging(branch);

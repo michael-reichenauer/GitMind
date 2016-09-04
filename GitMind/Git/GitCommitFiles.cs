@@ -11,6 +11,11 @@ namespace GitMind.Git
 	{
 		private readonly IDiffService diffService = new DiffService();
 
+		public string Id { get; set; }
+
+		public IReadOnlyList<GitFile> Files { get; set; }
+
+
 		public GitCommitFiles(string commitId, TreeChanges treeChanges)
 		{
 			Id = commitId;
@@ -113,8 +118,6 @@ namespace GitMind.Git
 		}
 
 
-		public string Id { get; set; }
-		public IReadOnlyList<GitFile> Files { get; set; }
 
 
 		private IReadOnlyList<GitFile> GetUntracked(RepositoryStatus status, ConflictCollection conflicts)

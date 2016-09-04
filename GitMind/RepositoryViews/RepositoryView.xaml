@@ -152,7 +152,7 @@
 														SnapsToDevicePixels="True">
 													<Path.Effect>
 														<DropShadowEffect 
-															Color="White" 
+															Color="{Binding DimColor}" 
 															ShadowDepth="0" 
 															Direction="0" 
 															BlurRadius="15"  />
