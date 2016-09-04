@@ -146,55 +146,10 @@ namespace GitMind.Git.Private
 		}
 
 
-
+		 
 		public async Task FetchAsync(string workingFolder)
 		{
-			Log.Debug("Fetching .... ");
-			CancellationTokenSource cts = new CancellationTokenSource(FetchTimeout);
-			bool result = false;
-			try
-			{
-				result = await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							Log.Debug("Before fetch");
-							gitRepository.Fetch();
-							Log.Debug("After fetch");
-						}
-
-						Log.Debug("Fetched repository");
-						return true;
-					}
-					catch (Exception e)
-					{
-						if (e.Message == "Unsupported URL protocol")
-						{
-							Log.Warn("Unsupported URL protocol");
-							return false;
-						}
-						else
-						{
-							Log.Warn($"Failed to fetch, {e.Message}");
-							return true;
-						}
-					}
-				})
-				.WithCancellation(cts.Token);
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to fetch {e}");
-				result = false;
-			}
-
-			Log.Debug("Done fetching");
-			if (!result)
-			{
-				Log.Warn("Failed to fetch");
-			}
+			await DoAsync(workingFolder, FetchTimeout, repo => repo.Fetch());	
 		}
 
 
@@ -990,7 +945,7 @@ namespace GitMind.Git.Private
 		{
 			return Task.Run(() =>
 			{
-				Log.Debug($"Start {memberName} in {workingFolder} ...");
+				Log.Debug($"{memberName} in {workingFolder} ...");
 				try
 				{
 					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
@@ -1006,10 +961,53 @@ namespace GitMind.Git.Private
 				}
 				catch (Exception e)
 				{
+					Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
 					return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
 				}
 			});
 		}
+
+		private static Task<R> DoAsync(
+			string workingFolder,
+			TimeSpan timeout,
+			Action<GitRepository> doAction,
+			[CallerMemberName] string memberName = "")
+		{
+			CancellationTokenSource cts = new CancellationTokenSource(timeout);
+
+			try
+			{
+				return Task.Run(() =>
+				{
+					Log.Debug($"{memberName} in {workingFolder} ...");
+					try
+					{
+						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+						{
+							doAction(gitRepository);
+
+							Log.Debug($"Done {memberName} in {workingFolder}");
+
+							return R.Ok;
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
+						return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+					}
+				},
+				cts.Token)
+				.WithCancellation(cts.Token);
+			}
+			catch (OperationCanceledException e)
+			{
+				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
+				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Task.FromResult(new R(error));
+			}
+		}
+
 
 		private static Task<R<T>> DoAsync<T>(
 			string workingFolder,
@@ -1018,7 +1016,7 @@ namespace GitMind.Git.Private
 		{
 			return Task.Run(async () =>
 			{
-				Log.Debug($"Start {memberName} in {workingFolder} ...");
+				Log.Debug($"{memberName} in {workingFolder} ...");
 				try
 				{
 					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
@@ -1034,6 +1032,7 @@ namespace GitMind.Git.Private
 				}
 				catch (Exception e)
 				{
+					Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
 					return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
 				}
 			});
