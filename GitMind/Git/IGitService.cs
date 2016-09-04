@@ -18,11 +18,11 @@ namespace GitMind.Git
 		Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId);
 		Task<R<CommitDiff>> GetCommitDiffRangeAsync(string workingFolder, string id1, string id2);
 
-		Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string name);
+		Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string path);
 
 		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId);
 
-		Task SetSpecifiedCommitBranchAsync(string workingFolder, string commitId, string branchName);
+		Task SetManualCommitBranchAsync(string workingFolder, string commitId, string branchName);
 		Task SetCommitBranchAsync(string workingFolder, string commitId, string branchName);
 
 		IReadOnlyList<BranchName> GetSpecifiedNames(string workingFolder, string rootId);

@@ -47,6 +47,7 @@ namespace GitMind.Git.Private
 				{
 					if (LibGit2Sharp.Repository.IsValid(rootFolder))
 					{
+						Log.Debug($"Root folder for {folder} is {rootFolder}");
 						return rootFolder;
 					}
 
@@ -71,6 +72,7 @@ namespace GitMind.Git.Private
 
 		public Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId)
 		{
+			Log.Debug($"Getting files for {commitId} ...");
 			return UseRepoAsync(workingFolder, repo =>
 			{
 				if (commitId == GitCommit.UncommittedId)
@@ -83,9 +85,10 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SetSpecifiedCommitBranchAsync(
+		public Task SetManualCommitBranchAsync(
 			string workingFolder, string commitId, string branchName)
 		{
+			Log.Debug($"Set manual branch name {branchName} for commit {commitId} ...");
 			SetNoteBranches(workingFolder, ManualBranchNoteNameSpace, commitId, branchName);
 
 			return Task.FromResult(true);
@@ -95,6 +98,7 @@ namespace GitMind.Git.Private
 		public Task SetCommitBranchAsync(
 			string workingFolder, string commitId, string branchName)
 		{
+			Log.Debug($"Set commit branch name {branchName} for commit {commitId} ...");
 			SetNoteBranches(workingFolder, CommitBranchNoteNameSpace, commitId, branchName);
 
 			return Task.CompletedTask;
@@ -113,11 +117,12 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string name)
+		public Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string path)
 		{
+			Log.Debug($"Get diff for file {path} for commit {commitId} ...");
 			return UseRepoAsync(workingFolder, async repo =>
 			{
-				string patch = repo.Diff.GetFilePatch(commitId, name);
+				string patch = repo.Diff.GetFilePatch(commitId, path);
 
 				return await gitDiffParser.ParseAsync(commitId, patch, false);
 			});
@@ -126,6 +131,7 @@ namespace GitMind.Git.Private
 
 		public Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId)
 		{
+			Log.Debug($"Get diff for commit {commitId} ...");
 			return UseRepoAsync(workingFolder, async repo =>
 			{
 				string patch = repo.Diff.GetPatch(commitId);
@@ -137,6 +143,7 @@ namespace GitMind.Git.Private
 
 		public Task<R<CommitDiff>> GetCommitDiffRangeAsync(string workingFolder, string id1, string id2)
 		{
+			Log.Debug($"Get diff for commit range {id1}-{id2} ...");
 			return UseRepoAsync(workingFolder, async repo =>
 			{
 				string patch = repo.Diff.GetPatchRange(id1, id2);
@@ -144,7 +151,6 @@ namespace GitMind.Git.Private
 				return await gitDiffParser.ParseAsync(null, patch);
 			});
 		}
-
 
 
 		public async Task FetchAsync(string workingFolder)
@@ -155,12 +161,14 @@ namespace GitMind.Git.Private
 
 		public Task FetchBranchAsync(string workingFolder, string branchName)
 		{
+			Log.Debug($"Fetch branch {branchName}...");
 			return UseRepoAsync(workingFolder, repo => repo.FetchBranch(branchName));
 		}
 
 
 		public async Task FetchAllNotesAsync(string workingFolder)
 		{
+			Log.Debug("Fetch all notes ...");
 			string[] noteRefs = {
 				$"refs/notes/{CommitBranchNoteNameSpace}:refs/notes/origin/{CommitBranchNoteNameSpace}",
 				$"refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
@@ -172,6 +180,7 @@ namespace GitMind.Git.Private
 
 		private async Task FetchNotesAsync(string workingFolder, string nameSpace)
 		{
+			Log.Debug($"Fetch notes for {nameSpace} ...");
 			string[] noteRefs = { $"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}" };
 
 			await UseRepoAsync(workingFolder, FetchTimeout, repo => repo.FetchRefs(noteRefs));
@@ -192,12 +201,14 @@ namespace GitMind.Git.Private
 
 		public void GetFile(string workingFolder, string fileId, string filePath)
 		{
+			Log.Debug($"Get file {fileId}, {filePath} ...");
 			UseRepo(workingFolder, repo => repo.GetFile(fileId, filePath));
 		}
 
 
 		public Task ResolveAsync(string workingFolder, string path)
 		{
+			Log.Debug($"Resolve {path}  ...");
 			return UseRepoAsync(workingFolder, repo => repo.Resolve(path));
 		}
 
@@ -223,6 +234,7 @@ namespace GitMind.Git.Private
 		private Task<R> TryDeleteLocalBranchAsync(
 			string workingFolder, string branchName, bool isUseForce)
 		{
+			Log.Debug($"Try delete local branch {branchName}, use force: {isUseForce}  ...");
 			return UseRepoAsync(workingFolder, repo => 
 				repo.TryDeleteBranch(branchName, false, isUseForce));
 		}
@@ -231,6 +243,7 @@ namespace GitMind.Git.Private
 		private Task<R> TryDeleteRemoteBranchAsync(
 			string workingFolder, string branchName, bool isUseForce, ICredentialHandler credentialHandler)
 		{
+			Log.Debug($"Try delete remote branch {branchName}, use force: {isUseForce}  ...");
 			return UseRepoAsync(workingFolder, PushTimeout, repo =>
 			{
 				if (!isUseForce)
@@ -289,6 +302,7 @@ namespace GitMind.Git.Private
 		public Task PushBranchAsync(
 			string workingFolder, string branchName, ICredentialHandler credentialHandler)
 		{
+			Log.Debug($"Push branch {branchName} ...");
 			return UseRepoAsync(workingFolder, PushTimeout,
 				repo => repo.PushBranch(branchName, credentialHandler));
 		}
@@ -297,6 +311,7 @@ namespace GitMind.Git.Private
 		public Task<R<GitCommit>> CommitAsync(
 			string workingFolder, string message, IReadOnlyList<CommitFile> paths)
 		{
+			Log.Debug($"Commit {paths.Count} files: {message} ...");
 			return UseRepoAsync(workingFolder,
 				repo => 
 				{
@@ -308,12 +323,36 @@ namespace GitMind.Git.Private
 
 		public Task SwitchToBranchAsync(string workingFolder, string branchName)
 		{
+			Log.Debug($"Switch to branch {branchName} ...");
 			return UseRepoAsync(workingFolder, repo => repo.Checkout(branchName));
+		}
+
+
+		public Task<string> SwitchToCommitAsync(
+			string workingFolder, string commitId, string proposedBranchName)
+		{
+			Log.Debug($"Switch to commit {commitId} with proposed branch name {proposedBranchName} ...");
+			return Task.Run(() =>
+			{
+				try
+				{
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+					{
+						return gitRepository.SwitchToCommit(commitId, proposedBranchName);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed switch to {commitId}, {e.Message}");
+					return null;
+				}
+			});
 		}
 
 
 		public Task UndoFileInCurrentBranchAsync(string workingFolder, string path)
 		{
+			Log.Debug($"Undo uncommitted file {path} ...");
 			return Task.Run(() =>
 			{
 				try
@@ -333,6 +372,7 @@ namespace GitMind.Git.Private
 
 		public Task<GitCommit> MergeAsync(string workingFolder, string branchName)
 		{
+			Log.Debug($"Merge branch {branchName} into current branch ...");
 			return Task.Run(() =>
 			{
 				try
@@ -351,28 +391,9 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<string> SwitchToCommitAsync(string workingFolder, string commitId, string proposedBranchName)
-		{
-			return Task.Run(() =>
-			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						return gitRepository.SwitchToCommit(commitId, proposedBranchName);
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed switch to {commitId}, {e.Message}");
-					return null;
-				}
-			});
-		}
-
-
 		public async Task CreateBranchAsync(string workingFolder, string branchName, string commitId)
 		{
+			Log.Debug($"Create branch {branchName} at commit {commitId} ...");
 			await Task.Run(() =>
 			{
 				try
@@ -396,6 +417,7 @@ namespace GitMind.Git.Private
 		public async Task<bool> PublishBranchAsync(
 			string workingFolder, string branchName, ICredentialHandler credentialHandler)
 		{
+			Log.Debug($"Publish branch {branchName} ...");
 			try
 			{
 				return await Task.Run(() =>
@@ -444,6 +466,8 @@ namespace GitMind.Git.Private
 
 		public string GetFullMessage(string workingFolder, string commitId)
 		{
+			Log.Debug($"Get full commit message for commit {commitId} ...");
+
 			try
 			{
 				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
@@ -462,7 +486,7 @@ namespace GitMind.Git.Private
 		private void SetNoteBranches(
 			string workingFolder, string nameSpace, string commitId, string branchName)
 		{
-			Log.Debug($"Set {nameSpace}: {commitId} {branchName}");
+			Log.Debug($"Set note {nameSpace} for commit {commitId} with branch {branchName} ...");
 
 			try
 			{
@@ -481,7 +505,7 @@ namespace GitMind.Git.Private
 		{
 			List<BranchName> branchNames = new List<BranchName>();
 
-			Log.Debug($"Getting {nameSpace} ...");
+			Log.Debug($"Getting notes {nameSpace} ...");
 
 			try
 			{
@@ -549,6 +573,8 @@ namespace GitMind.Git.Private
 		private async Task PushNotesUsingCmdAsync(
 			string workingFolder, string nameSpace, string rootId, ICredentialHandler credentialHandler)
 		{
+			Log.Debug($"Push notes {nameSpace} at root commit {rootId} ...");
+
 			// git push origin refs/notes/GitMind.Branches
 			// git notes --ref=GitMind.Branches merge -s cat_sort_uniq refs/notes/origin/GitMind.Branches
 			// git fetch origin refs/notes/GitMind.Branches:refs/notes/origin/GitMind.Branches
