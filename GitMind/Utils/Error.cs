@@ -7,7 +7,7 @@ namespace GitMind.Utils
 {
 	public class Error : Equatable<Error>
 	{
-		private static readonly string none = "none";
+		private static readonly Exception noneException = new Exception("none");
 		private readonly Exception exception = null;
 
 		private Error(string message = null)
@@ -29,7 +29,7 @@ namespace GitMind.Utils
 				Message = exception.Message;
 			}
 
-			if (message != none)
+			if (exception != noneException)
 			{
 				Log.Warn($"Error: {Message}");
 			}
@@ -44,7 +44,7 @@ namespace GitMind.Utils
 
 		public static Error From(string message = "") => new Error(message);
 
-		public static Error None = new Error(none);
+		public static Error None = new Error(noneException);
 
 
 		public bool Is<T>()
@@ -55,6 +55,12 @@ namespace GitMind.Utils
 
 		protected override bool IsEqual(Error other)
 		{
+			if ((ReferenceEquals(this, None) && !ReferenceEquals(other, None))
+			    || !ReferenceEquals(this, None) && ReferenceEquals(other, None))
+			{
+				return false;
+			}
+
 			return 
 				(exception == null && other.exception == null && GetType() == other.GetType())
 				|| other.GetType().IsInstanceOfType(this)
