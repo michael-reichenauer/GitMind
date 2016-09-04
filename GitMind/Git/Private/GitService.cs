@@ -367,19 +367,7 @@ namespace GitMind.Git.Private
 
 		public bool IsSupportedRemoteUrl(string workingFolder)
 		{
-			try
-			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-				{
-					return gitRepository.IsSupportedRemoteUrl();
-				}
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed get check remote access url, {e.Message}");
-			}
-
-			return false;
+			return UseRepo(workingFolder, repo => repo.IsSupportedRemoteUrl()).Or(false);
 		}
 
 
