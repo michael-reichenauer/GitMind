@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using GitMind.GitModel;
 using GitMind.Utils;
 using LibGit2Sharp;
-using Branch = LibGit2Sharp.Branch;
-using Commit = LibGit2Sharp.Commit;
-using Repository = LibGit2Sharp.Repository;
+
 
 
 namespace GitMind.Git
@@ -34,6 +31,11 @@ namespace GitMind.Git
 		{
 			this.workingFolder = workingFolder;
 			this.repository = repository;
+		}
+
+		public static GitRepository Open(string folder)
+		{
+			return new GitRepository(folder, new Repository(folder));
 		}
 
 
@@ -72,11 +74,11 @@ namespace GitMind.Git
 		}
 
 
-		public void FetchRefsBranch(string refs)
+		public void FetchRefs(string[] refs)
 		{
 			Remote remote = repository.Network.Remotes["origin"];
 
-			repository.Network.Fetch(remote, new[] { refs });
+			repository.Network.Fetch(remote, refs);
 		}
 
 
@@ -92,14 +94,23 @@ namespace GitMind.Git
 		}
 
 
-		public void MergeCurrentBranchFastForwardOnly()
+		public R MergeCurrentBranchFastForwardOnly()
 		{
-			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
-			repository.MergeFetchedRefs(committer, MergeFastForwardOnly);
+			try
+			{
+				Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
+				repository.MergeFetchedRefs(committer, MergeFastForwardOnly);
+
+				return R.Ok;
+			}
+			catch (Exception e)
+			{
+				return Error.From(e);
+			}			
 		}
 
 
-		public void MergeCurrentBranchNoFastForwardy()
+		public void MergeCurrentBranchNoFastForward()
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 			repository.MergeFetchedRefs(committer, MergeNoFastForward);
@@ -113,9 +124,9 @@ namespace GitMind.Git
 		}
 
 
-		public void Add(IReadOnlyList<CommitFile> paths)
+		public void Add(IReadOnlyList<GitModel.CommitFile> paths)
 		{
-			foreach (CommitFile commitFile in paths)
+			foreach (GitModel.CommitFile commitFile in paths)
 			{
 				string fullPath = Path.Combine(workingFolder, commitFile.Path);
 				if (File.Exists(fullPath))
@@ -141,6 +152,7 @@ namespace GitMind.Git
 			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
 			ConflictCollection conflicts = repository.Index.Conflicts;
 			bool isFullyMerged = repository.Index.IsFullyMerged;
+
 			return new GitStatus(repositoryStatus, conflicts, repository.Info, isFullyMerged);
 		}
 
@@ -521,7 +533,8 @@ namespace GitMind.Git
 			}
 		}
 
-		public void PushBranch(string branchName, ICredentialHandler credentialHandler)
+
+		public void PushRefs(string refs, ICredentialHandler credentialHandler)
 		{
 			try
 			{
@@ -530,7 +543,7 @@ namespace GitMind.Git
 				Remote remote = repository.Network.Remotes["origin"];
 
 				// Using a refspec, like you would use with git push...
-				repository.Network.Push(remote, pushRefSpec: $"{branchName}:{branchName}", pushOptions: pushOptions);
+				repository.Network.Push(remote, pushRefSpec: $"{refs}:{refs}", pushOptions: pushOptions);
 
 				credentialHandler.SetConfirm(true);
 			}
@@ -544,6 +557,12 @@ namespace GitMind.Git
 				Log.Error($"Error {e}");
 				credentialHandler.SetConfirm(false);
 			}
+		}
+
+
+		public void PushBranch(string branchName, ICredentialHandler credentialHandler)
+		{
+			PushRefs($"refs/heads/{branchName}", credentialHandler);
 		}
 
 
@@ -587,16 +606,16 @@ namespace GitMind.Git
 		}
 
 
-		public bool TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
+		public R TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
 		{
 			if (!isUseForce && !IsBranchMerged(branchName, isRemote))
 			{
-				return false;
+				return Error.From("Branch is no fully merged.");
 			}
 
 			repository.Branches.Remove(branchName, isRemote);
 
-			return true;
+			return R.Ok;
 		}
 
 

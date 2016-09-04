@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
+using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -57,16 +58,18 @@ namespace GitMind.Features.Committing
 				{
 					Progress.ShowDialog(owner, $"Commit current branch {branchName} ...", async () =>
 					{
-						GitCommit gitCommit = await gitService.CommitAsync(
+						R<GitCommit> gitCommit = await gitService.CommitAsync(
 							workingFolder, dialog.CommitMessage, dialog.CommitFiles);
 
-						if (gitCommit != null)
+						if (gitCommit.HasValue)
 						{
-							Log.Debug("Committed to git repo done");
-
-							await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
+							await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Value.Id, branchName);
 
 							await repositoryCommands.RefreshAfterCommandAsync(false);
+						}
+						else
+						{
+							MessageDialog.ShowWarning(owner, "Failed to commit");
 						}
 					});
 

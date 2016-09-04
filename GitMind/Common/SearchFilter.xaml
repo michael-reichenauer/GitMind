@@ -16,12 +16,19 @@
 			<StackPanel Orientation="Horizontal">
 
 				<!-- Search icon -->
-				<TextBlock 
+				<Button 
+					Content="&#xE8B6;"					
+					Style="{StaticResource IconButtonStyle}"
+					FontSize="14"					
+					Padding="2,0,0,0"
+					Command="{Binding SearchCommand}"
+					ToolTip="Type words to search for (Ctrl-F)"/>
+			<!--<TextBlock 
 					FontFamily="{StaticResource IconFont}"
 					Foreground="{StaticResource TextLowBrush}"
 					FontSize="14"
 					Text="&#xE8B6;"
-					Padding="2,3,0,0"/>
+					Padding="2,3,0,0"/>-->
 
 				<!-- Search text field -->
 				<TextBox Name="SearchBox"
@@ -42,7 +49,7 @@
 					Content="&#xE15E;"					
 					Style="{StaticResource IconButtonStyle}"
 					FontSize="14"					
-					Padding="2,3,2,3"
+					Padding="2,1,2,3"
 					IsEnabled="{Binding IsInFilterMode}"
 					Command="{Binding ClearFilterCommand}"
 					ToolTip="Return to branch view (Esc)"/>

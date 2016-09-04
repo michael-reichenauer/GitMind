@@ -1,82 +1,91 @@
 using System;
+using System.CodeDom;
+using System.Diagnostics;
 
 
 namespace GitMind.Utils
 {
-	public class Error : IEquatable<Error>
+	public class Error : Equatable<Error>
 	{
-		private readonly Guid errorCode;
+		private static readonly Exception noneException = new Exception("none");
+		private readonly Exception exception = null;
 
-
-		public Error(string message = "")
-			: this(Guid.NewGuid(), message)
+		private Error(string message = null)
+			: this(null, message)
 		{
 		}
 
-		private Error(Guid errorCode, string message)
+		private Error(Exception exception, string message = null)
 		{
-			this.errorCode = errorCode;
 			Message = message ?? "";
+			this.exception = exception;
+
+			if (message != null && exception != null)
+			{
+				Message = $"{message}, {exception.Message}";
+			}
+			else if (exception != null)
+			{
+				Message = exception.Message;
+			}
+
+			if (exception != noneException)
+			{
+				Log.Warn($"Error: {Message}");
+			}
 		}
 
-		public static Error From(Exception e) => new Error(e.Message);
+
+		public string Message { get; }
+
+		public static Error From(Exception e) => new Error(e);
+
+		public static Error From(Exception e, string message) => new Error(e, message);
+
 		public static Error From(string message = "") => new Error(message);
 
-		public static Error None = new Error();
-		public string Message { get; }
-		public override string ToString() => Message;
+		public static Error None = new Error(noneException);
 
 
-		public Error With(string message)
+		public bool Is<T>()
 		{
-			return new Error(errorCode, Message + " " + message);
-		}
-
-		public Error With(Error error)
-		{
-			return new Error(errorCode, Message + " " + error);
-		}
-
-		public Error With(R result)
-		{
-			return new Error(errorCode, Message + " " + result);
+			return this is T || exception?.GetType() is T;
 		}
 
 
-		public bool Equals(Error other)
+		protected override bool IsEqual(Error other)
 		{
-			return (other != null) && (errorCode == other.errorCode);
-		}
-
-		public override bool Equals(object obj)
-		{
-			return obj is Error && Equals((Error)obj);
-		}
-
-		public static bool operator ==(Error obj1, Error obj2)
-		{
-			if (ReferenceEquals(obj1, null) && ReferenceEquals(obj2, null))
-			{
-				return true;
-			}
-			else if (ReferenceEquals(obj1, null) || ReferenceEquals(obj2, null))
+			if ((ReferenceEquals(this, None) && !ReferenceEquals(other, None))
+			    || !ReferenceEquals(this, None) && ReferenceEquals(other, None))
 			{
 				return false;
 			}
-			else
-			{
-				return obj1.Equals(obj2);
-			}
+
+			return 
+				(exception == null && other.exception == null && GetType() == other.GetType())
+				|| other.GetType().IsInstanceOfType(this)
+				|| (GetType() == other.GetType() && exception != null && other.exception != null 
+					&& other.exception.GetType().IsInstanceOfType(this));
 		}
 
-		public static bool operator !=(Error obj1, Error obj2)
-		{
-			return !(obj1 == obj2);
-		}
+		protected override int GetHash() => 0;
 
-		public override int GetHashCode()
-		{
-			return errorCode.GetHashCode();
-		}
+		public override string ToString() => Message;
+
+
+		//public Error With(string message)
+		//{
+		//	return new Error(errorCode, Message + " " + message);
+		//}
+
+		//public Error With(Error error)
+		//{
+		//	return new Error(errorCode, Message + " " + error);
+		//}
+
+		//public Error With(R result)
+		//{
+		//	return new Error(errorCode, Message + " " + result);
+		//}	
 	}
 }
