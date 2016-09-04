@@ -328,25 +328,11 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<string> SwitchToCommitAsync(
+		public Task<R<string>> SwitchToCommitAsync(
 			string workingFolder, string commitId, string proposedBranchName)
 		{
 			Log.Debug($"Switch to commit {commitId} with proposed branch name {proposedBranchName} ...");
-			return Task.Run(() =>
-			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						return gitRepository.SwitchToCommit(commitId, proposedBranchName);
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed switch to {commitId}, {e.Message}");
-					return null;
-				}
-			});
+			return UseRepoAsync(workingFolder, repo => repo.SwitchToCommit(commitId, proposedBranchName));
 		}
 
 

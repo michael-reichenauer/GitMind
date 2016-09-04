@@ -127,12 +127,12 @@ namespace GitMind.Features.Branching
 						? commit.Branch.Name
 						: $"_{commit.ShortId}";
 
-					string branchName = await gitService.SwitchToCommitAsync(
+					R<string> branchName = await gitService.SwitchToCommitAsync(
 						workingFolder, commit.CommitId, proposedNamed);
 
-					if (branchName != null)
+					if (branchName.HasValue)
 					{
-						repositoryCommands.AddSpecifiedBranch(branchName);
+						repositoryCommands.AddSpecifiedBranch(branchName.Value);
 					}
 
 					await repositoryCommands.RefreshAfterCommandAsync(false);
