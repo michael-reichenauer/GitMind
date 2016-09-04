@@ -126,22 +126,11 @@ namespace GitMind.Git.Private
 
 		public Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId)
 		{
-			return Task.Run(async () =>
+			return DoAsync(workingFolder, async repo =>
 			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						string patch = gitRepository.Diff.GetPatch(commitId);
+				string patch = repo.Diff.GetPatch(commitId);
 
-						return R.From(await gitDiffParser.ParseAsync(commitId, patch));
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to get diff, {e.Message}");
-					return Error.From(e);
-				}
+				return await gitDiffParser.ParseAsync(commitId, patch);	
 			});
 		}
 
