@@ -94,14 +94,23 @@ namespace GitMind.Git
 		}
 
 
-		public void MergeCurrentBranchFastForwardOnly()
+		public R MergeCurrentBranchFastForwardOnly()
 		{
-			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
-			repository.MergeFetchedRefs(committer, MergeFastForwardOnly);
+			try
+			{
+				Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
+				repository.MergeFetchedRefs(committer, MergeFastForwardOnly);
+
+				return R.Ok;
+			}
+			catch (Exception e)
+			{
+				return Error.From(e);
+			}			
 		}
 
 
-		public void MergeCurrentBranchNoFastForwardy()
+		public void MergeCurrentBranchNoFastForward()
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 			repository.MergeFetchedRefs(committer, MergeNoFastForward);
