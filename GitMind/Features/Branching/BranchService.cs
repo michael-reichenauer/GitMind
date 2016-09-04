@@ -65,9 +65,9 @@ namespace GitMind.Features.Branching
 						{
 							progress.SetText($"Publish branch {dialog.BranchName}...");
 
-							bool isPublished = await gitService.PublishBranchAsync(
+							R publish = await gitService.PublishBranchAsync(
 								workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
-							if (!isPublished)
+							if (publish.IsFaulted)
 							{
 								MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
 							}

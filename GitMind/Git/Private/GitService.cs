@@ -357,35 +357,11 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<bool> PublishBranchAsync(
+		public Task<R> PublishBranchAsync(
 			string workingFolder, string branchName, ICredentialHandler credentialHandler)
 		{
 			Log.Debug($"Publish branch {branchName} ...");
-			try
-			{
-				return await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							gitRepository.PublishBranch(branchName, credentialHandler);
-							return true;
-						}
-					}
-					catch (Exception e)
-					{
-						Log.Warn($"Failed publish to {branchName}, {e.Message}");
-						return false;
-					}
-				});
-			}
-			catch (Exception e)
-			{
-				Log.Error($"Failed to publish branch {branchName}, {e}");
-			}
-
-			return false;
+			return UseRepoAsync(workingFolder, repo => repo.PublishBranch(branchName, credentialHandler));
 		}
 
 
