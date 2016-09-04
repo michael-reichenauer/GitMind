@@ -61,72 +61,20 @@ namespace GitMind.Git.Private
 
 		public Task<R<GitStatus>> GetStatusAsync(string workingFolder)
 		{
-			return Async(() =>
-			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-				{
-					return gitRepository.Status;
-				}
-			});
-
-			//return Task.Run(() =>
-			//{
-			//	try
-			//	{
-			//		using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-			//		{
-			//			return R.From(gitRepository.Status);
-			//		}
-			//	}
-			//	catch (Exception e)
-			//	{
-			//		return Error.From(e, $"Failed to get current branch name, {e.Message}");
-			//	}
-			//});
-		}
-
-		public Task<R<T>> Async<T>(Func<T> func, [CallerMemberName] string memberName = "")
-		{
-			return Task.Run(() =>
-			{
-				Log.Debug($"Start {memberName} ...");
-				try
-				{
-					return R.From(func());
-				}
-				catch (Exception e)
-				{
-					return Error.From(e, $"Failed, {e.Message}");
-				}
-				finally
-				{
-					Log.Debug($"Done {memberName} ...");
-				}
-			});
+			return DoAsync(workingFolder, repo => repo.Status);
 		}
 
 
 		public Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId)
 		{
-			return Task.Run(() =>
+			return DoAsync(workingFolder, repo =>
 			{
-				try
+				if (commitId == GitCommit.UncommittedId)
 				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						if (commitId == GitCommit.UncommittedId)
-						{
-							return R.From(gitRepository.Status.CommitFiles);
-						}
+					return repo.Status.CommitFiles;
+				}
 
-						return R.From(gitRepository.Diff.GetFiles(commitId));
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to get diff, {e.Message}");
-					return Error.From(e);
-				}
+				return repo.Diff.GetFiles(commitId);
 			});
 		}
 
@@ -1062,6 +1010,33 @@ namespace GitMind.Git.Private
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to fetch, {e.Message}");
+				}
+			});
+		}
+
+
+		private static Task<R<T>> DoAsync<T>(
+			string workingFolder,
+			Func<GitRepository, T> doFunction,
+			[CallerMemberName] string memberName = "")
+		{
+			return Task.Run(() =>
+			{
+				Log.Debug($"Start {memberName} in {workingFolder} ...");
+				try
+				{
+					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+					{
+						R<T> result = R.From(doFunction(gitRepository));
+
+						Log.Debug($"Done {memberName} in {workingFolder}");
+
+						return result;
+					}
+				}
+				catch (Exception e)
+				{
+					return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
 				}
 			});
 		}

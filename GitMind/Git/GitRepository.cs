@@ -143,6 +143,7 @@ namespace GitMind.Git
 			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
 			ConflictCollection conflicts = repository.Index.Conflicts;
 			bool isFullyMerged = repository.Index.IsFullyMerged;
+
 			return new GitStatus(repositoryStatus, conflicts, repository.Info, isFullyMerged);
 		}
 
