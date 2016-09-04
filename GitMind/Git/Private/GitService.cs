@@ -339,20 +339,7 @@ namespace GitMind.Git.Private
 		public Task UndoFileInCurrentBranchAsync(string workingFolder, string path)
 		{
 			Log.Debug($"Undo uncommitted file {path} ...");
-			return Task.Run(() =>
-			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						gitRepository.UndoFileInCurrentBranch(path);
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to undo {path}, {e.Message}");
-				}
-			});
+			return UseRepoAsync(workingFolder, repo => repo.UndoFileInCurrentBranch(path));
 		}
 
 
