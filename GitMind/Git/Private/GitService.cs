@@ -343,24 +343,10 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<GitCommit> MergeAsync(string workingFolder, string branchName)
+		public Task<R<GitCommit>> MergeAsync(string workingFolder, string branchName)
 		{
 			Log.Debug($"Merge branch {branchName} into current branch ...");
-			return Task.Run(() =>
-			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						return gitRepository.MergeBranchNoFastForward(branchName);
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to merge {branchName}, {e.Message}");
-					return null;
-				}
-			});
+			return UseRepoAsync(workingFolder, repo => repo.MergeBranchNoFastForward(branchName));
 		}
 
 
