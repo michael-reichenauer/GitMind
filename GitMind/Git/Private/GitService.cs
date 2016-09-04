@@ -308,20 +308,7 @@ namespace GitMind.Git.Private
 
 		public Task SwitchToBranchAsync(string workingFolder, string branchName)
 		{
-			return Task.Run(() =>
-			{
-				try
-				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-					{
-						gitRepository.Checkout(branchName);
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to checkout {branchName}, {e.Message}");
-				}
-			});
+			return UseRepoAsync(workingFolder, repo => repo.Checkout(branchName));
 		}
 
 
