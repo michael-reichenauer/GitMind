@@ -74,7 +74,7 @@ namespace GitMind.Git
 		}
 
 
-		public void FetchRefsBranch(string refs)
+		public void FetchRefs(string refs)
 		{
 			Remote remote = repository.Network.Remotes["origin"];
 
@@ -524,7 +524,8 @@ namespace GitMind.Git
 			}
 		}
 
-		public void PushBranch(string branchName, ICredentialHandler credentialHandler)
+
+		public void PushRefs(string refs, ICredentialHandler credentialHandler)
 		{
 			try
 			{
@@ -533,7 +534,7 @@ namespace GitMind.Git
 				Remote remote = repository.Network.Remotes["origin"];
 
 				// Using a refspec, like you would use with git push...
-				repository.Network.Push(remote, pushRefSpec: $"refs/heads/{branchName}:refs/heads/{branchName}", pushOptions: pushOptions);
+				repository.Network.Push(remote, pushRefSpec: $"{refs}:{refs}", pushOptions: pushOptions);
 
 				credentialHandler.SetConfirm(true);
 			}
@@ -547,6 +548,12 @@ namespace GitMind.Git
 				Log.Error($"Error {e}");
 				credentialHandler.SetConfirm(false);
 			}
+		}
+
+
+		public void PushBranch(string branchName, ICredentialHandler credentialHandler)
+		{
+			PushRefs($"refs/heads/{branchName}", credentialHandler);
 		}
 
 

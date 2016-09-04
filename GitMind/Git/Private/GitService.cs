@@ -953,7 +953,7 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
-						gitRepository.PushBranch($"refs/notes/{nameSpace}", credentialHandler);
+						gitRepository.PushRefs($"refs/notes/{nameSpace}", credentialHandler);
 
 						Log.Debug($"Pushed notes {nameSpace}");
 						string file = Path.Combine(workingFolder, ".git", nameSpace);
@@ -983,7 +983,7 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
-						gitRepository.FetchRefsBranch($"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}");
+						gitRepository.FetchRefs($"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}");
 					}
 				}
 				catch (Exception e)
@@ -1004,7 +1004,7 @@ namespace GitMind.Git.Private
 				{
 					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 					{
-						gitRepository.FetchRefsBranch($"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}");
+						gitRepository.FetchRefs($"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}");
 					}
 				}
 				catch (Exception e)
