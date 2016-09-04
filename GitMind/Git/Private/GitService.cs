@@ -170,31 +170,9 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task UndoWorkingFolderAsync(string workingFolder)
+		public Task UndoWorkingFolderAsync(string workingFolder)
 		{
-			try
-			{
-				Log.Debug("Undo ...");
-
-				await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							gitRepository.UndoWorkingFolder();
-						}
-					}
-					catch (Exception e)
-					{
-						Log.Warn($"Failed to undo, {e.Message}");
-					}
-				});
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to undo {workingFolder}, {e.Message}");
-			}
+			return UseRepoAsync(workingFolder, repo => repo.UndoWorkingFolder());
 		}
 
 
