@@ -188,7 +188,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<bool> TryDeleteBranchAsync(
+		public Task<R> TryDeleteBranchAsync(
 			string workingFolder,
 			string branchName,
 			bool isRemote,
@@ -206,78 +206,97 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task<bool> TryDeleteLocalBranchAsync(
+		private Task<R> TryDeleteLocalBranchAsync(
 			string workingFolder, string branchName, bool isUseForce)
 		{
-			try
-			{
-				Log.Debug($"Delete branch {branchName} ...");
+			return UseRepoAsync(workingFolder, repo => 
+				repo.TryDeleteBranch(branchName, false, isUseForce));
 
-				return await Task.Run(() =>
-				{
-					try
-					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							return gitRepository.TryDeleteBranch(branchName, false, isUseForce);
-						}
-					}
-					catch (Exception e)
-					{
-						Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
-						return false;
-					}
-				});
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
-				return false;
-			}
+			//try
+			//{
+			//	Log.Debug($"Delete branch {branchName} ...");
+
+			//	return await Task.Run(() =>
+			//	{
+			//		try
+			//		{
+			//			using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+			//			{
+			//				return gitRepository.TryDeleteBranch(branchName, false, isUseForce);
+			//			}
+			//		}
+			//		catch (Exception e)
+			//		{
+			//			Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
+			//			return false;
+			//		}
+			//	});
+			//}
+			//catch (Exception e)
+			//{
+			//	Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
+			//	return false;
+			//}
 		}
 
-		private async Task<bool> TryDeleteRemoteBranchAsync(
+		private Task<R> TryDeleteRemoteBranchAsync(
 			string workingFolder, string branchName, bool isUseForce, ICredentialHandler credentialHandler)
 		{
-			Log.Debug($"Delete branch {branchName} ...");
-
-			CancellationToken ct = credentialHandler.GetTimeoutToken(PushTimeout);
-
-			try
+			return UseRepoAsync(workingFolder, repo =>
 			{
-				Log.Debug($"Push delete branch {branchName} branch ... {workingFolder}");
-				return await Task.Run(() =>
+				if (!isUseForce)
 				{
-					try
+					if (!repo.IsBranchMerged(branchName, true))
 					{
-						using (GitRepository gitRepository = GitRepository.Open(workingFolder))
-						{
-							if (!isUseForce)
-							{
-								if (!gitRepository.IsBranchMerged(branchName, true))
-								{
-									return false;
-								}
-							}
-
-							gitRepository.DeleteRemoteBranch(branchName, credentialHandler);
-							return true;
-						}
+						return Error.From("Branch is not fully merged.");
 					}
-					catch (Exception e)
-					{
-						Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
-						return false;
-					}
-				})
-				.WithCancellation(ct);
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to push delete {branchName} branch {workingFolder}, {e.Message}");
-			}
+				}
 
-			return false;
+				repo.DeleteRemoteBranch(branchName, credentialHandler);
+
+				return R.Ok;
+			});
+
+
+			//Log.Debug($"Delete branch {branchName} ...");
+
+			//CancellationToken ct = credentialHandler.GetTimeoutToken(PushTimeout);
+
+			//try
+			//{
+			//	Log.Debug($"Push delete branch {branchName} branch ... {workingFolder}");
+			//	return await Task.Run(() =>
+			//	{
+			//		try
+			//		{
+			//			using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+			//			{
+			//				if (!isUseForce)
+			//				{
+			//					if (!gitRepository.IsBranchMerged(branchName, true))
+			//					{
+			//						return false;
+			//					}
+			//				}
+
+			//				gitRepository.DeleteRemoteBranch(branchName, credentialHandler);
+			//				return true;
+			//			}
+			//		}
+			//		catch (Exception e)
+			//		{
+			//			Log.Warn($"Failed to delete branch {branchName}, {e.Message}");
+			//			return false;
+			//		}
+			//	})
+			//	.WithCancellation(ct);
+			//}
+			//catch (Exception e)
+			//{
+			//	Log.Warn($"Failed to push delete {branchName} branch {workingFolder}, {e.Message}");
+			//}
+
+			//return false;
 		}
 
 
@@ -902,6 +921,61 @@ namespace GitMind.Git.Private
 				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
 			}
 		}
+
+		private static R UseRepo(
+			string workingFolder,
+			Func<GitRepository, R> doFunction,
+			[CallerMemberName] string memberName = "")
+		{
+			Log.Debug($"{memberName} in {workingFolder} ...");
+			try
+			{
+				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				{
+					R result = doFunction(gitRepository);
+
+					Log.Debug($"Done {memberName} in {workingFolder}");
+
+					return result;
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+			}
+		}
+
+		private static Task<R> UseRepoAsync(
+			string workingFolder,
+			Func<GitRepository, R> doFunction,
+			[CallerMemberName] string memberName = "")
+		{
+			return Task.Run(() => UseRepo(workingFolder, doFunction, memberName));
+		}
+
+
+		private static Task<R> UseRepoAsync(
+			string workingFolder,
+			TimeSpan timeout,
+			Func<GitRepository, R> doFunction,
+			[CallerMemberName] string memberName = "")
+		{
+			CancellationTokenSource cts = new CancellationTokenSource(timeout);
+
+			try
+			{
+				return Task.Run(() => UseRepo(workingFolder, doFunction, memberName), cts.Token)
+					.WithCancellation(cts.Token);
+			}
+			catch (OperationCanceledException e)
+			{
+				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
+				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Task.FromResult(new R(error));
+			}
+		}
+
 
 
 		private static Task<R<T>> UseRepoAsync<T>(

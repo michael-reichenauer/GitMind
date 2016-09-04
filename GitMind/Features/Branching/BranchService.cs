@@ -195,10 +195,10 @@ namespace GitMind.Features.Branching
 
 			Progress.ShowDialog(owner, progressText, async () =>
 			{
-				bool isDeleted = await gitService.TryDeleteBranchAsync(
+				R deleted = await gitService.TryDeleteBranchAsync(
 					workingFolder, branch.Name, isRemote, false, repositoryCommands.GetCredentialsHandler());
 
-				if (!isDeleted)
+				if (deleted.IsFaulted)
 				{
 					if (MessageDialog.ShowWarningAskYesNo(owner,
 						$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))

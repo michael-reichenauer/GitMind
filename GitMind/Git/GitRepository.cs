@@ -597,16 +597,16 @@ namespace GitMind.Git
 		}
 
 
-		public bool TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
+		public R TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
 		{
 			if (!isUseForce && !IsBranchMerged(branchName, isRemote))
 			{
-				return false;
+				return Error.From("Branch is no fully merged.");
 			}
 
 			repository.Branches.Remove(branchName, isRemote);
 
-			return true;
+			return R.Ok;
 		}
 
 

@@ -48,7 +48,7 @@ namespace GitMind.Git
 		Task UndoWorkingFolderAsync(string workingFolder);
 		void GetFile(string workingFolder, string fileId, string filePath);
 		Task ResolveAsync(string workingFolder, string path);
-		Task<bool> TryDeleteBranchAsync(string workingFolder, string branchName, bool isRemote, bool isUseForce, ICredentialHandler credentialHandler);
+		Task<R> TryDeleteBranchAsync(string workingFolder, string branchName, bool isRemote, bool isUseForce, ICredentialHandler credentialHandler);
 		Task<bool> PublishBranchAsync(string workingFolder, string branchName, ICredentialHandler credentialHandler);
 		bool IsSupportedRemoteUrl(string workingFolder);
 	}
