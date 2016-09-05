@@ -557,7 +557,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static Task<R> UseRepoAsync(
+		private static async Task<R> UseRepoAsync(
 			string workingFolder,
 			TimeSpan timeout,
 			Action<GitRepository> doAction,
@@ -567,14 +567,14 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				return Task.Run(() => UseRepo(workingFolder, doAction, memberName), cts.Token)
+				return await Task.Run(() => UseRepo(workingFolder, doAction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
 			catch (OperationCanceledException e)
 			{
 				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
 				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Task.FromResult(new R(error));
+				return error;
 			}
 		}
 
@@ -638,7 +638,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static Task<R> UseRepoAsync(
+		private static async Task<R> UseRepoAsync(
 			string workingFolder,
 			TimeSpan timeout,
 			Func<GitRepository, R> doFunction,
@@ -648,14 +648,14 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				return Task.Run(() => UseRepo(workingFolder, doFunction, memberName), cts.Token)
+				return await Task.Run(() => UseRepo(workingFolder, doFunction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
 			catch (OperationCanceledException e)
 			{
 				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
 				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Task.FromResult(new R(error));
+				return error;
 			}
 		}
 
