@@ -244,7 +244,8 @@ namespace GitMind.Features.Branching
 				{				
 					R<GitCommit> gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
 
-					if (gitCommit.HasValue)
+					// Need to check value != null, since commit may not have been done, but merge is still OK
+					if (gitCommit.HasValue && gitCommit.Value != null)
 					{
 						string commitId = gitCommit.Value.Id;
 						Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {commitId}");
