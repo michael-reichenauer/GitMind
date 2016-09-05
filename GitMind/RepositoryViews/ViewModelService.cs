@@ -115,8 +115,7 @@ namespace GitMind.RepositoryViews
 			List<Branch> currentlyShownBranches = repositoryViewModel.SpecifiedBranches.ToList();
 
 			bool isShowing =
-				!commit.HasFirstChild
-				|| (commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
+				(commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
 				|| (commit.HasFirstParent 
 					&& commit.Branch != commit.FirstParent.Branch 
 					&& currentlyShownBranches.Contains(commit.FirstParent.Branch));
@@ -125,7 +124,7 @@ namespace GitMind.RepositoryViews
 				.Branches.First(b => b.Branch == commit.Branch);
 
 			Commit stableCommit = commit;
-			if (!isShowing)
+			if (!isShowing && commit.HasSecondParent)
 			{
 				// Showing the specified branch
 				currentlyShownBranches.Add(commit.SecondParent.Branch);
@@ -453,7 +452,7 @@ namespace GitMind.RepositoryViews
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
 
-				if (!commit.HasFirstChild)
+				if (!commit.HasFirstChild && !commit.HasSecondParent)
 				{
 					commitViewModel.BrushInner = brushService.GetDarkerBrush(commitViewModel.Brush);
 				}
