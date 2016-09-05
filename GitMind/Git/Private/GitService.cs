@@ -14,8 +14,8 @@ namespace GitMind.Git.Private
 {
 	internal class GitService : IGitService
 	{
-		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(10);
-		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(15);
+		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
+		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
 		private static readonly string CommitBranchNoteNameSpace = "GitMind.Branches";
 		private static readonly string ManualBranchNoteNameSpace = "GitMind.Branches.Manual";
