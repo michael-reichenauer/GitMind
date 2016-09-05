@@ -36,7 +36,11 @@ namespace GitMind.Installation.Private
 				{
 					if (stream == null)
 					{
-						Log.Debug($"Failed to resolve assembly {resolveName}");
+						if (resolveName != "GitMind.resources")
+						{
+							Log.Warn($"Failed to resolve assembly {resolveName}");
+						}
+
 						return null;
 					}
 
