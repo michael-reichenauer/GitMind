@@ -193,6 +193,15 @@ namespace GitMind.Features.Branching
 				return;
 			}
 
+			if (!IsMerged(branch, isRemote))
+			{
+				if (!MessageDialog.ShowWarningAskYesNo(owner,
+					$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
+				{
+					return;
+				}
+			}
+
 			Progress.ShowDialog(owner, progressText, async () =>
 			{
 				R deleted = await gitService.TryDeleteBranchAsync(
@@ -214,6 +223,12 @@ namespace GitMind.Features.Branching
 
 				await repositoryCommands.RefreshAfterCommandAsync(true);
 			});
+		}
+
+
+		private bool IsMerged(Branch branch, bool isRemote)
+		{
+			return false;
 		}
 
 
