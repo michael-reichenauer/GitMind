@@ -14,6 +14,9 @@ using GitMind.Utils;
 
 namespace GitMind.Features.Branching
 {
+	/// <summary>
+	/// BRanch service
+	/// </summary>
 	internal class BranchService : IBranchService
 	{
 		private readonly IGitService gitService;
@@ -74,7 +77,7 @@ namespace GitMind.Features.Branching
 								MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
 							}
 						}
-						
+
 						repositoryCommands.AddSpecifiedBranch(branchName);
 
 						progress.SetText("Updating status ...");
@@ -182,8 +185,8 @@ namespace GitMind.Features.Branching
 
 		private void DeleteBranch(
 			IRepositoryCommands repositoryCommands,
-			Branch branch, 
-			bool isRemote, 
+			Branch branch,
+			bool isRemote,
 			string progressText)
 		{
 			string workingFolder = repositoryCommands.WorkingFolder;
@@ -260,7 +263,7 @@ namespace GitMind.Features.Branching
 			using (repositoryCommands.DisableStatus())
 			{
 
-				if (branch == branch. Repository.CurrentBranch)
+				if (branch == branch.Repository.CurrentBranch)
 				{
 					MessageDialog.ShowWarning(owner, "You cannot merge current branch into it self.");
 					return;
@@ -274,9 +277,9 @@ namespace GitMind.Features.Branching
 				}
 
 				Branch currentBranch = branch.Repository.CurrentBranch;
-				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...", 
+				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...",
 					async () =>
-				{				
+				{
 					R<GitCommit> gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
 
 					// Need to check value != null, since commit may not have been done, but merge is still OK
@@ -298,7 +301,7 @@ namespace GitMind.Features.Branching
 				}
 
 				if (branch.Repository.Status.ConflictCount == 0)
-				{				
+				{
 					await commitService.CommitChangesAsync(repositoryCommands);
 				}
 			}
