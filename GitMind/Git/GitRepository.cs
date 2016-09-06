@@ -595,6 +595,8 @@ namespace GitMind.Git
 
 		public void DeleteRemoteBranch(string branchName, ICredentialHandler credentialHandler)
 		{
+			repository.Branches.Remove(branchName, true);
+
 			PushOptions pushOptions = GetPushOptions(credentialHandler);
 
 			Remote remote = repository.Network.Remotes["origin"];
@@ -606,53 +608,46 @@ namespace GitMind.Git
 		}
 
 
-		public R TryDeleteBranch(string branchName, bool isRemote, bool isUseForce)
+		public void DeleteLocalBranch(string branchName)
 		{
-			if (!isUseForce && !IsBranchMerged(branchName, isRemote))
-			{
-				return Error.From("Branch is no fully merged.");
-			}
-
-			repository.Branches.Remove(branchName, isRemote);
-
-			return R.Ok;
+			repository.Branches.Remove(branchName, false);
 		}
 
 
-		public bool IsBranchMerged(string branchName, bool isRemote)
-		{
-			Branch branch = repository.Branches[isRemote ? "origin/" + branchName : branchName];
+		//public bool IsBranchMerged(string branchName, bool isRemote)
+		//{
+		//	Branch branch = repository.Branches[isRemote ? "origin/" + branchName : branchName];
 
-			return IsBranchMerged(branch);
-		}
+		//	return IsBranchMerged(branch);
+		//}
 
 
-		private bool IsBranchMerged(Branch thisBranch)
-		{
-			string tipId = thisBranch.Tip.Sha;
+		//private bool IsBranchMerged(Branch thisBranch)
+		//{
+		//	string tipId = thisBranch.Tip.Sha;
 
-			foreach (var branch in repository.Branches.Where(b => b!= thisBranch))
-			{
-				if (branch.Tip.Sha == tipId)
-				{
-					return true;
-				}
-			}
+		//	foreach (var branch in repository.Branches.Where(b => b!= thisBranch))
+		//	{
+		//		if (branch.Tip.Sha == tipId)
+		//		{
+		//			return true;
+		//		}
+		//	}
 
-			foreach (var branch in repository.Branches.Where(b => b != thisBranch))
-			{
-				var commits = repository.Commits
-					.QueryBy(new CommitFilter { IncludeReachableFrom = branch })
-					.Where(c => c.Sha == tipId);
+		//	foreach (var branch in repository.Branches.Where(b => b != thisBranch))
+		//	{
+		//		var commits = repository.Commits
+		//			.QueryBy(new CommitFilter { IncludeReachableFrom = branch })
+		//			.Where(c => c.Sha == tipId);
 
-				if (commits.Any())
-				{
-					return true;
-				}
-			}
+		//		if (commits.Any())
+		//		{
+		//			return true;
+		//		}
+		//	}
 
-			return false;
-		}
+		//	return false;
+		//}
 
 
 		public bool IsSupportedRemoteUrl()

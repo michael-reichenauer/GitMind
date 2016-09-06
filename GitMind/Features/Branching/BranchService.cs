@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
@@ -193,7 +195,7 @@ namespace GitMind.Features.Branching
 				return;
 			}
 
-			if (!IsMerged(branch, isRemote))
+			if (!IsBranchFullyMerged(branch))
 			{
 				if (!MessageDialog.ShowWarningAskYesNo(owner,
 					$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
@@ -201,24 +203,19 @@ namespace GitMind.Features.Branching
 					return;
 				}
 			}
+			else
+			{
+				MessageDialog.ShowInfo($"Branch '{branch.Name}' is fully merged");
+			}
 
 			Progress.ShowDialog(owner, progressText, async () =>
 			{
-				R deleted = await gitService.TryDeleteBranchAsync(
-					workingFolder, branch.Name, isRemote, false, repositoryCommands.GetCredentialsHandler());
+				R deleted = await gitService.DeleteBranchAsync(
+					workingFolder, branch.Name, isRemote, repositoryCommands.GetCredentialsHandler());
 
 				if (deleted.IsFaulted)
 				{
-					if (MessageDialog.ShowWarningAskYesNo(owner,
-						$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
-					{
-						await gitService.TryDeleteBranchAsync(
-							workingFolder, branch.Name, isRemote, true, repositoryCommands.GetCredentialsHandler());
-					}
-					else
-					{
-						return;
-					}
+					MessageDialog.ShowWarning(owner, $"Failed to delete Branch '{branch.Name}'");
 				}
 
 				await repositoryCommands.RefreshAfterCommandAsync(true);
@@ -226,8 +223,24 @@ namespace GitMind.Features.Branching
 		}
 
 
-		private bool IsMerged(Branch branch, bool isRemote)
+		private bool IsBranchFullyMerged(Branch branch)
 		{
+			Stack<Commit> stack = new Stack<Commit>();
+			stack.Push(branch.TipCommit);
+
+			while (stack.Any())
+			{
+				Commit commit = stack.Pop();
+
+				if ((commit.Branch.IsLocal && commit.Branch.IsRemote)
+					|| (commit.Branch != branch && commit.Branch.IsActive))
+				{
+					return true;
+				}
+
+				commit.Children.ForEach(child => stack.Push(child));
+			}
+
 			return false;
 		}
 
