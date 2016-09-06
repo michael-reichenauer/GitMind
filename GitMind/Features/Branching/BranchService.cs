@@ -195,7 +195,7 @@ namespace GitMind.Features.Branching
 				return;
 			}
 
-			if (!IsBranchFullyMerged(branch))
+			if (!IsBranchFullyMerged(branch, isRemote))
 			{
 				if (!MessageDialog.ShowWarningAskYesNo(owner,
 					$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
@@ -223,7 +223,7 @@ namespace GitMind.Features.Branching
 		}
 
 
-		private bool IsBranchFullyMerged(Branch branch)
+		private bool IsBranchFullyMerged(Branch branch, bool isRemote)
 		{
 			Stack<Commit> stack = new Stack<Commit>();
 			stack.Push(branch.TipCommit);
@@ -232,8 +232,15 @@ namespace GitMind.Features.Branching
 			{
 				Commit commit = stack.Pop();
 
+				if ((commit.Branch == branch && isRemote && branch.RemoteAheadCount > 0)
+					|| commit.Branch == branch && !isRemote && branch.LocalAheadCount > 0)
+				{
+					return false;
+				}
+
 				if ((commit.Branch.IsLocal && commit.Branch.IsRemote)
-					|| (commit.Branch != branch && commit.Branch.IsActive))
+					|| (commit.Branch != branch && commit.Branch.IsActive)
+					|| (commit.IsVirtual && commit.Id != Commit.UncommittedId))
 				{
 					return true;
 				}
