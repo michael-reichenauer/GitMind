@@ -120,7 +120,7 @@ namespace GitMind.RepositoryViews
 			networkCredential = null;
 			dialog = new CredentialsDialog(target, "GitMind", message);
 
-			dialog.AlwaysDisplay = true;
+			// dialog.AlwaysDisplay = true;
 
 			dialog.Name = usernameFromUrl;
 
@@ -133,43 +133,6 @@ namespace GitMind.RepositoryViews
 
 		private static Dispatcher GetApplicationDispatcher() =>
 			Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
-
-
-		//private static bool Login(string name)
-		//{
-		//	bool value = false;
-		//	try
-		//	{
-		//		CredentialsDialog dialog = new CredentialsDialog("<target>", "<caption>", "<message>");
-		//		//if (name != null) dialog.AlwaysDisplay = true; // prevent an infinite loop
-		//		if (dialog.Show() == DialogResult.OK)
-		//		{
-		//			//if (Authenticate(dialog.Name, dialog.Password))
-		//			//{
-		//			//	value = true;
-		//			//	if (dialog.SaveChecked) dialog.Confirm(true);
-		//			//}
-		//			//else
-		//			//{
-		//			//	try
-		//			//	{
-		//			//		dialog.Confirm(false);;
-		//			//	}
-		//			//	catch (ApplicationException e)
-		//			//	{
-		//			//		Log.Warn($"Error {e}");
-		//			//	}
-
-		//			//	value = Login(dialog.Name); // need to find a way to display 'Logon unsuccessful'
-		//			//}
-		//		}
-		//	}
-		//	catch (ApplicationException e)
-		//	{
-		//		Log.Warn($"Error {e}");
-		//	}
-		//	return value;
-		//}
 
 
 		private class WindowWrapper : System.Windows.Forms.IWin32Window

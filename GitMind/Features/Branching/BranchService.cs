@@ -15,7 +15,7 @@ using GitMind.Utils;
 namespace GitMind.Features.Branching
 {
 	/// <summary>
-	/// BRanch service
+	/// Branch service
 	/// </summary>
 	internal class BranchService : IBranchService
 	{
