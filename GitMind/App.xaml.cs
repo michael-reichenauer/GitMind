@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -35,11 +37,16 @@ namespace GitMind
 		public static void Main()
 		{
 			AssemblyResolver.Activate();
-			Log.Debug($"Args: '{string.Join("','", Environment.GetCommandLineArgs())}'");
+
+			string version = GetProgramVersion();
+			string argsText = string.Join("','", Environment.GetCommandLineArgs());
+
+			Log.Debug($"Version: {version}, Args: '{argsText}'");
 
 			App application = new App();
 			application.StartProgram();
 
+		
 
 			//if (SingleInstance<App>.InitializeAsFirstInstance(ProgramPaths.ProductGuid))
 			//{
@@ -55,6 +62,15 @@ namespace GitMind
 			//{
 			//	Log.Debug("Second instance is closing");
 			//}
+		}
+
+
+		private static string GetProgramVersion()
+		{
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+			string version = fvi.FileVersion;
+			return version;
 		}
 
 

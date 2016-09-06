@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
@@ -12,6 +14,9 @@ using GitMind.Utils;
 
 namespace GitMind.Features.Branching
 {
+	/// <summary>
+	/// Branch service
+	/// </summary>
 	internal class BranchService : IBranchService
 	{
 		private readonly IGitService gitService;
@@ -72,7 +77,7 @@ namespace GitMind.Features.Branching
 								MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
 							}
 						}
-						
+
 						repositoryCommands.AddSpecifiedBranch(branchName);
 
 						progress.SetText("Updating status ...");
@@ -180,8 +185,8 @@ namespace GitMind.Features.Branching
 
 		private void DeleteBranch(
 			IRepositoryCommands repositoryCommands,
-			Branch branch, 
-			bool isRemote, 
+			Branch branch,
+			bool isRemote,
 			string progressText)
 		{
 			string workingFolder = repositoryCommands.WorkingFolder;
@@ -193,27 +198,60 @@ namespace GitMind.Features.Branching
 				return;
 			}
 
+			if (!IsBranchFullyMerged(branch, isRemote))
+			{
+				if (!MessageDialog.ShowWarningAskYesNo(owner,
+					$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
+				{
+					return;
+				}
+			}
+			else
+			{
+				MessageDialog.ShowInfo($"Branch '{branch.Name}' is fully merged");
+			}
+
 			Progress.ShowDialog(owner, progressText, async () =>
 			{
-				R deleted = await gitService.TryDeleteBranchAsync(
-					workingFolder, branch.Name, isRemote, false, repositoryCommands.GetCredentialsHandler());
+				R deleted = await gitService.DeleteBranchAsync(
+					workingFolder, branch.Name, isRemote, repositoryCommands.GetCredentialsHandler());
 
 				if (deleted.IsFaulted)
 				{
-					if (MessageDialog.ShowWarningAskYesNo(owner,
-						$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
-					{
-						await gitService.TryDeleteBranchAsync(
-							workingFolder, branch.Name, isRemote, true, repositoryCommands.GetCredentialsHandler());
-					}
-					else
-					{
-						return;
-					}
+					MessageDialog.ShowWarning(owner, $"Failed to delete Branch '{branch.Name}'");
 				}
 
 				await repositoryCommands.RefreshAfterCommandAsync(true);
 			});
+		}
+
+
+		private bool IsBranchFullyMerged(Branch branch, bool isRemote)
+		{
+			Stack<Commit> stack = new Stack<Commit>();
+			stack.Push(branch.TipCommit);
+
+			while (stack.Any())
+			{
+				Commit commit = stack.Pop();
+
+				if ((commit.Branch == branch && isRemote && branch.RemoteAheadCount > 0)
+					|| commit.Branch == branch && !isRemote && branch.LocalAheadCount > 0)
+				{
+					return false;
+				}
+
+				if ((commit.Branch.IsLocal && commit.Branch.IsRemote)
+					|| (commit.Branch != branch && commit.Branch.IsActive)
+					|| (commit.IsVirtual && commit.Id != Commit.UncommittedId))
+				{
+					return true;
+				}
+
+				commit.Children.ForEach(child => stack.Push(child));
+			}
+
+			return false;
 		}
 
 
@@ -225,7 +263,7 @@ namespace GitMind.Features.Branching
 			using (repositoryCommands.DisableStatus())
 			{
 
-				if (branch == branch. Repository.CurrentBranch)
+				if (branch == branch.Repository.CurrentBranch)
 				{
 					MessageDialog.ShowWarning(owner, "You cannot merge current branch into it self.");
 					return;
@@ -239,9 +277,9 @@ namespace GitMind.Features.Branching
 				}
 
 				Branch currentBranch = branch.Repository.CurrentBranch;
-				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...", 
+				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...",
 					async () =>
-				{				
+				{
 					R<GitCommit> gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
 
 					// Need to check value != null, since commit may not have been done, but merge is still OK
@@ -263,7 +301,7 @@ namespace GitMind.Features.Branching
 				}
 
 				if (branch.Repository.Status.ConflictCount == 0)
-				{				
+				{
 					await commitService.CommitChangesAsync(repositoryCommands);
 				}
 			}

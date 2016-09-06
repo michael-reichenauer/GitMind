@@ -213,51 +213,36 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> TryDeleteBranchAsync(
+		public Task<R> DeleteBranchAsync(
 			string workingFolder,
 			string branchName,
 			bool isRemote,
-			bool isUseForce,
 			ICredentialHandler credentialHandler)
 		{
 			if (isRemote)
 			{
-				return TryDeleteRemoteBranchAsync(workingFolder, branchName, isUseForce, credentialHandler);
+				return DeleteRemoteBranchAsync(workingFolder, branchName, credentialHandler);
 			}
 			else
 			{
-				return TryDeleteLocalBranchAsync(workingFolder, branchName, isUseForce);
+				return DeleteLocalBranchAsync(workingFolder, branchName);
 			}
 		}
 
 
-		private Task<R> TryDeleteLocalBranchAsync(
-			string workingFolder, string branchName, bool isUseForce)
+		private Task<R> DeleteLocalBranchAsync(string workingFolder, string branchName)
 		{
-			Log.Debug($"Try delete local branch {branchName}, use force: {isUseForce}  ...");
-			return UseRepoAsync(workingFolder, repo =>
-				repo.TryDeleteBranch(branchName, false, isUseForce));
+			Log.Debug($"Delete local branch {branchName}  ...");
+			return UseRepoAsync(workingFolder, repo => repo.DeleteLocalBranch(branchName));
 		}
 
 
-		private Task<R> TryDeleteRemoteBranchAsync(
-			string workingFolder, string branchName, bool isUseForce, ICredentialHandler credentialHandler)
+		private Task<R> DeleteRemoteBranchAsync(
+			string workingFolder, string branchName, ICredentialHandler credentialHandler)
 		{
-			Log.Debug($"Try delete remote branch {branchName}, use force: {isUseForce}  ...");
+			Log.Debug($"Delete remote branch {branchName} ...");
 			return UseRepoAsync(workingFolder, PushTimeout, repo =>
-			{
-				if (!isUseForce)
-				{
-					if (!repo.IsBranchMerged(branchName, true))
-					{
-						return Error.From("Branch is not fully merged.");
-					}
-				}
-
-				repo.DeleteRemoteBranch(branchName, credentialHandler);
-
-				return R.Ok;
-			});
+				repo.DeleteRemoteBranch(branchName, credentialHandler));
 		}
 
 
