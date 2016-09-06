@@ -69,7 +69,7 @@ namespace GitMind.Utils
 			string filePath,
 			int lineNumber)
 		{
-			string text = $"{level} {filePath}({lineNumber}) {memberName} - {msg}";
+			string text = $"[{ProcessID}] {level} {filePath}({lineNumber}) {memberName} - {msg}";
 
 			try
 			{

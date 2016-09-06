@@ -14,8 +14,8 @@ namespace GitMind.Git.Private
 {
 	internal class GitService : IGitService
 	{
-		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(10);
-		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(15);
+		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
+		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
 		private static readonly string CommitBranchNoteNameSpace = "GitMind.Branches";
 		private static readonly string ManualBranchNoteNameSpace = "GitMind.Branches.Manual";
@@ -213,51 +213,36 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> TryDeleteBranchAsync(
+		public Task<R> DeleteBranchAsync(
 			string workingFolder,
 			string branchName,
 			bool isRemote,
-			bool isUseForce,
 			ICredentialHandler credentialHandler)
 		{
 			if (isRemote)
 			{
-				return TryDeleteRemoteBranchAsync(workingFolder, branchName, isUseForce, credentialHandler);
+				return DeleteRemoteBranchAsync(workingFolder, branchName, credentialHandler);
 			}
 			else
 			{
-				return TryDeleteLocalBranchAsync(workingFolder, branchName, isUseForce);
+				return DeleteLocalBranchAsync(workingFolder, branchName);
 			}
 		}
 
 
-		private Task<R> TryDeleteLocalBranchAsync(
-			string workingFolder, string branchName, bool isUseForce)
+		private Task<R> DeleteLocalBranchAsync(string workingFolder, string branchName)
 		{
-			Log.Debug($"Try delete local branch {branchName}, use force: {isUseForce}  ...");
-			return UseRepoAsync(workingFolder, repo =>
-				repo.TryDeleteBranch(branchName, false, isUseForce));
+			Log.Debug($"Delete local branch {branchName}  ...");
+			return UseRepoAsync(workingFolder, repo => repo.DeleteLocalBranch(branchName));
 		}
 
 
-		private Task<R> TryDeleteRemoteBranchAsync(
-			string workingFolder, string branchName, bool isUseForce, ICredentialHandler credentialHandler)
+		private Task<R> DeleteRemoteBranchAsync(
+			string workingFolder, string branchName, ICredentialHandler credentialHandler)
 		{
-			Log.Debug($"Try delete remote branch {branchName}, use force: {isUseForce}  ...");
+			Log.Debug($"Delete remote branch {branchName} ...");
 			return UseRepoAsync(workingFolder, PushTimeout, repo =>
-			{
-				if (!isUseForce)
-				{
-					if (!repo.IsBranchMerged(branchName, true))
-					{
-						return Error.From("Branch is not fully merged.");
-					}
-				}
-
-				repo.DeleteRemoteBranch(branchName, credentialHandler);
-
-				return R.Ok;
-			});
+				repo.DeleteRemoteBranch(branchName, credentialHandler));
 		}
 
 
@@ -557,7 +542,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static Task<R> UseRepoAsync(
+		private static async Task<R> UseRepoAsync(
 			string workingFolder,
 			TimeSpan timeout,
 			Action<GitRepository> doAction,
@@ -567,14 +552,14 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				return Task.Run(() => UseRepo(workingFolder, doAction, memberName), cts.Token)
+				return await Task.Run(() => UseRepo(workingFolder, doAction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
 			catch (OperationCanceledException e)
 			{
 				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
 				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Task.FromResult(new R(error));
+				return error;
 			}
 		}
 
@@ -638,7 +623,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static Task<R> UseRepoAsync(
+		private static async Task<R> UseRepoAsync(
 			string workingFolder,
 			TimeSpan timeout,
 			Func<GitRepository, R> doFunction,
@@ -648,14 +633,14 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				return Task.Run(() => UseRepo(workingFolder, doFunction, memberName), cts.Token)
+				return await Task.Run(() => UseRepo(workingFolder, doFunction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
 			catch (OperationCanceledException e)
 			{
 				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
 				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Task.FromResult(new R(error));
+				return error;
 			}
 		}
 
