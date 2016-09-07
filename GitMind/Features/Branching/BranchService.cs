@@ -168,18 +168,31 @@ namespace GitMind.Features.Branching
 					MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
 					return;
 				}
+	
 
-				DeleteBranch(repositoryCommands, branch, false, $"Delete local branch {branch.Name} ...");
+				DeleteBranchDialog dialog = new DeleteBranchDialog(owner);
+				if (dialog.ShowDialog() == true)
+				{
+					
+				}
+
+				//if (branch == branch.Repository.CurrentBranch)
+				//{
+				//	MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
+				//	return;
+				//}
+
+				//DeleteBranch(repositoryCommands, branch, false, $"Delete local branch {branch.Name} ...");
 			}
 		}
 
 
 		public void DeleteRemoteBranch(IRepositoryCommands repositoryCommands, Branch branch)
 		{
-			using (repositoryCommands.DisableStatus())
-			{
-				DeleteBranch(repositoryCommands, branch, true, $"Delete remote branch {branch.Name} ...");
-			}
+			//using (repositoryCommands.DisableStatus())
+			//{
+			//	DeleteBranch(repositoryCommands, branch, true, $"Delete remote branch {branch.Name} ...");
+			//}
 		}
 
 
