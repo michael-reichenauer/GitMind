@@ -206,10 +206,6 @@ namespace GitMind.Features.Branching
 					return;
 				}
 			}
-			else
-			{
-				MessageDialog.ShowInfo($"Branch '{branch.Name}' is fully merged");
-			}
 
 			Progress.ShowDialog(owner, progressText, async () =>
 			{
