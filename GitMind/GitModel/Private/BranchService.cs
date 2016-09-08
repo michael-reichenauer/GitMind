@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using System.Linq;
 using GitMind.Git;
-
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -46,6 +46,21 @@ namespace GitMind.GitModel.Private
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
 				if (!gitStatus.OK && gitBranch.Name == currentBranch.Name && !gitBranch.IsRemote)
+				{
+					// Setting virtual uncommitted commit as tip of the current branch
+					subBranch.TipCommitId = MCommit.UncommittedId;
+					subBranch.TipCommit.SubBranchId = subBranch.SubBranchId;
+				}
+			}
+
+			if (gitRepository.Head.Name == "(no branch)")
+			{
+				Log.Warn("No current branch (detached)");
+
+				MSubBranch subBranch = ToBranch(gitRepository.Head, repository);
+				repository.SubBranches[subBranch.SubBranchId] = subBranch;
+
+				if (!gitStatus.OK && gitRepository.Head.Name == currentBranch.Name && !gitRepository.Head.IsRemote)
 				{
 					// Setting virtual uncommitted commit as tip of the current branch
 					subBranch.TipCommitId = MCommit.UncommittedId;
