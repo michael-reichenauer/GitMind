@@ -15,8 +15,7 @@ namespace GitMind.RepositoryViews
 		private readonly IBranchService branchService = new BranchService();
 		private readonly IRepositoryCommands repositoryCommands;
 		private readonly Command<Branch> showBranchCommand;
-		private readonly Command<Branch> deleteLocalBranchCommand;
-		private readonly Command<Branch> deleteRemoteBranchCommand;
+		private readonly Command<Branch> deleteBranchCommand;
 
 		private readonly ObservableCollection<BranchItem> childBranches 
 			= new ObservableCollection<BranchItem>();
@@ -25,13 +24,12 @@ namespace GitMind.RepositoryViews
 			IRepositoryCommands repositoryCommands,
 			Command<Branch> showBranchCommand,
 			Command<Branch> mergeBranchCommand,
-			Command<Branch> deleteLocalBranchCommand,
-			Command<Branch> deleteRemoteBranchCommand)
+			Command<Branch> deleteBranchCommand)
 		{
 			this.repositoryCommands = repositoryCommands;
 			this.showBranchCommand = showBranchCommand;
-			this.deleteLocalBranchCommand = deleteLocalBranchCommand;
-			this.deleteRemoteBranchCommand = deleteRemoteBranchCommand;
+			this.deleteBranchCommand = deleteBranchCommand;
+
 
 			MergeBranchCommand = mergeBranchCommand.With(() => Branch);
 		}
@@ -85,11 +83,8 @@ namespace GitMind.RepositoryViews
 			() => branchService.CreateBranchAsync(repositoryCommands, Branch));
 
 		public Command MergeBranchCommand { get; }
-		public Command DeleteLocalBranchCommand => 
-			Command(() => deleteLocalBranchCommand.Execute(Branch), () => Branch.IsLocal);
-		public Command DeleteRemoteBranchCommand =>
-			Command(() => deleteRemoteBranchCommand.Execute(Branch), () => Branch.IsRemote);
-
+		public Command DeleteBranchCommand => 
+			Command(() => deleteBranchCommand.Execute(Branch), () => Branch.IsActive);
 
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }

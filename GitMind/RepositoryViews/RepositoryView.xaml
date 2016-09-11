@@ -237,47 +237,17 @@
 														<!-- Delete branch -->
 														<MenuItem 
 															Header="Delete branch"
-															IsEnabled="{Binding CanDeleteBranch}">
+															Command="{Binding DeleteBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
 																	<TextBlock 
 																		Style="{StaticResource MenuIconStyle}" 
 																		FontSize="14"
 																		Margin="9,0,7,0"
-																		Text="&#xE14E;"
-																		Foreground="{StaticResource UndoBrush}"/>
+																		Foreground="{StaticResource UndoBrush}"
+																		Text="&#xE14E;"/>
 																</Border>
 															</MenuItem.Icon>
-
-															<MenuItem 
-																Header="Delete local branch"
-																Command="{Binding DeleteLocalBranchCommand}">
-																<MenuItem.Icon>
-																	<Border>
-																		<TextBlock 
-																			Style="{StaticResource MenuIconStyle}" 
-																			FontSize="14"
-																			Margin="9,0,7,0"
-																			Foreground="{StaticResource UndoBrush}"
-																			Text="&#xE14E;"/>
-																	</Border>
-																</MenuItem.Icon>
-															</MenuItem>
-
-															<MenuItem 
-																Header="Delete remote branch"
-																Command="{Binding DeleteRemoteBranchCommand}">
-																<MenuItem.Icon>
-																	<Border>
-																		<TextBlock 
-																			Style="{StaticResource MenuIconStyle}" 
-																			FontSize="14"
-																			Margin="9,0,7,0"
-																			Foreground="{StaticResource UndoBrush}"
-																			Text="&#xE14E;"/>
-																	</Border>
-																</MenuItem.Icon>
-															</MenuItem>
 														</MenuItem>
 
 													</ContextMenu>

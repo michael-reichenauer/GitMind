@@ -76,8 +76,9 @@ namespace GitMind.GitModel.Private
 		public MCommit FirstParent => ParentIds.Count > 0 ? Repository.Commits[ParentIds[0]] : null;
 		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
 		public MCommit SecondParent => ParentIds.Count > 1 ? Repository.Commits[ParentIds[1]] : null;
-		public bool IsLocalAhead => IsLocalAheadMarker && !IsSynced;
-		public bool IsRemoteAhead => Branch.IsLocalAndRemote && IsRemoteAheadMarker && !IsSynced;
+		public bool IsLocalAhead => IsLocalAheadMarker && !IsSynced && Branch.IsActive;
+		public bool IsRemoteAhead => 
+			Branch.IsLocalAndRemote && IsRemoteAheadMarker && !IsSynced && Branch.IsActive;
 		public bool IsSynced => IsLocalAheadMarker && IsRemoteAheadMarker;
 
 		public bool IsUncommitted => Id == UncommittedId;

@@ -83,7 +83,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Common\MessageDialogs\MessageDialog.cs" />
+    <Compile Include="Common\MessageDialogs\MessageDialog.xaml.cs">
+      <DependentUpon>MessageDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Common\MessageDialogs\MessageDialogViewModel.cs" />
     <Compile Include="Common\ProgressHandling\IProgressWorker.cs" />
     <Compile Include="Common\ProgressHandling\Progress.cs" />
     <Compile Include="Common\ProgressHandling\ProgressDialog.xaml.cs">
@@ -95,6 +98,10 @@
     </Compile>
     <Compile Include="Features\Branching\CreateBranchDialogViewModel.cs" />
     <Compile Include="Features\Branching\BranchService.cs" />
+    <Compile Include="Features\Branching\DeleteBranchDialog.xaml.cs">
+      <DependentUpon>DeleteBranchDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Branching\DeleteBranchDialogViewModel.cs" />
     <Compile Include="Features\Branching\IBranchService.cs" />
     <Compile Include="Features\Committing\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
@@ -252,11 +259,19 @@
     <Compile Include="Common\WindowControlButtons.xaml.cs">
       <DependentUpon>WindowControlButtons.xaml</DependentUpon>
     </Compile>
+    <Page Include="Common\MessageDialogs\MessageDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Common\ProgressHandling\ProgressDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Features\Branching\CrateBranchDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Features\Branching\DeleteBranchDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

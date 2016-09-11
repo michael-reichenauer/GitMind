@@ -64,67 +64,31 @@
 				<Separator Background="{StaticResource BorderBrush}"/>
 
 				<!-- Delete branch -->
-				<MenuItem Header="Delete branch">
+
+
+				<MenuItem 
+					Header="Delete branch"
+					ItemsSource="{Binding RepositoryViewModel.DeletableBranches}">
 					<MenuItem.Icon>
 						<Border>
 							<TextBlock 
 								Style="{StaticResource MenuIconStyle}" 
 								FontSize="14"
 								Margin="9,0,7,0"
-								Text="&#xE14E;"
-								Foreground="{StaticResource UndoBrush}"/>
+								Foreground="{StaticResource UndoBrush}"
+								Text="&#xE14E;"/>
 						</Border>
 					</MenuItem.Icon>
-
-					<MenuItem 
-							Header="Delete local branch"
-							ItemsSource="{Binding RepositoryViewModel.DeletableLocalBranches}">
-						<MenuItem.Icon>
-							<Border>
-								<TextBlock 
-									Style="{StaticResource MenuIconStyle}" 
-									FontSize="14"
-									Margin="9,0,7,0"
-									Foreground="{StaticResource UndoBrush}"
-									Text="&#xE14E;"/>
-							</Border>
-						</MenuItem.Icon>
-						<MenuItem.Resources>
-							<HierarchicalDataTemplate 
+					<MenuItem.Resources>
+						<HierarchicalDataTemplate 
 								DataType="{x:Type commitsHistory:BranchItem}"
 								ItemsSource="{Binding Children}">
-								<MenuItem 
-										Header="{Binding Text}" 
-										Command="{Binding BranchCommand}"
-										CommandParameter="{Binding Branch}"/>
-							</HierarchicalDataTemplate>
-						</MenuItem.Resources>
-					</MenuItem>
-
-					<MenuItem 
-						Header="Delete remote branch"
-						ItemsSource="{Binding RepositoryViewModel.DeletableRemoteBranches}">
-						<MenuItem.Icon>
-							<Border>
-								<TextBlock 
-									Style="{StaticResource MenuIconStyle}" 
-									FontSize="14"
-									Margin="9,0,7,0"
-									Foreground="{StaticResource UndoBrush}"
-									Text="&#xE14E;"/>
-							</Border>
-						</MenuItem.Icon>
-						<MenuItem.Resources>
-							<HierarchicalDataTemplate 
-									DataType="{x:Type commitsHistory:BranchItem}"
-									ItemsSource="{Binding Children}">
-								<MenuItem 
-										Header="{Binding Text}" 
-										Command="{Binding BranchCommand}"
-										CommandParameter="{Binding Branch}"/>
-							</HierarchicalDataTemplate>
-						</MenuItem.Resources>
-					</MenuItem>
+							<MenuItem 
+								Header="{Binding Text}" 
+								Command="{Binding BranchCommand}"
+								CommandParameter="{Binding Branch}"/>
+						</HierarchicalDataTemplate>
+					</MenuItem.Resources>
 				</MenuItem>
 
 				<!-- Undo -->

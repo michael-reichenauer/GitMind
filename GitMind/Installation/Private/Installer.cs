@@ -50,7 +50,6 @@ namespace GitMind.Installation.Private
 		{
 			Log.Debug("Install normal.");
 			if (!MessageDialog.ShowAskOkCancel(
-				Application.Current.MainWindow,
 				"Welcome to the GitMind setup.\n\n" +
 				" This will:\n" +
 				" - Add a GitMind shortcut in the Start Menu.\n" +
@@ -70,7 +69,6 @@ namespace GitMind.Installation.Private
 			InstallSilent();
 
 			MessageDialog.ShowInfo(
-				Application.Current.MainWindow,
 				"Setup has finished installing GitMind.",
 				SetupTitle);
 

@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Common.MessageDialogs;
@@ -185,10 +184,8 @@ namespace GitMind.RepositoryViews
 
 		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
-		public Command<Branch> DeleteLocalBranchCommand => Command<Branch>(
-			branch => branchService.DeleteLocalBranch(this, branch));
-		public Command<Branch> DeleteRemoteBranchCommand => Command<Branch>(
-			branch => branchService.DeleteRemoteBranch(this, branch));
+		public Command<Branch> DeleteBranchCommand => Command<Branch>(
+			branch => branchService.DeleteBranch(this, branch));
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
@@ -231,10 +228,7 @@ namespace GitMind.RepositoryViews
 		public ObservableCollection<BranchItem> ShowableBranches { get; }
 			= new ObservableCollection<BranchItem>();
 
-		public ObservableCollection<BranchItem> DeletableLocalBranches { get; }
-			= new ObservableCollection<BranchItem>();
-
-		public ObservableCollection<BranchItem> DeletableRemoteBranches { get; }
+		public ObservableCollection<BranchItem> DeletableBranches { get; }
 			= new ObservableCollection<BranchItem>();
 
 		public ObservableCollection<BranchItem> HidableBranches { get; }
@@ -247,7 +241,6 @@ namespace GitMind.RepositoryViews
 		public CommitDetailsViewModel CommitDetailsViewModel { get; }
 
 		public string FilterText { get; private set; } = "";
-		//	public string FilteredText { get; private set; } = "";
 
 		public bool IsShowCommitDetails
 		{
@@ -291,13 +284,12 @@ namespace GitMind.RepositoryViews
 
 		public Task FirstLoadAsync()
 		{
-			
 			Repository repository;
 			return refreshThrottler.Run(async () =>
 			{
 				Log.Debug("Loading repository ...");
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(WorkingFolder);
-				string statusText = isRepositoryCached ? "Loading ..." : "First time, building new model ...";		
+				string statusText = isRepositoryCached ? "Loading ..." : "First time, building new model ...";
 
 				Progress.ShowDialog(Owner, statusText, async () =>
 				{
@@ -305,12 +297,13 @@ namespace GitMind.RepositoryViews
 					UpdateInitialViewModel(repository);
 				});
 
+
 				if (!gitService.IsSupportedRemoteUrl(WorkingFolder))
 				{
 					MessageDialog.ShowWarning(Owner,
-						"SSH URL protocol is not yet supported for remote access.\n" + 
+						"SSH URL protocol is not yet supported for remote access.\n" +
 						"Use git:// or https:// instead.");
-				}		
+				}
 
 				using (busyIndicator.Progress())
 				{
@@ -924,7 +917,7 @@ namespace GitMind.RepositoryViews
 			Progress.ShowDialog(
 				Owner, $"Push current branch {Repository.CurrentBranch.Name} ...", async () =>
 			{
-				string workingFolder = Repository.MRepository.WorkingFolder;			
+				string workingFolder = Repository.MRepository.WorkingFolder;
 
 				await gitService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
