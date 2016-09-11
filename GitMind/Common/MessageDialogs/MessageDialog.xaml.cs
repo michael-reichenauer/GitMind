@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Media;
+using System.Windows;
 
 
 namespace GitMind.Common.MessageDialogs
@@ -148,6 +149,7 @@ namespace GitMind.Common.MessageDialogs
 				MessageBoxButton.OK,
 				MessageBoxImage.Error);
 
+			SystemSounds.Beep.Play();
 			dialog.ShowDialog();
 		}
 	}

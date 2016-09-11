@@ -11,7 +11,7 @@
 				WindowStyle="None" AllowsTransparency="True"
 				BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
 				ShowInTaskbar="False" WindowStartupLocation="CenterOwner" 
-				MinWidth="250" MinHeight="150" MaxWidth="500" MaxHeight="500">
+				MinWidth="250" MinHeight="150" MaxWidth="800" MaxHeight="800">
 
 	<!-- Enable "normal" windows behavior with drag and resize,
 	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
