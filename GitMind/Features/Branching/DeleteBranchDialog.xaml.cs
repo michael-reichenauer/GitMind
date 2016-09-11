@@ -24,7 +24,11 @@ namespace GitMind.Features.Branching
 		private readonly DeleteBranchDialogViewModel viewModel;
 
 
-		public DeleteBranchDialog(Window owner)
+		public DeleteBranchDialog(
+			Window owner, 
+			string branchName, 
+			bool isLocal, 
+			bool isRemote)
 		{
 			Owner = owner;
 			InitializeComponent();
@@ -32,11 +36,16 @@ namespace GitMind.Features.Branching
 			viewModel = new DeleteBranchDialogViewModel();
 			DataContext = viewModel;
 
-			BranchNameText.Focus();
+			viewModel.BranchName = branchName;
+			viewModel.IsLocal = isLocal;
+			viewModel.CanLocal = isLocal && isRemote;
+			viewModel.IsRemote = isRemote;
+			viewModel.CanRemote = isRemote && isLocal;
 		}
 
 
 		public string BranchName => viewModel.BranchName;
-		public bool IsPublish => viewModel.IsPublish;
+		public bool IsLocal => viewModel.IsLocal;
+		public bool IsRemote => viewModel.IsRemote;
 	}
 }

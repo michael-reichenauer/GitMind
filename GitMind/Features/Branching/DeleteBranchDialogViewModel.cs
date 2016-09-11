@@ -10,24 +10,35 @@ namespace GitMind.Features.Branching
 		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
 
-		public DeleteBranchDialogViewModel()
-		{
-			IsPublish = true;
-		}
-
 		public string BranchName
-		{
-			get { return Get(); }
-			set { Set(value).Notify(nameof(OkCommand)); }
-		}
-
-
-		public bool IsPublish
 		{
 			get { return Get(); }
 			set { Set(value); }
 		}
 
+		public bool IsLocal
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public bool CanLocal
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public bool IsRemote
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
+		public bool CanRemote
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
 
 		private void SetOK(Window window)
 		{

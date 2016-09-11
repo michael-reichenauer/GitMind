@@ -185,10 +185,8 @@ namespace GitMind.RepositoryViews
 
 		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
-		public Command<Branch> DeleteLocalBranchCommand => Command<Branch>(
-			branch => branchService.DeleteLocalBranch(this, branch));
-		public Command<Branch> DeleteRemoteBranchCommand => Command<Branch>(
-			branch => branchService.DeleteRemoteBranch(this, branch));
+		public Command<Branch> DeleteBranchCommand => Command<Branch>(
+			branch => branchService.DeleteBranch(this, branch));
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
@@ -231,10 +229,7 @@ namespace GitMind.RepositoryViews
 		public ObservableCollection<BranchItem> ShowableBranches { get; }
 			= new ObservableCollection<BranchItem>();
 
-		public ObservableCollection<BranchItem> DeletableLocalBranches { get; }
-			= new ObservableCollection<BranchItem>();
-
-		public ObservableCollection<BranchItem> DeletableRemoteBranches { get; }
+		public ObservableCollection<BranchItem> DeletableBranches { get; }
 			= new ObservableCollection<BranchItem>();
 
 		public ObservableCollection<BranchItem> HidableBranches { get; }
