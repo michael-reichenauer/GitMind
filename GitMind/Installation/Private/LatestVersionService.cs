@@ -48,7 +48,14 @@ namespace GitMind.Installation.Private
 
 			if (latestInfo.IsFaulted) return new Version(0, 0, 0, 0);
 
-			return Version.Parse(latestInfo.Value.tag_name.Substring(1));
+			Version version = Version.Parse(latestInfo.Value.tag_name.Substring(1));
+			Log.Debug($"Remote version: {version}");
+			foreach (var asset in latestInfo.Value.assets)
+			{
+				Log.Debug($"Name: {asset.name}, Count: {asset.download_count}");
+			}
+
+			return version;
 		}
 
 
@@ -60,7 +67,6 @@ namespace GitMind.Installation.Private
 				{
 					string latestInfoText = await httpClient.GetStringAsync(latestUri);
 				
-
 					return serializer.Deserialize<LatestInfo>(latestInfoText);
 				}
 			}
@@ -93,7 +99,7 @@ namespace GitMind.Installation.Private
 						byte[] remoteFileData = await httpClient.GetByteArrayAsync(
 							setupInfo.browser_download_url);
 
-						string tempPath = Path.Combine(Path.GetTempPath(), setupInfo.name);
+						string tempPath = ProgramPaths.GetTempFilePath() + "." + setupInfo.name;
 						File.WriteAllBytes(tempPath, remoteFileData);
 
 						Log.Debug($"Downloaded {latestInfo.Value.tag_name} to {tempPath}");
