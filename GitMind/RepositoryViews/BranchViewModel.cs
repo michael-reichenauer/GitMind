@@ -84,7 +84,7 @@ namespace GitMind.RepositoryViews
 
 		public Command MergeBranchCommand { get; }
 		public Command DeleteBranchCommand => 
-			Command(() => deleteBranchCommand.Execute(Branch), () => Branch.IsLocal);
+			Command(() => deleteBranchCommand.Execute(Branch), () => Branch.IsActive);
 
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }
