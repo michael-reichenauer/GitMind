@@ -90,7 +90,7 @@ namespace GitMind.GitModel
 		public IEnumerable<Commit> Children => childIds.Select(id => Repository.Commits[id]);
 		public Branch Branch => Repository.Branches[branchId];
 		public bool IsMergePoint => parentIds.Count > 1;
-		public bool IsCurrent => CommitId == Repository.CurrentCommit.Id
+		public bool IsCurrent => Id == Repository.CurrentCommit.Id
 			&& Repository.CurrentBranch == Branch;
 		public string WorkingFolder => Repository.MRepository.WorkingFolder;
 		public Repository Repository { get; }
