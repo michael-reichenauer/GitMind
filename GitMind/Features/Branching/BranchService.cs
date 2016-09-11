@@ -157,11 +157,17 @@ namespace GitMind.Features.Branching
 		}
 
 
-		public void DeleteLocalBranch(IRepositoryCommands repositoryCommands, Branch branch)
+		public void DeleteBranch(IRepositoryCommands repositoryCommands, Branch branch)
 		{
 			using (repositoryCommands.DisableStatus())
 			{
 				Window owner = repositoryCommands.Owner;
+
+				if (branch.Name == "master")
+				{
+					MessageDialog.ShowWarning(owner, "You cannot delete master branch.");
+					return;
+				}
 
 				if (branch == branch.Repository.CurrentBranch)
 				{
@@ -169,16 +175,23 @@ namespace GitMind.Features.Branching
 					return;
 				}
 
-				DeleteBranch(repositoryCommands, branch, false, $"Delete local branch {branch.Name} ...");
-			}
-		}
 
+				DeleteBranchDialog dialog = new DeleteBranchDialog(
+					owner,
+					branch.Name,
+					branch.IsLocal,
+					branch.IsRemote);
 
-		public void DeleteRemoteBranch(IRepositoryCommands repositoryCommands, Branch branch)
-		{
-			using (repositoryCommands.DisableStatus())
-			{
-				DeleteBranch(repositoryCommands, branch, true, $"Delete remote branch {branch.Name} ...");
+				if (dialog.ShowDialog() == true)
+				{
+					if (!dialog.IsLocal && !dialog.IsRemote)
+					{
+						MessageDialog.ShowWarning(owner, "Neither local nor remote branch was selected.");
+						return;
+					}
+
+					DeleteBranch(repositoryCommands, branch, dialog.IsLocal, dialog.IsRemote);
+				}
 			}
 		}
 
@@ -186,39 +199,57 @@ namespace GitMind.Features.Branching
 		private void DeleteBranch(
 			IRepositoryCommands repositoryCommands,
 			Branch branch,
-			bool isRemote,
-			string progressText)
+			bool isLocal,
+			bool isRemote)
+		{
+			Window owner = repositoryCommands.Owner;
+
+			Progress.ShowDialog(owner, async progress =>
+			{
+				if (isLocal)
+				{
+					progress.SetText($"Delete local branch {branch.Name} ...");
+					await DeleteBranch(repositoryCommands, branch, false);
+				}
+
+				if (isRemote)
+				{
+					progress.SetText($"Delete remote branch {branch.Name} ...");
+					await DeleteBranch(repositoryCommands, branch, true);
+				}
+
+				progress.SetText("Updating status after deleting {branch.Name} ...");
+				await repositoryCommands.RefreshAfterCommandAsync(true);
+			});
+		}
+
+		private async Task DeleteBranch(
+			IRepositoryCommands repositoryCommands,
+			Branch branch,
+			bool isRemote)
 		{
 			string workingFolder = repositoryCommands.WorkingFolder;
 			Window owner = repositoryCommands.Owner;
-
-			if (branch.Name == "master")
-			{
-				MessageDialog.ShowWarning(owner, "You cannot delete master branch.");
-				return;
-			}
+			string text = isRemote ? "Remote" : "Local";
 
 			if (!IsBranchFullyMerged(branch, isRemote))
 			{
+				
 				if (!MessageDialog.ShowWarningAskYesNo(owner,
-					$"Branch '{branch.Name}' is not fully merged.\nDo you want to delete the branch anyway?"))
+					$"{text} branch '{branch.Name}' is not fully merged.\n" +
+					"Do you want to delete the branch anyway?"))
 				{
 					return;
 				}
 			}
 
-			Progress.ShowDialog(owner, progressText, async () =>
+			R deleted = await gitService.DeleteBranchAsync(
+				workingFolder, branch.Name, isRemote, repositoryCommands.GetCredentialsHandler());
+
+			if (deleted.IsFaulted)
 			{
-				R deleted = await gitService.DeleteBranchAsync(
-					workingFolder, branch.Name, isRemote, repositoryCommands.GetCredentialsHandler());
-
-				if (deleted.IsFaulted)
-				{
-					MessageDialog.ShowWarning(owner, $"Failed to delete Branch '{branch.Name}'");
-				}
-
-				await repositoryCommands.RefreshAfterCommandAsync(true);
-			});
+				MessageDialog.ShowWarning(owner, $"Failed to delete {text} branch '{branch.Name}'");
+			}	
 		}
 
 
