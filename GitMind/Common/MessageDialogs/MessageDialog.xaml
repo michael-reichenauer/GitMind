@@ -1,0 +1,175 @@
+﻿<Window x:Class="GitMind.Common.MessageDialogs.MessageDialog"
+				Name="MessageDialogWindow"
+				xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+				xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+				xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+				xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+				xmlns:local="clr-namespace:GitMind.Common.MessageDialogs"
+				mc:Ignorable="d"
+				Title="GitMind" SizeToContent="WidthAndHeight" ResizeMode="NoResize" 
+				Background="{StaticResource BackgroundBrush}"
+				WindowStyle="None" AllowsTransparency="True"
+				BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
+				ShowInTaskbar="False" WindowStartupLocation="CenterOwner" 
+				MinWidth="250" MinHeight="150" MaxWidth="500" MaxHeight="500">
+
+	<!-- Enable "normal" windows behavior with drag and resize,
+	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
+	<Window.Resources>
+		<Style TargetType="{x:Type local:MessageDialog}">
+			<Setter Property="WindowChrome.WindowChrome">
+				<Setter.Value>
+					<WindowChrome />
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Window.Resources>
+
+	<Window.InputBindings>
+		<KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding ElementName=MessageDialogWindow}"/>
+	</Window.InputBindings>
+
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<!-- Title and tool bar -->
+			<RowDefinition Height="Auto" />
+			<!-- Dialog contents -->
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<!-- Title and tool bar -->
+		<Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
+			<Grid>
+				<StackPanel 
+					HorizontalAlignment="Left"	
+					Orientation="Horizontal">
+
+					<TextBlock Text="{Binding Title}" 							
+						Foreground="{StaticResource TextBrush}"
+						Margin="10, 5"/>
+
+				</StackPanel>
+
+				<!-- Close Button -->
+				<Button HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True"
+					Style="{StaticResource IconButtonStyle}"
+					KeyboardNavigation.IsTabStop="False"
+					Content="&#xE14C;" 
+					FontSize="16"
+					Command="{Binding CancelCommand}"
+					CommandParameter="{Binding ElementName=MessageDialogWindow}"/>
+			</Grid>
+		</Border>
+
+
+		<!-- Dialog contents -->
+		<Grid Grid.Row="1">
+			<Grid.RowDefinitions>
+				<!-- Text name -->
+				<RowDefinition Height="Auto" />
+				<!-- margin -->
+				<RowDefinition Height="*" />
+				<!-- OK and Cancel buttons -->
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+
+			<!-- Icon and message -->
+			<Grid Grid.Row="0" Margin="10,10">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+				
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+
+				<!--Icon -->
+				<TextBlock Grid.Row="0" Grid.Column="0"
+					Text="&#xE88F;"
+					Margin="10,10"
+					Visibility="{Binding IsInfo, Converter={StaticResource VC}}"
+					FontFamily="{StaticResource IconFont}"
+					Foreground="DodgerBlue"
+					Background="{StaticResource BackgroundBrush}"
+					FontSize="30"/>
+
+				<TextBlock Grid.Row="0" Grid.Column="0"
+					Text="&#xE8FD;"
+					Margin="10,10"
+					Visibility="{Binding IsQuestion, Converter={StaticResource VC}}"
+					FontFamily="{StaticResource IconFont}"
+					Foreground="DodgerBlue"
+					Background="{StaticResource BackgroundBrush}"
+					FontSize="30"/>
+				
+				<TextBlock Grid.Row="0" Grid.Column="0"
+					Text="&#xE002;"
+					Margin="10,10"
+					Visibility="{Binding IsWarn, Converter={StaticResource VC}}"
+					FontFamily="{StaticResource IconFont}"
+					Foreground="Gold"
+					Background="{StaticResource BackgroundBrush}"
+					FontSize="30"/>
+
+				<TextBlock Grid.Row="0" Grid.Column="0"
+					Text="&#xE000;"
+					Margin="10,10"
+					Visibility="{Binding IsError, Converter={StaticResource VC}}"
+					FontFamily="{StaticResource IconFont}"
+					Foreground="#F25B54"
+					Background="{StaticResource BackgroundBrush}"
+					FontSize="30"/>
+
+				<!-- Message -->
+				<TextBox Grid.Row="0" Grid.Column="1"
+					Margin="0,10,10,10"
+					Text="{Binding Message, Mode=OneWay}"
+					Foreground="{StaticResource TextBrush}"
+					Background="{StaticResource BackgroundBrush}"
+					TextWrapping="Wrap"
+					BorderThickness="0"/>
+			</Grid>
+
+
+
+			<!-- OK and Cancel buttons -->
+			<StackPanel Grid.Row="2" Orientation="Horizontal" 
+				HorizontalAlignment="Center"
+				Margin="0,10">
+
+				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+					Margin="5">
+					<Button Content="{Binding OkText}" 
+						Style="{StaticResource BaseButtonStyle}"
+						KeyboardNavigation.TabIndex="1"
+						Width="60"
+						Margin="1"
+						Padding="3"
+						FontSize="12"
+						Foreground="{StaticResource TextBrush}"
+						Command="{Binding OkCommand}"
+						CommandParameter="{Binding ElementName=MessageDialogWindow}" />
+				</Border>
+
+				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+					Visibility="{Binding IsCancelVisible, Converter={StaticResource VC}}"
+					Margin="5">
+					<Button Content="{Binding CancelText}" 
+						Style="{StaticResource BaseButtonStyle}"
+						KeyboardNavigation.TabIndex="2"
+						Width="60"
+						Margin="1"
+						Padding="3"
+						FontSize="12"
+						Foreground="{StaticResource TextBrush}"
+						Command="{Binding CancelCommand}"
+						CommandParameter="{Binding ElementName=MessageDialogWindow}" />
+				</Border>
+
+			</StackPanel>
+		</Grid>
+
+	</Grid>
+</Window>
