@@ -107,6 +107,11 @@ namespace GitMind.Utils
 
 					return;
 				}
+				catch (DirectoryNotFoundException)
+				{
+					// Ignore error since folder has been deleted during uninstallation
+					return;
+				}
 				catch (Exception e)
 				{
 					Thread.Sleep(10);
