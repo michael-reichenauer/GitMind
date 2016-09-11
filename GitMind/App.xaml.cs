@@ -166,6 +166,8 @@ namespace GitMind
 				return false;
 			}
 
+			installer.TryDeleteTempFiles();
+
 			//string[] args = Environment.GetCommandLineArgs();
 			//if (args.Length == 2 && args[1] == "/diff")
 			//{
