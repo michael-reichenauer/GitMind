@@ -31,6 +31,8 @@ namespace GitMind.RepositoryViews
 		public static SolidColorBrush TextBrush { get; } = BrushFromHex("#D4D4D4");
 		public static SolidColorBrush TicketBrush { get; } = BrushFromHex("#F25B54");
 		public static Brush DimBrush { get; } = Brushes.DimGray;
+	
+		public static Brush ErrorBrush { get; } = BrushFromHex("#FCB9B6");
 
 
 		public static readonly SolidColorBrush HoverBrushColor = BrushFromHex("#996495ED");
