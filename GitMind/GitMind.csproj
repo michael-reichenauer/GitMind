@@ -115,6 +115,7 @@
     <Compile Include="RepositoryViews\DisabledStatus.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
     <Compile Include="Utils\Equatable.cs" />
+    <Compile Include="Utils\UI\FileUtil.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
     <Compile Include="Utils\UI\VisibleWindow.cs" />
     <Compile Include="Utils\UI\WpfBindingTraceListener.cs" />
