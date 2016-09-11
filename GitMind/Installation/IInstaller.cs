@@ -11,5 +11,6 @@
 		void UninstallSilent();
 
 		void StartInstalled();
+		void TryDeleteTempFiles();
 	}
 }
