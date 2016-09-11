@@ -14,7 +14,7 @@ namespace GitMind.Utils
 {
 	internal static class Log
 	{
-		private static readonly int MaxLOgFileSize = 10000000;
+		private static readonly int MaxLogFileSize = 2000000;
 
 		private static readonly UdpClient UdpClient = new UdpClient();
 		private static readonly IPEndPoint LocalLogEndPoint = new IPEndPoint(IPAddress.Loopback, 40000);
@@ -100,7 +100,7 @@ namespace GitMind.Utils
 
 					long length = new FileInfo(LogPath).Length;
 
-					if (length > MaxLOgFileSize)
+					if (length > MaxLogFileSize)
 					{
 						MoveLargeLogFile();
 					}

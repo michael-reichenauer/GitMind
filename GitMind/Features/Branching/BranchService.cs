@@ -237,6 +237,12 @@ namespace GitMind.Features.Branching
 
 		private bool IsBranchFullyMerged(Branch branch, bool isRemote)
 		{
+			if (branch.TipCommit.IsVirtual && branch.TipCommit.Id != Commit.UncommittedId)
+			{
+				// OK to delete branch, which is just a branch tip with a commit on another branch
+				return true;
+			}
+
 			Stack<Commit> stack = new Stack<Commit>();
 			stack.Push(branch.TipCommit);
 
@@ -244,17 +250,16 @@ namespace GitMind.Features.Branching
 			{
 				Commit commit = stack.Pop();
 
-				if ((commit.Branch == branch && isRemote && branch.RemoteAheadCount > 0)
-					|| commit.Branch == branch && !isRemote && branch.LocalAheadCount > 0)
-				{
-					return false;
-				}
-
 				if ((commit.Branch.IsLocal && commit.Branch.IsRemote)
-					|| (commit.Branch != branch && commit.Branch.IsActive)
-					|| (commit.IsVirtual && commit.Id != Commit.UncommittedId))
+					|| (commit.Branch != branch && commit.Branch.IsActive))
 				{
-					return true;
+					if (!(commit.Branch == branch && !isRemote && branch.LocalAheadCount > 0))
+					{
+						// The commit is on a branch that is both local and remote
+						// or the commit is on another active branch
+						// but branch has no unpublished local commits
+						return true;
+					}
 				}
 
 				commit.Children.ForEach(child => stack.Push(child));

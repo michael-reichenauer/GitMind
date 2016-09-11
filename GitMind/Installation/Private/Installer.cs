@@ -5,6 +5,7 @@ using System.Windows;
 using GitMind.Common.MessageDialogs;
 using GitMind.Settings;
 using GitMind.Utils;
+using GitMind.Utils.UI;
 using Microsoft.Win32;
 
 
@@ -29,7 +30,8 @@ namespace GitMind.Installation.Private
 			folderContextMenuPath + "\\command";
 		private static readonly string directoryCommandContextMenuPath =
 			directoryContextMenuPath + "\\command";
-		private readonly string SetupTitle = "GitMind - Setup";
+		private static readonly string SetupTitle = "GitMind - Setup";
+	
 
 
 		public Installer()
@@ -116,6 +118,7 @@ namespace GitMind.Installation.Private
 			CreateStartMenuShortcut(path);
 			AddToPathVariable(path);
 			AddFolderContextMenu();
+			TryDeleteTempFiles();
 			Log.Debug("Installed");
 		}
 
@@ -163,10 +166,36 @@ namespace GitMind.Installation.Private
 		}
 
 
+		public void TryDeleteTempFiles()
+		{
+			try
+			{
+				string tempFolderPath = ProgramPaths.GetTempFolderPath();
+				string searchPattern = $"{ProgramPaths.TempPrefix}*";
+				string[] tempFiles = Directory.GetFiles(tempFolderPath, searchPattern);
+				foreach (string tempFile in tempFiles)
+				{
+					try
+					{
+						Log.Debug($"Deleting temp file {tempFile}");
+						File.Delete(tempFile);
+					}
+					catch (Exception e)
+					{
+						Log.Debug($"Failed to delete temp file {tempFile}, {e.Message}. Deleting at reboot");
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to delete temp files {e}");
+			}
+		}
 
 		private string CopyFileToProgramFiles()
 		{
 			string sourcePath = ProgramPaths.GetCurrentInstancePath();
+			Version sourceVersion = ProgramPaths.GetVersion(sourcePath);
 
 			string targetFolder = ProgramPaths.GetProgramFolderPath();
 
@@ -179,6 +208,7 @@ namespace GitMind.Installation.Private
 				if (sourcePath != targetPath)
 				{
 					CopyFile(sourcePath, targetPath);
+					WriteInstalledVersion(sourceVersion);
 				}
 			}
 			catch (Exception e) when (e.IsNotFatal())
@@ -186,29 +216,13 @@ namespace GitMind.Installation.Private
 				Log.Debug($"Failed to copy {sourcePath} to target {targetPath} {e.Message}");
 				try
 				{
-					string oldFilePath = targetPath + "_old";
+					string oldFilePath = ProgramPaths.GetTempFilePath();
 					Log.Debug($"Moving {targetPath} to {oldFilePath}");
-					if (File.Exists(oldFilePath))
-					{
-						try
-						{
-							File.Delete(oldFilePath);
-							File.Move(targetPath, oldFilePath);
-							Log.Debug($"Moved {targetPath} to target {oldFilePath}");
-							CopyFile(sourcePath, targetPath);
-						}
-						catch (Exception) when (e.IsNotFatal())
-						{
-							Log.Debug($"Failed to move {targetPath} to target {oldFilePath} {e.Message}");
-							CopyFile(sourcePath, targetPath);
-						}
-					}
-					else
-					{
-						File.Move(targetPath, oldFilePath);
-						Log.Debug($"Moved {targetPath} to target {oldFilePath}");
-						CopyFile(sourcePath, targetPath);
-					}
+					
+					File.Move(targetPath, oldFilePath);
+					Log.Debug($"Moved {targetPath} to target {oldFilePath}");
+					CopyFile(sourcePath, targetPath);
+					WriteInstalledVersion(sourceVersion);
 				}
 				catch (Exception ex) when (e.IsNotFatal())
 				{
@@ -218,6 +232,21 @@ namespace GitMind.Installation.Private
 			}
 
 			return targetPath;
+		}
+
+
+		private void WriteInstalledVersion(Version sourceVersion)
+		{
+			try
+			{
+				string path = ProgramPaths.GetVersionFilePath();
+				File.WriteAllText(path, sourceVersion.ToString());
+				Log.Debug($"Installed {sourceVersion}");
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to write version {e}");
+			}			
 		}
 
 
@@ -371,7 +400,6 @@ namespace GitMind.Installation.Private
 				Log.Warn($"Failed to delete uninstall support {e}");
 			}
 		}
-
 
 
 		private static void AddFolderContextMenu()

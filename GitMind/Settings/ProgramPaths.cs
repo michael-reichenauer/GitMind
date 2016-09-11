@@ -18,13 +18,15 @@ namespace GitMind.Settings
 			@"\\storage03\n_axis_releases_sa\GitMind\GitMindSetup.exe";
 
 		public static readonly string ProductGuid = "0000278d-5c40-4973-aad9-1c33196fd1a2";
+		public static readonly string TempPrefix = "_tmp_";
 
 		public static readonly string ProgramName = "GitMind";
 		public static readonly string ProgramFileName = ProgramName + ".exe";
 		public static readonly string ProgramLogName = ProgramName + ".log";
+		public static readonly string VersionFileName = ProgramName + ".Version.txt";
 		private static readonly string ProgramShortcutFileName = ProgramName + ".lnk";
 		private static readonly string SettingsFileName = "settings";
-
+		
 
 		public static string RemoteSetupPath
 		{
@@ -45,6 +47,18 @@ namespace GitMind.Settings
 		{
 			string programDataFolderPath = GetProgramDataFolderPath();
 			return Path.Combine(programDataFolderPath, SettingsFileName);
+		}
+
+		public static string GetTempFilePath()
+		{
+			string tempName = $"{TempPrefix}{Guid.NewGuid()}";
+			string programDataFolderPath = GetProgramDataFolderPath();
+			return Path.Combine(programDataFolderPath, tempName);
+		}
+
+		public static string GetTempFolderPath()
+		{
+			return GetProgramDataFolderPath();
 		}
 
 
@@ -88,6 +102,12 @@ namespace GitMind.Settings
 			return Path.Combine(programFilesFolderPath, ProgramFileName);
 		}
 
+		public static string GetVersionFilePath()
+		{
+			string programFilesFolderPath = GetProgramFolderPath();
+			return Path.Combine(programFilesFolderPath, VersionFileName);
+		}
+
 
 		public static DateTime BuildTime()
 		{
@@ -116,18 +136,36 @@ namespace GitMind.Settings
 
 		public static Version GetCurrentVersion()
 		{
-			return GetVersion(Assembly.GetEntryAssembly().Location);
+			AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
+			return assemblyName.Version;
 		}
 
 
 		public static Version GetInstalledVersion()
 		{
-			if (!File.Exists(GetInstallFilePath()))
+			try
+			{
+				if (File.Exists(GetVersionFilePath()))
+				{
+					string versionText = File.ReadAllText(GetVersionFilePath());
+					return Version.Parse(versionText);
+				}
+				else
+				{
+					// This method does not always work running in stances has been moved.
+					string installFilePath = GetInstallFilePath();
+					if (!File.Exists(installFilePath))
+					{
+						return new Version(0, 0, 0, 0);
+					}
+
+					return GetVersion(installFilePath);
+				}				
+			}
+			catch (Exception)
 			{
 				return new Version(0, 0, 0, 0);
-			}
-
-			return GetVersion(GetInstallFilePath());
+			}			
 		}
 
 		public static Version GetVersion(string path)

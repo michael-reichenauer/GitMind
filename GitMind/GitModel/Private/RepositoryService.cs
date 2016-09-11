@@ -224,11 +224,19 @@ namespace GitMind.GitModel.Private
 
 			tagService.AddTags(gitRepository, repository);
 
-			repository.CurrentBranchId = repository.Branches
-				.First(b => b.Value.IsActive && b.Value.Name == gitRepository.Head.Name).Value.Id;
+			MBranch currentBranch = repository.Branches.Values
+				.FirstOrDefault(b => b.IsActive && b.Name == gitRepository.Head.Name);
+
+			if (currentBranch == null)
+			{
+				Log.Warn("No current branch, using master instead");
+				currentBranch = repository.Branches.Values.First(b => b.IsActive && b.Name == "master");
+			}
+
+			repository.CurrentBranchId = currentBranch.Id;
 
 			repository.CurrentCommitId = gitStatus.OK
-				? repository.Commits[gitRepository.Head.TipId].Id
+				? currentBranch.TipCommitId
 				: MCommit.UncommittedId;
 
 			repository.SubBranches.Clear();
