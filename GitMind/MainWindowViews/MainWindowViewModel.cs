@@ -408,7 +408,7 @@ namespace GitMind.MainWindowViews
 				R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
 				if (workingFolder.HasValue)
 				{
-					Log.Warn($"User selected valid {workingFolder.Value}");
+					Log.Debug($"User selected valid {workingFolder.Value}");
 					selectedPath = workingFolder.Value;
 					break;
 				}
@@ -418,7 +418,7 @@ namespace GitMind.MainWindowViews
 				}
 			}
 
-			Log.Debug($"Setting working folder {selectedPath}");
+			Log.Info($"Setting working folder '{selectedPath}'");
 			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
 			return true;
 		}

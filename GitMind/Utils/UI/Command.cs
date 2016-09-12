@@ -10,24 +10,24 @@ namespace GitMind.Utils.UI
 		private readonly Command<object> command;
 
 
-		public Command(Action executeMethod)
+		public Command(Action executeMethod, string memberName)
 		{
-			command = new Command<object>(_ => executeMethod());
+			command = new Command<object>(_ => executeMethod(), memberName);
 		}
 
-		public Command(Action executeMethod, Func<bool> canExecuteMethod)
+		public Command(Action executeMethod, Func<bool> canExecuteMethod, string memberName)
 		{
-			command = new Command<object>((object _) => executeMethod(), _ => canExecuteMethod());
+			command = new Command<object>((object _) => executeMethod(), _ => canExecuteMethod(), memberName);
 		}
 
-		public Command(Func<Task> executeMethodAsync)
+		public Command(Func<Task> executeMethodAsync, string memberName)
 		{
-			command = new Command<object>(_ => executeMethodAsync());
+			command = new Command<object>(_ => executeMethodAsync(), memberName);
 		}
 
-		public Command(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod)
+		public Command(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod, string memberName)
 		{
-			command = new Command<object>(_ => executeMethodAsync(), _ => canExecuteMethod());
+			command = new Command<object>(_ => executeMethodAsync(), _ => canExecuteMethod(), memberName);
 
 		}
 
@@ -77,48 +77,54 @@ namespace GitMind.Utils.UI
 	public class Command<T> : ICommand
 	{
 		private readonly Action<T> executeMethod;
+		private readonly string memberName;
 		private readonly Func<T, Task> executeMethodAsync;
 		private readonly Func<T, bool> canExecuteMethod;
 		private bool canExecute = true;
 
-		public Command(Action<T> executeMethod)
+		public Command(Action<T> executeMethod, string memberName)
 		{
 			Asserter.NotNull(executeMethod);
 
 			this.executeMethod = executeMethod;
+			this.memberName = memberName;
 		}
 
-		public Command(Action<T> executeMethod, Func<T, bool> canExecuteMethod)
+		public Command(Action<T> executeMethod, Func<T, bool> canExecuteMethod, string memberName)
 		{
 			Asserter.NotNull(executeMethod);
 			Asserter.NotNull(canExecuteMethod);
 
 			this.executeMethod = executeMethod;
 			this.canExecuteMethod = canExecuteMethod;
+			this.memberName = memberName;
 		}
 
 
-		public Command(Func<T, Task> executeMethodAsync)
+		public Command(Func<T, Task> executeMethodAsync, string memberName)
 		{
 			Asserter.NotNull(executeMethodAsync);
 
 			this.executeMethodAsync = executeMethodAsync;
+			this.memberName = memberName;
 		}
 
 
-		public Command(Func<T, Task> executeMethodAsync, Func<T, bool> canExecuteMethod)
+		public Command(
+			Func<T, Task> executeMethodAsync, Func<T, bool> canExecuteMethod, string memberName)
 		{
 			Asserter.NotNull(executeMethodAsync);
 			Asserter.NotNull(canExecuteMethod);
 
 			this.executeMethodAsync = executeMethodAsync;
 			this.canExecuteMethod = canExecuteMethod;
+			this.memberName = memberName;
 		}
 
 	
 		public Command With(Func<T> parameterFunc)
 		{
-			Command cmd = new Command(() => Execute(parameterFunc()), () => CanExecute(parameterFunc()));
+			Command cmd = new Command(() => Execute(parameterFunc()), () => CanExecute(parameterFunc()), memberName);
 			//CanExecuteChanged += (s, e) => cmd.RaiseCanExecuteChanaged();
 
 			return cmd;
@@ -180,6 +186,7 @@ namespace GitMind.Utils.UI
 				IsCompleted = false;
 				canExecute = false;
 				RaiseCanExecuteChanaged();
+				Log.Info(memberName);
 
 				if (executeMethod != null)
 				{

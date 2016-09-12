@@ -513,14 +513,14 @@ namespace GitMind.Git.Private
 			Action<GitRepository> doAction,
 			[CallerMemberName] string memberName = "")
 		{
-			Log.Debug($"{memberName} in {workingFolder} ...");
+			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
 			{
 				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 				{
 					doAction(gitRepository);
 
-					Log.Debug($"Done {memberName} in {workingFolder}");
+					Log.Debug($"Done  {memberName} in {workingFolder}");
 
 					return R.Ok;
 				}
@@ -569,7 +569,7 @@ namespace GitMind.Git.Private
 			Func<GitRepository, T> doFunction,
 			[CallerMemberName] string memberName = "")
 		{
-			Log.Debug($"{memberName} in {workingFolder} ...");
+			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
 			{
 				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
@@ -578,7 +578,7 @@ namespace GitMind.Git.Private
 
 					R<T> result = R.From(functionResult);
 
-					Log.Debug($"Done {memberName} in {workingFolder}");
+					Log.Debug($"Done  {memberName} in {workingFolder}");
 
 					return result;
 				}
@@ -595,14 +595,14 @@ namespace GitMind.Git.Private
 			Func<GitRepository, R> doFunction,
 			[CallerMemberName] string memberName = "")
 		{
-			Log.Debug($"{memberName} in {workingFolder} ...");
+			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
 			{
 				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
 				{
 					R result = doFunction(gitRepository);
 
-					Log.Debug($"Done {memberName} in {workingFolder}");
+					Log.Debug($"Done  {memberName} in {workingFolder}");
 
 					return result;
 				}

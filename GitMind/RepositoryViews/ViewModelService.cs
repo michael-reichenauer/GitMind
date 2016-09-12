@@ -44,9 +44,6 @@ namespace GitMind.RepositoryViews
 				specifiedBranches.Add(currentBranch);
 			}
 
-
-			specifiedBranches.ForEach(branch => Log.Debug($"Update with {branch}"));
-
 			IReadOnlyList<Branch> branches = GetBranchesIncludingParents(specifiedBranches, repositoryViewModel);
 
 			List<Commit> commits = GetCommits(branches);
@@ -119,6 +116,7 @@ namespace GitMind.RepositoryViews
 			if (!isShowing && commit.HasSecondParent)
 			{
 				// Showing the specified branch
+				Log.Info($"Open branch {commit.SecondParent.Branch}");
 				currentlyShownBranches.Add(commit.SecondParent.Branch);
 			}
 			else
@@ -157,6 +155,7 @@ namespace GitMind.RepositoryViews
 					}
 				}
 
+				Log.Info($"Close branch {otherBranch.Branch}");
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, otherBranch.Branch);
 

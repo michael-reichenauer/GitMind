@@ -84,7 +84,7 @@ namespace GitMind
 
 		protected override void OnExit(ExitEventArgs e)
 		{
-			Log.Debug("Exit program");
+			Log.Info("Exit program");
 			base.OnExit(e);
 		}
 

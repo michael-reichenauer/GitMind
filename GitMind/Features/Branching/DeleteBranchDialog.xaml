@@ -25,7 +25,7 @@
 	</Window.Resources>
 
 	<Window.InputBindings>
-		<KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding ElementName=BranchDialogWindow}"/>
+		<KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding ElementName=DeleteBranchDialogWindow}"/>
 	</Window.InputBindings>
 	
 	<Grid>
