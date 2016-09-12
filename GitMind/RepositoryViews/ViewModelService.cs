@@ -344,8 +344,6 @@ namespace GitMind.RepositoryViews
 				.OrderBy(b => b, Compare.With<Branch>(CompareBranches))
 				.ToList();
 
-			branchesWithParents.ForEach(branch => Log.Debug($"Branches with parent with {branch}"));
-
 			return branchesWithParents;
 		}
 

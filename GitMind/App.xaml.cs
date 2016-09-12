@@ -41,7 +41,7 @@ namespace GitMind
 			string version = GetProgramVersion();
 			string argsText = string.Join("','", Environment.GetCommandLineArgs());
 
-			Log.Debug($"Version: {version}, Args: '{argsText}'");
+			Log.Info($"Version: {version}, Args: '{argsText}'");
 
 			App application = new App();
 			application.StartProgram();

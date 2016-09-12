@@ -28,7 +28,16 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Write("DEBUG [", msg, memberName, sourceFilePath, sourceLineNumber);
+			Write("DEBUG", msg, memberName, sourceFilePath, sourceLineNumber);
+		}
+
+		public static void Info(
+			string msg,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0)
+		{
+			Write("INFO ", msg, memberName, sourceFilePath, sourceLineNumber);
 		}
 
 
@@ -38,7 +47,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Write("WARN  [", msg, memberName, sourceFilePath, sourceLineNumber);
+			Write("WARN ", msg, memberName, sourceFilePath, sourceLineNumber);
 		}
 
 
@@ -58,7 +67,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Write("ERROR [", msg, memberName, sourceFilePath, sourceLineNumber);
+			Write("ERROR", msg, memberName, sourceFilePath, sourceLineNumber);
 		}
 
 
@@ -67,9 +76,12 @@ namespace GitMind.Utils
 			string msg,
 			string memberName,
 			string filePath,
-			int lineNumber)
+			int lineNumber,
+			[CallerFilePath] string sourceFilePath = "")
 		{
-			string text = $"[{ProcessID}] {level} {filePath}({lineNumber}) {memberName} - {msg}";
+			int prefixLength = sourceFilePath.Length - 12;
+			filePath = filePath.Substring(prefixLength);
+			string text = $"{level} [{ProcessID}] {filePath}({lineNumber}) {memberName} - {msg}";
 
 			try
 			{
@@ -83,7 +95,7 @@ namespace GitMind.Utils
 			catch (Exception e) when (e.IsNotFatal())
 			{
 				//Debugger.Log(0, Debugger.DefaultCategory, "ERROR Failed to log to udp " + e);
-				OutputDebugString("ERROR Failed to log to udp " + e);
+				Native.OutputDebugString("ERROR Failed to log to udp " + e);
 			}
 		}
 
@@ -119,7 +131,7 @@ namespace GitMind.Utils
 				}
 			}
 
-			OutputDebugString("ERROR Failed to log to file: " + error);
+			Native.OutputDebugString("ERROR Failed to log to file: " + error);
 		}
 
 
@@ -144,19 +156,22 @@ namespace GitMind.Utils
 					}
 					catch (Exception e)
 					{
-						OutputDebugString("ERROR Failed to move temp to second log file: " + e);
+						Native.OutputDebugString("ERROR Failed to move temp to second log file: " + e);
 					}
 					
 				}).RunInBackground();
 			}
 			catch (Exception e)
 			{
-				OutputDebugString("ERROR Failed to move large log file: " + e);
+				Native.OutputDebugString("ERROR Failed to move large log file: " + e);
 			}	
 		}
 
 
-		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-		public static extern void OutputDebugString(string message);
+		private static class Native
+		{
+			[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+			public static extern void OutputDebugString(string message);
+		}
 	}
 }
