@@ -240,13 +240,13 @@ namespace GitMind.Features.Branching
 				if (isLocal)
 				{
 					progress.SetText($"Delete local branch {branch.Name} ...");
-					await DeleteBranch(repositoryCommands, branch, false);
+					await DeleteBranchImpl(repositoryCommands, branch, false, false);
 				}
 
 				if (isRemote)
 				{
 					progress.SetText($"Delete remote branch {branch.Name} ...");
-					await DeleteBranch(repositoryCommands, branch, true);
+					await DeleteBranchImpl(repositoryCommands, branch, true, !isLocal);
 				}
 
 				progress.SetText($"Updating status after delete {branch.Name} ...");
@@ -254,16 +254,17 @@ namespace GitMind.Features.Branching
 			});
 		}
 
-		private async Task DeleteBranch(
+		private async Task DeleteBranchImpl(
 			IRepositoryCommands repositoryCommands,
 			Branch branch,
-			bool isRemote)
+			bool isRemote,
+			bool isNoLongerLocal)
 		{
 			string workingFolder = repositoryCommands.WorkingFolder;
 			Window owner = repositoryCommands.Owner;
 			string text = isRemote ? "Remote" : "Local";
 
-			if (!IsBranchFullyMerged(branch, isRemote))
+			if (!IsBranchFullyMerged(branch, isRemote, isNoLongerLocal))
 			{
 				
 				if (!MessageDialog.ShowWarningAskYesNo(owner,
@@ -284,12 +285,17 @@ namespace GitMind.Features.Branching
 		}
 
 
-		private bool IsBranchFullyMerged(Branch branch, bool isRemote)
+		private bool IsBranchFullyMerged(Branch branch, bool isRemote, bool isNoLongerLocal)
 		{
 			if (branch.TipCommit.IsVirtual && branch.TipCommit.Id != Commit.UncommittedId)
 			{
 				// OK to delete branch, which is just a branch tip with a commit on another branch
 				return true;
+			}
+
+			if (isRemote && isNoLongerLocal)
+			{
+				return false;
 			}
 
 			Stack<Commit> stack = new Stack<Commit>();
