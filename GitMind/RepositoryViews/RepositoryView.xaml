@@ -186,7 +186,7 @@
 															
 														<!-- Create Branch -->
 														<MenuItem 
-															Header="Create new branch"										
+															Header="Create new branch ..."										
 															Command="{Binding CreateBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
@@ -236,7 +236,7 @@
 
 														<!-- Delete branch -->
 														<MenuItem 
-															Header="Delete branch"
+															Header="Delete branch ..."
 															Command="{Binding DeleteBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
