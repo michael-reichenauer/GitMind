@@ -79,7 +79,7 @@ namespace GitMind.Utils
 			int lineNumber,
 			[CallerFilePath] string sourceFilePath = "")
 		{
-			int prefixLength = sourceFilePath.Length - 12;
+			int prefixLength = sourceFilePath.Length - 20;
 			filePath = filePath.Substring(prefixLength);
 			string text = $"{level} [{ProcessID}] {filePath}({lineNumber}) {memberName} - {msg}";
 
