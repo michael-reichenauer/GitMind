@@ -195,21 +195,26 @@ namespace GitMind.Features.Branching
 					return;
 				}
 
-				if (branch == branch.Repository.CurrentBranch)
+				if (!branch.IsRemote && branch == branch.Repository.CurrentBranch)
 				{
 					MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
 					return;
 				}
 
-
 				DeleteBranchDialog dialog = new DeleteBranchDialog(
 					owner,
 					branch.Name,
-					branch.IsLocal,
+					branch.IsLocal && branch != branch.Repository.CurrentBranch,
 					branch.IsRemote);
 
 				if (dialog.ShowDialog() == true)
 				{
+					if (branch == branch.Repository.CurrentBranch)
+					{
+						MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
+						return;
+					}
+
 					if (!dialog.IsLocal && !dialog.IsRemote)
 					{
 						MessageDialog.ShowWarning(owner, "Neither local nor remote branch was selected.");
