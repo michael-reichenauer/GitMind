@@ -463,7 +463,8 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel,
 				repositoryViewModel.ShowBranchCommand,
 				repositoryViewModel.MergeBranchCommand,
-				repositoryViewModel.DeleteBranchCommand));
+				repositoryViewModel.DeleteBranchCommand,
+				repositoryViewModel.PublishBranchCommand));
 
 			int index = 0;
 			List<BranchViewModel> addedBranchColumns = new List<BranchViewModel>();

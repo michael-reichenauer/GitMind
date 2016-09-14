@@ -195,6 +195,17 @@
 															</MenuItem.Icon>
 														</MenuItem>
 
+														<!-- Publish to other branch -->
+														<MenuItem 
+															Header="Publish branch"
+															Visibility="{Binding CanPublish, Converter={StaticResource VC}}"
+															Command="{Binding PublishBranchCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE25A;"/>
+																</Border>
+															</MenuItem.Icon>
+														</MenuItem>
 
 														<!-- Merge to other branch -->
 														<MenuItem 

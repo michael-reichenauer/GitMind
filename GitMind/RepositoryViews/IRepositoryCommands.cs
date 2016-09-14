@@ -15,7 +15,7 @@ namespace GitMind.RepositoryViews
 
 		DisabledStatus DisableStatus();
 		void AddSpecifiedBranch(string branchName);
-		Task RefreshAfterCommandAsync(bool b);
+		Task RefreshAfterCommandAsync(bool useFreshRepository);
 		void SetCurrentMerging(Branch branch);
 	}
 }

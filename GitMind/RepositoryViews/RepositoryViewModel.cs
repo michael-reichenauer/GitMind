@@ -186,6 +186,8 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
 		public Command<Branch> DeleteBranchCommand => Command<Branch>(
 			branch => branchService.DeleteBranch(this, branch));
+		public Command<Branch> PublishBranchCommand => Command<Branch>(
+			branch => branchService.PublishBranch(this, branch));
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
