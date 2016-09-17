@@ -53,11 +53,11 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			if (gitRepository.Head.Name == "(no branch)")
+			if (currentBranch.IsDetached)
 			{
 				Log.Warn("Detached head (no 'real' branch");
 
-				MSubBranch subBranch = ToBranch(gitRepository.Head, repository);
+				MSubBranch subBranch = ToBranch(currentBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
 				if (!gitStatus.OK)
