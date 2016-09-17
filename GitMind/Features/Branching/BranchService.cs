@@ -219,7 +219,7 @@ namespace GitMind.Features.Branching
 
 				if (dialog.ShowDialog() == true)
 				{
-					if (branch == branch.Repository.CurrentBranch)
+					if (dialog.IsLocal && branch == branch.Repository.CurrentBranch)
 					{
 						MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
 						return;
