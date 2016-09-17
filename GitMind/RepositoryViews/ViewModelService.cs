@@ -26,15 +26,27 @@ namespace GitMind.RepositoryViews
 
 			foreach (string name in repositoryViewModel.SpecifiedBranchNames)
 			{
-				// First try find active branch with name and then other branch
-				Branch branch = repositoryViewModel.Repository.Branches
-					.FirstOrDefault(b => b.Name == name && b.IsActive)
-					?? repositoryViewModel.Repository.Branches.FirstOrDefault(b => b.Name == name);
+				Branch branch;
 
-				if (branch != null && !specifiedBranches.Any(b => b.Name == name))
+				// First try find active branch with name and then other branch
+				if (name != null)
 				{
-					specifiedBranches.Add(branch);
+					branch = repositoryViewModel.Repository.Branches
+						.FirstOrDefault(b => b.Name == name && b.IsActive)
+					         ?? repositoryViewModel.Repository.Branches.FirstOrDefault(b => b.Name == name);
+					if (branch != null && !specifiedBranches.Any(b => b.Name == name))
+					{
+						specifiedBranches.Add(branch);
+					}
 				}
+				else
+				{
+					branch = repositoryViewModel.Repository.Branches.First(b => b.IsCurrentBranch);
+					if (branch != null && !specifiedBranches.Any(b => b.Name == branch.Name))
+					{
+						specifiedBranches.Add(branch);
+					}
+				}			
 			}
 
 			if (!specifiedBranches.Any())

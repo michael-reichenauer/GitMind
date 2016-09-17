@@ -78,7 +78,7 @@ namespace GitMind.Features.Branching
 							}
 						}
 
-						repositoryCommands.AddSpecifiedBranch(branchName);
+						repositoryCommands.ShowBranch(branchName);
 
 						progress.SetText($"Updating status after create branch {branchName} ...");
 						await repositoryCommands.RefreshAfterCommandAsync(false);
@@ -151,6 +151,13 @@ namespace GitMind.Features.Branching
 
 			using (repositoryCommands.DisableStatus())
 			{
+				if (commit.IsRemoteAhead)
+				{
+					MessageDialog.ShowInfo(
+						owner, "Commit is remote, you must first update before switching to this commit.");
+					return Task.CompletedTask;
+				}
+
 				Progress.ShowDialog(owner, "Switch to commit ...", async progress =>
 				{
 					string branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
@@ -160,11 +167,16 @@ namespace GitMind.Features.Branching
 
 					if (switchedNamed.HasValue)
 					{
-						repositoryCommands.AddSpecifiedBranch(switchedNamed.Value);
+						repositoryCommands.ShowBranch(switchedNamed.Value);
 					}
+					else
+					{
+						// Show current branch
+						repositoryCommands.ShowBranch(null);
+					}	
 
-					progress.SetText($"Updating status after switch to commit ...");
-					await repositoryCommands.RefreshAfterCommandAsync(false);
+					progress.SetText("Updating status after switch to commit ...");
+					await repositoryCommands.RefreshAfterCommandAsync(true);
 				});
 
 				return Task.CompletedTask;

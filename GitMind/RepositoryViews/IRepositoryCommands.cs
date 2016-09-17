@@ -14,7 +14,7 @@ namespace GitMind.RepositoryViews
 		CredentialHandler GetCredentialsHandler();
 
 		DisabledStatus DisableStatus();
-		void AddSpecifiedBranch(string branchName);
+		void ShowBranch(string branchName);
 		Task RefreshAfterCommandAsync(bool useFreshRepository);
 		void SetCurrentMerging(Branch branch);
 	}

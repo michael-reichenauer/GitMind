@@ -278,7 +278,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public void AddSpecifiedBranch(string branchName)
+		public void ShowBranch(string branchName)
 		{
 			SpecifiedBranchNames = new[] { branchName };
 		}
