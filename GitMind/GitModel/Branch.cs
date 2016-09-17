@@ -27,6 +27,7 @@ namespace GitMind.GitModel
 			bool isLocal,
 			bool isRemote,
 			bool isMultiBranch,
+			bool isDetached,
 			int localAheadCount,
 			int remoteAheadCount)
 		{
@@ -45,6 +46,7 @@ namespace GitMind.GitModel
 			IsMultiBranch = isMultiBranch;
 			LocalAheadCount = localAheadCount;
 			RemoteAheadCount = remoteAheadCount;
+			IsDetached = isDetached;
 		}
 
 
@@ -65,6 +67,7 @@ namespace GitMind.GitModel
 		public Branch ParentBranch => Repository.Branches[parentBranchId];
 		public bool IsCurrentBranch => Repository.CurrentBranch == this;
 		public bool IsMergeable => !IsCurrentBranch;
+		public bool IsDetached { get; }
 		public Repository Repository { get; }
 
 

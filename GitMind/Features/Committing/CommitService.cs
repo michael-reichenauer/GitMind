@@ -42,6 +42,14 @@ namespace GitMind.Features.Committing
 
 			using (repositoryCommands.DisableStatus())
 			{
+				if (repository.CurrentBranch.IsDetached)
+				{
+					MessageDialog.ShowInfo(owner, 
+						"Current branch is in detached head status.\n" +
+						"You must first create or switch to branch before commit.");
+					return;
+				}
+
 				IEnumerable<CommitFile> commitFiles = await repositoryCommands.UnCommited.FilesTask;
 				string commitMessage = repository.Status.Message;
 

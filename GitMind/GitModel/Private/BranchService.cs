@@ -230,6 +230,7 @@ namespace GitMind.GitModel.Private
 				TipCommitId = gitBranch.TipId,
 				IsActive = true,
 				IsCurrent = gitBranch.IsCurrent,
+				IsDetached = gitBranch.IsDetached,
 				IsRemote = gitBranch.IsRemote
 			};
 		}

@@ -21,6 +21,7 @@ namespace GitMind.GitModel.Private
 				branch.IsLocal,
 				branch.IsRemote,
 				branch.IsMultiBranch,
+				branch.IsDetached,
 				branch.LocalAheadCount,
 				branch.RemoteAheadCount);
 		}

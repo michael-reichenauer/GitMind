@@ -12,6 +12,11 @@ namespace GitMind.GitModel.Private
 			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
 		{
 			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
+			if (gitRepository.Head.IsDetached)
+			{
+				rootCommits = rootCommits.Concat(new[] {gitRepository.Head.Tip});
+			}
+
 			Dictionary<string, object> added = new Dictionary<string, object>();
 
 			Dictionary<string, string> branchNameByCommitId = new Dictionary<string, string>();

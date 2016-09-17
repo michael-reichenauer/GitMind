@@ -15,7 +15,7 @@ namespace GitMind.Git
 			this.branch = branch;
 			Name = branch.FriendlyName != DetachedBranchName
 				? branch.FriendlyName
-				: $"(detached_{branch.Tip.Sha.Substring(0, 6)})";
+				: $"({branch.Tip.Sha.Substring(0, 6)})";
 		}
 
 		public string Name { get; }

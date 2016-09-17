@@ -11,6 +11,7 @@ namespace GitMind.GitModel.Private
 		public bool IsMultiBranch { get; set; }
 		public bool IsActive { get; set; }
 		public bool IsCurrent { get; set; }
+		public bool IsDetached { get; set; }
 		public bool IsAnonymous { get; set; }
 		public bool IsRemote { get; set; }
 
