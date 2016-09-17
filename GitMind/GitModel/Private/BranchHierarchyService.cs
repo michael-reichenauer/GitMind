@@ -110,6 +110,7 @@ namespace GitMind.GitModel.Private
 					branch.IsActive = activeSubBranches.Any();
 					branch.IsLocal = activeSubBranches.Any(b =>  b.Value.IsLocal);
 					branch.IsRemote = activeSubBranches.Any(b => b.Value.IsRemote);
+					branch.IsCurrent = activeSubBranches.Any(b => b.Value.IsCurrent);
 
 					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);
 				}

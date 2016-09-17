@@ -224,15 +224,7 @@ namespace GitMind.GitModel.Private
 
 			tagService.AddTags(gitRepository, repository);
 
-			MBranch currentBranch = repository.Branches.Values
-				.FirstOrDefault(b => b.IsActive && b.Name == gitRepository.Head.Name);
-
-			if (currentBranch == null)
-			{
-				Log.Warn("No current branch, using master instead");
-				currentBranch = repository.Branches.Values.First(b => b.IsActive && b.Name == "master");
-			}
-
+			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);	
 			repository.CurrentBranchId = currentBranch.Id;
 
 			repository.CurrentCommitId = gitStatus.OK

@@ -19,6 +19,8 @@ namespace GitMind.Git
 		public string TipId => branch.Tip.Sha;
 
 		public bool IsRemote => branch.IsRemote;
+		public bool IsCurrent => branch.IsCurrentRepositoryHead;
+
 		public GitCommit Tip => new GitCommit(branch.Tip);
 
 		public override string ToString() => Name;

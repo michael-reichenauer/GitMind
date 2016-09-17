@@ -55,14 +55,14 @@ namespace GitMind.GitModel.Private
 
 			if (gitRepository.Head.Name == "(no branch)")
 			{
-				Log.Warn("No current branch (detached)");
+				Log.Warn("Detached head (no 'real' branch");
 
 				MSubBranch subBranch = ToBranch(gitRepository.Head, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!gitStatus.OK && gitRepository.Head.Name == currentBranch.Name && !gitRepository.Head.IsRemote)
+				if (!gitStatus.OK)
 				{
-					// Setting virtual uncommitted commit as tip of the current branch
+					// Setting virtual uncommitted commit as tip of the detached branch
 					subBranch.TipCommitId = MCommit.UncommittedId;
 					subBranch.TipCommit.SubBranchId = subBranch.SubBranchId;
 				}
@@ -229,6 +229,7 @@ namespace GitMind.GitModel.Private
 				Name = branchName,
 				TipCommitId = gitBranch.TipId,
 				IsActive = true,
+				IsCurrent = gitBranch.IsCurrent,
 				IsRemote = gitBranch.IsRemote
 			};
 		}
