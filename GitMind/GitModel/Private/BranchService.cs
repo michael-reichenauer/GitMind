@@ -45,7 +45,7 @@ namespace GitMind.GitModel.Private
 				MSubBranch subBranch = ToBranch(gitBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!gitStatus.OK && gitBranch.Name == currentBranch.Name && !gitBranch.IsRemote)
+				if (!gitStatus.OK && gitBranch.IsCurrent && !gitBranch.IsRemote)
 				{
 					// Setting virtual uncommitted commit as tip of the current branch
 					subBranch.TipCommitId = MCommit.UncommittedId;
@@ -217,7 +217,8 @@ namespace GitMind.GitModel.Private
 		private static MSubBranch ToBranch(GitBranch gitBranch, MRepository repository)
 		{
 			string branchName = gitBranch.Name;
-			if (gitBranch.IsRemote && branchName.StartsWith(Origin))
+			if (gitBranch.IsRemote && branchName.StartsWith(
+				Origin, StringComparison.InvariantCultureIgnoreCase))
 			{
 				branchName = branchName.Substring(Origin.Length);
 			}

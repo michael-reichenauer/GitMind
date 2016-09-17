@@ -39,11 +39,12 @@ namespace GitMind.Git
 		}
 
 
-		public IEnumerable<GitBranch> Branches => repository.Branches.Select(b => new GitBranch(b));
+		public IEnumerable<GitBranch> Branches => repository.Branches
+			.Select(b => new GitBranch(b, repository));
 
 		public IEnumerable<GitTag> Tags => repository.Tags.Select(t => new GitTag(t));
 
-		public GitBranch Head => new GitBranch(repository.Head);
+		public GitBranch Head => new GitBranch(repository.Head, repository);
 
 		public GitStatus Status => GetGitStatus();
 

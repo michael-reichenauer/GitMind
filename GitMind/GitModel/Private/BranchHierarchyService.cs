@@ -25,7 +25,8 @@ namespace GitMind.GitModel.Private
 				MCommit LatestCommit = subBranch.Value.TipCommit;
 				if (LatestCommit.BranchId != null)
 				{
-					if (LatestCommit.BranchName == subBranch.Value.Name)
+					if (0 == string.Compare(
+						LatestCommit.BranchName, subBranch.Value.Name, StringComparison.OrdinalIgnoreCase))
 					{
 						subBranch.Value.ParentCommitId = repository.Branches[LatestCommit.BranchId].ParentCommitId;
 					}
