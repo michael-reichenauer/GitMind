@@ -105,7 +105,7 @@ namespace GitMind.RepositoryViews
 		public string SpecifiedBranchName => CommitViewModel?.Commit?.SpecifiedBranchName;
 		public Brush BranchBrush => CommitViewModel?.Brush;
 		public Brush SubjectBrush => CommitViewModel?.SubjectBrush;
-		public FontStyle SubjectStyle => CommitViewModel?.SubjectStyle ?? FontStyles.Normal;
+		public FontStyle SubjectStyle => FontStyles.Normal;
 		public string Tags => CommitViewModel?.Tags;
 		public string Tickets => CommitViewModel?.Tickets;
 		public string BranchTips => CommitViewModel?.BranchTips;

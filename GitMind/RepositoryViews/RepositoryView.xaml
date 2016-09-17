@@ -483,6 +483,7 @@
 															<!-- Subject -->
 															<TextBlock 
 																Text="{Binding Subject}"
+																Visibility="{Binding IsShown, Converter={StaticResource VC}}"
 																Foreground="{Binding SubjectBrush}"
 																FontSize="12"
 																FontWeight="{Binding SubjectWeight}"

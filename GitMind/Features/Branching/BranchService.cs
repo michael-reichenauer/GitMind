@@ -81,7 +81,7 @@ namespace GitMind.Features.Branching
 						repositoryCommands.ShowBranch(branchName);
 
 						progress.SetText($"Updating status after create branch {branchName} ...");
-						await repositoryCommands.RefreshAfterCommandAsync(false);
+						await repositoryCommands.RefreshAfterCommandAsync(true);
 					});
 				}
 
@@ -126,7 +126,7 @@ namespace GitMind.Features.Branching
 					await gitService.SwitchToBranchAsync(workingFolder, branch.Name);
 
 					progress.SetText($"Updating status after switch to {branch.Name} ...");
-					await repositoryCommands.RefreshAfterCommandAsync(false);
+					await repositoryCommands.RefreshAfterCommandAsync(true);
 				});
 
 				return Task.CompletedTask;

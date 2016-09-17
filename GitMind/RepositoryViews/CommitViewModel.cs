@@ -46,6 +46,7 @@ namespace GitMind.RepositoryViews
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.Id == Commit.UncommittedId;
+		public bool IsShown => BranchTips == null;
 
 		public int XPoint { get; set; }
 		public int YPoint => IsMergePoint ? 2 : 4;
