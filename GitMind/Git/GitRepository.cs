@@ -252,7 +252,7 @@ namespace GitMind.Git
 		}
 
 
-		public string SwitchToCommit(string commitId, string proposedBranchName)
+		public string SwitchToCommit(string commitId, string branchName)
 		{
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 			if (commit == null)
@@ -261,45 +261,21 @@ namespace GitMind.Git
 				return null;
 			}
 
-			// Trying to create a switch branch and check out, but that branch might be "taken"
-			// so we might have to retry a few times
-			for (int i = 0; i < 10; i++)
+			// Trying to get an existing switch branch) at that commit
+			Branch branch = repository.Branches
+				.FirstOrDefault(b => !b.IsRemote && b.FriendlyName == branchName && b.Tip.Sha == commitId);
+
+			if (branch != null)
 			{
-				// Trying to get an existing switch branch with proposed name) at that commit
-				Branch branch = repository.Branches
-					.FirstOrDefault(b => !b.IsRemote && b.FriendlyName == proposedBranchName && b.Tip.Id.Sha == commitId);
-
-				if (branch == null)
-				{
-					// Could not find proposed name at that place, try get existing branch at that commit
-					branch = repository.Branches.FirstOrDefault(b => !b.IsRemote && b.Tip.Id.Sha == commitId);
-				}
-
-				string branchName = (i == 0) ? proposedBranchName : $"{commit.Sha.Substring(0, 6)}_{i + 1}";
-
-				if (branch == null)
-				{
-					// Try get a previous switch branch				
-					branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
-				}
-
-				if (branch != null && branch.Tip.Id.Sha != commitId)
-				{
-					// Branch name already exist, but no longer point to specified commit, lets try other name
-					continue;
-				}
-				else if (branch == null)
-				{
-					// No branch with that name so lets create one
-					branch = repository.Branches.Add(branchName, commit);
-				}
-
 				repository.Checkout(branch);
-
 				return branchName;
 			}
+			else 
+			{
+				// No branch with that name so lets check out commit (detached head)
+				repository.Checkout(commit);
+			}
 
-			Log.Warn($"To many branches with same name");
 			return null;
 		}
 

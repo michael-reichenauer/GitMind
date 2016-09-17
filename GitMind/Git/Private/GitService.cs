@@ -314,10 +314,10 @@ namespace GitMind.Git.Private
 
 
 		public Task<R<string>> SwitchToCommitAsync(
-			string workingFolder, string commitId, string proposedBranchName)
+			string workingFolder, string commitId, string branchName)
 		{
-			Log.Debug($"Switch to commit {commitId} with proposed branch name {proposedBranchName} ...");
-			return UseRepoAsync(workingFolder, repo => repo.SwitchToCommit(commitId, proposedBranchName));
+			Log.Debug($"Switch to commit {commitId} with branch name '{branchName}' ...");
+			return UseRepoAsync(workingFolder, repo => repo.SwitchToCommit(commitId, branchName));
 		}
 
 

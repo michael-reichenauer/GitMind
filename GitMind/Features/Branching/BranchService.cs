@@ -153,19 +153,17 @@ namespace GitMind.Features.Branching
 			{
 				Progress.ShowDialog(owner, "Switch to commit ...", async progress =>
 				{
-					string proposedNamed = commit == commit.Branch.TipCommit
-						? commit.Branch.Name
-						: $"_{commit.ShortId}";
+					string branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
 
-					R<string> branchName = await gitService.SwitchToCommitAsync(
-						workingFolder, commit.CommitId, proposedNamed);
+					R<string> switchedNamed = await gitService.SwitchToCommitAsync(
+						workingFolder, commit.CommitId, branchName);
 
-					if (branchName.HasValue)
+					if (switchedNamed.HasValue)
 					{
-						repositoryCommands.AddSpecifiedBranch(branchName.Value);
+						repositoryCommands.AddSpecifiedBranch(switchedNamed.Value);
 					}
 
-					progress.SetText($"Updating status after switch to {branchName.Value} ...");
+					progress.SetText($"Updating status after switch to commit ...");
 					await repositoryCommands.RefreshAfterCommandAsync(false);
 				});
 
