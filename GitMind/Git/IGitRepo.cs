@@ -18,7 +18,7 @@ namespace GitMind.Git
 
 	//	//IReadOnlyList<GitTag> GetTags(string commitId);
 
-	//	IReadOnlyList<BranchName> GetSpecifiedNameses();
+	//	IReadOnlyList<CommitBranchName> GetSpecifiedNameses();
 
 	//	//IReadOnlyList<string> GetCommitChildren(string commitId);
 

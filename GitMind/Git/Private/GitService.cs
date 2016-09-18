@@ -105,13 +105,13 @@ namespace GitMind.Git.Private
 		}
 
 
-		public IReadOnlyList<BranchName> GetSpecifiedNames(string workingFolder, string rootId)
+		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId)
 		{
 			return GetNoteBranches(workingFolder, ManualBranchNoteNameSpace, rootId);
 		}
 
 
-		public IReadOnlyList<BranchName> GetCommitBranches(string workingFolder, string rootId)
+		public IReadOnlyList<CommitBranchName> GetCommitBranches(string workingFolder, string rootId)
 		{
 			return GetNoteBranches(workingFolder, CommitBranchNoteNameSpace, rootId);
 		}
@@ -380,7 +380,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private IReadOnlyList<BranchName> GetNoteBranches(
+		private IReadOnlyList<CommitBranchName> GetNoteBranches(
 			string workingFolder, string nameSpace, string rootId)
 		{
 			Log.Debug($"Getting notes {nameSpace} from root commit {rootId} ...");
@@ -406,7 +406,7 @@ namespace GitMind.Git.Private
 				Log.Warn($"Failed to read local {nameSpace}, {e}");
 			}
 
-			List<BranchName> branchNames = ParseBranchNames(notesText);
+			List<CommitBranchName> branchNames = ParseBranchNames(notesText);
 
 			Log.Debug($"Got {branchNames.Count} branch names for {nameSpace}");
 
@@ -414,9 +414,9 @@ namespace GitMind.Git.Private
 		}
 
 
-		private List<BranchName> ParseBranchNames(string text)
+		private List<CommitBranchName> ParseBranchNames(string text)
 		{
-			List<BranchName> branchNames = new List<BranchName>();
+			List<CommitBranchName> branchNames = new List<CommitBranchName>();
 
 			try
 			{
@@ -433,7 +433,7 @@ namespace GitMind.Git.Private
 					{
 						string commitId = parts[0];
 						string branchName = parts[1].Trim();
-						branchNames.Add(new BranchName(commitId, branchName));
+						branchNames.Add(new CommitBranchName(commitId, branchName));
 					}
 				}
 			}

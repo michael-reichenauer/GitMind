@@ -7,7 +7,7 @@
 //	internal class GitRepo : IGitRepo
 //	{
 //		//private readonly IReadOnlyList<GitTag> tags;
-//		private readonly IReadOnlyList<BranchName> specifiedNames;
+//		private readonly IReadOnlyList<CommitBranchName> specifiedNames;
 //		//private static readonly IReadOnlyList<GitTag> noTags = new List<GitTag>();
 
 //		//private readonly Dictionary<string, GitCommit> commits = new Dictionary<string, GitCommit>();
@@ -25,7 +25,7 @@
 //			//IReadOnlyList<GitBranch> branches, 
 //			//IReadOnlyList<GitCommit> commits, 
 //			//IReadOnlyList<GitTag> tags,
-//			IReadOnlyList<BranchName> specifiedNames
+//			IReadOnlyList<CommitBranchName> specifiedNames
 //			//GitCommit currentCommit,
 //			//GitBranch currentBranch
 //			)
@@ -47,7 +47,7 @@
 
 //		//public GitBranch CurrentBranch { get; }
 
-//		public IReadOnlyList<BranchName> GetSpecifiedNameses() => specifiedNames;
+//		public IReadOnlyList<CommitBranchName> GetSpecifiedNameses() => specifiedNames;
 
 
 //		//public IReadOnlyList<string> GetCommitChildren(string commitId) => GetChildren(commitId);

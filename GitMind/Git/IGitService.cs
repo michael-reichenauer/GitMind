@@ -25,8 +25,8 @@ namespace GitMind.Git
 		Task SetManualCommitBranchAsync(string workingFolder, string commitId, string branchName);
 		Task SetCommitBranchAsync(string workingFolder, string commitId, string branchName);
 
-		IReadOnlyList<BranchName> GetSpecifiedNames(string workingFolder, string rootId);
-		IReadOnlyList<BranchName> GetCommitBranches(string workingFolder, string rootId);
+		IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId);
+		IReadOnlyList<CommitBranchName> GetCommitBranches(string workingFolder, string rootId);
 
 		Task FetchBranchAsync(string workingFolder, string branchName);
 		Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder);
