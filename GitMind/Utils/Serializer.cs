@@ -1,12 +1,15 @@
-﻿using GitMind.GitModel.Private;
+﻿using System.IO;
+using GitMind.GitModel.Private;
+using ProtoBuf;
 using ProtoBuf.Meta;
+using ProtoSerializer = ProtoBuf.Serializer;
 
 
 namespace GitMind.Utils
 {
-	public static class MySerializer
+	public static class Serializer
 	{
-		public static void Init()
+		public static void RegisterSerializedTypes()
 		{
 			RegisterMBranch();
 			RegisterMCommit();
@@ -70,6 +73,24 @@ namespace GitMind.Utils
 				.Add(15, nameof(MBranch.IsLocalAndRemote))
 				.Add(16, nameof(MBranch.ChildBranchNames))
 				.Add(17, nameof(MBranch.CommitIds));
+		}
+
+
+		public static void Serialize(FileStream file, object data)
+		{
+			ProtoSerializer.Serialize(file, data);
+		}
+
+
+		public static T Deserialize<T>(FileStream file)
+		{
+			return ProtoSerializer.Deserialize<T>(file);
+		}
+
+
+		public static T DeserializeWithLengthPrefix<T>(FileStream file)
+		{
+			return ProtoSerializer.DeserializeWithLengthPrefix<T>(file, PrefixStyle.Fixed32);
 		}
 	}
 }
