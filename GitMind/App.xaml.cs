@@ -123,6 +123,7 @@ namespace GitMind
 
 		private void StartProgram()
 		{
+			Serializer.RegisterSerializedTypes();
 			commandLine = new CommandLine();
 			ExceptionHandling.Init();
 			WpfBindingTraceListener.Register();
