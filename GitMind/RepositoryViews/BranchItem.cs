@@ -26,7 +26,7 @@ namespace GitMind.RepositoryViews
 			Command<Branch> showBranchCommand,
 			Command<Branch> mergeBranchCommand)
 		{
-			Text = branch.Name.Name;
+			Text = branch.Name;
 			Branch = branch;
 			BranchCommand = showBranchCommand;
 			MergeBranchCommand = mergeBranchCommand;
@@ -101,7 +101,7 @@ namespace GitMind.RepositoryViews
 
 			foreach (Branch branch in branches.Where(b => b.Name.StartsWith(prefix)))
 			{
-				string[] nameParts = branch.Name.Name.Split("/".ToCharArray());
+				string[] nameParts = branch.Name.ToString().Split("/".ToCharArray());
 				if (nameParts.Length == level + 1)
 				{
 					if (level == 0 && !localItems.Any(b => b.Branch == branch))

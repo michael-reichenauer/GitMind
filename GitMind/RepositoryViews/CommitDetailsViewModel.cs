@@ -97,12 +97,12 @@ namespace GitMind.RepositoryViews
 
 		public string Id => CommitViewModel?.Id;
 		public string ShortId => CommitViewModel?.ShortId;
-		public string BranchName => CommitViewModel?.Commit?.Branch?.Name.Name;
+		public string BranchName => CommitViewModel?.Commit?.Branch?.Name;
 		public FontStyle BranchNameStyle => !string.IsNullOrEmpty(SpecifiedBranchName)
 			? FontStyles.Oblique : FontStyles.Normal;
 		public string BranchNameUnderline => !string.IsNullOrEmpty(SpecifiedBranchName) ? "Underline" : "None";
 		public string BranchNameToolTip => SpecifiedBranchName != null ? "Manually specified branch" : null;
-		public string SpecifiedBranchName => CommitViewModel?.Commit?.SpecifiedBranchName?.Name;
+		public string SpecifiedBranchName => CommitViewModel?.Commit?.SpecifiedBranchName;
 		public Brush BranchBrush => CommitViewModel?.Brush;
 		public Brush SubjectBrush => CommitViewModel?.SubjectBrush;
 		public FontStyle SubjectStyle => FontStyles.Normal;

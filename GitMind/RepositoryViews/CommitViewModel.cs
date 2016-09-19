@@ -44,7 +44,7 @@ namespace GitMind.RepositoryViews
 		public string BranchTips => Commit.BranchTips;
 		public string CommitBranchText => $"Hide branch: {Commit.Branch.Name}";
 		public string SwitchToBranchText => $"Switch to branch: {Commit.Branch.Name}";
-		public string CommitBranchName => Commit.Branch.Name.Name;
+		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.Id == Commit.UncommittedId;
 		public bool IsShown => BranchTips == null;

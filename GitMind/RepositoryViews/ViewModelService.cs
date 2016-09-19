@@ -302,7 +302,7 @@ namespace GitMind.RepositoryViews
 						|| Contains(c.AuthorDateText, filterText)
 						|| Contains(c.Tickets, filterText)
 						|| Contains(c.Tags, filterText)
-						|| Contains(c.Branch.Name.Name, filterText)
+						|| Contains(c.Branch.Name, filterText)
 						|| (isSearchSpecifiedNames && c.SpecifiedBranchName != null))
 					.OrderByDescending(c => c.CommitDate)
 					.ToList();
@@ -513,7 +513,7 @@ namespace GitMind.RepositoryViews
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
 				branch.DimBrushHighlight = brushService.GetLighterLighterBrush(branch.Brush);
 				branch.BranchToolTip = GetBranchToolTip(branch);
-				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name.Name;
+				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name;
 
 				branch.SetNormal();
 
@@ -526,7 +526,7 @@ namespace GitMind.RepositoryViews
 
 		private string GetBranchToolTip(BranchViewModel branch)
 		{
-			string name = branch.Branch.IsMultiBranch ? "MultiBranch" : branch.Branch.Name.Name;
+			string name = branch.Branch.IsMultiBranch ? "MultiBranch" : branch.Branch.Name;
 			string toolTip = $"Branch: {name}";
 
 			if (branch.Branch.LocalAheadCount > 0)

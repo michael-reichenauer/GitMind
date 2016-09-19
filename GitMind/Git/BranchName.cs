@@ -23,14 +23,14 @@ namespace GitMind.Git
 			id = name.ToLower();
 			hashCode = id.GetHashCode();
 		}
-
-
-		public string Name => name;
 		
 
 		public static BranchName From(string name) => name != null ? new BranchName(name) : null;
 
 		protected override bool IsEqual(BranchName other) => id == other.id;
+
+		public bool IsEqual(string other) => 
+			0 == string.Compare(id, other, StringComparison.OrdinalIgnoreCase);
 
 		protected override int GetHash() => hashCode;
 
@@ -40,7 +40,7 @@ namespace GitMind.Git
 		public BranchName Substring(int length) => BranchName.From(name.Substring(length));
 
 
-		//public static implicit operator string(BranchName branchName) => branchName.name;
+		public static implicit operator string(BranchName branchName) => branchName.name;
 
 
 		//public static implicit operator BranchName(string branchName) => new BranchName(branchName);

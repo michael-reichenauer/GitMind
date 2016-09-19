@@ -41,7 +41,7 @@ namespace GitMind.RepositoryViews
 		public string Type => nameof(BranchViewModel);
 		public int ZIndex => 200;
 		public string Id => Branch.Id;
-		public string Name => Branch.Name.Name;
+		public string Name => Branch.Name;
 		public bool IsMultiBranch => Branch.IsMultiBranch;
 		public bool HasChildren => ChildBranches.Count > 0;
 		public Rect Rect { get; set; }

@@ -37,7 +37,7 @@ namespace GitMind.Features.Branching
 			viewModel = new DeleteBranchDialogViewModel();
 			DataContext = viewModel;
 
-			viewModel.BranchName = branchName.Name;
+			viewModel.BranchName = branchName;
 			viewModel.IsLocal = isLocal;
 			viewModel.CanLocal = isLocal && isRemote;
 			viewModel.IsRemote = isRemote;

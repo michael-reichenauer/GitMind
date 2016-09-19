@@ -528,7 +528,7 @@ namespace GitMind.RepositoryViews
 
 		private void UpdateStatusIndicators()
 		{
-			CurrentBranchName = Repository.CurrentBranch.Name.Name;
+			CurrentBranchName = Repository.CurrentBranch.Name;
 			CurrentBranchBrush = brushService.GetBranchBrush(Repository.CurrentBranch);
 
 			IEnumerable<Branch> remoteAheadBranches = Repository.Branches
@@ -996,7 +996,7 @@ namespace GitMind.RepositoryViews
 		private Task SetBranchAsync(Commit commit)
 		{
 			SetBranchPromptDialog dialog = new SetBranchPromptDialog();
-			dialog.PromptText = commit.SpecifiedBranchName.Name;
+			dialog.PromptText = commit.SpecifiedBranchName;
 			dialog.IsAutomatically = commit.SpecifiedBranchName == null;
 			foreach (Branch childBranch in commit.Branch.GetChildBranches())
 			{

@@ -97,7 +97,7 @@ namespace GitMind.Features.Branching
 				string workingFolder = repositoryCommands.WorkingFolder;
 				Window owner = repositoryCommands.Owner;
 
-				Progress.ShowDialog(owner, $"Publish branch {branch.Name.Name} ...", async progress =>
+				Progress.ShowDialog(owner, $"Publish branch {branch.Name} ...", async progress =>
 				{
 					R publish = await gitService.PublishBranchAsync(
 						workingFolder, branch.Name, repositoryCommands.GetCredentialsHandler());

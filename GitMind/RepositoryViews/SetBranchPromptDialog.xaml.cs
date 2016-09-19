@@ -70,7 +70,7 @@ namespace GitMind.RepositoryViews
 
 		public void AddBranchName(BranchName name)
 		{
-			BranchName.Items.Add(name.Name);
+			BranchName.Items.Add(name);
 		}
 	}
 }
