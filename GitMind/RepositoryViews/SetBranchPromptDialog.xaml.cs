@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using GitMind.Git;
 using Log = GitMind.Utils.Log;
 
 
@@ -67,9 +68,9 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public void AddBranchName(string name)
+		public void AddBranchName(BranchName name)
 		{
-			BranchName.Items.Add(name);
+			BranchName.Items.Add(name.Name);
 		}
 	}
 }

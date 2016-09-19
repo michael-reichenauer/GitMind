@@ -1,14 +1,17 @@
+using GitMind.Git;
+
+
 namespace GitMind.GitModel.Private
 {
 	internal class MergeBranchNames
 	{
-		public MergeBranchNames(string sourceBranchName, string targetBranchName)
+		public MergeBranchNames(BranchName sourceBranchName, BranchName targetBranchName)
 		{
 			SourceBranchName = sourceBranchName;
 			TargetBranchName = targetBranchName;
 		}
 
-		public string SourceBranchName { get; }
-		public string TargetBranchName { get; }
+		public BranchName SourceBranchName { get; }
+		public BranchName TargetBranchName { get; }
 	}
 }

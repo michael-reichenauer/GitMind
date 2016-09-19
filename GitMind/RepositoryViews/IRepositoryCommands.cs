@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using System.Windows;
+using GitMind.Git;
 using GitMind.GitModel;
 
 
@@ -14,7 +15,7 @@ namespace GitMind.RepositoryViews
 		CredentialHandler GetCredentialsHandler();
 
 		DisabledStatus DisableStatus();
-		void ShowBranch(string branchName);
+		void ShowBranch(BranchName branchName);
 		Task RefreshAfterCommandAsync(bool useFreshRepository);
 		void SetCurrentMerging(Branch branch);
 	}

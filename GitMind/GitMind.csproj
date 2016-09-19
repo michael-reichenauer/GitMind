@@ -111,6 +111,7 @@
     <Compile Include="Features\Committing\ICommitService.cs" />
     <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
+    <Compile Include="Git\BranchName.cs" />
     <Compile Include="RepositoryViews\CredentialHandler.cs" />
     <Compile Include="Git\GitConflict.cs" />
     <Compile Include="Git\GitConflictStatus.cs" />

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Git;
 
 
 namespace GitMind.GitModel
@@ -16,13 +17,13 @@ namespace GitMind.GitModel
 		public Branch(
 			Repository repository,
 			string id,
-			string name,
+			BranchName name,
 			string tipCommitId,
 			string firstCommitId,
 			string parentCommitId,
 			IReadOnlyList<string> commitIds,
 			string parentBranchId,
-			IReadOnlyList<string> childBranchNames,
+			IReadOnlyList<BranchName> childBranchNames,
 			bool isActive,
 			bool isLocal,
 			bool isRemote,
@@ -51,8 +52,8 @@ namespace GitMind.GitModel
 
 
 		public string Id { get; }
-		public string Name { get; }
-		public IReadOnlyList<string> ChildBranchNames { get; }
+		public BranchName Name { get; }
+		public IReadOnlyList<BranchName> ChildBranchNames { get; }
 		public bool IsActive { get; }
 		public bool IsLocal { get; }
 		public bool IsRemote { get; }
@@ -92,6 +93,6 @@ namespace GitMind.GitModel
 			}
 		}
 
-		public override string ToString() => Name;
+		public override string ToString() => Name.ToString();
 	}
 }

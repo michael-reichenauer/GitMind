@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Features.Branching;
+using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -43,7 +44,7 @@ namespace GitMind.RepositoryViews
 		public string BranchTips => Commit.BranchTips;
 		public string CommitBranchText => $"Hide branch: {Commit.Branch.Name}";
 		public string SwitchToBranchText => $"Switch to branch: {Commit.Branch.Name}";
-		public string CommitBranchName => Commit.Branch.Name;
+		public string CommitBranchName => Commit.Branch.Name.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.Id == Commit.UncommittedId;
 		public bool IsShown => BranchTips == null;
@@ -122,7 +123,7 @@ namespace GitMind.RepositoryViews
 		public bool IsMergePoint => 
 			(Commit.IsMergePoint && Commit.Branch != Commit.SecondParent.Branch)
 			|| (Commit.HasFirstParent && Commit.Branch != Commit.FirstParent.Branch)
-			|| (!Commit.HasFirstChild && Commit.Branch.Name != "master");
+			|| (!Commit.HasFirstChild && Commit.Branch.Name != BranchName.Master);
 
 		// Value used by merge and that determine if item is visible
 		public int BranchColumn { get; set; }

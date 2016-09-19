@@ -22,24 +22,24 @@ namespace GitMind.Git
 
 		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId);
 
-		Task SetManualCommitBranchAsync(string workingFolder, string commitId, string branchName);
-		Task SetCommitBranchAsync(string workingFolder, string commitId, string branchName);
+		Task SetManualCommitBranchAsync(string workingFolder, string commitId, BranchName branchName);
+		Task SetCommitBranchAsync(string workingFolder, string commitId, BranchName branchName);
 
 		IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId);
 		IReadOnlyList<CommitBranchName> GetCommitBranches(string workingFolder, string rootId);
 
-		Task FetchBranchAsync(string workingFolder, string branchName);
+		Task FetchBranchAsync(string workingFolder, BranchName branchName);
 		Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder);
 		Task MergeCurrentBranchAsync(string workingFolder);
 		Task PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler);
-		Task PushBranchAsync(string workingFolder, string branchName, ICredentialHandler credentialHandler);
+		Task PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler);
 
 		Task<R<GitCommit>> CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths);
-		Task SwitchToBranchAsync(string workingFolder, string branchName);
+		Task SwitchToBranchAsync(string workingFolder, BranchName branchName);
 		Task UndoFileInCurrentBranchAsync(string workingFolder, string path);
-		Task<R<GitCommit>> MergeAsync(string workingFolder, string branchName);
-		Task<R<string>> SwitchToCommitAsync(string workingFolder, string commitId, string branchName);
-		Task CreateBranchAsync(string workingFolder, string branchName, string commitId);
+		Task<R<GitCommit>> MergeAsync(string workingFolder, BranchName branchName);
+		Task<R<BranchName>> SwitchToCommitAsync(string workingFolder, string commitId, BranchName branchName);
+		Task CreateBranchAsync(string workingFolder, BranchName branchName, string commitId);
 		R<string> GetFullMessage(string workingFolder, string commitId);
 
 		Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler);
@@ -48,8 +48,8 @@ namespace GitMind.Git
 		Task UndoWorkingFolderAsync(string workingFolder);
 		void GetFile(string workingFolder, string fileId, string filePath);
 		Task ResolveAsync(string workingFolder, string path);
-		Task<R> DeleteBranchAsync(string workingFolder, string branchName, bool isRemote, ICredentialHandler credentialHandler);
-		Task<R> PublishBranchAsync(string workingFolder, string branchName, ICredentialHandler credentialHandler);
+		Task<R> DeleteBranchAsync(string workingFolder, BranchName branchName, bool isRemote, ICredentialHandler credentialHandler);
+		Task<R> PublishBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler);
 		bool IsSupportedRemoteUrl(string workingFolder);
 	}
 }

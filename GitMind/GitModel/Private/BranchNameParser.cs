@@ -1,3 +1,6 @@
+using GitMind.Git;
+
+
 namespace GitMind.GitModel.Private
 {
 	internal static class BranchNameParser
@@ -191,7 +194,8 @@ namespace GitMind.GitModel.Private
 				targetBranchName = null;
 			}
 
-			return new MergeBranchNames(sourceBranchName, targetBranchName);
+			return new MergeBranchNames(
+				BranchName.From(sourceBranchName), BranchName.From(targetBranchName));
 		}
 	}
 }

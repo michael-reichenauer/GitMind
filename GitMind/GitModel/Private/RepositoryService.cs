@@ -124,7 +124,7 @@ namespace GitMind.GitModel.Private
 
 
 		public Task SetSpecifiedCommitBranchAsync(
-			string gitRepositoryPath, string commitId, string branchName)
+			string gitRepositoryPath, string commitId, BranchName branchName)
 		{
 			return gitService.SetManualCommitBranchAsync(gitRepositoryPath, commitId, branchName);
 		}
@@ -194,7 +194,7 @@ namespace GitMind.GitModel.Private
 			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
 
 			MSubBranch mSubBranch = repository.SubBranches
-				.FirstOrDefault(b => b.Value.Name == "master" && !b.Value.IsRemote).Value;
+				.FirstOrDefault(b => b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
 			MCommit commit = mSubBranch.TipCommit.FirstAncestors().Last();
 
 			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitService.GetSpecifiedNames(
@@ -242,7 +242,7 @@ namespace GitMind.GitModel.Private
 			Branch currentBranch = null;
 			Commit currentCommit = null;
 			MCommit rootCommit = mRepository.Branches
-				.First(b => b.Value.Name == "master" && b.Value.IsActive)
+				.First(b => b.Value.Name == BranchName.Master && b.Value.IsActive)
 				.Value.FirstCommit;
 
 			Repository repository = new Repository(

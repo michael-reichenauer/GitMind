@@ -67,7 +67,7 @@ namespace GitMind.Git
 		}
 
 
-		public void FetchBranch(string branchName)
+		public void FetchBranch(BranchName branchName)
 		{
 			Remote remote = repository.Network.Remotes["origin"];
 
@@ -158,9 +158,9 @@ namespace GitMind.Git
 		}
 
 
-		public void Checkout(string branchName)
+		public void Checkout(BranchName branchName)
 		{
-			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName.Name);
 
 			if (branch != null)
 			{
@@ -171,7 +171,7 @@ namespace GitMind.Git
 				Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
 				if (remoteBranch != null)
 				{
-					branch = repository.Branches.Add(branchName, remoteBranch.Tip);
+					branch = repository.Branches.Add(branchName.Name, remoteBranch.Tip);
 					repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
 
 					repository.Checkout(branch);
@@ -212,11 +212,11 @@ namespace GitMind.Git
 		}
 
 
-		public GitCommit MergeBranchNoFastForward(string branchName)
+		public GitCommit MergeBranchNoFastForward(BranchName branchName)
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 
-			Branch localbranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			Branch localbranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName.Name);
 			Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
 
 			Branch branch = localbranch ?? remoteBranch;
@@ -253,7 +253,7 @@ namespace GitMind.Git
 		}
 
 
-		public string SwitchToCommit(string commitId, string branchName)
+		public BranchName SwitchToCommit(string commitId, BranchName branchName)
 		{
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 			if (commit == null)
@@ -264,7 +264,7 @@ namespace GitMind.Git
 
 			// Trying to get an existing switch branch) at that commit
 			Branch branch = repository.Branches
-				.FirstOrDefault(b => !b.IsRemote && b.FriendlyName == branchName && b.Tip.Sha == commitId);
+				.FirstOrDefault(b => !b.IsRemote && b.FriendlyName == branchName.Name && b.Tip.Sha == commitId);
 
 			if (branch != null)
 			{
@@ -281,7 +281,7 @@ namespace GitMind.Git
 		}
 
 
-		public void CreateBranch(string branchName, string commitId)
+		public void CreateBranch(BranchName branchName, string commitId)
 		{
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 			if (commit == null)
@@ -290,7 +290,7 @@ namespace GitMind.Git
 				return;
 			}
 
-			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			Branch branch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName.Name);
 
 			if (branch != null)
 			{
@@ -298,15 +298,15 @@ namespace GitMind.Git
 				return;
 			}
 
-			branch = repository.Branches.Add(branchName, commit);
+			branch = repository.Branches.Add(branchName.Name, commit);
 
 			repository.Checkout(branch);
 		}
 
 
-		public void PublishBranch(string branchName, ICredentialHandler credentialHandler)
+		public void PublishBranch(BranchName branchName, ICredentialHandler credentialHandler)
 		{
-			Branch localBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName);
+			Branch localBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == branchName.Name);
 			if (localBranch == null)
 			{
 				Log.Warn($"Local branch does not exists {branchName}");
@@ -322,7 +322,7 @@ namespace GitMind.Git
 			if (remoteBranch != null)
 			{
 				// Remote branch exists, so connect local and remote branch
-				localBranch = repository.Branches.Add(branchName, remoteBranch.Tip);
+				localBranch = repository.Branches.Add(branchName.Name, remoteBranch.Tip);
 				repository.Branches.Update(localBranch, b => b.TrackedBranch = remoteBranch.CanonicalName);
 			}
 			else
@@ -537,7 +537,7 @@ namespace GitMind.Git
 		}
 
 
-		public void PushBranch(string branchName, ICredentialHandler credentialHandler)
+		public void PushBranch(BranchName branchName, ICredentialHandler credentialHandler)
 		{
 			PushRefs($"refs/heads/{branchName}", credentialHandler);
 		}
@@ -570,9 +570,9 @@ namespace GitMind.Git
 		{			
 		}
 
-		public void DeleteRemoteBranch(string branchName, ICredentialHandler credentialHandler)
+		public void DeleteRemoteBranch(BranchName branchName, ICredentialHandler credentialHandler)
 		{
-			repository.Branches.Remove(branchName, true);
+			repository.Branches.Remove(branchName.Name, true);
 
 			PushOptions pushOptions = GetPushOptions(credentialHandler);
 
@@ -585,9 +585,9 @@ namespace GitMind.Git
 		}
 
 
-		public void DeleteLocalBranch(string branchName)
+		public void DeleteLocalBranch(BranchName branchName)
 		{
-			repository.Branches.Remove(branchName, false);
+			repository.Branches.Remove(branchName.Name, false);
 		}
 
 

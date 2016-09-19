@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
 
@@ -24,7 +25,7 @@ namespace GitMind.RepositoryViews
 
 			List<Branch> specifiedBranches = repositoryViewModel.SpecifiedBranches.ToList();
 
-			foreach (string name in repositoryViewModel.SpecifiedBranchNames)
+			foreach (BranchName name in repositoryViewModel.SpecifiedBranchNames)
 			{
 				Branch branch;
 
@@ -68,7 +69,7 @@ namespace GitMind.RepositoryViews
 
 			repositoryViewModel.HidableBranches.Clear();
 			branches
-				.Where(b => b.Name != "master")
+				.Where(b => b.Name != BranchName.Master)
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.HidableBranches.Add(
 					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
@@ -83,7 +84,7 @@ namespace GitMind.RepositoryViews
 
 			repositoryViewModel.DeletableBranches.Clear();
 			IEnumerable<Branch> deletableBranches = repositoryViewModel.Repository.Branches
-				.Where(b => b.IsActive && b.Name != "master");
+				.Where(b => b.IsActive && b.Name != BranchName.Master);
 			IReadOnlyList<BranchItem> deletableBrancheItems = BranchItem.GetBranches(
 				deletableBranches,
 				repositoryViewModel.DeleteBranchCommand);
@@ -107,7 +108,7 @@ namespace GitMind.RepositoryViews
 			UpdateMerges(branches, repositoryViewModel);
 
 			repositoryViewModel.SpecifiedBranches = branches.ToList();
-			repositoryViewModel.SpecifiedBranchNames = new string[0];
+			repositoryViewModel.SpecifiedBranchNames = new BranchName[0];
 		}
 
 
@@ -171,7 +172,7 @@ namespace GitMind.RepositoryViews
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, otherBranch.Branch);
 
-				currentlyShownBranches.RemoveAll(b => b.Name != "master" && closingBranches.Contains(b));
+				currentlyShownBranches.RemoveAll(b => b.Name != BranchName.Master && closingBranches.Contains(b));
 			}
 
 			CommitViewModel stableCommitViewModel = repositoryViewModel.CommitsById[stableCommit.Id];
@@ -227,7 +228,7 @@ namespace GitMind.RepositoryViews
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, branch);
 
-				currentlyShownBranches.RemoveAll(b => b.Name != "master" && closingBranches.Contains(b));
+				currentlyShownBranches.RemoveAll(b => b.Name != BranchName.Master && closingBranches.Contains(b));
 
 				repositoryViewModel.SpecifiedBranches = currentlyShownBranches;
 				UpdateViewModel(repositoryViewModel);
@@ -301,8 +302,8 @@ namespace GitMind.RepositoryViews
 						|| Contains(c.AuthorDateText, filterText)
 						|| Contains(c.Tickets, filterText)
 						|| Contains(c.Tags, filterText)
-						|| Contains(c.Branch.Name, filterText)
-						|| (isSearchSpecifiedNames && !string.IsNullOrEmpty(c.SpecifiedBranchName)))
+						|| Contains(c.Branch.Name.Name, filterText)
+						|| (isSearchSpecifiedNames && c.SpecifiedBranchName != null))
 					.OrderByDescending(c => c.CommitDate)
 					.ToList();
 			});
@@ -512,7 +513,7 @@ namespace GitMind.RepositoryViews
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
 				branch.DimBrushHighlight = brushService.GetLighterLighterBrush(branch.Brush);
 				branch.BranchToolTip = GetBranchToolTip(branch);
-				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name;
+				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name.Name;
 
 				branch.SetNormal();
 
@@ -525,7 +526,7 @@ namespace GitMind.RepositoryViews
 
 		private string GetBranchToolTip(BranchViewModel branch)
 		{
-			string name = branch.Branch.IsMultiBranch ? "MultiBranch" : branch.Branch.Name;
+			string name = branch.Branch.IsMultiBranch ? "MultiBranch" : branch.Branch.Name.Name;
 			string toolTip = $"Branch: {name}";
 
 			if (branch.Branch.LocalAheadCount > 0)
@@ -549,7 +550,7 @@ namespace GitMind.RepositoryViews
 			if (branch.Branch.ChildBranchNames.Count > 1)
 			{
 				toolTip += $"\n\nBranch could be one of:";
-				foreach (string branchName in branch.Branch.ChildBranchNames)
+				foreach (BranchName branchName in branch.Branch.ChildBranchNames)
 				{
 					toolTip += $"\n   {branchName}";
 				}
@@ -722,7 +723,7 @@ namespace GitMind.RepositoryViews
 
 		private static Branch GetMasterBranch(Repository repository)
 		{
-			return repository.Branches.First(b => b.Name == "master" && b.IsActive);
+			return repository.Branches.First(b => b.Name == BranchName.Master && b.IsActive);
 		}
 
 

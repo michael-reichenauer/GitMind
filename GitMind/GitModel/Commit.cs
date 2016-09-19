@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Git;
 using GitMind.GitModel.Private;
 
 
@@ -29,8 +30,8 @@ namespace GitMind.GitModel
 			string branchTips, 
 			IReadOnlyList<string> parentIds, 
 			IReadOnlyList<string> childIds, 
-			string branchId, 
-			string specifiedBranchName, 
+			string branchId,
+			BranchName specifiedBranchName, 
 			bool isLocalAhead, bool isRemoteAhead, 
 			bool isUncommitted, 
 			bool isVirtual, 
@@ -75,7 +76,7 @@ namespace GitMind.GitModel
 		public string Tags { get; }
 		public string Tickets { get; }
 		public string BranchTips { get; }
-		public string SpecifiedBranchName { get; }
+		public BranchName SpecifiedBranchName { get; }
 		public bool IsLocalAhead { get; }
 		public bool IsRemoteAhead { get; }
 		public bool IsUncommitted { get; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using GitMind.Common;
+using GitMind.Git;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.MainWindowViews;
@@ -112,7 +114,7 @@ namespace GitMind
 
 			// Must not use WorkingFolder before installation code
 			mainWindow.WorkingFolder = commandLine.WorkingFolder;
-			mainWindow.BranchNames = commandLine.BranchNames;
+			mainWindow.BranchNames = commandLine.BranchNames.Select(name => BranchName.From(name)).ToList();
 			MainWindow.Show();
 
 			newVersionTimer.Tick += NewVersionCheckAsync;

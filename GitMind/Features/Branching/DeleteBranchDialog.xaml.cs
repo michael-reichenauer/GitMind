@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using GitMind.Git;
 using GitMind.Utils.UI;
 
 
@@ -26,7 +27,7 @@ namespace GitMind.Features.Branching
 
 		public DeleteBranchDialog(
 			Window owner, 
-			string branchName, 
+			BranchName branchName, 
 			bool isLocal, 
 			bool isRemote)
 		{
@@ -36,7 +37,7 @@ namespace GitMind.Features.Branching
 			viewModel = new DeleteBranchDialogViewModel();
 			DataContext = viewModel;
 
-			viewModel.BranchName = branchName;
+			viewModel.BranchName = branchName.Name;
 			viewModel.IsLocal = isLocal;
 			viewModel.CanLocal = isLocal && isRemote;
 			viewModel.IsRemote = isRemote;
@@ -44,7 +45,7 @@ namespace GitMind.Features.Branching
 		}
 
 
-		public string BranchName => viewModel.BranchName;
+		public BranchName BranchName => BranchName.From(viewModel.BranchName);
 		public bool IsLocal => viewModel.IsLocal;
 		public bool IsRemote => viewModel.IsRemote;
 	}

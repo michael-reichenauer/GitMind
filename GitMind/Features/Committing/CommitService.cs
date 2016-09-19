@@ -37,7 +37,7 @@ namespace GitMind.Features.Committing
 		{
 			Window owner = repositoryCommands.Owner;
 			Repository repository = repositoryCommands.Repository;
-			string branchName = repository.CurrentBranch.Name;
+			BranchName branchName = repository.CurrentBranch.Name;
 			string workingFolder = repositoryCommands.WorkingFolder;
 
 			using (repositoryCommands.DisableStatus())

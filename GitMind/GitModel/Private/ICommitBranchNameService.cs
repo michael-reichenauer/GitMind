@@ -6,7 +6,7 @@ namespace GitMind.GitModel.Private
 {
 	internal interface ICommitBranchNameService
 	{
-		string GetBranchName(MCommit commit);
+		BranchName GetBranchName(MCommit commit);
 
 		void SetMasterBranchCommits(MRepository repository);
 

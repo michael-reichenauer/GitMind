@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Media;
+using GitMind.Git;
 using GitMind.GitModel;
 
 
@@ -45,7 +46,7 @@ namespace GitMind.RepositoryViews
 
 		public Brush GetBranchBrush(Branch branch)
 		{
-			if (branch.Name == "master")
+			if (branch.Name == BranchName.Master)
 			{
 				return MasterBranchBrush;
 			}
@@ -81,7 +82,7 @@ namespace GitMind.RepositoryViews
 			return lighterLighterBrushes[index];
 		}
 
-		private Brush GetBrush(string name)
+		private Brush GetBrush(BranchName name)
 		{
 			int branchBrushId = Math.Abs(name.GetHashCode()) % (brushes.Count - 2);
 			return brushes[branchBrushId];

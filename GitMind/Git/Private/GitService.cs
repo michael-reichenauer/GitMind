@@ -85,8 +85,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SetManualCommitBranchAsync(
-			string workingFolder, string commitId, string branchName)
+		public Task SetManualCommitBranchAsync(string workingFolder, string commitId, BranchName branchName)
 		{
 			Log.Debug($"Set manual branch name {branchName} for commit {commitId} ...");
 			SetNoteBranches(workingFolder, ManualBranchNoteNameSpace, commitId, branchName);
@@ -95,8 +94,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SetCommitBranchAsync(
-			string workingFolder, string commitId, string branchName)
+		public Task SetCommitBranchAsync(string workingFolder, string commitId, BranchName branchName)
 		{
 			Log.Debug($"Set commit branch name {branchName} for commit {commitId} ...");
 			SetNoteBranches(workingFolder, CommitBranchNoteNameSpace, commitId, branchName);
@@ -159,7 +157,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task FetchBranchAsync(string workingFolder, string branchName)
+		public Task FetchBranchAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Fetch branch {branchName}...");
 			return UseRepoAsync(workingFolder, repo => repo.FetchBranch(branchName));
@@ -213,11 +211,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> DeleteBranchAsync(
-			string workingFolder,
-			string branchName,
-			bool isRemote,
-			ICredentialHandler credentialHandler)
+		public Task<R> DeleteBranchAsync(string workingFolder, BranchName branchName, bool isRemote, ICredentialHandler credentialHandler)
 		{
 			if (isRemote)
 			{
@@ -230,7 +224,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private Task<R> DeleteLocalBranchAsync(string workingFolder, string branchName)
+		private Task<R> DeleteLocalBranchAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Delete local branch {branchName}  ...");
 			return UseRepoAsync(workingFolder, repo => repo.DeleteLocalBranch(branchName));
@@ -238,7 +232,7 @@ namespace GitMind.Git.Private
 
 
 		private Task<R> DeleteRemoteBranchAsync(
-			string workingFolder, string branchName, ICredentialHandler credentialHandler)
+			string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
 		{
 			Log.Debug($"Delete remote branch {branchName} ...");
 			return UseRepoAsync(workingFolder, PushTimeout, repo =>
@@ -284,8 +278,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task PushBranchAsync(
-			string workingFolder, string branchName, ICredentialHandler credentialHandler)
+		public Task PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
 		{
 			Log.Debug($"Push branch {branchName} ...");
 			return UseRepoAsync(workingFolder, PushTimeout,
@@ -306,15 +299,15 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SwitchToBranchAsync(string workingFolder, string branchName)
+		public Task SwitchToBranchAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Switch to branch {branchName} ...");
 			return UseRepoAsync(workingFolder, repo => repo.Checkout(branchName));
 		}
 
 
-		public Task<R<string>> SwitchToCommitAsync(
-			string workingFolder, string commitId, string branchName)
+		public Task<R<BranchName>> SwitchToCommitAsync(
+			string workingFolder, string commitId, BranchName branchName)
 		{
 			Log.Debug($"Switch to commit {commitId} with branch name '{branchName}' ...");
 			return UseRepoAsync(workingFolder, repo => repo.SwitchToCommit(commitId, branchName));
@@ -328,22 +321,21 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R<GitCommit>> MergeAsync(string workingFolder, string branchName)
+		public Task<R<GitCommit>> MergeAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Merge branch {branchName} into current branch ...");
 			return UseRepoAsync(workingFolder, repo => repo.MergeBranchNoFastForward(branchName));
 		}
 
 
-		public Task CreateBranchAsync(string workingFolder, string branchName, string commitId)
+		public Task CreateBranchAsync(string workingFolder, BranchName branchName, string commitId)
 		{
 			Log.Debug($"Create branch {branchName} at commit {commitId} ...");
 			return UseRepoAsync(workingFolder, repo => repo.CreateBranch(branchName, commitId));
 		}
 
 
-		public Task<R> PublishBranchAsync(
-			string workingFolder, string branchName, ICredentialHandler credentialHandler)
+		public Task<R> PublishBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
 		{
 			Log.Debug($"Publish branch {branchName} ...");
 			return UseRepoAsync(workingFolder, repo => repo.PublishBranch(branchName, credentialHandler));
@@ -364,7 +356,7 @@ namespace GitMind.Git.Private
 
 
 		private void SetNoteBranches(
-			string workingFolder, string nameSpace, string commitId, string branchName)
+			string workingFolder, string nameSpace, string commitId, BranchName branchName)
 		{
 			Log.Debug($"Set note {nameSpace} for commit {commitId} with branch {branchName} ...");
 
@@ -432,7 +424,7 @@ namespace GitMind.Git.Private
 					if (parts.Length == 2)
 					{
 						string commitId = parts[0];
-						string branchName = parts[1].Trim();
+						BranchName branchName = BranchName.From(parts[1].Trim());
 						branchNames.Add(new CommitBranchName(commitId, branchName));
 					}
 				}

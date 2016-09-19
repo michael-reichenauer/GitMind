@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
@@ -24,7 +25,7 @@ namespace GitMind.Features.Committing
 
 		public CommitDialogViewModel(
 			IRepositoryCommands repositoryCommands,
-			string branchName,
+			BranchName branchName,
 			string workingFolder,
 			IEnumerable<CommitFile> files,
 			string commitMessage,

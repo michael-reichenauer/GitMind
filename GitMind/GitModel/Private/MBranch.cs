@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Git;
 
 
 namespace GitMind.GitModel.Private
@@ -7,7 +8,7 @@ namespace GitMind.GitModel.Private
 	public class MBranch
 	{
 		public string Id { get; set; }
-		public string Name { get; set; }
+		public BranchName Name { get; set; }
 		public string TipCommitId { get; set; }
 		public string FirstCommitId { get; set; }	
 		public string ParentCommitId { get; set; }
@@ -21,7 +22,7 @@ namespace GitMind.GitModel.Private
 		public int LocalAheadCount { get; set; }	
 		public int RemoteAheadCount { get; set; }
 		public bool IsLocalAndRemote { get; set; }
-		public List<string> ChildBranchNames { get; set; } = new List<string>();
+		public List<BranchName> ChildBranchNames { get; set; } = new List<BranchName>();
 		public List<string> CommitIds { get; set; } = new List<string>();
 
 		public List<string> TempCommitIds { get; set; } = new List<string>();

@@ -270,7 +270,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public IReadOnlyList<string> SpecifiedBranchNames
+		public IReadOnlyList<BranchName> SpecifiedBranchNames
 		{
 			set { RepositoryViewModel.SpecifiedBranchNames = value; }
 		}

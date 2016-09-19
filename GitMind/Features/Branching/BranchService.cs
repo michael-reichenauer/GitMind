@@ -56,7 +56,7 @@ namespace GitMind.Features.Branching
 					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
 					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async progress =>
 					{
-						string branchName = dialog.BranchName;
+						BranchName branchName = dialog.BranchName;
 						string commitId = commit.Id;
 						if (commitId == Commit.UncommittedId)
 						{
@@ -97,7 +97,7 @@ namespace GitMind.Features.Branching
 				string workingFolder = repositoryCommands.WorkingFolder;
 				Window owner = repositoryCommands.Owner;
 
-				Progress.ShowDialog(owner, $"Publish branch {branch.Name} ...", async progress =>
+				Progress.ShowDialog(owner, $"Publish branch {branch.Name.Name} ...", async progress =>
 				{
 					R publish = await gitService.PublishBranchAsync(
 						workingFolder, branch.Name, repositoryCommands.GetCredentialsHandler());
@@ -160,9 +160,9 @@ namespace GitMind.Features.Branching
 
 				Progress.ShowDialog(owner, "Switch to commit ...", async progress =>
 				{
-					string branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
+					BranchName branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
 
-					R<string> switchedNamed = await gitService.SwitchToCommitAsync(
+					R<BranchName> switchedNamed = await gitService.SwitchToCommitAsync(
 						workingFolder, commit.CommitId, branchName);
 
 					if (switchedNamed.HasValue)
@@ -199,7 +199,7 @@ namespace GitMind.Features.Branching
 			{
 				Window owner = repositoryCommands.Owner;
 
-				if (branch.Name == "master")
+				if (branch.Name == BranchName.Master)
 				{
 					MessageDialog.ShowWarning(owner, "You cannot delete master branch.");
 					return;

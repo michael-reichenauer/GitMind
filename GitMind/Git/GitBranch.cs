@@ -14,12 +14,12 @@ namespace GitMind.Git
 		{
 			this.repository = repository;
 			this.branch = branch;
-			Name = branch.FriendlyName != DetachedBranchName
+			Name = BranchName.From(branch.FriendlyName != DetachedBranchName
 				? branch.FriendlyName
-				: $"({branch.Tip.Sha.Substring(0, 6)})";
+				: $"({branch.Tip.Sha.Substring(0, 6)})");
 		}
 
-		public string Name { get; }
+		public BranchName Name { get; }
 		public string TipId => branch.Tip.Sha;
 		public bool IsDetached => branch.FriendlyName == DetachedBranchName;
 
@@ -29,6 +29,6 @@ namespace GitMind.Git
 
 		public GitCommit Tip => new GitCommit(branch.Tip);
 
-		public override string ToString() => Name;
+		public override string ToString() => Name.ToString();
 	}
 }

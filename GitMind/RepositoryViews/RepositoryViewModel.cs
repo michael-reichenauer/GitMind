@@ -77,7 +77,7 @@ namespace GitMind.RepositoryViews
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; } = new Branch[0];
 		public string WorkingFolder { get; set; }
-		public IReadOnlyList<string> SpecifiedBranchNames { get; set; }
+		public IReadOnlyList<BranchName> SpecifiedBranchNames { get; set; }
 		public ZoomableCanvas Canvas { get; set; }
 
 
@@ -278,7 +278,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public void ShowBranch(string branchName)
+		public void ShowBranch(BranchName branchName)
 		{
 			SpecifiedBranchNames = new[] { branchName };
 		}
@@ -528,7 +528,7 @@ namespace GitMind.RepositoryViews
 
 		private void UpdateStatusIndicators()
 		{
-			CurrentBranchName = Repository.CurrentBranch.Name;
+			CurrentBranchName = Repository.CurrentBranch.Name.Name;
 			CurrentBranchBrush = brushService.GetBranchBrush(Repository.CurrentBranch);
 
 			IEnumerable<Branch> remoteAheadBranches = Repository.Branches
@@ -829,7 +829,7 @@ namespace GitMind.RepositoryViews
 		private void PullCurrentBranch()
 		{
 			isInternalDialog = true;
-			string branchName = Repository.CurrentBranch.Name;
+			BranchName branchName = Repository.CurrentBranch.Name;
 			Progress.ShowDialog(Owner, $"Update current branch {branchName} ...", async () =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
@@ -996,8 +996,8 @@ namespace GitMind.RepositoryViews
 		private Task SetBranchAsync(Commit commit)
 		{
 			SetBranchPromptDialog dialog = new SetBranchPromptDialog();
-			dialog.PromptText = commit.SpecifiedBranchName;
-			dialog.IsAutomatically = string.IsNullOrEmpty(commit.SpecifiedBranchName);
+			dialog.PromptText = commit.SpecifiedBranchName.Name;
+			dialog.IsAutomatically = commit.SpecifiedBranchName == null;
 			foreach (Branch childBranch in commit.Branch.GetChildBranches())
 			{
 				if (!childBranch.IsMultiBranch && !childBranch.Name.StartsWith("_"))
@@ -1010,7 +1010,7 @@ namespace GitMind.RepositoryViews
 			if (dialog.ShowDialog() == true)
 			{
 				Application.Current.MainWindow.Focus();
-				string branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
+				BranchName branchName = dialog.IsAutomatically ? null : BranchName.From(dialog.PromptText?.Trim());
 				string workingFolder = WorkingFolder;
 
 				if (commit.SpecifiedBranchName != branchName)
@@ -1018,7 +1018,7 @@ namespace GitMind.RepositoryViews
 					Progress.ShowDialog(Owner, $"Set commit branch name {branchName} ...", async () =>
 					{
 						await repositoryService.SetSpecifiedCommitBranchAsync(workingFolder, commit.Id, branchName);
-						if (!string.IsNullOrWhiteSpace(branchName))
+						if (branchName != null)
 						{
 							SpecifiedBranchNames = new[] { branchName };
 						}

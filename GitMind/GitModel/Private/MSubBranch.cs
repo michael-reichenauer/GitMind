@@ -1,10 +1,13 @@
+using GitMind.Git;
+
+
 namespace GitMind.GitModel.Private
 {
 	public class MSubBranch
 	{
 		public string SubBranchId { get; set; }
 		public string BranchId { get; set; }
-		public string Name { get; set; }
+		public BranchName Name { get; set; }
 		public string TipCommitId { get; set; }
 		public string FirstCommitId { get; set; }
 		public string ParentCommitId { get; set; }
