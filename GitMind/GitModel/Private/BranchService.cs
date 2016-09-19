@@ -98,7 +98,7 @@ namespace GitMind.GitModel.Private
 				BranchName branchName = TryFindBranchName(commit);
 				if (branchName == null)
 				{
-					branchName = BranchName.From(AnonyousBranchPrefix + commit.ShortId);
+					branchName = AnonyousBranchPrefix + commit.ShortId;
 				}
 
 				subBranch.IsAnonymous = IsBranchNameAnonyous(branchName);
@@ -159,11 +159,11 @@ namespace GitMind.GitModel.Private
 					{
 						isFound = true;
 
-						BranchName branchName = BranchName.From(AnonyousBranchPrefix + commit.ShortId);
+						BranchName branchName = AnonyousBranchPrefix + commit.ShortId;
 
 						if (commit.FirstChildren.Count() > 1)
 						{
-							branchName = BranchName.From(MultibranchPrefix + commit.ShortId);
+							branchName = MultibranchPrefix + commit.ShortId;
 						}
 						else
 						{

@@ -194,8 +194,7 @@ namespace GitMind.GitModel.Private
 				targetBranchName = null;
 			}
 
-			return new MergeBranchNames(
-				BranchName.From(sourceBranchName), BranchName.From(targetBranchName));
+			return new MergeBranchNames(sourceBranchName, targetBranchName);
 		}
 	}
 }

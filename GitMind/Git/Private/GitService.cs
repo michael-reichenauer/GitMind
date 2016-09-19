@@ -424,7 +424,7 @@ namespace GitMind.Git.Private
 					if (parts.Length == 2)
 					{
 						string commitId = parts[0];
-						BranchName branchName = BranchName.From(parts[1].Trim());
+						BranchName branchName = parts[1].Trim();
 						branchNames.Add(new CommitBranchName(commitId, branchName));
 					}
 				}

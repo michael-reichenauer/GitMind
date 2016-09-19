@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Security.Cryptography;
-using System.Windows.Markup;
 using GitMind.Utils;
 
 
@@ -23,30 +21,26 @@ namespace GitMind.Git
 			id = name.ToLower();
 			hashCode = id.GetHashCode();
 		}
-		
 
-		public static BranchName From(string name) => name != null ? new BranchName(name) : null;
-
-		protected override bool IsEqual(BranchName other) => id == other.id;
-
-		public bool IsEqual(string other) => 
-			0 == string.Compare(id, other, StringComparison.OrdinalIgnoreCase);
 
 		protected override int GetHash() => hashCode;
 
-		public bool StartsWith(string prefix) => 
+		protected override bool IsEqual(BranchName other) => id == other.id;
+
+		public bool IsEqual(string other) =>
+			0 == string.Compare(id, other, StringComparison.OrdinalIgnoreCase);
+
+
+		public bool StartsWith(string prefix) =>
 			id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
 
-		public BranchName Substring(int length) => BranchName.From(name.Substring(length));
+		public BranchName Substring(int length) => new BranchName(name.Substring(length));
 
+		public static implicit operator string(BranchName branchName) => branchName?.name;
 
-		public static implicit operator string(BranchName branchName) => branchName.name;
+		public static implicit operator BranchName(string branchName) =>
+			branchName != null ? new BranchName(branchName) : null;
 
-
-		//public static implicit operator BranchName(string branchName) => new BranchName(branchName);
-
-
-		public override string ToString() => name;
 
 		public int CompareTo(object obj)
 		{
@@ -62,5 +56,8 @@ namespace GitMind.Git
 				throw new ArgumentException("Object is not a BranchName");
 			}
 		}
+
+
+		public override string ToString() => name;
 	}
 }

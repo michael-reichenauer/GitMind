@@ -114,7 +114,7 @@ namespace GitMind
 
 			// Must not use WorkingFolder before installation code
 			mainWindow.WorkingFolder = commandLine.WorkingFolder;
-			mainWindow.BranchNames = commandLine.BranchNames.Select(name => BranchName.From(name)).ToList();
+			mainWindow.BranchNames = commandLine.BranchNames.Select(name => new BranchName(name)).ToList();
 			MainWindow.Show();
 
 			newVersionTimer.Tick += NewVersionCheckAsync;

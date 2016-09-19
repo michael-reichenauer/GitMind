@@ -23,7 +23,7 @@ namespace GitMind.Features.Branching
 		}
 
 
-		public BranchName BranchName => BranchName.From(viewModel.BranchName);
+		public BranchName BranchName => viewModel.BranchName;
 		public bool IsPublish => viewModel.IsPublish;
 	}
 }

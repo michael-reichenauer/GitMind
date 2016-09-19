@@ -526,7 +526,7 @@ namespace GitMind.RepositoryViews
 
 		private string GetBranchToolTip(BranchViewModel branch)
 		{
-			string name = branch.Branch.IsMultiBranch ? "MultiBranch" : branch.Branch.Name;
+			string name = branch.Branch.IsMultiBranch ? "MultiBranch" : branch.Branch.ToString();
 			string toolTip = $"Branch: {name}";
 
 			if (branch.Branch.LocalAheadCount > 0)

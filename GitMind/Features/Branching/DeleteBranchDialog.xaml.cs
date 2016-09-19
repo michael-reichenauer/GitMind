@@ -45,7 +45,7 @@ namespace GitMind.Features.Branching
 		}
 
 
-		public BranchName BranchName => BranchName.From(viewModel.BranchName);
+		public BranchName BranchName => viewModel.BranchName;
 		public bool IsLocal => viewModel.IsLocal;
 		public bool IsRemote => viewModel.IsRemote;
 	}

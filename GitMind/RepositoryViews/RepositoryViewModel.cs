@@ -1010,7 +1010,7 @@ namespace GitMind.RepositoryViews
 			if (dialog.ShowDialog() == true)
 			{
 				Application.Current.MainWindow.Focus();
-				BranchName branchName = dialog.IsAutomatically ? null : BranchName.From(dialog.PromptText?.Trim());
+				BranchName branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
 				string workingFolder = WorkingFolder;
 
 				if (commit.SpecifiedBranchName != branchName)
