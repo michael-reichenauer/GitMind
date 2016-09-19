@@ -4,37 +4,41 @@ using GitMind.Utils;
 
 namespace GitMind.Git
 {
+	/// <summary>
+	/// Branch name type, which handles branch names as case insensitive strings.
+	/// </summary>
 	public class BranchName : Equatable<BranchName>, IComparable
 	{
-		private readonly string name;
-		private readonly string id;
-		private readonly int hashCode;
-
 		public static BranchName Master = new BranchName("master");
 		public static BranchName OriginHead = new BranchName("origin/HEAD");
 		public static BranchName Head = new BranchName("HEAD");
+
+		private readonly string name;
+		private readonly string caseInsensitiveName;
+		private readonly int hashCode;
 
 
 		public BranchName(string name)
 		{
 			this.name = name;
-			id = name.ToLower();
-			hashCode = id.GetHashCode();
+			caseInsensitiveName = name?.ToLower();
+			hashCode = caseInsensitiveName?.GetHashCode() ?? 0;
 		}
 
 
 		protected override int GetHash() => hashCode;
 
-		protected override bool IsEqual(BranchName other) => id == other.id;
+		protected override bool IsEqual(BranchName other) => 
+			caseInsensitiveName == other.caseInsensitiveName;
 
 		public bool IsEqual(string other) =>
-			0 == string.Compare(id, other, StringComparison.OrdinalIgnoreCase);
+			0 == string.Compare(caseInsensitiveName, other, StringComparison.OrdinalIgnoreCase);
 
 
 		public bool StartsWith(string prefix) =>
-			id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+			caseInsensitiveName?.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ?? false;
 
-		public BranchName Substring(int length) => new BranchName(name.Substring(length));
+		public BranchName Substring(int startIndex) => new BranchName(name.Substring(startIndex));
 
 		public static implicit operator string(BranchName branchName) => branchName?.name;
 
@@ -46,17 +50,17 @@ namespace GitMind.Git
 		{
 			if (obj == null) return 1;
 
-			BranchName otherTemperature = obj as BranchName;
-			if (otherTemperature != null)
+			BranchName other = obj as BranchName;
+			if (other != null)
 			{
-				return string.Compare(id, otherTemperature.id, StringComparison.Ordinal);
+				return string.Compare(
+					caseInsensitiveName, other.caseInsensitiveName, StringComparison.Ordinal);
 			}
 			else
 			{
 				throw new ArgumentException("Object is not a BranchName");
 			}
 		}
-
 
 		public override string ToString() => name;
 	}
