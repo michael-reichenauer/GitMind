@@ -591,42 +591,6 @@ namespace GitMind.Git
 		}
 
 
-		//public bool IsBranchMerged(string branchName, bool isRemote)
-		//{
-		//	Branch branch = repository.Branches[isRemote ? "origin/" + branchName : branchName];
-
-		//	return IsBranchMerged(branch);
-		//}
-
-
-		//private bool IsBranchMerged(Branch thisBranch)
-		//{
-		//	string tipId = thisBranch.Tip.Sha;
-
-		//	foreach (var branch in repository.Branches.Where(b => b!= thisBranch))
-		//	{
-		//		if (branch.Tip.Sha == tipId)
-		//		{
-		//			return true;
-		//		}
-		//	}
-
-		//	foreach (var branch in repository.Branches.Where(b => b != thisBranch))
-		//	{
-		//		var commits = repository.Commits
-		//			.QueryBy(new CommitFilter { IncludeReachableFrom = branch })
-		//			.Where(c => c.Sha == tipId);
-
-		//		if (commits.Any())
-		//		{
-		//			return true;
-		//		}
-		//	}
-
-		//	return false;
-		//}
-
-
 		public bool IsSupportedRemoteUrl()
 		{
 			return !repository.Network.Remotes

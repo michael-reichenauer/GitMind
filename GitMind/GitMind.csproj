@@ -229,8 +229,6 @@
     <Compile Include="Utils\UI\Command.cs" />
     <Compile Include="Git\CommitDiff.cs" />
     <Compile Include="Git\GitBranch.cs" />
-    <Compile Include="Git\Private\GitRepo.cs" />
-    <Compile Include="Git\IGitRepo.cs" />
     <Compile Include="Git\GitTag.cs" />
     <Compile Include="Git\IGitService.cs" />
     <Compile Include="Git\GitStatus.cs" />
