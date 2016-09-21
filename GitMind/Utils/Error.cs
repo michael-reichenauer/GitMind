@@ -53,7 +53,7 @@ namespace GitMind.Utils
 
 		public bool Is<T>()
 		{
-			return this is T || exception?.GetType() is T;
+			return this is T || exception is T;
 		}
 
 

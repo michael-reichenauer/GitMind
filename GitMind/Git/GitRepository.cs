@@ -24,6 +24,8 @@ namespace GitMind.Git
 			new MergeOptions { FastForwardStrategy = FastForwardStrategy.Default };
 		private static readonly MergeOptions MergeNoFastForward =
 			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
+		private static readonly MergeOptions MergeNoFastForwardAndCommit =
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true };
 
 
 
@@ -114,7 +116,7 @@ namespace GitMind.Git
 		public void MergeCurrentBranchNoFastForward()
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
-			repository.MergeFetchedRefs(committer, MergeNoFastForward);
+			repository.MergeFetchedRefs(committer, MergeNoFastForwardAndCommit);
 		}
 
 
