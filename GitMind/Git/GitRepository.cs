@@ -262,20 +262,24 @@ namespace GitMind.Git
 				return null;
 			}
 
-			// Trying to get an existing switch branch) at that commit
-			Branch branch = repository.Branches
-				.FirstOrDefault(b => !b.IsRemote && branchName.IsEqual(b.FriendlyName) && b.Tip.Sha == commitId);
+			if (branchName != null)
+			{
+				// Trying to get an existing switch branch) at that commit
+				Branch branch = repository.Branches
+					.FirstOrDefault(b => 
+						!b.IsRemote 
+						&& branchName.IsEqual(b.FriendlyName)
+						&& b.Tip.Sha == commitId);
 
-			if (branch != null)
-			{
-				repository.Checkout(branch);
-				return branchName;
+				if (branch != null)
+				{
+					repository.Checkout(branch);
+					return branchName;
+				}
 			}
-			else 
-			{
-				// No branch with that name so lets check out commit (detached head)
-				repository.Checkout(commit);
-			}
+	
+			// No branch with that name so lets check out commit (detached head)
+			repository.Checkout(commit);
 
 			return null;
 		}
