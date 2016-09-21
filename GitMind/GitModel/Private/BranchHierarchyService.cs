@@ -106,12 +106,17 @@ namespace GitMind.GitModel.Private
 						branch.TipCommitId = activeTip.Value.TipCommitId;
 					}
 
-					var activeSubBranches = groupByBranch.Where(b => b.Value.IsActive).ToList();
+					var activeSubBranches = groupByBranch.Where(b => b.Value.IsActive).Select(g => g.Value)
+						.ToList();
 					branch.IsActive = activeSubBranches.Any();
-					branch.IsLocal = activeSubBranches.Any(b =>  b.Value.IsLocal);
-					branch.IsRemote = activeSubBranches.Any(b => b.Value.IsRemote);
-					branch.IsCurrent = activeSubBranches.Any(b => b.Value.IsCurrent);
-					branch.IsDetached = activeSubBranches.Any(b => b.Value.IsDetached);
+					MSubBranch localSubBranch = activeSubBranches.FirstOrDefault(b => b.IsLocal);
+					branch.IsLocal = localSubBranch != null;
+					branch.LocalTipCommitId = localSubBranch?.TipCommitId;
+					MSubBranch remoteSubBranch = activeSubBranches.FirstOrDefault(b => b.IsRemote);
+					branch.IsRemote = remoteSubBranch != null;
+					branch.RemoteTipCommitId = remoteSubBranch?.TipCommitId;
+					branch.IsCurrent = activeSubBranches.Any(b => b.IsCurrent);
+					branch.IsDetached = activeSubBranches.Any(b => b.IsDetached);
 
 					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);
 				}

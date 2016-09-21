@@ -27,6 +27,9 @@ namespace GitMind.GitModel.Private
 
 		public List<string> TempCommitIds { get; set; } = new List<string>();
 
+		public string LocalTipCommitId { get; set; }
+		public string RemoteTipCommitId { get; set; }
+
 		public MRepository Repository { get; set; }
 
 		public IEnumerable<MCommit> Commits => CommitIds.Select(id => Repository.Commits[id]);

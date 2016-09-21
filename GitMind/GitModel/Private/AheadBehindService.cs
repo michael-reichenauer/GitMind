@@ -8,47 +8,35 @@ namespace GitMind.GitModel.Private
 	{
 		public void SetAheadBehind(MRepository repository)
 		{
-			// Getting all branches, which are active and have both local and remote tracking branches.
-			IEnumerable<MSubBranch> activeSubBranches = GetActiveSubBranches(repository);
-			IEnumerable<MBranch> bothLocalAndRemoteBranches = GetBranchesWhichAreBothLocalAndRemote(
-				repository, activeSubBranches);
+			IEnumerable<MBranch> localAndRemote = repository.Branches.Values
+				.Where(b => b.IsActive && b.IsLocal && b.IsRemote)
+				.ToList();
 
-			bothLocalAndRemoteBranches.ForEach(b => b.IsLocalAndRemote = true);
+			IEnumerable<MBranch> localOnly = repository.Branches.Values
+				.Where(b => b.IsActive && b.IsLocal && !b.IsRemote)
+				.ToList();
+
+			localAndRemote.ForEach(b => b.IsLocalAndRemote = true);
 
 			// Mark all commits in local branches as local commit
-			MarkLocalCommits(repository);
+			IEnumerable<MBranch> branches = localAndRemote.Concat(localOnly).ToList();
+			MarkLocalCommits(branches);
 
 			// Mark all commits in remote branches as remote commits
-			MarkRemoteCommits(repository);
+			MarkRemoteCommits(localAndRemote);
 
-			// Count all commits in all branches to get the local and remote ahead count for a branch 
-			CountLocalAndRemoteCommits(repository);
+			// Count all commits in branches to get the local and remote ahead count for a branch 
+			CountLocalAndRemoteCommits(branches);
 		}
 
 
-		private static IEnumerable<MSubBranch> GetActiveSubBranches(MRepository repository)
+		private static void CountLocalAndRemoteCommits(IEnumerable<MBranch> branches)
 		{
-			return repository.SubBranches.Where(b => b.Value.IsActive).Select(b => b.Value);
-		}
-
-
-		private static IEnumerable<MBranch> GetBranchesWhichAreBothLocalAndRemote(
-			MRepository repository, IEnumerable<MSubBranch> activeSubBranches)
-		{
-			return activeSubBranches
-				.GroupBy(b => b.BranchId)
-				.Where(g => g.Count() == 2 && g.Any(b => b.IsLocal) && g.Any(b => b.IsRemote))
-				.Select(g => repository.Branches.First(b => b.Value.Id == g.Key).Value);
-		}
-
-
-		private static void CountLocalAndRemoteCommits(MRepository repository)
-		{
-			foreach (var branch in repository.Branches)
+			foreach (var branch in branches)
 			{
 				int localAheadCount = 0;
 				int remoteAheadCount = 0;
-				foreach (MCommit commit in branch.Value.Commits)
+				foreach (MCommit commit in branch.Commits)
 				{
 					if (commit.IsLocalAhead)
 					{
@@ -60,96 +48,75 @@ namespace GitMind.GitModel.Private
 					}
 				}
 
-				branch.Value.LocalAheadCount = localAheadCount;
-				branch.Value.RemoteAheadCount = remoteAheadCount;
+				branch.LocalAheadCount = localAheadCount;
+				branch.RemoteAheadCount = remoteAheadCount;
 			}
 		}
 
 
-		private static void MarkRemoteCommits(MRepository repository)
+		private static void MarkRemoteCommits(IEnumerable<MBranch> branches)
 		{
-			var remoteSubBranches = repository.SubBranches.Where(b => b.Value.IsActive && b.Value.IsRemote);
-			remoteSubBranches.ForEach(branch => MarkIsRemoteAhead(branch.Value.TipCommit));
-		}
-
-
-		private static void MarkLocalCommits(MRepository repository)
-		{
-			var localSubBranches = repository.SubBranches.Values
-				.Where(b => b.IsActive && b.IsLocal);
-
-			localSubBranches.ForEach(branch => MarkIsLocalAhead(branch.TipCommit));
-		}
-
-
-		private static void MarkIsLocalAhead(MCommit commit)
-		{
-			Stack<MCommit> stack = new Stack<MCommit>();
-			stack.Push(commit);
-
-			while (stack.Any())
+			foreach (MBranch branch in branches)
 			{
-				commit = stack.Pop();
+				MCommit commit = branch.Repository.Commits[branch.RemoteTipCommitId];
 
-				if (!commit.IsLocalAheadMarker)
+				Stack<MCommit> stack = new Stack<MCommit>();
+				stack.Push(commit);
+
+				while (stack.Any())
 				{
-					if (!commit.IsUncommitted)
-					{
-						commit.IsLocalAheadMarker = true;
-					}
+					commit = stack.Pop();
 
-					foreach (MCommit parent in commit.Parents)
+					if (!commit.IsRemoteAheadMarker)
 					{
-						stack.Push(parent);
+						if (!commit.IsUncommitted)
+						{
+							commit.IsRemoteAheadMarker = true;
+						}
+
+						foreach (MCommit parent in commit.Parents)
+						{
+							if (parent.BranchId == branch.Id)
+							{
+								stack.Push(parent);
+							}
+						}
 					}
 				}
 			}
-
-
-			//if (!commit.IsLocalAheadMarker)
-			//{
-			//	if (!commit.IsUncommitted)
-			//	{
-			//		commit.IsLocalAheadMarker = true;
-			//	}
-
-			//	foreach (MCommit parent in commit.Parents)
-			//	{
-			//		MarkIsLocalAhead(parent);
-			//	}
-			//}
 		}
 
 
-		private static void MarkIsRemoteAhead(MCommit commit)
+		private static void MarkLocalCommits(IEnumerable<MBranch> branches)
 		{
-			Stack<MCommit> stack = new Stack<MCommit>();
-			stack.Push(commit);
-
-			while (stack.Any())
+			foreach (MBranch branch in branches)
 			{
-				commit = stack.Pop();
+				MCommit commit = branch.Repository.Commits[branch.LocalTipCommitId];
 
-				if (!commit.IsRemoteAheadMarker)
+				Stack<MCommit> stack = new Stack<MCommit>();
+				stack.Push(commit);
+
+				while (stack.Any())
 				{
-					commit.IsRemoteAheadMarker = true;
+					commit = stack.Pop();
 
-					foreach (MCommit parent in commit.Parents)
+					if (!commit.IsLocalAheadMarker)
 					{
-						stack.Push(parent);
+						if (!commit.IsUncommitted)
+						{
+							commit.IsLocalAheadMarker = true;
+						}
+
+						foreach (MCommit parent in commit.Parents)
+						{
+							if (parent.BranchId == branch.Id)
+							{
+								stack.Push(parent);
+							}
+						}
 					}
 				}
 			}
-
-			//if (!commit.IsRemoteAheadMarker)
-			//{
-			//	commit.IsRemoteAheadMarker = true;
-
-			//	foreach (MCommit parent in commit.Parents)
-			//	{
-			//		MarkIsRemoteAhead(parent);
-			//	}
-			//}
 		}
 	}
 }
