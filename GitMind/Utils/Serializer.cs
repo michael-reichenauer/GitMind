@@ -81,6 +81,8 @@ namespace GitMind.Utils
 				.Add(nameof(MBranch.LocalAheadCount))
 				.Add(nameof(MBranch.RemoteAheadCount))
 				.Add(nameof(MBranch.IsLocalAndRemote))
+				.Add(nameof(MBranch.LocalTipCommitId))
+				.Add(nameof(MBranch.RemoteTipCommitId))
 				.Add(nameof(MBranch.ChildBranchNames))
 				.Add(nameof(MBranch.CommitIds));
 		}
