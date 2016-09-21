@@ -67,7 +67,8 @@ namespace GitMind.GitModel.Private
 				{
 					commit = stack.Pop();
 
-					if (!commit.IsRemoteAheadMarker)
+
+					if (commit.BranchId == branch.Id && !commit.IsRemoteAheadMarker)
 					{
 						if (!commit.IsUncommitted)
 						{
@@ -76,10 +77,7 @@ namespace GitMind.GitModel.Private
 
 						foreach (MCommit parent in commit.Parents)
 						{
-							if (parent.BranchId == branch.Id)
-							{
-								stack.Push(parent);
-							}
+							stack.Push(parent);							
 						}
 					}
 				}
@@ -100,7 +98,7 @@ namespace GitMind.GitModel.Private
 				{
 					commit = stack.Pop();
 
-					if (!commit.IsLocalAheadMarker)
+					if (commit.BranchId == branch.Id && !commit.IsLocalAheadMarker)
 					{
 						if (!commit.IsUncommitted)
 						{
@@ -109,10 +107,7 @@ namespace GitMind.GitModel.Private
 
 						foreach (MCommit parent in commit.Parents)
 						{
-							if (parent.BranchId == branch.Id)
-							{
-								stack.Push(parent);
-							}
+							stack.Push(parent);							
 						}
 					}
 				}
