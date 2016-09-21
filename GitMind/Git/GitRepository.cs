@@ -62,7 +62,7 @@ namespace GitMind.Git
 
 		public void Fetch()
 		{
-			FetchOptions options = new FetchOptions { Prune = true };
+			FetchOptions options = new FetchOptions { Prune = true, TagFetchMode = TagFetchMode.Auto };
 			repository.Fetch("origin", options);
 		}
 
