@@ -26,7 +26,8 @@ namespace GitMind.RepositoryViews
 			this.repositoryCommands = repositoryCommands;
 			ToggleDetailsCommand = toggleDetailsCommand;
 			SetCommitBranchCommand = setBranchCommand.With(() => Commit);
-			ShowCommitDiffCommand = showCommitDiffCommand.With(() => Commit);
+			ShowCommitDiffCommand = showCommitDiffCommand.With(
+				() => Commit.IsVirtual && !Commit.IsUncommitted ? Commit.FirstParent : Commit);
 			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
 			UndoCleanWorkingFolderCommand = undoCleanWorkingFolderCommand;
 		}
