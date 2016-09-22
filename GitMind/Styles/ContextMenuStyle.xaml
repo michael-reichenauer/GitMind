@@ -106,7 +106,7 @@
 					Name="HeaderHost"
 					Grid.Column="1"
 					ContentSource="Header"
-					RecognizesAccessKey="True" />
+					RecognizesAccessKey="false" />
 				<TextBlock 
 					x:Name="InputGestureText"
 					Grid.Column="2"
@@ -151,7 +151,7 @@
 					<ColumnDefinition Width="13" />
 				</Grid.ColumnDefinitions>
 				<ContentPresenter Name="Icon" Margin="0" VerticalAlignment="Center" ContentSource="Icon" />
-				<ContentPresenter Name="HeaderHost" Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" />
+				<ContentPresenter Name="HeaderHost" Grid.Column="1" ContentSource="Header" RecognizesAccessKey="false" />
 				<TextBlock 
 					x:Name="InputGestureText"
 					Grid.Column="2"
