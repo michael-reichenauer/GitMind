@@ -137,7 +137,9 @@ namespace GitMind.RepositoryViews
 				// Closing shown branch
 				BranchViewModel otherBranch;
 
-				if (commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
+				if (commit.HasSecondParent 
+					&& commit.SecondParent.Branch != commit.Branch
+					&& currentlyShownBranches.Contains(commit.SecondParent.Branch))
 				{
 					otherBranch = repositoryViewModel.Branches
 						.First(b => b.Branch == commit.SecondParent.Branch);
