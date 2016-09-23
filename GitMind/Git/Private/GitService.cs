@@ -401,6 +401,7 @@ namespace GitMind.Git.Private
 			List<CommitBranchName> branchNames = ParseBranchNames(notesText);
 
 			Log.Debug($"Got {branchNames.Count} branch names for {nameSpace}");
+			branchNames.ForEach(n => Log.Debug($"  {n}"));
 
 			return branchNames;
 		}

@@ -16,16 +16,21 @@ namespace GitMind.Git
 
 		private readonly string workingFolder;
 		private readonly Repository repository;
+
 		private static readonly StatusOptions StatusOptions =
-			new StatusOptions { DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
+			new StatusOptions {DetectRenamesInWorkDir = true, DetectRenamesInIndex = true};
+
 		private static readonly MergeOptions MergeFastForwardOnly =
-			new MergeOptions { FastForwardStrategy = FastForwardStrategy.FastForwardOnly };
+			new MergeOptions {FastForwardStrategy = FastForwardStrategy.FastForwardOnly};
+
 		private static readonly MergeOptions MergeDefault =
-			new MergeOptions { FastForwardStrategy = FastForwardStrategy.Default };
+			new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default};
+
 		private static readonly MergeOptions MergeNoFastForward =
-			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
+			new MergeOptions {FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false};
+
 		private static readonly MergeOptions MergeNoFastForwardAndCommit =
-			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true };
+			new MergeOptions {FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true};
 
 
 
@@ -34,6 +39,7 @@ namespace GitMind.Git
 			this.workingFolder = workingFolder;
 			this.repository = repository;
 		}
+
 
 		public static GitRepository Open(string folder)
 		{
@@ -64,7 +70,7 @@ namespace GitMind.Git
 
 		public void Fetch()
 		{
-			FetchOptions options = new FetchOptions { Prune = true, TagFetchMode = TagFetchMode.All };
+			FetchOptions options = new FetchOptions {Prune = true, TagFetchMode = TagFetchMode.All};
 			repository.Fetch("origin", options);
 		}
 
@@ -73,15 +79,24 @@ namespace GitMind.Git
 		{
 			Remote remote = repository.Network.Remotes["origin"];
 
-			repository.Network.Fetch(remote, new []{ $"{branchName}:{branchName}" });
+			repository.Network.Fetch(remote, new[] {$"{branchName}:{branchName}"});
 		}
 
 
 		public void FetchRefs(string[] refs)
 		{
-			Remote remote = repository.Network.Remotes["origin"];
+			try
+			{
+				Remote remote = repository.Network.Remotes["origin"];
 
-			repository.Network.Fetch(remote, refs);
+				repository.Network.Fetch(remote, refs);
+			}
+			catch (Exception e)
+			{
+				Log.Error($"{e}");
+				throw;
+			}
+			
 		}
 
 
