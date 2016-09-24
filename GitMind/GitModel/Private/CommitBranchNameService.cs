@@ -18,8 +18,15 @@ namespace GitMind.GitModel.Private
 				MCommit commit;
 				if (repository.Commits.TryGetValue(specifiedName.CommitId, out commit))
 				{
-					commit.SpecifiedBranchName = specifiedName.Name;
-					commit.BranchName = specifiedName.Name;
+					if (!string.IsNullOrEmpty(specifiedName.Name))
+					{
+						commit.SpecifiedBranchName = specifiedName.Name;
+						commit.BranchName = specifiedName.Name;
+					}
+					else
+					{
+						commit.SpecifiedBranchName = null;
+					}
 				}
 			}
 		}
@@ -37,7 +44,7 @@ namespace GitMind.GitModel.Private
 					// Set branch name unless there is a specified branch name which has higher priority
 					commit.CommitBranchName = commitBranch.Name;
 
-					if (commit.SpecifiedBranchName == null)
+					if (string.IsNullOrEmpty(commit.SpecifiedBranchName))
 					{
 						commit.BranchName = commitBranch.Name;
 					}
