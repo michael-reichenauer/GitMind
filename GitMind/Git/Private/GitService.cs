@@ -55,11 +55,11 @@ namespace GitMind.Git.Private
 					rootFolder = Path.GetDirectoryName(rootFolder);
 				}
 
-				return Error.From($"No working folder {folder}");
+				return Error.NoValue;
 			}
 			catch (Exception e)
 			{
-				return Error.From(e, $"Failed to root of working folder {folder}, {e.Message}");
+				return Error.From(e, $"Failed to get root working folder for {folder}, {e.Message}");
 			}
 		}
 

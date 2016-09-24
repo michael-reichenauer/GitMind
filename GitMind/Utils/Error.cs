@@ -5,7 +5,10 @@ namespace GitMind.Utils
 {
 	public class Error : Equatable<Error>
 	{
-		private static readonly Exception noException = new Exception("none");
+		private static readonly Exception errorException = new Exception("Error");
+		private static readonly Exception noErrorException = new Exception("No error");
+		private static readonly Exception noValueException = new Exception("No value");
+
 		private readonly Exception exception = null;
 
 		private Error(string message = null)
@@ -15,23 +18,25 @@ namespace GitMind.Utils
 
 		private Error(Exception exception, string message = null)
 		{
-			if (message != null && exception != null)
+			exception = exception ?? errorException;
+
+			if (message != null && exception != errorException)
 			{
 				Message = $"{message}, {exception.Message}";
 				this.exception = exception;
 			}
-			else if (message == null && exception != null)
+			else if (message != null)
+			{
+				Message = $"{message}";
+				this.exception = exception;
+			}
+			else 
 			{
 				Message = exception.Message;
 				this.exception = exception;
 			}
-			else
-			{
-				Message = "Error";
-				this.exception = new Exception(Message);
-			}
 
-			if (exception != noException)
+			if (exception != noErrorException && exception != noValueException)
 			{
 				Log.Warn($"Error: {Message}");
 			}
@@ -46,7 +51,9 @@ namespace GitMind.Utils
 
 		public static Error From(string message) => new Error(message);
 
-		public static Error None = new Error(noException);
+		public static Error None = new Error(noErrorException);
+
+		public static Error NoValue = new Error(noValueException);
 
 		public static implicit operator Error(Exception e) => new Error(e);
 
