@@ -15,7 +15,6 @@ namespace GitMind.Git.Private
 		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
 
-
 		private readonly IGitDiffParser gitDiffParser;
 		private readonly IGitNotesService gitNotesService;
 		private readonly IRepoCaller repoCaller;
