@@ -167,8 +167,8 @@ namespace GitMind.Git.Private
 			Log.Debug($"Fetch notes for {nameSpace} ...");
 			string[] noteRefs =
 			{
-				$"refs/notes/{nameSpace}:+refs/notes/origin/{nameSpace}",
-				$"refs/notes/{nameSpace}:+refs/notes/{nameSpace}"
+				$"+refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}",
+				$"+refs/notes/{nameSpace}:refs/notes/{nameSpace}"
 			};
 
 			await repoCaller.UseRepoAsync(workingFolder, FetchTimeout, repo => repo.FetchRefs(noteRefs));
