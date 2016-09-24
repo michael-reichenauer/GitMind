@@ -11,6 +11,12 @@ namespace GitMind.Utils
 
 		private readonly Exception exception = null;
 
+
+		public static Error None = new Error(noErrorException);
+
+		public static Error NoValue = new Error(noValueException);
+
+
 		private Error(string message = null)
 			: this(null, message)
 		{
@@ -51,10 +57,7 @@ namespace GitMind.Utils
 
 		public static Error From(string message) => new Error(message);
 
-		public static Error None = new Error(noErrorException);
-
-		public static Error NoValue = new Error(noValueException);
-
+	
 		public static implicit operator Error(Exception e) => new Error(e);
 
 

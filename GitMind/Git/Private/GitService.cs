@@ -55,7 +55,7 @@ namespace GitMind.Git.Private
 					rootFolder = Path.GetDirectoryName(rootFolder);
 				}
 
-				return Error.NoValue;
+				return R<string>.NoValue;
 			}
 			catch (Exception e)
 			{

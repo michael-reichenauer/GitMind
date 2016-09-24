@@ -6,6 +6,8 @@ namespace GitMind.Utils
 	public class R
 	{
 		public static R Ok = new R(Error.None);
+		public static R NoValue = new R(Error.NoValue);
+	
 
 		public R(Error error)
 		{
@@ -27,6 +29,8 @@ namespace GitMind.Utils
 	public class R<T> : R
 	{
 		private readonly T value;
+
+		public new static R<T> NoValue = new R<T>(Error.NoValue);
 
 		public R(T value)
 			: base(Error.None)
