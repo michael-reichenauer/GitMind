@@ -129,6 +129,7 @@ namespace GitMind.RepositoryViews
 			if (!isShowing && commit.HasSecondParent)
 			{
 				// Showing the specified branch
+				Log.Usage("Open branch");
 				Log.Info($"Open branch {commit.SecondParent.Branch}");
 				currentlyShownBranches.Add(commit.SecondParent.Branch);
 			}
@@ -170,6 +171,7 @@ namespace GitMind.RepositoryViews
 					}
 				}
 
+				Log.Usage("Close branch");
 				Log.Info($"Close branch {otherBranch.Branch}");
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, otherBranch.Branch);

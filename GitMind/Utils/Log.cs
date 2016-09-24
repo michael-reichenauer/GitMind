@@ -117,7 +117,7 @@ namespace GitMind.Utils
 		{
 			try
 			{
-				string logRow = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff}, [{ProcessID}] {text}";
+				string logRow = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}";
 
 				byte[] bytes = System.Text.Encoding.UTF8.GetBytes(logRow);
 				UdpClient.Send(bytes, bytes.Length, usageLogEndPoint);				

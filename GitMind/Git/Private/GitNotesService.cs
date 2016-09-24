@@ -130,7 +130,7 @@ namespace GitMind.Git.Private
 			}
 			else
 			{
-				Log.Warn($"Adding notes:\n{addedNotesText}");
+				Log.Debug($"Adding notes:\n{addedNotesText}");
 			}
 
 			await FetchNotesAsync(workingFolder, nameSpace);
