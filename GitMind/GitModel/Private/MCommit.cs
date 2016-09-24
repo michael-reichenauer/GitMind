@@ -63,7 +63,7 @@ namespace GitMind.GitModel.Private
 		public bool IsSynced => IsLocalAheadMarker && IsRemoteAheadMarker;
 
 		public bool IsUncommitted => Id == UncommittedId;
-
+		public BranchName CommitBranchName { get; set; }
 
 
 		public IEnumerable<MCommit> FirstAncestors()

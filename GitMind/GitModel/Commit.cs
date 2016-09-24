@@ -31,7 +31,8 @@ namespace GitMind.GitModel
 			IReadOnlyList<string> parentIds, 
 			IReadOnlyList<string> childIds, 
 			string branchId,
-			BranchName specifiedBranchName, 
+			BranchName specifiedBranchName,
+			BranchName commitBranchName,
 			bool isLocalAhead, bool isRemoteAhead, 
 			bool isUncommitted, 
 			bool isVirtual, 
@@ -55,6 +56,7 @@ namespace GitMind.GitModel
 			Tickets = tickets;
 			BranchTips = branchTips;
 			SpecifiedBranchName = specifiedBranchName;
+			CommitBranchName = commitBranchName;
 			IsLocalAhead = isLocalAhead;
 			IsRemoteAhead = isRemoteAhead;
 			IsUncommitted = isUncommitted;
@@ -77,6 +79,7 @@ namespace GitMind.GitModel
 		public string Tickets { get; }
 		public string BranchTips { get; }
 		public BranchName SpecifiedBranchName { get; }
+		public BranchName CommitBranchName { get; }
 		public bool IsLocalAhead { get; }
 		public bool IsRemoteAhead { get; }
 		public bool IsUncommitted { get; }

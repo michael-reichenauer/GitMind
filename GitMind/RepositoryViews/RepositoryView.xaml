@@ -486,7 +486,6 @@
 																Visibility="{Binding IsShown, Converter={StaticResource VC}}"
 																Foreground="{Binding SubjectBrush}"
 																FontSize="12"
-																FontWeight="{Binding SubjectWeight}"
 																FontStyle="{Binding SubjectStyle}"
 																HorizontalAlignment="Left"
 																VerticalAlignment="Center"/>

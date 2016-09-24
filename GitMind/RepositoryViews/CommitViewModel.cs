@@ -61,7 +61,7 @@ namespace GitMind.RepositoryViews
 		public Brush TagBrush { get; set; }
 		public Brush TicketBrush { get; set; }
 		public Brush BranchTipBrush { get; set; }
-		public FontWeight SubjectWeight { get; set; }
+		//public FontWeight SubjectWeight => Commit.CommitBranchName != null ? FontWeights.Bold : FontWeights.Normal;
 
 		public string ToolTip { get; set; }
 		public Brush Brush { get; set; }
