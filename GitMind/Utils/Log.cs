@@ -22,6 +22,8 @@ namespace GitMind.Utils
 		//	new IPEndPoint(IPAddress.Parse("10.85.12.4"), 40000);
 		private static readonly IPEndPoint usageLogEndPoint =
 			new IPEndPoint(IPAddress.Loopback, 41110);
+		private static readonly IPEndPoint usageLogEndPoint2 =
+			new IPEndPoint(IPAddress.Parse("10.85.12.4"), 41110);
 
 
 		private static readonly string LogPath = ProgramPaths.GetLogFilePath();
@@ -120,7 +122,8 @@ namespace GitMind.Utils
 				string logRow = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}";
 
 				byte[] bytes = System.Text.Encoding.UTF8.GetBytes(logRow);
-				UdpClient.Send(bytes, bytes.Length, usageLogEndPoint);				
+				UdpClient.Send(bytes, bytes.Length, usageLogEndPoint);
+				UdpClient.Send(bytes, bytes.Length, usageLogEndPoint2);
 			}
 			catch (Exception)
 			{		
