@@ -43,7 +43,7 @@ namespace GitMind
 			string version = GetProgramVersion();
 			string argsText = string.Join("','", Environment.GetCommandLineArgs());
 
-			Log.Info($"Version: {version}, Args: '{argsText}'");
+			Log.Usage($"Start version: {version}, Args: '{argsText}'");
 
 			App application = new App();
 			application.StartProgram();
@@ -86,7 +86,7 @@ namespace GitMind
 
 		protected override void OnExit(ExitEventArgs e)
 		{
-			Log.Info("Exit program");
+			Log.Usage("Exit program");
 			base.OnExit(e);
 		}
 

@@ -18,9 +18,29 @@ namespace GitMind.Utils
 
 		private static readonly UdpClient UdpClient = new UdpClient();
 		private static readonly IPEndPoint LocalLogEndPoint = new IPEndPoint(IPAddress.Loopback, 40000);
+		//private static readonly IPEndPoint usageLogEndPoint = 
+		//	new IPEndPoint(IPAddress.Parse("10.85.12.4"), 40000);
+		private static readonly IPEndPoint usageLogEndPoint =
+			new IPEndPoint(IPAddress.Loopback, 41110);
+
 
 		private static readonly string LogPath = ProgramPaths.GetLogFilePath();
-		private static int ProcessID = Process.GetCurrentProcess().Id;
+		private static readonly int ProcessID = Process.GetCurrentProcess().Id;
+		private static readonly string LevelUsage = "USAGE";
+		private static readonly string LevelDebug = "DEBUG";
+		private static readonly string LevelInfo = "INFO ";
+		private static readonly string LevelWarn = "WARN ";
+		private static readonly string LevelError = "ERROR";
+
+
+		public static void Usage(
+			string msg,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0)
+		{
+			Write(LevelUsage, msg, memberName, sourceFilePath, sourceLineNumber);
+		}
 
 		public static void Debug(
 			string msg,
@@ -28,7 +48,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Write("DEBUG", msg, memberName, sourceFilePath, sourceLineNumber);
+			Write(LevelDebug, msg, memberName, sourceFilePath, sourceLineNumber);
 		}
 
 		public static void Info(
@@ -37,7 +57,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Write("INFO ", msg, memberName, sourceFilePath, sourceLineNumber);
+			Write(LevelInfo, msg, memberName, sourceFilePath, sourceLineNumber);
 		}
 
 
@@ -47,17 +67,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Write("WARN ", msg, memberName, sourceFilePath, sourceLineNumber);
-		}
-
-
-		internal static void Warn(
-			Exception e,
-			[CallerMemberName] string memberName = "",
-			[CallerFilePath] string sourceFilePath = "",
-			[CallerLineNumber] int sourceLineNumber = 0)
-		{
-			throw new NotImplementedException();
+			Write(LevelWarn, msg, memberName, sourceFilePath, sourceLineNumber);
 		}
 
 
@@ -67,7 +77,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Write("ERROR", msg, memberName, sourceFilePath, sourceLineNumber);
+			Write(LevelError, msg, memberName, sourceFilePath, sourceLineNumber);
 		}
 
 
@@ -90,12 +100,31 @@ namespace GitMind.Utils
 
 				WriteToFile(text);
 
-				//Debugger.Log(0, Debugger.DefaultCategory, text);
+				if (level == LevelUsage || level == LevelWarn || level == LevelError)
+				{
+					SendUsage(text);
+				}
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
 				//Debugger.Log(0, Debugger.DefaultCategory, "ERROR Failed to log to udp " + e);
 				Native.OutputDebugString("ERROR Failed to log to udp " + e);
+			}
+		}
+
+
+		private static void SendUsage(string text)
+		{
+			try
+			{
+				string logRow = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff}, [{ProcessID}] {text}";
+
+				byte[] bytes = System.Text.Encoding.UTF8.GetBytes(logRow);
+				UdpClient.Send(bytes, bytes.Length, usageLogEndPoint);				
+			}
+			catch (Exception)
+			{		
+				// Ignore failed
 			}
 		}
 
@@ -166,7 +195,6 @@ namespace GitMind.Utils
 				Native.OutputDebugString("ERROR Failed to move large log file: " + e);
 			}	
 		}
-
 
 		private static class Native
 		{

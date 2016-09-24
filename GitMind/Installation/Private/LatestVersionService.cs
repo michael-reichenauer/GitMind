@@ -44,7 +44,7 @@ namespace GitMind.Installation.Private
 
 		private static void LogVersion(Version current, Version installed, Version remote)
 		{
-			Log.Info($"Version current: {current}, installed: {installed} remote: {remote}");
+			Log.Usage($"Version current: {current}, installed: {installed} remote: {remote}");
 		}
 
 

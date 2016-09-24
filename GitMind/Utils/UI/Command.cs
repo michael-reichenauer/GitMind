@@ -186,7 +186,7 @@ namespace GitMind.Utils.UI
 				IsCompleted = false;
 				canExecute = false;
 				RaiseCanExecuteChanaged();
-				Log.Info(memberName);
+				Log.Usage(memberName);
 
 				if (executeMethod != null)
 				{
