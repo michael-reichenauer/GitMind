@@ -63,7 +63,6 @@ namespace GitMind.Git.Private
 		}
 
 
-
 		public async Task FetchAllNotesAsync(string workingFolder)
 		{
 			Log.Debug("Fetch all notes ...");
@@ -188,8 +187,6 @@ namespace GitMind.Git.Private
 				return note?.Message ?? "";
 			})
 			.Or("");
-
-			Log.Debug($"Remote stored notes {nameSpace}:\n{notesText}");
 
 			try
 			{
