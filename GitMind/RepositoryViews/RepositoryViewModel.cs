@@ -1017,7 +1017,8 @@ namespace GitMind.RepositoryViews
 				{
 					Progress.ShowDialog(Owner, $"Set commit branch name {branchName} ...", async () =>
 					{
-						await repositoryService.SetSpecifiedCommitBranchAsync(workingFolder, commit.Id, branchName);
+						await repositoryService.SetSpecifiedCommitBranchAsync(
+							workingFolder, commit.Id, commit.Repository.RootId, branchName, GetCredentialsHandler());
 						if (branchName != null)
 						{
 							SpecifiedBranchNames = new[] { branchName };

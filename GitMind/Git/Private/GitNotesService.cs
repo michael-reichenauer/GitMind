@@ -19,8 +19,7 @@ namespace GitMind.Git.Private
 
 		public GitNotesService()
 			: this(new RepoCaller())
-		{
-			
+		{		
 		}
 
 		public GitNotesService(IRepoCaller repoCaller)
@@ -29,12 +28,17 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SetManualCommitBranchAsync(string workingFolder, string commitId, BranchName branchName)
+		public async Task SetManualCommitBranchAsync(
+			string workingFolder, 
+			string commitId,
+			string rootId,
+			BranchName branchName,
+			ICredentialHandler credentialHandler)
 		{
 			Log.Debug($"Set manual branch name {branchName} for commit {commitId} ...");
 			SetNoteBranches(workingFolder, ManualBranchNoteNameSpace, commitId, branchName);
 
-			return Task.FromResult(true);
+			await PushNotesAsync(workingFolder, ManualBranchNoteNameSpace, rootId, credentialHandler);
 		}
 
 
@@ -127,7 +131,7 @@ namespace GitMind.Git.Private
 			}
 			else
 			{
-				Log.Debug($"Adding notes:\n{addedNotesText}");
+				Log.Warn($"Adding notes:\n{addedNotesText}");
 			}
 
 			await FetchNotesAsync(workingFolder, nameSpace);
@@ -162,7 +166,11 @@ namespace GitMind.Git.Private
 		private async Task FetchNotesAsync(string workingFolder, string nameSpace)
 		{
 			Log.Debug($"Fetch notes for {nameSpace} ...");
-			string[] noteRefs = { $"refs/notes/{nameSpace}:refs/notes/origin/{nameSpace}" };
+			string[] noteRefs =
+			{
+				$"refs/notes/{nameSpace}:+refs/notes/origin/{nameSpace}",
+				$"refs/notes/{nameSpace}:+refs/notes/{nameSpace}"
+			};
 
 			await repoCaller.UseRepoAsync(workingFolder, FetchTimeout, repo => repo.FetchRefs(noteRefs));
 		}
@@ -180,6 +188,8 @@ namespace GitMind.Git.Private
 				return note?.Message ?? "";
 			})
 			.Or("");
+
+			Log.Debug($"Remote stored notes {nameSpace}:\n{notesText}");
 
 			try
 			{

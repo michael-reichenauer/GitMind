@@ -87,9 +87,15 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SetManualCommitBranchAsync(string workingFolder, string commitId, BranchName branchName)
+		public Task SetManualCommitBranchAsync(
+			string workingFolder, 
+			string commitId,
+			string rootId,
+			BranchName branchName, 
+			ICredentialHandler credentialHandler)
 		{
-			return gitNotesService.SetManualCommitBranchAsync(workingFolder, commitId, branchName);
+			return gitNotesService.SetManualCommitBranchAsync(
+				workingFolder, commitId, rootId, branchName, credentialHandler);
 		}
 
 

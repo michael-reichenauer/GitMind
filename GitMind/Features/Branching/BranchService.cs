@@ -366,7 +366,8 @@ namespace GitMind.Features.Branching
 					{
 						string commitId = gitCommit.Value.Id;
 						Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {commitId}");
-						await gitService.SetCommitBranchAsync(workingFolder, commitId, currentBranch.Name);
+						await gitService.SetCommitBranchAsync(
+							workingFolder, commitId, currentBranch.Name);
 					}
 
 					repositoryCommands.SetCurrentMerging(branch);

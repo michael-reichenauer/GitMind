@@ -71,7 +71,8 @@ namespace GitMind.Features.Committing
 
 						if (gitCommit.HasValue)
 						{
-							await gitService.SetCommitBranchAsync(workingFolder, gitCommit.Value.Id, branchName);
+							await gitService.SetCommitBranchAsync(
+								workingFolder, gitCommit.Value.Id, branchName);
 
 							await repositoryCommands.RefreshAfterCommandAsync(false);
 						}

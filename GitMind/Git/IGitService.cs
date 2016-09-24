@@ -22,7 +22,7 @@ namespace GitMind.Git
 
 		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId);
 
-		Task SetManualCommitBranchAsync(string workingFolder, string commitId, BranchName branchName);
+		Task SetManualCommitBranchAsync(string workingFolder, string commitId, string rootId, BranchName branchName, ICredentialHandler credentialHandler);
 		Task SetCommitBranchAsync(string workingFolder, string commitId, BranchName branchName);
 
 		IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId);
