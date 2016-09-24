@@ -330,6 +330,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (DateTime.Now - fetchedTime > ActivateRemoteCheckInterval)
 			{
+				Log.Usage("ActivateRefresh");
 				using (busyIndicator.Progress())
 				{
 					await FetchRemoteChangesAsync(Repository, false);
@@ -342,6 +343,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (DateTime.Now - fetchedTime > AutoRemoteCheckInterval)
 			{
+				Log.Usage("AutoRemoteCheck");
 				await FetchRemoteChangesAsync(Repository, false);
 			}
 		}
