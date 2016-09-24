@@ -766,14 +766,14 @@ namespace GitMind.RepositoryViews
 			{
 				subjectBrush = brushService.RemoteAheadBrush;
 			}
-			else if (commit.CommitBranchName != null)
-			{
-				subjectBrush = Brushes.Fuchsia;
-			}
-			else if (commit.SpecifiedBranchName != null)
-			{
-				subjectBrush = Brushes.Chocolate;
-			}
+			//else if (commit.CommitBranchName != null)
+			//{
+			//	subjectBrush = Brushes.Fuchsia;
+			//}
+			//else if (commit.SpecifiedBranchName != null)
+			//{
+			//	subjectBrush = Brushes.Chocolate;
+			//}
 			else
 			{
 				subjectBrush = brushService.SubjectBrush;
