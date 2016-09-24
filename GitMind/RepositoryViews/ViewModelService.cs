@@ -287,6 +287,7 @@ namespace GitMind.RepositoryViews
 			IEnumerable<Commit> commits = null;
 
 			bool isSearchSpecifiedNames = filterText == "$gm:";
+			bool isSearchCommitNames = filterText == "$gm:c";
 
 			Repository repository = repositoryViewModel.Repository;
 
@@ -305,7 +306,8 @@ namespace GitMind.RepositoryViews
 						|| Contains(c.Tickets, filterText)
 						|| Contains(c.Tags, filterText)
 						|| Contains(c.Branch.Name, filterText)
-						|| (isSearchSpecifiedNames && c.SpecifiedBranchName != null))
+						|| (isSearchSpecifiedNames && !string.IsNullOrEmpty(c.SpecifiedBranchName))
+						|| (isSearchCommitNames && !string.IsNullOrEmpty(c.CommitBranchName)))
 					.OrderByDescending(c => c.CommitDate)
 					.ToList();
 			});
