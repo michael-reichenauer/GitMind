@@ -195,7 +195,7 @@
 															</MenuItem.Icon>
 														</MenuItem>
 
-														<!-- Publish to other branch -->
+														<!-- Publish branch -->
 														<MenuItem 
 															Header="Publish branch"
 															Visibility="{Binding CanPublish, Converter={StaticResource VC}}"
@@ -203,6 +203,34 @@
 															<MenuItem.Icon>
 																<Border>
 																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE25A;"/>
+																</Border>
+															</MenuItem.Icon>
+														</MenuItem>
+															
+														<MenuItem 
+															Header="Push branch"
+															Visibility="{Binding CanPush, Converter={StaticResource VC}}"
+															Command="{Binding PushBranchCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock 
+																		Style="{StaticResource MenuIconStyle}" 
+																		Text="&#xE25A;"
+																		Foreground="{StaticResource LocalAheadBrush}"/>
+																</Border>
+															</MenuItem.Icon>
+														</MenuItem>
+															
+														<MenuItem 
+															Header="Update branch"
+															Visibility="{Binding CanUpdate, Converter={StaticResource VC}}"
+															Command="{Binding UpdateBranchCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock
+																		Style="{StaticResource MenuIconStyle}"
+																		Text="&#xE258;"
+																		Foreground="{StaticResource RemoteAheadBrush}"/>
 																</Border>
 															</MenuItem.Icon>
 														</MenuItem>

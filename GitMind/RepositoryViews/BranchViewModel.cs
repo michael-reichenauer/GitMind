@@ -60,6 +60,22 @@ namespace GitMind.RepositoryViews
 		public string BranchToolTip { get; set; }
 		public bool IsMergeable => Branch.IsMergeable;
 		public bool CanPublish => Branch.IsActive && Branch.IsLocal && !Branch.IsRemote;
+		public bool CanPush => 
+			Branch.IsActive 
+			&& Branch.IsLocal 
+			&& Branch.IsRemote 
+			&& Branch.LocalAheadCount > 0
+			&& !IsUncommittedBranch;
+		public bool CanUpdate => 
+			Branch.IsActive 
+			&& Branch.IsLocal 
+			&& Branch.IsRemote 
+			&& Branch.RemoteAheadCount > 0
+			&& !IsUncommittedBranch;
+		public bool IsUncommittedBranch =>
+			Branch == Branch.Repository.CurrentBranch
+			&& (Branch.Repository.Status.StatusCount > 0 || Branch.Repository.Status.ConflictCount > 0);
+
 		public string SwitchBranchText => $"Switch to branch '{Name}'";
 		public string MergeToBranchText => $"Merge to branch '{CurrentBranchName}'";
 		public string CurrentBranchName { get; set; }
