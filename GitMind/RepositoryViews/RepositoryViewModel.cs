@@ -885,8 +885,11 @@ namespace GitMind.RepositoryViews
 					.Where(b =>
 						b != currentBranch
 						&& b != uncommittedBranch
+						&& b.IsLocal 
+						&& b.IsRemote
 						&& b.LocalAheadCount > 0
-						&& b.RemoteAheadCount == 0).ToList();
+						&& b.RemoteAheadCount == 0)
+					.ToList();
 
 				foreach (Branch branch in pushableBranches)
 				{
@@ -911,8 +914,10 @@ namespace GitMind.RepositoryViews
 
 			return Repository.Branches.Any(
 				b => b != uncommittedBranch
-				&& b.LocalAheadCount > 0
-				&& b.RemoteAheadCount == 0);
+				  && b.IsLocal
+					&& b.IsRemote
+					&& b.LocalAheadCount > 0
+					&& b.RemoteAheadCount == 0);
 		}
 
 
@@ -943,6 +948,8 @@ namespace GitMind.RepositoryViews
 			Branch uncommittedBranch = UnCommited?.Branch;
 
 			return uncommittedBranch != Repository.CurrentBranch
+				&& Repository.CurrentBranch.IsLocal
+				&& Repository.CurrentBranch.IsRemote
 				&& Repository.CurrentBranch.LocalAheadCount > 0
 				&& Repository.CurrentBranch.RemoteAheadCount == 0;
 		}
