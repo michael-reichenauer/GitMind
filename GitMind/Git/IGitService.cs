@@ -11,8 +11,6 @@ namespace GitMind.Git
 	{
 		Task FetchAsync(string workingFolder);
 
-		R<string> GetCurrentRootPath(string folder);
-
 		Task<R<GitStatus>> GetStatusAsync(string workingFolder);
 
 		Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId);
