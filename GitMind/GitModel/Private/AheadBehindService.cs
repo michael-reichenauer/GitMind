@@ -42,8 +42,11 @@ namespace GitMind.GitModel.Private
 
 			localAndRemote.ForEach(b => b.IsLocalAndRemote = true);
 
+
 			foreach (MBranch branch in localAndRemote)
 			{
+				branch.Commits.ForEach(c => c.IsLocalAhead = c.IsRemoteAhead = false);
+
 				string localTip = branch.LocalTipCommitId;
 				string remoteTip = branch.RemoteTipCommitId;
 
