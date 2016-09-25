@@ -2,8 +2,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using GitMind.Utils;
-using ProtoBuf;
-
 
 namespace GitMind.GitModel.Private
 {
@@ -190,8 +188,7 @@ namespace GitMind.GitModel.Private
 				{
 					while (true)
 					{
-						CommitFiles commitFiles = Serializer.DeserializeWithLengthPrefix<CommitFiles>(
-							file, PrefixStyle.Fixed32);
+						CommitFiles commitFiles = Serializer.DeserializeWithLengthPrefix<CommitFiles>(file);
 						if (commitFiles == null)
 						{
 							return;

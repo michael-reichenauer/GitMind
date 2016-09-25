@@ -101,7 +101,7 @@ namespace GitMind.RepositoryViews
 
 			foreach (Branch branch in branches.Where(b => b.Name.StartsWith(prefix)))
 			{
-				string[] nameParts = branch.Name.Split("/".ToCharArray());
+				string[] nameParts = branch.Name.ToString().Split("/".ToCharArray());
 				if (nameParts.Length == level + 1)
 				{
 					if (level == 0 && !localItems.Any(b => b.Branch == branch))

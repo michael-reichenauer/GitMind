@@ -16,5 +16,6 @@ namespace GitMind.Features.Branching
 		bool CanExecuteSwitchToBranchCommit(Commit commit);
 		void DeleteBranch(IRepositoryCommands repositoryCommands, Branch branch);
 		Task MergeBranchAsync(IRepositoryCommands repositoryCommands, Branch branch);
+		void PublishBranch(IRepositoryCommands repositoryCommands, Branch branch);
 	}
 }

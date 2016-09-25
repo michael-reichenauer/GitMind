@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Features.Branching;
+using GitMind.Features.Branching.Private;
+using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -25,7 +27,8 @@ namespace GitMind.RepositoryViews
 			this.repositoryCommands = repositoryCommands;
 			ToggleDetailsCommand = toggleDetailsCommand;
 			SetCommitBranchCommand = setBranchCommand.With(() => Commit);
-			ShowCommitDiffCommand = showCommitDiffCommand.With(() => Commit);
+			ShowCommitDiffCommand = showCommitDiffCommand.With(
+				() => Commit.IsVirtual && !Commit.IsUncommitted ? Commit.FirstParent : Commit);
 			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
 			UndoCleanWorkingFolderCommand = undoCleanWorkingFolderCommand;
 		}
@@ -46,6 +49,7 @@ namespace GitMind.RepositoryViews
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.Id == Commit.UncommittedId;
+		public bool IsShown => BranchTips == null;
 
 		public int XPoint { get; set; }
 		public int YPoint => IsMergePoint ? 2 : 4;
@@ -58,7 +62,7 @@ namespace GitMind.RepositoryViews
 		public Brush TagBrush { get; set; }
 		public Brush TicketBrush { get; set; }
 		public Brush BranchTipBrush { get; set; }
-		public FontWeight SubjectWeight { get; set; }
+		//public FontWeight SubjectWeight => Commit.CommitBranchName != null ? FontWeights.Bold : FontWeights.Normal;
 
 		public string ToolTip { get; set; }
 		public Brush Brush { get; set; }
@@ -121,7 +125,7 @@ namespace GitMind.RepositoryViews
 		public bool IsMergePoint => 
 			(Commit.IsMergePoint && Commit.Branch != Commit.SecondParent.Branch)
 			|| (Commit.HasFirstParent && Commit.Branch != Commit.FirstParent.Branch)
-			|| (!Commit.HasFirstChild && Commit.Branch.Name != "master");
+			|| (!Commit.HasFirstChild && Commit.Branch.Name != BranchName.Master);
 
 		// Value used by merge and that determine if item is visible
 		public int BranchColumn { get; set; }

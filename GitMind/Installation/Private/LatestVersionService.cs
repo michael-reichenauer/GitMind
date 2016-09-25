@@ -22,23 +22,29 @@ namespace GitMind.Installation.Private
 
 		public bool IsNewVersionInstalled()
 		{
-			Version currentedVersion = ProgramPaths.GetCurrentVersion();
+			Version currentVersion = ProgramPaths.GetCurrentVersion();
 			Version installedVersion = ProgramPaths.GetInstalledVersion();
 
-			Log.Debug($"Current version: {currentedVersion} installed version: {installedVersion}");
-			return currentedVersion < installedVersion;
+			Log.Debug($"Current version: {currentVersion} installed version: {installedVersion}");
+			return currentVersion < installedVersion;
 		}
 
 
 		public async Task<bool> IsNewVersionAvailableAsync()
 		{
 			Log.Debug($"Checking remote version of {latestUri} ...");
-			Version remoteSetupFileVersion = await GetLatestRemoteVersionAsync();
-
+			Version remoteVersion = await GetLatestRemoteVersionAsync();
+			Version currentVersion = ProgramPaths.GetCurrentVersion();
 			Version installedVersion = ProgramPaths.GetInstalledVersion();
-			Log.Debug($"Installed version: {installedVersion} remote version: {remoteSetupFileVersion}");
+			LogVersion(currentVersion, installedVersion, remoteVersion);
 
-			return installedVersion < remoteSetupFileVersion;
+			return installedVersion < remoteVersion;
+		}
+
+
+		private static void LogVersion(Version current, Version installed, Version remote)
+		{
+			Log.Usage($"Version current: {current}, installed: {installed} remote: {remote}");
 		}
 
 

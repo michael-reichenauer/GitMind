@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using System.Windows;
 using GitMind.Common.MessageDialogs;
 using GitMind.Settings;
 using GitMind.Utils;
-using GitMind.Utils.UI;
 using Microsoft.Win32;
 
 
@@ -31,7 +29,7 @@ namespace GitMind.Installation.Private
 		private static readonly string directoryCommandContextMenuPath =
 			directoryContextMenuPath + "\\command";
 		private static readonly string SetupTitle = "GitMind - Setup";
-	
+
 
 
 		public Installer()
@@ -48,7 +46,8 @@ namespace GitMind.Installation.Private
 
 		public void InstallNormal()
 		{
-			Log.Debug("Install normal.");
+			Log.Usage("Install normal.");
+
 			if (!MessageDialog.ShowAskOkCancel(
 				"Welcome to the GitMind setup.\n\n" +
 				" This will:\n" +
@@ -67,6 +66,7 @@ namespace GitMind.Installation.Private
 			}
 
 			InstallSilent();
+			Log.Usage("Installed normal.");
 
 			MessageDialog.ShowInfo(
 				"Setup has finished installing GitMind.",
@@ -109,7 +109,7 @@ namespace GitMind.Installation.Private
 
 		public void InstallSilent()
 		{
-			Log.Debug("Installing ...");
+			Log.Usage("Installing ...");
 			string path = CopyFileToProgramFiles();
 
 			AddUninstallSupport(path);
@@ -117,13 +117,13 @@ namespace GitMind.Installation.Private
 			AddToPathVariable(path);
 			AddFolderContextMenu();
 			TryDeleteTempFiles();
-			Log.Debug("Installed");
+			Log.Usage("Installed");
 		}
 
 
 		public void UninstallNormal()
 		{
-			Log.Debug("Uninstall normal");
+			Log.Usage("Uninstall normal");
 			if (IsInstalledInstance())
 			{
 				// The running instance is the file, which should be deleted and would block deletion,
@@ -146,7 +146,7 @@ namespace GitMind.Installation.Private
 			}
 
 			UninstallSilent();
-
+			Log.Usage("Uninstalled normal");
 			MessageDialog.ShowInfo("Uninstallation of GitMind is completed.");
 		}
 
@@ -216,7 +216,7 @@ namespace GitMind.Installation.Private
 				{
 					string oldFilePath = ProgramPaths.GetTempFilePath();
 					Log.Debug($"Moving {targetPath} to {oldFilePath}");
-					
+
 					File.Move(targetPath, oldFilePath);
 					Log.Debug($"Moved {targetPath} to target {oldFilePath}");
 					CopyFile(sourcePath, targetPath);
@@ -244,7 +244,7 @@ namespace GitMind.Installation.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to write version {e}");
-			}			
+			}
 		}
 
 
@@ -382,7 +382,7 @@ namespace GitMind.Installation.Private
 			Registry.SetValue(UninstallRegKey, "Publisher", "Michael Reichenauer");
 			Registry.SetValue(UninstallRegKey, "DisplayVersion", version);
 			Registry.SetValue(UninstallRegKey, "UninstallString", path + " /uninstall");
-			Registry.SetValue(UninstallRegKey, "EstimatedSize", 1000);			
+			Registry.SetValue(UninstallRegKey, "EstimatedSize", 1000);
 		}
 
 

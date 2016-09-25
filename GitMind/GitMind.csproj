@@ -93,15 +93,15 @@
       <DependentUpon>ProgressDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
-    <Compile Include="Features\Branching\CrateBranchDialog.xaml.cs">
+    <Compile Include="Features\Branching\Private\CrateBranchDialog.xaml.cs">
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Branching\CreateBranchDialogViewModel.cs" />
-    <Compile Include="Features\Branching\BranchService.cs" />
-    <Compile Include="Features\Branching\DeleteBranchDialog.xaml.cs">
+    <Compile Include="Features\Branching\Private\CreateBranchDialogViewModel.cs" />
+    <Compile Include="Features\Branching\Private\BranchService.cs" />
+    <Compile Include="Features\Branching\Private\DeleteBranchDialog.xaml.cs">
       <DependentUpon>DeleteBranchDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Branching\DeleteBranchDialogViewModel.cs" />
+    <Compile Include="Features\Branching\Private\DeleteBranchDialogViewModel.cs" />
     <Compile Include="Features\Branching\IBranchService.cs" />
     <Compile Include="Features\Committing\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
@@ -111,6 +111,19 @@
     <Compile Include="Features\Committing\ICommitService.cs" />
     <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
+    <Compile Include="Git\BranchName.cs" />
+    <Compile Include="Git\Private\GitDiffService.cs" />
+    <Compile Include="Git\IGitDiffService.cs" />
+    <Compile Include="Git\Private\GitNetworkService.cs" />
+    <Compile Include="Git\IGitNetworkService.cs" />
+    <Compile Include="Features\Branching\Private\GitBranchesService.cs" />
+    <Compile Include="Git\Private\GitInfoService.cs" />
+    <Compile Include="Git\IGitInfoService.cs" />
+    <Compile Include="Git\Private\GitCommitBranchNameService.cs" />
+    <Compile Include="Features\Branching\Private\IGitBranchesService.cs" />
+    <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
+    <Compile Include="Git\Private\IRepoCaller.cs" />
+    <Compile Include="Git\Private\RepoCaller.cs" />
     <Compile Include="RepositoryViews\CredentialHandler.cs" />
     <Compile Include="Git\GitConflict.cs" />
     <Compile Include="Git\GitConflictStatus.cs" />
@@ -122,6 +135,7 @@
     <Compile Include="RepositoryViews\DisabledStatus.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
     <Compile Include="Utils\Equatable.cs" />
+    <Compile Include="Utils\Serializer.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
     <Compile Include="Utils\UI\VisibleWindow.cs" />
     <Compile Include="Utils\UI\WpfBindingTraceListener.cs" />
@@ -191,7 +205,7 @@
     <Compile Include="GitModel\Tag.cs" />
     <Compile Include="Git\GitCommitFiles.cs" />
     <Compile Include="Git\GitFile.cs" />
-    <Compile Include="Git\BranchName.cs" />
+    <Compile Include="Git\CommitBranchName.cs" />
     <Compile Include="Utils\IReadOnlyKeyedList.cs" />
     <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="GitModel\Private\MRepository.cs" />
@@ -227,10 +241,8 @@
     <Compile Include="Utils\UI\Command.cs" />
     <Compile Include="Git\CommitDiff.cs" />
     <Compile Include="Git\GitBranch.cs" />
-    <Compile Include="Git\Private\GitRepo.cs" />
-    <Compile Include="Git\IGitRepo.cs" />
     <Compile Include="Git\GitTag.cs" />
-    <Compile Include="Git\IGitService.cs" />
+    <Compile Include="Git\IGitCommitsService.cs" />
     <Compile Include="Git\GitStatus.cs" />
     <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
     <Compile Include="Testing\TestRepo.cs" />
@@ -251,7 +263,7 @@
     <Compile Include="Utils\Cmd.cs" />
     <Compile Include="Utils\ICmd.cs" />
     <Compile Include="Utils\Log.cs" />
-    <Compile Include="Git\Private\GitService.cs" />
+    <Compile Include="Git\Private\GitCommitsService.cs" />
     <Compile Include="Git\GitCommit.cs" />
     <Compile Include="Utils\MicroDiContainer.cs" />
     <Compile Include="Utils\UI\VirtualCanvas\VirtualPanel.cs" />
@@ -267,11 +279,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Branching\CrateBranchDialog.xaml">
+    <Page Include="Features\Branching\Private\CrateBranchDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Branching\DeleteBranchDialog.xaml">
+    <Page Include="Features\Branching\Private\DeleteBranchDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

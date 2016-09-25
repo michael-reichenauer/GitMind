@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
+using GitMind.Features.Branching.Private;
 using GitMind.Features.Committing;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -17,7 +18,7 @@ using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
 using Application = System.Windows.Application;
-using BranchService = GitMind.Features.Branching.BranchService;
+using BranchService = GitMind.Features.Branching.Private.BranchService;
 using IBranchService = GitMind.Features.Branching.IBranchService;
 using ListBox = System.Windows.Controls.ListBox;
 
@@ -33,7 +34,10 @@ namespace GitMind.RepositoryViews
 
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService = new RepositoryService();
-		private readonly IGitService gitService = new GitService();
+		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
+		private readonly IGitBranchesService gitBranchesService = new GitBranchesService();
+		private readonly IGitInfoService gitInfoService = new GitInfoService();
+		private readonly IGitNetworkService gitNetworkService = new GitNetworkService();
 		private readonly IBrushService brushService = new BrushService();
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IBranchService branchService = new BranchService();
@@ -77,7 +81,7 @@ namespace GitMind.RepositoryViews
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; } = new Branch[0];
 		public string WorkingFolder { get; set; }
-		public IReadOnlyList<string> SpecifiedBranchNames { get; set; }
+		public IReadOnlyList<BranchName> SpecifiedBranchNames { get; set; }
 		public ZoomableCanvas Canvas { get; set; }
 
 
@@ -186,6 +190,8 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
 		public Command<Branch> DeleteBranchCommand => Command<Branch>(
 			branch => branchService.DeleteBranch(this, branch));
+		public Command<Branch> PublishBranchCommand => Command<Branch>(
+			branch => branchService.PublishBranch(this, branch));
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
@@ -276,7 +282,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public void AddSpecifiedBranch(string branchName)
+		public void ShowBranch(BranchName branchName)
 		{
 			SpecifiedBranchNames = new[] { branchName };
 		}
@@ -298,7 +304,7 @@ namespace GitMind.RepositoryViews
 				});
 
 
-				if (!gitService.IsSupportedRemoteUrl(WorkingFolder))
+				if (!gitInfoService.IsSupportedRemoteUrl(WorkingFolder))
 				{
 					MessageDialog.ShowWarning(Owner,
 						"SSH URL protocol is not yet supported for remote access.\n" +
@@ -328,6 +334,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (DateTime.Now - fetchedTime > ActivateRemoteCheckInterval)
 			{
+				Log.Usage("Activate window");
 				using (busyIndicator.Progress())
 				{
 					await FetchRemoteChangesAsync(Repository, false);
@@ -340,6 +347,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (DateTime.Now - fetchedTime > AutoRemoteCheckInterval)
 			{
+				Log.Usage("Automatic remote check");
 				await FetchRemoteChangesAsync(Repository, false);
 			}
 		}
@@ -355,6 +363,7 @@ namespace GitMind.RepositoryViews
 			return refreshThrottler.Run(async () =>
 			{
 				Log.Debug("Refreshing after status/repo change ...");
+				Log.Usage("Refresh after status change");
 
 				using (busyIndicator.Progress())
 				{
@@ -469,10 +478,10 @@ namespace GitMind.RepositoryViews
 		private async Task FetchRemoteChangesAsync(Repository repository, bool isFetchNotes)
 		{
 			Log.Debug("Fetch");
-			await gitService.FetchAsync(repository.MRepository.WorkingFolder);
+			await gitNetworkService.FetchAsync(repository.MRepository.WorkingFolder);
 			if (isFetchNotes)
 			{
-				await gitService.FetchAllNotesAsync(repository.MRepository.WorkingFolder);
+				await gitNetworkService.FetchAllNotesAsync(repository.MRepository.WorkingFolder);
 			}
 
 			fetchedTime = DateTime.Now;
@@ -665,7 +674,7 @@ namespace GitMind.RepositoryViews
 				if (!ignoreTopIndex && commitPosition.Index == 0)
 				{
 					// The index was 0 (top) lest ensure the index remains 0 again
-					Log.Warn("Scroll to 0 since first position was 0");
+					Log.Debug("Scroll to 0 since first position was 0");
 					ScrollTo(0);
 					if (Commits.Any())
 					{
@@ -776,14 +785,14 @@ namespace GitMind.RepositoryViews
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
-				await gitService.FetchAsync(workingFolder);
+				await gitNetworkService.FetchAsync(workingFolder);
 
 				if (uncommittedBranch != currentBranch
 						&& currentBranch.RemoteAheadCount > 0
 						&& currentBranch.LocalAheadCount == 0)
 				{
 					progress.SetText($"Update current branch {currentBranch.Name} ...");
-					await gitService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
+					await gitBranchesService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
 				}
 
 				IEnumerable<Branch> updatableBranches = Repository.Branches
@@ -797,11 +806,11 @@ namespace GitMind.RepositoryViews
 				{
 					progress.SetText($"Update branch {branch.Name} ...");
 
-					await gitService.FetchBranchAsync(workingFolder, branch.Name);
+					await gitNetworkService.FetchBranchAsync(workingFolder, branch.Name);
 				}
 
 				progress.SetText("Update all branches ...");
-				await gitService.FetchAllNotesAsync(workingFolder);
+				await gitNetworkService.FetchAllNotesAsync(workingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});
@@ -827,15 +836,15 @@ namespace GitMind.RepositoryViews
 		private void PullCurrentBranch()
 		{
 			isInternalDialog = true;
-			string branchName = Repository.CurrentBranch.Name;
+			BranchName branchName = Repository.CurrentBranch.Name;
 			Progress.ShowDialog(Owner, $"Update current branch {branchName} ...", async () =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
-				await gitService.FetchAsync(workingFolder);
-				await gitService.MergeCurrentBranchAsync(workingFolder);
+				await gitNetworkService.FetchAsync(workingFolder);
+				await gitBranchesService.MergeCurrentBranchAsync(workingFolder);
 
-				await gitService.FetchAllNotesAsync(workingFolder);
+				await gitNetworkService.FetchAllNotesAsync(workingFolder);
 				await RefreshAfterCommandAsync(false);
 			});
 		}
@@ -865,7 +874,7 @@ namespace GitMind.RepositoryViews
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
-				await gitService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
+				await gitNetworkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
 				if (uncommittedBranch != currentBranch
 						&& currentBranch.LocalAheadCount > 0
@@ -873,21 +882,24 @@ namespace GitMind.RepositoryViews
 				{
 					progress.SetText($"Push current branch {currentBranch.Name} ...");
 					CredentialHandler credentialHandler = new CredentialHandler(Owner);
-					await gitService.PushCurrentBranchAsync(workingFolder, credentialHandler);
+					await gitNetworkService.PushCurrentBranchAsync(workingFolder, credentialHandler);
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
 					.Where(b =>
 						b != currentBranch
 						&& b != uncommittedBranch
+						&& b.IsLocal 
+						&& b.IsRemote
 						&& b.LocalAheadCount > 0
-						&& b.RemoteAheadCount == 0).ToList();
+						&& b.RemoteAheadCount == 0)
+					.ToList();
 
 				foreach (Branch branch in pushableBranches)
 				{
 					progress.SetText($"Push branch {branch.Name} ...");
 
-					await gitService.PushBranchAsync(workingFolder, branch.Name, GetCredentialsHandler());
+					await gitNetworkService.PushBranchAsync(workingFolder, branch.Name, GetCredentialsHandler());
 				}
 
 				await RefreshAfterCommandAsync(false);
@@ -906,8 +918,10 @@ namespace GitMind.RepositoryViews
 
 			return Repository.Branches.Any(
 				b => b != uncommittedBranch
-				&& b.LocalAheadCount > 0
-				&& b.RemoteAheadCount == 0);
+				  && b.IsLocal
+					&& b.IsRemote
+					&& b.LocalAheadCount > 0
+					&& b.RemoteAheadCount == 0);
 		}
 
 
@@ -919,9 +933,9 @@ namespace GitMind.RepositoryViews
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
-				await gitService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
+				await gitNetworkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
-				await gitService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
+				await gitNetworkService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
 
 				await RefreshAfterCommandAsync(false);
 			});
@@ -938,6 +952,8 @@ namespace GitMind.RepositoryViews
 			Branch uncommittedBranch = UnCommited?.Branch;
 
 			return uncommittedBranch != Repository.CurrentBranch
+				&& Repository.CurrentBranch.IsLocal
+				&& Repository.CurrentBranch.IsRemote
 				&& Repository.CurrentBranch.LocalAheadCount > 0
 				&& Repository.CurrentBranch.RemoteAheadCount == 0;
 		}
@@ -995,7 +1011,7 @@ namespace GitMind.RepositoryViews
 		{
 			SetBranchPromptDialog dialog = new SetBranchPromptDialog();
 			dialog.PromptText = commit.SpecifiedBranchName;
-			dialog.IsAutomatically = string.IsNullOrEmpty(commit.SpecifiedBranchName);
+			dialog.IsAutomatically = commit.SpecifiedBranchName == null;
 			foreach (Branch childBranch in commit.Branch.GetChildBranches())
 			{
 				if (!childBranch.IsMultiBranch && !childBranch.Name.StartsWith("_"))
@@ -1008,15 +1024,16 @@ namespace GitMind.RepositoryViews
 			if (dialog.ShowDialog() == true)
 			{
 				Application.Current.MainWindow.Focus();
-				string branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
+				BranchName branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
 				string workingFolder = WorkingFolder;
 
 				if (commit.SpecifiedBranchName != branchName)
 				{
 					Progress.ShowDialog(Owner, $"Set commit branch name {branchName} ...", async () =>
 					{
-						await repositoryService.SetSpecifiedCommitBranchAsync(workingFolder, commit.Id, branchName);
-						if (!string.IsNullOrWhiteSpace(branchName))
+						await repositoryService.SetSpecifiedCommitBranchAsync(
+							workingFolder, commit.Id, commit.Repository.RootId, branchName, GetCredentialsHandler());
+						if (branchName != null)
 						{
 							SpecifiedBranchNames = new[] { branchName };
 						}
@@ -1055,7 +1072,7 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			Progress.ShowDialog(Owner, $"Undo changes and clean working folder {WorkingFolder} ...", async () =>
 			{
-				failedPaths = await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
+				failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync(WorkingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});
@@ -1090,7 +1107,7 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			Progress.ShowDialog(Owner, $"Undo changes in working folder {WorkingFolder} ...", async () =>
 			{
-				await gitService.UndoWorkingFolderAsync(WorkingFolder);
+				await gitCommitsService.UndoWorkingFolderAsync(WorkingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});

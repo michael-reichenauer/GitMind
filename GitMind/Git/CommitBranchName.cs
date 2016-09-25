@@ -1,15 +1,15 @@
 ﻿namespace GitMind.Git
 {
-	internal class BranchName
+	internal class CommitBranchName
 	{
-		public BranchName(string commitId, string name)
+		public CommitBranchName(string commitId, BranchName name)
 		{
 			CommitId = commitId;
 			Name = name;
 		}
 
 		public string CommitId { get; }
-		public string Name { get;}
+		public BranchName Name { get;}
 
 		public override string ToString() => $"{CommitId} -> {Name}";
 	}

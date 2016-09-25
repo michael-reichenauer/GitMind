@@ -1,46 +1,34 @@
 using System.Collections.Generic;
 using System.Linq;
-using ProtoBuf;
+using GitMind.Git;
 
 
 namespace GitMind.GitModel.Private
-{
-	[ProtoContract]
+{	
 	public class MBranch
 	{
-		[ProtoMember(1)]
 		public string Id { get; set; }
-		[ProtoMember(2)]
-		public string Name { get; set; }
-		[ProtoMember(3)]
+		public BranchName Name { get; set; }
 		public string TipCommitId { get; set; }
-		[ProtoMember(4)]
-		public string FirstCommitId { get; set; }
-		[ProtoMember(5)]
+		public string FirstCommitId { get; set; }	
 		public string ParentCommitId { get; set; }
-		[ProtoMember(6)]
 		public string ParentBranchId { get; set; }
-		[ProtoMember(7)]
 		public bool IsMultiBranch { get; set; }
-		[ProtoMember(8)]
 		public bool IsActive { get; set; }
-		[ProtoMember(9)]
+		public bool IsCurrent { get; set; }		
+		public bool IsDetached { get; set; }
 		public bool IsLocal { get; set; }
-		[ProtoMember(10)]
 		public bool IsRemote { get; set; }
-		[ProtoMember(11)]	
-		public int LocalAheadCount { get; set; }
-		[ProtoMember(12)]
+		public int LocalAheadCount { get; set; }	
 		public int RemoteAheadCount { get; set; }
-		[ProtoMember(13)]
 		public bool IsLocalAndRemote { get; set; }
-		[ProtoMember(14)]
-		public List<string> ChildBranchNames { get; set; } = new List<string>();
-		[ProtoMember(15)]
+		public List<BranchName> ChildBranchNames { get; set; } = new List<BranchName>();
 		public List<string> CommitIds { get; set; } = new List<string>();
 
-
 		public List<string> TempCommitIds { get; set; } = new List<string>();
+
+		public string LocalTipCommitId { get; set; }
+		public string RemoteTipCommitId { get; set; }
 
 		public MRepository Repository { get; set; }
 

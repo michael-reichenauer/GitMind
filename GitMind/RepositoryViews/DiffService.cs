@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
-using GitMind.Settings;
 using GitMind.Utils;
 
 
@@ -21,21 +19,22 @@ namespace GitMind.RepositoryViews
 		private static readonly string Theirs = "THEIRS";
 		private static readonly string ConflictMarker = "<<<<<<< HEAD";
 
-		private readonly IGitService gitService;
+		private readonly IGitDiffService gitDiffService;
 		private readonly ICmd cmd;
 
 
-		public DiffService(IGitService gitService, ICmd cmd)
+		public DiffService(IGitDiffService gitDiffService, ICmd cmd)
 		{
-			this.gitService = gitService;
+			this.gitDiffService = gitDiffService;
 			this.cmd = cmd;
 		}
 
 
 		public DiffService()
-			: this(new GitService(), new Cmd())
+			: this(new GitDiffService(), new Cmd())
 		{
 		}
+
 
 
 		public async Task ShowDiffAsync(string commitId, string workingFolder)
@@ -46,7 +45,7 @@ namespace GitMind.RepositoryViews
 				return;
 			}
 
-			R<CommitDiff> commitDiff = await gitService.GetCommitDiffAsync(workingFolder, commitId);
+			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffAsync(workingFolder, commitId);
 
 			if (commitDiff.HasValue)
 			{
@@ -66,7 +65,7 @@ namespace GitMind.RepositoryViews
 				return;
 			}
 
-			R<CommitDiff> commitDiff = await gitService.GetCommitDiffRangeAsync(workingFolder, id1, id2);
+			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffRangeAsync(workingFolder, id1, id2);
 
 			if (commitDiff.HasValue)
 			{
@@ -94,20 +93,20 @@ namespace GitMind.RepositoryViews
 
 			string fullPath = Path.Combine(workingFolder, file.Path);
 
-			gitService.GetFile(workingFolder, file.Conflict.OursId, yoursPath);
-			gitService.GetFile(workingFolder, file.Conflict.TheirsId, theirsPath);
-			gitService.GetFile(workingFolder, file.Conflict.BaseId, basePath);
+			gitDiffService.GetFile(workingFolder, file.Conflict.OursId, yoursPath);
+			gitDiffService.GetFile(workingFolder, file.Conflict.TheirsId, theirsPath);
+			gitDiffService.GetFile(workingFolder, file.Conflict.BaseId, basePath);
 
 			if (File.Exists(yoursPath) && File.Exists(theirsPath) && File.Exists(basePath))
 			{
 				await Task.Run(() =>
 				{
-					cmd.Run(p4mergeExe, $"\"{basePath}\" \"{theirsPath}\"  \"{yoursPath}\" \"{fullPath}\"");			
+					cmd.Run(p4mergeExe, $"\"{basePath}\" \"{theirsPath}\"  \"{yoursPath}\" \"{fullPath}\"");
 				});
 
 				if (!HasConflicts(workingFolder, file))
 				{
-					await gitService.ResolveAsync(workingFolder, file.Path);
+					await gitDiffService.ResolveAsync(workingFolder, file.Path);
 				}
 			}
 
@@ -118,7 +117,7 @@ namespace GitMind.RepositoryViews
 
 		public bool CanMergeConflict(CommitFile file)
 		{
-			return 
+			return
 				file.Status.HasFlag(GitFileStatus.Conflict)
 				&& file.Conflict.BaseId != null
 				&& file.Conflict.OursId != null
@@ -132,7 +131,7 @@ namespace GitMind.RepositoryViews
 
 			UseFile(workingFolder, file, file.Conflict.OursId);
 
-			await gitService.ResolveAsync(workingFolder, file.Path);
+			await gitDiffService.ResolveAsync(workingFolder, file.Path);
 		}
 
 
@@ -151,7 +150,7 @@ namespace GitMind.RepositoryViews
 
 			UseFile(workingFolder, file, file.Conflict.TheirsId);
 
-			await gitService.ResolveAsync(workingFolder, file.Path);
+			await gitDiffService.ResolveAsync(workingFolder, file.Path);
 		}
 
 
@@ -164,11 +163,11 @@ namespace GitMind.RepositoryViews
 
 
 		public async Task UseBaseAsync(string workingFolder, CommitFile file)
-		{	
+		{
 			CleanTempPaths(workingFolder, file);
 			UseFile(workingFolder, file, file.Conflict.BaseId);
 
-			await gitService.ResolveAsync(workingFolder, file.Path);
+			await gitDiffService.ResolveAsync(workingFolder, file.Path);
 		}
 
 
@@ -187,7 +186,7 @@ namespace GitMind.RepositoryViews
 
 			DeletePath(fullPath);
 
-			await gitService.ResolveAsync(workingFolder, file.Path);
+			await gitDiffService.ResolveAsync(workingFolder, file.Path);
 		}
 
 
@@ -204,12 +203,12 @@ namespace GitMind.RepositoryViews
 			{
 				return;
 			}
-		
+
 			string yoursPath = GetPath(workingFolder, file, Theirs);
 			string basePath = GetPath(workingFolder, file, Base);
-		
-			gitService.GetFile(workingFolder, file.Conflict.OursId, yoursPath);
-			gitService.GetFile(workingFolder, file.Conflict.BaseId, basePath);
+
+			gitDiffService.GetFile(workingFolder, file.Conflict.OursId, yoursPath);
+			gitDiffService.GetFile(workingFolder, file.Conflict.BaseId, basePath);
 
 			if (File.Exists(yoursPath) && File.Exists(basePath))
 			{
@@ -236,8 +235,8 @@ namespace GitMind.RepositoryViews
 			string basePath = GetPath(workingFolder, file, Base);
 			string theirsPath = GetPath(workingFolder, file, Theirs);
 
-			gitService.GetFile(workingFolder, file.Conflict.BaseId, basePath);
-			gitService.GetFile(workingFolder, file.Conflict.TheirsId, theirsPath);
+			gitDiffService.GetFile(workingFolder, file.Conflict.BaseId, basePath);
+			gitDiffService.GetFile(workingFolder, file.Conflict.TheirsId, theirsPath);
 
 			if (File.Exists(theirsPath) && File.Exists(basePath))
 			{
@@ -261,7 +260,7 @@ namespace GitMind.RepositoryViews
 			return names;
 		}
 
-		
+
 		private void CleanTempPaths(string workingFolder, CommitFile file)
 		{
 			DeletePath(GetPath(workingFolder, file, Base));
@@ -274,7 +273,7 @@ namespace GitMind.RepositoryViews
 		{
 			string fullPath = Path.Combine(workingFolder, file.Path);
 
-			gitService.GetFile(workingFolder, fileId, fullPath);
+			gitDiffService.GetFile(workingFolder, fileId, fullPath);
 		}
 
 
@@ -286,7 +285,7 @@ namespace GitMind.RepositoryViews
 				return;
 			}
 
-			R<CommitDiff> commitDiff = await gitService.GetFileDiffAsync(workingFolder, commitId, name);
+			R<CommitDiff> commitDiff = await gitDiffService.GetFileDiffAsync(workingFolder, commitId, name);
 
 			if (commitDiff.HasValue)
 			{
@@ -332,7 +331,7 @@ namespace GitMind.RepositoryViews
 			string fullPath = Path.Combine(workingFolder, file.Path);
 
 			return
-				File.Exists(fullPath) 
+				File.Exists(fullPath)
 				&& File.ReadAllLines(fullPath).Any(line => line.StartsWith(ConflictMarker));
 		}
 

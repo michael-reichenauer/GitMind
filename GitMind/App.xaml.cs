@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using GitMind.Common;
+using GitMind.Git;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.MainWindowViews;
@@ -41,7 +43,8 @@ namespace GitMind
 			string version = GetProgramVersion();
 			string argsText = string.Join("','", Environment.GetCommandLineArgs());
 
-			Log.Debug($"Version: {version}, Args: '{argsText}'");
+			Log.Usage($"Start version: {version}");
+			Log.Debug($"Start version: {version}, Args: '{argsText}'");
 
 			App application = new App();
 			application.StartProgram();
@@ -84,7 +87,7 @@ namespace GitMind
 
 		protected override void OnExit(ExitEventArgs e)
 		{
-			Log.Debug("Exit program");
+			Log.Usage("Exit program");
 			base.OnExit(e);
 		}
 
@@ -112,7 +115,7 @@ namespace GitMind
 
 			// Must not use WorkingFolder before installation code
 			mainWindow.WorkingFolder = commandLine.WorkingFolder;
-			mainWindow.BranchNames = commandLine.BranchNames;
+			mainWindow.BranchNames = commandLine.BranchNames.Select(name => new BranchName(name)).ToList();
 			MainWindow.Show();
 
 			newVersionTimer.Tick += NewVersionCheckAsync;
@@ -123,6 +126,7 @@ namespace GitMind
 
 		private void StartProgram()
 		{
+			Serializer.RegisterSerializedTypes();
 			commandLine = new CommandLine();
 			ExceptionHandling.Init();
 			WpfBindingTraceListener.Register();

@@ -198,10 +198,9 @@ namespace GitMind.Settings
 				return Error.From("No working folder");
 			}
 
-			IGitService gitService = new GitService();
+			IGitInfoService gitInfoService = new GitInfoService();
 			
-
-			return gitService.GetCurrentRootPath(path)
+			return gitInfoService.GetCurrentRootPath(path)
 				.OnError(e => Log.Debug($"Not a working folder {path}, {e}"));
 		}
 

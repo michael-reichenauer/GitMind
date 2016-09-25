@@ -12,26 +12,28 @@ using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
-namespace GitMind.Features.Branching
+namespace GitMind.Features.Branching.Private
 {
 	/// <summary>
 	/// Branch service
 	/// </summary>
 	internal class BranchService : IBranchService
 	{
-		private readonly IGitService gitService;
+		private readonly IGitBranchesService gitBranchesService;
 		private readonly ICommitService commitService;
 
+
 		public BranchService()
-			: this(new GitService(), new CommitService())
+			: this(new GitBranchesService(), new CommitService())
 		{
 		}
 
 		public BranchService(
-			IGitService gitService,
+
+			IGitBranchesService gitBranchesService,
 			ICommitService commitService)
 		{
-			this.gitService = gitService;
+			this.gitBranchesService = gitBranchesService;
 			this.commitService = commitService;
 		}
 
@@ -56,21 +58,21 @@ namespace GitMind.Features.Branching
 					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
 					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async progress =>
 					{
-						string branchName = dialog.BranchName;
+						BranchName branchName = dialog.BranchName;
 						string commitId = commit.Id;
 						if (commitId == Commit.UncommittedId)
 						{
 							commitId = commit.FirstParent.CommitId;
 						}
 
-						await gitService.CreateBranchAsync(workingFolder, branchName, commitId);
+						await gitBranchesService.CreateBranchAsync(workingFolder, branchName, commitId);
 						Log.Debug($"Created branch {branchName}, from {commit.Branch}");
 
 						if (dialog.IsPublish)
 						{
 							progress.SetText($"Publish branch {dialog.BranchName}...");
 
-							R publish = await gitService.PublishBranchAsync(
+							R publish = await gitBranchesService.PublishBranchAsync(
 								workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
 							if (publish.IsFaulted)
 							{
@@ -78,14 +80,38 @@ namespace GitMind.Features.Branching
 							}
 						}
 
-						repositoryCommands.AddSpecifiedBranch(branchName);
+						repositoryCommands.ShowBranch(branchName);
 
-						progress.SetText("Updating status ...");
+						progress.SetText($"Updating status after create branch {branchName} ...");
 						await repositoryCommands.RefreshAfterCommandAsync(true);
 					});
 				}
 
 				return Task.CompletedTask;
+			}
+		}
+
+
+		public void PublishBranch(IRepositoryCommands repositoryCommands, Branch branch)
+		{
+			using (repositoryCommands.DisableStatus())
+			{
+				string workingFolder = repositoryCommands.WorkingFolder;
+				Window owner = repositoryCommands.Owner;
+
+				Progress.ShowDialog(owner, $"Publish branch {branch.Name} ...", async progress =>
+				{
+					R publish = await gitBranchesService.PublishBranchAsync(
+						workingFolder, branch.Name, repositoryCommands.GetCredentialsHandler());
+
+					if (publish.IsFaulted)
+					{
+						MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branch.Name}.");
+					}
+
+					progress.SetText($"Updating status after publish {branch.Name} ...");
+					await repositoryCommands.RefreshAfterCommandAsync(false);
+				});
 			}
 		}
 
@@ -97,11 +123,12 @@ namespace GitMind.Features.Branching
 
 			using (repositoryCommands.DisableStatus())
 			{
-				Progress.ShowDialog(owner, $"Switch to branch {branch.Name} ...", async () =>
+				Progress.ShowDialog(owner, $"Switch to branch {branch.Name} ...", async progress =>
 				{
-					await gitService.SwitchToBranchAsync(workingFolder, branch.Name);
+					await gitBranchesService.SwitchToBranchAsync(workingFolder, branch.Name);
 
-					await repositoryCommands.RefreshAfterCommandAsync(false);
+					progress.SetText($"Updating status after switch to {branch.Name} ...");
+					await repositoryCommands.RefreshAfterCommandAsync(true);
 				});
 
 				return Task.CompletedTask;
@@ -126,21 +153,32 @@ namespace GitMind.Features.Branching
 
 			using (repositoryCommands.DisableStatus())
 			{
+				if (commit.IsRemoteAhead)
+				{
+					MessageDialog.ShowInfo(
+						owner, "Commit is remote, you must first update before switching to this commit.");
+					return Task.CompletedTask;
+				}
+
 				Progress.ShowDialog(owner, "Switch to commit ...", async progress =>
 				{
-					string proposedNamed = commit == commit.Branch.TipCommit
-						? commit.Branch.Name
-						: $"_{commit.ShortId}";
+					BranchName branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
 
-					R<string> branchName = await gitService.SwitchToCommitAsync(
-						workingFolder, commit.CommitId, proposedNamed);
+					R<BranchName> switchedNamed = await gitBranchesService.SwitchToCommitAsync(
+						workingFolder, commit.CommitId, branchName);
 
-					if (branchName.HasValue)
+					if (switchedNamed.HasValue)
 					{
-						repositoryCommands.AddSpecifiedBranch(branchName.Value);
+						repositoryCommands.ShowBranch(switchedNamed.Value);
 					}
+					else
+					{
+						// Show current branch
+						repositoryCommands.ShowBranch(null);
+					}	
 
-					await repositoryCommands.RefreshAfterCommandAsync(false);
+					progress.SetText("Updating status after switch to commit ...");
+					await repositoryCommands.RefreshAfterCommandAsync(true);
 				});
 
 				return Task.CompletedTask;
@@ -163,27 +201,32 @@ namespace GitMind.Features.Branching
 			{
 				Window owner = repositoryCommands.Owner;
 
-				if (branch.Name == "master")
+				if (branch.Name == BranchName.Master)
 				{
 					MessageDialog.ShowWarning(owner, "You cannot delete master branch.");
 					return;
 				}
 
-				if (branch == branch.Repository.CurrentBranch)
+				if (!branch.IsRemote && branch == branch.Repository.CurrentBranch)
 				{
 					MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
 					return;
 				}
 
-
 				DeleteBranchDialog dialog = new DeleteBranchDialog(
 					owner,
 					branch.Name,
-					branch.IsLocal,
+					branch.IsLocal && branch != branch.Repository.CurrentBranch,
 					branch.IsRemote);
 
 				if (dialog.ShowDialog() == true)
 				{
+					if (dialog.IsLocal && branch == branch.Repository.CurrentBranch)
+					{
+						MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
+						return;
+					}
+
 					if (!dialog.IsLocal && !dialog.IsRemote)
 					{
 						MessageDialog.ShowWarning(owner, "Neither local nor remote branch was selected.");
@@ -209,30 +252,31 @@ namespace GitMind.Features.Branching
 				if (isLocal)
 				{
 					progress.SetText($"Delete local branch {branch.Name} ...");
-					await DeleteBranch(repositoryCommands, branch, false);
+					await DeleteBranchImpl(repositoryCommands, branch, false, false);
 				}
 
 				if (isRemote)
 				{
 					progress.SetText($"Delete remote branch {branch.Name} ...");
-					await DeleteBranch(repositoryCommands, branch, true);
+					await DeleteBranchImpl(repositoryCommands, branch, true, !isLocal);
 				}
 
-				progress.SetText("Updating status after deleting {branch.Name} ...");
+				progress.SetText($"Updating status after delete {branch.Name} ...");
 				await repositoryCommands.RefreshAfterCommandAsync(true);
 			});
 		}
 
-		private async Task DeleteBranch(
+		private async Task DeleteBranchImpl(
 			IRepositoryCommands repositoryCommands,
 			Branch branch,
-			bool isRemote)
+			bool isRemote,
+			bool isNoLongerLocal)
 		{
 			string workingFolder = repositoryCommands.WorkingFolder;
 			Window owner = repositoryCommands.Owner;
 			string text = isRemote ? "Remote" : "Local";
 
-			if (!IsBranchFullyMerged(branch, isRemote))
+			if (!IsBranchFullyMerged(branch, isRemote, isNoLongerLocal))
 			{
 				
 				if (!MessageDialog.ShowWarningAskYesNo(owner,
@@ -243,7 +287,7 @@ namespace GitMind.Features.Branching
 				}
 			}
 
-			R deleted = await gitService.DeleteBranchAsync(
+			R deleted = await gitBranchesService.DeleteBranchAsync(
 				workingFolder, branch.Name, isRemote, repositoryCommands.GetCredentialsHandler());
 
 			if (deleted.IsFaulted)
@@ -253,12 +297,17 @@ namespace GitMind.Features.Branching
 		}
 
 
-		private bool IsBranchFullyMerged(Branch branch, bool isRemote)
+		private bool IsBranchFullyMerged(Branch branch, bool isRemote, bool isNoLongerLocal)
 		{
 			if (branch.TipCommit.IsVirtual && branch.TipCommit.Id != Commit.UncommittedId)
 			{
 				// OK to delete branch, which is just a branch tip with a commit on another branch
 				return true;
+			}
+
+			if (isRemote && isNoLongerLocal)
+			{
+				return false;
 			}
 
 			Stack<Commit> stack = new Stack<Commit>();
@@ -310,19 +359,13 @@ namespace GitMind.Features.Branching
 
 				Branch currentBranch = branch.Repository.CurrentBranch;
 				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...",
-					async () =>
+					async progress =>
 				{
-					R<GitCommit> gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
-
-					// Need to check value != null, since commit may not have been done, but merge is still OK
-					if (gitCommit.HasValue && gitCommit.Value != null)
-					{
-						string commitId = gitCommit.Value.Id;
-						Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {commitId}");
-						await gitService.SetCommitBranchAsync(workingFolder, commitId, currentBranch.Name);
-					}
+					await gitBranchesService.MergeAsync(workingFolder, branch.Name);
 
 					repositoryCommands.SetCurrentMerging(branch);
+					progress.SetText(
+						$"Updating status after merge {branch.Name} into {currentBranch.Name} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(false);
 				});
 

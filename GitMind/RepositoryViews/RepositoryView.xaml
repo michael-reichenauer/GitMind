@@ -151,7 +151,7 @@
 														StrokeThickness="{Binding StrokeThickness}"
 														SnapsToDevicePixels="True">
 													<Path.Effect>
-														<DropShadowEffect 
+														<DropShadowEffect x:Name="myDropShadowEffect" 
 															Color="{Binding DimColor}" 
 															ShadowDepth="0" 
 															Direction="0" 
@@ -186,7 +186,7 @@
 															
 														<!-- Create Branch -->
 														<MenuItem 
-															Header="Create new branch"										
+															Header="Create new branch ..."										
 															Command="{Binding CreateBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
@@ -195,6 +195,17 @@
 															</MenuItem.Icon>
 														</MenuItem>
 
+														<!-- Publish to other branch -->
+														<MenuItem 
+															Header="Publish branch"
+															Visibility="{Binding CanPublish, Converter={StaticResource VC}}"
+															Command="{Binding PublishBranchCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE25A;"/>
+																</Border>
+															</MenuItem.Icon>
+														</MenuItem>
 
 														<!-- Merge to other branch -->
 														<MenuItem 
@@ -236,7 +247,7 @@
 
 														<!-- Delete branch -->
 														<MenuItem 
-															Header="Delete branch"
+															Header="Delete branch ..."
 															Command="{Binding DeleteBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
@@ -472,9 +483,9 @@
 															<!-- Subject -->
 															<TextBlock 
 																Text="{Binding Subject}"
+																Visibility="{Binding IsShown, Converter={StaticResource VC}}"
 																Foreground="{Binding SubjectBrush}"
 																FontSize="12"
-																FontWeight="{Binding SubjectWeight}"
 																FontStyle="{Binding SubjectStyle}"
 																HorizontalAlignment="Left"
 																VerticalAlignment="Center"/>

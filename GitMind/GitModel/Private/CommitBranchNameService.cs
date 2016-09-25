@@ -10,32 +10,41 @@ namespace GitMind.GitModel.Private
 	internal class CommitBranchNameService : ICommitBranchNameService
 	{
 		public void SetSpecifiedCommitBranchNames(
-			IReadOnlyList<BranchName> specifiedNames,
+			IReadOnlyList<CommitBranchName> specifiedNames,
 			MRepository repository)
 		{
-			foreach (BranchName specifiedName in specifiedNames)
+			foreach (CommitBranchName specifiedName in specifiedNames)
 			{
 				MCommit commit;
 				if (repository.Commits.TryGetValue(specifiedName.CommitId, out commit))
 				{
-					commit.SpecifiedBranchName = specifiedName.Name;
-					commit.BranchName = specifiedName.Name;
+					if (!string.IsNullOrEmpty(specifiedName.Name))
+					{
+						commit.SpecifiedBranchName = specifiedName.Name;
+						commit.BranchName = specifiedName.Name;
+					}
+					else
+					{
+						commit.SpecifiedBranchName = null;
+					}
 				}
 			}
 		}
 
 
 		public void SetCommitBranchNames(
-			IReadOnlyList<BranchName> commitBranches,
+			IReadOnlyList<CommitBranchName> commitBranches,
 			MRepository repository)
 		{
-			foreach (BranchName commitBranch in commitBranches)
+			foreach (CommitBranchName commitBranch in commitBranches)
 			{
 				MCommit commit;
 				if (repository.Commits.TryGetValue(commitBranch.CommitId, out commit))
 				{
 					// Set branch name unless there is a specified branch name which has higher priority
-					if (string.IsNullOrWhiteSpace(commit.SpecifiedBranchName))
+					commit.CommitBranchName = commitBranch.Name;
+
+					if (string.IsNullOrEmpty(commit.SpecifiedBranchName))
 					{
 						commit.BranchName = commitBranch.Name;
 					}
@@ -48,7 +57,7 @@ namespace GitMind.GitModel.Private
 		{
 			// Local master
 			MSubBranch master = repository.SubBranches
-				.FirstOrDefault(b => b.Value.Name == "master" && !b.Value.IsRemote).Value;
+				.FirstOrDefault(b => b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
 			if (master != null)
 			{
 				SetMasterBranchCommits(repository, master);
@@ -56,7 +65,7 @@ namespace GitMind.GitModel.Private
 
 			// Remote master
 			master = repository.SubBranches
-				.FirstOrDefault(b => b.Value.Name == "master" && b.Value.IsRemote).Value;
+				.FirstOrDefault(b => b.Value.Name == BranchName.Master && b.Value.IsRemote).Value;
 			if (master != null)
 			{
 				SetMasterBranchCommits(repository, master);
@@ -76,17 +85,17 @@ namespace GitMind.GitModel.Private
 
 
 
-		public string GetBranchName(MCommit commit)
+		public BranchName GetBranchName(MCommit commit)
 		{
-			if (!string.IsNullOrEmpty(commit.BranchName))
+			if (commit.BranchName != null)
 			{
 				return commit.BranchName;
 			}
-			else if (!string.IsNullOrEmpty(commit.SpecifiedBranchName))
+			else if (commit.SpecifiedBranchName != null)
 			{
 				return commit.SpecifiedBranchName;
 			}
-			else if (!string.IsNullOrEmpty(commit.FromSubjectBranchName))
+			else if (commit.FromSubjectBranchName != null)
 			{
 				return commit.FromSubjectBranchName;
 			}
@@ -202,7 +211,7 @@ namespace GitMind.GitModel.Private
 
 				foreach (MCommit commit in commitsWithBranchName)
 				{
-					string branchName = commit.BranchName;
+					BranchName branchName = commit.BranchName;
 					string subBranchId = commit.SubBranchId;
 
 					MCommit last = TryFindFirstAncestorWithSameName(commit.FirstParent, branchName);
@@ -226,13 +235,13 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private MCommit TryFindFirstAncestorWithSameName(MCommit startCommit, string branchName)
+		private MCommit TryFindFirstAncestorWithSameName(MCommit startCommit, BranchName branchName)
 		{
 			foreach (MCommit commit in startCommit.CommitAndFirstAncestors())
 			{
-				string commitBranchName = GetBranchName(commit);
+				BranchName commitBranchName = GetBranchName(commit);
 
-				if (!string.IsNullOrEmpty(commitBranchName))			
+				if (commitBranchName != null)			
 				{
 					if (commitBranchName == branchName)
 					{
