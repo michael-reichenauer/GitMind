@@ -20,20 +20,22 @@ namespace GitMind.Features.Branching.Private
 	internal class BranchService : IBranchService
 	{
 		private readonly IGitBranchesService gitBranchesService;
+		private readonly IGitNetworkService gitNetworkService;
 		private readonly ICommitService commitService;
 
 
 		public BranchService()
-			: this(new GitBranchesService(), new CommitService())
+			: this(new GitBranchesService(), new GitNetworkService(),  new CommitService())
 		{
 		}
 
 		public BranchService(
-
 			IGitBranchesService gitBranchesService,
+			IGitNetworkService gitNetworkService,
 			ICommitService commitService)
 		{
 			this.gitBranchesService = gitBranchesService;
+			this.gitNetworkService = gitNetworkService;
 			this.commitService = commitService;
 		}
 
@@ -118,12 +120,48 @@ namespace GitMind.Features.Branching.Private
 
 		public void PushBranch(IRepositoryCommands repositoryCommands, Branch branch)
 		{
-			
+			using (repositoryCommands.DisableStatus())
+			{
+				string workingFolder = repositoryCommands.WorkingFolder;
+				Window owner = repositoryCommands.Owner;
+
+				Progress.ShowDialog(owner, $"Push branch {branch.Name} ...", async progress =>
+				{
+					await gitNetworkService.PushBranchAsync(
+						workingFolder, branch.Name, repositoryCommands.GetCredentialsHandler());
+
+					progress.SetText($"Updating status after push {branch.Name} ...");
+					await repositoryCommands.RefreshAfterCommandAsync(false);
+				});
+			}
 		}
+
 
 		public void UpdateBranch(IRepositoryCommands repositoryCommands, Branch branch)
 		{
+			using (repositoryCommands.DisableStatus())
+			{
+				string workingFolder = repositoryCommands.WorkingFolder;
+				Window owner = repositoryCommands.Owner;
 
+				Progress.ShowDialog(owner, $"Update branch {branch.Name} ...", async progress =>
+				{
+					if (branch == branch.Repository.CurrentBranch)
+					{
+						Log.Debug("Update current branch");
+						await gitNetworkService.FetchAsync(workingFolder);
+						await gitBranchesService.MergeCurrentBranchAsync(workingFolder);
+					}
+					else
+					{
+						Log.Debug($"Update branch {branch.Name}");
+						await gitNetworkService.FetchBranchAsync(workingFolder, branch.Name);
+					}	
+
+					progress.SetText($"Updating status after update {branch.Name} ...");
+					await repositoryCommands.RefreshAfterCommandAsync(false);
+				});
+			}
 		}
 
 

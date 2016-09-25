@@ -71,6 +71,7 @@ namespace GitMind.RepositoryViews
 			&& Branch.IsLocal 
 			&& Branch.IsRemote 
 			&& Branch.LocalAheadCount > 0
+			&& Branch.RemoteAheadCount == 0
 			&& !IsUncommittedBranch;
 		public bool CanUpdate => 
 			Branch.IsActive 
