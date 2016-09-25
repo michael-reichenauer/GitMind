@@ -195,7 +195,7 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> PushBranchCommand => Command<Branch>(
 			branch => branchService.PushBranch(this, branch));
 		public Command<Branch> UpdateBranchCommand => Command<Branch>(
-			branch => branchService.PushBranch(this, branch));
+			branch => branchService.UpdateBranch(this, branch));
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
