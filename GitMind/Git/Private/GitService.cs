@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -37,7 +36,6 @@ namespace GitMind.Git.Private
 		}
 
 
-
 		public Task<R<GitStatus>> GetStatusAsync(string workingFolder)
 		{
 			return repoCaller.UseRepoAsync(workingFolder, repo => repo.Status);
@@ -60,21 +58,15 @@ namespace GitMind.Git.Private
 
 
 		public Task EditCommitBranchAsync(
-			string workingFolder, 
+			string workingFolder,
 			string commitId,
 			string rootId,
-			BranchName branchName, 
+			BranchName branchName,
 			ICredentialHandler credentialHandler)
 		{
 			return gitCommitBranchNameService.EditCommitBranchNameAsync(
 				workingFolder, commitId, rootId, branchName, credentialHandler);
 		}
-
-
-		//public Task SetCommitBranchNameAsync(string workingFolder, string commitId, BranchName branchName)
-		//{
-		//	return GitCommitBranchNameService.SetCommitBranchNameAsync(workingFolder, commitId, branchName);
-		//}
 
 
 		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId)
@@ -170,57 +162,6 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> DeleteBranchAsync(string workingFolder, BranchName branchName, bool isRemote, ICredentialHandler credentialHandler)
-		{
-			if (isRemote)
-			{
-				return DeleteRemoteBranchAsync(workingFolder, branchName, credentialHandler);
-			}
-			else
-			{
-				return DeleteLocalBranchAsync(workingFolder, branchName);
-			}
-		}
-
-
-		private Task<R> DeleteLocalBranchAsync(string workingFolder, BranchName branchName)
-		{
-			Log.Debug($"Delete local branch {branchName}  ...");
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.DeleteLocalBranch(branchName));
-		}
-
-
-		private Task<R> DeleteRemoteBranchAsync(
-			string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
-		{
-			Log.Debug($"Delete remote branch {branchName} ...");
-			return repoCaller.UseRepoAsync(workingFolder, PushTimeout, repo =>
-				repo.DeleteRemoteBranch(branchName, credentialHandler));
-		}
-
-
-		public Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder)
-		{
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.MergeCurrentBranchFastForwardOnly());
-		}
-
-
-		public Task MergeCurrentBranchAsync(string workingFolder)
-		{
-			return repoCaller.UseRepoAsync(workingFolder, repo =>
-			{
-				// First try to update using fast forward merge only
-				R result = repo.MergeCurrentBranchFastForwardOnly();
-
-				if (result.Error.Is<NonFastForwardException>())
-				{
-					// Failed with fast forward merge, trying no fast forward.
-					repo.MergeCurrentBranchNoFastForward();
-				}
-			});
-		}
-
-
 		public Task PushCurrentBranchAsync(
 			string workingFolder, ICredentialHandler credentialHandler)
 		{
@@ -248,7 +189,7 @@ namespace GitMind.Git.Private
 			string workingFolder, string message, string branchName, IReadOnlyList<CommitFile> paths)
 		{
 			Log.Debug($"Commit {paths.Count} files: {message} ...");
-			
+
 			return repoCaller.UseRepoAsync(workingFolder,
 				repo =>
 				{
@@ -257,23 +198,6 @@ namespace GitMind.Git.Private
 					gitCommitBranchNameService.SetCommitBranchNameAsync(workingFolder, gitCommit.Id, branchName);
 					return gitCommit;
 				});
-
-		
-		}
-
-
-		public Task SwitchToBranchAsync(string workingFolder, BranchName branchName)
-		{
-			Log.Debug($"Switch to branch {branchName} ...");
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.Checkout(branchName));
-		}
-
-
-		public Task<R<BranchName>> SwitchToCommitAsync(
-			string workingFolder, string commitId, BranchName branchName)
-		{
-			Log.Debug($"Switch to commit {commitId} with branch name '{branchName}' ...");
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.SwitchToCommit(commitId, branchName));
 		}
 
 
@@ -284,31 +208,6 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R<GitCommit>> MergeAsync(string workingFolder, BranchName branchName)
-		{
-			Log.Debug($"Merge branch {branchName} into current branch ...");
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.MergeBranchNoFastForward(branchName));
-		}
-
-
-		public Task CreateBranchAsync(string workingFolder, BranchName branchName, string commitId)
-		{
-			Log.Debug($"Create branch {branchName} at commit {commitId} ...");
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.CreateBranch(branchName, commitId));
-		}
-
-
-		public Task<R> PublishBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
-		{
-			Log.Debug($"Publish branch {branchName} ...");
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.PublishBranch(branchName, credentialHandler));
-		}
-
-
-		public bool IsSupportedRemoteUrl(string workingFolder)
-		{
-			return repoCaller.UseRepo(workingFolder, repo => repo.IsSupportedRemoteUrl()).Or(false);
-		}
 
 
 		public R<string> GetFullMessage(string workingFolder, string commitId)

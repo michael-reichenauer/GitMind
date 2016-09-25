@@ -7,6 +7,20 @@ namespace GitMind.Git.Private
 {
 	internal class GitInfoService : IGitInfoService
 	{
+		private readonly IRepoCaller repoCaller;
+
+
+		public GitInfoService()
+			: this(new RepoCaller())
+		{		
+		}
+
+		public GitInfoService(IRepoCaller repoCaller)
+		{
+			this.repoCaller = repoCaller;
+		}
+
+
 		public R<string> GetCurrentRootPath(string folder)
 		{
 			try
@@ -33,6 +47,11 @@ namespace GitMind.Git.Private
 			{
 				return Error.From(e, $"Failed to get root working folder for {folder}, {e.Message}");
 			}
+		}
+
+		public bool IsSupportedRemoteUrl(string workingFolder)
+		{
+			return repoCaller.UseRepo(workingFolder, repo => repo.IsSupportedRemoteUrl()).Or(false);
 		}
 	}
 }

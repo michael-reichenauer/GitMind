@@ -34,6 +34,8 @@ namespace GitMind.RepositoryViews
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IGitService gitService = new GitService();
+		private readonly IGitBranchesService gitBranchesService = new GitBranchesService();
+		private readonly IGitInfoService gitInfoService = new GitInfoService();
 		private readonly IBrushService brushService = new BrushService();
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IBranchService branchService = new BranchService();
@@ -300,7 +302,7 @@ namespace GitMind.RepositoryViews
 				});
 
 
-				if (!gitService.IsSupportedRemoteUrl(WorkingFolder))
+				if (!gitInfoService.IsSupportedRemoteUrl(WorkingFolder))
 				{
 					MessageDialog.ShowWarning(Owner,
 						"SSH URL protocol is not yet supported for remote access.\n" +
@@ -788,7 +790,7 @@ namespace GitMind.RepositoryViews
 						&& currentBranch.LocalAheadCount == 0)
 				{
 					progress.SetText($"Update current branch {currentBranch.Name} ...");
-					await gitService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
+					await gitBranchesService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
 				}
 
 				IEnumerable<Branch> updatableBranches = Repository.Branches
@@ -838,7 +840,7 @@ namespace GitMind.RepositoryViews
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
 				await gitService.FetchAsync(workingFolder);
-				await gitService.MergeCurrentBranchAsync(workingFolder);
+				await gitBranchesService.MergeCurrentBranchAsync(workingFolder);
 
 				await gitService.FetchAllNotesAsync(workingFolder);
 				await RefreshAfterCommandAsync(false);
