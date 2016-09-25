@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using GitMind.GitModel;
 using GitMind.Utils;
-using LibGit2Sharp;
 
 
 namespace GitMind.Git.Private
 {
 	internal class GitService : IGitService
 	{
-		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
-		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
-
-
 		private readonly IGitDiffParser gitDiffParser;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 		private readonly IRepoCaller repoCaller;
@@ -117,24 +111,6 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task FetchAsync(string workingFolder)
-		{
-			await repoCaller.UseRepoAsync(workingFolder, FetchTimeout, repo => repo.Fetch());
-		}
-
-
-		public Task FetchBranchAsync(string workingFolder, BranchName branchName)
-		{
-			Log.Debug($"Fetch branch {branchName}...");
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.FetchBranch(branchName));
-		}
-
-
-		public Task FetchAllNotesAsync(string workingFolder)
-		{
-			return gitCommitBranchNameService.FetchAllNotesAsync(workingFolder);
-		}
-
 
 		public Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync(string workingFolder)
 		{
@@ -162,29 +138,6 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task PushCurrentBranchAsync(
-			string workingFolder, ICredentialHandler credentialHandler)
-		{
-			return repoCaller.UseRepoAsync(workingFolder, PushTimeout,
-				repo => repo.PushCurrentBranch(credentialHandler));
-		}
-
-
-		public Task PushNotesAsync(
-			string workingFolder, string rootId, ICredentialHandler credentialHandler)
-		{
-			return gitCommitBranchNameService.PushNotesAsync(workingFolder, rootId, credentialHandler);
-		}
-
-
-		public Task PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
-		{
-			Log.Debug($"Push branch {branchName} ...");
-			return repoCaller.UseRepoAsync(workingFolder, PushTimeout,
-				repo => repo.PushBranch(branchName, credentialHandler));
-		}
-
-
 		public Task<R<GitCommit>> CommitAsync(
 			string workingFolder, string message, string branchName, IReadOnlyList<CommitFile> paths)
 		{
@@ -206,8 +159,6 @@ namespace GitMind.Git.Private
 			Log.Debug($"Undo uncommitted file {path} ...");
 			return repoCaller.UseRepoAsync(workingFolder, repo => repo.UndoFileInCurrentBranch(path));
 		}
-
-
 
 
 		public R<string> GetFullMessage(string workingFolder, string commitId)

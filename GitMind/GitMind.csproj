@@ -112,6 +112,8 @@
     <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\BranchName.cs" />
+    <Compile Include="Git\Private\GitNetworkService.cs" />
+    <Compile Include="Git\IGitNetworkService.cs" />
     <Compile Include="Git\Private\GitBranchesService.cs" />
     <Compile Include="Git\Private\GitInfoService.cs" />
     <Compile Include="Git\IGitInfoService.cs" />

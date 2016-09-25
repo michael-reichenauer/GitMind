@@ -36,6 +36,7 @@ namespace GitMind.RepositoryViews
 		private readonly IGitService gitService = new GitService();
 		private readonly IGitBranchesService gitBranchesService = new GitBranchesService();
 		private readonly IGitInfoService gitInfoService = new GitInfoService();
+		private readonly IGitNetworkService gitNetworkService = new GitNetworkService();
 		private readonly IBrushService brushService = new BrushService();
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IBranchService branchService = new BranchService();
@@ -476,10 +477,10 @@ namespace GitMind.RepositoryViews
 		private async Task FetchRemoteChangesAsync(Repository repository, bool isFetchNotes)
 		{
 			Log.Debug("Fetch");
-			await gitService.FetchAsync(repository.MRepository.WorkingFolder);
+			await gitNetworkService.FetchAsync(repository.MRepository.WorkingFolder);
 			if (isFetchNotes)
 			{
-				await gitService.FetchAllNotesAsync(repository.MRepository.WorkingFolder);
+				await gitNetworkService.FetchAllNotesAsync(repository.MRepository.WorkingFolder);
 			}
 
 			fetchedTime = DateTime.Now;
@@ -783,7 +784,7 @@ namespace GitMind.RepositoryViews
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
-				await gitService.FetchAsync(workingFolder);
+				await gitNetworkService.FetchAsync(workingFolder);
 
 				if (uncommittedBranch != currentBranch
 						&& currentBranch.RemoteAheadCount > 0
@@ -804,11 +805,11 @@ namespace GitMind.RepositoryViews
 				{
 					progress.SetText($"Update branch {branch.Name} ...");
 
-					await gitService.FetchBranchAsync(workingFolder, branch.Name);
+					await gitNetworkService.FetchBranchAsync(workingFolder, branch.Name);
 				}
 
 				progress.SetText("Update all branches ...");
-				await gitService.FetchAllNotesAsync(workingFolder);
+				await gitNetworkService.FetchAllNotesAsync(workingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});
@@ -839,10 +840,10 @@ namespace GitMind.RepositoryViews
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
-				await gitService.FetchAsync(workingFolder);
+				await gitNetworkService.FetchAsync(workingFolder);
 				await gitBranchesService.MergeCurrentBranchAsync(workingFolder);
 
-				await gitService.FetchAllNotesAsync(workingFolder);
+				await gitNetworkService.FetchAllNotesAsync(workingFolder);
 				await RefreshAfterCommandAsync(false);
 			});
 		}
@@ -872,7 +873,7 @@ namespace GitMind.RepositoryViews
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
-				await gitService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
+				await gitNetworkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
 				if (uncommittedBranch != currentBranch
 						&& currentBranch.LocalAheadCount > 0
@@ -880,7 +881,7 @@ namespace GitMind.RepositoryViews
 				{
 					progress.SetText($"Push current branch {currentBranch.Name} ...");
 					CredentialHandler credentialHandler = new CredentialHandler(Owner);
-					await gitService.PushCurrentBranchAsync(workingFolder, credentialHandler);
+					await gitNetworkService.PushCurrentBranchAsync(workingFolder, credentialHandler);
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
@@ -897,7 +898,7 @@ namespace GitMind.RepositoryViews
 				{
 					progress.SetText($"Push branch {branch.Name} ...");
 
-					await gitService.PushBranchAsync(workingFolder, branch.Name, GetCredentialsHandler());
+					await gitNetworkService.PushBranchAsync(workingFolder, branch.Name, GetCredentialsHandler());
 				}
 
 				await RefreshAfterCommandAsync(false);
@@ -931,9 +932,9 @@ namespace GitMind.RepositoryViews
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
-				await gitService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
+				await gitNetworkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
-				await gitService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
+				await gitNetworkService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
 
 				await RefreshAfterCommandAsync(false);
 			});

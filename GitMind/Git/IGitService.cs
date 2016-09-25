@@ -9,8 +9,6 @@ namespace GitMind.Git
 {
 	internal interface IGitService
 	{
-		Task FetchAsync(string workingFolder);
-
 		Task<R<GitStatus>> GetStatusAsync(string workingFolder);
 
 		Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId);
@@ -25,18 +23,13 @@ namespace GitMind.Git
 		IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId);
 		IReadOnlyList<CommitBranchName> GetCommitBranches(string workingFolder, string rootId);
 
-		Task FetchBranchAsync(string workingFolder, BranchName branchName);
-
-		Task PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler);
-		Task PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler);
-
+	
 		Task<R<GitCommit>> CommitAsync(string workingFolder, string message, string branchName, IReadOnlyList<CommitFile> paths);
 		
 		Task UndoFileInCurrentBranchAsync(string workingFolder, string path);
 		R<string> GetFullMessage(string workingFolder, string commitId);
 
-		Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler);
-		Task FetchAllNotesAsync(string workingFolder);
+
 		Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync(string workingFolder);
 		Task UndoWorkingFolderAsync(string workingFolder);
 		void GetFile(string workingFolder, string fileId, string filePath);
