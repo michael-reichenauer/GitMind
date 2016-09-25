@@ -151,7 +151,7 @@
 														StrokeThickness="{Binding StrokeThickness}"
 														SnapsToDevicePixels="True">
 													<Path.Effect>
-														<DropShadowEffect 
+														<DropShadowEffect x:Name="myDropShadowEffect" 
 															Color="{Binding DimColor}" 
 															ShadowDepth="0" 
 															Direction="0" 
