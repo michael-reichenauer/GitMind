@@ -18,6 +18,8 @@ namespace GitMind.RepositoryViews
 		private readonly Command<Branch> showBranchCommand;
 		private readonly Command<Branch> deleteBranchCommand;
 		private readonly Command<Branch> publishBranchCommand;
+		private readonly Command<Branch> pushBranchCommand;
+		private readonly Command<Branch> updateBranchCommand;
 
 		private readonly ObservableCollection<BranchItem> childBranches 
 			= new ObservableCollection<BranchItem>();
@@ -27,12 +29,16 @@ namespace GitMind.RepositoryViews
 			Command<Branch> showBranchCommand,
 			Command<Branch> mergeBranchCommand,
 			Command<Branch> deleteBranchCommand,
-			Command<Branch> publishBranchCommand)
+			Command<Branch> publishBranchCommand,
+			Command<Branch> pushBranchCommand,
+			Command<Branch> updateBranchCommand)
 		{
 			this.repositoryCommands = repositoryCommands;
 			this.showBranchCommand = showBranchCommand;
 			this.deleteBranchCommand = deleteBranchCommand;
 			this.publishBranchCommand = publishBranchCommand;
+			this.pushBranchCommand = pushBranchCommand;
+			this.updateBranchCommand = updateBranchCommand;
 
 
 			MergeBranchCommand = mergeBranchCommand.With(() => Branch);
@@ -60,6 +66,23 @@ namespace GitMind.RepositoryViews
 		public string BranchToolTip { get; set; }
 		public bool IsMergeable => Branch.IsMergeable;
 		public bool CanPublish => Branch.IsActive && Branch.IsLocal && !Branch.IsRemote;
+		public bool CanPush => 
+			Branch.IsActive 
+			&& Branch.IsLocal 
+			&& Branch.IsRemote 
+			&& Branch.LocalAheadCount > 0
+			&& Branch.RemoteAheadCount == 0
+			&& !IsUncommittedBranch;
+		public bool CanUpdate => 
+			Branch.IsActive 
+			&& Branch.IsLocal 
+			&& Branch.IsRemote 
+			&& Branch.RemoteAheadCount > 0
+			&& !IsUncommittedBranch;
+		public bool IsUncommittedBranch =>
+			Branch == Branch.Repository.CurrentBranch
+			&& (Branch.Repository.Status.StatusCount > 0 || Branch.Repository.Status.ConflictCount > 0);
+
 		public string SwitchBranchText => $"Switch to branch '{Name}'";
 		public string MergeToBranchText => $"Merge to branch '{CurrentBranchName}'";
 		public string CurrentBranchName { get; set; }
@@ -91,6 +114,8 @@ namespace GitMind.RepositoryViews
 		public Command DeleteBranchCommand => 
 			Command(() => deleteBranchCommand.Execute(Branch), () => Branch.IsActive);
 		public Command PublishBranchCommand => Command(() => publishBranchCommand.Execute(Branch));
+		public Command PushBranchCommand => Command(() => pushBranchCommand.Execute(Branch));
+		public Command UpdateBranchCommand => Command(() => updateBranchCommand.Execute(Branch));
 
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }
