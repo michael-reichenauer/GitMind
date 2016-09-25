@@ -64,10 +64,8 @@
 				<Separator Background="{StaticResource BorderBrush}"/>
 
 				<!-- Delete branch -->
-
-
 				<MenuItem 
-					Header="Delete branch"
+					Header="Delete branch ..."
 					ItemsSource="{Binding RepositoryViewModel.DeletableBranches}">
 					<MenuItem.Icon>
 						<Border>

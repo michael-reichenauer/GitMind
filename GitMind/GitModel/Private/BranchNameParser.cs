@@ -1,3 +1,6 @@
+using GitMind.Git;
+
+
 namespace GitMind.GitModel.Private
 {
 	internal static class BranchNameParser

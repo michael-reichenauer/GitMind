@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using GitMind.Git;
 
 
 namespace GitMind.GitModel
@@ -13,6 +14,6 @@ namespace GitMind.GitModel
 
 		Task<Repository> UpdateRepositoryAsync(Repository repository);
 
-		Task SetSpecifiedCommitBranchAsync(string gitRepositoryPath, string commitId, string branchName);
+		Task SetSpecifiedCommitBranchAsync(string gitRepositoryPath, string commitId, string rootId, BranchName branchName, ICredentialHandler credentialHandler);
 	}
 }

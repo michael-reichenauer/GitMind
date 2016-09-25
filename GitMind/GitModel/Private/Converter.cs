@@ -21,6 +21,7 @@ namespace GitMind.GitModel.Private
 				branch.IsLocal,
 				branch.IsRemote,
 				branch.IsMultiBranch,
+				branch.IsDetached,
 				branch.LocalAheadCount,
 				branch.RemoteAheadCount);
 		}
@@ -43,6 +44,7 @@ namespace GitMind.GitModel.Private
 				commit.Repository.ChildIds(commit.Id).ToList(),
 				commit.BranchId,
 				commit.SpecifiedBranchName,
+				commit.CommitBranchName,
 				commit.IsLocalAhead,
 				commit.IsRemoteAhead,
 				commit.IsUncommitted,

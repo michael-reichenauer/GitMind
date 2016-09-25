@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.Features.FolderMonitoring;
+using GitMind.Git;
 using GitMind.Utils;
 
 
@@ -51,7 +52,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public IReadOnlyList<string> BranchNames { set { viewModel.SpecifiedBranchNames = value; } }
+		public IReadOnlyList<BranchName> BranchNames { set { viewModel.SpecifiedBranchNames = value; } }
 
 
 		public bool IsNewVersionVisible

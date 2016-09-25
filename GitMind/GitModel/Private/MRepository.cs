@@ -1,37 +1,27 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Git;
-using ProtoBuf;
 
 
 namespace GitMind.GitModel.Private
 {
-	[ProtoContract]
 	public class MRepository
 	{
-		public static string CurrentVersion = "11";
+		public static string CurrentVersion = "14";
 
-		[ProtoMember(1)]
 		public string Version { get; set; } = CurrentVersion;
 
-		[ProtoMember(2)]
 		public string CurrentCommitId { get; set; }
-		[ProtoMember(3)]
 		public string CurrentBranchId { get; set; }
-		[ProtoMember(4)]
-		public Dictionary<string, MCommit> Commits { get; set; } = new Dictionary<string, MCommit>();		
-		[ProtoMember(5)]
+		public Dictionary<string, MCommit> Commits { get; set; } = new Dictionary<string, MCommit>();
 		public Dictionary<string, MBranch> Branches { get; set; } = new Dictionary<string, MBranch>();
-		[ProtoMember(6)]
 		public readonly Dictionary<string, IList<string>> ChildrenById =
 			new Dictionary<string, IList<string>>();
-		[ProtoMember(7)]
 		public readonly Dictionary<string, IList<string>> FirstChildrenById =
 			new Dictionary<string, IList<string>>();
 
 
-		public Dictionary<string, MSubBranch> SubBranches { get; set; } 
+		public Dictionary<string, MSubBranch> SubBranches { get; set; }
 			= new Dictionary<string, MSubBranch>();
 
 		public string WorkingFolder { get; set; }

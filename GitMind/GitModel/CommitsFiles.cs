@@ -11,7 +11,7 @@ namespace GitMind.GitModel
 {
 	internal class CommitsFiles
 	{
-		private readonly IGitService gitService = new GitService();
+		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
 		private readonly ConcurrentDictionary<string, IList<CommitFile>> commitsFiles =
 			new ConcurrentDictionary<string, IList<CommitFile>>();
 		private Task currentTask = Task.FromResult(true);
@@ -67,7 +67,7 @@ namespace GitMind.GitModel
 				}
 
 				Task<R<GitCommitFiles>> commitsFilesForCommitTask =
-					gitService.GetFilesForCommitAsync(gitRepositoryPath, commitId);
+					gitCommitsService.GetFilesForCommitAsync(gitRepositoryPath, commitId);
 				currentTask = commitsFilesForCommitTask;
 				var commitsFilesForCommit = await commitsFilesForCommitTask;
 

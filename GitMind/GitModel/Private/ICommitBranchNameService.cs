@@ -6,17 +6,17 @@ namespace GitMind.GitModel.Private
 {
 	internal interface ICommitBranchNameService
 	{
-		string GetBranchName(MCommit commit);
+		BranchName GetBranchName(MCommit commit);
 
 		void SetMasterBranchCommits(MRepository repository);
 
 		void SetBranchTipCommitsNames(MRepository repository);
 
 		void SetSpecifiedCommitBranchNames(
-			IReadOnlyList<BranchName> specifiedNames, MRepository repository);
+			IReadOnlyList<CommitBranchName> specifiedNames, MRepository repository);
 
 		void SetCommitBranchNames(
-			IReadOnlyList<BranchName> commitBranches, MRepository repository);
+			IReadOnlyList<CommitBranchName> commitBranches, MRepository repository);
 
 		void SetNeighborCommitNames(MRepository repository);
 	}

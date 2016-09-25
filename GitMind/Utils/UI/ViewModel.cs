@@ -111,7 +111,7 @@ namespace GitMind.Utils.UI
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new Command<T>(executeMethod);
+				command = new Command<T>(executeMethod, GetType() + "." + memberName);
 				commands[memberName] = command;
 			}
 
@@ -125,7 +125,7 @@ namespace GitMind.Utils.UI
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new Command<T>(executeMethod, canExecuteMethod);
+				command = new Command<T>(executeMethod, canExecuteMethod, GetType() + "." + memberName);
 				commands[memberName] = command;
 			}
 
@@ -139,7 +139,7 @@ namespace GitMind.Utils.UI
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new Command(executeMethod);
+				command = new Command(executeMethod, GetType() + "." + memberName);
 				commands[memberName] = command;
 			}
 
@@ -154,7 +154,7 @@ namespace GitMind.Utils.UI
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new Command(executeMethod, canExecuteMethod);
+				command = new Command(executeMethod, canExecuteMethod, GetType() + "." + memberName);
 				commands[memberName] = command;
 			}
 
@@ -170,7 +170,7 @@ namespace GitMind.Utils.UI
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new Command(executeMethodAsync);
+				command = new Command(executeMethodAsync, GetType() + "." + memberName);
 				commands[memberName] = command;
 			}
 
@@ -185,7 +185,7 @@ namespace GitMind.Utils.UI
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new Command(executeMethodAsync, canExecuteMethod);
+				command = new Command(executeMethodAsync, canExecuteMethod, GetType() + "." + memberName);
 				commands[memberName] = command;
 			}
 
@@ -200,7 +200,7 @@ namespace GitMind.Utils.UI
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new Command<T>(executeMethodAsync);
+				command = new Command<T>(executeMethodAsync, GetType() + "." + memberName);
 				commands[memberName] = command;
 			}
 
@@ -214,7 +214,7 @@ namespace GitMind.Utils.UI
 			if (!commands.TryGetValue(memberName, out command))
 			{
 
-				command = new Command<T>(executeMethodAsync, canExecuteMethod);
+				command = new Command<T>(executeMethodAsync, canExecuteMethod, GetType() + "." + memberName);
 				commands[memberName] = command;
 			}
 

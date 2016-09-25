@@ -2,7 +2,7 @@
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Features.Branching
+namespace GitMind.Features.Branching.Private
 {
 	internal class CreateBranchDialogViewModel : ViewModel
 	{

@@ -12,10 +12,15 @@ namespace GitMind.GitModel.Private
 			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
 		{
 			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
+			if (gitRepository.Head.IsDetached)
+			{
+				rootCommits = rootCommits.Concat(new[] {gitRepository.Head.Tip});
+			}
+
 			Dictionary<string, object> added = new Dictionary<string, object>();
 
-			Dictionary<string, string> branchNameByCommitId = new Dictionary<string, string>();
-			Dictionary<string, string> subjectBranchNameByCommitId = new Dictionary<string, string>();
+			Dictionary<string, BranchName> branchNameByCommitId = new Dictionary<string, BranchName>();
+			Dictionary<string, BranchName> subjectBranchNameByCommitId = new Dictionary<string, BranchName>();
 
 			Stack<GitCommit> commits = new Stack<GitCommit>();
 			rootCommits.ForEach(c => commits.Push(c));
@@ -39,14 +44,14 @@ namespace GitMind.GitModel.Private
 					AddParents(gitCommit.Parents, commits, added);
 				}
 
-				string branchName;
+				BranchName branchName;
 				if (branchNameByCommitId.TryGetValue(commit.Id, out branchName))
 				{
 					// Branch name set by a child commit (pull merge commit)
 					commit.BranchName = branchName;
 				}
 
-				string subjectBranchName;
+				BranchName subjectBranchName;
 				if (subjectBranchNameByCommitId.TryGetValue(commit.Id, out subjectBranchName))
 				{
 					// Subject branch name set by a child commit (merge commit)
@@ -108,8 +113,8 @@ namespace GitMind.GitModel.Private
 
 		private static void TrySetBranchNameFromSubject(
 			MCommit commit,
-			IDictionary<string, string> branchNameByCommitId,
-			IDictionary<string, string> subjectBranchNameByCommitId)
+			IDictionary<string, BranchName> branchNameByCommitId,
+			IDictionary<string, BranchName> subjectBranchNameByCommitId)
 		{
 			MergeBranchNames mergeNames = BranchNameParser.ParseBranchNamesFromSubject(commit.Subject);
 

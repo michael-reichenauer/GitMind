@@ -55,7 +55,7 @@ namespace System
 			{
 				StackTrace stackTrace = new StackTrace(1, true);
 				string stackTraceText = stackTrace.ToString();
-				string message = $"Exception type is fatal: {exceptionType}, {e.Message}\n{stackTraceText}";
+				string message = $"Exception type is fatal: {exceptionType}, {e}\n at \n{stackTraceText}";
 				ExceptionHandling.Shutdown(message, exception);
 				return false;
 			}

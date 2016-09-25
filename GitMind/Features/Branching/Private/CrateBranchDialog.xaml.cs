@@ -1,7 +1,8 @@
 ﻿using System.Windows;
+using GitMind.Git;
 
 
-namespace GitMind.Features.Branching
+namespace GitMind.Features.Branching.Private
 {
 	/// <summary>
 	/// Interaction logic for CrateBranchDialog.xaml
@@ -22,7 +23,7 @@ namespace GitMind.Features.Branching
 		}
 
 
-		public string BranchName => viewModel.BranchName;
+		public BranchName BranchName => viewModel.BranchName;
 		public bool IsPublish => viewModel.IsPublish;
 	}
 }

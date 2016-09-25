@@ -36,8 +36,8 @@ namespace GitMind.GitModel.Private
 
 			foreach (GitBranch gitBranch in gitRepository.Branches)
 			{
-				string branchName = gitBranch.Name;
-				if (branchName == "origin/HEAD" || branchName == "HEAD")
+				BranchName branchName = gitBranch.Name;
+				if (branchName == BranchName.OriginHead || branchName == BranchName.Head)
 				{
 					continue;
 				}
@@ -45,7 +45,7 @@ namespace GitMind.GitModel.Private
 				MSubBranch subBranch = ToBranch(gitBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!gitStatus.OK && gitBranch.Name == currentBranch.Name && !gitBranch.IsRemote)
+				if (!gitStatus.OK && gitBranch.IsCurrent && !gitBranch.IsRemote)
 				{
 					// Setting virtual uncommitted commit as tip of the current branch
 					subBranch.TipCommitId = MCommit.UncommittedId;
@@ -53,16 +53,16 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			if (gitRepository.Head.Name == "(no branch)")
+			if (currentBranch.IsDetached)
 			{
-				Log.Warn("No current branch (detached)");
+				Log.Warn("Detached head (no 'real' branch");
 
-				MSubBranch subBranch = ToBranch(gitRepository.Head, repository);
+				MSubBranch subBranch = ToBranch(currentBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!gitStatus.OK && gitRepository.Head.Name == currentBranch.Name && !gitRepository.Head.IsRemote)
+				if (!gitStatus.OK)
 				{
-					// Setting virtual uncommitted commit as tip of the current branch
+					// Setting virtual uncommitted commit as tip of the detached branch
 					subBranch.TipCommitId = MCommit.UncommittedId;
 					subBranch.TipCommit.SubBranchId = subBranch.SubBranchId;
 				}
@@ -95,8 +95,8 @@ namespace GitMind.GitModel.Private
 					TipCommitId = commit.Id,
 				};
 
-				string branchName = TryFindBranchName(commit);
-				if (string.IsNullOrEmpty(branchName))
+				BranchName branchName = TryFindBranchName(commit);
+				if (branchName == null)
 				{
 					branchName = AnonyousBranchPrefix + commit.ShortId;
 				}
@@ -122,7 +122,7 @@ namespace GitMind.GitModel.Private
 					{
 						isFound = true;
 
-						string branchName = commit.BranchName;
+						BranchName branchName = commit.BranchName;
 
 						MSubBranch subBranch = new MSubBranch
 						{
@@ -159,7 +159,7 @@ namespace GitMind.GitModel.Private
 					{
 						isFound = true;
 
-						string branchName = AnonyousBranchPrefix + commit.ShortId;
+						BranchName branchName = AnonyousBranchPrefix + commit.ShortId;
 
 						if (commit.FirstChildren.Count() > 1)
 						{
@@ -167,7 +167,7 @@ namespace GitMind.GitModel.Private
 						}
 						else
 						{
-							string commitBranchName = commitBranchNameService.GetBranchName(commit);
+							BranchName commitBranchName = commitBranchNameService.GetBranchName(commit);
 							if (commitBranchName != null)
 							{
 								branchName = commitBranchName;
@@ -216,7 +216,7 @@ namespace GitMind.GitModel.Private
 
 		private static MSubBranch ToBranch(GitBranch gitBranch, MRepository repository)
 		{
-			string branchName = gitBranch.Name;
+			BranchName branchName = gitBranch.Name;
 			if (gitBranch.IsRemote && branchName.StartsWith(Origin))
 			{
 				branchName = branchName.Substring(Origin.Length);
@@ -229,23 +229,25 @@ namespace GitMind.GitModel.Private
 				Name = branchName,
 				TipCommitId = gitBranch.TipId,
 				IsActive = true,
+				IsCurrent = gitBranch.IsCurrent,
+				IsDetached = gitBranch.IsDetached,
 				IsRemote = gitBranch.IsRemote
 			};
 		}
 
 
-		private string TryFindBranchName(MCommit root)
+		private BranchName TryFindBranchName(MCommit root)
 		{
-			string branchName = commitBranchNameService.GetBranchName(root);
+			BranchName branchName = commitBranchNameService.GetBranchName(root);
 
-			if (string.IsNullOrEmpty(branchName))
+			if (branchName == null)
 			{
 				// Could not find a branch name from the commit, lets try it ancestors
 				foreach (MCommit commit in root.FirstAncestors()
 					.TakeWhile(c => c.HasSingleFirstChild))
 				{
 					branchName = commitBranchNameService.GetBranchName(commit);
-					if (!string.IsNullOrEmpty(branchName))
+					if (branchName != null)
 					{
 						return branchName;
 					}
@@ -256,7 +258,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private bool IsBranchNameAnonyous(string branchName)
+		private bool IsBranchNameAnonyous(BranchName branchName)
 		{
 			return
 				branchName.StartsWith(AnonyousBranchPrefix)
@@ -264,7 +266,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private bool IsBranchNameMultiBranch(string branchName)
+		private bool IsBranchNameMultiBranch(BranchName branchName)
 		{
 			return branchName.StartsWith(MultibranchPrefix);
 		}

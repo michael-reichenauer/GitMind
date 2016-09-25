@@ -24,7 +24,7 @@ namespace GitMind.MainWindowViews
 	internal class MainWindowViewModel : ViewModel
 	{
 		private readonly IDiffService diffService = new DiffService();
-		private readonly IGitService gitService = new GitService();
+		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
 
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly FolderMonitorService folderMonitor;
@@ -270,7 +270,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public IReadOnlyList<string> SpecifiedBranchNames
+		public IReadOnlyList<BranchName> SpecifiedBranchNames
 		{
 			set { RepositoryViewModel.SpecifiedBranchNames = value; }
 		}
@@ -408,7 +408,7 @@ namespace GitMind.MainWindowViews
 				R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
 				if (workingFolder.HasValue)
 				{
-					Log.Warn($"User selected valid {workingFolder.Value}");
+					Log.Debug($"User selected valid {workingFolder.Value}");
 					selectedPath = workingFolder.Value;
 					break;
 				}
@@ -418,7 +418,7 @@ namespace GitMind.MainWindowViews
 				}
 			}
 
-			Log.Debug($"Setting working folder {selectedPath}");
+			Log.Info($"Setting working folder '{selectedPath}'");
 			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
 			return true;
 		}
