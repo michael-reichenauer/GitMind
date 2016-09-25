@@ -26,9 +26,7 @@ namespace GitMind.Git
 		private static readonly MergeOptions MergeDefault =
 			new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default};
 
-		private static readonly MergeOptions MergeNoFastForward =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false};
-
+	
 		private static readonly MergeOptions MergeNoFastForwardAndCommit =
 			new MergeOptions {FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true};
 
@@ -175,26 +173,6 @@ namespace GitMind.Git
 		}
 
 
-		public void Checkout(BranchName branchName)
-		{
-			Branch branch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-
-			if (branch != null)
-			{
-				repository.Checkout(branch);
-			}
-			else
-			{
-				Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
-				if (remoteBranch != null)
-				{
-					branch = repository.Branches.Add(branchName, remoteBranch.Tip);
-					repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
-
-					repository.Checkout(branch);
-				}
-			}
-		}
 
 
 		public void UndoFileInCurrentBranch(string path)
@@ -229,136 +207,7 @@ namespace GitMind.Git
 		}
 
 
-		public GitCommit MergeBranchNoFastForward(BranchName branchName)
-		{
-			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
-
-			Branch localbranch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-			Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
-
-			Branch branch = localbranch ?? remoteBranch;
-			if (localbranch != null && remoteBranch != null)
-			{
-				if (remoteBranch.Tip.Committer.When.LocalDateTime > localbranch.Tip.Committer.When.LocalDateTime)
-				{
-					branch = remoteBranch;
-				}
-			}
-
-			if (branch != null)
-			{
-				MergeResult mergeResult = repository.Merge(branch, committer, MergeNoFastForward);
-				if (mergeResult?.Commit != null)
-				{
-					return new GitCommit(mergeResult.Commit);
-				}
-				else
-				{
-					RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
-
-					if (!repositoryStatus.IsDirty)
-					{
-						// Empty merge with no changes, lets reset merge since there is nothing to merge
-						repository.Reset(ResetMode.Hard);
-					}
-
-					return null;
-				}
-			}
-
-			return null;
-		}
-
-
-		public BranchName SwitchToCommit(string commitId, BranchName branchName)
-		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
-			if (commit == null)
-			{
-				Log.Warn($"Unknown commit id {commitId}");
-				return null;
-			}
-
-			if (branchName != null)
-			{
-				// Trying to get an existing switch branch) at that commit
-				Branch branch = repository.Branches
-					.FirstOrDefault(b => 
-						!b.IsRemote 
-						&& branchName.IsEqual(b.FriendlyName)
-						&& b.Tip.Sha == commitId);
-
-				if (branch != null)
-				{
-					repository.Checkout(branch);
-					return branchName;
-				}
-			}
 	
-			// No branch with that name so lets check out commit (detached head)
-			repository.Checkout(commit);
-
-			return null;
-		}
-
-
-		public void CreateBranch(BranchName branchName, string commitId)
-		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
-			if (commit == null)
-			{
-				Log.Warn($"Unknown commit id {commitId}");
-				return;
-			}
-
-			Branch branch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-
-			if (branch != null)
-			{
-				Log.Warn($"Branch already exists {branchName}");
-				return;
-			}
-
-			branch = repository.Branches.Add(branchName, commit);
-
-			repository.Checkout(branch);
-		}
-
-
-		public void PublishBranch(BranchName branchName, ICredentialHandler credentialHandler)
-		{
-			Branch localBranch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-			if (localBranch == null)
-			{
-				Log.Warn($"Local branch does not exists {branchName}");
-				return;
-			}
-
-			PushOptions pushOptions = GetPushOptions(credentialHandler);
-
-			// Check if corresponding remote branch exists
-			Branch remoteBranch = repository.Branches
-				.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);			
-
-			if (remoteBranch != null)
-			{
-				// Remote branch exists, so connect local and remote branch
-				localBranch = repository.Branches.Add(branchName, remoteBranch.Tip);
-				repository.Branches.Update(localBranch, b => b.TrackedBranch = remoteBranch.CanonicalName);
-			}
-			else
-			{
-				// Remote branch does not yet exists
-				Remote remote = repository.Network.Remotes["origin"];
-
-				repository.Branches.Update(
-					localBranch,
-					b => b.Remote = remote.Name,
-					b => b.UpstreamBranch = localBranch.CanonicalName);
-			}
-
-			repository.Network.Push(localBranch, pushOptions);
-		}
 
 
 		public string GetFullMessage(string commitId)
@@ -587,7 +436,7 @@ namespace GitMind.Git
 		}
 
 
-		private class NoCredentialException : Exception
+		public class NoCredentialException : Exception
 		{			
 		}
 
