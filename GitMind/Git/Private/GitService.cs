@@ -16,23 +16,23 @@ namespace GitMind.Git.Private
 
 
 		private readonly IGitDiffParser gitDiffParser;
-		private readonly IGitNotesService gitNotesService;
+		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 		private readonly IRepoCaller repoCaller;
 
 
 		public GitService(
 			IGitDiffParser gitDiffParser,
-			IGitNotesService gitNotesService,
+			IGitCommitBranchNameService gitCommitBranchNameService,
 			IRepoCaller repoCaller)
 		{
 			this.gitDiffParser = gitDiffParser;
-			this.gitNotesService = gitNotesService;
+			this.gitCommitBranchNameService = gitCommitBranchNameService;
 			this.repoCaller = repoCaller;
 		}
 
 
 		public GitService()
-			: this(new GitDiffParser(), new GitNotesService(), new RepoCaller())
+			: this(new GitDiffParser(), new GitCommitBranchNameService(), new RepoCaller())
 		{
 		}
 
@@ -94,26 +94,26 @@ namespace GitMind.Git.Private
 			BranchName branchName, 
 			ICredentialHandler credentialHandler)
 		{
-			return gitNotesService.SetManualCommitBranchAsync(
+			return gitCommitBranchNameService.EditCommitBranchNameAsync(
 				workingFolder, commitId, rootId, branchName, credentialHandler);
 		}
 
 
-		//public Task SetCommitBranchAsync(string workingFolder, string commitId, BranchName branchName)
+		//public Task SetCommitBranchNameAsync(string workingFolder, string commitId, BranchName branchName)
 		//{
-		//	return gitNotesService.SetCommitBranchAsync(workingFolder, commitId, branchName);
+		//	return GitCommitBranchNameService.SetCommitBranchNameAsync(workingFolder, commitId, branchName);
 		//}
 
 
 		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId)
 		{
-			return gitNotesService.GetSpecifiedNames(workingFolder, rootId);
+			return gitCommitBranchNameService.GetEditedBranchNames(workingFolder, rootId);
 		}
 
 
 		public IReadOnlyList<CommitBranchName> GetCommitBranches(string workingFolder, string rootId)
 		{
-			return gitNotesService.GetCommitBranches(workingFolder, rootId);
+			return gitCommitBranchNameService.GetCommitBrancheNames(workingFolder, rootId);
 		}
 
 
@@ -168,7 +168,7 @@ namespace GitMind.Git.Private
 
 		public Task FetchAllNotesAsync(string workingFolder)
 		{
-			return gitNotesService.FetchAllNotesAsync(workingFolder);
+			return gitCommitBranchNameService.FetchAllNotesAsync(workingFolder);
 		}
 
 
@@ -260,7 +260,7 @@ namespace GitMind.Git.Private
 		public Task PushNotesAsync(
 			string workingFolder, string rootId, ICredentialHandler credentialHandler)
 		{
-			return gitNotesService.PushNotesAsync(workingFolder, rootId, credentialHandler);
+			return gitCommitBranchNameService.PushNotesAsync(workingFolder, rootId, credentialHandler);
 		}
 
 
@@ -282,7 +282,7 @@ namespace GitMind.Git.Private
 				{
 					repo.Add(paths);
 					GitCommit gitCommit = repo.Commit(message);
-					gitNotesService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
+					gitCommitBranchNameService.SetCommitBranchNameAsync(workingFolder, gitCommit.Id, branchName);
 					return gitCommit;
 				});
 

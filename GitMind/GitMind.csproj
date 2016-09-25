@@ -112,8 +112,8 @@
     <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\BranchName.cs" />
-    <Compile Include="Git\Private\GitNotesService.cs" />
-    <Compile Include="Git\Private\IGitNotesService.cs" />
+    <Compile Include="Git\Private\GitCommitBranchNameService.cs" />
+    <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
     <Compile Include="Git\Private\IRepoCaller.cs" />
     <Compile Include="Git\Private\RepoCaller.cs" />
     <Compile Include="RepositoryViews\CredentialHandler.cs" />

@@ -8,7 +8,7 @@ using GitMind.Utils;
 
 namespace GitMind.Git.Private
 {
-	internal class GitNotesService : IGitNotesService
+	internal class GitCommitBranchNameService : IGitCommitBranchNameService
 	{
 		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
 
@@ -17,18 +17,18 @@ namespace GitMind.Git.Private
 		private static readonly string ManualBranchNoteNameSpace = "GitMind.Branches.Manual";
 
 
-		public GitNotesService()
+		public GitCommitBranchNameService()
 			: this(new RepoCaller())
 		{		
 		}
 
-		public GitNotesService(IRepoCaller repoCaller)
+		public GitCommitBranchNameService(IRepoCaller repoCaller)
 		{
 			this.repoCaller = repoCaller;
 		}
 
 
-		public async Task SetManualCommitBranchAsync(
+		public async Task EditCommitBranchNameAsync(
 			string workingFolder, 
 			string commitId,
 			string rootId,
@@ -42,7 +42,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SetCommitBranchAsync(string workingFolder, string commitId, BranchName branchName)
+		public Task SetCommitBranchNameAsync(string workingFolder, string commitId, BranchName branchName)
 		{
 			Log.Debug($"Set commit branch name {branchName} for commit {commitId} ...");
 			SetNoteBranches(workingFolder, CommitBranchNoteNameSpace, commitId, branchName);
@@ -51,13 +51,13 @@ namespace GitMind.Git.Private
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId)
+		public IReadOnlyList<CommitBranchName> GetEditedBranchNames(string workingFolder, string rootId)
 		{
 			return GetNoteBranches(workingFolder, ManualBranchNoteNameSpace, rootId);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetCommitBranches(string workingFolder, string rootId)
+		public IReadOnlyList<CommitBranchName> GetCommitBrancheNames(string workingFolder, string rootId)
 		{
 			return GetNoteBranches(workingFolder, CommitBranchNoteNameSpace, rootId);
 		}
