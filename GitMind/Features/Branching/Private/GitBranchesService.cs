@@ -96,6 +96,11 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
+		public R<GitDivergence> CheckAheadBehind(string workingFolder, string localTip, string remoteTip)
+		{
+			return repoCaller.UseRepo(workingFolder, repo => repo.CheckAheadBehind(localTip, remoteTip));
+		}
+
 
 		private Task<R> DeleteLocalBranchAsync(string workingFolder, BranchName branchName)
 		{
