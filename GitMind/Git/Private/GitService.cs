@@ -30,11 +30,6 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R<GitStatus>> GetStatusAsync(string workingFolder)
-		{
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.Status);
-		}
-
 
 		public Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId)
 		{

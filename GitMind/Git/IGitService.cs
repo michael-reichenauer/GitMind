@@ -9,8 +9,6 @@ namespace GitMind.Git
 {
 	internal interface IGitService
 	{
-		Task<R<GitStatus>> GetStatusAsync(string workingFolder);
-
 		Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId);
 		Task<R<CommitDiff>> GetCommitDiffRangeAsync(string workingFolder, string id1, string id2);
 
