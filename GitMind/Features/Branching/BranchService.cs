@@ -359,16 +359,7 @@ namespace GitMind.Features.Branching
 				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...",
 					async progress =>
 				{
-					R<GitCommit> gitCommit = await gitService.MergeAsync(workingFolder, branch.Name);
-
-					// Need to check value != null, since commit may not have been done, but merge is still OK
-					if (gitCommit.HasValue && gitCommit.Value != null)
-					{
-						string commitId = gitCommit.Value.Id;
-						Log.Debug($"Merged {branch.Name} into {currentBranch.Name} at {commitId}");
-						await gitService.SetCommitBranchAsync(
-							workingFolder, commitId, currentBranch.Name);
-					}
+					await gitService.MergeAsync(workingFolder, branch.Name);
 
 					repositoryCommands.SetCurrentMerging(branch);
 					progress.SetText(

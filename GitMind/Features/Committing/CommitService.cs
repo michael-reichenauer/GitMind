@@ -67,13 +67,10 @@ namespace GitMind.Features.Committing
 					Progress.ShowDialog(owner, $"Commit current branch {branchName} ...", async () =>
 					{
 						R<GitCommit> gitCommit = await gitService.CommitAsync(
-							workingFolder, dialog.CommitMessage, dialog.CommitFiles);
+							workingFolder, dialog.CommitMessage, branchName, dialog.CommitFiles);
 
 						if (gitCommit.HasValue)
 						{
-							await gitService.SetCommitBranchAsync(
-								workingFolder, gitCommit.Value.Id, branchName);
-
 							await repositoryCommands.RefreshAfterCommandAsync(false);
 						}
 						else

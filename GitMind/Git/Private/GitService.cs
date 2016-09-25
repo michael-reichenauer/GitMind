@@ -87,7 +87,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SetManualCommitBranchAsync(
+		public Task EditCommitBranchAsync(
 			string workingFolder, 
 			string commitId,
 			string rootId,
@@ -99,10 +99,10 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SetCommitBranchAsync(string workingFolder, string commitId, BranchName branchName)
-		{
-			return gitNotesService.SetCommitBranchAsync(workingFolder, commitId, branchName);
-		}
+		//public Task SetCommitBranchAsync(string workingFolder, string commitId, BranchName branchName)
+		//{
+		//	return gitNotesService.SetCommitBranchAsync(workingFolder, commitId, branchName);
+		//}
 
 
 		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId)
@@ -273,15 +273,20 @@ namespace GitMind.Git.Private
 
 
 		public Task<R<GitCommit>> CommitAsync(
-			string workingFolder, string message, IReadOnlyList<CommitFile> paths)
+			string workingFolder, string message, string branchName, IReadOnlyList<CommitFile> paths)
 		{
 			Log.Debug($"Commit {paths.Count} files: {message} ...");
+			
 			return repoCaller.UseRepoAsync(workingFolder,
 				repo =>
 				{
 					repo.Add(paths);
-					return repo.Commit(message);
+					GitCommit gitCommit = repo.Commit(message);
+					gitNotesService.SetCommitBranchAsync(workingFolder, gitCommit.Id, branchName);
+					return gitCommit;
 				});
+
+		
 		}
 
 

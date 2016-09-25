@@ -22,9 +22,8 @@ namespace GitMind.Git
 
 		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId);
 
-		Task SetManualCommitBranchAsync(string workingFolder, string commitId, string rootId, BranchName branchName, ICredentialHandler credentialHandler);
-		Task SetCommitBranchAsync(string workingFolder, string commitId, BranchName branchName);
-
+		Task EditCommitBranchAsync(string workingFolder, string commitId, string rootId, BranchName branchName, ICredentialHandler credentialHandler);
+	
 		IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId);
 		IReadOnlyList<CommitBranchName> GetCommitBranches(string workingFolder, string rootId);
 
@@ -34,7 +33,7 @@ namespace GitMind.Git
 		Task PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler);
 		Task PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler);
 
-		Task<R<GitCommit>> CommitAsync(string workingFolder, string message, IReadOnlyList<CommitFile> paths);
+		Task<R<GitCommit>> CommitAsync(string workingFolder, string message, string branchName, IReadOnlyList<CommitFile> paths);
 		Task SwitchToBranchAsync(string workingFolder, BranchName branchName);
 		Task UndoFileInCurrentBranchAsync(string workingFolder, string path);
 		Task<R<GitCommit>> MergeAsync(string workingFolder, BranchName branchName);

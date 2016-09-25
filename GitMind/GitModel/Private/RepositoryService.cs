@@ -130,7 +130,7 @@ namespace GitMind.GitModel.Private
 			BranchName branchName, 
 			ICredentialHandler credentialHandler)
 		{
-			return gitService.SetManualCommitBranchAsync(
+			return gitService.EditCommitBranchAsync(
 				gitRepositoryPath, commitId, rootId, branchName, credentialHandler);
 		}
 
