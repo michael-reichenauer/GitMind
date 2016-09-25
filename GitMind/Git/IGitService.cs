@@ -9,11 +9,6 @@ namespace GitMind.Git
 {
 	internal interface IGitService
 	{
-		Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId);
-		Task<R<CommitDiff>> GetCommitDiffRangeAsync(string workingFolder, string id1, string id2);
-
-		Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string path);
-
 		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId);
 
 		Task EditCommitBranchAsync(string workingFolder, string commitId, string rootId, BranchName branchName, ICredentialHandler credentialHandler);
@@ -30,8 +25,5 @@ namespace GitMind.Git
 
 		Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync(string workingFolder);
 		Task UndoWorkingFolderAsync(string workingFolder);
-		void GetFile(string workingFolder, string fileId, string filePath);
-		Task ResolveAsync(string workingFolder, string path);
-
 	}
 }
