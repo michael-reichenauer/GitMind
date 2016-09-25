@@ -94,9 +94,9 @@ namespace GitMind.Utils
 
 			try
 			{
-				byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
-				UdpClient.Send(bytes, bytes.Length, LocalLogEndPoint);
-
+				//byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
+				//UdpClient.Send(bytes, bytes.Length, LocalLogEndPoint);
+				Native.OutputDebugString(text);
 				WriteToFile(text);
 
 				if (level == LevelUsage || level == LevelWarn || level == LevelError)
