@@ -33,7 +33,7 @@ namespace GitMind.RepositoryViews
 
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService = new RepositoryService();
-		private readonly IGitService gitService = new GitService();
+		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
 		private readonly IGitBranchesService gitBranchesService = new GitBranchesService();
 		private readonly IGitInfoService gitInfoService = new GitInfoService();
 		private readonly IGitNetworkService gitNetworkService = new GitNetworkService();
@@ -1071,7 +1071,7 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			Progress.ShowDialog(Owner, $"Undo changes and clean working folder {WorkingFolder} ...", async () =>
 			{
-				failedPaths = await gitService.UndoCleanWorkingFolderAsync(WorkingFolder);
+				failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync(WorkingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});
@@ -1106,7 +1106,7 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			Progress.ShowDialog(Owner, $"Undo changes in working folder {WorkingFolder} ...", async () =>
 			{
-				await gitService.UndoWorkingFolderAsync(WorkingFolder);
+				await gitCommitsService.UndoWorkingFolderAsync(WorkingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});

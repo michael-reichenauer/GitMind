@@ -6,13 +6,13 @@ using GitMind.Utils;
 
 namespace GitMind.Git.Private
 {
-	internal class GitService : IGitService
+	internal class GitCommitsService : IGitCommitsService
 	{
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 		private readonly IRepoCaller repoCaller;
 
 
-		public GitService(
+		public GitCommitsService(
 			IGitCommitBranchNameService gitCommitBranchNameService,
 			IRepoCaller repoCaller)
 		{
@@ -21,7 +21,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public GitService()
+		public GitCommitsService()
 			: this(new GitCommitBranchNameService(), new RepoCaller())
 		{
 		}

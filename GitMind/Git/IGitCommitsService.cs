@@ -7,7 +7,7 @@ using GitMind.Utils;
 
 namespace GitMind.Git
 {
-	internal interface IGitService
+	internal interface IGitCommitsService
 	{
 		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId);
 

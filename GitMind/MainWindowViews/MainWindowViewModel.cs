@@ -24,7 +24,7 @@ namespace GitMind.MainWindowViews
 	internal class MainWindowViewModel : ViewModel
 	{
 		private readonly IDiffService diffService = new DiffService();
-		private readonly IGitService gitService = new GitService();
+		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
 
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly FolderMonitorService folderMonitor;

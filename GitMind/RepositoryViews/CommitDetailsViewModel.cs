@@ -17,7 +17,7 @@ namespace GitMind.RepositoryViews
 	internal class CommitDetailsViewModel : ViewModel
 	{
 		private readonly ICommitService commitService = new CommitService();
-		private readonly IGitService gitService = new GitService();
+		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
 		private readonly IRepositoryCommands repositoryCommands;
 
 		private readonly ObservableCollection<CommitFileViewModel> files =
@@ -87,7 +87,7 @@ namespace GitMind.RepositoryViews
 				{
 					string workingFolder = CommitViewModel.Commit.WorkingFolder;
 					string commitId = CommitViewModel.Commit.CommitId;
-					subject = gitService.GetFullMessage(workingFolder, commitId)
+					subject = gitCommitsService.GetFullMessage(workingFolder, commitId)
 						.Or(CommitViewModel?.Subject);
 				}
 

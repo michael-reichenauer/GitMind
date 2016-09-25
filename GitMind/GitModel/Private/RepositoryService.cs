@@ -11,7 +11,7 @@ namespace GitMind.GitModel.Private
 {
 	internal class RepositoryService : IRepositoryService
 	{
-		private readonly IGitService gitService;
+		private readonly IGitCommitsService gitCommitsService;
 		private readonly ICacheService cacheService;
 		private readonly ICommitsService commitsService;
 		private readonly IBranchService branchService;
@@ -23,7 +23,7 @@ namespace GitMind.GitModel.Private
 
 		public RepositoryService()
 			: this(
-					new GitService(),
+					new GitCommitsService(),
 					new CacheService(),
 					new CommitsService(),
 					new BranchService(),
@@ -36,7 +36,7 @@ namespace GitMind.GitModel.Private
 
 
 		public RepositoryService(
-			IGitService gitService,
+			IGitCommitsService gitCommitsService,
 			ICacheService cacheService,
 			ICommitsService commitsService,
 			IBranchService branchService,
@@ -45,7 +45,7 @@ namespace GitMind.GitModel.Private
 			IAheadBehindService aheadBehindService,
 			ITagService tagService)
 		{
-			this.gitService = gitService;
+			this.gitCommitsService = gitCommitsService;
 			this.cacheService = cacheService;
 			this.commitsService = commitsService;
 			this.branchService = branchService;
@@ -130,7 +130,7 @@ namespace GitMind.GitModel.Private
 			BranchName branchName, 
 			ICredentialHandler credentialHandler)
 		{
-			return gitService.EditCommitBranchAsync(
+			return gitCommitsService.EditCommitBranchAsync(
 				gitRepositoryPath, commitId, rootId, branchName, credentialHandler);
 		}
 
@@ -202,10 +202,10 @@ namespace GitMind.GitModel.Private
 				.FirstOrDefault(b => b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
 			MCommit commit = mSubBranch.TipCommit.FirstAncestors().Last();
 
-			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitService.GetSpecifiedNames(
+			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitsService.GetSpecifiedNames(
 				gitRepositoryPath, commit.Id);
 
-			IReadOnlyList<CommitBranchName> commitBranches = gitService.GetCommitBranches(
+			IReadOnlyList<CommitBranchName> commitBranches = gitCommitsService.GetCommitBranches(
 				gitRepositoryPath, commit.Id);
 
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);

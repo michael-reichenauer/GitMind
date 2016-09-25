@@ -242,7 +242,7 @@
     <Compile Include="Git\CommitDiff.cs" />
     <Compile Include="Git\GitBranch.cs" />
     <Compile Include="Git\GitTag.cs" />
-    <Compile Include="Git\IGitService.cs" />
+    <Compile Include="Git\IGitCommitsService.cs" />
     <Compile Include="Git\GitStatus.cs" />
     <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
     <Compile Include="Testing\TestRepo.cs" />
@@ -263,7 +263,7 @@
     <Compile Include="Utils\Cmd.cs" />
     <Compile Include="Utils\ICmd.cs" />
     <Compile Include="Utils\Log.cs" />
-    <Compile Include="Git\Private\GitService.cs" />
+    <Compile Include="Git\Private\GitCommitsService.cs" />
     <Compile Include="Git\GitCommit.cs" />
     <Compile Include="Utils\MicroDiContainer.cs" />
     <Compile Include="Utils\UI\VirtualCanvas\VirtualPanel.cs" />

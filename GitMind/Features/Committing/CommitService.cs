@@ -14,21 +14,21 @@ namespace GitMind.Features.Committing
 {
 	internal class CommitService : ICommitService
 	{
-		private readonly IGitService gitService;
+		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
 
 
 		public CommitService()
-			: this(new GitService(), new DiffService())
+			: this(new GitCommitsService(), new DiffService())
 		{
 		}
 
 
 		public CommitService(
-			IGitService gitService,
+			IGitCommitsService gitCommitsService,
 			IDiffService diffService)
 		{
-			this.gitService = gitService;
+			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;
 		}
 
@@ -66,7 +66,7 @@ namespace GitMind.Features.Committing
 				{
 					Progress.ShowDialog(owner, $"Commit current branch {branchName} ...", async () =>
 					{
-						R<GitCommit> gitCommit = await gitService.CommitAsync(
+						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
 							workingFolder, dialog.CommitMessage, branchName, dialog.CommitFiles);
 
 						if (gitCommit.HasValue)
@@ -106,7 +106,7 @@ namespace GitMind.Features.Committing
 			string workingFolder = repositoryCommands.WorkingFolder;
 			Progress.ShowDialog(owner, $"Undo file change in {path} ...", async () =>
 			{
-				await gitService.UndoFileInWorkingFolderAsync(workingFolder, path);
+				await gitCommitsService.UndoFileInWorkingFolderAsync(workingFolder, path);
 			});
 
 			return Task.CompletedTask;
