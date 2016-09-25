@@ -12,7 +12,7 @@ using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
-namespace GitMind.Features.Branching
+namespace GitMind.Features.Branching.Private
 {
 	/// <summary>
 	/// Branch service

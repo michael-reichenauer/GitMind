@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Features.Branching;
+using GitMind.Features.Branching.Private;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils.UI;

@@ -2,7 +2,7 @@
 using GitMind.Git;
 
 
-namespace GitMind.Features.Branching
+namespace GitMind.Features.Branching.Private
 {
 	/// <summary>
 	/// Interaction logic for CrateBranchDialog.xaml

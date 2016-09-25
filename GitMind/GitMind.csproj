@@ -93,15 +93,15 @@
       <DependentUpon>ProgressDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
-    <Compile Include="Features\Branching\CrateBranchDialog.xaml.cs">
+    <Compile Include="Features\Branching\Private\CrateBranchDialog.xaml.cs">
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Branching\CreateBranchDialogViewModel.cs" />
-    <Compile Include="Features\Branching\BranchService.cs" />
-    <Compile Include="Features\Branching\DeleteBranchDialog.xaml.cs">
+    <Compile Include="Features\Branching\Private\CreateBranchDialogViewModel.cs" />
+    <Compile Include="Features\Branching\Private\BranchService.cs" />
+    <Compile Include="Features\Branching\Private\DeleteBranchDialog.xaml.cs">
       <DependentUpon>DeleteBranchDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Branching\DeleteBranchDialogViewModel.cs" />
+    <Compile Include="Features\Branching\Private\DeleteBranchDialogViewModel.cs" />
     <Compile Include="Features\Branching\IBranchService.cs" />
     <Compile Include="Features\Committing\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
@@ -279,11 +279,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Branching\CrateBranchDialog.xaml">
+    <Page Include="Features\Branching\Private\CrateBranchDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Branching\DeleteBranchDialog.xaml">
+    <Page Include="Features\Branching\Private\DeleteBranchDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

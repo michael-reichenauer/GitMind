@@ -17,7 +17,7 @@ using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
 using Application = System.Windows.Application;
-using BranchService = GitMind.Features.Branching.BranchService;
+using BranchService = GitMind.Features.Branching.Private.BranchService;
 using IBranchService = GitMind.Features.Branching.IBranchService;
 using ListBox = System.Windows.Controls.ListBox;
 
