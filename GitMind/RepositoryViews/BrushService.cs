@@ -19,7 +19,7 @@ namespace GitMind.RepositoryViews
 		private readonly List<Brush> lighterLighterBrushes = new List<Brush>();
 
 		public SolidColorBrush SubjectBrush { get; } = BrushFromHex("#D4D4D4");
-		public SolidColorBrush LocalAheadBrush { get; } = Brushes.LightGreen;
+		public SolidColorBrush LocalAheadBrush { get; } = BrushFromHex("#8FE78F"); // Brushes.LightGreen;
 		public SolidColorBrush RemoteAheadBrush { get; } = BrushFromHex("#BBBBFB");
 
 		public static SolidColorBrush ConflictBrush { get; } = BrushFromHex("#FCB9B6");
