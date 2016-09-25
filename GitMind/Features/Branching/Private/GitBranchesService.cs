@@ -1,10 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.Utils;
 using LibGit2Sharp;
 
 
-namespace GitMind.Git.Private
+namespace GitMind.Features.Branching.Private
 {
 	internal class GitBranchesService : IGitBranchesService
 	{
