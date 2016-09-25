@@ -18,6 +18,8 @@ namespace GitMind.RepositoryViews
 		private readonly Command<Branch> showBranchCommand;
 		private readonly Command<Branch> deleteBranchCommand;
 		private readonly Command<Branch> publishBranchCommand;
+		private readonly Command<Branch> pushBranchCommand;
+		private readonly Command<Branch> updateBranchCommand;
 
 		private readonly ObservableCollection<BranchItem> childBranches 
 			= new ObservableCollection<BranchItem>();
@@ -27,12 +29,16 @@ namespace GitMind.RepositoryViews
 			Command<Branch> showBranchCommand,
 			Command<Branch> mergeBranchCommand,
 			Command<Branch> deleteBranchCommand,
-			Command<Branch> publishBranchCommand)
+			Command<Branch> publishBranchCommand,
+			Command<Branch> pushBranchCommand,
+			Command<Branch> updateBranchCommand)
 		{
 			this.repositoryCommands = repositoryCommands;
 			this.showBranchCommand = showBranchCommand;
 			this.deleteBranchCommand = deleteBranchCommand;
 			this.publishBranchCommand = publishBranchCommand;
+			this.pushBranchCommand = pushBranchCommand;
+			this.updateBranchCommand = updateBranchCommand;
 
 
 			MergeBranchCommand = mergeBranchCommand.With(() => Branch);
@@ -107,6 +113,8 @@ namespace GitMind.RepositoryViews
 		public Command DeleteBranchCommand => 
 			Command(() => deleteBranchCommand.Execute(Branch), () => Branch.IsActive);
 		public Command PublishBranchCommand => Command(() => publishBranchCommand.Execute(Branch));
+		public Command PushBranchCommand => Command(() => pushBranchCommand.Execute(Branch));
+		public Command UpdateBranchCommand => Command(() => updateBranchCommand.Execute(Branch));
 
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }

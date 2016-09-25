@@ -116,6 +116,17 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
+		public void PushBranch(IRepositoryCommands repositoryCommands, Branch branch)
+		{
+			
+		}
+
+		public void UpdateBranch(IRepositoryCommands repositoryCommands, Branch branch)
+		{
+
+		}
+
+
 		public Task SwitchBranchAsync(IRepositoryCommands repositoryCommands, Branch branch)
 		{
 			string workingFolder = repositoryCommands.WorkingFolder;
