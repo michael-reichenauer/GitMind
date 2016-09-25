@@ -18,11 +18,8 @@ namespace GitMind.Utils
 
 		private static readonly UdpClient UdpClient = new UdpClient();
 		private static readonly IPEndPoint LocalLogEndPoint = new IPEndPoint(IPAddress.Loopback, 40000);
-		//private static readonly IPEndPoint usageLogEndPoint = 
-		//	new IPEndPoint(IPAddress.Parse("10.85.12.4"), 40000);
+	
 		private static readonly IPEndPoint usageLogEndPoint =
-			new IPEndPoint(IPAddress.Loopback, 41110);
-		private static readonly IPEndPoint usageLogEndPoint2 =
 			new IPEndPoint(IPAddress.Parse("10.85.12.4"), 41110);
 
 
@@ -123,7 +120,6 @@ namespace GitMind.Utils
 
 				byte[] bytes = System.Text.Encoding.UTF8.GetBytes(logRow);
 				UdpClient.Send(bytes, bytes.Length, usageLogEndPoint);
-				UdpClient.Send(bytes, bytes.Length, usageLogEndPoint2);
 			}
 			catch (Exception)
 			{		
