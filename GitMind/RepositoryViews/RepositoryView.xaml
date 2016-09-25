@@ -209,6 +209,7 @@
 															
 														<MenuItem 
 															Header="Push branch"
+															InputGestureText="Ctrl-Up"
 															Visibility="{Binding CanPush, Converter={StaticResource VC}}"
 															Command="{Binding PushBranchCommand}">
 															<MenuItem.Icon>
@@ -223,6 +224,7 @@
 															
 														<MenuItem 
 															Header="Update branch"
+															InputGestureText="Ctrl-Down"
 															Visibility="{Binding CanUpdate, Converter={StaticResource VC}}"
 															Command="{Binding UpdateBranchCommand}">
 															<MenuItem.Icon>
