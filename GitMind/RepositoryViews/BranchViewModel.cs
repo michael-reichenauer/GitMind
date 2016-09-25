@@ -126,7 +126,7 @@ namespace GitMind.RepositoryViews
 
 		public void SetNormal()
 		{
-			StrokeThickness = Branch.IsCurrentBranch ? 3 : 2;
+			StrokeThickness = 2;
 			Brush = HoverBrushNormal;
 			DimColor = ((SolidColorBrush)HoverBrushHighlight).Color;
 
@@ -136,7 +136,7 @@ namespace GitMind.RepositoryViews
 
 		public void SetHighlighted()
 		{
-			StrokeThickness = Branch.IsCurrentBranch ? 4 : 3;
+			StrokeThickness = 3;
 			Brush = HoverBrushHighlight;
 			DimColor = ((SolidColorBrush)DimBrushHighlight).Color;
 			Notify(nameof(StrokeThickness), nameof(Brush), nameof(DimColor));
