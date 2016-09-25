@@ -670,7 +670,7 @@ namespace GitMind.RepositoryViews
 				if (!ignoreTopIndex && commitPosition.Index == 0)
 				{
 					// The index was 0 (top) lest ensure the index remains 0 again
-					Log.Warn("Scroll to 0 since first position was 0");
+					Log.Debug("Scroll to 0 since first position was 0");
 					ScrollTo(0);
 					if (Commits.Any())
 					{
