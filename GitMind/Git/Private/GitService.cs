@@ -98,7 +98,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task UndoFileInCurrentBranchAsync(string workingFolder, string path)
+		public Task UndoFileInWorkingFolderAsync(string workingFolder, string path)
 		{
 			Log.Debug($"Undo uncommitted file {path} ...");
 			return repoCaller.UseRepoAsync(workingFolder, repo => repo.UndoFileInCurrentBranch(path));

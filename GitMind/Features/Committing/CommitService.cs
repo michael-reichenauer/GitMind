@@ -106,7 +106,7 @@ namespace GitMind.Features.Committing
 			string workingFolder = repositoryCommands.WorkingFolder;
 			Progress.ShowDialog(owner, $"Undo file change in {path} ...", async () =>
 			{
-				await gitService.UndoFileInCurrentBranchAsync(workingFolder, path);
+				await gitService.UndoFileInWorkingFolderAsync(workingFolder, path);
 			});
 
 			return Task.CompletedTask;

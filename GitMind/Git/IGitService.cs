@@ -18,12 +18,14 @@ namespace GitMind.Git
 
 	
 		Task<R<GitCommit>> CommitAsync(string workingFolder, string message, string branchName, IReadOnlyList<CommitFile> paths);
-		
-		Task UndoFileInCurrentBranchAsync(string workingFolder, string path);
+
 		R<string> GetFullMessage(string workingFolder, string commitId);
 
 
 		Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync(string workingFolder);
+
+		Task UndoFileInWorkingFolderAsync(string workingFolder, string path);
+
 		Task UndoWorkingFolderAsync(string workingFolder);
 	}
 }
