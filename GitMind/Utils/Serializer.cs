@@ -53,8 +53,6 @@ namespace GitMind.Utils
 				.Add(nameof(MCommit.ParentIds))
 				.Add(nameof(MCommit.BranchName))
 				.Add(nameof(MCommit.SpecifiedBranchName))
-				.Add(nameof(MCommit.IsLocalAheadMarker))
-				.Add(nameof(MCommit.IsRemoteAheadMarker))
 				.Add(nameof(MCommit.Tags))
 				.Add(nameof(MCommit.Tickets))
 				.Add(nameof(MCommit.IsVirtual))
