@@ -45,7 +45,8 @@ namespace GitMind.GitModel.Private
 
 			foreach (MBranch branch in localAndRemote)
 			{
-				branch.Commits.ForEach(c => c.IsLocalAhead = c.IsRemoteAhead = false);
+				branch.Commits.ForEach(c => c.IsLocalAhead = false);
+				branch.Commits.ForEach(c => c.IsRemoteAhead = false);
 
 				string localTip = branch.LocalTipCommitId;
 				string remoteTip = branch.RemoteTipCommitId;
@@ -69,13 +70,13 @@ namespace GitMind.GitModel.Private
 							branch.LocalAheadCount = Math.Min(
 								div.Value.AheadBy,
 								branch.Commits
-									.SkipWhile(c => c.Id != branch.LocalTipCommitId)
+									.SkipWhile(c => c.Id != branch.LocalTipCommitId && c.Id == Commit.UncommittedId)
 									.TakeWhile(c => c.Id != div.Value.CommonId)
 									.Count());
 							if (branch.LocalAheadCount <= div.Value.AheadBy)
 							{
 								branch.Commits
-									.SkipWhile(c => c.Id != branch.LocalTipCommitId)
+									.SkipWhile(c => c.Id != branch.LocalTipCommitId && c.Id == Commit.UncommittedId)
 									.TakeWhile(c => c.Id != div.Value.CommonId)
 									.ForEach(c => c.IsLocalAhead = true);
 							}
@@ -86,14 +87,14 @@ namespace GitMind.GitModel.Private
 							branch.RemoteAheadCount = Math.Min(
 								branch.RemoteAheadCount,
 								branch.Commits
-									.SkipWhile(c => c.Id != branch.RemoteTipCommitId)
+									.SkipWhile(c => c.Id != branch.RemoteTipCommitId && c.Id == Commit.UncommittedId)
 									.TakeWhile(c => c.Id != div.Value.CommonId)
 									.Count());
 
 							if (branch.RemoteAheadCount <= div.Value.BehindBy)
 							{
 								branch.Commits
-									.SkipWhile(c => c.Id != branch.RemoteTipCommitId)
+									.SkipWhile(c => c.Id != branch.RemoteTipCommitId && c.Id == Commit.UncommittedId)
 									.TakeWhile(c => c.Id != div.Value.CommonId)
 									.ForEach(c => c.IsRemoteAhead = true);
 							}
