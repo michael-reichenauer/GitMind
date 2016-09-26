@@ -106,7 +106,7 @@ namespace GitMind.GitModel.Private
 					}
 				}
 
-				Log.Warn($"{branch.Name} has '{branch.LocalAheadCount}', '{branch.RemoteAheadCount}'");
+				Log.Debug($"{branch.Name} has '{branch.LocalAheadCount}', '{branch.RemoteAheadCount}'");
 			}
 		}
 
