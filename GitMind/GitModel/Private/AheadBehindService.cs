@@ -8,6 +8,7 @@ using GitMind.Utils;
 
 namespace GitMind.GitModel.Private
 {
+	//
 	internal class AheadBehindService : IAheadBehindService
 	{
 		private readonly IGitBranchesService gitBranchesService;
@@ -49,6 +50,12 @@ namespace GitMind.GitModel.Private
 				branch.Commits.ForEach(c => c.IsRemoteAhead = false);
 
 				string localTip = branch.LocalTipCommitId;
+				if (localTip == Commit.UncommittedId)
+				{
+					localTip = branch.Repository.Commits[branch.LocalTipCommitId].FirstParentId;
+				}
+
+
 				string remoteTip = branch.RemoteTipCommitId;
 
 				if (localTip == remoteTip)
@@ -60,6 +67,7 @@ namespace GitMind.GitModel.Private
 				{
 					R<GitDivergence> div = gitBranchesService.CheckAheadBehind(
 						repository.WorkingFolder, localTip, remoteTip);
+
 					if (div.HasValue)
 					{
 						branch.LocalAheadCount = div.Value.AheadBy;
