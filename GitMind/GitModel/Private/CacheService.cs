@@ -168,7 +168,7 @@ namespace GitMind.GitModel.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to read cache {e}");
+				Log.Warn($"Failed to read cache {e.Message}");
 				return default(T);
 			}
 		}
