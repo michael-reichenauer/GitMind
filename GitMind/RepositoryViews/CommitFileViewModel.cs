@@ -55,6 +55,19 @@ namespace GitMind.RepositoryViews
 		public Command ShowDiffCommand => Command(
 			() => diffService.ShowFileDiffAsync(WorkingFolder, Id, Name));
 
+		public Command DefaultCommand => Command(
+			() =>
+			{
+				if (diffService.CanMergeConflict(file))
+				{
+					diffService.MergeConflictsAsync(WorkingFolder, Id, file);
+				}
+				else if (!HasConflicts)
+				{
+					diffService.ShowFileDiffAsync(WorkingFolder, Id, Name);
+				}
+			});
+
 		public Command UndoUncommittedFileCommand { get; }
 
 		public Command MergeConflictsCommand => AsyncCommand(
