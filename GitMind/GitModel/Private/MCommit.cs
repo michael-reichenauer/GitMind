@@ -58,7 +58,8 @@ namespace GitMind.GitModel.Private
 		public MCommit SecondParent => ParentIds.Count > 1 ? Repository.Commits[ParentIds[1]] : null;
 		public bool IsLocalAhead { get; set; }
 		public bool IsRemoteAhead { get; set; }
-		
+		public bool IsCommon { get; set; }
+
 
 		public bool IsUncommitted => Id == UncommittedId;
 		public BranchName CommitBranchName { get; set; }
