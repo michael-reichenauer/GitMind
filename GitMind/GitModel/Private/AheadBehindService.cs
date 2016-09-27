@@ -126,15 +126,15 @@ namespace GitMind.GitModel.Private
 
 							branch.RemoteAheadCount = Math.Max(1, remoteCount);
 						}
-						else
-						{
-							branch.LocalAheadCount = 1;
-							branch.RemoteAheadCount = 1;
-						}
 					}
-
-					Log.Debug($"{branch.Name} has '{branch.LocalAheadCount}', '{branch.RemoteAheadCount}'");
+					else
+					{
+						branch.LocalAheadCount = 1;
+						branch.RemoteAheadCount = 1;
+					}
 				}
+
+				Log.Debug($"{branch.Name} has '{branch.LocalAheadCount}', '{branch.RemoteAheadCount}'");
 			}
 		}
 	}
