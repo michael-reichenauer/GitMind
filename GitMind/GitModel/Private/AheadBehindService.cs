@@ -8,7 +8,6 @@ using GitMind.Utils;
 
 namespace GitMind.GitModel.Private
 {
-	//
 	internal class AheadBehindService : IAheadBehindService
 	{
 		private readonly IGitBranchesService gitBranchesService;
@@ -18,6 +17,7 @@ namespace GitMind.GitModel.Private
 			: this(new GitBranchesService())
 		{
 		}
+
 
 		public AheadBehindService(IGitBranchesService gitBranchesService)
 		{
@@ -48,6 +48,9 @@ namespace GitMind.GitModel.Private
 			{
 				branch.Commits.ForEach(c => c.IsLocalAhead = false);
 				branch.Commits.ForEach(c => c.IsRemoteAhead = false);
+				branch.Commits.ForEach(c => c.IsCommon = false);
+				branch.LocalAheadCount = 0;
+				branch.RemoteAheadCount = 0;
 
 				string localTip = branch.LocalTipCommitId;
 				if (localTip == Commit.UncommittedId)
@@ -55,8 +58,8 @@ namespace GitMind.GitModel.Private
 					localTip = branch.Repository.Commits[branch.LocalTipCommitId].FirstParentId;
 				}
 
-
 				string remoteTip = branch.RemoteTipCommitId;
+				Log.Warn($"Local: {localTip}, remote: {remoteTip}");
 
 				if (localTip == remoteTip)
 				{
@@ -70,138 +73,69 @@ namespace GitMind.GitModel.Private
 
 					if (div.HasValue)
 					{
-						branch.LocalAheadCount = div.Value.AheadBy;
-						branch.RemoteAheadCount = div.Value.BehindBy;
+						string commonTip = div.Value.CommonId;
 
-						if (branch.LocalAheadCount > 0)
+						int localAheadBy = div.Value.AheadBy;
+						int remoteAheadBy = div.Value.BehindBy;
+
+						Log.Warn($"{branch.Name} has  Local: {localTip}, remote: {remoteTip}, Base: {commonTip}");
+						Log.Warn($"{branch.Name} has  Local count: {localAheadBy}, remote count: {remoteAheadBy}");
+
+						if (localAheadBy > 0 || remoteAheadBy > 0)
 						{
-							branch.LocalAheadCount = Math.Min(
-								div.Value.AheadBy,
-								branch.Commits
-									.SkipWhile(c => c.Id != branch.LocalTipCommitId && c.Id == Commit.UncommittedId)
-									.TakeWhile(c => c.Id != div.Value.CommonId)
-									.Count());
-							if (branch.LocalAheadCount <= div.Value.AheadBy)
-							{
-								branch.Commits
-									.SkipWhile(c => c.Id != branch.LocalTipCommitId && c.Id == Commit.UncommittedId)
-									.TakeWhile(c => c.Id != div.Value.CommonId)
-									.ForEach(c => c.IsLocalAhead = true);
-							}
+							MCommit commit = branch.Repository.Commits[commonTip];
+							commit.CommitAndFirstAncestors().ForEach(c => c.IsCommon = true);
 						}
 
-						if (branch.RemoteAheadCount > 0)
+						if (localAheadBy > 0)
 						{
-							branch.RemoteAheadCount = Math.Min(
-								branch.RemoteAheadCount,
-								branch.Commits
-									.SkipWhile(c => c.Id != branch.RemoteTipCommitId && c.Id == Commit.UncommittedId)
-									.TakeWhile(c => c.Id != div.Value.CommonId)
-									.Count());
+							int localCount = 0;
+							Stack<MCommit> commits = new Stack<MCommit>();
+							commits.Push(branch.Repository.Commits[localTip]);
 
-							if (branch.RemoteAheadCount <= div.Value.BehindBy)
+							while (commits.Any())
 							{
-								branch.Commits
-									.SkipWhile(c => c.Id != branch.RemoteTipCommitId && c.Id == Commit.UncommittedId)
-									.TakeWhile(c => c.Id != div.Value.CommonId)
-									.ForEach(c => c.IsRemoteAhead = true);
+								MCommit commit = commits.Pop();
+								if (!commit.IsCommon && commit.Branch == branch)
+								{
+									commit.IsLocalAhead = true;
+									localCount++;
+									commit.Parents.Where(p => p.Branch == branch).ForEach(p => commits.Push(p));
+								}
 							}
+
+							branch.LocalAheadCount = Math.Max(1, localCount);
+						}
+
+						if (remoteAheadBy > 0)
+						{
+							int remoteCount = 0;
+							Stack<MCommit> commits = new Stack<MCommit>();
+							commits.Push(branch.Repository.Commits[remoteTip]);
+
+							while (commits.Any())
+							{
+								MCommit commit = commits.Pop();
+								if (!commit.IsCommon && commit.Branch == branch)
+								{
+									commit.IsRemoteAhead = true;
+									remoteCount++;
+									commit.Parents.Where(p => p.Branch == branch).ForEach(p => commits.Push(p));
+								}
+							}
+
+							branch.RemoteAheadCount = Math.Max(1, remoteCount);
+						}
+						else
+						{
+							branch.LocalAheadCount = 1;
+							branch.RemoteAheadCount = 1;
 						}
 					}
-					else
-					{
-						branch.LocalAheadCount = 0;
-						branch.RemoteAheadCount = 0;
-					}
+
+					Log.Debug($"{branch.Name} has '{branch.LocalAheadCount}', '{branch.RemoteAheadCount}'");
 				}
-
-				Log.Debug($"{branch.Name} has '{branch.LocalAheadCount}', '{branch.RemoteAheadCount}'");
 			}
 		}
-
-
-		//private static void CountLocalAndRemoteCommits(IEnumerable<MBranch> branches)
-		//{
-		//	foreach (var branch in branches)
-		//	{
-		//		int localAheadCount = 0;
-		//		int remoteAheadCount = 0;
-		//		foreach (MCommit commit in branch.Commits)
-		//		{
-		//			if (commit.IsLocalAhead)
-		//			{
-		//				localAheadCount++;
-		//			}
-		//			else if (commit.IsRemoteAhead)
-		//			{
-		//				remoteAheadCount++;
-		//			}
-		//		}
-
-		//		branch.LocalAheadCount = localAheadCount;
-		//		branch.RemoteAheadCount = remoteAheadCount;
-		//	}
-		//}
-
-
-		//private static void MarkRemoteCommits(IEnumerable<MBranch> branches)
-		//{
-		//	foreach (MBranch branch in branches)
-		//	{
-		//		MCommit commit = branch.Repository.Commits[branch.RemoteTipCommitId];
-
-		//		Stack<MCommit> stack = new Stack<MCommit>();
-		//		stack.Push(commit);
-
-		//		while (stack.Any())
-		//		{
-		//			commit = stack.Pop();
-
-
-		//			if (commit.BranchId == branch.Id && !commit.IsRemoteAheadMarker)
-		//			{
-		//				if (!commit.IsUncommitted)
-		//				{
-		//					commit.IsRemoteAheadMarker = true;
-		//				}
-
-		//				foreach (MCommit parent in commit.Parents)
-		//				{
-		//					stack.Push(parent);							
-		//				}
-		//			}
-		//		}
-		//	}
-		//}
-
-
-		//private static void MarkLocalCommits(IEnumerable<MBranch> branches)
-		//{
-		//	foreach (MBranch branch in branches)
-		//	{
-		//		MCommit commit = branch.Repository.Commits[branch.LocalTipCommitId];
-
-		//		Stack<MCommit> stack = new Stack<MCommit>();
-		//		stack.Push(commit);
-
-		//		while (stack.Any())
-		//		{
-		//			commit = stack.Pop();
-
-		//			if (commit.BranchId == branch.Id && !commit.IsLocalAheadMarker)
-		//			{
-		//				if (!commit.IsUncommitted)
-		//				{
-		//					commit.IsLocalAheadMarker = true;
-		//				}
-
-		//				foreach (MCommit parent in commit.Parents)
-		//				{
-		//					stack.Push(parent);							
-		//				}
-		//			}
-		//		}
-		//	}
-		//}
 	}
 }
