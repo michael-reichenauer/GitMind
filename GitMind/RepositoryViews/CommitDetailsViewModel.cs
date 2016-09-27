@@ -124,9 +124,7 @@ namespace GitMind.RepositoryViews
 			{
 				files.Clear();
 				commitFiles
-					.OrderBy(f => f.Status, 
-					Comparer<GitFileStatus>.Create(
-						(s1, s2) => s1 == GitFileStatus.Conflict ? 1 : s2 == GitFileStatus.Conflict ? 1 : 0))
+					.OrderBy(f => f.Status, Comparer<GitFileStatus>.Create(Compare))
 					.ForEach(f => files.Add(
 					new CommitFileViewModel(f, UndoUncommittedFileCommand)
 					{
@@ -136,6 +134,23 @@ namespace GitMind.RepositoryViews
 						WorkingFolder = commit.WorkingFolder
 					}));
 			}
+		}
+
+
+		private static int Compare(GitFileStatus s1, GitFileStatus s2)
+		{
+			if (s1 == GitFileStatus.Conflict && s2 != GitFileStatus.Conflict)
+			{
+				return -1;
+			}
+			else if (s2 == GitFileStatus.Conflict && s1 != GitFileStatus.Conflict)
+			{
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}			
 		}
 	}
 }
