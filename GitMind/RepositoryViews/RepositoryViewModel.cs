@@ -703,7 +703,6 @@ namespace GitMind.RepositoryViews
 				}
 			}
 
-			Log.Warn("Scroll to 0");
 			ScrollTo(0);
 			if (Commits.Any())
 			{
