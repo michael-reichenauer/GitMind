@@ -59,7 +59,7 @@ namespace GitMind.GitModel.Private
 				}
 
 				string remoteTip = branch.RemoteTipCommitId;
-				Log.Warn($"Local: {localTip}, remote: {remoteTip}");
+				Log.Debug($"Local: {localTip}, remote: {remoteTip}");
 
 				if (localTip == remoteTip)
 				{
@@ -78,8 +78,8 @@ namespace GitMind.GitModel.Private
 						int localAheadBy = div.Value.AheadBy;
 						int remoteAheadBy = div.Value.BehindBy;
 
-						Log.Warn($"{branch.Name} has  Local: {localTip}, remote: {remoteTip}, Base: {commonTip}");
-						Log.Warn($"{branch.Name} has  Local count: {localAheadBy}, remote count: {remoteAheadBy}");
+						Log.Debug($"{branch.Name} has  Local: {localTip}, remote: {remoteTip}, Base: {commonTip}");
+						Log.Debug($"{branch.Name} has  Local count: {localAheadBy}, remote count: {remoteAheadBy}");
 
 						if (localAheadBy > 0 || remoteAheadBy > 0)
 						{
