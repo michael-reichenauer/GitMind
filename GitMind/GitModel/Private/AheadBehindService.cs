@@ -38,7 +38,7 @@ namespace GitMind.GitModel.Private
 			localOnly.ForEach(b =>
 			{
 				b.LocalAheadCount = b.Commits.Count();
-				b.Commits.ForEach(c => c.IsLocalAhead = true);
+				b.Commits.Where(c => !c.IsVirtual).ForEach(c => c.IsLocalAhead = true);
 			});
 
 			localAndRemote.ForEach(b => b.IsLocalAndRemote = true);
