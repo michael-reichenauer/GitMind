@@ -20,8 +20,8 @@ namespace GitMind.Git
 		private static readonly StatusOptions StatusOptions =
 			new StatusOptions {DetectRenamesInWorkDir = true, DetectRenamesInIndex = true};
 
-		private static readonly MergeOptions MergeDefault =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default};
+		//private static readonly MergeOptions MergeDefault =
+		//	new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default};
 
 	
 	
@@ -60,36 +60,7 @@ namespace GitMind.Git
 		}
 
 
-		public void Fetch()
-		{
-			FetchOptions options = new FetchOptions {Prune = true, TagFetchMode = TagFetchMode.All};
-			repository.Fetch("origin", options);
-		}
 
-
-		public void FetchBranch(BranchName branchName)
-		{
-			Remote remote = repository.Network.Remotes["origin"];
-
-			repository.Network.Fetch(remote, new[] {$"{branchName}:{branchName}"});
-		}
-
-
-		public void FetchRefs(string[] refs)
-		{
-			try
-			{
-				Remote remote = repository.Network.Remotes["origin"];
-
-				repository.Network.Fetch(remote, refs);
-			}
-			catch (Exception e)
-			{
-				Log.Error($"{e}");
-				throw;
-			}
-
-		}
 
 
 		public GitCommit Commit(string message)
@@ -104,15 +75,6 @@ namespace GitMind.Git
 		}
 
 
-	
-
-
-
-		public void MergeCurrentBranch()
-		{
-			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
-			repository.MergeFetchedRefs(committer, MergeDefault);
-		}
 
 
 		public void Add(IReadOnlyList<GitModel.CommitFile> paths)
@@ -329,91 +291,6 @@ namespace GitMind.Git
 			string tempPath = fullPath + ".tmp";
 			File.AppendAllText(tempPath, "tmp");
 			File.Delete(tempPath);
-		}
-
-
-		public void PushCurrentBranch(ICredentialHandler credentialHandler)
-		{
-			try
-			{
-				Branch currentBranch = repository.Head;
-
-				PushOptions pushOptions = GetPushOptions(credentialHandler);
-
-				repository.Network.Push(currentBranch, pushOptions);
-
-				credentialHandler.SetConfirm(true);
-			}
-			catch (NoCredentialException)
-			{
-				Log.Debug("Canceled enter credentials");
-				credentialHandler.SetConfirm(false);
-			}
-			catch (Exception e)
-			{
-				Log.Error($"Error {e}");
-				credentialHandler.SetConfirm(false);
-			}
-		}
-
-
-		public void PushRefs(string refs, ICredentialHandler credentialHandler)
-		{
-			try
-			{
-				PushOptions pushOptions = GetPushOptions(credentialHandler);
-
-				Remote remote = repository.Network.Remotes["origin"];
-
-				// Using a refspec, like you would use with git push...
-				repository.Network.Push(remote, pushRefSpec: $"{refs}:{refs}", pushOptions: pushOptions);
-
-				credentialHandler.SetConfirm(true);
-			}
-			catch (NoCredentialException)
-			{
-				Log.Debug("Canceled enter credentials");
-				credentialHandler.SetConfirm(false);
-			}
-			catch (Exception e)
-			{
-				Log.Error($"Error {e}");
-				credentialHandler.SetConfirm(false);
-			}
-		}
-
-
-		public void PushBranch(BranchName branchName, ICredentialHandler credentialHandler)
-		{
-			PushRefs($"refs/heads/{branchName}", credentialHandler);
-		}
-
-
-		private static PushOptions GetPushOptions(ICredentialHandler credentialHandler)
-		{
-			PushOptions pushOptions = new PushOptions();
-			pushOptions.CredentialsProvider = (url, usernameFromUrl, types) =>
-			{
-				NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
-
-				if (credential == null)
-				{
-					throw new NoCredentialException();
-				}
-
-				return new UsernamePasswordCredentials
-				{
-					Username = credential?.UserName,
-					Password = credential?.Password
-				};
-			};
-
-			return pushOptions;
-		}
-
-
-		public class NoCredentialException : Exception
-		{
 		}
 
 

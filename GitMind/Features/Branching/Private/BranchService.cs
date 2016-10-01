@@ -74,7 +74,7 @@ namespace GitMind.Features.Branching.Private
 						{
 							progress.SetText($"Publish branch {dialog.BranchName}...");
 
-							R publish = await gitBranchService.PublishBranchAsync(
+							R publish = await gitNetworkService.PublishBranchAsync(
 								workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
 							if (publish.IsFaulted)
 							{
@@ -103,7 +103,7 @@ namespace GitMind.Features.Branching.Private
 
 				Progress.ShowDialog(owner, $"Publish branch {branch.Name} ...", async progress =>
 				{
-					R publish = await gitBranchService.PublishBranchAsync(
+					R publish = await gitNetworkService.PublishBranchAsync(
 						workingFolder, branch.Name, repositoryCommands.GetCredentialsHandler());
 
 					if (publish.IsFaulted)
@@ -336,8 +336,19 @@ namespace GitMind.Features.Branching.Private
 				}
 			}
 
-			R deleted = await gitBranchService.DeleteBranchAsync(
-				workingFolder, branch.Name, isRemote, repositoryCommands.GetCredentialsHandler());
+			R deleted;
+			if (isRemote)
+			{
+				CredentialHandler credentialsHandler = repositoryCommands.GetCredentialsHandler();
+
+				deleted = await gitNetworkService.DeleteRemoteBranchAsync(
+					workingFolder, branch.Name, credentialsHandler);
+			}
+			else
+			{
+				deleted = await gitBranchService.DeleteLocalBranchAsync(workingFolder, branch.Name);
+			}
+		
 
 			if (deleted.IsFaulted)
 			{

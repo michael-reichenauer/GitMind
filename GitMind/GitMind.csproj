@@ -113,6 +113,8 @@
     <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\BranchName.cs" />
     <Compile Include="Git\GitDivergence.cs" />
+    <Compile Include="Git\INetworkService.cs" />
+    <Compile Include="Git\NetworkService.cs" />
     <Compile Include="Git\Private\GitDiffService.cs" />
     <Compile Include="Git\IGitDiffService.cs" />
     <Compile Include="Git\Private\GitNetworkService.cs" />

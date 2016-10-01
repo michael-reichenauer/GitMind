@@ -12,24 +12,28 @@ namespace GitMind.Git.Private
 	{
 		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
 
-		private readonly IRepoCaller repoCaller;
-		private static readonly string CommitBranchNoteNameSpace = "GitMind.Branches";
-		private static readonly string ManualBranchNoteNameSpace = "GitMind.Branches.Manual";
+		public static readonly string CommitBranchNoteNameSpace = "GitMind.Branches";
+		public static readonly string ManualBranchNoteNameSpace = "GitMind.Branches.Manual";
 
+		private readonly IRepoCaller repoCaller;
+		private readonly IGitNetworkService gitNetworkService;
 
 		public GitCommitBranchNameService()
-			: this(new RepoCaller())
-		{		
+			: this(new RepoCaller(), new GitNetworkService())
+		{
 		}
 
-		public GitCommitBranchNameService(IRepoCaller repoCaller)
+		public GitCommitBranchNameService(
+			IRepoCaller repoCaller,
+			IGitNetworkService gitNetworkService)
 		{
 			this.repoCaller = repoCaller;
+			this.gitNetworkService = gitNetworkService;
 		}
 
 
 		public async Task EditCommitBranchNameAsync(
-			string workingFolder, 
+			string workingFolder,
 			string commitId,
 			string rootId,
 			BranchName branchName,
@@ -62,17 +66,6 @@ namespace GitMind.Git.Private
 			return GetNoteBranches(workingFolder, CommitBranchNoteNameSpace, rootId);
 		}
 
-
-		public async Task FetchAllNotesAsync(string workingFolder)
-		{
-			Log.Debug("Fetch all notes ...");
-			string[] noteRefs = {
-				$"refs/notes/{CommitBranchNoteNameSpace}:refs/notes/origin/{CommitBranchNoteNameSpace}",
-				$"refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
-			};
-
-			await repoCaller.UseRepoAsync(workingFolder, FetchTimeout, repo => repo.FetchRefs(noteRefs));
-		}
 
 
 		public async Task PushNotesAsync(
@@ -149,20 +142,33 @@ namespace GitMind.Git.Private
 			repoCaller.UseRepo(workingFolder, repo =>
 				repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 
-			await repoCaller.UseRepoAsync(workingFolder, repo =>
+			string[] refs = { $"refs/notes/{nameSpace}:refs/notes/{nameSpace}" };
+			R result = await gitNetworkService.PushRefsAsync(workingFolder, refs, credentialHandler);
+			if (result.IsOk)
 			{
-				repo.PushRefs($"refs/notes/{nameSpace}", credentialHandler);
-
 				string file = Path.Combine(workingFolder, ".git", nameSpace);
 				if (File.Exists(file))
 				{
 					File.Delete(file);
 				}
-			});
+			}
 		}
 
 
-		private async Task FetchNotesAsync(string workingFolder, string nameSpace)
+		public async Task<R> FetchAllNotesAsync(string workingFolder)
+		{
+			Log.Debug("Fetch all notes ...");
+			string[] noteRefs =
+			{
+				$"+refs/notes/{CommitBranchNoteNameSpace}:refs/notes/origin/{CommitBranchNoteNameSpace}",
+				$"+refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
+			};
+
+			return await gitNetworkService.FetchRefsAsync(workingFolder, noteRefs);
+		}
+
+
+		private async Task<R> FetchNotesAsync(string workingFolder, string nameSpace)
 		{
 			Log.Debug($"Fetch notes for {nameSpace} ...");
 			string[] noteRefs =
@@ -171,7 +177,7 @@ namespace GitMind.Git.Private
 				$"+refs/notes/{nameSpace}:refs/notes/{nameSpace}"
 			};
 
-			await repoCaller.UseRepoAsync(workingFolder, FetchTimeout, repo => repo.FetchRefs(noteRefs));
+			return await gitNetworkService.FetchRefsAsync(workingFolder, noteRefs);
 		}
 
 

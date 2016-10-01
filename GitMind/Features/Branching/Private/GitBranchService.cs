@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -12,8 +11,8 @@ namespace GitMind.Features.Branching.Private
 {
 	internal class GitBranchService : IGitBranchService
 	{
-		private static readonly MergeOptions MergeNoFastForward = new MergeOptions
-			{ FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
+		private static readonly MergeOptions MergeNoFFNoCommit = new MergeOptions
+		{ FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
 
 		private static readonly MergeOptions MergeFastForwardOnly =
 			new MergeOptions { FastForwardStrategy = FastForwardStrategy.FastForwardOnly };
@@ -21,9 +20,6 @@ namespace GitMind.Features.Branching.Private
 		private static readonly MergeOptions MergeNoFastForwardAndCommit =
 			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true };
 
-
-
-		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
 		private readonly IRepoCaller repoCaller;
 
@@ -39,20 +35,23 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public Task<R<GitCommit>> MergeAsync(string workingFolder, BranchName branchName)
+		public Task<R> MergeAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Merge branch {branchName} into current branch ...");
+
 			return repoCaller.UseLibRepoAsync(workingFolder, repository =>
 			{
-				Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
+				Signature signature = GetSignature(repository);
 
-				Branch localbranch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-				Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+				Branch localbranch = TryGetBranch(repository, branchName);
+				Branch remoteBranch = TryGetBranch(repository, "origin/" + branchName);
 
 				Branch branch = localbranch ?? remoteBranch;
 				if (localbranch != null && remoteBranch != null)
 				{
-					if (remoteBranch.Tip.Committer.When.LocalDateTime > localbranch.Tip.Committer.When.LocalDateTime)
+					// Both local and remote tip exists, use the branch with the most resent tip
+					if (remoteBranch.Tip.Committer.When.LocalDateTime
+					> localbranch.Tip.Committer.When.LocalDateTime)
 					{
 						branch = remoteBranch;
 					}
@@ -60,33 +59,24 @@ namespace GitMind.Features.Branching.Private
 
 				if (branch != null)
 				{
-					MergeResult mergeResult = repository.Merge(branch, committer, MergeNoFastForward);
-					if (mergeResult?.Commit != null)
-					{
-						return new GitCommit(mergeResult.Commit);
-					}
-					else
-					{
-						RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
+					repository.Merge(branch, signature, MergeNoFFNoCommit);
 
-						if (!repositoryStatus.IsDirty)
-						{
-							// Empty merge with no changes, lets reset merge since there is nothing to merge
-							repository.Reset(ResetMode.Hard);
-						}
+					RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
 
-						return null;
+					if (!repositoryStatus.IsDirty)
+					{
+						// Empty merge with no changes, lets reset merge since there is nothing to merge
+						repository.Reset(ResetMode.Hard);
 					}
 				}
-
-				return null;
 			});
 		}
 
 
-		public Task CreateBranchAsync(string workingFolder, BranchName branchName, string commitId)
+		public Task<R> CreateBranchAsync(string workingFolder, BranchName branchName, string commitId)
 		{
 			Log.Debug($"Create branch {branchName} at commit {commitId} ...");
+
 			return repoCaller.UseLibRepoAsync(workingFolder, repository =>
 			{
 				Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
@@ -112,7 +102,7 @@ namespace GitMind.Features.Branching.Private
 
 
 
-		public Task SwitchToBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> SwitchToBranchAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Switch to branch {branchName} ...");
 			return repoCaller.UseLibRepoAsync(workingFolder, repository =>
@@ -175,24 +165,24 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder)
+		public Task<R> MergeCurrentBranchFastForwardOnlyAsync(string workingFolder)
 		{
 			return repoCaller.UseRepoAsync(workingFolder, repo =>
 			{
 				Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
-				repo.MergeFetchedRefs(committer, MergeFastForwardOnly);			
+				repo.MergeFetchedRefs(committer, MergeFastForwardOnly);
 			});
 		}
 
 
-		public Task MergeCurrentBranchAsync(string workingFolder)
+		public Task<R> MergeCurrentBranchAsync(string workingFolder)
 		{
 			return repoCaller.UseRepoAsync(workingFolder, repo =>
 			{
 				Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
 
 				try
-				{				
+				{
 					repo.MergeFetchedRefs(committer, MergeFastForwardOnly);
 				}
 				catch (NonFastForwardException)
@@ -204,88 +194,13 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public Task<R> PublishBranchAsync(
-			string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
-		{
-			Log.Debug($"Publish branch {branchName} ...");
-			return repoCaller.UseLibRepoAsync(workingFolder, repository =>
-			{
-				Branch localBranch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-				if (localBranch == null)
-				{
-					Log.Warn($"Local branch does not exists {branchName}");
-					return;
-				}
-
-				PushOptions pushOptions = GetPushOptions(credentialHandler);
-
-				// Check if corresponding remote branch exists
-				Branch remoteBranch = repository.Branches
-					.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
-
-				if (remoteBranch != null)
-				{
-					// Remote branch exists, so connect local and remote branch
-					localBranch = repository.Branches.Add(branchName, remoteBranch.Tip);
-					repository.Branches.Update(localBranch, b => b.TrackedBranch = remoteBranch.CanonicalName);
-				}
-				else
-				{
-					// Remote branch does not yet exists
-					Remote remote = repository.Network.Remotes["origin"];
-
-					repository.Branches.Update(
-						localBranch,
-						b => b.Remote = remote.Name,
-						b => b.UpstreamBranch = localBranch.CanonicalName);
-				}
-
-				repository.Network.Push(localBranch, pushOptions);
-			});
-		}
-
-
-		public Task<R> DeleteBranchAsync(string workingFolder, BranchName branchName, bool isRemote, ICredentialHandler credentialHandler)
-		{
-			if (isRemote)
-			{
-				return DeleteRemoteBranchAsync(workingFolder, branchName, credentialHandler);
-			}
-			else
-			{
-				return DeleteLocalBranchAsync(workingFolder, branchName);
-			}
-		}
-
-
-		private Task<R> DeleteLocalBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> DeleteLocalBranchAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Delete local branch {branchName}  ...");
 
 			return repoCaller.UseRepoAsync(workingFolder, repo =>
 			{
 				repo.Branches.Remove(branchName, false);
-			});
-		}
-
-
-		private Task<R> DeleteRemoteBranchAsync(
-			string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
-		{
-			Log.Debug($"Delete remote branch {branchName} ...");
-			return repoCaller.UseRepoAsync(workingFolder, PushTimeout, repo =>
-
-			{
-				repo.Branches.Remove(branchName, true);
-
-				PushOptions pushOptions = GetPushOptions(credentialHandler);
-
-				Remote remote = repo.Network.Remotes["origin"];
-
-				// Using a refspec, like you would use with git push...
-				repo.Network.Push(remote, pushRefSpec: $":refs/heads/{branchName}", pushOptions: pushOptions);
-
-				credentialHandler.SetConfirm(true);
 			});
 		}
 
@@ -322,26 +237,15 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		private static PushOptions GetPushOptions(ICredentialHandler credentialHandler)
+		private static Branch TryGetBranch(Repository repository, BranchName branchName)
 		{
-			PushOptions pushOptions = new PushOptions();
-			pushOptions.CredentialsProvider = (url, usernameFromUrl, types) =>
-			{
-				NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
+			return repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
+		}
 
-				if (credential == null)
-				{
-					throw new GitRepository.NoCredentialException();
-				}
 
-				return new UsernamePasswordCredentials
-				{
-					Username = credential?.UserName,
-					Password = credential?.Password
-				};
-			};
-
-			return pushOptions;
+		private static Signature GetSignature(Repository repository)
+		{
+			return repository.Config.BuildSignature(DateTimeOffset.Now);
 		}
 	}
 }
