@@ -94,7 +94,7 @@ namespace GitMind.Git
 				Log.Error($"{e}");
 				throw;
 			}
-			
+
 		}
 
 
@@ -122,7 +122,7 @@ namespace GitMind.Git
 			catch (Exception e)
 			{
 				return Error.From(e);
-			}			
+			}
 		}
 
 
@@ -185,8 +185,8 @@ namespace GitMind.Git
 			{
 				if (gitFile.IsModified || gitFile.IsDeleted)
 				{
-					CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
-					repository.CheckoutPaths("HEAD", new[] { path }, options);
+					CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
+					repository.CheckoutPaths("HEAD", new[] {path}, options);
 				}
 
 				if (gitFile.IsAdded || gitFile.IsRenamed)
@@ -200,14 +200,14 @@ namespace GitMind.Git
 
 				if (gitFile.IsRenamed)
 				{
-					CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
-					repository.CheckoutPaths("HEAD", new[] { gitFile.OldFile }, options);
+					CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
+					repository.CheckoutPaths("HEAD", new[] {gitFile.OldFile}, options);
 				}
 			}
 		}
 
 
-	
+
 
 
 		public string GetFullMessage(string commitId)
@@ -336,6 +336,7 @@ namespace GitMind.Git
 			}
 		}
 
+
 		public void Resolve(string path)
 		{
 			string fullPath = Path.Combine(workingFolder, path);
@@ -437,8 +438,9 @@ namespace GitMind.Git
 
 
 		public class NoCredentialException : Exception
-		{			
+		{
 		}
+
 
 		public void DeleteRemoteBranch(BranchName branchName, ICredentialHandler credentialHandler)
 		{
@@ -465,6 +467,34 @@ namespace GitMind.Git
 		{
 			return !repository.Network.Remotes
 				.Any(remote => remote.Url.StartsWith("ssh:", StringComparison.OrdinalIgnoreCase));
+		}
+
+
+		public GitDivergence CheckAheadBehind(string localTip, string remoteTip)
+		{
+			Commit local = repository.Lookup<Commit>(new ObjectId(localTip));
+			Commit remote = repository.Lookup<Commit>(new ObjectId(remoteTip));
+
+			if (local != null && remote != null)
+			{
+				HistoryDivergence div = repository.ObjectDatabase.CalculateHistoryDivergence(local, remote);
+
+				return new GitDivergence(
+					div.One.Sha,
+					div.Another.Sha,
+					div.CommonAncestor.Sha,
+					div.AheadBy ?? 0,
+					div.BehindBy ?? 0);
+			}
+			else
+			{
+				return new GitDivergence(
+					localTip,
+					remoteTip,
+					localTip,
+					0,
+					0);
+			}
 		}
 	}
 }

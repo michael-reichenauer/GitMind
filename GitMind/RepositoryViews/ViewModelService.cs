@@ -515,7 +515,8 @@ namespace GitMind.RepositoryViews
 					10,
 					height + 4);
 
-				branch.Line = $"M 4,2 L 4,{height}";
+				int top = sourceBranch == sourceBranch.Repository.CurrentBranch ? -3 : 2;
+				branch.Line = $"M 4,{top} L 4,{height}";
 
 				branch.HoverBrushNormal = branch.Brush;
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);

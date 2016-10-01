@@ -22,5 +22,6 @@ namespace GitMind.Features.Branching.Private
 		Task<R<GitCommit>> MergeAsync(string workingFolder, BranchName branchName);
 
 		Task<R> DeleteBranchAsync(string workingFolder, BranchName branchName, bool isRemote, ICredentialHandler credentialHandler);
+		R<GitDivergence> CheckAheadBehind(string workingFolder, string localTip, string remoteTip);
 	}
 }

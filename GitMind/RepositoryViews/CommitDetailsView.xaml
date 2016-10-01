@@ -310,7 +310,7 @@
 							</Grid.ContextMenu>
 
 							<Grid.InputBindings>
-								<MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowDiffCommand}" />
+								<MouseBinding Gesture="LeftDoubleClick" Command="{Binding DefaultCommand}" />
 							</Grid.InputBindings>
 
 						</Grid>

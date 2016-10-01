@@ -23,8 +23,7 @@ namespace GitMind.GitModel.Private
 		public BranchName BranchName { get; set; }
 		public BranchName SpecifiedBranchName { get; set; }
 
-		public bool IsLocalAheadMarker { get; set; }
-		public bool IsRemoteAheadMarker { get; set; }
+	
 		public string Tags { get; set; }
 		public string Tickets { get; set; }
 		public bool IsVirtual { get; set; }
@@ -57,10 +56,10 @@ namespace GitMind.GitModel.Private
 		public MCommit FirstParent => ParentIds.Count > 0 ? Repository.Commits[ParentIds[0]] : null;
 		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
 		public MCommit SecondParent => ParentIds.Count > 1 ? Repository.Commits[ParentIds[1]] : null;
-		public bool IsLocalAhead => IsLocalAheadMarker && !IsSynced && Branch.IsActive;
-		public bool IsRemoteAhead =>
-			Branch.IsLocalAndRemote && IsRemoteAheadMarker && !IsSynced && Branch.IsActive;
-		public bool IsSynced => IsLocalAheadMarker && IsRemoteAheadMarker;
+		public bool IsLocalAhead { get; set; }
+		public bool IsRemoteAhead { get; set; }
+		public bool IsCommon { get; set; }
+
 
 		public bool IsUncommitted => Id == UncommittedId;
 		public BranchName CommitBranchName { get; set; }
