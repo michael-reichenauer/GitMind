@@ -15,6 +15,14 @@ namespace GitMind.Features.Branching.Private
 		private static readonly MergeOptions MergeNoFastForward = new MergeOptions
 			{ FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
 
+		private static readonly MergeOptions MergeFastForwardOnly =
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.FastForwardOnly };
+
+		private static readonly MergeOptions MergeNoFastForwardAndCommit =
+			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true };
+
+
+
 		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
 		private readonly IRepoCaller repoCaller;
@@ -169,7 +177,11 @@ namespace GitMind.Features.Branching.Private
 
 		public Task MergeCurrentBranchFastForwardOnlyAsync(string workingFolder)
 		{
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.MergeCurrentBranchFastForwardOnly());
+			return repoCaller.UseRepoAsync(workingFolder, repo =>
+			{
+				Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
+				repo.MergeFetchedRefs(committer, MergeFastForwardOnly);			
+			});
 		}
 
 
@@ -177,13 +189,16 @@ namespace GitMind.Features.Branching.Private
 		{
 			return repoCaller.UseRepoAsync(workingFolder, repo =>
 			{
-				// First try to update using fast forward merge only
-				R result = repo.MergeCurrentBranchFastForwardOnly();
+				Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
 
-				if (result.Error.Is<NonFastForwardException>())
+				try
+				{				
+					repo.MergeFetchedRefs(committer, MergeFastForwardOnly);
+				}
+				catch (NonFastForwardException)
 				{
 					// Failed with fast forward merge, trying no fast forward.
-					repo.MergeCurrentBranchNoFastForward();
+					repo.MergeFetchedRefs(committer, MergeNoFastForwardAndCommit);
 				}
 			});
 		}

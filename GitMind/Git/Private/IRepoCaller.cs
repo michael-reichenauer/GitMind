@@ -66,11 +66,24 @@ namespace GitMind.Git.Private
 			[CallerMemberName] string memberName = "");
 
 
+		//Task<R> UseRepoAsync(
+		//	string workingFolder,
+		//	Func<LibGit2Sharp.Repository, R> doFunction,
+		//	[CallerMemberName] string memberName = "");
+
+
 		Task<R> UseRepoAsync(
 			string workingFolder,
 			TimeSpan timeout,
 			Func<GitRepository, R> doFunction,
 			[CallerMemberName] string memberName = "");
+
+		Task<R> UseRepoAsync(
+			string workingFolder,
+			TimeSpan timeout,
+			Func<LibGit2Sharp.Repository, R> doFunction,
+			[CallerMemberName] string memberName = "");
+
 
 
 		Task<R<T>> UseRepoAsync<T>(

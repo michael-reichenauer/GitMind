@@ -20,17 +20,11 @@ namespace GitMind.Git
 		private static readonly StatusOptions StatusOptions =
 			new StatusOptions {DetectRenamesInWorkDir = true, DetectRenamesInIndex = true};
 
-		private static readonly MergeOptions MergeFastForwardOnly =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.FastForwardOnly};
-
 		private static readonly MergeOptions MergeDefault =
 			new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default};
 
 	
-		private static readonly MergeOptions MergeNoFastForwardAndCommit =
-			new MergeOptions {FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true};
-
-
+	
 
 		public GitRepository(string workingFolder, Repository repository)
 		{
@@ -110,27 +104,8 @@ namespace GitMind.Git
 		}
 
 
-		public R MergeCurrentBranchFastForwardOnly()
-		{
-			try
-			{
-				Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
-				repository.MergeFetchedRefs(committer, MergeFastForwardOnly);
+	
 
-				return R.Ok;
-			}
-			catch (Exception e)
-			{
-				return Error.From(e);
-			}
-		}
-
-
-		public void MergeCurrentBranchNoFastForward()
-		{
-			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
-			repository.MergeFetchedRefs(committer, MergeNoFastForwardAndCommit);
-		}
 
 
 		public void MergeCurrentBranch()

@@ -33,6 +33,7 @@ namespace GitMind.Git.Private
 				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
 			}
 		}
+
 		public R UseRepo(
 			string workingFolder,
 			Action<Repository> doAction,
@@ -252,6 +253,14 @@ namespace GitMind.Git.Private
 			}
 		}
 
+		//public Task<R> UseRepoAsync(
+		//	string workingFolder,
+		//	Func<Repository, R> doFunction,
+		//	[CallerMemberName] string memberName = "")
+		//{
+		//	return Task.Run(() => UseRepo(workingFolder, doFunction, memberName));
+		//}
+
 		public Task<R> UseRepoAsync(
 			string workingFolder,
 			Func<GitRepository, R> doFunction,
@@ -260,12 +269,33 @@ namespace GitMind.Git.Private
 			return Task.Run(() => UseRepo(workingFolder, doFunction, memberName));
 		}
 
-
 		public async Task<R> UseRepoAsync(
 			string workingFolder,
 			TimeSpan timeout,
 			Func<GitRepository, R> doFunction,
 			[CallerMemberName] string memberName = "")
+		{
+			CancellationTokenSource cts = new CancellationTokenSource(timeout);
+
+			try
+			{
+				return await Task.Run(() => UseRepo(workingFolder, doFunction, memberName), cts.Token)
+					.WithCancellation(cts.Token);
+			}
+			catch (OperationCanceledException e)
+			{
+				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
+				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return error;
+			}
+		}
+
+
+		public async Task<R> UseRepoAsync(
+			string workingFolder, 
+			TimeSpan timeout, 
+			Func<Repository, R> doFunction, 
+			string memberName = "")
 		{
 			CancellationTokenSource cts = new CancellationTokenSource(timeout);
 
