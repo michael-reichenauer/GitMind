@@ -470,31 +470,6 @@ namespace GitMind.Git
 		}
 
 
-		public GitDivergence CheckAheadBehind(string localTip, string remoteTip)
-		{
-			Commit local = repository.Lookup<Commit>(new ObjectId(localTip));
-			Commit remote = repository.Lookup<Commit>(new ObjectId(remoteTip));
-
-			if (local != null && remote != null)
-			{
-				HistoryDivergence div = repository.ObjectDatabase.CalculateHistoryDivergence(local, remote);
-
-				return new GitDivergence(
-					div.One.Sha,
-					div.Another.Sha,
-					div.CommonAncestor.Sha,
-					div.AheadBy ?? 0,
-					div.BehindBy ?? 0);
-			}
-			else
-			{
-				return new GitDivergence(
-					localTip,
-					remoteTip,
-					localTip,
-					0,
-					0);
-			}
-		}
+	
 	}
 }

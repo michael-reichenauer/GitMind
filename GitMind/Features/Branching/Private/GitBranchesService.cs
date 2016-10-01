@@ -243,12 +243,6 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public R<GitDivergence> CheckAheadBehind(string workingFolder, string localTip, string remoteTip)
-		{
-			return repoCaller.UseRepo(workingFolder, repo => repo.CheckAheadBehind(localTip, remoteTip));
-		}
-
-
 		private Task<R> DeleteLocalBranchAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Delete local branch {branchName}  ...");
@@ -262,6 +256,38 @@ namespace GitMind.Features.Branching.Private
 			Log.Debug($"Delete remote branch {branchName} ...");
 			return repoCaller.UseRepoAsync(workingFolder, PushTimeout, repo =>
 				repo.DeleteRemoteBranch(branchName, credentialHandler));
+		}
+
+
+		public R<GitDivergence> CheckAheadBehind(string workingFolder, string localTip, string remoteTip)
+		{
+			return repoCaller.UseRepo(workingFolder,
+				repo =>
+				{
+					Commit local = repo.Lookup<Commit>(new ObjectId(localTip));
+					Commit remote = repo.Lookup<Commit>(new ObjectId(remoteTip));
+
+					if (local != null && remote != null)
+					{
+						HistoryDivergence div = repo.ObjectDatabase.CalculateHistoryDivergence(local, remote);
+
+						return new GitDivergence(
+							div.One.Sha,
+							div.Another.Sha,
+							div.CommonAncestor.Sha,
+							div.AheadBy ?? 0,
+							div.BehindBy ?? 0);
+					}
+					else
+					{
+						return new GitDivergence(
+							localTip,
+							remoteTip,
+							localTip,
+							0,
+							0);
+					}
+				});
 		}
 
 

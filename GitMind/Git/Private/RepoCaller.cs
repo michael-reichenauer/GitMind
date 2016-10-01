@@ -122,6 +122,34 @@ namespace GitMind.Git.Private
 			}
 		}
 
+
+		public R<T> UseRepo<T>(
+			string workingFolder, 
+			Func<Repository, T> doFunction, 
+			string memberName = "")
+		{
+			Log.Debug($"Start {memberName} in {workingFolder} ...");
+			try
+			{
+				using (Repository gitRepository = new Repository(workingFolder))
+				{
+					T functionResult = doFunction(gitRepository);
+
+					R<T> result = R.From(functionResult);
+
+					Log.Debug($"Done  {memberName} in {workingFolder}");
+
+					return result;
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+			}
+		}
+
+
 		public R<T> UseLibRepo<T>(
 			string workingFolder,
 			Func<Repository, T> doFunction,

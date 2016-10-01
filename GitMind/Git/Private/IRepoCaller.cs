@@ -37,6 +37,11 @@ namespace GitMind.Git.Private
 			Func<GitRepository, T> doFunction,
 			[CallerMemberName] string memberName = "");
 
+		R<T> UseRepo<T>(
+			string workingFolder,
+			Func<LibGit2Sharp.Repository, T> doFunction,
+			[CallerMemberName] string memberName = "");
+
 
 		R UseRepo(
 			string workingFolder,
