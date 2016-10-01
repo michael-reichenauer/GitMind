@@ -424,7 +424,7 @@ namespace GitMind.Features.Branching.Private
 					return;
 				}
 
-				if (branch.Repository.Status.ConflictCount == 0)
+				if (repositoryCommands.Repository.Status.ConflictCount == 0)
 				{
 					await commitService.CommitChangesAsync(repositoryCommands);
 				}
