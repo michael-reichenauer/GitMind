@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using GitMind.Utils;
 
 
@@ -12,8 +13,9 @@ namespace GitMind.Git.Private
 
 		public GitInfoService()
 			: this(new RepoCaller())
-		{		
+		{
 		}
+
 
 		public GitInfoService(IRepoCaller repoCaller)
 		{
@@ -49,9 +51,15 @@ namespace GitMind.Git.Private
 			}
 		}
 
+
 		public bool IsSupportedRemoteUrl(string workingFolder)
 		{
-			return repoCaller.UseRepo(workingFolder, repo => repo.IsSupportedRemoteUrl()).Or(false);
+			return repoCaller.UseRepo(workingFolder, repo =>
+			{
+				return !repo.Network.Remotes
+					.Any(remote => remote.Url.StartsWith("ssh:", StringComparison.OrdinalIgnoreCase));
+			})
+			.Or(false);
 		}
 	}
 }
