@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Git
 {
-	internal interface IGitNetworkService
+	internal interface INetworkService
 	{
 		Task FetchAsync(string workingFolder);
 

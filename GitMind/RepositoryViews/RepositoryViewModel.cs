@@ -35,9 +35,9 @@ namespace GitMind.RepositoryViews
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
-		private readonly IGitBranchesService gitBranchesService = new GitBranchesService();
+		private readonly IGitBranchService gitBranchService = new GitBranchService();
 		private readonly IGitInfoService gitInfoService = new GitInfoService();
-		private readonly IGitNetworkService gitNetworkService = new GitNetworkService();
+		private readonly INetworkService networkService = new NetworkService();
 		private readonly IBrushService brushService = new BrushService();
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IBranchService branchService = new BranchService();
@@ -482,10 +482,10 @@ namespace GitMind.RepositoryViews
 		private async Task FetchRemoteChangesAsync(Repository repository, bool isFetchNotes)
 		{
 			Log.Debug("Fetch");
-			await gitNetworkService.FetchAsync(repository.MRepository.WorkingFolder);
+			await networkService.FetchAsync(repository.MRepository.WorkingFolder);
 			if (isFetchNotes)
 			{
-				await gitNetworkService.FetchAllNotesAsync(repository.MRepository.WorkingFolder);
+				await networkService.FetchAllNotesAsync(repository.MRepository.WorkingFolder);
 			}
 
 			fetchedTime = DateTime.Now;
@@ -788,14 +788,14 @@ namespace GitMind.RepositoryViews
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
-				await gitNetworkService.FetchAsync(workingFolder);
+				await networkService.FetchAsync(workingFolder);
 
 				if (uncommittedBranch != currentBranch
 						&& currentBranch.RemoteAheadCount > 0
 						&& currentBranch.LocalAheadCount == 0)
 				{
 					progress.SetText($"Update current branch {currentBranch.Name} ...");
-					await gitBranchesService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
+					await gitBranchService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
 				}
 
 				IEnumerable<Branch> updatableBranches = Repository.Branches
@@ -809,11 +809,11 @@ namespace GitMind.RepositoryViews
 				{
 					progress.SetText($"Update branch {branch.Name} ...");
 
-					await gitNetworkService.FetchBranchAsync(workingFolder, branch.Name);
+					await networkService.FetchBranchAsync(workingFolder, branch.Name);
 				}
 
 				progress.SetText("Update all branches ...");
-				await gitNetworkService.FetchAllNotesAsync(workingFolder);
+				await networkService.FetchAllNotesAsync(workingFolder);
 
 				await RefreshAfterCommandAsync(false);
 			});
@@ -844,10 +844,10 @@ namespace GitMind.RepositoryViews
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
-				await gitNetworkService.FetchAsync(workingFolder);
-				await gitBranchesService.MergeCurrentBranchAsync(workingFolder);
+				await networkService.FetchAsync(workingFolder);
+				await gitBranchService.MergeCurrentBranchAsync(workingFolder);
 
-				await gitNetworkService.FetchAllNotesAsync(workingFolder);
+				await networkService.FetchAllNotesAsync(workingFolder);
 				await RefreshAfterCommandAsync(false);
 			});
 		}
@@ -877,7 +877,7 @@ namespace GitMind.RepositoryViews
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
-				await gitNetworkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
+				await networkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
 				if (uncommittedBranch != currentBranch
 						&& currentBranch.LocalAheadCount > 0
@@ -885,7 +885,7 @@ namespace GitMind.RepositoryViews
 				{
 					progress.SetText($"Push current branch {currentBranch.Name} ...");
 					CredentialHandler credentialHandler = new CredentialHandler(Owner);
-					await gitNetworkService.PushCurrentBranchAsync(workingFolder, credentialHandler);
+					await networkService.PushCurrentBranchAsync(workingFolder, credentialHandler);
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
@@ -902,7 +902,7 @@ namespace GitMind.RepositoryViews
 				{
 					progress.SetText($"Push branch {branch.Name} ...");
 
-					await gitNetworkService.PushBranchAsync(workingFolder, branch.Name, GetCredentialsHandler());
+					await networkService.PushBranchAsync(workingFolder, branch.Name, GetCredentialsHandler());
 				}
 
 				await RefreshAfterCommandAsync(false);
@@ -936,9 +936,9 @@ namespace GitMind.RepositoryViews
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
-				await gitNetworkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
+				await networkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
-				await gitNetworkService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
+				await networkService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
 
 				await RefreshAfterCommandAsync(false);
 			});
