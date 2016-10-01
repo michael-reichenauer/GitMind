@@ -33,6 +33,29 @@ namespace GitMind.Git.Private
 				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
 			}
 		}
+		public R UseRepo(
+			string workingFolder,
+			Action<Repository> doAction,
+			[CallerMemberName] string memberName = "")
+		{
+			Log.Debug($"Start {memberName} in {workingFolder} ...");
+			try
+			{
+				using (Repository gitRepository = new Repository(workingFolder))
+				{
+					doAction(gitRepository);
+
+					Log.Debug($"Done  {memberName} in {workingFolder}");
+
+					return R.Ok;
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+			}
+		}
 
 		public R UseLibRepo(
 			string workingFolder,
@@ -68,6 +91,12 @@ namespace GitMind.Git.Private
 		}
 
 
+		public Task<R> UseRepoAsync(string workingFolder, Action<Repository> doAction, string memberName = "")
+		{
+			return Task.Run(() => UseRepo(workingFolder, doAction, memberName));
+		}
+
+
 		public Task<R> UseLibRepoAsync(string workingFolder, Action<Repository> doAction, string memberName = "")
 		{
 			return Task.Run(() => UseLibRepo(workingFolder, doAction, memberName));
@@ -79,6 +108,28 @@ namespace GitMind.Git.Private
 			TimeSpan timeout,
 			Action<GitRepository> doAction,
 			[CallerMemberName] string memberName = "")
+		{
+			CancellationTokenSource cts = new CancellationTokenSource(timeout);
+
+			try
+			{
+				return await Task.Run(() => UseRepo(workingFolder, doAction, memberName), cts.Token)
+					.WithCancellation(cts.Token);
+			}
+			catch (OperationCanceledException e)
+			{
+				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
+				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return error;
+			}
+		}
+
+
+		public async Task<R> UseRepoAsync(
+			string workingFolder, 
+			TimeSpan timeout, 
+			Action<Repository> doAction, 
+			string memberName = "")
 		{
 			CancellationTokenSource cts = new CancellationTokenSource(timeout);
 

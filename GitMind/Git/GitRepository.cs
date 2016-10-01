@@ -442,25 +442,6 @@ namespace GitMind.Git
 		}
 
 
-		public void DeleteRemoteBranch(BranchName branchName, ICredentialHandler credentialHandler)
-		{
-			repository.Branches.Remove(branchName, true);
-
-			PushOptions pushOptions = GetPushOptions(credentialHandler);
-
-			Remote remote = repository.Network.Remotes["origin"];
-
-			// Using a refspec, like you would use with git push...
-			repository.Network.Push(remote, pushRefSpec: $":refs/heads/{branchName}", pushOptions: pushOptions);
-
-			credentialHandler.SetConfirm(true);
-		}
-
-
-		public void DeleteLocalBranch(BranchName branchName)
-		{
-			repository.Branches.Remove(branchName, false);
-		}
 
 
 		public bool IsSupportedRemoteUrl()

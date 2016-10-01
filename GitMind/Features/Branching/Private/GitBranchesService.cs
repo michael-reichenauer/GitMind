@@ -246,7 +246,11 @@ namespace GitMind.Features.Branching.Private
 		private Task<R> DeleteLocalBranchAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Delete local branch {branchName}  ...");
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.DeleteLocalBranch(branchName));
+
+			return repoCaller.UseRepoAsync(workingFolder, repo =>
+			{
+				repo.Branches.Remove(branchName, false);
+			});
 		}
 
 
@@ -255,7 +259,19 @@ namespace GitMind.Features.Branching.Private
 		{
 			Log.Debug($"Delete remote branch {branchName} ...");
 			return repoCaller.UseRepoAsync(workingFolder, PushTimeout, repo =>
-				repo.DeleteRemoteBranch(branchName, credentialHandler));
+
+			{
+				repo.Branches.Remove(branchName, true);
+
+				PushOptions pushOptions = GetPushOptions(credentialHandler);
+
+				Remote remote = repo.Network.Remotes["origin"];
+
+				// Using a refspec, like you would use with git push...
+				repo.Network.Push(remote, pushRefSpec: $":refs/heads/{branchName}", pushOptions: pushOptions);
+
+				credentialHandler.SetConfirm(true);
+			});
 		}
 
 
@@ -312,6 +328,5 @@ namespace GitMind.Features.Branching.Private
 
 			return pushOptions;
 		}
-
 	}
 }
