@@ -5,7 +5,7 @@ using GitMind.Utils;
 
 namespace GitMind.Features.Branching.Private
 {
-	internal interface IGitBranchesService
+	internal interface IGitBranchService
 	{
 		Task CreateBranchAsync(string workingFolder, BranchName branchName, string commitId);
 

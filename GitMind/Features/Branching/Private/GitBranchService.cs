@@ -10,7 +10,7 @@ using LibGit2Sharp;
 
 namespace GitMind.Features.Branching.Private
 {
-	internal class GitBranchesService : IGitBranchesService
+	internal class GitBranchService : IGitBranchService
 	{
 		private static readonly MergeOptions MergeNoFastForward = new MergeOptions
 			{ FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
@@ -19,13 +19,13 @@ namespace GitMind.Features.Branching.Private
 
 		private readonly IRepoCaller repoCaller;
 
-		public GitBranchesService()
+		public GitBranchService()
 			: this(new RepoCaller())
 		{
 		}
 
 
-		public GitBranchesService(IRepoCaller repoCaller)
+		public GitBranchService(IRepoCaller repoCaller)
 		{
 			this.repoCaller = repoCaller;
 		}

@@ -35,7 +35,7 @@ namespace GitMind.RepositoryViews
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService = new RepositoryService();
 		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
-		private readonly IGitBranchesService gitBranchesService = new GitBranchesService();
+		private readonly IGitBranchService gitBranchService = new GitBranchService();
 		private readonly IGitInfoService gitInfoService = new GitInfoService();
 		private readonly IGitNetworkService gitNetworkService = new GitNetworkService();
 		private readonly IBrushService brushService = new BrushService();
@@ -795,7 +795,7 @@ namespace GitMind.RepositoryViews
 						&& currentBranch.LocalAheadCount == 0)
 				{
 					progress.SetText($"Update current branch {currentBranch.Name} ...");
-					await gitBranchesService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
+					await gitBranchService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
 				}
 
 				IEnumerable<Branch> updatableBranches = Repository.Branches
@@ -845,7 +845,7 @@ namespace GitMind.RepositoryViews
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
 				await gitNetworkService.FetchAsync(workingFolder);
-				await gitBranchesService.MergeCurrentBranchAsync(workingFolder);
+				await gitBranchService.MergeCurrentBranchAsync(workingFolder);
 
 				await gitNetworkService.FetchAllNotesAsync(workingFolder);
 				await RefreshAfterCommandAsync(false);
