@@ -59,10 +59,10 @@
 									<Border
 											Name="ItemBorder"
 											CornerRadius="0" 
-											BorderBrush="Transparent"
+											BorderBrush="{x:Null}"
 											BorderThickness="1" 
 											Margin="0"
-											Background="Transparent">
+											Background="{x:Null}">
 										<ContentPresenter />
 									</Border>
 										<ControlTemplate.Triggers>
@@ -74,7 +74,7 @@
 											<Setter 
 												TargetName="ItemBorder" 
 												Property="Background" 
-												Value="{StaticResource SelectedItemBackgroundBrush}" />
+												Value="{x:Null}" />
 											</Trigger>
 											<MultiTrigger>
 												<MultiTrigger.Conditions>
@@ -345,7 +345,14 @@
 																		Fill="{Binding BrushInner}"
 																		Stroke="{Binding Brush}"
 																		StrokeThickness="2">
-																	</Ellipse>
+																	<Ellipse.ToolTip>
+																		<ToolTip 
+																			Content="{Binding BranchToolTip}"
+																			Placement="Mouse"
+																			BorderBrush="{Binding Brush}"													
+																			BorderThickness="2" />	
+																	</Ellipse.ToolTip>
+																</Ellipse>
 																</ControlTemplate>
 															</Button.Template>
 														</Button>

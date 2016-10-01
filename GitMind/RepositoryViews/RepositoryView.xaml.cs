@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using GitMind.Utils.UI.VirtualCanvas;
@@ -70,6 +71,23 @@ namespace GitMind.RepositoryViews
 				{
 					viewModel.MouseEnterBranch(branch);
 				}
+
+				CommitViewModel commit = item.Content as CommitViewModel;
+				if (commit != null)
+				{
+					Point viewPoint = e.GetPosition(ItemsListBox);
+					if (viewPoint.X < viewModel.GraphWidth)
+					{
+						branch = viewModel.Branches.First(b => b.Branch == commit.Commit.Branch);
+						viewModel.MouseEnterBranch(branch);
+					}
+
+					if (viewPoint.X > viewModel.GraphWidth)
+					{
+						branch = viewModel.Branches.First(b => b.Branch == commit.Commit.Branch);
+						viewModel.MouseLeaveBranch(branch);
+					}
+				}
 			}
 		}
 
@@ -83,6 +101,17 @@ namespace GitMind.RepositoryViews
 				if (branch != null)
 				{
 					viewModel.MouseLeaveBranch(branch);
+				}
+
+				CommitViewModel commit = item.Content as CommitViewModel;
+				if (commit != null)
+				{
+					Point viewPoint = e.GetPosition(ItemsListBox);
+					if (viewPoint.X < viewModel.GraphWidth)
+					{
+						branch = viewModel.Branches.First(b => b.Branch == commit.Commit.Branch);
+						viewModel.MouseLeaveBranch(branch);
+					}
 				}
 			}
 		}

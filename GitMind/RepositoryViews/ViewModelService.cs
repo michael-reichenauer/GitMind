@@ -459,7 +459,7 @@ namespace GitMind.RepositoryViews
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
-
+				commitViewModel.BranchToolTip = GetBranchToolTip(commit.Branch);
 				if (!commit.HasFirstChild && !commit.HasSecondParent)
 				{
 					commitViewModel.BrushInner = brushService.GetDarkerBrush(commitViewModel.Brush);
@@ -521,7 +521,7 @@ namespace GitMind.RepositoryViews
 				branch.HoverBrushNormal = branch.Brush;
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
 				branch.DimBrushHighlight = brushService.GetLighterLighterBrush(branch.Brush);
-				branch.BranchToolTip = GetBranchToolTip(branch);
+				branch.BranchToolTip = GetBranchToolTip(sourceBranch);
 				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name;
 
 				branch.SetNormal();
@@ -533,33 +533,33 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private string GetBranchToolTip(BranchViewModel branch)
+		private string GetBranchToolTip(Branch branch)
 		{
-			string name = branch.Branch.IsMultiBranch ? "MultiBranch" : branch.Branch.ToString();
+			string name = branch.IsMultiBranch ? "MultiBranch" : branch.ToString();
 			string toolTip = $"Branch: {name}";
 
-			if (branch.Branch.LocalAheadCount > 0)
+			if (branch.LocalAheadCount > 0)
 			{
-				toolTip += $"\nLocal branch ahead: {branch.Branch.LocalAheadCount}";
+				toolTip += $"\nLocal branch ahead: {branch.LocalAheadCount}";
 			}
-			else if (branch.Branch.IsLocal)
+			else if (branch.IsLocal)
 			{
 				toolTip += "\nLocal branch";
 			}
 
-			if (branch.Branch.RemoteAheadCount > 0)
+			if (branch.RemoteAheadCount > 0)
 			{
-				toolTip += $"\nRemote branch ahead: {branch.Branch.RemoteAheadCount}";
+				toolTip += $"\nRemote branch ahead: {branch.RemoteAheadCount}";
 			}
-			else if (branch.Branch.IsRemote)
+			else if (branch.IsRemote)
 			{
 				toolTip += "\nRemote branch";
 			}
 
-			if (branch.Branch.ChildBranchNames.Count > 1)
+			if (branch.ChildBranchNames.Count > 1)
 			{
 				toolTip += $"\n\nBranch could be one of:";
-				foreach (BranchName branchName in branch.Branch.ChildBranchNames)
+				foreach (BranchName branchName in branch.ChildBranchNames)
 				{
 					toolTip += $"\n   {branchName}";
 				}
