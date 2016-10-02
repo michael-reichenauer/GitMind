@@ -171,7 +171,7 @@
     </Compile>
     <Compile Include="GitModel\CommitFile.cs" />
     <Compile Include="RepositoryViews\CommitViewModel.cs" />
-    <Compile Include="RepositoryViews\Converter.cs" />
+    <Compile Include="RepositoryViews\Converters.cs" />
     <Compile Include="RepositoryViews\DiffService.cs" />
     <Compile Include="RepositoryViews\IBrushService.cs" />
     <Compile Include="RepositoryViews\IDiffService.cs" />

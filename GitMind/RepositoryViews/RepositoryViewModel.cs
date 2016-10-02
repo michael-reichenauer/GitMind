@@ -737,14 +737,14 @@ namespace GitMind.RepositoryViews
 
 		public void ScrollRows(int rows)
 		{
-			int offsetY = Converter.ToY(rows);
+			int offsetY = Converters.ToY(rows);
 			Canvas.Offset = new Point(Canvas.Offset.X, Math.Max(Canvas.Offset.Y - offsetY, 0));
 		}
 
 
 		private void ScrollTo(int rows)
 		{
-			int offsetY = Converter.ToY(rows);
+			int offsetY = Converters.ToY(rows);
 			Canvas.Offset = new Point(Canvas.Offset.X, Math.Max(offsetY, 0));
 		}
 
@@ -1124,11 +1124,11 @@ namespace GitMind.RepositoryViews
 			double xpos = position.X - 9;
 			double ypos = position.Y - 5;
 
-			int column = Converter.ToColumn(xpos);
-			int x = Converter.ToX(column);
+			int column = Converters.ToColumn(xpos);
+			int x = Converters.ToX(column);
 
-			int row = Converter.ToRow(ypos);
-			int y = Converter.ToY(row) + 10;
+			int row = Converters.ToRow(ypos);
+			int y = Converters.ToY(row) + 10;
 
 			double absx = Math.Abs(xpos - x);
 			double absy = Math.Abs(ypos - y);

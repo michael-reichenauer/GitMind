@@ -171,15 +171,17 @@ namespace GitMind.Git.Private
 			string workingFolder, 
 			IReadOnlyList<CommitFile> paths)
 		{
+			List<string> added = new List<string>();
 			foreach (CommitFile commitFile in paths)
 			{
 				string fullPath = Path.Combine(workingFolder, commitFile.Path);
 				if (File.Exists(fullPath))
 				{
 					repo.Index.Add(commitFile.Path);
+					added.Add(commitFile.Path);
 				}
 
-				if (commitFile.OldPath != null)
+				if (commitFile.OldPath != null && !added.Contains(commitFile.OldPath))
 				{
 					repo.Index.Remove(commitFile.OldPath);
 				}
