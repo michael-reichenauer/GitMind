@@ -30,7 +30,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
 			}
 		}
 
@@ -54,7 +54,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
 			}
 		}
 
@@ -78,7 +78,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
 			}
 		}
 
@@ -120,7 +120,7 @@ namespace GitMind.Git.Private
 			catch (OperationCanceledException e)
 			{
 				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
-				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
 				return error;
 			}
 		}
@@ -142,7 +142,7 @@ namespace GitMind.Git.Private
 			catch (OperationCanceledException e)
 			{
 				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
-				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
 				return error;
 			}
 		}
@@ -170,7 +170,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
 			}
 		}
 
@@ -197,7 +197,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
 			}
 		}
 
@@ -224,7 +224,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
 			}
 		}
 
@@ -249,7 +249,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
 			}
 		}
 
@@ -271,7 +271,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
 			}
 		}
 
@@ -308,7 +308,7 @@ namespace GitMind.Git.Private
 			catch (OperationCanceledException e)
 			{
 				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
-				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
 				return error;
 			}
 		}
@@ -330,7 +330,7 @@ namespace GitMind.Git.Private
 			catch (OperationCanceledException e)
 			{
 				Log.Warn($"Timeout for {memberName} in {workingFolder}, {e.Message}");
-				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
 				return error;
 			}
 		}
@@ -378,7 +378,7 @@ namespace GitMind.Git.Private
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to {memberName} in {workingFolder}, {e.Message}");
-					return Error.From(e, $"Failed to {memberName} in {workingFolder}, {e.Message}");
+					return Error.From(e, $"Failed to {memberName} in {workingFolder}");
 				}
 			});
 		}

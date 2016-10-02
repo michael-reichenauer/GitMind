@@ -57,32 +57,40 @@ namespace GitMind.Features.Branching.Private
 
 				if (dialog.ShowDialog() == true)
 				{
+					BranchName branchName = dialog.BranchName;
 					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
+
 					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async progress =>
-					{
-						BranchName branchName = dialog.BranchName;
+					{					
 						string commitId = commit.Id;
-						if (commitId == Commit.UncommittedId)
+						if (commitId == Commit.UncommittedId || commit.IsVirtual)
 						{
 							commitId = commit.FirstParent.CommitId;
 						}
 
-						await gitBranchService.CreateBranchAsync(workingFolder, branchName, commitId);
-						Log.Debug($"Created branch {branchName}, from {commit.Branch}");
-
-						if (dialog.IsPublish)
+						R result = await gitBranchService.CreateBranchAsync(workingFolder, branchName, commitId);
+						if (result.IsOk)
 						{
-							progress.SetText($"Publish branch {dialog.BranchName}...");
+							Log.Debug($"Created branch {branchName}, from {commit.Branch}");
 
-							R publish = await gitNetworkService.PublishBranchAsync(
-								workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
-							if (publish.IsFaulted)
+							if (dialog.IsPublish)
 							{
-								MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
-							}
-						}
+								progress.SetText($"Publish branch {dialog.BranchName}...");
 
-						repositoryCommands.ShowBranch(branchName);
+								R publish = await gitNetworkService.PublishBranchAsync(
+									workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
+								if (publish.IsFaulted)
+								{
+									MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
+								}
+							}
+
+							repositoryCommands.ShowBranch(branchName);
+						}
+						else
+						{
+							MessageDialog.ShowWarning(owner, $"Failed to create branch {branchName}\n{result}");
+						}
 
 						progress.SetText($"Updating status after create branch {branchName} ...");
 						await repositoryCommands.RefreshAfterCommandAsync(true);
