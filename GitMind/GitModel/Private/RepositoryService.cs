@@ -233,7 +233,7 @@ namespace GitMind.GitModel.Private
 			repository.CurrentBranchId = currentBranch.Id;
 
 			repository.CurrentCommitId = gitStatus.OK
-				? currentBranch.TipCommitId
+				? gitRepository.Head.TipId
 				: MCommit.UncommittedId;
 
 			repository.SubBranches.Clear();
