@@ -1,13 +1,14 @@
-﻿<UserControl x:Class="GitMind.RepositoryViews.RepositoryView"
-						 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-						 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-						 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-						 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-						 xmlns:ui="clr-namespace:GitMind.Utils.UI"
-						 xmlns:virtualCanvas="clr-namespace:GitMind.Utils.UI.VirtualCanvas"
-						 xmlns:local="clr-namespace:GitMind.RepositoryViews"
-						 mc:Ignorable="d" 
-						 d:DesignHeight="300" d:DesignWidth="300">
+﻿<UserControl
+	x:Class="GitMind.RepositoryViews.RepositoryView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:ui="clr-namespace:GitMind.Utils.UI"
+	xmlns:virtualCanvas="clr-namespace:GitMind.Utils.UI.VirtualCanvas"
+	xmlns:local="clr-namespace:GitMind.RepositoryViews"
+	mc:Ignorable="d"
+	d:DesignHeight="300" d:DesignWidth="300">
 
 	<Grid>
 		<Grid.RowDefinitions>
@@ -16,20 +17,20 @@
 			<!-- Grid splitter -->
 			<RowDefinition Height="Auto" />
 			<!-- Commit details -->
-			<RowDefinition Height="150"/>
+			<RowDefinition Height="150" />
 		</Grid.RowDefinitions>
 
 		<!-- Commits log -->
-		<Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" >
-			
-			<ListBox 
+		<Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+
+			<ListBox
 				x:Name="ItemsListBox"
 				ItemsSource="{Binding VirtualItemsSource}"
 				IsTextSearchEnabled="False"
-				Padding="4"		
-				Style="{DynamicResource ListBoxScrollbarStyle}" 
+				Padding="4"
+				Style="{DynamicResource ListBoxScrollbarStyle}"
 				SelectionMode="Extended"
-				SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" 
+				SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
 				SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 
 				<ListBox.InputBindings>
@@ -38,191 +39,192 @@
 
 				<ListBox.ItemsPanel>
 					<ItemsPanelTemplate>
-						<virtualCanvas:ZoomableCanvas 
+						<virtualCanvas:ZoomableCanvas
 							Loaded="ZoomableCanvas_Loaded"
-							RealizationLimit="1000" 
+							RealizationLimit="1000"
 							RealizationRate="20"
 							RealizationPriority="Normal"
-							ApplyTransform="false"/>
+							ApplyTransform="false" />
 					</ItemsPanelTemplate>
 				</ListBox.ItemsPanel>
 
-					<ListBox.ItemContainerStyle>
-						<Style TargetType="ListBoxItem">
+				<ListBox.ItemContainerStyle>
+					<Style TargetType="ListBoxItem">
 
-							<Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"/>
+						<Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}" />
 
-							<!-- Style for list items (selected/hoover) -->
-							<Setter Property="Template">
-								<Setter.Value>
-									<ControlTemplate TargetType="ListBoxItem">
+						<!-- Style for list items (selected/hoover) -->
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="ListBoxItem">
 									<Border
-											Name="ItemBorder"
-											CornerRadius="0" 
-											BorderBrush="{x:Null}"
-											BorderThickness="1" 
-											Margin="0"
-											Background="{x:Null}">
+										Name="ItemBorder"
+										CornerRadius="0"
+										BorderBrush="{x:Null}"
+										BorderThickness="1"
+										Margin="0"
+										Background="{x:Null}">
 										<ContentPresenter />
 									</Border>
-										<ControlTemplate.Triggers>
-											<Trigger Property="IsSelected" Value="True">
-											<Setter 
-												TargetName="ItemBorder" 
-												Property="BorderBrush" 
+									<ControlTemplate.Triggers>
+										<Trigger Property="IsSelected" Value="True">
+											<Setter
+												TargetName="ItemBorder"
+												Property="BorderBrush"
 												Value="{StaticResource SelectedItemBorderBrush}" />
-											<Setter 
-												TargetName="ItemBorder" 
-												Property="Background" 
+											<Setter
+												TargetName="ItemBorder"
+												Property="Background"
 												Value="{x:Null}" />
-											</Trigger>
-											<MultiTrigger>
-												<MultiTrigger.Conditions>
-													<Condition Property="IsMouseOver" Value="True" />
-													<Condition Property="IsSelected" Value="False" />
-												</MultiTrigger.Conditions>
-												<Setter 
-												TargetName="ItemBorder" 
-												Property="BorderBrush" 
+										</Trigger>
+										<MultiTrigger>
+											<MultiTrigger.Conditions>
+												<Condition Property="IsMouseOver" Value="True" />
+												<Condition Property="IsSelected" Value="False" />
+											</MultiTrigger.Conditions>
+											<Setter
+												TargetName="ItemBorder"
+												Property="BorderBrush"
 												Value="{Binding HoverBrush}" />
-											</MultiTrigger>
-										</ControlTemplate.Triggers>
-									</ControlTemplate>
-								</Setter.Value>
-							</Setter>
+										</MultiTrigger>
+									</ControlTemplate.Triggers>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
 
 
-						<Setter Property="Canvas.Top" Value="{Binding Top}"/>
-						<Setter Property="Canvas.Left" Value="{Binding Left}"/>
+						<Setter Property="Canvas.Top" Value="{Binding Top}" />
+						<Setter Property="Canvas.Left" Value="{Binding Left}" />
 
-							<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
-							<EventSetter Event="MouseDoubleClick" Handler="MouseDobleClick" />
-							<EventSetter Event="MouseUp" Handler="EventMouseUp" />
-							<EventSetter Event="MouseEnter" Handler="MouseEntering" />
-							<EventSetter Event="MouseLeave" Handler="MouseLeaving" />	
+						<Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+						<EventSetter Event="MouseDoubleClick" Handler="MouseDobleClick" />
+						<EventSetter Event="MouseUp" Handler="EventMouseUp" />
+						<EventSetter Event="MouseEnter" Handler="MouseEntering" />
+						<EventSetter Event="MouseLeave" Handler="MouseLeaving" />
 
 						<Setter Property="Width">
-								<Setter.Value>
-									<MultiBinding 
-										Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
-										ConverterParameter="*">
-										<Binding Path="Width"/>
-										<Binding 
-											Path="Scale"
-											RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
-									</MultiBinding>
-								</Setter.Value>
-							</Setter>
+							<Setter.Value>
+								<MultiBinding
+									Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
+									ConverterParameter="*">
+									<Binding Path="Width" />
+									<Binding
+										Path="Scale"
+										RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}" />
+								</MultiBinding>
+							</Setter.Value>
+						</Setter>
 
-							<Setter Property="Height">
-								<Setter.Value>
-									<MultiBinding 
-										Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
-										ConverterParameter="*">
-									<Binding Path="Height"/>
-										<Binding 
-											Path="Scale"
-											RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}"/>
-									</MultiBinding>
-								</Setter.Value>
-							</Setter>
+						<Setter Property="Height">
+							<Setter.Value>
+								<MultiBinding
+									Converter="{x:Static virtualCanvas:ArithmeticConverter.Default}"
+									ConverterParameter="*">
+									<Binding Path="Height" />
+									<Binding
+										Path="Scale"
+										RelativeSource="{RelativeSource	AncestorType=virtualCanvas:ZoomableCanvas}" />
+								</MultiBinding>
+							</Setter.Value>
+						</Setter>
 
-							<Setter Property="VerticalContentAlignment" Value="Stretch"/>
-							<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-							<Setter Property="Padding" Value="0"/>
-							<Setter Property="Background" Value="Transparent"/>
+						<Setter Property="VerticalContentAlignment" Value="Stretch" />
+						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+						<Setter Property="Padding" Value="0" />
+						<Setter Property="Background" Value="Transparent" />
 
-							<Style.Triggers>
+						<Style.Triggers>
 
-								<!-- Branch line -->
-								<DataTrigger Binding="{Binding Type}" Value="BranchViewModel">
-									<Setter Property="IsEnabled" Value="true"/>
-									<Setter Property="Focusable" Value="False"/>
-									<Setter Property="Background" Value="Transparent"/>
-									
+							<!-- Branch line -->
+							<DataTrigger Binding="{Binding Type}" Value="BranchViewModel">
+								<Setter Property="IsEnabled" Value="true" />
+								<Setter Property="Focusable" Value="False" />
+								<Setter Property="Background" Value="Transparent" />
+
 								<Setter Property="ContentTemplate">
-										<Setter.Value>
-											<DataTemplate>
-												<Grid
-													Background="Transparent">
-													<Path 
-														Data="{Binding Line}"
-														Stroke="{Binding Brush}"
-														StrokeThickness="{Binding StrokeThickness}"
-														SnapsToDevicePixels="True">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid
+												Background="Transparent">
+												<Path
+													Data="{Binding Line}"
+													Stroke="{Binding Brush}"
+													StrokeThickness="{Binding StrokeThickness}"
+													SnapsToDevicePixels="True">
 													<Path.Effect>
-														<DropShadowEffect x:Name="myDropShadowEffect" 
-															Color="{Binding DimColor}" 
-															ShadowDepth="0" 
-															Direction="0" 
-															BlurRadius="15"  />
+														<DropShadowEffect
+															x:Name="myDropShadowEffect"
+															Color="{Binding DimColor}"
+															ShadowDepth="0"
+															Direction="0"
+															BlurRadius="15" />
 													</Path.Effect>
 												</Path>
 
 												<Grid.ToolTip>
-													<ToolTip 
-																Content="{Binding BranchToolTip}"
-																Placement="Mouse"
-																BorderBrush="{Binding Brush}"													
-																BorderThickness="2" />
-													</Grid.ToolTip>
+													<ToolTip
+														Content="{Binding BranchToolTip}"
+														Placement="Mouse"
+														BorderBrush="{Binding Brush}"
+														BorderThickness="2" />
+												</Grid.ToolTip>
 
-													<!-- Branch line context menu -->
-													<Grid.ContextMenu>
-														<ContextMenu>
+												<!-- Branch line context menu -->
+												<Grid.ContextMenu>
+													<ContextMenu>
 
 														<!-- Switch to this branch -->
-														<MenuItem 
-															Header="{Binding SwitchBranchText}"										
+														<MenuItem
+															Header="{Binding SwitchBranchText}"
 															Command="{Binding SwitchBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
-																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;" />
 																</Border>
 															</MenuItem.Icon>
 														</MenuItem>
 
-														<Separator Background="{StaticResource BorderBrush}"/>
-															
+														<Separator Background="{StaticResource BorderBrush}" />
+
 														<!-- Create Branch -->
-														<MenuItem 
-															Header="Create new branch ..."										
+														<MenuItem
+															Header="Create new branch ..."
 															Command="{Binding CreateBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
-																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;"/>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;" />
 																</Border>
 															</MenuItem.Icon>
 														</MenuItem>
 
 														<!-- Publish branch -->
-														<MenuItem 
+														<MenuItem
 															Header="Publish branch"
 															Visibility="{Binding CanPublish, Converter={StaticResource VC}}"
 															Command="{Binding PublishBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
-																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE25A;"/>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE25A;" />
 																</Border>
 															</MenuItem.Icon>
 														</MenuItem>
-															
-														<MenuItem 
+
+														<MenuItem
 															Header="Push branch"
 															InputGestureText="Ctrl-Up"
 															Visibility="{Binding CanPush, Converter={StaticResource VC}}"
 															Command="{Binding PushBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
-																	<TextBlock 
-																		Style="{StaticResource MenuIconStyle}" 
+																	<TextBlock
+																		Style="{StaticResource MenuIconStyle}"
 																		Text="&#xE25A;"
-																		Foreground="{StaticResource LocalAheadBrush}"/>
+																		Foreground="{StaticResource LocalAheadBrush}" />
 																</Border>
 															</MenuItem.Icon>
 														</MenuItem>
-															
-														<MenuItem 
+
+														<MenuItem
 															Header="Update branch"
 															InputGestureText="Ctrl-Down"
 															Visibility="{Binding CanUpdate, Converter={StaticResource VC}}"
@@ -232,61 +234,61 @@
 																	<TextBlock
 																		Style="{StaticResource MenuIconStyle}"
 																		Text="&#xE258;"
-																		Foreground="{StaticResource RemoteAheadBrush}"/>
+																		Foreground="{StaticResource RemoteAheadBrush}" />
 																</Border>
 															</MenuItem.Icon>
 														</MenuItem>
 
 														<!-- Merge to other branch -->
-														<MenuItem 
+														<MenuItem
 															Header="{Binding MergeToBranchText}"
 															IsEnabled="{Binding IsMergeable}"
 															Command="{Binding MergeBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
-																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B3;"/>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B3;" />
 																</Border>
 															</MenuItem.Icon>
 														</MenuItem>
 
-														<Separator Background="{StaticResource BorderBrush}"/>
-															
+														<Separator Background="{StaticResource BorderBrush}" />
+
 														<!-- Show child branch meu item -->
-														<MenuItem 
-																Header="Show child branch"
-																IsEnabled="{Binding HasChildren}"
-																ItemsSource="{Binding ChildBranches}">
+														<MenuItem
+															Header="Show child branch"
+															IsEnabled="{Binding HasChildren}"
+															ItemsSource="{Binding ChildBranches}">
 															<MenuItem.Icon>
 																<Border>
-																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;"/>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE3CD;" />
 																</Border>
 															</MenuItem.Icon>
 															<MenuItem.Resources>
-																<HierarchicalDataTemplate 
+																<HierarchicalDataTemplate
 																	DataType="{x:Type local:BranchItem}"
 																	ItemsSource="{Binding Children}">
-																	<MenuItem 
-																		Header="{Binding Text}" 
+																	<MenuItem
+																		Header="{Binding Text}"
 																		Command="{Binding BranchCommand}"
-																		CommandParameter="{Binding Branch}"/>
+																		CommandParameter="{Binding Branch}" />
 																</HierarchicalDataTemplate>
 															</MenuItem.Resources>
 														</MenuItem>
-															
-														<Separator Background="{StaticResource BorderBrush}"/>
+
+														<Separator Background="{StaticResource BorderBrush}" />
 
 														<!-- Delete branch -->
-														<MenuItem 
+														<MenuItem
 															Header="Delete branch ..."
 															Command="{Binding DeleteBranchCommand}">
 															<MenuItem.Icon>
 																<Border>
-																	<TextBlock 
-																		Style="{StaticResource MenuIconStyle}" 
+																	<TextBlock
+																		Style="{StaticResource MenuIconStyle}"
 																		FontSize="14"
 																		Margin="9,0,7,0"
 																		Foreground="{StaticResource UndoBrush}"
-																		Text="&#xE14E;"/>
+																		Text="&#xE14E;" />
 																</Border>
 															</MenuItem.Icon>
 														</MenuItem>
@@ -294,141 +296,141 @@
 													</ContextMenu>
 												</Grid.ContextMenu>
 											</Grid>
-											</DataTemplate>
-										</Setter.Value>
-									</Setter>
-								</DataTrigger>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+							</DataTrigger>
 
 
-								<!-- Merge line -->
-								<DataTrigger Binding="{Binding Type}" Value="MergeViewModel">
-									<Setter Property="IsEnabled" Value="false"/>
-									<Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
-									<Setter Property="ContentTemplate">
-										<Setter.Value>
-											<DataTemplate>
-												<Grid>
-													<Path 
+							<!-- Merge line -->
+							<DataTrigger Binding="{Binding Type}" Value="MergeViewModel">
+								<Setter Property="IsEnabled" Value="false" />
+								<Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid>
+												<Path
 													Data="{Binding Line}"
 													Stroke="{Binding Brush}"
 													StrokeThickness="{Binding Stroke}"
-													StrokeDashArray="{Binding StrokeDash}"/>
-												</Grid>
-											</DataTemplate>
-										</Setter.Value>
-									</Setter>
-								</DataTrigger>
+													StrokeDashArray="{Binding StrokeDash}" />
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+							</DataTrigger>
 
-								<!-- Commit row -->
+							<!-- Commit row -->
 							<DataTrigger Binding="{Binding Type}" Value="CommitViewModel">
-									<Setter Property="ContentTemplate">
-										<Setter.Value>
-											<DataTemplate>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
 
 											<Grid>
-													<Grid.ColumnDefinitions>
-														<ColumnDefinition Width="{Binding GraphWidth}"/>
-														<ColumnDefinition Width="*"/>
-													</Grid.ColumnDefinitions>
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="{Binding GraphWidth}" />
+													<ColumnDefinition Width="*" />
+												</Grid.ColumnDefinitions>
 
 
-													<!-- Commit branch point -->
+												<!-- Commit branch point -->
 												<Canvas
-													Grid.Column="0" 
+													Grid.Column="0"
 													IsHitTestVisible="False">
-														<Button 	
-															Canvas.Left="{Binding XPoint}"
-															Canvas.Top="{Binding YPoint}">
-															<Button.Template>
-																<ControlTemplate>
-																	<Ellipse 					
-																		Width="{Binding Size}"
-																		Height="{Binding Size}"
-																		Fill="{Binding BrushInner}"
-																		Stroke="{Binding Brush}"
-																		StrokeThickness="2">
+													<Button
+														Canvas.Left="{Binding XPoint}"
+														Canvas.Top="{Binding YPoint}">
+														<Button.Template>
+															<ControlTemplate>
+																<Ellipse
+																	Width="{Binding Size}"
+																	Height="{Binding Size}"
+																	Fill="{Binding BrushInner}"
+																	Stroke="{Binding Brush}"
+																	StrokeThickness="2">
 																	<Ellipse.ToolTip>
-																		<ToolTip 
+																		<ToolTip
 																			Content="{Binding BranchToolTip}"
 																			Placement="Mouse"
-																			BorderBrush="{Binding Brush}"													
-																			BorderThickness="2" />	
+																			BorderBrush="{Binding Brush}"
+																			BorderThickness="2" />
 																	</Ellipse.ToolTip>
 																</Ellipse>
-																</ControlTemplate>
-															</Button.Template>
-														</Button>
-													</Canvas>
+															</ControlTemplate>
+														</Button.Template>
+													</Button>
+												</Canvas>
 
-													<Grid Grid.Column="1" Background="Transparent">
-														<Grid.ColumnDefinitions>
-															<!-- Margin and current commit indicator -->
-															<ColumnDefinition Width="15" />
-															<!-- Subject -->
-															<ColumnDefinition Width="*" />
-															<!-- Author -->
-															<ColumnDefinition Width="130" SharedSizeGroup="FirstColumn"/>
-															<!-- Date -->
-															<ColumnDefinition Width="105" SharedSizeGroup="SecondColumn"/>
-														</Grid.ColumnDefinitions>
+												<Grid Grid.Column="1" Background="Transparent">
+													<Grid.ColumnDefinitions>
+														<!-- Margin and current commit indicator -->
+														<ColumnDefinition Width="15" />
+														<!-- Subject -->
+														<ColumnDefinition Width="*" />
+														<!-- Author -->
+														<ColumnDefinition Width="130" SharedSizeGroup="FirstColumn" />
+														<!-- Date -->
+														<ColumnDefinition Width="105" SharedSizeGroup="SecondColumn" />
+													</Grid.ColumnDefinitions>
 
-														<Grid.ContextMenu>
-															<ContextMenu>
-																<MenuItem 
-																	Header="Toggle commit details" 
-																	InputGestureText="Enter"
-																	Command="{Binding ToggleDetailsCommand}">
-																	<MenuItem.Icon>
-																		<Border>
-																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;"/>
-																		</Border>
-																	</MenuItem.Icon>
-																</MenuItem>
-																
-																<MenuItem 
-																	Header="Show commit diff ..." 
-																	InputGestureText="Ctrl-D"
-																	Command="{Binding ShowCommitDiffCommand}">
-																	<MenuItem.Icon>
-																		<Border>
-																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;"/>
-																		</Border>
-																	</MenuItem.Icon>
-																</MenuItem>
+													<Grid.ContextMenu>
+														<ContextMenu>
+															<MenuItem
+																Header="Toggle commit details"
+																InputGestureText="Enter"
+																Command="{Binding ToggleDetailsCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE048;" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+
+															<MenuItem
+																Header="Show commit diff ..."
+																InputGestureText="Ctrl-D"
+																Command="{Binding ShowCommitDiffCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
 
 															<MenuItem Header="Undo" Visibility="{Binding IsUncommitted, Converter={StaticResource VC}}">
 																<MenuItem.Icon>
 																	<Border>
-																		<TextBlock 
-																			Style="{StaticResource MenuIconStyle}" 
+																		<TextBlock
+																			Style="{StaticResource MenuIconStyle}"
 																			Text="&#xE166;"
-																			Foreground="{StaticResource UndoBrush}"/>
+																			Foreground="{StaticResource UndoBrush}" />
 																	</Border>
 																</MenuItem.Icon>
-																
-																<MenuItem 
-																	Header="Undo changes" 
+
+																<MenuItem
+																	Header="Undo changes"
 																	Command="{Binding UndoUncommittedChangesCommand}">
 																	<MenuItem.Icon>
 																		<Border>
-																			<TextBlock 
-																				Style="{StaticResource MenuIconStyle}" 
+																			<TextBlock
+																				Style="{StaticResource MenuIconStyle}"
 																				Text="&#xE166;"
-																				Foreground="{StaticResource UndoBrush}"/>
+																				Foreground="{StaticResource UndoBrush}" />
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
 
 
-																<MenuItem 
-																	Header="Undo changes and clean ignored files" 
+																<MenuItem
+																	Header="Undo changes and clean ignored files"
 																	Command="{Binding UndoCleanWorkingFolderCommand}">
 																	<MenuItem.Icon>
 																		<Border>
-																			<TextBlock 
-																				Style="{StaticResource MenuIconStyle}" 
+																			<TextBlock
+																				Style="{StaticResource MenuIconStyle}"
 																				Text="&#xE166;"
-																				Foreground="{StaticResource UndoBrush}"/>
+																				Foreground="{StaticResource UndoBrush}" />
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
@@ -438,26 +440,26 @@
 															<MenuItem Header="Switch">
 																<MenuItem.Icon>
 																	<Border>
-																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;" />
 																	</Border>
 																</MenuItem.Icon>
-																
-																<MenuItem 
-																	Header="{Binding SwitchToBranchText}" 
+
+																<MenuItem
+																	Header="{Binding SwitchToBranchText}"
 																	Command="{Binding SwitchToBranchCommand}">
 																	<MenuItem.Icon>
 																		<Border>
-																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;"/>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE044;" />
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
 
-																<MenuItem 
-																	Header="Switch to this commit" 
+																<MenuItem
+																	Header="Switch to this commit"
 																	Command="{Binding SwitchToCommitCommand}">
 																	<MenuItem.Icon>
 																		<Border>
-																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE31C;"/>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE31C;" />
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
@@ -466,119 +468,119 @@
 															<MenuItem Header="Branch">
 																<MenuItem.Icon>
 																	<Border>
-																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;"/>
+																		<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;" />
 																	</Border>
 																</MenuItem.Icon>
-																<MenuItem 
-																	Header="Create branch from this commit ..." 
+																<MenuItem
+																	Header="Create branch from this commit ..."
 																	Command="{Binding CreateBranchFromCommitCommand}">
 																	<MenuItem.Icon>
 																		<Border>
-																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;"/>
+																			<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE0B6;" />
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
 															</MenuItem>
 
 														</ContextMenu>
-														</Grid.ContextMenu>
+													</Grid.ContextMenu>
 
-														<!-- Current commit indicator (and margin when not current) .-->
-														<Ellipse
-															Grid.Column="0"
-															Margin="0,1,3,0"
-															Visibility="{Binding IsCurrent, Converter={StaticResource VC}}"
-															Width="6"
-															Height="6"
-															Fill="{StaticResource CurrentCommitIndicatorBrush}"/>
+													<!-- Current commit indicator (and margin when not current) .-->
+													<Ellipse
+														Grid.Column="0"
+														Margin="0,1,3,0"
+														Visibility="{Binding IsCurrent, Converter={StaticResource VC}}"
+														Width="6"
+														Height="6"
+														Fill="{StaticResource CurrentCommitIndicatorBrush}" />
 
-														<!-- Commit Subject column -->
-														<StackPanel 
-															Grid.Column="1"
-															Orientation="Horizontal">
+													<!-- Commit Subject column -->
+													<StackPanel
+														Grid.Column="1"
+														Orientation="Horizontal">
 
-															<!-- Branch tips -->
-															<TextBlock 
-																Text="{Binding BranchTips}"
-																Foreground="{Binding BranchTipBrush}"
-																HorizontalAlignment="Left"
-																VerticalAlignment="Center"
-																ToolTip="Tip of branch to same commit as parent branch"/>
-
-															<!-- Tag -->
-															<TextBlock 
-																Text="{Binding Tags}"
-																Foreground="{Binding TagBrush}"
-																HorizontalAlignment="Left"
-																VerticalAlignment="Center"/>
-
-															<!-- Tickets -->
-															<TextBlock 
-																Text="{Binding Tickets}"
-																Foreground="{Binding TicketBrush}"
-																HorizontalAlignment="Left"
-																VerticalAlignment="Center"/>
-
-															<!-- Subject -->
-															<TextBlock 
-																Text="{Binding Subject}"
-																Visibility="{Binding IsShown, Converter={StaticResource VC}}"
-																Foreground="{Binding SubjectBrush}"
-																FontSize="12"
-																FontStyle="{Binding SubjectStyle}"
-																HorizontalAlignment="Left"
-																VerticalAlignment="Center"/>
-														</StackPanel>
-
-														<!-- Author column -->
-														<TextBlock 
-															Grid.Column="2"
-															Margin="5,0"
-															Text="{Binding Author}"
-															Foreground="{Binding SubjectBrush}"
+														<!-- Branch tips -->
+														<TextBlock
+															Text="{Binding BranchTips}"
+															Foreground="{Binding BranchTipBrush}"
 															HorizontalAlignment="Left"
-															VerticalAlignment="Center"/>
+															VerticalAlignment="Center"
+															ToolTip="Tip of branch to same commit as parent branch" />
 
-														<!-- Date column -->
-														<TextBlock 
-															Grid.Column="3"
-															Margin="5,0"
-															Text="{Binding Date}"
-															Foreground="{Binding SubjectBrush}"
+														<!-- Tag -->
+														<TextBlock
+															Text="{Binding Tags}"
+															Foreground="{Binding TagBrush}"
 															HorizontalAlignment="Left"
-															VerticalAlignment="Center"/>
+															VerticalAlignment="Center" />
 
-													</Grid>
+														<!-- Tickets -->
+														<TextBlock
+															Text="{Binding Tickets}"
+															Foreground="{Binding TicketBrush}"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center" />
+
+														<!-- Subject -->
+														<TextBlock
+															Text="{Binding Subject}"
+															Visibility="{Binding IsShown, Converter={StaticResource VC}}"
+															Foreground="{Binding SubjectBrush}"
+															FontSize="12"
+															FontStyle="{Binding SubjectStyle}"
+															HorizontalAlignment="Left"
+															VerticalAlignment="Center" />
+													</StackPanel>
+
+													<!-- Author column -->
+													<TextBlock
+														Grid.Column="2"
+														Margin="5,0"
+														Text="{Binding Author}"
+														Foreground="{Binding SubjectBrush}"
+														HorizontalAlignment="Left"
+														VerticalAlignment="Center" />
+
+													<!-- Date column -->
+													<TextBlock
+														Grid.Column="3"
+														Margin="5,0"
+														Text="{Binding Date}"
+														Foreground="{Binding SubjectBrush}"
+														HorizontalAlignment="Left"
+														VerticalAlignment="Center" />
+
 												</Grid>
-											</DataTemplate>
-										</Setter.Value>
-									</Setter>
-								</DataTrigger>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+							</DataTrigger>
 
-							</Style.Triggers>
+						</Style.Triggers>
 
-						</Style>
+					</Style>
 
-					</ListBox.ItemContainerStyle>
+				</ListBox.ItemContainerStyle>
 
-				</ListBox>
+			</ListBox>
 
 
 		</Border>
 
 		<ui:HideableGridSplitter
-				Grid.Row="1"		
-				Visibility="{Binding IsShowCommitDetails, Converter={StaticResource VC}}"
-				Background="{StaticResource BorderBrush}"
-				HorizontalAlignment="Stretch"
-				VerticalAlignment="Center"
-				Height="2"/>
+			Grid.Row="1"
+			Visibility="{Binding IsShowCommitDetails, Converter={StaticResource VC}}"
+			Background="{StaticResource BorderBrush}"
+			HorizontalAlignment="Stretch"
+			VerticalAlignment="Center"
+			Height="2" />
 
 		<!-- Commit details -->
 		<local:CommitDetailsView
-				Grid.Row="2"
-				DataContext="{Binding CommitDetailsViewModel}"/>
+			Grid.Row="2"
+			DataContext="{Binding CommitDetailsViewModel}" />
 
 	</Grid>
-		
+
 </UserControl>
