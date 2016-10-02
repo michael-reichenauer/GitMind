@@ -159,8 +159,8 @@
 													</Path.Effect>
 												</Path>
 
-													<Grid.ToolTip>
-														<ToolTip 
+												<Grid.ToolTip>
+													<ToolTip 
 																Content="{Binding BranchToolTip}"
 																Placement="Mouse"
 																BorderBrush="{Binding Brush}"													
@@ -333,7 +333,9 @@
 
 
 													<!-- Commit branch point -->
-													<Canvas Grid.Column="0">
+												<Canvas
+													Grid.Column="0" 
+													IsHitTestVisible="False">
 														<Button 	
 															Canvas.Left="{Binding XPoint}"
 															Canvas.Top="{Binding YPoint}">
