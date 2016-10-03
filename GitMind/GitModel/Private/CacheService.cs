@@ -26,15 +26,15 @@ namespace GitMind.GitModel.Private
 
 		public async Task<MRepository> TryGetRepositoryAsync(string gitRepositoryPath)
 		{
-			//await Task.Yield();
-			//return null;
-			MRepository repository = await TryReadRepositoryAsync(gitRepositoryPath);
-			if (repository != null)
-			{
-				repository.CommitsFiles = new CommitsFiles();
-			}
+			await Task.Yield();
+			return null;
+			//MRepository repository = await TryReadRepositoryAsync(gitRepositoryPath);
+			//if (repository != null)
+			//{
+			//	repository.CommitsFiles = new CommitsFiles();
+			//}
 
-			return repository;
+			//return repository;
 		}
 
 

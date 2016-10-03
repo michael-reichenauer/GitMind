@@ -29,6 +29,10 @@ namespace GitMind.GitModel.Private
 
 		public string LocalTipCommitId { get; set; }
 		public string RemoteTipCommitId { get; set; }
+		public bool IsLocalSubBranch { get; set; }
+		public bool IsMainBranch { get; set; }
+		public string LocalSubBranchId { get; set; }
+		//public string CommonTipId { get; set; }
 
 		public MRepository Repository { get; set; }
 
@@ -39,6 +43,8 @@ namespace GitMind.GitModel.Private
 		public MCommit TipCommit => Repository.Commits[TipCommitId];
 		public MCommit ParentCommit => Repository.Commits[ParentCommitId];
 		public MBranch ParentBranch => Repository.Branches[ParentBranchId];
+
+
 
 		public override string ToString() => $"{Name}";
 	}
