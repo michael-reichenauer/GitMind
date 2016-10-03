@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using GitMind.Utils;
 
 
 namespace GitMind.Git.Private
@@ -16,6 +17,6 @@ namespace GitMind.Git.Private
 			string workingFolder, string rootId, ICredentialHandler credentialHandler);
 
 
-		Task FetchAllNotesAsync(string workingFolder);
+		Task<R> FetchAllNotesAsync(string workingFolder);
 	}
 }

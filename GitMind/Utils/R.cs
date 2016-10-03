@@ -23,6 +23,16 @@ namespace GitMind.Utils
 
 		public static implicit operator R(Error error) => new R(error);
 		public static implicit operator R(Exception e) => new R(Error.From(e));
+
+		public override string ToString()
+		{
+			if (IsFaulted)
+			{
+				return $"Error: {Error}";
+			}
+
+			return "OK";
+		}
 	}
 
 

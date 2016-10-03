@@ -113,15 +113,17 @@
     <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\BranchName.cs" />
     <Compile Include="Git\GitDivergence.cs" />
+    <Compile Include="Git\INetworkService.cs" />
+    <Compile Include="Git\NetworkService.cs" />
     <Compile Include="Git\Private\GitDiffService.cs" />
     <Compile Include="Git\IGitDiffService.cs" />
     <Compile Include="Git\Private\GitNetworkService.cs" />
     <Compile Include="Git\IGitNetworkService.cs" />
-    <Compile Include="Features\Branching\Private\GitBranchesService.cs" />
+    <Compile Include="Features\Branching\Private\GitBranchService.cs" />
     <Compile Include="Git\Private\GitInfoService.cs" />
     <Compile Include="Git\IGitInfoService.cs" />
     <Compile Include="Git\Private\GitCommitBranchNameService.cs" />
-    <Compile Include="Features\Branching\Private\IGitBranchesService.cs" />
+    <Compile Include="Features\Branching\Private\IGitBranchService.cs" />
     <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
     <Compile Include="Git\Private\IRepoCaller.cs" />
     <Compile Include="Git\Private\RepoCaller.cs" />
@@ -169,7 +171,7 @@
     </Compile>
     <Compile Include="GitModel\CommitFile.cs" />
     <Compile Include="RepositoryViews\CommitViewModel.cs" />
-    <Compile Include="RepositoryViews\Converter.cs" />
+    <Compile Include="RepositoryViews\Converters.cs" />
     <Compile Include="RepositoryViews\DiffService.cs" />
     <Compile Include="RepositoryViews\IBrushService.cs" />
     <Compile Include="RepositoryViews\IDiffService.cs" />

@@ -10,18 +10,18 @@ namespace GitMind.GitModel.Private
 {
 	internal class AheadBehindService : IAheadBehindService
 	{
-		private readonly IGitBranchesService gitBranchesService;
+		private readonly IGitBranchService gitBranchService;
 
 
 		public AheadBehindService()
-			: this(new GitBranchesService())
+			: this(new GitBranchService())
 		{
 		}
 
 
-		public AheadBehindService(IGitBranchesService gitBranchesService)
+		public AheadBehindService(IGitBranchService gitBranchService)
 		{
-			this.gitBranchesService = gitBranchesService;
+			this.gitBranchService = gitBranchService;
 		}
 
 
@@ -38,7 +38,7 @@ namespace GitMind.GitModel.Private
 			localOnly.ForEach(b =>
 			{
 				b.LocalAheadCount = b.Commits.Count();
-				b.Commits.ForEach(c => c.IsLocalAhead = true);
+				b.Commits.Where(c => !c.IsVirtual).ForEach(c => c.IsLocalAhead = true);
 			});
 
 			localAndRemote.ForEach(b => b.IsLocalAndRemote = true);
@@ -68,7 +68,7 @@ namespace GitMind.GitModel.Private
 				}
 				else
 				{
-					R<GitDivergence> div = gitBranchesService.CheckAheadBehind(
+					R<GitDivergence> div = gitBranchService.CheckAheadBehind(
 						repository.WorkingFolder, localTip, remoteTip);
 
 					if (div.HasValue)

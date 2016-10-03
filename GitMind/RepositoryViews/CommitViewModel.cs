@@ -34,7 +34,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public int ZIndex => 0;
+		public int ZIndex => 400;
 		public string Type => nameof(CommitViewModel);
 		public string Id => Commit.Id;
 		public string ShortId => Commit.ShortId;
@@ -50,8 +50,9 @@ namespace GitMind.RepositoryViews
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.Id == Commit.UncommittedId;
 		public bool IsShown => BranchTips == null;
+		public string BranchToolTip { get; set; }
 
-		public int XPoint { get; set; }
+	public int XPoint { get; set; }
 		public int YPoint => IsMergePoint ? 2 : 4;
 		public int Size => IsMergePoint ? 10 : 6;
 		public Rect Rect { get; set; }

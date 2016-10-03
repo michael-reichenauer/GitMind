@@ -1,20 +1,29 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using GitMind.Utils;
 
 
 namespace GitMind.Git
 {
 	internal interface IGitNetworkService
 	{
-		Task FetchAsync(string workingFolder);
+		Task<R> FetchAsync(string workingFolder);
 
-		Task FetchBranchAsync(string workingFolder, BranchName branchName);
+		Task<R> FetchBranchAsync(string workingFolder, BranchName branchName);
 
-		Task PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler);
+		Task<R> FetchRefsAsync(string workingFolder, IEnumerable<string> refspecs);
 
-		Task PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler);
+		Task<R> PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler);
 
-		Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler);
+		Task<R> PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler);
 
-		Task FetchAllNotesAsync(string workingFolder);
+		Task<R> PushRefsAsync(
+			string workingFolder, IEnumerable<string> refspecs, ICredentialHandler credentialHandler);
+
+		Task<R> PublishBranchAsync(
+			string workingFolder, BranchName branchName, ICredentialHandler credentialHandler);
+
+		Task<R> DeleteRemoteBranchAsync(
+			string workingFolder, BranchName branchName, ICredentialHandler credentialHandler);
 	}
 }

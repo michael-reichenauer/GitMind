@@ -19,22 +19,22 @@ namespace GitMind.Features.Branching.Private
 	/// </summary>
 	internal class BranchService : IBranchService
 	{
-		private readonly IGitBranchesService gitBranchesService;
+		private readonly IGitBranchService gitBranchService;
 		private readonly IGitNetworkService gitNetworkService;
 		private readonly ICommitService commitService;
 
 
 		public BranchService()
-			: this(new GitBranchesService(), new GitNetworkService(),  new CommitService())
+			: this(new GitBranchService(), new GitNetworkService(),  new CommitService())
 		{
 		}
 
 		public BranchService(
-			IGitBranchesService gitBranchesService,
+			IGitBranchService gitBranchService,
 			IGitNetworkService gitNetworkService,
 			ICommitService commitService)
 		{
-			this.gitBranchesService = gitBranchesService;
+			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
 			this.commitService = commitService;
 		}
@@ -57,32 +57,40 @@ namespace GitMind.Features.Branching.Private
 
 				if (dialog.ShowDialog() == true)
 				{
+					BranchName branchName = dialog.BranchName;
 					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
+
 					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async progress =>
-					{
-						BranchName branchName = dialog.BranchName;
+					{					
 						string commitId = commit.Id;
-						if (commitId == Commit.UncommittedId)
+						if (commitId == Commit.UncommittedId || commit.IsVirtual)
 						{
 							commitId = commit.FirstParent.CommitId;
 						}
 
-						await gitBranchesService.CreateBranchAsync(workingFolder, branchName, commitId);
-						Log.Debug($"Created branch {branchName}, from {commit.Branch}");
-
-						if (dialog.IsPublish)
+						R result = await gitBranchService.CreateBranchAsync(workingFolder, branchName, commitId);
+						if (result.IsOk)
 						{
-							progress.SetText($"Publish branch {dialog.BranchName}...");
+							Log.Debug($"Created branch {branchName}, from {commit.Branch}");
 
-							R publish = await gitBranchesService.PublishBranchAsync(
-								workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
-							if (publish.IsFaulted)
+							if (dialog.IsPublish)
 							{
-								MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
-							}
-						}
+								progress.SetText($"Publish branch {dialog.BranchName}...");
 
-						repositoryCommands.ShowBranch(branchName);
+								R publish = await gitNetworkService.PublishBranchAsync(
+									workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
+								if (publish.IsFaulted)
+								{
+									MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
+								}
+							}
+
+							repositoryCommands.ShowBranch(branchName);
+						}
+						else
+						{
+							MessageDialog.ShowWarning(owner, $"Failed to create branch {branchName}\n{result}");
+						}
 
 						progress.SetText($"Updating status after create branch {branchName} ...");
 						await repositoryCommands.RefreshAfterCommandAsync(true);
@@ -103,7 +111,7 @@ namespace GitMind.Features.Branching.Private
 
 				Progress.ShowDialog(owner, $"Publish branch {branch.Name} ...", async progress =>
 				{
-					R publish = await gitBranchesService.PublishBranchAsync(
+					R publish = await gitNetworkService.PublishBranchAsync(
 						workingFolder, branch.Name, repositoryCommands.GetCredentialsHandler());
 
 					if (publish.IsFaulted)
@@ -150,7 +158,7 @@ namespace GitMind.Features.Branching.Private
 					{
 						Log.Debug("Update current branch");
 						await gitNetworkService.FetchAsync(workingFolder);
-						await gitBranchesService.MergeCurrentBranchAsync(workingFolder);
+						await gitBranchService.MergeCurrentBranchAsync(workingFolder);
 					}
 					else
 					{
@@ -174,7 +182,7 @@ namespace GitMind.Features.Branching.Private
 			{
 				Progress.ShowDialog(owner, $"Switch to branch {branch.Name} ...", async progress =>
 				{
-					await gitBranchesService.SwitchToBranchAsync(workingFolder, branch.Name);
+					await gitBranchService.SwitchToBranchAsync(workingFolder, branch.Name);
 
 					progress.SetText($"Updating status after switch to {branch.Name} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(true);
@@ -213,7 +221,7 @@ namespace GitMind.Features.Branching.Private
 				{
 					BranchName branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
 
-					R<BranchName> switchedNamed = await gitBranchesService.SwitchToCommitAsync(
+					R<BranchName> switchedNamed = await gitBranchService.SwitchToCommitAsync(
 						workingFolder, commit.CommitId, branchName);
 
 					if (switchedNamed.HasValue)
@@ -336,8 +344,19 @@ namespace GitMind.Features.Branching.Private
 				}
 			}
 
-			R deleted = await gitBranchesService.DeleteBranchAsync(
-				workingFolder, branch.Name, isRemote, repositoryCommands.GetCredentialsHandler());
+			R deleted;
+			if (isRemote)
+			{
+				CredentialHandler credentialsHandler = repositoryCommands.GetCredentialsHandler();
+
+				deleted = await gitNetworkService.DeleteRemoteBranchAsync(
+					workingFolder, branch.Name, credentialsHandler);
+			}
+			else
+			{
+				deleted = await gitBranchService.DeleteLocalBranchAsync(workingFolder, branch.Name);
+			}
+		
 
 			if (deleted.IsFaulted)
 			{
@@ -410,7 +429,7 @@ namespace GitMind.Features.Branching.Private
 				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...",
 					async progress =>
 				{
-					await gitBranchesService.MergeAsync(workingFolder, branch.Name);
+					await gitBranchService.MergeAsync(workingFolder, branch.Name);
 
 					repositoryCommands.SetCurrentMerging(branch);
 					progress.SetText(
@@ -424,7 +443,7 @@ namespace GitMind.Features.Branching.Private
 					return;
 				}
 
-				if (branch.Repository.Status.ConflictCount == 0)
+				if (repositoryCommands.Repository.Status.ConflictCount == 0)
 				{
 					await commitService.CommitChangesAsync(repositoryCommands);
 				}

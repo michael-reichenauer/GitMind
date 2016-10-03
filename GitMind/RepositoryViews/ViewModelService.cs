@@ -448,18 +448,18 @@ namespace GitMind.RepositoryViews
 				commitViewModel.BranchColumn = IndexOf(repositoryViewModel, commit.Branch);
 
 				commitViewModel.XPoint = commitViewModel.IsMergePoint
-					? 2 + Converter.ToX(commitViewModel.BranchColumn)
-					: 4 + Converter.ToX(commitViewModel.BranchColumn);
+					? 2 + Converters.ToX(commitViewModel.BranchColumn)
+					: 4 + Converters.ToX(commitViewModel.BranchColumn);
 
 				commitViewModel.GraphWidth = graphWidth;
 				commitViewModel.Width = repositoryViewModel.Width - 35;
 				commitViewModel.Rect = new Rect(
-					0, Converter.ToY(commitViewModel.RowIndex), commitViewModel.Width, Converter.ToY(1));
+					0, Converters.ToY(commitViewModel.RowIndex), commitViewModel.Width, Converters.ToY(1));
 
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
-
+				commitViewModel.BranchToolTip = GetBranchToolTip(commit.Branch);
 				if (!commit.HasFirstChild && !commit.HasSecondParent)
 				{
 					commitViewModel.BrushInner = brushService.GetDarkerBrush(commitViewModel.Brush);
@@ -499,7 +499,7 @@ namespace GitMind.RepositoryViews
 
 				branch.TipRowIndex = commits.FindIndex(c => c == sourceBranch.TipCommit);
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
-				int height = Converter.ToY(branch.FirstRowIndex - branch.TipRowIndex) + 8;
+				int height = Converters.ToY(branch.FirstRowIndex - branch.TipRowIndex) + 8;
 
 				branch.BranchColumn = FindBranchColumn(addedBranchColumns, branch);
 				addedBranchColumns.Add(branch);
@@ -510,8 +510,8 @@ namespace GitMind.RepositoryViews
 				
 
 				branch.Rect = new Rect(
-					(double)Converter.ToX(branch.BranchColumn) + 3,
-					(double)Converter.ToY(branch.TipRowIndex) + Converter.HalfRow - 6,
+					(double)Converters.ToX(branch.BranchColumn) + 3,
+					(double)Converters.ToY(branch.TipRowIndex) + Converters.HalfRow - 6,
 					10,
 					height + 4);
 
@@ -521,7 +521,7 @@ namespace GitMind.RepositoryViews
 				branch.HoverBrushNormal = branch.Brush;
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
 				branch.DimBrushHighlight = brushService.GetLighterLighterBrush(branch.Brush);
-				branch.BranchToolTip = GetBranchToolTip(branch);
+				branch.BranchToolTip = GetBranchToolTip(sourceBranch);
 				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name;
 
 				branch.SetNormal();
@@ -529,37 +529,37 @@ namespace GitMind.RepositoryViews
 				branch.NotifyAll();
 			}
 
-			repositoryViewModel.GraphWidth = Converter.ToX(maxColumn + 1);
+			repositoryViewModel.GraphWidth = Converters.ToX(maxColumn + 1);
 		}
 
 
-		private string GetBranchToolTip(BranchViewModel branch)
+		private string GetBranchToolTip(Branch branch)
 		{
-			string name = branch.Branch.IsMultiBranch ? "MultiBranch" : branch.Branch.ToString();
+			string name = branch.IsMultiBranch ? "MultiBranch" : branch.ToString();
 			string toolTip = $"Branch: {name}";
 
-			if (branch.Branch.LocalAheadCount > 0)
+			if (branch.LocalAheadCount > 0)
 			{
-				toolTip += $"\nLocal branch ahead: {branch.Branch.LocalAheadCount}";
+				toolTip += $"\nLocal branch ahead: {branch.LocalAheadCount}";
 			}
-			else if (branch.Branch.IsLocal)
+			else if (branch.IsLocal)
 			{
 				toolTip += "\nLocal branch";
 			}
 
-			if (branch.Branch.RemoteAheadCount > 0)
+			if (branch.RemoteAheadCount > 0)
 			{
-				toolTip += $"\nRemote branch ahead: {branch.Branch.RemoteAheadCount}";
+				toolTip += $"\nRemote branch ahead: {branch.RemoteAheadCount}";
 			}
-			else if (branch.Branch.IsRemote)
+			else if (branch.IsRemote)
 			{
 				toolTip += "\nRemote branch";
 			}
 
-			if (branch.Branch.ChildBranchNames.Count > 1)
+			if (branch.ChildBranchNames.Count > 1)
 			{
 				toolTip += $"\n\nBranch could be one of:";
-				foreach (BranchName branchName in branch.Branch.ChildBranchNames)
+				foreach (BranchName branchName in branch.ChildBranchNames)
 				{
 					toolTip += $"\n   {branchName}";
 				}
@@ -696,13 +696,13 @@ namespace GitMind.RepositoryViews
 
 			BranchViewModel mainBranch = childColumn >= parentColumn ? childBranch : parentBranch;
 
-			int childX = Converter.ToX(childColumn);
-			int parentX = Converter.ToX(parentColumn);
+			int childX = Converters.ToX(childColumn);
+			int parentX = Converters.ToX(parentColumn);
 
 			int x1 = childX <= parentX ? 0 : childX - parentX - 6;
 			int y1 = 0;
 			int x2 = parentX <= childX ? 0 : parentX - childX - 6;
-			int y2 = Converter.ToY(parentRow - childRow) + Converter.HalfRow - 8;
+			int y2 = Converters.ToY(parentRow - childRow) + Converters.HalfRow - 8;
 
 			if (isBranchStart && x1 != x2)
 			{
@@ -713,11 +713,11 @@ namespace GitMind.RepositoryViews
 			merge.ChildRow = childRow;
 			merge.ParentRow = parentRow;
 
-			double y = (double)Converter.ToY(childRow);
+			double y = (double)Converters.ToY(childRow);
 
 			merge.Rect = new Rect(
 				(double)Math.Min(childX, parentX) + 10,
-				y + Converter.HalfRow,
+				y + Converters.HalfRow,
 				Math.Abs(childX - parentX) + 2 + (x1 == x2 ? 2 : 0),
 				y2 + 2);
 			merge.Width = merge.Rect.Width;
