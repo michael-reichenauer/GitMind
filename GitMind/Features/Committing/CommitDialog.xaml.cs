@@ -30,6 +30,7 @@ namespace GitMind.Features.Committing
 			Owner = owner;
 			InitializeComponent();
 			viewModel = new CommitDialogViewModel(
+				this,
 				repositoryCommands,
 				branchName,
 				workingFolder,

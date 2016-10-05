@@ -437,11 +437,11 @@ namespace GitMind.Features.Branching.Private
 					await repositoryCommands.RefreshAfterCommandAsync(false);
 				});
 
-				if (repositoryCommands.Repository.Status.StatusCount == 0)
-				{
-					MessageDialog.ShowInfo(owner, "No changes in this merge, nothing to merge.");
-					return;
-				}
+				//if (repositoryCommands.Repository.Status.StatusCount == 0)
+				//{
+				//	MessageDialog.ShowInfo(owner, "No changes in this merge, nothing to merge.");
+				//	return;
+				//}
 
 				if (repositoryCommands.Repository.Status.ConflictCount == 0)
 				{
