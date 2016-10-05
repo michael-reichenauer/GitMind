@@ -227,7 +227,7 @@ namespace GitMind.GitModel.Private
 					commonCommit.CommitAndFirstAncestors().ForEach(c => c.IsCommon = true);
 
 					if ((commonTip != localTip && commonTip != remoteTip)
-						|| branch.LocalTipCommitId == Commit.UncommittedId && commonTip != remoteTip)
+						|| (branch.LocalTipCommitId == Commit.UncommittedId && commonTip != remoteTip))
 					{
 						MakeLocalBranch(repository, branch, localTip, commonTip);
 					}
@@ -249,7 +249,7 @@ namespace GitMind.GitModel.Private
 							}
 						}
 
-						branch.LocalAheadCount = Math.Max(1, localCount);
+						branch.LocalAheadCount = localCount;
 					}
 
 					if (branch.IsRemote)
@@ -269,7 +269,7 @@ namespace GitMind.GitModel.Private
 							}
 						}
 
-						branch.RemoteAheadCount = Math.Max(1, remoteCount);
+						branch.RemoteAheadCount = remoteCount;
 					}
 				}
 			}
