@@ -27,6 +27,8 @@ namespace GitMind.GitModel
 			bool isActive,
 			bool isLocal,
 			bool isRemote,
+			bool isMainPart,
+			bool isLocalPart,
 			bool isMultiBranch,
 			bool isDetached,
 			int localAheadCount,
@@ -44,6 +46,8 @@ namespace GitMind.GitModel
 			IsActive = isActive;
 			IsLocal = isLocal;
 			IsRemote = isRemote;
+			IsMainPart = isMainPart;
+			IsLocalPart = isLocalPart;
 			IsMultiBranch = isMultiBranch;
 			LocalAheadCount = localAheadCount;
 			RemoteAheadCount = remoteAheadCount;
@@ -57,6 +61,8 @@ namespace GitMind.GitModel
 		public bool IsActive { get; }
 		public bool IsLocal { get; }
 		public bool IsRemote { get; }
+		public bool IsMainPart { get; }
+		public bool IsLocalPart { get; }
 		public bool IsMultiBranch { get; }
 		public int LocalAheadCount { get; }
 		public int RemoteAheadCount { get; }

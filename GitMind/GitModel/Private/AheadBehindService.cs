@@ -27,11 +27,11 @@
 //		public void SetAheadBehind(MRepository repository)
 //		{
 //			IEnumerable<MBranch> localAndRemote = repository.Branches.Values
-//				.Where(b => b.IsActive && ((b.IsLocal && b.IsRemote) || b.IsMainBranch || b.IsLocalSubBranch))
+//				.Where(b => b.IsActive && ((b.IsLocal && b.IsRemote) || b.IsMainBranch || b.IsLocalPart))
 //				.ToList();
 
 //			//IEnumerable<MBranch> localOnly = repository.Branches.Values
-//			//	.Where(b => b.IsActive && b.IsLocal && !b.IsRemote && !b.IsLocalSubBranch)
+//			//	.Where(b => b.IsActive && b.IsLocal && !b.IsRemote && !b.IsLocalPart)
 //			//	.ToList();
 
 //			//localOnly.ForEach(b =>

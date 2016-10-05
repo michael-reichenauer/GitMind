@@ -182,7 +182,7 @@ namespace GitMind.GitModel.Private
 			}
 
 
-			foreach (MBranch branch in repository.Branches.Values.Where(b => !b.Commits.Any()))
+			foreach (MBranch branch in repository.Branches.Values.Where(b => !b.Commits.Any() && !b.IsLocalPart))
 			{
 				MCommit commit = new MCommit();
 				commit.IsVirtual = true;
@@ -302,7 +302,7 @@ namespace GitMind.GitModel.Private
 			{
 				localBranch = new MBranch
 				{
-					IsLocalSubBranch = true,
+					IsLocalPart = true,
 					Repository = branch.Repository,
 					Name = name,
 					IsMultiBranch = false,
@@ -348,7 +348,7 @@ namespace GitMind.GitModel.Private
 
 			localBranch.FirstCommitId = localBranch.Commits.Last().Id;
 
-			branch.IsMainBranch = true;
+			branch.IsMainPart = true;
 			branch.LocalSubBranchId = localBranch.Id;
 			if (branch.IsCurrent)
 			{

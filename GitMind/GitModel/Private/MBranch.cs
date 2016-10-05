@@ -29,8 +29,8 @@ namespace GitMind.GitModel.Private
 
 		public string LocalTipCommitId { get; set; }
 		public string RemoteTipCommitId { get; set; }
-		public bool IsLocalSubBranch { get; set; }
-		public bool IsMainBranch { get; set; }
+		public bool IsLocalPart { get; set; }
+		public bool IsMainPart { get; set; }
 		public string LocalSubBranchId { get; set; }
 		//public string CommonTipId { get; set; }
 

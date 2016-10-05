@@ -20,6 +20,8 @@ namespace GitMind.GitModel.Private
 				branch.IsActive,
 				branch.IsLocal,
 				branch.IsRemote,
+				branch.IsMainPart,
+				branch.IsLocalPart,
 				branch.IsMultiBranch,
 				branch.IsDetached,
 				branch.LocalAheadCount,
