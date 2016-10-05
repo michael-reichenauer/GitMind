@@ -226,7 +226,8 @@ namespace GitMind.GitModel.Private
 					MCommit commonCommit = repository.Commits[commonTip];
 					commonCommit.CommitAndFirstAncestors().ForEach(c => c.IsCommon = true);
 
-					if (commonTip != localTip && commonTip != remoteTip)
+					if ((commonTip != localTip && commonTip != remoteTip)
+						|| branch.LocalTipCommitId == Commit.UncommittedId && commonTip != remoteTip)
 					{
 						MakeLocalBranch(repository, branch, localTip, commonTip);
 					}
@@ -313,6 +314,7 @@ namespace GitMind.GitModel.Private
 				localBranch.Id = branchId;
 				repository.Branches[localBranch.Id] = localBranch;
 			}
+
 			localBranch.TipCommitId = localTip;
 			localBranch.LocalTipCommitId = localTip;
 			localBranch.IsCurrent = branch.IsCurrent;
@@ -344,6 +346,7 @@ namespace GitMind.GitModel.Private
 			{
 				branch.IsCurrent = false;
 			}
+
 			branch.IsLocal = false;
 
 			if (branch.TipCommitId == Commit.UncommittedId)
