@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using GitMind.Common.MessageDialogs;
@@ -50,7 +51,12 @@ namespace GitMind.Features.Committing
 					return;
 				}
 
-				IEnumerable<CommitFile> commitFiles = await repositoryCommands.UnCommited.FilesTask;
+				IEnumerable<CommitFile> commitFiles = Enumerable.Empty<CommitFile>();
+				if (repositoryCommands.UnCommited != null)
+				{
+					commitFiles = await repositoryCommands.UnCommited.FilesTask;
+				}
+			
 				string commitMessage = repository.Status.Message;
 
 				CommitDialog dialog = new CommitDialog(
