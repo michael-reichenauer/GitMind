@@ -337,8 +337,16 @@ namespace GitMind.GitModel.Private
 
 			localBranch.LocalAheadCount = localBranch.Commits.Count();
 			localBranch.RemoteAheadCount = 0;
-			localBranch.FirstCommitId = localBranch.Commits.Last().Id;
 
+			if (branch.TipCommitId == Commit.UncommittedId)
+			{
+				localBranch.TipCommitId = Commit.UncommittedId;
+				localBranch.CommitIds.Insert(0, Commit.UncommittedId);
+				branch.CommitIds.Remove(Commit.UncommittedId);
+				repository.Commits[Commit.UncommittedId].BranchId = localBranch.Id;
+			}
+
+			localBranch.FirstCommitId = localBranch.Commits.Last().Id;
 
 			branch.IsMainBranch = true;
 			branch.LocalSubBranchId = localBranch.Id;
@@ -349,13 +357,7 @@ namespace GitMind.GitModel.Private
 
 			branch.IsLocal = false;
 
-			if (branch.TipCommitId == Commit.UncommittedId)
-			{
-				localBranch.TipCommitId = Commit.UncommittedId;
-				localBranch.CommitIds.Insert(0, Commit.UncommittedId);
-				branch.CommitIds.Remove(Commit.UncommittedId);
-				repository.Commits[Commit.UncommittedId].BranchId = localBranch.Id;
-			}
+
 
 			branch.TipCommitId = branch.RemoteTipCommitId;
 		}
