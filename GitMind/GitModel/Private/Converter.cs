@@ -17,6 +17,7 @@ namespace GitMind.GitModel.Private
 				branch.Commits.Select(c => c.Id).ToList(),
 				branch.ParentBranchId,
 				branch.ChildBranchNames.ToList(),
+				branch.LocalSubBranchId,
 				branch.IsActive,
 				branch.IsLocal,
 				branch.IsRemote,

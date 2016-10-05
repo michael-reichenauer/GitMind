@@ -24,6 +24,7 @@ namespace GitMind.GitModel
 			IReadOnlyList<string> commitIds,
 			string parentBranchId,
 			IReadOnlyList<BranchName> childBranchNames,
+			string LocalSubBranchId,
 			bool isActive,
 			bool isLocal,
 			bool isRemote,
@@ -43,6 +44,7 @@ namespace GitMind.GitModel
 			Id = id;
 			Name = name;
 			ChildBranchNames = childBranchNames;
+			this.LocalSubBranchId = LocalSubBranchId;
 			IsActive = isActive;
 			IsLocal = isLocal;
 			IsRemote = isRemote;
@@ -58,6 +60,7 @@ namespace GitMind.GitModel
 		public string Id { get; }
 		public BranchName Name { get; }
 		public IReadOnlyList<BranchName> ChildBranchNames { get; }
+		public string LocalSubBranchId { get; set; }
 		public bool IsActive { get; }
 		public bool IsLocal { get; }
 		public bool IsRemote { get; }
@@ -72,6 +75,7 @@ namespace GitMind.GitModel
 		public IEnumerable<Commit> Commits => commitIds.Select(id => Repository.Commits[id]);
 		public bool HasParentBranch => parentBranchId != null;
 		public Branch ParentBranch => Repository.Branches[parentBranchId];
+		public Branch LocalSubBranchBranch => Repository.Branches[LocalSubBranchId];
 		public bool IsCurrentBranch => Repository.CurrentBranch == this;
 		public bool IsMergeable => !IsCurrentBranch;
 		public bool IsDetached { get; }

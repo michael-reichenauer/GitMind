@@ -176,6 +176,18 @@ namespace GitMind.RepositoryViews
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, otherBranch.Branch);
 
+				//if (otherBranch.Branch.IsLocalPart)
+				//{
+				//	Branch mainPart =
+				//		currentlyShownBranches.FirstOrDefault(
+				//			b => b.IsMainPart && b.LocalSubBranchBranch == otherBranch.Branch);
+				//	if (mainPart != null)
+				//	{
+				//		closingBranches = closingBranches.Concat(GetBranchAndDescendants(
+				//			currentlyShownBranches, mainPart));
+				//	}
+				//}
+
 				currentlyShownBranches.RemoveAll(b => b.Name != BranchName.Master && closingBranches.Contains(b));
 			}
 
@@ -206,6 +218,11 @@ namespace GitMind.RepositoryViews
 			{
 				// Showing the specified branch
 				currentlyShownBranches.Add(branch);
+				if (branch.IsMainPart)
+				{
+					currentlyShownBranches.Add(branch.LocalSubBranchBranch);
+				}
+
 				repositoryViewModel.SpecifiedBranches = currentlyShownBranches;
 				UpdateViewModel(repositoryViewModel);
 			}
@@ -231,6 +248,14 @@ namespace GitMind.RepositoryViews
 			{
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, branch);
+
+				if (branch.IsLocalPart)
+				{
+					closingBranches = closingBranches.Concat(GetBranchAndDescendants(
+						currentlyShownBranches, 
+						currentlyShownBranches.First(b => b.LocalSubBranchBranch == branch)));
+					;
+				}
 
 				currentlyShownBranches.RemoveAll(b => b.Name != BranchName.Master && closingBranches.Contains(b));
 
