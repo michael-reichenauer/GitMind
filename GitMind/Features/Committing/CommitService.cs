@@ -94,6 +94,10 @@ namespace GitMind.Features.Committing
 						await repositoryCommands.RefreshAfterCommandAsync(false);
 					});
 				}
+				else if (repository.Status.IsMerging && !commitFiles.Any())
+				{
+					await gitCommitsService.ResetMerge(workingFolder);
+				}
 			}
 		}
 
