@@ -536,24 +536,31 @@ namespace GitMind.RepositoryViews
 		private string GetBranchToolTip(Branch branch)
 		{
 			string name = branch.IsMultiBranch ? "MultiBranch" : branch.ToString();
-			string toolTip = branch.IsLocalPart ? $"Name: {name} (local)" : $"Name: {name}";
+			string toolTip = $"Name: {name}";
+
 
 			if (branch.LocalAheadCount > 0)
 			{
-				toolTip += $"\nIs local ahead: {branch.LocalAheadCount}";
+				toolTip += branch.IsLocalPart 
+					? $"\nLocal sub-branch\nIs local ahead: {branch.LocalAheadCount}" 
+					: $"\nIs local ahead: {branch.LocalAheadCount}";
 			}
 			else if (branch.IsLocal)
 			{
-				toolTip += "\nIs local";
+				toolTip += branch.IsLocalPart ? "\nLocal sub-branch" : "\nIs local";
 			}
 
 			if (branch.RemoteAheadCount > 0)
 			{
-				toolTip += $"\nIs remote ahead: {branch.RemoteAheadCount}";
+				toolTip += branch.IsMainPart 
+					? $"\nMain branch\nIs remote ahead: {branch.RemoteAheadCount}"
+					: $"\nIs remote ahead: {branch.RemoteAheadCount}";
 			}
 			else if (branch.IsRemote)
 			{
-				toolTip += "\nIs remote";
+				toolTip += branch.IsMainPart 
+					? "\nMain branch"
+					: "\nIs remote";
 			}
 
 			if (branch.ChildBranchNames.Count > 1)
