@@ -797,11 +797,11 @@ namespace GitMind.RepositoryViews
 			{
 				subjectBrush = brushService.UnCommittedBrush;
 			}
-			else if (commit.IsLocalAhead)
+			else if (commit.IsLocalAhead && commit.Branch.LocalAheadCount > 0)
 			{
 				subjectBrush = brushService.LocalAheadBrush;
 			}
-			else if (commit.IsRemoteAhead)
+			else if (commit.IsRemoteAhead && commit.Branch.RemoteAheadCount > 0)
 			{
 				subjectBrush = brushService.RemoteAheadBrush;
 			}
