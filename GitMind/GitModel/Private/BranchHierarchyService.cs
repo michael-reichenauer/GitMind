@@ -28,7 +28,15 @@ namespace GitMind.GitModel.Private
 		{
 			SetParentCommitId(repository);
 
-			GroupSubBranches(repository);
+			GroupSubBranchesIntoMainBranches(repository);
+
+			MoveCommitsIntoBranches(repository);
+
+			AddEmptyBranchesVirtualTipCommits(repository);
+
+			SetLocalOnlyAhead(repository);
+
+			SetLocalAndRemoteAhead(repository);
 
 			SetBranchHierarchyImpl(repository);
 		}
@@ -36,25 +44,25 @@ namespace GitMind.GitModel.Private
 
 		private static void SetParentCommitId(MRepository repository)
 		{
-			foreach (var subBranch in repository.SubBranches)
+			foreach (var subBranch in repository.SubBranches.Values)
 			{
-				MCommit LatestCommit = subBranch.Value.TipCommit;
-				if (LatestCommit.BranchId != null)
+				MCommit tipCommit = subBranch.TipCommit;
+				if (tipCommit.BranchId != null)
 				{
-					if (LatestCommit.BranchName == subBranch.Value.Name)
+					if (tipCommit.BranchName == subBranch.Name)
 					{
-						subBranch.Value.ParentCommitId = repository.Branches[LatestCommit.BranchId].ParentCommitId;
+						subBranch.ParentCommitId = repository.Branches[tipCommit.BranchId].ParentCommitId;
 					}
 					else
 					{
 						// This is a branch with no commits
-						subBranch.Value.ParentCommitId = LatestCommit.Id;
+						subBranch.ParentCommitId = tipCommit.Id;
 					}
 				}
 				else
 				{
-					IEnumerable<MCommit> commits = subBranch.Value.TipCommit.CommitAndFirstAncestors()
-						.TakeWhile(c => c.BranchName == subBranch.Value.Name);
+					IEnumerable<MCommit> commits = subBranch.TipCommit.CommitAndFirstAncestors()
+						.TakeWhile(c => c.BranchName == subBranch.Name);
 
 					bool foundParent = false;
 					MCommit currentcommit = null;
@@ -62,7 +70,7 @@ namespace GitMind.GitModel.Private
 					{
 						if (commit.BranchId != null)
 						{
-							subBranch.Value.ParentCommitId = repository.Branches[commit.BranchId].ParentCommitId;
+							subBranch.ParentCommitId = repository.Branches[commit.BranchId].ParentCommitId;
 							foundParent = true;
 							break;
 						}
@@ -77,12 +85,12 @@ namespace GitMind.GitModel.Private
 							// Sub branch has at least one commit
 							MCommit firstCommit = currentcommit;
 
-							subBranch.Value.ParentCommitId = firstCommit.FirstParentId;
+							subBranch.ParentCommitId = firstCommit.FirstParentId;
 						}
 						else
 						{
 							// Sub branch has no commits of its own, setting parent commit to same as branch tip
-							subBranch.Value.ParentCommitId = LatestCommit.Id;
+							subBranch.ParentCommitId = tipCommit.Id;
 						}
 					}
 				}
@@ -90,65 +98,37 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void GroupSubBranches(MRepository repository)
+		private void GroupSubBranchesIntoMainBranches(MRepository repository)
 		{
-			Timing t = new Timing();
+			// Group all sub branches by name, i.e. all sub branches in group will have the same name
 			var groupByBranchNames = repository.SubBranches.GroupBy(b => b.Value.Name);
 
 			foreach (var groupByBranchName in groupByBranchNames)
 			{
+				// Group sub branches by parent commit id, i.e. all sub branches in the group will have same
+				// parent id and same name
 				var groupedByParentCommitIds = groupByBranchName.GroupBy(b => b.Value.ParentCommitId);
 
-				foreach (IGrouping<string, KeyValuePair<string, MSubBranch>> groupByBranch in groupedByParentCommitIds)
+				foreach (var groupByBranch in groupedByParentCommitIds)
 				{
-					MSubBranch subBranch = groupByBranch.First().Value;
-
-					string branchId = subBranch.Name + "-" + subBranch.ParentCommitId;
-
-					MBranch branch;
-					if (!repository.Branches.TryGetValue(branchId, out branch))
-					{
-						branch = ToBranch(subBranch);
-						branch.Id = branchId;
-						branch.Repository.Branches[branch.Id] = branch;
-					}
-
-					var activeSubBranches = groupByBranch.Where(b => b.Value.IsActive).Select(g => g.Value)
-						.ToList();
-
-					var activeTip = activeSubBranches
-						.OrderByDescending(b => b.TipCommit.CommitDate)
-						.FirstOrDefault();
-					if (branch.TipCommitId == null && activeTip != null)
-					{
-						branch.TipCommitId = activeTip.TipCommitId;
-					}
-
-					branch.IsActive = activeSubBranches.Any();
-					MSubBranch localSubBranch = activeSubBranches.FirstOrDefault(b => b.IsLocal);
-					MSubBranch remoteSubBranch = activeSubBranches.FirstOrDefault(b => b.IsRemote);
-
-					branch.IsLocal = localSubBranch != null;
-					branch.LocalTipCommitId = localSubBranch?.TipCommitId;
-					branch.IsRemote = remoteSubBranch != null;
-					branch.RemoteTipCommitId = remoteSubBranch?.TipCommitId;
-					branch.IsCurrent = activeSubBranches.Any(b => b.IsCurrent);
-					branch.IsDetached = activeSubBranches.Any(b => b.IsDetached);
-					branch.LocalAheadCount = 0;
-					branch.RemoteAheadCount = 0;
-					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);
+					// Group all sub branches in the group into one main branch
+					GroupSubBranchesIntoOneMainBranch(groupByBranch);
 				}
 			}
+		}
 
-			foreach (var commit in repository.Commits)
+
+		private static void MoveCommitsIntoBranches(MRepository repository)
+		{
+			foreach (MCommit commit in repository.Commits.Values)
 			{
-				if (commit.Value.BranchId == null)
+				if (commit.BranchId == null)
 				{
-					string subBranchId = commit.Value.SubBranchId;
+					string subBranchId = commit.SubBranchId;
 					string branchId = repository.SubBranches[subBranchId].BranchId;
-					commit.Value.BranchId = branchId;
-					commit.Value.SubBranchId = null;
-					repository.Branches[branchId].TempCommitIds.Add(commit.Value.Id);
+					commit.BranchId = branchId;
+					commit.SubBranchId = null;
+					repository.Branches[branchId].TempCommitIds.Add(commit.Id);
 				}
 			}
 
@@ -181,9 +161,76 @@ namespace GitMind.GitModel.Private
 					}
 				}
 			}
+		}
 
 
-			foreach (MBranch branch in repository.Branches.Values.Where(b => !b.Commits.Any() && !b.IsLocalPart))
+		private static void GroupSubBranchesIntoOneMainBranch(
+			IGrouping<string, KeyValuePair<string, MSubBranch>> groupByBranch)
+		{
+			// All sub branches in the groupByBranch have same name and parent commit id, lets take
+			// the first sub branch and base the branch corresponding to the group on that sub branch
+			MSubBranch subBranch = groupByBranch.First().Value;
+
+			string branchId = subBranch.Name + "-" + subBranch.ParentCommitId;
+
+			MBranch branch = GetBranch(branchId, subBranch);
+
+			// Get active sub branches in group (1 if either local or remote, 2 if both)
+			var activeSubBranches = groupByBranch
+				.Where(b => b.Value.IsActive).Select(g => g.Value)
+				.ToList();
+
+			// Get the most resent tip (local or remote)
+			var activeTip = activeSubBranches
+				.OrderByDescending(b => b.TipCommit.CommitDate)
+				.FirstOrDefault();
+
+			if (branch.TipCommitId == null && activeTip != null)
+			{
+				branch.TipCommitId = activeTip.TipCommitId;
+			}
+
+			branch.IsActive = activeSubBranches.Any();
+
+			MSubBranch localSubBranch = activeSubBranches.FirstOrDefault(b => b.IsLocal);
+			MSubBranch remoteSubBranch = activeSubBranches.FirstOrDefault(b => b.IsRemote);
+
+			branch.IsLocal = localSubBranch != null;
+			branch.LocalTipCommitId = localSubBranch?.TipCommitId;
+			branch.IsRemote = remoteSubBranch != null;
+			branch.RemoteTipCommitId = remoteSubBranch?.TipCommitId;
+			branch.IsCurrent = activeSubBranches.Any(b => b.IsCurrent);
+			branch.IsDetached = activeSubBranches.Any(b => b.IsDetached);
+			branch.LocalAheadCount = 0;
+			branch.RemoteAheadCount = 0;
+
+			// Set branch if of each sub branch
+			groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);
+		}
+
+
+		private static MBranch GetBranch(string branchId, MSubBranch subBranch)
+		{
+			MRepository repository = subBranch.Repository;
+
+			MBranch branch;
+			if (!repository.Branches.TryGetValue(branchId, out branch))
+			{
+				branch = CreateBranchBasedOnSubBranch(subBranch);
+				branch.Id = branchId;
+				branch.Repository.Branches[branch.Id] = branch;
+			}
+
+			return branch;
+		}
+
+
+		private static void AddEmptyBranchesVirtualTipCommits(MRepository repository)
+		{
+			IEnumerable<MBranch> emptyBranches = repository.Branches.Values
+				.Where(b => !b.Commits.Any() && !b.IsLocalPart);
+
+			foreach (MBranch branch in emptyBranches)
 			{
 				MCommit commit = new MCommit();
 				commit.IsVirtual = true;
@@ -200,14 +247,16 @@ namespace GitMind.GitModel.Private
 
 				branch.TipCommit.BranchTips = $"{branch.Name} branch tip";
 			}
+		}
 
-			SetLocalOnlyAheadMarkers(repository);
 
+		private void SetLocalAndRemoteAhead(MRepository repository)
+		{
 			foreach (MBranch branch in repository.Branches.Values
 				.Where(b => b.IsActive
-				&& b.IsLocal
-				&& b.IsRemote
-				&& b.LocalTipCommitId != b.RemoteTipCommitId).ToList())
+				            && b.IsLocal
+				            && b.IsRemote
+				            && b.LocalTipCommitId != b.RemoteTipCommitId).ToList())
 			{
 				string localTip = branch.LocalTipCommitId;
 				string remoteTip = branch.RemoteTipCommitId;
@@ -228,7 +277,7 @@ namespace GitMind.GitModel.Private
 					commonCommit.CommitAndFirstAncestors().ForEach(c => c.IsCommon = true);
 
 					if ((commonTip != localTip && commonTip != remoteTip)
-						|| (branch.LocalTipCommitId == Commit.UncommittedId && commonTip != remoteTip))
+					    || (branch.LocalTipCommitId == Commit.UncommittedId && commonTip != remoteTip))
 					{
 						MakeLocalBranch(repository, branch, localTip, commonTip);
 					}
@@ -277,9 +326,9 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static void SetLocalOnlyAheadMarkers(MRepository repository)
+		private static void SetLocalOnlyAhead(MRepository repository)
 		{
-		// Set local only branches ahead marker
+			// Set local only branches ahead marker
 			repository.Branches.Values
 				.Where(b => b.IsActive && b.IsLocal && !b.IsRemote)
 				.ForEach(b =>
@@ -358,13 +407,11 @@ namespace GitMind.GitModel.Private
 
 			branch.IsLocal = false;
 
-
-
 			branch.TipCommitId = branch.RemoteTipCommitId;
 		}
 
 
-		private static MBranch ToBranch(MSubBranch subBranch)
+		private static MBranch CreateBranchBasedOnSubBranch(MSubBranch subBranch)
 		{
 			return new MBranch
 			{
