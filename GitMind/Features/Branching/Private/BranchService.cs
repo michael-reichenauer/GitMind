@@ -154,7 +154,8 @@ namespace GitMind.Features.Branching.Private
 
 				Progress.ShowDialog(owner, $"Update branch {branch.Name} ...", async progress =>
 				{
-					if (branch == branch.Repository.CurrentBranch)
+					if (branch == branch.Repository.CurrentBranch || 
+					branch.IsMainPart && branch.LocalSubBranch == branch.Repository.CurrentBranch)
 					{
 						Log.Debug("Update current branch");
 						await gitNetworkService.FetchAsync(workingFolder);

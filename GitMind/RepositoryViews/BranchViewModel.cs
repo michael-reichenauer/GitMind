@@ -84,7 +84,7 @@ namespace GitMind.RepositoryViews
 			&& Branch.IsRemote 
 			&& Branch.RemoteAheadCount > 0
 			&& !IsUncommittedBranch
-			|| Branch.IsMainPart;
+			|| (Branch.IsMainPart && Branch.LocalSubBranch.IsCurrentBranch);
 		public bool IsUncommittedBranch =>
 			Branch == Branch.Repository.CurrentBranch
 			&& (Branch.Repository.Status.StatusCount > 0 || Branch.Repository.Status.ConflictCount > 0);

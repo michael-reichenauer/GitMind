@@ -7,7 +7,7 @@ namespace GitMind.GitModel.Private
 {
 	public class MRepository
 	{
-		public static string CurrentVersion = "16";
+		public static string CurrentVersion = "17";
 
 		public string Version { get; set; } = CurrentVersion;
 

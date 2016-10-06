@@ -57,7 +57,10 @@ namespace GitMind.Utils
 				.Add(nameof(MCommit.Tickets))
 				.Add(nameof(MCommit.IsVirtual))
 				.Add(nameof(MCommit.BranchTips))
-				.Add(nameof(MCommit.CommitId));
+				.Add(nameof(MCommit.CommitId))
+				.Add(nameof(MCommit.IsLocalAhead))
+				.Add(nameof(MCommit.IsRemoteAhead))
+				.Add(nameof(MCommit.IsCommon));
 		}
 
 

@@ -29,7 +29,9 @@ namespace GitMind.GitModel.Private
 		public bool IsVirtual { get; set; }
 		public string BranchTips { get; set; }
 		public string CommitId { get; set; }
-
+		public bool IsLocalAhead { get; set; }
+		public bool IsRemoteAhead { get; set; }
+		public bool IsCommon { get; set; }
 
 
 		public string SubBranchId { get; set; }
@@ -56,9 +58,7 @@ namespace GitMind.GitModel.Private
 		public MCommit FirstParent => ParentIds.Count > 0 ? Repository.Commits[ParentIds[0]] : null;
 		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
 		public MCommit SecondParent => ParentIds.Count > 1 ? Repository.Commits[ParentIds[1]] : null;
-		public bool IsLocalAhead { get; set; }
-		public bool IsRemoteAhead { get; set; }
-		public bool IsCommon { get; set; }
+	
 
 
 		public bool IsUncommitted => Id == UncommittedId;
