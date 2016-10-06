@@ -24,6 +24,7 @@ namespace GitMind.RepositoryViews
 		private readonly ObservableCollection<BranchItem> childBranches 
 			= new ObservableCollection<BranchItem>();
 
+		
 		public BranchViewModel(
 			IRepositoryCommands repositoryCommands,
 			Command<Branch> showBranchCommand,
@@ -57,6 +58,8 @@ namespace GitMind.RepositoryViews
 		public double Left => Rect.Left;
 		public double Height => Rect.Height;
 		public string Line { get; set; }
+		public string Dashes { get; set; }
+		
 		public int StrokeThickness { get; set; }
 		public Brush Brush { get; set; }
 		public Brush HoverBrush { get; set; }

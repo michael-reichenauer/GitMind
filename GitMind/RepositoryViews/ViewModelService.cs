@@ -532,7 +532,7 @@ namespace GitMind.RepositoryViews
 
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 				branch.HoverBrush = Brushes.Transparent;
-				
+				branch.Dashes = sourceBranch.IsLocalPart ? "1" : "";
 
 				branch.Rect = new Rect(
 					(double)Converters.ToX(branch.BranchColumn) + 3,
@@ -561,8 +561,7 @@ namespace GitMind.RepositoryViews
 		private string GetBranchToolTip(Branch branch)
 		{
 			string name = branch.IsMultiBranch ? "MultiBranch" : branch.ToString();
-			string toolTip = $"Name: {name}";
-
+			string toolTip = $"{name}";
 
 			if (branch.LocalAheadCount > 0)
 			{
@@ -723,8 +722,9 @@ namespace GitMind.RepositoryViews
 			int childColumn = childBranch.BranchColumn;
 			int parentColumn = parentBranch.BranchColumn;
 
-			bool isBranchStart = childCommit.Commit.HasFirstParent
-				&& childCommit.Commit.FirstParent.Branch != childCommit.Commit.Branch;
+			bool isBranchStart = (childCommit.Commit.HasFirstParent
+				&& childCommit.Commit.FirstParent.Branch != childCommit.Commit.Branch)
+				|| (childCommit.Commit.Branch.IsLocalPart && parentCommit.Commit.Branch.IsMainPart);
 
 			BranchViewModel mainBranch = childColumn >= parentColumn ? childBranch : parentBranch;
 
@@ -757,6 +757,10 @@ namespace GitMind.RepositoryViews
 			merge.Line = $"M {x1},{y1} L {x2},{y2}";
 			merge.Brush = mainBranch.Brush;
 			merge.Stroke = isBranchStart ? 2 : 1;
+			merge.StrokeDash = 
+				(childCommit.Commit.Branch.IsLocalPart && parentCommit.Commit.Branch.IsMainPart) 
+				|| (parentCommit.Commit.Branch.IsLocalPart && childCommit.Commit.Branch.IsMainPart)
+				? "1" : "";
 
 			merge.NotifyAll();
 		}
