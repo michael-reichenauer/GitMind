@@ -134,7 +134,8 @@ namespace GitMind.GitModel.Private
 					branch.RemoteTipCommitId = remoteSubBranch?.TipCommitId;
 					branch.IsCurrent = activeSubBranches.Any(b => b.IsCurrent);
 					branch.IsDetached = activeSubBranches.Any(b => b.IsDetached);
-
+					branch.LocalAheadCount = 0;
+					branch.RemoteAheadCount = 0;
 					groupByBranch.ForEach(b => b.Value.BranchId = branch.Id);
 				}
 			}
