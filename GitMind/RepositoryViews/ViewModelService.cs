@@ -132,6 +132,10 @@ namespace GitMind.RepositoryViews
 				Log.Usage("Open branch");
 				Log.Info($"Open branch {commit.SecondParent.Branch}");
 				currentlyShownBranches.Add(commit.SecondParent.Branch);
+				if (commit.SecondParent.Branch.IsMainPart)
+				{
+					currentlyShownBranches.Add(commit.SecondParent.Branch.LocalSubBranch);
+				}
 			}
 			else
 			{
@@ -157,6 +161,12 @@ namespace GitMind.RepositoryViews
 					// A branch tip, closing the clicked branch
 					otherBranch = clickedBranch;
 					stableCommit = commit.Branch.ParentCommit;
+					if (clickedBranch.Branch.IsLocalPart)
+					{
+						otherBranch = repositoryViewModel
+							.Branches.First(b => b.Branch == clickedBranch.Branch.MainbBranch);
+						stableCommit = otherBranch.Branch.ParentCommit;
+					}
 				}
 				else
 				{
@@ -220,7 +230,7 @@ namespace GitMind.RepositoryViews
 				currentlyShownBranches.Add(branch);
 				if (branch.IsMainPart)
 				{
-					currentlyShownBranches.Add(branch.LocalSubBranchBranch);
+					currentlyShownBranches.Add(branch.LocalSubBranch);
 				}
 
 				repositoryViewModel.SpecifiedBranches = currentlyShownBranches;
@@ -253,7 +263,7 @@ namespace GitMind.RepositoryViews
 				{
 					closingBranches = closingBranches.Concat(GetBranchAndDescendants(
 						currentlyShownBranches, 
-						currentlyShownBranches.First(b => b.LocalSubBranchBranch == branch)));
+						currentlyShownBranches.First(b => b.LocalSubBranch == branch)));
 					;
 				}
 
@@ -377,6 +387,14 @@ namespace GitMind.RepositoryViews
 				if (branchInRepo != null)
 				{
 					branchesInRepo.Add(branchInRepo);
+					if (branchInRepo.IsMainPart)
+					{
+						branchesInRepo.Add(branchInRepo.LocalSubBranch);
+					}
+					else if (branchInRepo.IsLocalPart)
+					{
+						branchesInRepo.Add(branchInRepo.MainbBranch);
+					}
 				}
 			}
 

@@ -400,6 +400,7 @@ namespace GitMind.GitModel.Private
 
 			branch.IsMainPart = true;
 			branch.LocalSubBranchId = localBranch.Id;
+			localBranch.MainBranchId = branch.Id;
 			if (branch.IsCurrent)
 			{
 				branch.IsCurrent = false;

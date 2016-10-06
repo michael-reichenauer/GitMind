@@ -24,15 +24,15 @@ namespace GitMind.GitModel.Private
 		public bool IsLocalAndRemote { get; set; }
 		public List<BranchName> ChildBranchNames { get; set; } = new List<BranchName>();
 		public List<string> CommitIds { get; set; } = new List<string>();
-
-		public List<string> TempCommitIds { get; set; } = new List<string>();
-
+	
 		public string LocalTipCommitId { get; set; }
 		public string RemoteTipCommitId { get; set; }
 		public bool IsLocalPart { get; set; }
 		public bool IsMainPart { get; set; }
+		public string MainBranchId { get; set; }
 		public string LocalSubBranchId { get; set; }
-		//public string CommonTipId { get; set; }
+
+		public List<string> TempCommitIds { get; set; } = new List<string>();
 
 		public MRepository Repository { get; set; }
 
