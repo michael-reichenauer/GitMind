@@ -452,11 +452,30 @@ namespace GitMind.RepositoryViews
 		{
 			branch.SetHighlighted();
 
-			foreach (CommitViewModel commit in Commits)
+			if (branch.Branch.IsLocalPart)
 			{
-				if (commit.Commit.Branch.Id != branch.Branch.Id)
+				// Local part branch, then do not dim common commits in main branch part
+				foreach (CommitViewModel commit in Commits)
 				{
-					commit.SetDim();
+					if (commit.Commit.Branch.Id != branch.Branch.Id
+						&& !(commit.Commit.IsCommon
+							&& commit.Commit.Branch.IsMainPart
+							&& commit.Commit.Branch.LocalSubBranch == branch.Branch))
+					{
+						commit.SetDim();
+					}
+				}
+
+			}
+			else
+			{
+				// Normal branches and main branches
+				foreach (CommitViewModel commit in Commits)
+				{
+					if (commit.Commit.Branch.Id != branch.Branch.Id)
+					{
+						commit.SetDim();
+					}
 				}
 			}
 		}

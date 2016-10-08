@@ -471,9 +471,11 @@ namespace GitMind.RepositoryViews
 
 				commitViewModel.BranchColumn = IndexOf(repositoryViewModel, commit.Branch);
 
-				commitViewModel.XPoint = commitViewModel.IsMergePoint
-					? 2 + Converters.ToX(commitViewModel.BranchColumn)
-					: 4 + Converters.ToX(commitViewModel.BranchColumn);
+				commitViewModel.XPoint = commitViewModel.IsEndPoint
+					? 3 + Converters.ToX(commitViewModel.BranchColumn) 
+					: commitViewModel.IsMergePoint
+						? 2 + Converters.ToX(commitViewModel.BranchColumn)
+						: 4 + Converters.ToX(commitViewModel.BranchColumn);
 
 				commitViewModel.GraphWidth = graphWidth;
 				commitViewModel.Width = repositoryViewModel.Width - 35;

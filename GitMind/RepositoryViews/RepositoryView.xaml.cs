@@ -78,14 +78,21 @@ namespace GitMind.RepositoryViews
 					Point viewPoint = e.GetPosition(ItemsListBox);
 					if (viewPoint.X < viewModel.GraphWidth)
 					{
-						branch = viewModel.Branches.First(b => b.Branch == commit.Commit.Branch);
-						viewModel.MouseEnterBranch(branch);
+						branch = viewModel.Branches.FirstOrDefault(b => b.Branch == commit.Commit.Branch);
+						if (branch != null)
+						{
+							viewModel.MouseEnterBranch(branch);
+						}
 					}
 
 					if (viewPoint.X > viewModel.GraphWidth)
 					{
-						branch = viewModel.Branches.First(b => b.Branch == commit.Commit.Branch);
-						viewModel.MouseLeaveBranch(branch);
+						branch = viewModel.Branches.FirstOrDefault(b => b.Branch == commit.Commit.Branch);
+						if (branch != null)
+						{
+							viewModel.MouseLeaveBranch(branch);
+						}
+
 					}
 				}
 			}
@@ -109,8 +116,11 @@ namespace GitMind.RepositoryViews
 					Point viewPoint = e.GetPosition(ItemsListBox);
 					if (viewPoint.X < viewModel.GraphWidth)
 					{
-						branch = viewModel.Branches.First(b => b.Branch == commit.Commit.Branch);
-						viewModel.MouseLeaveBranch(branch);
+						branch = viewModel.Branches.FirstOrDefault(b => b.Branch == commit.Commit.Branch);
+						if (branch != null)
+						{
+							viewModel.MouseLeaveBranch(branch);
+						}
 					}
 				}
 			}
@@ -125,7 +135,7 @@ namespace GitMind.RepositoryViews
 				BranchViewModel branch = item.Content as BranchViewModel;
 				if (branch != null)
 				{
-					
+
 				}
 			}
 		}
