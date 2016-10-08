@@ -297,7 +297,7 @@ namespace GitMind.GitModel.Private
 					MCommit commonCommit = repository.Commits[commonTip];
 					commonCommit.CommitAndFirstAncestors().ForEach(c => c.IsCommon = true);
 
-					if ((commonTip != localTip && commonTip != remoteTip)
+					if ((commonTip != localTip)
 					    || (branch.LocalTipCommitId == Commit.UncommittedId && commonTip != remoteTip))
 					{
 						MakeLocalBranch(repository, branch, localTip, commonTip);

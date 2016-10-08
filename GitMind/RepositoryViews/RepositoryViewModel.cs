@@ -790,17 +790,15 @@ namespace GitMind.RepositoryViews
 
 				await networkService.FetchAsync(workingFolder);
 
-				if (uncommittedBranch != currentBranch
-						&& currentBranch.RemoteAheadCount > 0
-						&& currentBranch.LocalAheadCount == 0)
+				if (currentBranch.CanBeUpdated)
 				{
 					progress.SetText($"Update current branch {currentBranch.Name} ...");
-					await gitBranchService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
+					await gitBranchService.MergeCurrentBranchAsync(workingFolder);
 				}
 
 				IEnumerable<Branch> updatableBranches = Repository.Branches
 					.Where(b =>
-						b != currentBranch
+						!b.IsCurrentBranch
 						&& b != uncommittedBranch
 						&& b.RemoteAheadCount > 0
 						&& b.LocalAheadCount == 0).ToList();
@@ -878,7 +876,7 @@ namespace GitMind.RepositoryViews
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
-					.Where(b => b.CanBePushed)
+					.Where(b => !b.IsCurrentBranch && b.CanBePushed)
 					.ToList();
 
 				foreach (Branch branch in pushableBranches)
