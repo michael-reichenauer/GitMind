@@ -90,7 +90,7 @@ namespace GitMind.GitModel
 		public bool IsVirtual { get; }
 		public bool HasConflicts { get; }
 		public bool IsMerging { get; }
-		public bool HasFirstChild { get; set; }
+		public bool HasFirstChild { get; }
 		public bool HasFirstParent => parentIds.Count > 0;
 		public bool HasSecondParent => parentIds.Count > 1;
 		public Commit FirstParent => Repository.Commits[parentIds[0]];

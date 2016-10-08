@@ -116,17 +116,11 @@ namespace GitMind.RepositoryViews
 		{
 			List<Branch> currentlyShownBranches = repositoryViewModel.SpecifiedBranches.ToList();
 
-			bool isShowing =
-				(commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
-				|| (commit.HasFirstParent 
-					&& commit.Branch != commit.FirstParent.Branch 
-					&& currentlyShownBranches.Contains(commit.FirstParent.Branch));
-
 			BranchViewModel clickedBranch = repositoryViewModel
 				.Branches.First(b => b.Branch == commit.Branch);
 
 			Commit stableCommit = commit;
-			if (!isShowing && commit.HasSecondParent)
+			if (commit.HasSecondParent && !currentlyShownBranches.Contains(commit.SecondParent.Branch))
 			{
 				// Showing the specified branch
 				Log.Usage("Open branch");
@@ -156,7 +150,7 @@ namespace GitMind.RepositoryViews
 						stableCommit = commit.SecondParent;
 					}
 				}
-				else if (!commit.HasFirstChild)
+				else if (!commit.HasFirstChild || commit.Branch.IsMainPart && commit.Branch.TipCommit == commit)
 				{
 					// A branch tip, closing the clicked branch
 					otherBranch = clickedBranch;
@@ -490,7 +484,10 @@ namespace GitMind.RepositoryViews
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
 				commitViewModel.BranchToolTip = GetBranchToolTip(commit.Branch);
-				if (commitViewModel.IsMergePoint && !commit.HasFirstChild && !commit.HasSecondParent)
+
+				if (commitViewModel.IsMergePoint 
+					&& !commit.HasSecondParent
+					&& (commit == commit.Branch.TipCommit || commit == commit.Branch.FirstCommit))
 				{
 					commitViewModel.BrushInner = brushService.GetDarkerBrush(commitViewModel.Brush);
 				}
@@ -694,7 +691,7 @@ namespace GitMind.RepositoryViews
 
 				MergeViewModel merge = merges[index++];
 
-				SetMerge(merge, branches, commitsById[childCommit.Id], parentCommit);
+				SetMerge(merge, branches, commitsById[childCommit.Id], parentCommit, false);
 			}
 
 			if (isMergeInProgress)
@@ -711,14 +708,18 @@ namespace GitMind.RepositoryViews
 			MergeViewModel merge,
 			IReadOnlyCollection<BranchViewModel> branches,
 			CommitViewModel childCommit,
-			CommitViewModel parentCommit)
+			CommitViewModel parentCommit,
+			bool isMerge = true)
 		{
 			BranchViewModel childBranch = branches
 				.First(b => b.Branch == childCommit.Commit.Branch);
 			BranchViewModel parentBranch = branches
 				.First(b => b.Branch == parentCommit.Commit.Branch);
 
-			childCommit.BrushInner = brushService.GetDarkerBrush(childCommit.Brush);
+			if (isMerge)
+			{
+				childCommit.BrushInner = brushService.GetDarkerBrush(childCommit.Brush);
+			}
 
 			int childRow = childCommit.RowIndex;
 			int parentRow = parentCommit.RowIndex;
