@@ -199,7 +199,9 @@ namespace GitMind.Features.Branching.Private
 			return
 				branch.Repository.Status.ConflictCount == 0
 				&& !branch.Repository.Status.IsMerging
-				&& branch.Repository.CurrentBranch.Id != branch.Id;
+				&& (branch.Repository.CurrentBranch.Id != branch.Id 
+				&& (branch.Repository.CurrentBranch.IsMainPart 
+					&& branch.Repository.CurrentBranch.LocalSubBranchId != branch.Id));
 		}
 
 

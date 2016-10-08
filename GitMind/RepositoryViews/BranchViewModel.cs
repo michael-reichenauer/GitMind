@@ -69,7 +69,7 @@ namespace GitMind.RepositoryViews
 		public string BranchToolTip { get; set; }
 		public bool CanPublish => Branch.CanBePublish;
 		public bool CanPush => Branch.CanBePushed;
-		public bool CanUpdate => Branch.CanBeUpdated;
+		public bool CanUpdate => Branch.CanBeUpdated && !Branch.IsLocalPart;
 		public bool IsMergeable => Branch.IsCanBeMergeToOther;
 
 

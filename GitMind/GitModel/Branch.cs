@@ -102,7 +102,8 @@ namespace GitMind.GitModel
 			&& IsLocal
 			&& IsRemote
 			&& RemoteAheadCount > 0
-			&& !IsUncommited;
+			&& !IsUncommited
+			|| ((IsMainPart || IsLocalPart) && !IsUncommited);
 
 
 
