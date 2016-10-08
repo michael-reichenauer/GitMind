@@ -45,7 +45,7 @@ namespace GitMind.Features.Committing
 			{
 				if (repository.CurrentBranch.IsDetached)
 				{
-					MessageDialog.ShowInfo(owner, 
+					Message.ShowInfo(owner, 
 						"Current branch is in detached head status.\n" +
 						"You must first create or switch to branch before commit.");
 					return;
@@ -81,7 +81,7 @@ namespace GitMind.Features.Committing
 						}
 						else
 						{
-							MessageDialog.ShowWarning(owner, "Failed to commit");
+							Message.ShowWarning(owner, "Failed to commit");
 						}
 					});
 

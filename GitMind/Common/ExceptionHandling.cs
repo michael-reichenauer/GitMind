@@ -87,7 +87,7 @@ namespace GitMind.Common
 
 			hasDisplayedErrorMessageBox = true;
 
-			MessageDialog.ShowError(
+			Message.ShowError(
 				Application.Current.MainWindow, errorMessage, "GitMind - Unhandled Exception");
 		}
 

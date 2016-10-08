@@ -48,7 +48,7 @@ namespace GitMind.Installation.Private
 		{
 			Log.Usage("Install normal.");
 
-			if (!MessageDialog.ShowAskOkCancel(
+			if (!Message.ShowAskOkCancel(
 				"Welcome to the GitMind setup.\n\n" +
 				" This will:\n" +
 				" - Add a GitMind shortcut in the Start Menu.\n" +
@@ -68,7 +68,7 @@ namespace GitMind.Installation.Private
 			InstallSilent();
 			Log.Usage("Installed normal.");
 
-			MessageDialog.ShowInfo(
+			Message.ShowInfo(
 				"Setup has finished installing GitMind.",
 				SetupTitle);
 
@@ -97,7 +97,7 @@ namespace GitMind.Installation.Private
 					}
 
 					Log.Debug("GitMind instance is already running, needs to be closed.");
-					if (!MessageDialog.ShowAskOkCancel(
+					if (!Message.ShowAskOkCancel(
 						"Please close all instances of GitMind before continue the installation."))
 					{
 						return false;
@@ -134,7 +134,7 @@ namespace GitMind.Installation.Private
 				return;
 			}
 
-			if (!MessageDialog.ShowAskOkCancel(
+			if (!Message.ShowAskOkCancel(
 				"Do you want to uninstall GitMind?"))
 			{
 				return;
@@ -147,7 +147,7 @@ namespace GitMind.Installation.Private
 
 			UninstallSilent();
 			Log.Usage("Uninstalled normal");
-			MessageDialog.ShowInfo("Uninstallation of GitMind is completed.");
+			Message.ShowInfo("Uninstallation of GitMind is completed.");
 		}
 
 

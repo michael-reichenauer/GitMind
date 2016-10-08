@@ -23,9 +23,6 @@ namespace GitMind.MainWindowViews
 {
 	internal class MainWindowViewModel : ViewModel
 	{
-		private readonly IDiffService diffService = new DiffService();
-		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
-
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly FolderMonitorService folderMonitor;
 
@@ -225,16 +222,6 @@ namespace GitMind.MainWindowViews
 				return Task.CompletedTask;
 			}
 
-			//if (owner.WindowState == WindowState.Minimized || !VisibleWindow.IsVisible(owner))
-			//{
-			//	Log.Debug("Not visible");
-			//	isStatusChanged = true;
-			//	isRepositoryChanged = isRepositoryChanged || isRepoChange;
-			//	return Task.CompletedTask;
-			//}
-
-			//isStatusChanged = false;
-			//isRepositoryChanged = false;
 			return RepositoryViewModel.StatusChangeRefreshAsync(triggerTime, isRepoChange);
 		}
 

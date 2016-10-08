@@ -303,7 +303,7 @@ namespace GitMind.RepositoryViews
 
 			if (!File.Exists(p4mergeExe))
 			{
-				MessageDialog.ShowWarning(
+				Message.ShowWarning(
 					Application.Current.MainWindow,
 					"Could not locate compatible diff tool.\nPlease install Perforce p4merge.");
 				return false;

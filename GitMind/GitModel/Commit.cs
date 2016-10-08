@@ -33,7 +33,9 @@ namespace GitMind.GitModel
 			string branchId,
 			BranchName specifiedBranchName,
 			BranchName commitBranchName,
-			bool isLocalAhead, bool isRemoteAhead, 
+			bool isLocalAhead, 
+			bool isRemoteAhead,
+			bool isCommon,
 			bool isUncommitted, 
 			bool isVirtual, 
 			bool hasConflicts, 
@@ -59,6 +61,7 @@ namespace GitMind.GitModel
 			CommitBranchName = commitBranchName;
 			IsLocalAhead = isLocalAhead;
 			IsRemoteAhead = isRemoteAhead;
+			IsCommon = isCommon;
 			IsUncommitted = isUncommitted;
 			IsVirtual = isVirtual;
 			HasConflicts = hasConflicts;
@@ -82,6 +85,7 @@ namespace GitMind.GitModel
 		public BranchName CommitBranchName { get; }
 		public bool IsLocalAhead { get; }
 		public bool IsRemoteAhead { get; }
+		public bool IsCommon { get; }
 		public bool IsUncommitted { get; }
 		public bool IsVirtual { get; }
 		public bool HasConflicts { get; }
@@ -101,7 +105,7 @@ namespace GitMind.GitModel
 
 		//public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
 		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(WorkingFolder, CommitId);
-
+		
 
 
 		public override string ToString() => $"{ShortId} {Subject} {CommitDate}";

@@ -150,6 +150,7 @@
 													Data="{Binding Line}"
 													Stroke="{Binding Brush}"
 													StrokeThickness="{Binding StrokeThickness}"
+													StrokeDashArray="{Binding Dashes}"
 													SnapsToDevicePixels="True">
 													<Path.Effect>
 														<DropShadowEffect
