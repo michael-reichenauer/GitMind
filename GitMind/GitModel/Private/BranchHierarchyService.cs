@@ -26,7 +26,9 @@ namespace GitMind.GitModel.Private
 
 		public void SetBranchHierarchy(MRepository repository)
 		{
-			SetParentCommitId(repository);
+			CombineMainWithLocalSubBranches(repository);
+
+			SetParentCommitId(repository);		
 
 			GroupSubBranchesIntoMainBranches(repository);
 
@@ -39,6 +41,25 @@ namespace GitMind.GitModel.Private
 			SetLocalAndRemoteAhead(repository);
 
 			SetBranchHierarchyImpl(repository);
+		}
+
+
+		private void CombineMainWithLocalSubBranches(MRepository repository)
+		{
+			foreach (MBranch branch in repository.Branches.Values.Where(b => b.IsMainPart).ToList())
+			{
+				MBranch localPart = repository.Branches[branch.LocalSubBranchId];
+				foreach (string commitId in localPart.CommitIds)
+				{
+					branch.CommitIds.Add(commitId);
+					repository.Commits[commitId].BranchId = branch.Id;
+				}
+
+				repository.Branches.Remove(localPart.Id);
+
+				branch.IsMainPart = false;
+				branch.LocalSubBranchId = null;
+			}
 		}
 
 
