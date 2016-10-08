@@ -183,7 +183,11 @@ namespace GitMind.Features.Branching.Private
 			{
 				Progress.ShowDialog(owner, $"Switch to branch {branch.Name} ...", async progress =>
 				{
-					await gitBranchService.SwitchToBranchAsync(workingFolder, branch.Name);
+					R result = await gitBranchService.SwitchToBranchAsync(workingFolder, branch.Name);
+					if (result.IsFaulted)
+					{
+						Message.ShowWarning(owner, $"Failed to switch,\n{result}");
+					}
 
 					progress.SetText($"Updating status after switch to {branch.Name} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(true);
@@ -199,9 +203,7 @@ namespace GitMind.Features.Branching.Private
 			return
 				branch.Repository.Status.ConflictCount == 0
 				&& !branch.Repository.Status.IsMerging
-				&& (branch.Repository.CurrentBranch.Id != branch.Id 
-				&& (branch.Repository.CurrentBranch.IsMainPart 
-					&& branch.Repository.CurrentBranch.LocalSubBranchId != branch.Id));
+				&& !branch.IsCurrentBranch;
 		}
 
 
