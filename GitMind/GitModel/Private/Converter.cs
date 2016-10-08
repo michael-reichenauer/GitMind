@@ -51,6 +51,7 @@ namespace GitMind.GitModel.Private
 				commit.CommitBranchName,
 				commit.IsLocalAhead,
 				commit.IsRemoteAhead,
+				commit.IsCommon,
 				commit.IsUncommitted,
 				commit.IsVirtual,
 				commit.HasConflicts,
