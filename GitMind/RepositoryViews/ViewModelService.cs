@@ -503,7 +503,7 @@ namespace GitMind.RepositoryViews
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
 				commitViewModel.BranchToolTip = GetBranchToolTip(commit.Branch);
-				if (!commit.HasFirstChild && !commit.HasSecondParent)
+				if (commitViewModel.IsMergePoint && !commit.HasFirstChild && !commit.HasSecondParent)
 				{
 					commitViewModel.BrushInner = brushService.GetDarkerBrush(commitViewModel.Brush);
 				}
