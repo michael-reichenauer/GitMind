@@ -80,10 +80,30 @@ namespace GitMind.GitModel
 		public Branch ParentBranch => Repository.Branches[parentBranchId];
 		public Branch LocalSubBranch => Repository.Branches[LocalSubBranchId];
 		public Branch MainbBranch => Repository.Branches[MainBranchId];
-		public bool IsCurrentBranch => Repository.CurrentBranch == this;
-		public bool IsMergeable => !IsCurrentBranch;
+		public bool IsCurrentBranch => Repository.CurrentBranch == this 
+			|| IsMainPart && LocalSubBranch.IsCurrentBranch;
+		public bool IsUncommited => IsCurrentBranch && !Repository.Status.isOk;
+		public bool IsCanBeMergeToOther => !IsCurrentBranch && Repository.Status.isOk;
+			public bool ICanBeMergeIntoThis => IsCurrentBranch && Repository.Status.isOk;
 		public bool IsDetached { get; }
 		public Repository Repository { get; }
+
+		public bool CanBePublish => IsActive && IsLocal && !IsRemote && !IsLocalPart;
+		public bool CanBePushed =>
+			IsActive
+			&& IsLocal
+			&& IsRemote
+			&& LocalAheadCount > 0
+			&& RemoteAheadCount == 0
+			&& !IsUncommited;
+
+		public bool CanBeUpdated =>
+			IsActive
+			&& IsLocal
+			&& IsRemote
+			&& RemoteAheadCount > 0
+			&& !IsUncommited;
+
 
 
 		public IEnumerable<Branch> GetChildBranches()

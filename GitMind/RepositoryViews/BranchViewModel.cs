@@ -67,27 +67,11 @@ namespace GitMind.RepositoryViews
 		public Brush HoverBrushHighlight { get; set; }
 		public Color DimColor { get; set; }
 		public string BranchToolTip { get; set; }
-		public bool IsMergeable => Branch.IsMergeable 
-			&& Branch.Repository.Status.StatusCount == 0 
-			&& Branch.Repository.Status.ConflictCount == 0;
-		public bool CanPublish => Branch.IsActive && Branch.IsLocal && !Branch.IsRemote && !Branch.IsLocalPart;
-		public bool CanPush => 
-			Branch.IsActive 
-			&& Branch.IsLocal 
-			&& Branch.IsRemote 
-			&& Branch.LocalAheadCount > 0
-			&& Branch.RemoteAheadCount == 0
-			&& !IsUncommittedBranch;
-		public bool CanUpdate => 
-			Branch.IsActive 
-			&& Branch.IsLocal 
-			&& Branch.IsRemote 
-			&& Branch.RemoteAheadCount > 0
-			&& !IsUncommittedBranch
-			|| (Branch.IsMainPart && Branch.LocalSubBranch.IsCurrentBranch);
-		public bool IsUncommittedBranch =>
-			Branch == Branch.Repository.CurrentBranch
-			&& (Branch.Repository.Status.StatusCount > 0 || Branch.Repository.Status.ConflictCount > 0);
+		public bool CanPublish => Branch.CanBePublish;
+		public bool CanPush => Branch.CanBePushed;
+		public bool CanUpdate => Branch.CanBeUpdated;
+		public bool IsMergeable => Branch.IsCanBeMergeToOther;
+
 
 		public string SwitchBranchText => $"Switch to branch '{Name}'";
 		public string MergeToBranchText => $"Merge to branch '{CurrentBranchName}'";

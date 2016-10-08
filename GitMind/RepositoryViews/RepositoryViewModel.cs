@@ -855,15 +855,7 @@ namespace GitMind.RepositoryViews
 
 		private bool CanExecutePullCurrentBranch()
 		{
-			if (!string.IsNullOrEmpty(ConflictsText))
-			{
-				return false;
-			}
-
-			Branch uncommittedBranch = UnCommited?.Branch;
-
-			return uncommittedBranch != Repository.CurrentBranch
-				&& Repository.CurrentBranch.RemoteAheadCount > 0;
+			return Repository.CurrentBranch.CanBeUpdated;
 		}
 
 
@@ -875,13 +867,10 @@ namespace GitMind.RepositoryViews
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
-				Branch uncommittedBranch = UnCommited?.Branch;
 
 				await networkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
-				if (uncommittedBranch != currentBranch
-						&& currentBranch.LocalAheadCount > 0
-						&& currentBranch.RemoteAheadCount == 0)
+				if (currentBranch.CanBePushed)
 				{
 					progress.SetText($"Push current branch {currentBranch.Name} ...");
 					CredentialHandler credentialHandler = new CredentialHandler(Owner);
@@ -889,13 +878,7 @@ namespace GitMind.RepositoryViews
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
-					.Where(b =>
-						b != currentBranch
-						&& b != uncommittedBranch
-						&& b.IsLocal 
-						&& b.IsRemote
-						&& b.LocalAheadCount > 0
-						&& b.RemoteAheadCount == 0)
+					.Where(b => b.CanBePushed)
 					.ToList();
 
 				foreach (Branch branch in pushableBranches)
@@ -912,19 +895,7 @@ namespace GitMind.RepositoryViews
 
 		private bool CanExecuteTryPushAllBranches()
 		{
-			if (!string.IsNullOrEmpty(ConflictsText))
-			{
-				return false;
-			}
-
-			Branch uncommittedBranch = UnCommited?.Branch;
-
-			return Repository.Branches.Any(
-				b => b != uncommittedBranch
-				  && b.IsLocal
-					&& b.IsRemote
-					&& b.LocalAheadCount > 0
-					&& b.RemoteAheadCount == 0);
+			return Repository.Branches.Any(b => b.CanBePushed);
 		}
 
 
@@ -947,18 +918,7 @@ namespace GitMind.RepositoryViews
 
 		private bool CanExecutePushCurrentBranch()
 		{
-			if (!string.IsNullOrEmpty(ConflictsText))
-			{
-				return false;
-			}
-
-			Branch uncommittedBranch = UnCommited?.Branch;
-
-			return uncommittedBranch != Repository.CurrentBranch
-				&& Repository.CurrentBranch.IsLocal
-				&& Repository.CurrentBranch.IsRemote
-				&& Repository.CurrentBranch.LocalAheadCount > 0
-				&& Repository.CurrentBranch.RemoteAheadCount == 0;
+			return Repository.CurrentBranch.CanBePushed;
 		}
 
 

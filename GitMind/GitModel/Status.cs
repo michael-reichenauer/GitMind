@@ -11,6 +11,8 @@
 		}
 
 
+		public bool isOk => StatusCount == 0 && ConflictCount == 0 && !IsMerging;
+
 		public int StatusCount { get; }
 		public int ConflictCount { get; }
 		public string Message { get; }
