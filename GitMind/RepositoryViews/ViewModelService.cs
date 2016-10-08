@@ -624,8 +624,8 @@ namespace GitMind.RepositoryViews
 					&& IsOverlapping(
 						current.TipRowIndex,
 						current.FirstRowIndex,
-						branch.TipRowIndex,
-						branch.FirstRowIndex)))
+						branch.TipRowIndex - 5,
+						branch.FirstRowIndex + 5)))
 				{
 					column++;
 				}
