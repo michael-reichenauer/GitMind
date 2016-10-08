@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using GitMind.Common.MessageDialogs;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
@@ -138,7 +137,7 @@ namespace GitMind.Features.Committing
 		{
 			if (string.IsNullOrWhiteSpace(Message) || (Files.Count == 0 && !isMerging))
 			{
-				MessageDialog.ShowInfo(owner, "Nothing to commit.");
+				Common.MessageDialogs.Message.ShowInfo(owner, "Nothing to commit.");
 				return;
 			}
 

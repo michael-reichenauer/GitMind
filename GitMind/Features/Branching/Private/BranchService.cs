@@ -81,7 +81,7 @@ namespace GitMind.Features.Branching.Private
 									workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
 								if (publish.IsFaulted)
 								{
-									MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
+									Message.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
 								}
 							}
 
@@ -89,7 +89,7 @@ namespace GitMind.Features.Branching.Private
 						}
 						else
 						{
-							MessageDialog.ShowWarning(owner, $"Failed to create branch {branchName}\n{result}");
+							Message.ShowWarning(owner, $"Failed to create branch {branchName}\n{result}");
 						}
 
 						progress.SetText($"Updating status after create branch {branchName} ...");
@@ -116,7 +116,7 @@ namespace GitMind.Features.Branching.Private
 
 					if (publish.IsFaulted)
 					{
-						MessageDialog.ShowWarning(owner, $"Failed to publish the branch {branch.Name}.");
+						Message.ShowWarning(owner, $"Failed to publish the branch {branch.Name}.");
 					}
 
 					progress.SetText($"Updating status after publish {branch.Name} ...");
@@ -213,7 +213,7 @@ namespace GitMind.Features.Branching.Private
 			{
 				if (commit.IsRemoteAhead)
 				{
-					MessageDialog.ShowInfo(
+					Message.ShowInfo(
 						owner, "Commit is remote, you must first update before switching to this commit.");
 					return Task.CompletedTask;
 				}
@@ -261,13 +261,13 @@ namespace GitMind.Features.Branching.Private
 
 				if (branch.Name == BranchName.Master)
 				{
-					MessageDialog.ShowWarning(owner, "You cannot delete master branch.");
+					Message.ShowWarning(owner, "You cannot delete master branch.");
 					return;
 				}
 
 				if (!branch.IsRemote && branch == branch.Repository.CurrentBranch)
 				{
-					MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
+					Message.ShowWarning(owner, "You cannot delete current local branch.");
 					return;
 				}
 
@@ -281,13 +281,13 @@ namespace GitMind.Features.Branching.Private
 				{
 					if (dialog.IsLocal && branch == branch.Repository.CurrentBranch)
 					{
-						MessageDialog.ShowWarning(owner, "You cannot delete current local branch.");
+						Message.ShowWarning(owner, "You cannot delete current local branch.");
 						return;
 					}
 
 					if (!dialog.IsLocal && !dialog.IsRemote)
 					{
-						MessageDialog.ShowWarning(owner, "Neither local nor remote branch was selected.");
+						Message.ShowWarning(owner, "Neither local nor remote branch was selected.");
 						return;
 					}
 
@@ -337,7 +337,7 @@ namespace GitMind.Features.Branching.Private
 			if (!IsBranchFullyMerged(branch, isRemote, isNoLongerLocal))
 			{
 				
-				if (!MessageDialog.ShowWarningAskYesNo(owner,
+				if (!Message.ShowWarningAskYesNo(owner,
 					$"{text} branch '{branch.Name}' is not fully merged.\n" +
 					"Do you want to delete the branch anyway?"))
 				{
@@ -361,7 +361,7 @@ namespace GitMind.Features.Branching.Private
 
 			if (deleted.IsFaulted)
 			{
-				MessageDialog.ShowWarning(owner, $"Failed to delete {text} branch '{branch.Name}'");
+				Message.ShowWarning(owner, $"Failed to delete {text} branch '{branch.Name}'");
 			}	
 		}
 
@@ -415,13 +415,13 @@ namespace GitMind.Features.Branching.Private
 
 				if (branch == branch.Repository.CurrentBranch)
 				{
-					MessageDialog.ShowWarning(owner, "You cannot merge current branch into it self.");
+					Message.ShowWarning(owner, "You cannot merge current branch into it self.");
 					return;
 				}
 
 				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.StatusCount > 0)
 				{
-					MessageDialog.ShowInfo(
+					Message.ShowInfo(
 						owner, "You must first commit uncommitted changes before merging.");
 					return;
 				}

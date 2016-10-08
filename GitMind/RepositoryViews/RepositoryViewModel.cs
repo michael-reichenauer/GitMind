@@ -310,7 +310,7 @@ namespace GitMind.RepositoryViews
 
 				if (!gitInfoService.IsSupportedRemoteUrl(WorkingFolder))
 				{
-					MessageDialog.ShowWarning(Owner,
+					Message.ShowWarning(Owner,
 						"SSH URL protocol is not yet supported for remote access.\n" +
 						"Use git:// or https:// instead.");
 				}
@@ -1042,7 +1042,7 @@ namespace GitMind.RepositoryViews
 
 			if (failedPaths.IsFaulted)
 			{
-				MessageDialog.ShowWarning(Owner, failedPaths.ToString());
+				Message.ShowWarning(Owner, failedPaths.ToString());
 			}
 			else if (failedPaths.Value.Any())
 			{
@@ -1056,7 +1056,7 @@ namespace GitMind.RepositoryViews
 					text += "   ...";
 				}
 
-				MessageDialog.ShowWarning(Owner, text);
+				Message.ShowWarning(Owner, text);
 			}
 
 			isInternalDialog = true;
