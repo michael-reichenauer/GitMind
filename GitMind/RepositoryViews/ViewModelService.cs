@@ -171,8 +171,15 @@ namespace GitMind.RepositoryViews
 					{
 						// Closing the branch that was clicked on since that is to the right
 						otherBranch = clickedBranch;
-						stableCommit = commit.FirstParent;
+						stableCommit = commit.FirstParent;			
 					}
+				}
+
+				if (otherBranch.Branch.IsLocalPart)
+				{
+					otherBranch = repositoryViewModel.Branches
+						.First(b => b.Branch == otherBranch.Branch.MainbBranch);
+					stableCommit = otherBranch.Branch.ParentCommit;
 				}
 
 				Log.Usage("Close branch");
