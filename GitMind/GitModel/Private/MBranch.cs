@@ -46,6 +46,6 @@ namespace GitMind.GitModel.Private
 
 
 
-		public override string ToString() => $"{Name}";
+		public override string ToString() => IsLocalPart ? $"{Name} (local)" : $"{Name}";
 	}
 }

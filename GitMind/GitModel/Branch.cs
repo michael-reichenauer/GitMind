@@ -125,6 +125,7 @@ namespace GitMind.GitModel
 			}
 		}
 
-		public override string ToString() => Name.ToString();
+
+		public override string ToString() => IsLocalPart ? $"{Name} (local)" : $"{Name}";
 	}
 }

@@ -186,25 +186,12 @@ namespace GitMind.RepositoryViews
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, otherBranch.Branch);
 
-				//if (otherBranch.Branch.IsLocalPart)
-				//{
-				//	Branch mainPart =
-				//		currentlyShownBranches.FirstOrDefault(
-				//			b => b.IsMainPart && b.LocalSubBranchBranch == otherBranch.Branch);
-				//	if (mainPart != null)
-				//	{
-				//		closingBranches = closingBranches.Concat(GetBranchAndDescendants(
-				//			currentlyShownBranches, mainPart));
-				//	}
-				//}
-
 				currentlyShownBranches.RemoveAll(b => b.Name != BranchName.Master && closingBranches.Contains(b));
 			}
 
 			CommitViewModel stableCommitViewModel = repositoryViewModel.CommitsById[stableCommit.Id];
 
 			int currentRow = stableCommitViewModel.RowIndex;
-			//	repositoryViewModel.SelectedItem = stableCommitViewModel;
 			repositoryViewModel.SelectedIndex = currentRow;
 			repositoryViewModel.SpecifiedBranches = currentlyShownBranches;
 			UpdateViewModel(repositoryViewModel);
@@ -578,11 +565,11 @@ namespace GitMind.RepositoryViews
 
 		private string GetBranchToolTip(Branch branch)
 		{
-			string name = branch.IsMultiBranch ? "MultiBranch" : branch.ToString();
+			string name = branch.IsMultiBranch ? "MultiBranch" : branch.Name.ToString();
 			string toolTip = $"{name}";
 			if (branch.IsLocalPart)
 			{
-				toolTip += " (local)";
+				toolTip += " (local part)";
 			}
 
 			if (branch.LocalAheadCount > 0)
@@ -598,7 +585,7 @@ namespace GitMind.RepositoryViews
 			{
 				toolTip += $"\nRemote branch ahead: {branch.RemoteAheadCount}";
 			}
-			else if (branch.IsRemote)
+			else if (branch.IsRemote || branch.IsLocalPart)
 			{
 				toolTip += "\nRemote branch";
 			}
