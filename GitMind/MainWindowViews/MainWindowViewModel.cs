@@ -192,11 +192,6 @@ namespace GitMind.MainWindowViews
 			StatusChangeRefreshAsync(triggerTime, true).RunInBackground();
 		}
 
-		private bool IsUncommitted()
-		{
-			return RepositoryViewModel.UnCommited != null;
-		}
-
 
 		private Task ManualRefreshAsync()
 		{
@@ -215,14 +210,16 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
+		public async Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
 		{
 			if (!isLoaded)
 			{
-				return Task.CompletedTask;
+				return;
 			}
+			Timing t = new Timing();
 
-			return RepositoryViewModel.StatusChangeRefreshAsync(triggerTime, isRepoChange);
+			await RepositoryViewModel.StatusChangeRefreshAsync(triggerTime, isRepoChange);
+			t.Log($"Status change is repo change: {isRepoChange}");
 		}
 
 
