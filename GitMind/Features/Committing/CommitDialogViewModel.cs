@@ -14,8 +14,10 @@ namespace GitMind.Features.Committing
 	internal class CommitDialogViewModel : ViewModel
 	{
 		private readonly ICommitService commitService = new CommitService();
+		private readonly Window owner;
 		private readonly IRepositoryCommands repositoryCommands;
-	
+		private readonly bool isMerging;
+
 		//private static readonly string TestSubject =
 		//"01234567890123456789012345678901234567890123456789]";
 
@@ -24,6 +26,7 @@ namespace GitMind.Features.Committing
 
 
 		public CommitDialogViewModel(
+			Window owner,
 			IRepositoryCommands repositoryCommands,
 			BranchName branchName,
 			string workingFolder,
@@ -33,7 +36,9 @@ namespace GitMind.Features.Committing
 		{
 			CommitFiles = files.ToList();
 
+			this.owner = owner;
 			this.repositoryCommands = repositoryCommands;
+			this.isMerging = isMerging;
 
 			files.ForEach(f => Files.Add(
 				ToCommitFileViewModel(workingFolder, f)));
@@ -130,8 +135,9 @@ namespace GitMind.Features.Committing
 
 		private void SetOK(Window window)
 		{
-			if (string.IsNullOrWhiteSpace(Message) || Files.Count == 0)
+			if (string.IsNullOrWhiteSpace(Message) || (Files.Count == 0 && !isMerging))
 			{
+				Common.MessageDialogs.Message.ShowInfo(owner, "Nothing to commit.");
 				return;
 			}
 

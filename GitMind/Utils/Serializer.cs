@@ -57,7 +57,10 @@ namespace GitMind.Utils
 				.Add(nameof(MCommit.Tickets))
 				.Add(nameof(MCommit.IsVirtual))
 				.Add(nameof(MCommit.BranchTips))
-				.Add(nameof(MCommit.CommitId));
+				.Add(nameof(MCommit.CommitId))
+				.Add(nameof(MCommit.IsLocalAhead))
+				.Add(nameof(MCommit.IsRemoteAhead))
+				.Add(nameof(MCommit.IsCommon));
 		}
 
 
@@ -81,6 +84,10 @@ namespace GitMind.Utils
 				.Add(nameof(MBranch.IsLocalAndRemote))
 				.Add(nameof(MBranch.LocalTipCommitId))
 				.Add(nameof(MBranch.RemoteTipCommitId))
+				.Add(nameof(MBranch.IsLocalPart))
+				.Add(nameof(MBranch.IsMainPart))
+				.Add(nameof(MBranch.MainBranchId))
+				.Add(nameof(MBranch.LocalSubBranchId))
 				.Add(nameof(MBranch.ChildBranchNames))
 				.Add(nameof(MBranch.CommitIds));
 		}

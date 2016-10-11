@@ -27,5 +27,6 @@ namespace GitMind.Git
 		Task UndoFileInWorkingFolderAsync(string workingFolder, string path);
 
 		Task UndoWorkingFolderAsync(string workingFolder);
+		Task<R> ResetMerge(string workingFolder);
 	}
 }

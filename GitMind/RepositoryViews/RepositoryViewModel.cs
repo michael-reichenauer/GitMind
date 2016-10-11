@@ -310,7 +310,7 @@ namespace GitMind.RepositoryViews
 
 				if (!gitInfoService.IsSupportedRemoteUrl(WorkingFolder))
 				{
-					MessageDialog.ShowWarning(Owner,
+					Message.ShowWarning(Owner,
 						"SSH URL protocol is not yet supported for remote access.\n" +
 						"Use git:// or https:// instead.");
 				}
@@ -452,11 +452,30 @@ namespace GitMind.RepositoryViews
 		{
 			branch.SetHighlighted();
 
-			foreach (CommitViewModel commit in Commits)
+			if (branch.Branch.IsLocalPart)
 			{
-				if (commit.Commit.Branch.Id != branch.Branch.Id)
+				// Local part branch, then do not dim common commits in main branch part
+				foreach (CommitViewModel commit in Commits)
 				{
-					commit.SetDim();
+					if (commit.Commit.Branch.Id != branch.Branch.Id
+						&& !(commit.Commit.IsCommon
+							&& commit.Commit.Branch.IsMainPart
+							&& commit.Commit.Branch.LocalSubBranch == branch.Branch))
+					{
+						commit.SetDim();
+					}
+				}
+
+			}
+			else
+			{
+				// Normal branches and main branches
+				foreach (CommitViewModel commit in Commits)
+				{
+					if (commit.Commit.Branch.Id != branch.Branch.Id)
+					{
+						commit.SetDim();
+					}
 				}
 			}
 		}
@@ -555,7 +574,7 @@ namespace GitMind.RepositoryViews
 			RemoteAheadText = remoteAheadText;
 
 			IEnumerable<Branch> localAheadBranches = Repository.Branches
-				.Where(b => b.IsLocal && b.IsRemote && b.IsActive && b.LocalAheadCount > 0).ToList();
+				.Where(b => b.LocalAheadCount > 0).ToList();
 
 			string localAheadText = localAheadBranches.Any()
 				? "Branches with local commits:\n" : null;
@@ -790,17 +809,15 @@ namespace GitMind.RepositoryViews
 
 				await networkService.FetchAsync(workingFolder);
 
-				if (uncommittedBranch != currentBranch
-						&& currentBranch.RemoteAheadCount > 0
-						&& currentBranch.LocalAheadCount == 0)
+				if (currentBranch.CanBeUpdated)
 				{
 					progress.SetText($"Update current branch {currentBranch.Name} ...");
-					await gitBranchService.MergeCurrentBranchFastForwardOnlyAsync(workingFolder);
+					await gitBranchService.MergeCurrentBranchAsync(workingFolder);
 				}
 
 				IEnumerable<Branch> updatableBranches = Repository.Branches
 					.Where(b =>
-						b != currentBranch
+						!b.IsCurrentBranch
 						&& b != uncommittedBranch
 						&& b.RemoteAheadCount > 0
 						&& b.LocalAheadCount == 0).ToList();
@@ -855,15 +872,7 @@ namespace GitMind.RepositoryViews
 
 		private bool CanExecutePullCurrentBranch()
 		{
-			if (!string.IsNullOrEmpty(ConflictsText))
-			{
-				return false;
-			}
-
-			Branch uncommittedBranch = UnCommited?.Branch;
-
-			return uncommittedBranch != Repository.CurrentBranch
-				&& Repository.CurrentBranch.RemoteAheadCount > 0;
+			return Repository.CurrentBranch.CanBeUpdated;
 		}
 
 
@@ -875,13 +884,10 @@ namespace GitMind.RepositoryViews
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
-				Branch uncommittedBranch = UnCommited?.Branch;
 
 				await networkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
-				if (uncommittedBranch != currentBranch
-						&& currentBranch.LocalAheadCount > 0
-						&& currentBranch.RemoteAheadCount == 0)
+				if (currentBranch.CanBePushed)
 				{
 					progress.SetText($"Push current branch {currentBranch.Name} ...");
 					CredentialHandler credentialHandler = new CredentialHandler(Owner);
@@ -889,13 +895,7 @@ namespace GitMind.RepositoryViews
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
-					.Where(b =>
-						b != currentBranch
-						&& b != uncommittedBranch
-						&& b.IsLocal 
-						&& b.IsRemote
-						&& b.LocalAheadCount > 0
-						&& b.RemoteAheadCount == 0)
+					.Where(b => !b.IsCurrentBranch && b.CanBePushed)
 					.ToList();
 
 				foreach (Branch branch in pushableBranches)
@@ -912,19 +912,7 @@ namespace GitMind.RepositoryViews
 
 		private bool CanExecuteTryPushAllBranches()
 		{
-			if (!string.IsNullOrEmpty(ConflictsText))
-			{
-				return false;
-			}
-
-			Branch uncommittedBranch = UnCommited?.Branch;
-
-			return Repository.Branches.Any(
-				b => b != uncommittedBranch
-				  && b.IsLocal
-					&& b.IsRemote
-					&& b.LocalAheadCount > 0
-					&& b.RemoteAheadCount == 0);
+			return Repository.Branches.Any(b => b.CanBePushed);
 		}
 
 
@@ -947,18 +935,7 @@ namespace GitMind.RepositoryViews
 
 		private bool CanExecutePushCurrentBranch()
 		{
-			if (!string.IsNullOrEmpty(ConflictsText))
-			{
-				return false;
-			}
-
-			Branch uncommittedBranch = UnCommited?.Branch;
-
-			return uncommittedBranch != Repository.CurrentBranch
-				&& Repository.CurrentBranch.IsLocal
-				&& Repository.CurrentBranch.IsRemote
-				&& Repository.CurrentBranch.LocalAheadCount > 0
-				&& Repository.CurrentBranch.RemoteAheadCount == 0;
+			return Repository.CurrentBranch.CanBePushed;
 		}
 
 
@@ -1082,7 +1059,7 @@ namespace GitMind.RepositoryViews
 
 			if (failedPaths.IsFaulted)
 			{
-				MessageDialog.ShowWarning(Owner, failedPaths.ToString());
+				Message.ShowWarning(Owner, failedPaths.ToString());
 			}
 			else if (failedPaths.Value.Any())
 			{
@@ -1096,7 +1073,7 @@ namespace GitMind.RepositoryViews
 					text += "   ...";
 				}
 
-				MessageDialog.ShowWarning(Owner, text);
+				Message.ShowWarning(Owner, text);
 			}
 
 			isInternalDialog = true;

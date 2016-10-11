@@ -116,22 +116,20 @@ namespace GitMind.RepositoryViews
 		{
 			List<Branch> currentlyShownBranches = repositoryViewModel.SpecifiedBranches.ToList();
 
-			bool isShowing =
-				(commit.HasSecondParent && currentlyShownBranches.Contains(commit.SecondParent.Branch))
-				|| (commit.HasFirstParent 
-					&& commit.Branch != commit.FirstParent.Branch 
-					&& currentlyShownBranches.Contains(commit.FirstParent.Branch));
-
 			BranchViewModel clickedBranch = repositoryViewModel
 				.Branches.First(b => b.Branch == commit.Branch);
 
 			Commit stableCommit = commit;
-			if (!isShowing && commit.HasSecondParent)
+			if (commit.HasSecondParent && !currentlyShownBranches.Contains(commit.SecondParent.Branch))
 			{
 				// Showing the specified branch
 				Log.Usage("Open branch");
 				Log.Info($"Open branch {commit.SecondParent.Branch}");
 				currentlyShownBranches.Add(commit.SecondParent.Branch);
+				if (commit.SecondParent.Branch.IsMainPart)
+				{
+					currentlyShownBranches.Add(commit.SecondParent.Branch.LocalSubBranch);
+				}
 			}
 			else
 			{
@@ -152,11 +150,17 @@ namespace GitMind.RepositoryViews
 						stableCommit = commit.SecondParent;
 					}
 				}
-				else if (!commit.HasFirstChild)
+				else if (!commit.HasFirstChild || commit.Branch.IsMainPart && commit.Branch.TipCommit == commit)
 				{
 					// A branch tip, closing the clicked branch
 					otherBranch = clickedBranch;
 					stableCommit = commit.Branch.ParentCommit;
+					if (clickedBranch.Branch.IsLocalPart)
+					{
+						otherBranch = repositoryViewModel
+							.Branches.First(b => b.Branch == clickedBranch.Branch.MainbBranch);
+						stableCommit = otherBranch.Branch.ParentCommit;
+					}
 				}
 				else
 				{
@@ -167,8 +171,15 @@ namespace GitMind.RepositoryViews
 					{
 						// Closing the branch that was clicked on since that is to the right
 						otherBranch = clickedBranch;
-						stableCommit = commit.FirstParent;
+						stableCommit = commit.FirstParent;			
 					}
+				}
+
+				if (otherBranch.Branch.IsLocalPart)
+				{
+					otherBranch = repositoryViewModel.Branches
+						.First(b => b.Branch == otherBranch.Branch.MainbBranch);
+					stableCommit = otherBranch.Branch.ParentCommit;
 				}
 
 				Log.Usage("Close branch");
@@ -182,7 +193,6 @@ namespace GitMind.RepositoryViews
 			CommitViewModel stableCommitViewModel = repositoryViewModel.CommitsById[stableCommit.Id];
 
 			int currentRow = stableCommitViewModel.RowIndex;
-			//	repositoryViewModel.SelectedItem = stableCommitViewModel;
 			repositoryViewModel.SelectedIndex = currentRow;
 			repositoryViewModel.SpecifiedBranches = currentlyShownBranches;
 			UpdateViewModel(repositoryViewModel);
@@ -206,6 +216,11 @@ namespace GitMind.RepositoryViews
 			{
 				// Showing the specified branch
 				currentlyShownBranches.Add(branch);
+				if (branch.IsMainPart)
+				{
+					currentlyShownBranches.Add(branch.LocalSubBranch);
+				}
+
 				repositoryViewModel.SpecifiedBranches = currentlyShownBranches;
 				UpdateViewModel(repositoryViewModel);
 			}
@@ -231,6 +246,14 @@ namespace GitMind.RepositoryViews
 			{
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, branch);
+
+				if (branch.IsLocalPart)
+				{
+					closingBranches = closingBranches.Concat(GetBranchAndDescendants(
+						currentlyShownBranches, 
+						currentlyShownBranches.First(b => b.LocalSubBranch == branch)));
+					;
+				}
 
 				currentlyShownBranches.RemoveAll(b => b.Name != BranchName.Master && closingBranches.Contains(b));
 
@@ -352,6 +375,14 @@ namespace GitMind.RepositoryViews
 				if (branchInRepo != null)
 				{
 					branchesInRepo.Add(branchInRepo);
+					if (branchInRepo.IsMainPart)
+					{
+						branchesInRepo.Add(branchInRepo.LocalSubBranch);
+					}
+					else if (branchInRepo.IsLocalPart)
+					{
+						branchesInRepo.Add(branchInRepo.MainbBranch);
+					}
 				}
 			}
 
@@ -447,9 +478,11 @@ namespace GitMind.RepositoryViews
 
 				commitViewModel.BranchColumn = IndexOf(repositoryViewModel, commit.Branch);
 
-				commitViewModel.XPoint = commitViewModel.IsMergePoint
-					? 2 + Converters.ToX(commitViewModel.BranchColumn)
-					: 4 + Converters.ToX(commitViewModel.BranchColumn);
+				commitViewModel.XPoint = commitViewModel.IsEndPoint
+					? 3 + Converters.ToX(commitViewModel.BranchColumn) 
+					: commitViewModel.IsMergePoint
+						? 2 + Converters.ToX(commitViewModel.BranchColumn)
+						: 4 + Converters.ToX(commitViewModel.BranchColumn);
 
 				commitViewModel.GraphWidth = graphWidth;
 				commitViewModel.Width = repositoryViewModel.Width - 35;
@@ -460,7 +493,10 @@ namespace GitMind.RepositoryViews
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
 				commitViewModel.BranchToolTip = GetBranchToolTip(commit.Branch);
-				if (!commit.HasFirstChild && !commit.HasSecondParent)
+
+				if (commitViewModel.IsMergePoint 
+					&& !commit.HasSecondParent
+					&& (commit == commit.Branch.TipCommit || commit == commit.Branch.FirstCommit))
 				{
 					commitViewModel.BrushInner = brushService.GetDarkerBrush(commitViewModel.Brush);
 				}
@@ -507,7 +543,7 @@ namespace GitMind.RepositoryViews
 
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 				branch.HoverBrush = Brushes.Transparent;
-				
+				branch.Dashes = sourceBranch.IsLocalPart ? "1" : "";
 
 				branch.Rect = new Rect(
 					(double)Converters.ToX(branch.BranchColumn) + 3,
@@ -535,23 +571,27 @@ namespace GitMind.RepositoryViews
 
 		private string GetBranchToolTip(Branch branch)
 		{
-			string name = branch.IsMultiBranch ? "MultiBranch" : branch.ToString();
-			string toolTip = $"Branch: {name}";
+			string name = branch.IsMultiBranch ? "MultiBranch" : branch.Name.ToString();
+			string toolTip = $"{name}";
+			if (branch.IsLocalPart)
+			{
+				toolTip += " (local part)";
+			}
 
 			if (branch.LocalAheadCount > 0)
 			{
 				toolTip += $"\nLocal branch ahead: {branch.LocalAheadCount}";
 			}
-			else if (branch.IsLocal)
+			else if (branch.IsLocal || branch.IsMainPart)
 			{
-				toolTip += "\nLocal branch";
+				toolTip +=  "\nLocal branch";
 			}
 
 			if (branch.RemoteAheadCount > 0)
 			{
 				toolTip += $"\nRemote branch ahead: {branch.RemoteAheadCount}";
 			}
-			else if (branch.IsRemote)
+			else if (branch.IsRemote || branch.IsLocalPart)
 			{
 				toolTip += "\nRemote branch";
 			}
@@ -590,8 +630,8 @@ namespace GitMind.RepositoryViews
 					&& IsOverlapping(
 						current.TipRowIndex,
 						current.FirstRowIndex,
-						branch.TipRowIndex,
-						branch.FirstRowIndex)))
+						branch.TipRowIndex - 5,
+						branch.FirstRowIndex + 5)))
 				{
 					column++;
 				}
@@ -660,7 +700,7 @@ namespace GitMind.RepositoryViews
 
 				MergeViewModel merge = merges[index++];
 
-				SetMerge(merge, branches, commitsById[childCommit.Id], parentCommit);
+				SetMerge(merge, branches, commitsById[childCommit.Id], parentCommit, false);
 			}
 
 			if (isMergeInProgress)
@@ -677,22 +717,27 @@ namespace GitMind.RepositoryViews
 			MergeViewModel merge,
 			IReadOnlyCollection<BranchViewModel> branches,
 			CommitViewModel childCommit,
-			CommitViewModel parentCommit)
+			CommitViewModel parentCommit,
+			bool isMerge = true)
 		{
 			BranchViewModel childBranch = branches
 				.First(b => b.Branch == childCommit.Commit.Branch);
 			BranchViewModel parentBranch = branches
 				.First(b => b.Branch == parentCommit.Commit.Branch);
 
-			childCommit.BrushInner = brushService.GetDarkerBrush(childCommit.Brush);
+			if (isMerge)
+			{
+				childCommit.BrushInner = brushService.GetDarkerBrush(childCommit.Brush);
+			}
 
 			int childRow = childCommit.RowIndex;
 			int parentRow = parentCommit.RowIndex;
 			int childColumn = childBranch.BranchColumn;
 			int parentColumn = parentBranch.BranchColumn;
 
-			bool isBranchStart = childCommit.Commit.HasFirstParent
-				&& childCommit.Commit.FirstParent.Branch != childCommit.Commit.Branch;
+			bool isBranchStart = (childCommit.Commit.HasFirstParent
+				&& childCommit.Commit.FirstParent.Branch != childCommit.Commit.Branch)
+				|| (childCommit.Commit.Branch.IsLocalPart && parentCommit.Commit.Branch.IsMainPart);
 
 			BranchViewModel mainBranch = childColumn >= parentColumn ? childBranch : parentBranch;
 
@@ -725,6 +770,10 @@ namespace GitMind.RepositoryViews
 			merge.Line = $"M {x1},{y1} L {x2},{y2}";
 			merge.Brush = mainBranch.Brush;
 			merge.Stroke = isBranchStart ? 2 : 1;
+			merge.StrokeDash = 
+				(childCommit.Commit.Branch.IsLocalPart && parentCommit.Commit.Branch.IsMainPart) 
+				|| (parentCommit.Commit.Branch.IsLocalPart && childCommit.Commit.Branch.IsMainPart)
+				? "1" : "";
 
 			merge.NotifyAll();
 		}
@@ -765,11 +814,11 @@ namespace GitMind.RepositoryViews
 			{
 				subjectBrush = brushService.UnCommittedBrush;
 			}
-			else if (commit.IsLocalAhead)
+			else if (commit.IsLocalAhead && commit.Branch.LocalAheadCount > 0)
 			{
 				subjectBrush = brushService.LocalAheadBrush;
 			}
-			else if (commit.IsRemoteAhead)
+			else if (commit.IsRemoteAhead && commit.Branch.RemoteAheadCount > 0)
 			{
 				subjectBrush = brushService.RemoteAheadBrush;
 			}

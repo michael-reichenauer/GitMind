@@ -75,6 +75,10 @@ namespace GitMind.Git.Private
 		}
 
 
+		public Task<R> ResetMerge(string workingFolder)
+		{
+			return repoCaller.UseRepoAsync(workingFolder, repo => repo.Reset(ResetMode.Hard));
+		}
 
 
 		public Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync(string workingFolder)

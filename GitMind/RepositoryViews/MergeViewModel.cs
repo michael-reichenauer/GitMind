@@ -19,7 +19,7 @@ namespace GitMind.RepositoryViews
 		public string Line { get; set; }
 		public Brush Brush { get; set; }
 		public int Stroke { get; set; }
-		public string StrokeDash => "";
+		public string StrokeDash { get; set; }
 
 		// Values that is used to determine if item is visible
 		public int ChildRow { get; set; }
