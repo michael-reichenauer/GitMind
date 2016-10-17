@@ -201,15 +201,15 @@ namespace GitMind.GitModel.Private
 				.Where(b => b.Value.IsActive).Select(g => g.Value)
 				.ToList();
 
-			// Get the most resent tip (local or remote)
-			var activeTip = activeSubBranches
-				.OrderByDescending(b => b.TipCommit.CommitDate)
-				.FirstOrDefault();
+			//// Get the most resent tip (local or remote)
+			//var activeTip = activeSubBranches
+			//	.OrderByDescending(b => b.TipCommit.CommitDate)
+			//	.FirstOrDefault();
 
-			if (activeTip != null)
-			{
-				branch.TipCommitId = activeTip.TipCommitId;
-			}
+			//if (activeTip != null)
+			//{
+			//	branch.TipCommitId = activeTip.TipCommitId;
+			//}
 
 			branch.IsActive = activeSubBranches.Any();
 
@@ -297,7 +297,9 @@ namespace GitMind.GitModel.Private
 					MCommit commonCommit = repository.Commits[commonTip];
 					commonCommit.CommitAndFirstAncestors().ForEach(c => c.IsCommon = true);
 
-					if (commonTip != localTip || branch.LocalTipCommitId == Commit.UncommittedId)
+					if (commonTip != localTip || 
+						(branch.LocalTipCommitId == Commit.UncommittedId 
+						&& branch.FirstCommitId != Commit.UncommittedId))
 					{
 						MakeLocalBranch(repository, branch, localTip, commonTip);
 					}
@@ -366,7 +368,7 @@ namespace GitMind.GitModel.Private
 			string commonTip)
 		{
 			string name = $"{branch.Name}";
-			string branchId = name + "-" + commonTip;
+			string branchId = name + "(local)-" + commonTip;
 			MBranch localBranch;
 			if (!repository.Branches.TryGetValue(branchId, out localBranch))
 			{
@@ -388,6 +390,7 @@ namespace GitMind.GitModel.Private
 			localBranch.TipCommitId = localTip;
 			localBranch.LocalTipCommitId = localTip;
 			localBranch.IsCurrent = branch.IsCurrent;
+			localBranch.IsActive = branch.IsActive;
 
 			Stack<MCommit> commits = new Stack<MCommit>();
 			commits.Push(repository.Commits[localTip]);
@@ -411,8 +414,11 @@ namespace GitMind.GitModel.Private
 			if (branch.TipCommitId == Commit.UncommittedId)
 			{
 				localBranch.TipCommitId = Commit.UncommittedId;
+				localBranch.LocalTipCommitId = Commit.UncommittedId;
 				localBranch.CommitIds.Insert(0, Commit.UncommittedId);
 				branch.CommitIds.Remove(Commit.UncommittedId);
+				branch.TipCommitId = repository.Commits[Commit.UncommittedId].FirstParentId;
+				branch.RemoteTipCommitId = branch.TipCommitId;
 				repository.Commits[Commit.UncommittedId].BranchId = localBranch.Id;
 			}
 
@@ -429,6 +435,10 @@ namespace GitMind.GitModel.Private
 			branch.IsLocal = false;
 
 			branch.TipCommitId = branch.RemoteTipCommitId;
+			if (!branch.CommitIds.Any())
+			{
+				branch.FirstCommitId = branch.TipCommitId;
+			}
 		}
 
 
