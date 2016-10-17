@@ -132,7 +132,7 @@ namespace GitMind.RepositoryViews
 			Notify(nameof(StrokeThickness), nameof(Brush), nameof(DimColor));
 		}
 
-		public override string ToString() => $"{Name}";
+		public override string ToString() => $"{Branch}";
 
 
 		private IReadOnlyList<BranchItem> GetChildBranches()

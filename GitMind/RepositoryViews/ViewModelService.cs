@@ -484,6 +484,11 @@ namespace GitMind.RepositoryViews
 						? 2 + Converters.ToX(commitViewModel.BranchColumn)
 						: 4 + Converters.ToX(commitViewModel.BranchColumn);
 
+				if (commit.Branch.IsLocalPart)
+				{
+					commitViewModel.XPoint = commitViewModel.XPoint - 10;
+				}
+
 				commitViewModel.GraphWidth = graphWidth;
 				commitViewModel.Width = repositoryViewModel.Width - 35;
 				commitViewModel.Rect = new Rect(
@@ -537,7 +542,7 @@ namespace GitMind.RepositoryViews
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
 				int height = Converters.ToY(branch.FirstRowIndex - branch.TipRowIndex) + 8;
 
-				branch.BranchColumn = FindBranchColumn(addedBranchColumns, branch);
+				branch.BranchColumn = FindFreeBranchColumn(addedBranchColumns, branch);
 				addedBranchColumns.Add(branch);
 				maxColumn = Math.Max(branch.BranchColumn, maxColumn);
 
@@ -545,8 +550,14 @@ namespace GitMind.RepositoryViews
 				branch.HoverBrush = Brushes.Transparent;
 				branch.Dashes = sourceBranch.IsLocalPart ? "1" : "";
 
+				double x = (double)Converters.ToX(branch.BranchColumn) + 3;
+				if (branch.Branch.IsLocalPart)
+				{
+					x = x - 10;
+				}
+
 				branch.Rect = new Rect(
-					(double)Converters.ToX(branch.BranchColumn) + 3,
+					x,
 					(double)Converters.ToY(branch.TipRowIndex) + Converters.HalfRow - 6,
 					10,
 					height + 4);
@@ -609,7 +620,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private int FindBranchColumn(List<BranchViewModel> branches, BranchViewModel branch)
+		private int FindFreeBranchColumn(List<BranchViewModel> branches, BranchViewModel branch)
 		{
 			int column = 0;
 			if (branch.Branch.HasParentBranch)
@@ -744,10 +755,23 @@ namespace GitMind.RepositoryViews
 			int childX = Converters.ToX(childColumn);
 			int parentX = Converters.ToX(parentColumn);
 
+			if (childCommit.Commit.Branch.IsLocalPart)
+			{
+				childX = childX - 10;
+			}
+
+			if (parentCommit.Commit.Branch.IsLocalPart)
+			{
+				parentX = parentX - 10;
+			}
+
+
 			int x1 = childX <= parentX ? 0 : childX - parentX - 6;
 			int y1 = 0;
 			int x2 = parentX <= childX ? 0 : parentX - childX - 6;
 			int y2 = Converters.ToY(parentRow - childRow) + Converters.HalfRow - 8;
+
+
 
 			if (isBranchStart && x1 != x2)
 			{
