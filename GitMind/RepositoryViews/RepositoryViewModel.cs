@@ -299,7 +299,7 @@ namespace GitMind.RepositoryViews
 			{
 				Log.Debug("Loading repository ...");
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(WorkingFolder);
-				string statusText = isRepositoryCached ? "Loading ..." : "First time, building new model ...";
+				string statusText = isRepositoryCached ? "Loading ..." : "First time branch structure analyze ...";
 
 				Progress.ShowDialog(Owner, statusText, async () =>
 				{
@@ -427,7 +427,7 @@ namespace GitMind.RepositoryViews
 
 		public Task ManualRefreshAsync()
 		{
-			Progress.ShowDialog(Owner, "Rebuilding new model", async () =>
+			Progress.ShowDialog(Owner, "Analyze branch structure", async () =>
 			{
 				await refreshThrottler.Run(async () =>
 				{
