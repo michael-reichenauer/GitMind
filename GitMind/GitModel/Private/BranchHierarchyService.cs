@@ -181,6 +181,11 @@ namespace GitMind.GitModel.Private
 						branch.FirstCommitId = branch.ParentCommitId;
 					}
 				}
+				else
+				{
+					branch.TipCommitId = branch.CommitIds.First();
+					branch.FirstCommitId = branch.CommitIds.Last();
+				}
 			}
 		}
 
