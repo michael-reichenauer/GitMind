@@ -1,4 +1,6 @@
+using System.IO;
 using System.Threading.Tasks;
+using GitMind.GitModel;
 using GitMind.Utils;
 
 
@@ -23,7 +25,7 @@ namespace GitMind.Git.Private
 			this.repoCaller = repoCaller;
 			this.gitDiffParser = gitDiffParser;
 		}
-
+		 
 
 		public Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string path)
 		{
@@ -32,7 +34,18 @@ namespace GitMind.Git.Private
 			{
 				string patch = repo.Diff.GetFilePatch(commitId, path);
 
-				return await gitDiffParser.ParseAsync(commitId, patch, false);
+				CommitDiff commitDiff = await gitDiffParser.ParseAsync(commitId, patch, false);
+
+				if (commitId == Commit.UncommittedId)
+				{
+					string filePath = Path.Combine(workingFolder, path);
+					if (File.Exists(filePath))
+					{
+						commitDiff = new CommitDiff(commitDiff.LeftPath, filePath);
+					}
+				}
+
+				return commitDiff;
 			});
 		}
 

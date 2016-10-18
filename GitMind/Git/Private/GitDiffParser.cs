@@ -43,23 +43,29 @@ namespace GitMind.Git.Private
 						break;
 					}
 
-					left.AppendLine(prefix + FilePart);
-					right.AppendLine(prefix + FilePart);
+					if (prefix != "")
+					{
+						left.AppendLine(prefix + FilePart);
+						right.AppendLine(prefix + FilePart);
 
-					string fileName = GetFileName(index, patchLines);
-					left.AppendLine(prefix + fileName);
-					right.AppendLine(prefix + fileName);
+						string fileName = GetFileName(index, patchLines);
+						left.AppendLine(prefix + fileName);
+						right.AppendLine(prefix + fileName);
 
-					left.AppendLine(prefix + FilePart);
-					right.AppendLine(prefix + FilePart);
+						left.AppendLine(prefix + FilePart);
+						right.AppendLine(prefix + FilePart);
+					}
 
 					index = FindFileDiff(index, patchLines);
 					index = WriteFileDiff(index, patchLines, left, right, prefix);
 
-					left.AppendLine(prefix);
-					left.AppendLine(prefix);
-					right.AppendLine(prefix);
-					right.AppendLine(prefix);
+					if (prefix != "")
+					{
+						left.AppendLine(prefix);
+						left.AppendLine(prefix);
+						right.AppendLine(prefix);
+						right.AppendLine(prefix);
+					}
 				}
 
 				string tempPath = Path.Combine(Path.GetTempPath(), "GitMind");
@@ -158,25 +164,28 @@ namespace GitMind.Git.Private
 				string line = diff[i];
 				if (line.StartsWith("@@ "))
 				{
-					RowInfo leftRowInfo = ParseLeftRow(line);
-					RowInfo rightRowInfo = ParseRightRow(line);
-
-					if (i != index)
+					if (prefix != "")
 					{
+						RowInfo leftRowInfo = ParseLeftRow(line);
+						RowInfo rightRowInfo = ParseRightRow(line);
+
+						if (i != index)
+						{
+							left.AppendLine(prefix + DiffPart);
+							right.AppendLine(prefix + DiffPart);
+						}
+
+						string rowNumbersLeft = $"{leftRowInfo.FirstRow}-{leftRowInfo.LastRow}";
+						string rowNumbersRight = $"{rightRowInfo.FirstRow}-{rightRowInfo.LastRow}";
+
+						string rowNumbers = rowNumbersLeft != rowNumbersRight
+							? "Lines: " + rowNumbersLeft + " -> " + rowNumbersRight + ":"
+							: "Lines: " + rowNumbersLeft + ":";
+						left.AppendLine(prefix + rowNumbers);
 						left.AppendLine(prefix + DiffPart);
+						right.AppendLine(prefix + rowNumbers);
 						right.AppendLine(prefix + DiffPart);
 					}
-
-					string rowNumbersLeft = $"{leftRowInfo.FirstRow}-{leftRowInfo.LastRow}";
-					string rowNumbersRight = $"{rightRowInfo.FirstRow}-{rightRowInfo.LastRow}";
-
-					string rowNumbers = rowNumbersLeft != rowNumbersRight 
-						? "Lines: " + rowNumbersLeft + " -> " + rowNumbersRight + ":"
-						: "Lines: " + rowNumbersLeft + ":";
-					left.AppendLine(prefix + rowNumbers);
-					left.AppendLine(prefix + DiffPart);
-					right.AppendLine(prefix + rowNumbers);
-					right.AppendLine(prefix + DiffPart);
 				}
 				else if (line.StartsWith(" "))
 				{
