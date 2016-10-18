@@ -40,13 +40,13 @@ namespace GitMind.GitModel.Private
 
 			SetLocalAndRemoteAhead(repository);
 
-			repository.Branches.Values
-				.Where(b => b.CommitIds.Any())
-				.ForEach(b =>
-				{
-					b.TipCommitId = b.CommitIds.First();
-					b.FirstCommitId = b.CommitIds.Last();
-				});
+			//repository.Branches.Values
+			//	.Where(b => b.CommitIds.Any())
+			//	.ForEach(b =>
+			//	{
+			//		b.TipCommitId = b.CommitIds.First();
+			//		b.FirstCommitId = b.CommitIds.Last();
+			//	});
 
 			SetBranchHierarchyImpl(repository);
 		}
