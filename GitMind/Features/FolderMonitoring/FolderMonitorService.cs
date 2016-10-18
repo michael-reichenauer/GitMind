@@ -31,7 +31,7 @@ namespace GitMind.Features.FolderMonitoring
 		private DateTime repoTriggerTime;
 		private readonly Action<DateTime> repoTriggerAction;
 		private readonly DispatcherTimer repoTimer;
-	
+
 
 		public FolderMonitorService(Action<DateTime> statusTriggerAction, Action<DateTime> repoTriggerAction)
 		{
@@ -60,7 +60,7 @@ namespace GitMind.Features.FolderMonitoring
 			string refsPath = Path.Combine(workingFolder, GitFolder, GitRefsFolder);
 			if (!Directory.Exists(workingFolder) || !Directory.Exists(refsPath))
 			{
-				Log.Warn($"Either {workingFolder} or {refsPath} does not exist.");
+				Log.Warn("Selected folder is not within a working folder.");
 				return;
 			}
 
@@ -74,7 +74,7 @@ namespace GitMind.Features.FolderMonitoring
 			workFolderWatcher.Filter = "*.*";
 			workFolderWatcher.IncludeSubdirectories = true;
 
-			
+
 			refsWatcher.Path = refsPath;
 			refsWatcher.NotifyFilter = NotifyFilters;
 			refsWatcher.Filter = "*.*";
