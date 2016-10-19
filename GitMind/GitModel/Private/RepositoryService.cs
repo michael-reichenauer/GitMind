@@ -237,6 +237,12 @@ namespace GitMind.GitModel.Private
 				? gitRepository.Head.TipId
 				: MCommit.UncommittedId;
 
+			if (currentBranch.TipCommit.IsVirtual
+					&& currentBranch.TipCommit.FirstParentId == repository.CurrentCommitId)
+			{
+				repository.CurrentCommitId = currentBranch.TipCommit.Id;
+			}
+
 			repository.SubBranches.Clear();
 		}
 

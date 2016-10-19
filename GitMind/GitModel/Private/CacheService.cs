@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using GitMind.Utils;
 
+
 namespace GitMind.GitModel.Private
 {
 	internal class CacheService : ICacheService
@@ -65,7 +66,7 @@ namespace GitMind.GitModel.Private
 					Log.Debug("No cached repository");
 					return null;
 				}
-				
+
 
 				if (repository.Version != MRepository.CurrentVersion)
 				{
@@ -118,10 +119,17 @@ namespace GitMind.GitModel.Private
 
 				Task.Run(() =>
 				{
-					if (File.Exists(tempPath2))
+					try
 					{
-						File.Delete(tempPath2);
+						if (File.Exists(tempPath2))
+						{
+							File.Delete(tempPath2);
+						}
 					}
+					catch (Exception e) when(e.IsNotFatal())
+					{
+						Log.Warn($"Failed to delete {tempPath2}, {e.Message}");
+					}			
 				}).RunInBackground();
 			}
 			catch (Exception e)
