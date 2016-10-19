@@ -32,6 +32,8 @@ namespace GitMind.Features.FolderMonitoring
 		private readonly Action<DateTime> repoTriggerAction;
 		private readonly DispatcherTimer repoTimer;
 
+		private LibGit2Sharp.Repository repo = null;
+
 
 		public FolderMonitorService(Action<DateTime> statusTriggerAction, Action<DateTime> repoTriggerAction)
 		{
@@ -69,6 +71,8 @@ namespace GitMind.Features.FolderMonitoring
 			statusTimer.Stop();
 			repoTimer.Stop();
 
+			repo = GetRepo(workingFolder);
+
 			workFolderWatcher.Path = workingFolder;
 			workFolderWatcher.NotifyFilter = NotifyFilters;
 			workFolderWatcher.Filter = "*.*";
@@ -89,6 +93,26 @@ namespace GitMind.Features.FolderMonitoring
 		}
 
 
+		private LibGit2Sharp.Repository GetRepo(string workingFolder)
+		{
+			try
+			{
+				if (repo != null)
+				{
+					repo.Dispose();
+				}
+
+				return new LibGit2Sharp.Repository(workingFolder);
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to create repo to check ignored files, {e}");
+			}
+
+			return null;
+		}
+
+
 		private void WorkingFolderChange(string fullPath, string path, WatcherChangeTypes changeType)
 		{
 			if (path == GitHeadFile)
@@ -99,8 +123,16 @@ namespace GitMind.Features.FolderMonitoring
 
 			if (path == null || !path.StartsWith(GitFolder))
 			{
-				// Log.Debug($"Status chage for '{fullPath}' {changeType}");
-				StatusChange();
+				if (repo != null && repo.Ignore.IsPathIgnored(path))
+				{
+					return;
+				}
+
+				if (!Directory.Exists(fullPath))
+				{
+					Log.Debug($"Status change for '{fullPath}' {changeType}");
+					StatusChange();
+				}
 			}
 		}
 
