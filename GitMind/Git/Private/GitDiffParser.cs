@@ -17,6 +17,8 @@ namespace GitMind.Git.Private
 			"====================================================="
 			+ "=================================================";
 
+		private static readonly char[] LineEnding = "\r".ToCharArray();
+
 
 		public Task<CommitDiff> ParseAsync(string commitId, string patch, bool addPrefixes = true)
 		{
@@ -161,7 +163,7 @@ namespace GitMind.Git.Private
 
 			for (int i = index; i < diff.Count; i++)
 			{
-				string line = diff[i];
+				string line = diff[i].TrimEnd(LineEnding);
 				if (line.StartsWith("@@ "))
 				{
 					if (prefix != "")
@@ -205,6 +207,10 @@ namespace GitMind.Git.Private
 				else if (line.StartsWith(@"\ "))
 				{
 					// Ignore "\\ No new line rows"
+					if (prefix == "" && left.Length > 0)
+					{
+						left.Remove(left.Length - 1, 1);
+					}
 					continue;
 				}
 				else

@@ -209,16 +209,6 @@ namespace GitMind.GitModel.Private
 				.Where(b => b.Value.IsActive).Select(g => g.Value)
 				.ToList();
 
-			//// Get the most resent tip (local or remote)
-			//var activeTip = activeSubBranches
-			//	.OrderByDescending(b => b.TipCommit.CommitDate)
-			//	.FirstOrDefault();
-
-			//if (activeTip != null)
-			//{
-			//	branch.TipCommitId = activeTip.TipCommitId;
-			//}
-
 			branch.IsActive = activeSubBranches.Any();
 
 			MSubBranch localSubBranch = activeSubBranches.FirstOrDefault(b => b.IsLocal);
