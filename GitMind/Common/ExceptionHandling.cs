@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using GitMind.Common.MessageDialogs;
+using GitMind.Settings;
 using GitMind.Utils;
 
 
@@ -11,23 +12,32 @@ namespace GitMind.Common
 {
 	internal static class ExceptionHandling
 	{
+		private static readonly ICmd cmd = new Cmd();
 		private static bool hasDisplayedErrorMessageBox;
 		private static bool hasFailed;
-
+		private static bool hasShutdown;
 
 		public static void Init()
 		{
 			// Add the event handler for handling UI thread exceptions to the event		
 			Application.Current.DispatcherUnhandledException += (s, e) =>
+			{
 				HandleException("dispatcher exception", e.Exception);
+				e.Handled = true;
+			};
 
 			// Add the event handler for handling non-UI thread exceptions to the event. 
 			AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-			HandleException("app domain exception", e.ExceptionObject as Exception);
+			{
+				HandleException("app domain exception", e.ExceptionObject as Exception);
+			};
 
 			// Log exceptions that hasn't been handled when a Task is finalized.
 			TaskScheduler.UnobservedTaskException += (s, e) =>
+			{
 				HandleException("unobserved task exception", e.Exception);
+				e.SetObserved();
+			};
 		}
 
 
@@ -56,17 +66,24 @@ namespace GitMind.Common
 
 		public static void Shutdown(string message, Exception e)
 		{
+			if (hasShutdown)
+			{
+				return;
+			}
+
+			hasShutdown = true;
+
 			string errorMessage = $"{message}:\n{e}";
 			Log.Error(errorMessage);
 
 			var dispatcher = GetApplicationDispatcher();
 			if (dispatcher.CheckAccess())
 			{
-				ShowExceptionDialog(errorMessage, e);
+				ShowExceptionDialog(e);
 			}
 			else
 			{
-				dispatcher.Invoke(() => ShowExceptionDialog(errorMessage, e));
+				dispatcher.Invoke(() => ShowExceptionDialog(e));
 			}
 
 			if (Debugger.IsAttached)
@@ -74,11 +91,13 @@ namespace GitMind.Common
 				Debugger.Break();
 			}
 
-			Environment.FailFast(errorMessage, e);
+			Restart();
+
+			Application.Current.Shutdown(0);
 		}
 
 
-		private static void ShowExceptionDialog(string errorMessage, Exception e)
+		private static void ShowExceptionDialog(Exception e)
 		{
 			if (hasDisplayedErrorMessageBox)
 			{
@@ -87,8 +106,17 @@ namespace GitMind.Common
 
 			hasDisplayedErrorMessageBox = true;
 
-			Message.ShowError(
-				Application.Current.MainWindow, errorMessage, "GitMind - Unhandled Exception");
+			Message.ShowInfo(
+				Application.Current.MainWindow,
+				"Sorry, but some unexpected event occurred.\nPlease lets try again.",
+				"GitMind");
+		}
+
+
+		private static void Restart()
+		{
+			string targetPath = ProgramPaths.GetInstallFilePath();
+			cmd.Start(targetPath, "");
 		}
 
 

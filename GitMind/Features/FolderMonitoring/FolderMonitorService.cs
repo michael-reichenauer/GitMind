@@ -123,12 +123,12 @@ namespace GitMind.Features.FolderMonitoring
 
 			if (path == null || !path.StartsWith(GitFolder))
 			{
-				if (repo != null && repo.Ignore.IsPathIgnored(path))
+				if (repo != null && path != null && repo.Ignore.IsPathIgnored(path))
 				{
 					return;
 				}
 
-				if (!Directory.Exists(fullPath))
+				if (fullPath != null && !Directory.Exists(fullPath))
 				{
 					Log.Debug($"Status change for '{fullPath}' {changeType}");
 					StatusChange();
