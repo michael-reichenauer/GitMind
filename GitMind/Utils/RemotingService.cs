@@ -10,19 +10,6 @@ using System.Threading;
 
 namespace GitMind.Utils
 {
-	/// <summary>
-	/// The IPC Remoting service base class. 
-	/// On the server side, instances of classes, which inherits this class will receive IPC calls.
-	/// On client side, proxy instances, based on this type, are used to make remote IPC calls.
-	/// </summary>
-	internal class RemoteService : MarshalByRefObject
-	{
-		// Remoting Object's ease expires after every 5 minutes by default. We need to override the
-		// InitializeLifetimeService class to ensure that lease never expires.
-		public override object InitializeLifetimeService() => null;
-	}
-
-
 	internal class RemotingService : IDisposable
 	{
 		private string serverId;

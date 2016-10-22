@@ -104,12 +104,8 @@ namespace GitMind.Common
 				return;
 			}
 
+			// Skipping message window for now, the error has been logged.
 			hasDisplayedErrorMessageBox = true;
-
-			Message.ShowInfo(
-				Application.Current.MainWindow,
-				"Sorry, but some unexpected event occurred.\nPlease lets try again.",
-				"GitMind");
 		}
 
 

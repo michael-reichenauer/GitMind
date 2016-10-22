@@ -20,21 +20,6 @@ using GitMind.Utils.UI;
 
 namespace GitMind
 {
-	internal class Receiver : RemoteService
-	{
-		public void Receive(string data)
-		{
-			// Do an asynchronous call to ActivateFirstInstance function
-			Application.Current.Dispatcher.InvokeAsync(
-				() =>
-				{
-					Log.Debug($"Got second instance argument '{data}'");
-					Application.Current.MainWindow.Activate();
-				});
-		}
-	}
-	
-
 	/// <summary>
 	/// Interaction logic for App.xaml.
 	/// </summary>
@@ -60,26 +45,8 @@ namespace GitMind
 
 			Log.Debug($"Start version: {version}, Args: '{argsText}'");
 
-			//App application = new App();
-			//application.StartProgram();
-
-			using (RemotingService remotingService = new RemotingService())
-			{
-				if (remotingService.TryCreateServer(ProgramPaths.ProductGuid))
-				{
-					Log.Debug("First instance is starting");
-					remotingService.PublishService(new Receiver());
-
-					App application = new App();
-					application.StartProgram();
-				}
-				else
-				{
-					remotingService.CallService<Receiver>(ProgramPaths.ProductGuid,
-						service => service.Receive("some data"));
-					Log.Debug("Closing second instance");
-				}
-			}
+			App application = new App();
+			application.StartProgram();
 		}
 
 
@@ -117,6 +84,18 @@ namespace GitMind
 			{
 				Application.Current.Shutdown(0);
 				return;
+			}
+
+			string id = MainWindowRemoteService.GetId(commandLine.WorkingFolder);
+			using (RemotingService remotingService = new RemotingService())
+			{
+				if (!remotingService.TryCreateServer(id))		
+				{
+					// Another GitMind instance for that working folder is already running, activate that.
+					remotingService.CallService<MainWindowRemoteService>(id, service => service.Activate());
+					Application.Current.Shutdown(0);
+					return;
+				}
 			}
 
 			string version = GetProgramVersion();

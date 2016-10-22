@@ -43,7 +43,7 @@ namespace GitMind.Utils.UI
 		public PropertySetter Set(object value)
 		{
 			bool isSet = false;
-			if (propertyValue != value)
+			if (!Equals(propertyValue, value))
 			{
 				propertyValue = value;
 				isSet = true;
