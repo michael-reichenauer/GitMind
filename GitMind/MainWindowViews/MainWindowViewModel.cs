@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Common;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
 using GitMind.Installation;
@@ -24,7 +25,7 @@ namespace GitMind.MainWindowViews
 	{
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly FolderMonitorService folderMonitor;
-
+		private readonly JumpListService jumpListService = new JumpListService();
 
 		private readonly Window owner;
 		private readonly Action setSearchFocus;
@@ -84,6 +85,7 @@ namespace GitMind.MainWindowViews
 						return;
 					}
 
+					jumpListService.Add(value);
 					RepositoryViewModel.WorkingFolder = value;
 					folderMonitor.Monitor(value);
 					Notify(nameof(Title));

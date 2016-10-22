@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -89,7 +88,7 @@ namespace GitMind
 			string id = MainWindowRemoteService.GetId(commandLine.WorkingFolder);
 			using (RemotingService remotingService = new RemotingService())
 			{
-				if (!remotingService.TryCreateServer(id))		
+				if (!remotingService.TryCreateServer(id))
 				{
 					// Another GitMind instance for that working folder is already running, activate that.
 					remotingService.CallService<MainWindowRemoteService>(id, service => service.Activate());
@@ -100,6 +99,7 @@ namespace GitMind
 
 			string version = GetProgramVersion();
 			Log.Usage($"Start version: {version}");
+
 
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
@@ -182,7 +182,7 @@ namespace GitMind
 				// The actual installation (copy of files) is done by another, allow some time for that
 				await Task.Delay(TimeSpan.FromSeconds(5));
 			}
-		
+
 			mainWindow.IsNewVersionVisible = latestVersionService.IsNewVersionInstalled();
 
 			newVersionTimer.Interval = TimeSpan.FromHours(3);
