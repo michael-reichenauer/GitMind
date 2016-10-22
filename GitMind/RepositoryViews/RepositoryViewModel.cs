@@ -809,6 +809,7 @@ namespace GitMind.RepositoryViews
 				progress.SetText("Update all branches ...");
 				await networkService.FetchAllNotesAsync(workingFolder);
 
+				progress.SetText($"Update status after update all branches ...");
 				await RefreshAfterCommandAsync(false);
 			});
 		}
@@ -834,7 +835,7 @@ namespace GitMind.RepositoryViews
 		{
 			isInternalDialog = true;
 			BranchName branchName = Repository.CurrentBranch.Name;
-			Progress.ShowDialog(Owner, $"Update current branch {branchName} ...", async () =>
+			Progress.ShowDialog(Owner, $"Update current branch {branchName} ...", async progress =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
@@ -842,6 +843,8 @@ namespace GitMind.RepositoryViews
 				await gitBranchService.MergeCurrentBranchAsync(workingFolder);
 
 				await networkService.FetchAllNotesAsync(workingFolder);
+
+				progress.SetText($"Update status after pull current branch {branchName} ...");
 				await RefreshAfterCommandAsync(false);
 			});
 		}
@@ -882,6 +885,7 @@ namespace GitMind.RepositoryViews
 					await networkService.PushBranchAsync(workingFolder, branch.Name, GetCredentialsHandler());
 				}
 
+				progress.SetText("Update status after push all branches ...");
 				await RefreshAfterCommandAsync(false);
 			});
 		}
@@ -896,8 +900,9 @@ namespace GitMind.RepositoryViews
 		private void PushCurrentBranch()
 		{
 			isInternalDialog = true;
+			BranchName branchName = Repository.CurrentBranch.Name;
 			Progress.ShowDialog(
-				Owner, $"Push current branch {Repository.CurrentBranch.Name} ...", async () =>
+				Owner, $"Push current branch {branchName} ...", async progress =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
@@ -905,7 +910,8 @@ namespace GitMind.RepositoryViews
 
 				await networkService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
 
-				await RefreshAfterCommandAsync(false);
+				progress.SetText($"Updating status after push {branchName} ...");
+				await RefreshAfterCommandAsync(true);
 			});
 		}
 
