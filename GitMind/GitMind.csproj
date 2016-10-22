@@ -163,7 +163,7 @@
     <Compile Include="MainWindowViews\HamburgerButton.xaml.cs">
       <DependentUpon>HamburgerButton.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Utils\SingleInstance.cs" />
+    <Compile Include="Utils\RemotingService.cs" />
     <Compile Include="Utils\UI\BusyProgress.cs" />
     <Compile Include="Utils\UI\HideableGridSplitter.cs" />
     <Compile Include="Utils\Compare.cs" />

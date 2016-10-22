@@ -16,15 +16,29 @@ using GitMind.MainWindowViews;
 using GitMind.Settings;
 using GitMind.Utils;
 using GitMind.Utils.UI;
-using Microsoft.Shell;
 
 
 namespace GitMind
 {
+	internal class Receiver : RemoteService
+	{
+		public void Receive(string data)
+		{
+			// Do an asynchronous call to ActivateFirstInstance function
+			Application.Current.Dispatcher.InvokeAsync(
+				() =>
+				{
+					Log.Debug($"Got second instance argument '{data}'");
+					Application.Current.MainWindow.Activate();
+				});
+		}
+	}
+	
+
 	/// <summary>
 	/// Interaction logic for App.xaml.
 	/// </summary>
-	public partial class App : Application, ISingleInstanceApp
+	public partial class App : Application
 	{
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private ICommandLine commandLine;
@@ -41,29 +55,31 @@ namespace GitMind
 			AssemblyResolver.Activate();
 
 			string version = GetProgramVersion();
-			string argsText = string.Join("','", Environment.GetCommandLineArgs());
+			string[] commandLineArgs = Environment.GetCommandLineArgs();
+			string argsText = string.Join("','", commandLineArgs);
 
 			Log.Debug($"Start version: {version}, Args: '{argsText}'");
 
-			App application = new App();
-			application.StartProgram();
+			//App application = new App();
+			//application.StartProgram();
 
-		
+			using (RemotingService remotingService = new RemotingService())
+			{
+				if (remotingService.TryCreateServer(ProgramPaths.ProductGuid))
+				{
+					Log.Debug("First instance is starting");
+					remotingService.PublishService(new Receiver());
 
-			//if (SingleInstance<App>.InitializeAsFirstInstance(ProgramPaths.ProductGuid))
-			//{
-			//	var application = new App();
-
-			//	application.InitializeComponent();
-			//	application.Run();
-
-			//	// Allow single instance code to perform cleanup operations
-			//	SingleInstance<App>.Cleanup();
-			//}
-			//else
-			//{
-			//	Log.Debug("Second instance is closing");
-			//}
+					App application = new App();
+					application.StartProgram();
+				}
+				else
+				{
+					remotingService.CallService<Receiver>(ProgramPaths.ProductGuid,
+						service => service.Receive("some data"));
+					Log.Debug("Closing second instance");
+				}
+			}
 		}
 
 
@@ -75,13 +91,6 @@ namespace GitMind
 			return version;
 		}
 
-
-		public bool SignalExternalCommandLineArgs(IList<string> args)
-		{
-			Log.Debug($"Got second instance argument ... '{string.Join(",", args)}'");
-			Application.Current.MainWindow.Activate();
-			return true;
-		}
 
 
 		protected override void OnExit(ExitEventArgs e)
