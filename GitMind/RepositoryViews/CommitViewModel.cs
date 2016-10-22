@@ -137,8 +137,10 @@ namespace GitMind.RepositoryViews
 			|| (Commit == Commit.Branch.TipCommit && Commit.Branch.Name != BranchName.Master);
 
 		// Value used by merge and that determine if item is visible
-		public int BranchColumn { get; set; }
+		public BranchViewModel BranchViewModel { get; set; }
 		public int RowIndex { get; set; }
+		public int X => BranchViewModel.X;
+		public int Y => Converters.ToY(RowIndex) + 10;
 
 
 		public void SetDim()

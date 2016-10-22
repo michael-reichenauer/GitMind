@@ -730,29 +730,6 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		public bool Clicked(int column, int rowIndex, bool isControl)
-		{
-			if (rowIndex < 0 || rowIndex >= Commits.Count || column < 0 || column >= Branches.Count)
-			{
-				// Click is not within supported area.
-				return false;
-			}
-
-			CommitViewModel commitViewModel = Commits[rowIndex];
-
-			if (commitViewModel.IsMergePoint && commitViewModel.BranchColumn == column)
-			{
-				// User clicked on a merge point (toggle between expanded and collapsed)
-				int rowsChange = viewModelService.ToggleMergePoint(this, commitViewModel.Commit);
-
-				ScrollRows(rowsChange);
-				VirtualItemsSource.DataChanged(width);
-				return true;
-			}
-
-			return false;
-		}
-
 
 		public void ScrollRows(int rows)
 		{
@@ -1096,28 +1073,41 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public void Clicked(Point position, bool isControl)
+		public void Clicked(Point position)
 		{
-			double xpos = position.X - 9;
-			double ypos = position.Y - 5;
+			double clickX = position.X - 9;
+			double clickY = position.Y - 5;
 
-			int column = Converters.ToColumn(xpos);
-			int x = Converters.ToX(column);
-
-			int row = Converters.ToRow(ypos);
-			int y = Converters.ToY(row) + 10;
-
-			double absx = Math.Abs(xpos - x);
-			double absy = Math.Abs(ypos - y);
-
-			bool isHandled = false;
-			if ((absx < 10) && (absy < 10))
+			int row = Converters.ToRow(clickY);
+		
+			if (row < 0 || row >= Commits.Count - 1 || clickX < 0 || clickX >= graphWidth)
 			{
-				isHandled = Clicked(column, row, isControl);
+				// Click is not within supported area.
+				return;
 			}
 
-			if (!isHandled && (absx < 10))
+			CommitViewModel commitViewModel = Commits[row];
+			int xDotCenter = commitViewModel.X;
+			int yDotCenter = commitViewModel.Y;
+
+			double absx = Math.Abs(xDotCenter - clickX);
+			double absy = Math.Abs(yDotCenter - clickY);
+
+			if ((absx < 10) && (absy < 10))
 			{
+				Clicked(commitViewModel);
+			}
+		}
+
+		private void Clicked(CommitViewModel commitViewModel)
+		{
+			if (commitViewModel.IsMergePoint)
+			{
+				// User clicked on a merge point (toggle between expanded and collapsed)
+				int rowsChange = viewModelService.ToggleMergePoint(this, commitViewModel.Commit);
+
+				ScrollRows(rowsChange);
+				VirtualItemsSource.DataChanged(width);
 			}
 		}
 	}
