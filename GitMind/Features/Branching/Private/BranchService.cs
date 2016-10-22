@@ -139,7 +139,7 @@ namespace GitMind.Features.Branching.Private
 						workingFolder, branch.Name, repositoryCommands.GetCredentialsHandler());
 
 					progress.SetText($"Updating status after push {branch.Name} ...");
-					await repositoryCommands.RefreshAfterCommandAsync(false);
+					await repositoryCommands.RefreshAfterCommandAsync(true);
 				});
 			}
 		}
