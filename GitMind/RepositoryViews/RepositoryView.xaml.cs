@@ -42,9 +42,7 @@ namespace GitMind.RepositoryViews
 
 				Point position = new Point(viewPoint.X + viewModel.Canvas.Offset.X, viewPoint.Y + viewModel.Canvas.Offset.Y);
 
-				bool isControl = (Keyboard.Modifiers & ModifierKeys.Control) > 0;
-
-				viewModel.Clicked(position, isControl);
+				viewModel.Clicked(position);
 			}
 
 			base.OnPreviewMouseUp(e);

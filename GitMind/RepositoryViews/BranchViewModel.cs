@@ -109,6 +109,7 @@ namespace GitMind.RepositoryViews
 
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }
+		public int X { get; set; }
 		public int TipRowIndex { get; set; }
 		public int FirstRowIndex { get; set; }
 		public Brush DimBrushHighlight { get; set; }
@@ -132,7 +133,7 @@ namespace GitMind.RepositoryViews
 			Notify(nameof(StrokeThickness), nameof(Brush), nameof(DimColor));
 		}
 
-		public override string ToString() => $"{Name}";
+		public override string ToString() => $"{Branch}";
 
 
 		private IReadOnlyList<BranchItem> GetChildBranches()

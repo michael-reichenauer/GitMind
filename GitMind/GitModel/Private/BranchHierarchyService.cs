@@ -416,7 +416,6 @@ namespace GitMind.GitModel.Private
 				localBranch.CommitIds.Insert(0, Commit.UncommittedId);
 				branch.CommitIds.Remove(Commit.UncommittedId);
 				branch.TipCommitId = repository.Commits[Commit.UncommittedId].FirstParentId;
-				branch.RemoteTipCommitId = branch.TipCommitId;
 				repository.Commits[Commit.UncommittedId].BranchId = localBranch.Id;
 			}
 
