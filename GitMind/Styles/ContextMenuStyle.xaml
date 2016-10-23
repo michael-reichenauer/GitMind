@@ -16,12 +16,14 @@
 			</Setter.Value>
 		</Setter>
 	</Style>
+	
 
-	<!-- Menu item Icons -->
+	<!-- Menu item Icons text style -->
 	<Style x:Key="MenuIconStyle" TargetType="{x:Type TextBlock}">
 		<Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Material Icons"/>
 		<Setter Property="FontSize" Value="18"/>
 		<Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+		<Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
 		<Setter Property="Padding" Value="0"/>
 		<Setter Property="Margin" Value="6,0,6,0"/>
@@ -82,7 +84,11 @@
 					<ColumnDefinition Width="Auto" SharedSizeGroup="Shortcut" />
 					<ColumnDefinition Width="13" />
 				</Grid.ColumnDefinitions>
-				<ContentPresenter Name="Icon" Margin="0" VerticalAlignment="Center" ContentSource="Icon" />
+				<ContentPresenter
+					Name="Icon" 
+					Margin="0" 
+					VerticalAlignment="Center" 
+					ContentSource="Icon" />
 				<Border Grid.Column="0"
 					Name="Check"
 					Width="13"

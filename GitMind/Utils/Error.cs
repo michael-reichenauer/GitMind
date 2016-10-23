@@ -28,7 +28,7 @@ namespace GitMind.Utils
 
 			if (message != null && exception != errorException)
 			{
-				Message = $"{message}, {exception.Message}";
+				Message = $"{message},\n{exception.GetType().Name}: {exception.Message}";
 				this.exception = exception;
 			}
 			else if (message != null)
@@ -50,6 +50,8 @@ namespace GitMind.Utils
 
 
 		public string Message { get; }
+
+		public Exception Exception => exception;
 
 		public static Error From(Exception e) => new Error(e);
 

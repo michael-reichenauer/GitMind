@@ -34,7 +34,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public int ZIndex => 0;
+		public int ZIndex => 400;
 		public string Type => nameof(CommitViewModel);
 		public string Id => Commit.Id;
 		public string ShortId => Commit.ShortId;
@@ -50,10 +50,11 @@ namespace GitMind.RepositoryViews
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.Id == Commit.UncommittedId;
 		public bool IsShown => BranchTips == null;
+		public string BranchToolTip { get; set; }
 
 		public int XPoint { get; set; }
-		public int YPoint => IsMergePoint ? 2 : 4;
-		public int Size => IsMergePoint ? 10 : 6;
+		public int YPoint => IsEndPoint ? 4 : IsMergePoint ? 2 : 4;
+		public int Size => IsEndPoint ? 8 : IsMergePoint ? 10 : 6;
 		public Rect Rect { get; set; }
 		public double Top => Rect.Top;
 		public double Left => Rect.Left;
@@ -122,14 +123,24 @@ namespace GitMind.RepositoryViews
 
 		// Values used by other properties
 		public Commit Commit { get; set; }
+
+		// If second parent is other branch (i.e. no a pull merge)
+		// If commit is first commit in a branch (first parent is other branch)
+		// If commit is tip commit, but not master
 		public bool IsMergePoint => 
 			(Commit.IsMergePoint && Commit.Branch != Commit.SecondParent.Branch)
 			|| (Commit.HasFirstParent && Commit.Branch != Commit.FirstParent.Branch)
-			|| (!Commit.HasFirstChild && Commit.Branch.Name != BranchName.Master);
+			|| (Commit == Commit.Branch.TipCommit && Commit.Branch.Name != BranchName.Master);
+
+		public bool IsEndPoint =>
+			(Commit.HasFirstParent && Commit.Branch != Commit.FirstParent.Branch)
+			|| (Commit == Commit.Branch.TipCommit && Commit.Branch.Name != BranchName.Master);
 
 		// Value used by merge and that determine if item is visible
-		public int BranchColumn { get; set; }
+		public BranchViewModel BranchViewModel { get; set; }
 		public int RowIndex { get; set; }
+		public int X => BranchViewModel.X;
+		public int Y => Converters.ToY(RowIndex) + 10;
 
 
 		public void SetDim()

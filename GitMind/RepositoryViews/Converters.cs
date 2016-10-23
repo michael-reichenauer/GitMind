@@ -4,7 +4,7 @@ using System.Windows;
 
 namespace GitMind.RepositoryViews
 {
-	internal static class Converter
+	internal static class Converters
 	{
 		private static readonly int RowHeight = 17;
 		private static readonly int ColumnSize = 20;

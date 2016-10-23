@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,6 +18,8 @@ namespace GitMind.Git.Private
 			"====================================================="
 			+ "=================================================";
 
+		private static readonly char[] LineEnding = "\r".ToCharArray();
+
 
 		public Task<CommitDiff> ParseAsync(string commitId, string patch, bool addPrefixes = true)
 		{
@@ -24,6 +27,7 @@ namespace GitMind.Git.Private
 
 			return Task.Run(() =>
 			{
+				List<string> files = new List<string>();
 				StringBuilder left = new StringBuilder();
 				StringBuilder right = new StringBuilder();
 
@@ -43,23 +47,31 @@ namespace GitMind.Git.Private
 						break;
 					}
 
-					left.AppendLine(prefix + FilePart);
-					right.AppendLine(prefix + FilePart);
+					if (prefix != "")
+					{
+						
+						left.AppendLine(prefix + FilePart);
+						right.AppendLine(prefix + FilePart);
 
-					string fileName = GetFileName(index, patchLines);
-					left.AppendLine(prefix + fileName);
-					right.AppendLine(prefix + fileName);
+						string fileName = GetFileName(index, patchLines);
+						files.Add(fileName);
+						left.AppendLine(prefix + fileName);
+						right.AppendLine(prefix + fileName);
 
-					left.AppendLine(prefix + FilePart);
-					right.AppendLine(prefix + FilePart);
+						left.AppendLine(prefix + FilePart);
+						right.AppendLine(prefix + FilePart);
+					}
 
 					index = FindFileDiff(index, patchLines);
 					index = WriteFileDiff(index, patchLines, left, right, prefix);
 
-					left.AppendLine(prefix);
-					left.AppendLine(prefix);
-					right.AppendLine(prefix);
-					right.AppendLine(prefix);
+					if (prefix != "")
+					{
+						left.AppendLine(prefix);
+						left.AppendLine(prefix);
+						right.AppendLine(prefix);
+						right.AppendLine(prefix);
+					}
 				}
 
 				string tempPath = Path.Combine(Path.GetTempPath(), "GitMind");
@@ -73,8 +85,17 @@ namespace GitMind.Git.Private
 				string rightName = $"Commit {shortId}-after";
 				string leftPath = Path.Combine(tempPath, leftName);
 				string rightPath = Path.Combine(tempPath, rightName);
-				File.WriteAllText(leftPath, left.ToString());
-				File.WriteAllText(rightPath, right.ToString());
+
+				StringBuilder filesText = new StringBuilder();
+
+				filesText.AppendLine($"Changed files: {files.Count}");
+				files.ForEach(file =>
+				{
+					filesText.AppendLine("   " + file);
+				});
+
+				File.WriteAllText(leftPath, filesText + "\n\n" + left);
+				File.WriteAllText(rightPath, filesText + "\n\n" + right);
 
 				return new CommitDiff(leftPath, rightPath);
 			});
@@ -127,15 +148,15 @@ namespace GitMind.Git.Private
 			{
 				if (sourceFileName == "ev/null")
 				{
-					return "Added: " + targetFileName;
+					return "Added:    " + targetFileName;
 				}
 				else if (targetFileName == "ev/null")
 				{
-					return "Deleted: " + sourceFileName;
+					return "Deleted:  " + sourceFileName;
 				}
 				else
 				{
-					return "Renamed: " + sourceFileName + " -> " + targetFileName;
+					return "Renamed:  " + sourceFileName + " -> " + targetFileName;
 				}
 			}
 			else
@@ -155,28 +176,31 @@ namespace GitMind.Git.Private
 
 			for (int i = index; i < diff.Count; i++)
 			{
-				string line = diff[i];
+				string line = diff[i].TrimEnd(LineEnding);
 				if (line.StartsWith("@@ "))
 				{
-					RowInfo leftRowInfo = ParseLeftRow(line);
-					RowInfo rightRowInfo = ParseRightRow(line);
-
-					if (i != index)
+					if (prefix != "")
 					{
+						RowInfo leftRowInfo = ParseLeftRow(line);
+						RowInfo rightRowInfo = ParseRightRow(line);
+
+						if (i != index)
+						{
+							left.AppendLine(prefix + DiffPart);
+							right.AppendLine(prefix + DiffPart);
+						}
+
+						string rowNumbersLeft = $"{leftRowInfo.FirstRow}-{leftRowInfo.LastRow}";
+						string rowNumbersRight = $"{rightRowInfo.FirstRow}-{rightRowInfo.LastRow}";
+
+						string rowNumbers = rowNumbersLeft != rowNumbersRight
+							? "Lines: " + rowNumbersLeft + " -> " + rowNumbersRight + ":"
+							: "Lines: " + rowNumbersLeft + ":";
+						left.AppendLine(prefix + rowNumbers);
 						left.AppendLine(prefix + DiffPart);
+						right.AppendLine(prefix + rowNumbers);
 						right.AppendLine(prefix + DiffPart);
 					}
-
-					string rowNumbersLeft = $"{leftRowInfo.FirstRow}-{leftRowInfo.LastRow}";
-					string rowNumbersRight = $"{rightRowInfo.FirstRow}-{rightRowInfo.LastRow}";
-
-					string rowNumbers = rowNumbersLeft != rowNumbersRight 
-						? "Lines: " + rowNumbersLeft + " -> " + rowNumbersRight + ":"
-						: "Lines: " + rowNumbersLeft + ":";
-					left.AppendLine(prefix + rowNumbers);
-					left.AppendLine(prefix + DiffPart);
-					right.AppendLine(prefix + rowNumbers);
-					right.AppendLine(prefix + DiffPart);
 				}
 				else if (line.StartsWith(" "))
 				{
@@ -196,6 +220,10 @@ namespace GitMind.Git.Private
 				else if (line.StartsWith(@"\ "))
 				{
 					// Ignore "\\ No new line rows"
+					if (prefix == "" && left.Length > 0)
+					{
+						left.Remove(left.Length - 1, 1);
+					}
 					continue;
 				}
 				else

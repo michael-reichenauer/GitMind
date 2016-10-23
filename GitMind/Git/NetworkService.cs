@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using GitMind.Git.Private;
+using GitMind.Utils;
 
 
 namespace GitMind.Git
@@ -24,25 +25,25 @@ namespace GitMind.Git
 		}
 
 
-		public Task FetchAsync(string workingFolder)
+		public Task<R> FetchAsync(string workingFolder)
 		{
 			return gitNetworkService.FetchAsync(workingFolder);
 		}
 
 
-		public Task FetchBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> FetchBranchAsync(string workingFolder, BranchName branchName)
 		{
 			return gitNetworkService.FetchBranchAsync(workingFolder, branchName);
 		}
 
 
-		public Task PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler)
+		public Task<R> PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler)
 		{
 			return gitNetworkService.PushCurrentBranchAsync(workingFolder, credentialHandler);
 		}
 
 
-		public Task PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
+		public Task<R> PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
 		{
 			return gitNetworkService.PushBranchAsync(workingFolder, branchName, credentialHandler);
 		}
@@ -54,7 +55,7 @@ namespace GitMind.Git
 		}
 
 
-		public Task FetchAllNotesAsync(string workingFolder)
+		public Task<R> FetchAllNotesAsync(string workingFolder)
 		{
 			return gitCommitBranchNameService.FetchAllNotesAsync(workingFolder);
 		}

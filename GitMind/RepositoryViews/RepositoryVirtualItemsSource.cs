@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Windows;
-using GitMind.Utils;
 using GitMind.Utils.UI.VirtualCanvas;
 
 
@@ -40,7 +38,7 @@ namespace GitMind.RepositoryViews
 
 		public void DataChanged(double width)
 		{
-			virtualArea = new Rect(0, 0, width, Converter.ToRowExtent(commits.Count));
+			virtualArea = new Rect(0, 0, width, Converters.ToRowExtent(commits.Count));
 			TriggerInvalidated();
 		}
 
@@ -61,8 +59,8 @@ namespace GitMind.RepositoryViews
 			// Get the part of the rectangle that is visible
 			viewArea.Intersect(VirtualArea);
 
-			int viewAreaTopIndex = Converter.ToTopRowIndex(viewArea, commits.Count);
-			int viewAreaBottomIndex = Converter.ToBottomRowIndex(viewArea, commits.Count);
+			int viewAreaTopIndex = Converters.ToTopRowIndex(viewArea, commits.Count);
+			int viewAreaBottomIndex = Converters.ToBottomRowIndex(viewArea, commits.Count);
 
 			if (viewAreaBottomIndex > viewAreaTopIndex)
 			{

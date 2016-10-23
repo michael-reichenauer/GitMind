@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using GitMind.Common.MessageDialogs;
@@ -44,13 +45,18 @@ namespace GitMind.Features.Committing
 			{
 				if (repository.CurrentBranch.IsDetached)
 				{
-					MessageDialog.ShowInfo(owner, 
+					Message.ShowInfo(owner, 
 						"Current branch is in detached head status.\n" +
 						"You must first create or switch to branch before commit.");
 					return;
 				}
 
-				IEnumerable<CommitFile> commitFiles = await repositoryCommands.UnCommited.FilesTask;
+				IEnumerable<CommitFile> commitFiles = Enumerable.Empty<CommitFile>();
+				if (repositoryCommands.UnCommited != null)
+				{
+					commitFiles = await repositoryCommands.UnCommited.FilesTask;
+				}
+			
 				string commitMessage = repository.Status.Message;
 
 				CommitDialog dialog = new CommitDialog(
@@ -75,7 +81,7 @@ namespace GitMind.Features.Committing
 						}
 						else
 						{
-							MessageDialog.ShowWarning(owner, "Failed to commit");
+							Message.ShowWarning(owner, "Failed to commit");
 						}
 					});
 
@@ -87,6 +93,10 @@ namespace GitMind.Features.Committing
 					{
 						await repositoryCommands.RefreshAfterCommandAsync(false);
 					});
+				}
+				else if (repository.Status.IsMerging && !commitFiles.Any())
+				{
+					await gitCommitsService.ResetMerge(workingFolder);
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -17,7 +18,7 @@ namespace GitMind.GitModel.Private
 		private readonly IBranchService branchService;
 		private readonly ICommitBranchNameService commitBranchNameService;
 		private readonly IBranchHierarchyService branchHierarchyService;
-		private readonly IAheadBehindService aheadBehindService;
+		//private readonly IAheadBehindService aheadBehindService;
 		private readonly ITagService tagService;
 
 
@@ -29,7 +30,7 @@ namespace GitMind.GitModel.Private
 					new BranchService(),
 					new CommitBranchNameService(),
 					new BranchHierarchyService(),
-					new AheadBehindService(),
+					//new AheadBehindService(),
 					new TagService())
 		{
 		}
@@ -42,7 +43,7 @@ namespace GitMind.GitModel.Private
 			IBranchService branchService,
 			ICommitBranchNameService commitBranchNameService,
 			IBranchHierarchyService branchHierarchyService,
-			IAheadBehindService aheadBehindService,
+			//IAheadBehindService aheadBehindService,
 			ITagService tagService)
 		{
 			this.gitCommitsService = gitCommitsService;
@@ -51,7 +52,7 @@ namespace GitMind.GitModel.Private
 			this.branchService = branchService;
 			this.commitBranchNameService = commitBranchNameService;
 			this.branchHierarchyService = branchHierarchyService;
-			this.aheadBehindService = aheadBehindService;
+			//this.aheadBehindService = aheadBehindService;
 			this.tagService = tagService;
 		}
 
@@ -225,7 +226,7 @@ namespace GitMind.GitModel.Private
 
 			branchHierarchyService.SetBranchHierarchy(repository);
 			
-			aheadBehindService.SetAheadBehind(repository);
+			//aheadBehindService.SetAheadBehind(repository);
 
 			tagService.AddTags(gitRepository, repository);
 
@@ -233,8 +234,14 @@ namespace GitMind.GitModel.Private
 			repository.CurrentBranchId = currentBranch.Id;
 
 			repository.CurrentCommitId = gitStatus.OK
-				? currentBranch.TipCommitId
+				? gitRepository.Head.TipId
 				: MCommit.UncommittedId;
+
+			if (currentBranch.TipCommit.IsVirtual
+					&& currentBranch.TipCommit.FirstParentId == repository.CurrentCommitId)
+			{
+				repository.CurrentCommitId = currentBranch.TipCommit.Id;
+			}
 
 			repository.SubBranches.Clear();
 		}

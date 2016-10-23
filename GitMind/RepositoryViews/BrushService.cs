@@ -165,7 +165,7 @@ namespace GitMind.RepositoryViews
 		private SolidColorBrush DarkBrush(SolidColorBrush brush)
 		{
 			SolidColorBrush darkerBrush = new SolidColorBrush(brush.Color);
-			darkerBrush.Color = InterpolateColors(brush.Color, Brushes.Black.Color, 0.7f);
+			darkerBrush.Color = InterpolateColors(brush.Color, Brushes.Black.Color, 0.6f);
 			return darkerBrush;
 		}
 

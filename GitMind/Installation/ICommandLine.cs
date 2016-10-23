@@ -3,12 +3,13 @@
 
 namespace GitMind.Installation
 {
-	internal interface ICommandLine
+	public interface ICommandLine
 	{
 		bool IsSilent { get; }
 		bool IsInstall { get; }
 		bool IsUninstall { get; }
 		bool IsRunInstalled { get; }
+		bool IsShowDiff { get; }
 		string WorkingFolder { get; }
 		IReadOnlyList<string> BranchNames { get; }
 	}

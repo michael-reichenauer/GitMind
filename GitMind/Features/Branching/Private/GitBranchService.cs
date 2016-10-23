@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Git;
@@ -61,13 +62,13 @@ namespace GitMind.Features.Branching.Private
 				{
 					repository.Merge(branch, signature, MergeNoFFNoCommit);
 
-					RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
+					//RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
 
-					if (!repositoryStatus.IsDirty)
-					{
-						// Empty merge with no changes, lets reset merge since there is nothing to merge
-						repository.Reset(ResetMode.Hard);
-					}
+					//if (!repositoryStatus.IsDirty)
+					//{
+					//	// Empty merge with no changes, lets reset merge since there is nothing to merge
+					//	repository.Reset(ResetMode.Hard);
+					//}
 				}
 			});
 		}
