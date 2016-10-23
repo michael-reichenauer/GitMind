@@ -14,7 +14,7 @@ namespace GitMind.Installation.Private
 
 		public CommandLine()
 		{
-			args = Environment.GetCommandLineArgs();			
+			args = Environment.GetCommandLineArgs();
 			lazyBranchNames = new Lazy<IReadOnlyList<string>>(GetBranchNames);
 		}
 
@@ -55,7 +55,7 @@ namespace GitMind.Installation.Private
 			{
 				branchNames.Add(arg);
 			}
-	
+
 			return branchNames;
 		}
 	}

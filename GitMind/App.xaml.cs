@@ -85,22 +85,10 @@ namespace GitMind
 
 		private void OnStartup()
 		{
-			if (CommandLine.IsShowDiff || CommandLine.IsInstall || CommandLine.IsUninstall)
+			if (IsCommands())
 			{
-				// Need some main window when only message boxes will be shown for diff or installation
-				MainWindow = CreateTempMainWindow();
+				HandleCommands();
 
-				if (CommandLine.IsShowDiff)
-				{			
-					Task.Run(() => diffService.Value.ShowDiffAsync(
-						Commit.UncommittedId, workingFolderService.WorkingFolder).Wait())
-					.Wait();
-				}
-				else
-				{
-					InstallOrUninstall();
-				}			
-				
 				Application.Current.Shutdown(0);
 				return;			
 			}
@@ -149,6 +137,26 @@ namespace GitMind
 		}
 
 
+		private void HandleCommands()
+		{
+			// Need some main window when only message boxes will be shown for commands
+			MainWindow = CreateTempMainWindow();
+
+			if (CommandLine.IsShowDiff)
+			{
+				diffService.Value.ShowDiff(Commit.UncommittedId, workingFolderService.WorkingFolder);
+			}
+			else
+			{
+				InstallOrUninstall();
+			}
+		}
+
+
+		private bool IsCommands()
+		{
+			return CommandLine.IsShowDiff || CommandLine.IsInstall || CommandLine.IsUninstall;
+		}
 
 
 		private bool InstallOrUninstall()
