@@ -129,6 +129,7 @@
     <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
     <Compile Include="Git\Private\IRepoCaller.cs" />
     <Compile Include="Git\Private\RepoCaller.cs" />
+    <Compile Include="Installation\Private\WorkingFolderService.cs" />
     <Compile Include="MainWindowViews\MainWindowIpcService.cs" />
     <Compile Include="RepositoryViews\CredentialHandler.cs" />
     <Compile Include="Git\GitConflict.cs" />
