@@ -132,9 +132,7 @@ namespace GitMind
 			}
 
 
-			string version = GetStartlineText();
-			Log.Usage($"Start version: {version}");
-
+			Log.Usage($"Start version: {GetProgramVersion()}");
 
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
@@ -205,17 +203,25 @@ namespace GitMind
 		}
 
 
+
 		private static string GetStartlineText()
 		{
-			Assembly assembly = Assembly.GetExecutingAssembly();
-			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-			string version = fvi.FileVersion;
+			string version = GetProgramVersion();
 
 			string[] commandLineArgs = Environment.GetCommandLineArgs();
 			string argsText = string.Join("','", commandLineArgs);
 
 			return $"Start version: {version}, Args: '{argsText}'";
 		}
+
+
+		private static string GetProgramVersion()
+		{
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+			return fvi.FileVersion;
+		}
+
 
 
 		private static MessageDialog CreateTempMainWindow()
