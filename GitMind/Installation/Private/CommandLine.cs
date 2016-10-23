@@ -35,6 +35,8 @@ namespace GitMind.Installation.Private
 
 		public bool IsRunInstalled => args.Contains("/run");
 
+		public bool IsShowDiff => args.Contains("/diff");
+
 		private bool IsRunningSetupFile => 
 			Path.GetFileNameWithoutExtension(
 				Assembly.GetEntryAssembly().Location).StartsWith("GitMindSetup");

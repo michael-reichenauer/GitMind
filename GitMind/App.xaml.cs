@@ -9,9 +9,11 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using GitMind.Common;
 using GitMind.Git;
+using GitMind.GitModel;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.MainWindowViews;
+using GitMind.RepositoryViews;
 using GitMind.Settings;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -25,12 +27,17 @@ namespace GitMind
 	public partial class App : Application
 	{
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
-		private ICommandLine commandLine;
+
+		private readonly Lazy<IDiffService> diffService = new Lazy<IDiffService>(() => new DiffService());
 		private readonly IInstaller installer = new Installer();
 
 		private static Mutex programMutex;
 		private DispatcherTimer newVersionTimer;
 		private MainWindow mainWindow;
+
+		public ICommandLine CommandLine { get; private set; }
+
+		public new static App Current => (App)Application.Current;
 
 
 		[STAThread]
@@ -85,18 +92,30 @@ namespace GitMind
 				return;
 			}
 
-			string id = MainWindowIpcService.GetId(commandLine.WorkingFolder);
+			if (CommandLine.IsShowDiff)
+			{
+				Task.Run(() => diffService.Value.ShowDiffAsync(
+					Commit.UncommittedId, CommandLine.WorkingFolder).Wait())
+				.Wait();
+				Application.Current.Shutdown(0);
+				return;
+			}
+
+
+			string id = MainWindowIpcService.GetId(CommandLine.WorkingFolder);
 			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 			{
 				if (!ipcRemotingService.TryCreateServer(id))
 				{
-					// Another GitMind instance for that working folder is already running, activate that.
+					// Another GitMind instance for that working folder is already running, activate that.	
 					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate());
+									
 					Application.Current.Shutdown(0);
 					return;
 				}
 			}
 
+		
 			string version = GetProgramVersion();
 			Log.Usage($"Start version: {version}");
 
@@ -104,8 +123,8 @@ namespace GitMind
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
 			// Must not use WorkingFolder before installation code
-			mainWindow.WorkingFolder = commandLine.WorkingFolder;
-			mainWindow.BranchNames = commandLine.BranchNames.Select(name => new BranchName(name)).ToList();
+			mainWindow.WorkingFolder = CommandLine.WorkingFolder;
+			mainWindow.BranchNames = CommandLine.BranchNames.Select(name => new BranchName(name)).ToList();
 			MainWindow.Show();
 
 			newVersionTimer.Tick += NewVersionCheckAsync;
@@ -117,7 +136,7 @@ namespace GitMind
 		private void StartProgram()
 		{
 			Serializer.RegisterSerializedTypes();
-			commandLine = new CommandLine();
+			CommandLine = new CommandLine();
 			ExceptionHandling.Init();
 			WpfBindingTraceListener.Register();
 
@@ -130,30 +149,30 @@ namespace GitMind
 
 		private bool IsStartProgram()
 		{
-			if (commandLine.IsInstall && !commandLine.IsSilent)
+			if (CommandLine.IsInstall && !CommandLine.IsSilent)
 			{
 				installer.InstallNormal();
 
 				return false;
 			}
-			else if (commandLine.IsInstall && commandLine.IsSilent)
+			else if (CommandLine.IsInstall && CommandLine.IsSilent)
 			{
 				installer.InstallSilent();
 
-				if (commandLine.IsRunInstalled)
+				if (CommandLine.IsRunInstalled)
 				{
 					installer.StartInstalled();
 				}
 
 				return false;
 			}
-			else if (commandLine.IsUninstall && !commandLine.IsSilent)
+			else if (CommandLine.IsUninstall && !CommandLine.IsSilent)
 			{
 				installer.UninstallNormal();
 
 				return false;
 			}
-			else if (commandLine.IsUninstall && commandLine.IsSilent)
+			else if (CommandLine.IsUninstall && CommandLine.IsSilent)
 			{
 				installer.UninstallSilent();
 

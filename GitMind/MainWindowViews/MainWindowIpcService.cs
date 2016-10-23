@@ -8,6 +8,10 @@ namespace GitMind.MainWindowViews
 {
 	internal class MainWindowIpcService : IpcService
 	{
+		public static string GetId(string workingFolder) =>
+			ProgramPaths.ProductGuid + Uri.EscapeDataString(workingFolder);
+
+
 		public void Activate()
 		{
 			Application.Current.Dispatcher.InvokeAsync(() =>
@@ -16,9 +20,5 @@ namespace GitMind.MainWindowViews
 				Application.Current.MainWindow.WindowState = WindowState.Normal;
 			});
 		}
-
-
-		public static string GetId(string workingFolder) => 
-			ProgramPaths.ProductGuid + Uri.EscapeDataString(workingFolder);
 	}
 }
