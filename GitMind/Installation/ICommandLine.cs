@@ -14,5 +14,6 @@ namespace GitMind.Installation
 		bool HasFolder { get; }
 		string Folder { get; }
 		IReadOnlyList<string> BranchNames { get; }
+		bool IsCommit { get; }
 	}
 }

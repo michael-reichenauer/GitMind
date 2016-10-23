@@ -327,6 +327,14 @@ namespace GitMind.RepositoryViews
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository);
 
+					if (App.Current.CommandLine.IsCommit)
+					{
+						if (CommitCommand.CanExecute())
+						{
+							CommitCommand.Execute();
+						}
+					}
+
 					await FetchRemoteChangesAsync(Repository, true);
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository);
