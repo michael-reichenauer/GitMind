@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using GitMind.Common.MessageDialogs;
 using GitMind.Settings;
 using GitMind.Utils;
 
@@ -51,7 +50,7 @@ namespace GitMind.Common
 			hasFailed = true;
 
 			string errorMessage = $"Unhandled {errorType}";
-			
+
 			if (Debugger.IsAttached)
 			{
 				// NOTE: If you end up here a task resulted in an unhandled exception

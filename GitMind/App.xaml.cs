@@ -73,7 +73,7 @@ namespace GitMind
 
 		private void Start()
 		{
-			CommandLine = new CommandLine();
+			CommandLine = new CommandLine(Environment.GetCommandLineArgs());
 			workingFolderService = new WorkingFolderService(CommandLine);
 			ExceptionHandling.Init();
 			WpfBindingTraceListener.Register();
@@ -123,8 +123,10 @@ namespace GitMind
 			{
 				if (!ipcRemotingService.TryCreateServer(id))
 				{
-					// Another GitMind instance for that working folder is already running, activate that.	
-					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate());
+					// Another GitMind instance for that working folder is already running, activate that.
+					string[] args = Environment.GetCommandLineArgs();
+					ipcRemotingService.CallService<MainWindowIpcService>(
+						id, service => service.Activate(args));
 
 					Application.Current.Shutdown(0);
 					return;

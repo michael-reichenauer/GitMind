@@ -74,12 +74,12 @@ namespace GitMind.MainWindowViews
 					string id = MainWindowIpcService.GetId(value);
 					if (ipcRemotingService.TryCreateServer(id))
 					{
-						ipcRemotingService.PublishService(new MainWindowIpcService());
+						ipcRemotingService.PublishService(new MainWindowIpcService(this));
 					}
 					else
 					{
 						// Another GitMind instance for that working folder is already running, activate that.
-						ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate());
+						ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(null));
 						Application.Current.Shutdown(0);
 						ipcRemotingService.Dispose();
 						return;
