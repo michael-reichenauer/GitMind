@@ -50,6 +50,7 @@ namespace GitMind
 		{
 			Log.Debug(GetStartlineText());
 
+			// Make sure that when assemblies that GitMind depends on are extracted whenever requested 
 			AssemblyResolver.Activate();
 
 			App app = new App();
@@ -83,57 +84,89 @@ namespace GitMind
 			Run();
 		}
 
+
 		private void OnStartup()
 		{
 			if (IsCommands())
 			{
+				// Commands like Install, Uninstall, Diff, can be handled immediately
 				HandleCommands();
 
+				// Exit this instance after commands have been handled
 				Application.Current.Shutdown(0);
 				return;			
 			}
 
-			newVersionTimer = new DispatcherTimer();
-			ToolTipService.ShowDurationProperty.OverrideMetadata(
-				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
+			if (IsActivatedOtherInstance(workingFolderService.WorkingFolder))
+			{
+				// Another instance for this working folder is already running and it received the
+				// command line from this instance, lets exit
+				Application.Current.Shutdown(0);
+				return;
+			}
+			
+			StartNormalInstance();
+		}
+
+
+		private void StartNormalInstance()
+		{
+			Log.Usage($"Start version: {GetProgramVersion()}");
+			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
+
+			SetShowToolTipsLongTime();
 
 			installer.TryDeleteTempFiles();
 
+			Serializer.RegisterCacheSerializedTypes();
 
+			ShowMainWindow();
+
+			StartCheckForLatestVersion();
+		}
+
+
+		private void ShowMainWindow()
+		{
 			mainWindow = new MainWindow();
 			MainWindow = mainWindow;
 
-			Serializer.RegisterSerializedTypes();
-	
+			mainWindow.WorkingFolder = workingFolderService.WorkingFolder;
+			mainWindow.BranchNames = CommandLine.BranchNames.Select(name => new BranchName(name)).ToList();
+			MainWindow.Show();
+		}
 
-			string id = MainWindowIpcService.GetId(workingFolderService.WorkingFolder);
+
+		private void StartCheckForLatestVersion()
+		{
+			newVersionTimer = new DispatcherTimer();
+			newVersionTimer.Tick += NewVersionCheckAsync;
+			newVersionTimer.Interval = TimeSpan.FromSeconds(5);
+			newVersionTimer.Start();
+		}
+
+
+		private static void SetShowToolTipsLongTime()
+		{
+			ToolTipService.ShowDurationProperty.OverrideMetadata(
+				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
+		}
+
+
+		private bool IsActivatedOtherInstance(string workingFolder)
+		{
+			string id = MainWindowIpcService.GetId(workingFolder);
 			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 			{
 				if (!ipcRemotingService.TryCreateServer(id))
 				{
 					// Another GitMind instance for that working folder is already running, activate that.	
-					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate());
-
-					Application.Current.Shutdown(0);
-					return;
+					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate());			
+					return true;
 				}
 			}
 
-
-			string version = GetStartlineText();
-			Log.Usage($"Start version: {version}");
-
-
-			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
-
-			// Must not use WorkingFolder before installation code
-			mainWindow.WorkingFolder = workingFolderService.WorkingFolder;
-			mainWindow.BranchNames = CommandLine.BranchNames.Select(name => new BranchName(name)).ToList();
-			MainWindow.Show();
-
-			newVersionTimer.Tick += NewVersionCheckAsync;
-			newVersionTimer.Interval = TimeSpan.FromSeconds(5);
-			newVersionTimer.Start();
+			return false;
 		}
 
 
@@ -199,6 +232,8 @@ namespace GitMind
 
 		private async void NewVersionCheckAsync(object sender, EventArgs e)
 		{
+			newVersionTimer.Interval = LatestCheckIntervall;
+
 			if (await latestVersionService.IsNewVersionAvailableAsync())
 			{
 				await latestVersionService.InstallLatestVersionAsync();
@@ -207,22 +242,26 @@ namespace GitMind
 				await Task.Delay(TimeSpan.FromSeconds(5));
 			}
 
-			mainWindow.IsNewVersionVisible = latestVersionService.IsNewVersionInstalled();
-
-			newVersionTimer.Interval = LatestCheckIntervall;
+			mainWindow.IsNewVersionVisible = latestVersionService.IsNewVersionInstalled();		
 		}
 
 
 		private static string GetStartlineText()
 		{
-			Assembly assembly = Assembly.GetExecutingAssembly();
-			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-			string version = fvi.FileVersion;
+			string version = GetProgramVersion();
 
 			string[] commandLineArgs = Environment.GetCommandLineArgs();
 			string argsText = string.Join("','", commandLineArgs);
 
 			return $"Start version: {version}, Args: '{argsText}'";
+		}
+
+
+		private static string GetProgramVersion()
+		{
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+			return fvi.FileVersion;
 		}
 
 
