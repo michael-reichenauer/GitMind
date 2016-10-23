@@ -26,6 +26,8 @@ namespace GitMind
 	/// </summary>
 	public partial class App : Application
 	{
+		private static readonly TimeSpan LatestCheckIntervall = TimeSpan.FromHours(12);
+
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 
 		private readonly Lazy<IDiffService> diffService = new Lazy<IDiffService>(() => new DiffService());
@@ -34,6 +36,7 @@ namespace GitMind
 		private static Mutex programMutex;
 		private DispatcherTimer newVersionTimer;
 		private MainWindow mainWindow;
+		
 
 		public ICommandLine CommandLine { get; private set; }
 
@@ -204,7 +207,7 @@ namespace GitMind
 
 			mainWindow.IsNewVersionVisible = latestVersionService.IsNewVersionInstalled();
 
-			newVersionTimer.Interval = TimeSpan.FromHours(3);
+			newVersionTimer.Interval = LatestCheckIntervall;
 		}
 	}
 }
