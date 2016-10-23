@@ -31,7 +31,7 @@ namespace GitMind.Installation.Private
 
 		public bool IsTest => args.Contains("/test");
 
-		public bool HasFolder => args.Contains("/d:") || IsTest;
+		public bool HasFolder => args.Any(a => a.StartsWith("/d:")) || IsTest;
 
 		public string Folder => args.FirstOrDefault(a => a.StartsWith("/d:"))?.Substring(3);
 
