@@ -85,13 +85,13 @@ namespace GitMind
 				return;
 			}
 
-			string id = MainWindowRemoteService.GetId(commandLine.WorkingFolder);
-			using (RemotingService remotingService = new RemotingService())
+			string id = MainWindowIpcService.GetId(commandLine.WorkingFolder);
+			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 			{
-				if (!remotingService.TryCreateServer(id))
+				if (!ipcRemotingService.TryCreateServer(id))
 				{
 					// Another GitMind instance for that working folder is already running, activate that.
-					remotingService.CallService<MainWindowRemoteService>(id, service => service.Activate());
+					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate());
 					Application.Current.Shutdown(0);
 					return;
 				}

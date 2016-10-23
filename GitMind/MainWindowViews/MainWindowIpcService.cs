@@ -6,7 +6,7 @@ using GitMind.Utils;
 
 namespace GitMind.MainWindowViews
 {
-	internal class MainWindowRemoteService : RemoteService
+	internal class MainWindowIpcService : IpcService
 	{
 		public void Activate()
 		{

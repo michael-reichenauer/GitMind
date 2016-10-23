@@ -31,7 +31,7 @@ namespace GitMind.MainWindowViews
 		private readonly Action setSearchFocus;
 		private readonly Action setRepositoryViewFocus;
 		private bool isLoaded = false;
-		private RemotingService remotingService = new RemotingService();
+		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
 
 
 		internal MainWindowViewModel(
@@ -64,24 +64,24 @@ namespace GitMind.MainWindowViews
 			{
 				if (Set(value).IsSet)
 				{
-					if (remotingService != null)
+					if (ipcRemotingService != null)
 					{
-						remotingService.Dispose();
+						ipcRemotingService.Dispose();
 					}
 
-					remotingService = new RemotingService();
+					ipcRemotingService = new IpcRemotingService();
 
-					string id = MainWindowRemoteService.GetId(value);
-					if (remotingService.TryCreateServer(id))
+					string id = MainWindowIpcService.GetId(value);
+					if (ipcRemotingService.TryCreateServer(id))
 					{
-						remotingService.PublishService(new MainWindowRemoteService());
+						ipcRemotingService.PublishService(new MainWindowIpcService());
 					}
 					else
 					{
 						// Another GitMind instance for that working folder is already running, activate that.
-						remotingService.CallService<MainWindowRemoteService>(id, service => service.Activate());
+						ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate());
 						Application.Current.Shutdown(0);
-						remotingService.Dispose();
+						ipcRemotingService.Dispose();
 						return;
 					}
 
