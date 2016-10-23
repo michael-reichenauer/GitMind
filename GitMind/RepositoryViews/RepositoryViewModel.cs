@@ -292,10 +292,11 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Task FirstLoadAsync()
+		public async Task FirstLoadAsync()
 		{
 			Repository repository;
-			return refreshThrottler.Run(async () =>
+
+			await refreshThrottler.Run(async () =>
 			{
 				Log.Debug("Loading repository ...");
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(WorkingFolder);

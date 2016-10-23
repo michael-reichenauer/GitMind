@@ -543,7 +543,7 @@ namespace GitMind.RepositoryViews
 				maxColumn = Math.Max(branch.BranchColumn, maxColumn);
 				addedBranchColumns.Add(branch);
 
-				branch.X = branch.Branch.IsLocalPart
+				branch.X = branch.Branch.IsLocalPart && branch.Branch.MainbBranch.Commits.Any()
 					? Converters.ToX(branch.BranchColumn) - 10
 					: Converters.ToX(branch.BranchColumn);
 

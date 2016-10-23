@@ -7,9 +7,9 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.Common;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.RepositoryViews;
@@ -25,14 +25,13 @@ namespace GitMind.MainWindowViews
 	{
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly FolderMonitorService folderMonitor;
+		private readonly JumpListService jumpListService = new JumpListService();
 
 		private readonly Window owner;
 		private readonly Action setSearchFocus;
 		private readonly Action setRepositoryViewFocus;
 		private bool isLoaded = false;
-
-		//private bool isStatusChanged = false;
-		//private bool isRepositoryChanged = false;
+		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
 
 
 		internal MainWindowViewModel(
@@ -65,6 +64,28 @@ namespace GitMind.MainWindowViews
 			{
 				if (Set(value).IsSet)
 				{
+					if (ipcRemotingService != null)
+					{
+						ipcRemotingService.Dispose();
+					}
+
+					ipcRemotingService = new IpcRemotingService();
+
+					string id = MainWindowIpcService.GetId(value);
+					if (ipcRemotingService.TryCreateServer(id))
+					{
+						ipcRemotingService.PublishService(new MainWindowIpcService());
+					}
+					else
+					{
+						// Another GitMind instance for that working folder is already running, activate that.
+						ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate());
+						Application.Current.Shutdown(0);
+						ipcRemotingService.Dispose();
+						return;
+					}
+
+					jumpListService.Add(value);
 					RepositoryViewModel.WorkingFolder = value;
 					folderMonitor.Monitor(value);
 					Notify(nameof(Title));
@@ -115,12 +136,6 @@ namespace GitMind.MainWindowViews
 
 		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
 
-		//public Command ShowUncommittedDiffCommand => Command(ShowUncommittedDiff, IsUncommitted);
-
-		//		public Command CommitCommand => Command(CommitChanges, IsUncommitted);
-
-
-
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
 		public Command FeedbackCommand => Command(Feedback);
@@ -144,7 +159,7 @@ namespace GitMind.MainWindowViews
 		public Command SearchCommand => Command(Search);
 
 
-	
+
 
 		public async Task FirstLoadAsync()
 		{

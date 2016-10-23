@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,6 +27,7 @@ namespace GitMind.Git.Private
 
 			return Task.Run(() =>
 			{
+				List<string> files = new List<string>();
 				StringBuilder left = new StringBuilder();
 				StringBuilder right = new StringBuilder();
 
@@ -47,10 +49,12 @@ namespace GitMind.Git.Private
 
 					if (prefix != "")
 					{
+						
 						left.AppendLine(prefix + FilePart);
 						right.AppendLine(prefix + FilePart);
 
 						string fileName = GetFileName(index, patchLines);
+						files.Add(fileName);
 						left.AppendLine(prefix + fileName);
 						right.AppendLine(prefix + fileName);
 
@@ -81,8 +85,17 @@ namespace GitMind.Git.Private
 				string rightName = $"Commit {shortId}-after";
 				string leftPath = Path.Combine(tempPath, leftName);
 				string rightPath = Path.Combine(tempPath, rightName);
-				File.WriteAllText(leftPath, left.ToString());
-				File.WriteAllText(rightPath, right.ToString());
+
+				StringBuilder filesText = new StringBuilder();
+
+				filesText.AppendLine($"Changed files: {files.Count}");
+				files.ForEach(file =>
+				{
+					filesText.AppendLine("   " + file);
+				});
+
+				File.WriteAllText(leftPath, filesText + "\n\n" + left);
+				File.WriteAllText(rightPath, filesText + "\n\n" + right);
 
 				return new CommitDiff(leftPath, rightPath);
 			});
@@ -135,15 +148,15 @@ namespace GitMind.Git.Private
 			{
 				if (sourceFileName == "ev/null")
 				{
-					return "Added: " + targetFileName;
+					return "Added:    " + targetFileName;
 				}
 				else if (targetFileName == "ev/null")
 				{
-					return "Deleted: " + sourceFileName;
+					return "Deleted:  " + sourceFileName;
 				}
 				else
 				{
-					return "Renamed: " + sourceFileName + " -> " + targetFileName;
+					return "Renamed:  " + sourceFileName + " -> " + targetFileName;
 				}
 			}
 			else
