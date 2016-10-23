@@ -51,6 +51,8 @@ namespace GitMind.Utils
 
 		public string Message { get; }
 
+		public Exception Exception => exception;
+
 		public static Error From(Exception e) => new Error(e);
 
 		public static Error From(Exception e, string message) => new Error(e, message);

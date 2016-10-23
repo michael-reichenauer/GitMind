@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Windows;
-using GitMind.Utils;
 using GitMind.Utils.UI.VirtualCanvas;
 
 

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using GitMind.Git.Private;
+using GitMind.Utils;
 
 
 namespace GitMind.Git
@@ -24,7 +25,7 @@ namespace GitMind.Git
 		}
 
 
-		public Task FetchAsync(string workingFolder)
+		public Task<R> FetchAsync(string workingFolder)
 		{
 			return gitNetworkService.FetchAsync(workingFolder);
 		}

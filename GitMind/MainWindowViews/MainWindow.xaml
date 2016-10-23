@@ -252,6 +252,15 @@
 				<!-- Middle part, mostly empty, which makes widow drag-able, on the right the Hamburger button -->
 				<StackPanel Grid.Column="1" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
 
+					<!-- Fetch error indicator -->
+					<Button 
+						Content="&#xE888;"
+						Style="{StaticResource IconButtonStyle}"			
+						Foreground="{StaticResource ConflictBrush}"			
+						FontWeight="Bold"
+						Visibility="{Binding RepositoryViewModel.FetchErrorText, Converter={StaticResource VC}}"			
+						ToolTip="{Binding RepositoryViewModel.FetchErrorText}" />
+					
 					<!-- Latest version button -->
 					<Button 
 						Content="&#xE863;"

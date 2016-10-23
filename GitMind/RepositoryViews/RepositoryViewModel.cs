@@ -143,6 +143,12 @@ namespace GitMind.RepositoryViews
 			set { Set(value); }
 		}
 
+		public string FetchErrorText
+		{
+			get { return Get(); }
+			set { Set(value); }
+		}
+
 		public bool IsUncommitted
 		{
 			get { return Get(); }
@@ -501,9 +507,16 @@ namespace GitMind.RepositoryViews
 
 		private async Task FetchRemoteChangesAsync(Repository repository, bool isFetchNotes)
 		{
-			Log.Debug("Fetch");
-			await networkService.FetchAsync(repository.MRepository.WorkingFolder);
-			if (isFetchNotes)
+			Log.Debug("Fetching");
+			R result = await networkService.FetchAsync(repository.MRepository.WorkingFolder);
+			FetchErrorText = "";
+			if (result.IsFaulted)
+			{
+				string message = $"Fetch error: {result.Error.Exception.Message}";
+				Log.Warn(message);
+				FetchErrorText = message;
+			}
+			else if (isFetchNotes)
 			{
 				await networkService.FetchAllNotesAsync(repository.MRepository.WorkingFolder);
 			}

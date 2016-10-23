@@ -1,11 +1,12 @@
 using System.Threading.Tasks;
+using GitMind.Utils;
 
 
 namespace GitMind.Git
 {
 	internal interface INetworkService
 	{
-		Task FetchAsync(string workingFolder);
+		Task<R> FetchAsync(string workingFolder);
 
 		Task FetchBranchAsync(string workingFolder, BranchName branchName);
 
