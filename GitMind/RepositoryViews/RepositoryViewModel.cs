@@ -798,12 +798,19 @@ namespace GitMind.RepositoryViews
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
-				await networkService.FetchAsync(workingFolder);
+				R result = await networkService.FetchAsync(workingFolder);
 
-				if (currentBranch.CanBeUpdated)
+				if (result.IsOk && currentBranch.CanBeUpdated)
 				{
 					progress.SetText($"Update current branch {currentBranch.Name} ...");
-					await gitBranchService.MergeCurrentBranchAsync(workingFolder);
+					result = await gitBranchService.MergeCurrentBranchAsync(workingFolder);
+				}
+
+				if (result.IsFaulted)
+				{
+					Message.ShowWarning(
+						Owner,
+						$"Failed to update current branch {currentBranch.Name}\n{result.Error.Exception.Message}.");
 				}
 
 				IEnumerable<Branch> updatableBranches = Repository.Branches
@@ -853,10 +860,19 @@ namespace GitMind.RepositoryViews
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
-				await networkService.FetchAsync(workingFolder);
-				await gitBranchService.MergeCurrentBranchAsync(workingFolder);
+				R result = await networkService.FetchAsync(workingFolder);
+				if (result.IsOk)
+				{
+					result = await gitBranchService.MergeCurrentBranchAsync(workingFolder);
 
-				await networkService.FetchAllNotesAsync(workingFolder);
+					await networkService.FetchAllNotesAsync(workingFolder);
+				}
+
+				if (result.IsFaulted)
+				{
+					Message.ShowWarning(
+						Owner, $"Failed to update current branch {branchName}.\n{result.Error.Exception.Message}");
+				}
 
 				progress.SetText($"Update status after pull current branch {branchName} ...");
 				await RefreshAfterCommandAsync(false);
@@ -881,11 +897,19 @@ namespace GitMind.RepositoryViews
 
 				await networkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
+				R result = R.Ok;
 				if (currentBranch.CanBePushed)
 				{
 					progress.SetText($"Push current branch {currentBranch.Name} ...");
 					CredentialHandler credentialHandler = new CredentialHandler(Owner);
-					await networkService.PushCurrentBranchAsync(workingFolder, credentialHandler);
+					result = await networkService.PushCurrentBranchAsync(workingFolder, credentialHandler);
+				}
+
+				if (result.IsFaulted)
+				{
+					Message.ShowWarning(
+						Owner, 
+						$"Failed to push current branch {currentBranch.Name}.\n{result.Error.Exception.Message}");
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
@@ -922,7 +946,13 @@ namespace GitMind.RepositoryViews
 
 				await networkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
 
-				await networkService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
+				R result = await networkService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
+
+				if (result.IsFaulted)
+				{
+					Message.ShowWarning(
+						Owner, $"Failed to push current branch {branchName}.\n{result.Error.Exception.Message}");
+				}
 
 				progress.SetText($"Updating status after push {branchName} ...");
 				await RefreshAfterCommandAsync(true);
