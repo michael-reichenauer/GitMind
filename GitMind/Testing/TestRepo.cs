@@ -11,6 +11,6 @@ namespace GitMind.Testing
 		public static readonly string Path8 = @"d:\My Work\GitMind2";
 		public static readonly string Path9 = @"C:\Work Files\Modules\Axis.RemoteAccess";
 
-		public static readonly string Path = Path9;
+		public static readonly string Path = Path2;
 	}
 }

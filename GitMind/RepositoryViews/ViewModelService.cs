@@ -17,6 +17,7 @@ namespace GitMind.RepositoryViews
 	internal class ViewModelService : IViewModelService
 	{
 		private readonly IBrushService brushService = new BrushService();
+		private static readonly int CommitHeight = Converters.ToY(1);
 
 
 		public void UpdateViewModel(RepositoryViewModel repositoryViewModel)
@@ -476,18 +477,19 @@ namespace GitMind.RepositoryViews
 				commitViewModel.Commit = commit;
 				commitViewModel.RowIndex = index++;
 
-				commitViewModel.BranchColumn = IndexOf(repositoryViewModel, commit.Branch);
+				commitViewModel.BranchViewModel = GetBranchViewModel(repositoryViewModel, commit.Branch);
+
+				int x = commitViewModel.BranchViewModel.X;
+				int y = Converters.ToY(commitViewModel.RowIndex);
 
 				commitViewModel.XPoint = commitViewModel.IsEndPoint
-					? 3 + Converters.ToX(commitViewModel.BranchColumn)
-					: commitViewModel.IsMergePoint
-						? 2 + Converters.ToX(commitViewModel.BranchColumn)
-						: 4 + Converters.ToX(commitViewModel.BranchColumn);
+					? 3 + x
+					: commitViewModel.IsMergePoint ? 2 + x : 4 + x;
 
 				commitViewModel.GraphWidth = graphWidth;
 				commitViewModel.Width = repositoryViewModel.Width - 35;
-				commitViewModel.Rect = new Rect(
-					0, Converters.ToY(commitViewModel.RowIndex), commitViewModel.Width, Converters.ToY(1));
+				
+				commitViewModel.Rect = new Rect(0, y, commitViewModel.Width, CommitHeight);
 
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
@@ -536,18 +538,21 @@ namespace GitMind.RepositoryViews
 				branch.TipRowIndex = commits.FindIndex(c => c == sourceBranch.TipCommit);
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
 				int height = Converters.ToY(branch.FirstRowIndex - branch.TipRowIndex) + 8;
-
-
-				branch.BranchColumn = FindBranchColumn(addedBranchColumns, branch);
-				addedBranchColumns.Add(branch);
+			
+				branch.BranchColumn = FindFreeBranchColumn(addedBranchColumns, branch);
 				maxColumn = Math.Max(branch.BranchColumn, maxColumn);
+				addedBranchColumns.Add(branch);
+
+				branch.X = branch.Branch.IsLocalPart && branch.Branch.MainbBranch.Commits.Any()
+					? Converters.ToX(branch.BranchColumn) - 10
+					: Converters.ToX(branch.BranchColumn);
 
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 				branch.HoverBrush = Brushes.Transparent;
 				branch.Dashes = sourceBranch.IsLocalPart ? "1" : "";
 
 				branch.Rect = new Rect(
-					(double)Converters.ToX(branch.BranchColumn) + 3,
+					branch.X + 3,
 					(double)Converters.ToY(branch.TipRowIndex) + Converters.HalfRow - 6,
 					10,
 					height + 4);
@@ -615,7 +620,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private int FindBranchColumn(List<BranchViewModel> branches, BranchViewModel branch)
+		private int FindFreeBranchColumn(List<BranchViewModel> branches, BranchViewModel branch)
 		{
 			int column = 0;
 			if (branch.Branch.HasParentBranch)
@@ -747,9 +752,9 @@ namespace GitMind.RepositoryViews
 
 			BranchViewModel mainBranch = childColumn >= parentColumn ? childBranch : parentBranch;
 
-			int childX = Converters.ToX(childColumn);
-			int parentX = Converters.ToX(parentColumn);
-
+			int childX = childCommit.X;
+			int parentX = parentCommit.X;
+		
 			int x1 = childX <= parentX ? 0 : childX - parentX - 6;
 			int y1 = 0;
 			int x2 = parentX <= childX ? 0 : parentX - childX - 6;
@@ -791,17 +796,18 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private int IndexOf(RepositoryViewModel repositoryViewModel, Branch branch)
+		private BranchViewModel GetBranchViewModel(
+			RepositoryViewModel repositoryViewModel, Branch branch)
 		{
 			foreach (BranchViewModel current in repositoryViewModel.Branches)
 			{
 				if (current.Branch == branch)
 				{
-					return current.BranchColumn;
+					return current;
 				}
 			}
 
-			return -1;
+			return null;
 		}
 
 

@@ -62,7 +62,7 @@ namespace GitMind.Features.FolderMonitoring
 			string refsPath = Path.Combine(workingFolder, GitFolder, GitRefsFolder);
 			if (!Directory.Exists(workingFolder) || !Directory.Exists(refsPath))
 			{
-				Log.Warn("Selected folder is not within a working folder.");
+				Log.Debug("Selected folder is not a root working folder.");
 				return;
 			}
 

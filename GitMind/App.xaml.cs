@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -9,14 +8,16 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using GitMind.Common;
+using GitMind.Common.MessageDialogs;
 using GitMind.Git;
+using GitMind.GitModel;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.MainWindowViews;
+using GitMind.RepositoryViews;
 using GitMind.Settings;
 using GitMind.Utils;
 using GitMind.Utils.UI;
-using Microsoft.Shell;
 
 
 namespace GitMind
@@ -24,65 +25,36 @@ namespace GitMind
 	/// <summary>
 	/// Interaction logic for App.xaml.
 	/// </summary>
-	public partial class App : Application, ISingleInstanceApp
+	public partial class App : Application
 	{
+		private static readonly TimeSpan LatestCheckIntervall = TimeSpan.FromHours(12);
+
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
-		private ICommandLine commandLine;
+
+		private readonly Lazy<IDiffService> diffService = new Lazy<IDiffService>(() => new DiffService());
 		private readonly IInstaller installer = new Installer();
+		private WorkingFolderService workingFolderService;
 
 		private static Mutex programMutex;
 		private DispatcherTimer newVersionTimer;
 		private MainWindow mainWindow;
 
 
+		public ICommandLine CommandLine { get; private set; }
+
+		public new static App Current => (App)Application.Current;
+
+
 		[STAThread]
 		public static void Main()
 		{
+			Log.Debug(GetStartlineText());
+
 			AssemblyResolver.Activate();
 
-			string version = GetProgramVersion();
-			string argsText = string.Join("','", Environment.GetCommandLineArgs());
-
-			Log.Debug($"Start version: {version}, Args: '{argsText}'");
-
-			App application = new App();
-			application.StartProgram();
-
-		
-
-			//if (SingleInstance<App>.InitializeAsFirstInstance(ProgramPaths.ProductGuid))
-			//{
-			//	var application = new App();
-
-			//	application.InitializeComponent();
-			//	application.Run();
-
-			//	// Allow single instance code to perform cleanup operations
-			//	SingleInstance<App>.Cleanup();
-			//}
-			//else
-			//{
-			//	Log.Debug("Second instance is closing");
-			//}
+			App app = new App();
+			app.Start();
 		}
-
-
-		private static string GetProgramVersion()
-		{
-			Assembly assembly = Assembly.GetExecutingAssembly();
-			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-			string version = fvi.FileVersion;
-			return version;
-		}
-
-
-		public bool SignalExternalCommandLineArgs(IList<string> args)
-		{
-			Log.Debug($"Got second instance argument ... '{string.Join(",", args)}'");
-			Application.Current.MainWindow.Activate();
-			return true;
-		}
-
 
 		protected override void OnExit(ExitEventArgs e)
 		{
@@ -95,29 +67,78 @@ namespace GitMind
 		{
 			base.OnStartup(e);
 
+			OnStartup();
+		}
+
+
+		private void Start()
+		{
+			CommandLine = new CommandLine();
+			workingFolderService = new WorkingFolderService(CommandLine);
+			ExceptionHandling.Init();
+			WpfBindingTraceListener.Register();
+
+			InitializeComponent();
+
+			Run();
+		}
+
+		private void OnStartup()
+		{
+			if (CommandLine.IsShowDiff || CommandLine.IsInstall || CommandLine.IsUninstall)
+			{
+				// Need some main window when only message boxes will be shown for diff or installation
+				MainWindow = CreateTempMainWindow();
+
+				if (CommandLine.IsShowDiff)
+				{			
+					Task.Run(() => diffService.Value.ShowDiffAsync(
+						Commit.UncommittedId, workingFolderService.WorkingFolder).Wait())
+					.Wait();
+				}
+				else
+				{
+					InstallOrUninstall();
+				}			
+				
+				Application.Current.Shutdown(0);
+				return;			
+			}
+
 			newVersionTimer = new DispatcherTimer();
 			ToolTipService.ShowDurationProperty.OverrideMetadata(
 				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
 
+			installer.TryDeleteTempFiles();
+
+
 			mainWindow = new MainWindow();
 			MainWindow = mainWindow;
 
-			// Installation code message boxes must for some reason be run after
-			// main window is created and set. Maybe better when we have a "real" installation dialog
-			if (!IsStartProgram())
+			Serializer.RegisterSerializedTypes();
+	
+
+			string id = MainWindowIpcService.GetId(workingFolderService.WorkingFolder);
+			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 			{
-				Application.Current.Shutdown(0);
-				return;
+				if (!ipcRemotingService.TryCreateServer(id))
+				{
+					// Another GitMind instance for that working folder is already running, activate that.	
+					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate());
+
+					Application.Current.Shutdown(0);
+					return;
+				}
 			}
 
-			string version = GetProgramVersion();
-			Log.Usage($"Start version: {version}");
+
+			Log.Usage($"Start version: {GetProgramVersion()}");
 
 			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
 
 			// Must not use WorkingFolder before installation code
-			mainWindow.WorkingFolder = commandLine.WorkingFolder;
-			mainWindow.BranchNames = commandLine.BranchNames.Select(name => new BranchName(name)).ToList();
+			mainWindow.WorkingFolder = workingFolderService.WorkingFolder;
+			mainWindow.BranchNames = CommandLine.BranchNames.Select(name => new BranchName(name)).ToList();
 			MainWindow.Show();
 
 			newVersionTimer.Tick += NewVersionCheckAsync;
@@ -126,46 +147,34 @@ namespace GitMind
 		}
 
 
-		private void StartProgram()
+
+
+		private bool InstallOrUninstall()
 		{
-			Serializer.RegisterSerializedTypes();
-			commandLine = new CommandLine();
-			ExceptionHandling.Init();
-			WpfBindingTraceListener.Register();
-
-
-			InitializeComponent();
-
-			Run();
-		}
-
-
-		private bool IsStartProgram()
-		{
-			if (commandLine.IsInstall && !commandLine.IsSilent)
+			if (CommandLine.IsInstall && !CommandLine.IsSilent)
 			{
 				installer.InstallNormal();
 
 				return false;
 			}
-			else if (commandLine.IsInstall && commandLine.IsSilent)
+			else if (CommandLine.IsInstall && CommandLine.IsSilent)
 			{
 				installer.InstallSilent();
 
-				if (commandLine.IsRunInstalled)
+				if (CommandLine.IsRunInstalled)
 				{
 					installer.StartInstalled();
 				}
 
 				return false;
 			}
-			else if (commandLine.IsUninstall && !commandLine.IsSilent)
+			else if (CommandLine.IsUninstall && !CommandLine.IsSilent)
 			{
 				installer.UninstallNormal();
 
 				return false;
 			}
-			else if (commandLine.IsUninstall && commandLine.IsSilent)
+			else if (CommandLine.IsUninstall && CommandLine.IsSilent)
 			{
 				installer.UninstallSilent();
 
@@ -173,13 +182,6 @@ namespace GitMind
 			}
 
 			installer.TryDeleteTempFiles();
-
-			//string[] args = Environment.GetCommandLineArgs();
-			//if (args.Length == 2 && args[1] == "/diff")
-			//{
-			//	diffService.ShowDiffAsync(null);
-			//	return false;
-			//}
 
 			return true;
 		}
@@ -194,10 +196,38 @@ namespace GitMind
 				// The actual installation (copy of files) is done by another, allow some time for that
 				await Task.Delay(TimeSpan.FromSeconds(5));
 			}
-		
+
 			mainWindow.IsNewVersionVisible = latestVersionService.IsNewVersionInstalled();
 
-			newVersionTimer.Interval = TimeSpan.FromHours(3);
+			newVersionTimer.Interval = LatestCheckIntervall;
+		}
+
+
+
+		private static string GetStartlineText()
+		{
+			string version = GetProgramVersion();
+
+			string[] commandLineArgs = Environment.GetCommandLineArgs();
+			string argsText = string.Join("','", commandLineArgs);
+
+			return $"Start version: {version}, Args: '{argsText}'";
+		}
+
+
+		private static string GetProgramVersion()
+		{
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+			return fvi.FileVersion;
+		}
+
+
+
+		private static MessageDialog CreateTempMainWindow()
+		{
+			// Window used as a temp main window
+			return new MessageDialog(null, "", "", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 	}
 }

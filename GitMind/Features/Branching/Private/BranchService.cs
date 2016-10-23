@@ -89,7 +89,8 @@ namespace GitMind.Features.Branching.Private
 						}
 						else
 						{
-							Message.ShowWarning(owner, $"Failed to create branch {branchName}\n{result}");
+							Message.ShowWarning(
+								owner, $"Failed to create branch {branchName}\n{result.Error.Exception.Message}");
 						}
 
 						progress.SetText($"Updating status after create branch {branchName} ...");
@@ -116,7 +117,9 @@ namespace GitMind.Features.Branching.Private
 
 					if (publish.IsFaulted)
 					{
-						Message.ShowWarning(owner, $"Failed to publish the branch {branch.Name}.");
+						Message.ShowWarning(
+							owner, 
+							$"Failed to publish the branch {branch.Name}.\n{publish.Error.Exception.Message}");
 					}
 
 					progress.SetText($"Updating status after publish {branch.Name} ...");
@@ -135,11 +138,18 @@ namespace GitMind.Features.Branching.Private
 
 				Progress.ShowDialog(owner, $"Push branch {branch.Name} ...", async progress =>
 				{
-					await gitNetworkService.PushBranchAsync(
+					R result = await gitNetworkService.PushBranchAsync(
 						workingFolder, branch.Name, repositoryCommands.GetCredentialsHandler());
 
+					if (result.IsFaulted)
+					{
+						Message.ShowWarning(
+							owner, 
+							$"Failed to push the branch {branch.Name}.\n{result.Error.Exception.Message}");
+					}
+
 					progress.SetText($"Updating status after push {branch.Name} ...");
-					await repositoryCommands.RefreshAfterCommandAsync(false);
+					await repositoryCommands.RefreshAfterCommandAsync(true);
 				});
 			}
 		}
@@ -154,18 +164,29 @@ namespace GitMind.Features.Branching.Private
 
 				Progress.ShowDialog(owner, $"Update branch {branch.Name} ...", async progress =>
 				{
+					R result;
 					if (branch == branch.Repository.CurrentBranch || 
-					branch.IsMainPart && branch.LocalSubBranch == branch.Repository.CurrentBranch)
+						branch.IsMainPart && branch.LocalSubBranch == branch.Repository.CurrentBranch)
 					{
 						Log.Debug("Update current branch");
-						await gitNetworkService.FetchAsync(workingFolder);
-						await gitBranchService.MergeCurrentBranchAsync(workingFolder);
+						result = await gitNetworkService.FetchAsync(workingFolder);
+						if (result.IsOk)
+						{
+							result = await gitBranchService.MergeCurrentBranchAsync(workingFolder);
+						}
 					}
 					else
 					{
 						Log.Debug($"Update branch {branch.Name}");
-						await gitNetworkService.FetchBranchAsync(workingFolder, branch.Name);
-					}	
+						result = await gitNetworkService.FetchBranchAsync(workingFolder, branch.Name);
+					}
+
+					if (result.IsFaulted)
+					{
+						Message.ShowWarning(
+							owner, 
+							$"Failed to update the branch {branch.Name}.\n{result.Error.Exception.Message}");
+					}
 
 					progress.SetText($"Updating status after update {branch.Name} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(false);
@@ -186,7 +207,7 @@ namespace GitMind.Features.Branching.Private
 					R result = await gitBranchService.SwitchToBranchAsync(workingFolder, branch.Name);
 					if (result.IsFaulted)
 					{
-						Message.ShowWarning(owner, $"Failed to switch,\n{result}");
+						Message.ShowWarning(owner, $"Failed to switch,\n{result.Error.Exception.Message}");
 					}
 
 					progress.SetText($"Updating status after switch to {branch.Name} ...");
@@ -236,6 +257,9 @@ namespace GitMind.Features.Branching.Private
 					else
 					{
 						// Show current branch
+						Message.ShowWarning(
+							owner,
+							$"Failed to switch to the branch {branchName}.\n{switchedNamed.Error.Exception.Message}");
 						repositoryCommands.ShowBranch(null);
 					}	
 
@@ -365,7 +389,9 @@ namespace GitMind.Features.Branching.Private
 
 			if (deleted.IsFaulted)
 			{
-				Message.ShowWarning(owner, $"Failed to delete {text} branch '{branch.Name}'");
+				Message.ShowWarning(
+					owner,
+					$"Failed to delete {text} branch '{branch.Name}'\n{deleted.Error.Exception.Message}");
 			}	
 		}
 

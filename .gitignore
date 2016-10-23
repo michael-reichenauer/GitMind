@@ -3,6 +3,7 @@
 
 GitMindSetup.exe
 version.txt
+/git2-785d8c4.dll
 
 # External dependencies (from e.g. NuGet packages)
 /GitMind/Dependencies/

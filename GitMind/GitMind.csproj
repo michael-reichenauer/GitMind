@@ -83,6 +83,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Common\JumpListService.cs" />
     <Compile Include="Common\MessageDialogs\Message.cs" />
     <Compile Include="Common\MessageDialogs\MessageDialog.xaml.cs">
       <DependentUpon>MessageDialog.xaml</DependentUpon>
@@ -128,6 +129,8 @@
     <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
     <Compile Include="Git\Private\IRepoCaller.cs" />
     <Compile Include="Git\Private\RepoCaller.cs" />
+    <Compile Include="Installation\Private\WorkingFolderService.cs" />
+    <Compile Include="MainWindowViews\MainWindowIpcService.cs" />
     <Compile Include="RepositoryViews\CredentialHandler.cs" />
     <Compile Include="Git\GitConflict.cs" />
     <Compile Include="Git\GitConflictStatus.cs" />
@@ -139,6 +142,7 @@
     <Compile Include="RepositoryViews\DisabledStatus.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
     <Compile Include="Utils\Equatable.cs" />
+    <Compile Include="Utils\IpcService.cs" />
     <Compile Include="Utils\Serializer.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
     <Compile Include="Utils\UI\VisibleWindow.cs" />
@@ -163,7 +167,7 @@
     <Compile Include="MainWindowViews\HamburgerButton.xaml.cs">
       <DependentUpon>HamburgerButton.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Utils\SingleInstance.cs" />
+    <Compile Include="Utils\IpcRemotingService.cs" />
     <Compile Include="Utils\UI\BusyProgress.cs" />
     <Compile Include="Utils\UI\HideableGridSplitter.cs" />
     <Compile Include="Utils\Compare.cs" />

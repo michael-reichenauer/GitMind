@@ -39,13 +39,16 @@ namespace GitMind.Git
 					.ToList();
 
 				// Current working folder uncommitted changes
-				string compare;
-				compare = diff.Compare<Patch>(
-					repository.Head.Tip.Tree,
-					DiffTargets.WorkingDirectory,
-					files,
-					null,
-					DefultCompareOptions);
+				string compare = "";
+				if (files.Any())
+				{
+					compare = diff.Compare<Patch>(
+						repository.Head.Tip.Tree,
+						DiffTargets.WorkingDirectory,
+						files,
+						null,
+						DefultCompareOptions);
+				}
 
 				//compare = diff.Compare<Patch>(null, true, null, DefultCompareOptions);
 
