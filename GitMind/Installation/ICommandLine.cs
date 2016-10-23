@@ -10,7 +10,9 @@ namespace GitMind.Installation
 		bool IsUninstall { get; }
 		bool IsRunInstalled { get; }
 		bool IsShowDiff { get; }
-		string WorkingFolder { get; }
+		bool IsTest { get; }
+		bool HasFolder { get; }
+		string Folder { get; }
 		IReadOnlyList<string> BranchNames { get; }
 	}
 }
