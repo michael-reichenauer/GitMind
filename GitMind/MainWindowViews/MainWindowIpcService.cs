@@ -26,20 +26,23 @@ namespace GitMind.MainWindowViews
 		{
 			CommandLine commandLine = new CommandLine(args);
 
-			Log.Warn($"args: {string.Join(",", args)}");
-
 			Application.Current.Dispatcher.InvokeAsync(() =>
 			{
+				Application.Current.MainWindow.WindowState = WindowState.Minimized;
 				Application.Current.MainWindow.Activate();
 				Application.Current.MainWindow.WindowState = WindowState.Normal;
 
 				if (commandLine.IsCommit)
 				{
-					Log.Warn("Commit cmd");
+					Log.Usage("Activated and commit");
 					if (mainWindowViewModel.RepositoryViewModel.CommitCommand.CanExecute())
 					{
 						mainWindowViewModel.RepositoryViewModel.CommitCommand.Execute();
 					}
+				}
+				else
+				{
+					Log.Usage("Activated");
 				}
 			});
 		}
