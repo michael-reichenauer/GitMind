@@ -27,7 +27,7 @@ namespace GitMind
 	/// </summary>
 	public partial class App : Application
 	{
-		private static readonly TimeSpan LatestCheckIntervall = TimeSpan.FromHours(12);
+		private static readonly TimeSpan LatestCheckIntervall = TimeSpan.FromHours(3);
 
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 

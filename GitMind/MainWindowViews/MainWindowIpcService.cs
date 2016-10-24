@@ -44,7 +44,6 @@ namespace GitMind.MainWindowViews
 				{
 					Log.Usage("Activated");
 				}
-
 			});
 		}
 	}
