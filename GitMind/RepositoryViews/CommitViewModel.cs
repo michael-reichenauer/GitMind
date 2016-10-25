@@ -139,7 +139,7 @@ namespace GitMind.RepositoryViews
 		// Value used by merge and that determine if item is visible
 		public BranchViewModel BranchViewModel { get; set; }
 		public int RowIndex { get; set; }
-		public int X => BranchViewModel.X;
+		public int X => BranchViewModel?.X ?? -20;
 		public int Y => Converters.ToY(RowIndex) + 10;
 
 
