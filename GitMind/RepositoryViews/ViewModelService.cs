@@ -586,7 +586,7 @@ namespace GitMind.RepositoryViews
 			string toolTip = $"{name}";
 			if (branch.IsLocalPart)
 			{
-				toolTip += " (local part)";
+				toolTip += "    (local part)";
 			}
 
 			if (branch.LocalAheadCount > 0)
