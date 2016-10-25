@@ -479,7 +479,7 @@ namespace GitMind.RepositoryViews
 
 				commitViewModel.BranchViewModel = GetBranchViewModel(repositoryViewModel, commit.Branch);
 
-				int x = commitViewModel.BranchViewModel.X;
+				int x = commitViewModel.BranchViewModel?.X ?? -20;
 				int y = Converters.ToY(commitViewModel.RowIndex);
 
 				commitViewModel.XPoint = commitViewModel.IsEndPoint
