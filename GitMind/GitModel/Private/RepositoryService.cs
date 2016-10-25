@@ -141,7 +141,7 @@ namespace GitMind.GitModel.Private
 			return Task.Run(() =>
 			{
 				string workingFolder = repository.MRepository.WorkingFolder;
-				IReadOnlyList<string> currentTips = GitRepository.GetBranchesTipIds(workingFolder);
+				IReadOnlyList<string> currentTips = GitRepository.GetRefsIds(workingFolder);
 
 				IReadOnlyList<string> tips = repository.MRepository.Tips;
 
@@ -185,7 +185,7 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			string gitRepositoryPath = repository.WorkingFolder;
 
-			repository.Tips = GitRepository.GetBranchesTipIds(gitRepositoryPath);
+			repository.Tips = GitRepository.GetRefsIds(gitRepositoryPath);
 			using (GitRepository gitRepository = GitRepository.Open(gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;
