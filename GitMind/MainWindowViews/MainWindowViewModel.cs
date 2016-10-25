@@ -231,6 +231,7 @@ namespace GitMind.MainWindowViews
 			{
 				return;
 			}
+
 			Timing t = new Timing();
 
 			await RepositoryViewModel.StatusChangeRefreshAsync(triggerTime, isRepoChange);

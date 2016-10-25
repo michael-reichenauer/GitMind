@@ -383,10 +383,10 @@ namespace GitMind.RepositoryViews
 			{
 				if (isRepoChange)
 				{
-					Log.Warn("Check if Repository has changed");
+					Log.Debug("Check if Repository has changed");
 					if (!await repositoryService.IsRepositoryChangedAsync(Repository))
 					{
-						Log.Warn("Repository has not changed");
+						Log.Debug("Repository has not changed");
 						return;
 					}
 				}
