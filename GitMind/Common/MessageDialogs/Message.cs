@@ -95,6 +95,22 @@ namespace GitMind.Common.MessageDialogs
 		}
 
 		public static void ShowError(
+			string message,
+			string title = null)
+		{
+			MessageDialog dialog = new MessageDialog(
+				null,
+				message,
+				title ?? "GitMind",
+				MessageBoxButton.OK,
+				MessageBoxImage.Error);
+
+			SystemSounds.Beep.Play();
+			dialog.ShowDialog();
+		}
+
+
+		public static void ShowError(
 			Window owner,
 			string message,
 			string title = null)

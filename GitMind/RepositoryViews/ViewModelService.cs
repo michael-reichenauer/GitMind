@@ -479,7 +479,7 @@ namespace GitMind.RepositoryViews
 
 				commitViewModel.BranchViewModel = GetBranchViewModel(repositoryViewModel, commit.Branch);
 
-				int x = commitViewModel.BranchViewModel.X;
+				int x = commitViewModel.BranchViewModel?.X ?? -20;
 				int y = Converters.ToY(commitViewModel.RowIndex);
 
 				commitViewModel.XPoint = commitViewModel.IsEndPoint
@@ -586,7 +586,7 @@ namespace GitMind.RepositoryViews
 			string toolTip = $"{name}";
 			if (branch.IsLocalPart)
 			{
-				toolTip += " (local part)";
+				toolTip += "    (local part)";
 			}
 
 			if (branch.LocalAheadCount > 0)

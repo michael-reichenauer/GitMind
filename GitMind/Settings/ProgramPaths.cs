@@ -26,7 +26,9 @@ namespace GitMind.Settings
 		public static readonly string VersionFileName = ProgramName + ".Version.txt";
 		private static readonly string ProgramShortcutFileName = ProgramName + ".lnk";
 		private static readonly string SettingsFileName = "settings";
-		
+		private static readonly string LatestETagFileName = "latestetag";
+		private static readonly string LatestInfoFileName = "latestinfo";
+
 
 		public static string RemoteSetupPath
 		{
@@ -47,6 +49,18 @@ namespace GitMind.Settings
 		{
 			string programDataFolderPath = GetProgramDataFolderPath();
 			return Path.Combine(programDataFolderPath, SettingsFileName);
+		}
+
+		public static string GetLatestETagPath()
+		{
+			string programDataFolderPath = GetProgramDataFolderPath();
+			return Path.Combine(programDataFolderPath, LatestETagFileName);
+		}
+
+		public static string GetLatestInfoPath()
+		{
+			string programDataFolderPath = GetProgramDataFolderPath();
+			return Path.Combine(programDataFolderPath, LatestInfoFileName);
 		}
 
 		public static string GetTempFilePath()

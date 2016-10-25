@@ -27,7 +27,7 @@ namespace GitMind
 	/// </summary>
 	public partial class App : Application
 	{
-		private static readonly TimeSpan LatestCheckIntervall = TimeSpan.FromHours(12);
+		private static readonly TimeSpan LatestCheckIntervall = TimeSpan.FromHours(3);
 
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 
@@ -74,7 +74,7 @@ namespace GitMind
 
 		private void Start()
 		{
-			CommandLine = new CommandLine();
+			CommandLine = new CommandLine(Environment.GetCommandLineArgs());
 			workingFolderService = new WorkingFolderService(CommandLine);
 			ExceptionHandling.Init();
 			WpfBindingTraceListener.Register();
@@ -246,6 +246,7 @@ namespace GitMind
 		}
 
 
+
 		private static string GetStartlineText()
 		{
 			string version = GetProgramVersion();
@@ -263,6 +264,7 @@ namespace GitMind
 			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 			return fvi.FileVersion;
 		}
+
 
 
 		private static MessageDialog CreateTempMainWindow()

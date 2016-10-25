@@ -12,13 +12,20 @@ namespace GitMind.Common
 {
 	internal static class ExceptionHandling
 	{
+		private static readonly TimeSpan MinTimeBeforeAutoRestart = TimeSpan.FromSeconds(10);
+
 		private static readonly ICmd cmd = new Cmd();
 		private static bool hasDisplayedErrorMessageBox;
 		private static bool hasFailed;
 		private static bool hasShutdown;
+		public static DateTime InitTime;
+		
+
 
 		public static void Init()
 		{
+			InitTime = DateTime.Now;
+
 			// Add the event handler for handling UI thread exceptions to the event		
 			Application.Current.DispatcherUnhandledException += (s, e) =>
 			{
@@ -51,7 +58,7 @@ namespace GitMind.Common
 			hasFailed = true;
 
 			string errorMessage = $"Unhandled {errorType}";
-			
+
 			if (Debugger.IsAttached)
 			{
 				// NOTE: If you end up here a task resulted in an unhandled exception
@@ -91,7 +98,10 @@ namespace GitMind.Common
 				Debugger.Break();
 			}
 
-			Restart();
+			if (DateTime.Now - InitTime >= MinTimeBeforeAutoRestart)
+			{
+				Restart();
+			}
 
 			Application.Current.Shutdown(0);
 		}
@@ -104,7 +114,11 @@ namespace GitMind.Common
 				return;
 			}
 
-			// Skipping message window for now, the error has been logged.
+			if (DateTime.Now - InitTime < MinTimeBeforeAutoRestart)
+			{
+				Message.ShowError("Sorry, but an unexpected error just occurred", "GitMind");
+			}
+
 			hasDisplayedErrorMessageBox = true;
 		}
 

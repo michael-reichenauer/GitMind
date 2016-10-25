@@ -327,6 +327,14 @@ namespace GitMind.RepositoryViews
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository);
 
+					if (App.Current.CommandLine.IsCommit)
+					{
+						if (CommitCommand.CanExecute())
+						{
+							CommitCommand.Execute();
+						}
+					}
+
 					await FetchRemoteChangesAsync(Repository, true);
 					repository = await GetLocalChangesAsync(Repository);
 					UpdateViewModel(repository);
@@ -373,6 +381,16 @@ namespace GitMind.RepositoryViews
 
 			return refreshThrottler.Run(async () =>
 			{
+				if (isRepoChange)
+				{
+					Log.Debug("Check if Repository has changed");
+					if (!await repositoryService.IsRepositoryChangedAsync(Repository))
+					{
+						Log.Debug("Repository has not changed");
+						return;
+					}
+				}
+
 				Log.Debug("Refreshing after status/repo change ...");
 				Log.Usage("Refresh after status change");
 

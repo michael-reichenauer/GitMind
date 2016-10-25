@@ -12,7 +12,7 @@ namespace GitMind.Installation.Private
 		private readonly Lazy<IReadOnlyList<string>> lazyBranchNames;
 		private readonly string[] args;
 
-		public CommandLine()
+		public CommandLine(string[] args)
 		{
 			args = Environment.GetCommandLineArgs();
 			lazyBranchNames = new Lazy<IReadOnlyList<string>>(GetBranchNames);
@@ -29,9 +29,11 @@ namespace GitMind.Installation.Private
 
 		public bool IsShowDiff => args.Length > 1 && args[1] == "diff";
 
+		public bool IsCommit => args.Length > 1 && args[1] == "commit";
+
 		public bool IsTest => args.Contains("/test");
 
-		public bool HasFolder => args.Contains("/d:") || IsTest;
+		public bool HasFolder => args.Any(a => a.StartsWith("/d:")) || IsTest;
 
 		public string Folder => args.FirstOrDefault(a => a.StartsWith("/d:"))?.Substring(3);
 
