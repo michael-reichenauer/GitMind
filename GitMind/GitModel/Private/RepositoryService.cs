@@ -136,6 +136,20 @@ namespace GitMind.GitModel.Private
 		}
 
 
+		public Task<bool> IsRepositoryChangedAsync(Repository repository)
+		{
+			return Task.Run(() =>
+			{
+				string workingFolder = repository.MRepository.WorkingFolder;
+				IReadOnlyList<string> currentTips = GitRepository.GetBranchesTipIds(workingFolder);
+
+				IReadOnlyList<string> tips = repository.MRepository.Tips;
+
+				return !currentTips.SequenceEqual(tips);				
+			});
+		}
+
+
 		private Task<MRepository> UpdateAsync(MRepository mRepository)
 		{
 			return Task.Run(() => UpdateRepository(mRepository));
@@ -171,6 +185,7 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			string gitRepositoryPath = repository.WorkingFolder;
 
+			repository.Tips = GitRepository.GetBranchesTipIds(gitRepositoryPath);
 			using (GitRepository gitRepository = GitRepository.Open(gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;
@@ -183,7 +198,7 @@ namespace GitMind.GitModel.Private
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
 				AnalyzeBranchStructure(repository, gitStatus, gitRepository);
-				t.Log("AnalyzeBranchStructure");
+				t.Log("AnalyzeBranchStructure");		
 			}
 
 			t.Log("Done");

@@ -38,6 +38,16 @@ namespace GitMind.Git
 		}
 
 
+		public static IReadOnlyList<string> GetBranchesTipIds(string folder)
+		{
+			using (Repository repo = new Repository(folder))
+			{
+				return repo.Branches.Select(b => b.FriendlyName + b.Tip.Sha + b.IsCurrentRepositoryHead)
+					.ToList();
+			}
+		}
+
+
 		public IEnumerable<GitBranch> Branches => repository.Branches
 			.Select(b => new GitBranch(b, repository));
 

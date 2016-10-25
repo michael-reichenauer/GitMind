@@ -381,6 +381,16 @@ namespace GitMind.RepositoryViews
 
 			return refreshThrottler.Run(async () =>
 			{
+				if (isRepoChange)
+				{
+					Log.Warn("Check if Repository has changed");
+					if (!await repositoryService.IsRepositoryChangedAsync(Repository))
+					{
+						Log.Warn("Repository has not changed");
+						return;
+					}
+				}
+
 				Log.Debug("Refreshing after status/repo change ...");
 				Log.Usage("Refresh after status change");
 
