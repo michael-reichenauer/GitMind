@@ -160,8 +160,9 @@ namespace GitMind
 			{
 				if (!ipcRemotingService.TryCreateServer(id))
 				{
-					// Another GitMind instance for that working folder is already running, activate that.	
-					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate());			
+					// Another GitMind instance for that working folder is already running, activate that.
+					var args = Environment.GetCommandLineArgs();
+					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(args));			
 					return true;
 				}
 			}
