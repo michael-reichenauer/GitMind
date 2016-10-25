@@ -38,6 +38,16 @@ namespace GitMind.Git
 		}
 
 
+		public static IReadOnlyList<string> GetRefsIds(string folder)
+		{
+			using (Repository repo = new Repository(folder))
+			{
+				return repo.Refs.Select(r => r.CanonicalName + r.TargetIdentifier)
+					.ToList();
+			}
+		}
+
+
 		public IEnumerable<GitBranch> Branches => repository.Branches
 			.Select(b => new GitBranch(b, repository));
 
