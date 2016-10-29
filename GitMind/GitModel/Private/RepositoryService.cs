@@ -192,6 +192,7 @@ namespace GitMind.GitModel.Private
 			using (GitRepository gitRepository = GitRepository.Open(gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;
+				repository.Status = gitStatus;
 				t.Log("Got git status");
 
 				CleanRepositoryOfTempData(repository);
