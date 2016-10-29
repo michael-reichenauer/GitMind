@@ -58,7 +58,6 @@ namespace GitMind.Features.Committing
 				}
 			
 				string commitMessage = repository.Status.Message;
-				Log.Warn($"Commit message '{commitMessage}'");
 
 				CommitDialog dialog = new CommitDialog(
 					owner,
