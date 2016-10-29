@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading;
 using GitMind.Common.MessageDialogs;
-using GitMind.Settings;
+using GitMind.SettingsHandling;
 using GitMind.Utils;
 using Microsoft.Win32;
 

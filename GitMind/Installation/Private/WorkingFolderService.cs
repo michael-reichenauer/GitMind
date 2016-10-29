@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using GitMind.Settings;
+using GitMind.SettingsHandling;
 using GitMind.Testing;
 using GitMind.Utils;
 

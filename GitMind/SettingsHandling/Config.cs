@@ -3,7 +3,7 @@ using System.IO;
 using GitMind.Utils;
 
 
-namespace GitMind.Settings
+namespace GitMind.SettingsHandling
 {
 	public static class Config
 	{

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using GitMind.Git;
 
 
-namespace GitMind.Settings
+namespace GitMind.SettingsHandling
 {
 	public class WorkFolderSettings
 	{

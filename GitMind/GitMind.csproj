@@ -141,9 +141,9 @@
     <Compile Include="RepositoryViews\CredentialsDialog.cs" />
     <Compile Include="RepositoryViews\DisabledStatus.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
-    <Compile Include="Settings\Config.cs" />
-    <Compile Include="Settings\Options.cs" />
-    <Compile Include="Settings\WorkFolderSettings.cs" />
+    <Compile Include="SettingsHandling\Config.cs" />
+    <Compile Include="SettingsHandling\Options.cs" />
+    <Compile Include="SettingsHandling\WorkFolderSettings.cs" />
     <Compile Include="Utils\Equatable.cs" />
     <Compile Include="Utils\IpcService.cs" />
     <Compile Include="Utils\Json.cs" />
@@ -238,8 +238,8 @@
     <Compile Include="Installation\ILatestVersionService.cs" />
     <Compile Include="Installation\Private\LatestVersionService.cs" />
     <Compile Include="Installation\Private\Installer.cs" />
-    <Compile Include="Settings\ProgramPaths.cs" />
-    <Compile Include="Settings\ProgramSettings.cs" />
+    <Compile Include="SettingsHandling\ProgramPaths.cs" />
+    <Compile Include="SettingsHandling\ProgramSettings.cs" />
     <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
     <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\JsonSerializerX.cs" />

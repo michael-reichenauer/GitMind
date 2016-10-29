@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
-using GitMind.Settings;
+using GitMind.SettingsHandling;
 using GitMind.Utils;
 
 

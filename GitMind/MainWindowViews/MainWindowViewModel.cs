@@ -13,7 +13,7 @@ using GitMind.Git;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.RepositoryViews;
-using GitMind.Settings;
+using GitMind.SettingsHandling;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;

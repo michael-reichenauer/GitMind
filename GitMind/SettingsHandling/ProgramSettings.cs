@@ -1,4 +1,4 @@
-namespace GitMind.Settings
+namespace GitMind.SettingsHandling
 {
 	internal class ProgramSettings
 	{
