@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 using GitMind.Installation.Private;
-using GitMind.Settings;
+using GitMind.SettingsHandling;
 using GitMind.Utils;
 
 

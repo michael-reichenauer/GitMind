@@ -58,6 +58,7 @@ namespace GitMind.GitModel.Private
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
 		public IReadOnlyList<string> Tips { get; set; } = new List<string>();
+		public string StatusText { get; set; } = "";
 
 
 		public void CompleteDeserialization(string gitRepositoryPath)

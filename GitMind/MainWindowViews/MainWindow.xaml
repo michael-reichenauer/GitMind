@@ -11,7 +11,7 @@
 	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
 	WindowStyle="None" AllowsTransparency="True"
 	Loaded="MainWindow_OnLoaded"
-	ui:InputBindingsBehavior.TakesInputBindingPrecedence="True">
+	ui:InputBindingsBehavior.TakesInputBindingPrecedence="True" Closed="MainWindow_OnClosed">
 
 
 	<!-- Enable "normal" windows behavior with drag and resize,

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
+using GitMind.SettingsHandling;
 using GitMind.Utils;
 
 
@@ -44,15 +46,41 @@ namespace GitMind.MainWindowViews
 		}
 
 
-
-
 		public string WorkingFolder
 		{
-			set {viewModel.WorkingFolder = value;}
+			set
+			{
+				viewModel.WorkingFolder = value;
+
+				WorkFolderSettings settings = Settings.GetWorkFolderSetting(value);
+				Top = settings.Top;
+				Left = settings.Left;
+				Height = settings.Height;
+				Width = settings.Width;
+
+				WindowState = settings.IsMaximized ? WindowState.Maximized : WindowState.Normal;
+
+				viewModel.RepositoryViewModel.IsShowCommitDetails = settings.IsShowCommitDetails;
+			}
 		}
 
 
-		public IReadOnlyList<BranchName> BranchNames { set { viewModel.SpecifiedBranchNames = value; } }
+		public IReadOnlyList<BranchName> BranchNames
+		{
+			set
+			{
+				if (value.Any())
+				{
+					viewModel.SpecifiedBranchNames = value;
+				}
+				else
+				{
+					WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
+					viewModel.SpecifiedBranchNames = settings.ShownBranches
+						.Select(name => new BranchName(name)).ToList();
+				}
+			}
+		}
 
 
 		public bool IsNewVersionVisible
@@ -136,6 +164,25 @@ namespace GitMind.MainWindowViews
 		{
 			UncommittedContextMenu.PlacementTarget = this;
 			UncommittedContextMenu.IsOpen = true;
+		}
+
+
+		private void MainWindow_OnClosed(object sender, EventArgs e)
+		{
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
+	
+			settings.Top = Top;
+			settings.Left = Left;
+			settings.Height = Height;
+			settings.Width = Width;
+			settings.IsMaximized = WindowState == WindowState.Maximized;
+			settings.IsShowCommitDetails = viewModel.RepositoryViewModel.IsShowCommitDetails;
+
+			settings.ShownBranches = viewModel.RepositoryViewModel.Branches
+				.Select(b => b.Branch.Name.ToString())
+				.ToList();
+		
+			Settings.SetWorkFolderSetting(viewModel.WorkingFolder, settings);
 		}
 	}
 }

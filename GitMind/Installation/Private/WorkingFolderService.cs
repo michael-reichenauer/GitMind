@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using GitMind.Settings;
+using GitMind.SettingsHandling;
 using GitMind.Testing;
 using GitMind.Utils;
 
@@ -59,7 +59,8 @@ namespace GitMind.Installation.Private
 
 			if (!path.HasValue)
 			{
-				string lastUsedFolder = ProgramSettings.TryGetLatestUsedWorkingFolderPath();
+				
+				string lastUsedFolder = Settings.Get<ProgramSettings>().LastUsedWorkingFolder;
 
 				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
 				{

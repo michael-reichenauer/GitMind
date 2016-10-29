@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using GitMind.Common.MessageDialogs;
-using GitMind.Settings;
+using GitMind.SettingsHandling;
 using GitMind.Utils;
 
 

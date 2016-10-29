@@ -7,7 +7,7 @@ using GitMind.Git.Private;
 using GitMind.Utils;
 
 
-namespace GitMind.Settings
+namespace GitMind.SettingsHandling
 {
 	internal static class ProgramPaths
 	{
@@ -28,6 +28,11 @@ namespace GitMind.Settings
 		private static readonly string SettingsFileName = "settings";
 		private static readonly string LatestETagFileName = "latestetag";
 		private static readonly string LatestInfoFileName = "latestinfo";
+
+
+		public static string DataFolderPath = Path.Combine(
+			Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+			ProgramName);
 
 
 		public static string RemoteSetupPath
