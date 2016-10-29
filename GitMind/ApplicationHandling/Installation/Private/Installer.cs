@@ -116,7 +116,6 @@ namespace GitMind.ApplicationHandling.Installation.Private
 			CreateStartMenuShortcut(path);
 			AddToPathVariable(path);
 			AddFolderContextMenu();
-			TryDeleteTempFiles();
 			Log.Usage("Installed");
 		}
 
@@ -161,33 +160,6 @@ namespace GitMind.ApplicationHandling.Installation.Private
 			DeleteFolderContextMenu();
 			DeleteUninstallSupport();
 			Log.Debug("Uninstalled");
-		}
-
-
-		public void TryDeleteTempFiles()
-		{
-			try
-			{
-				string tempFolderPath = ProgramPaths.GetTempFolderPath();
-				string searchPattern = $"{ProgramPaths.TempPrefix}*";
-				string[] tempFiles = Directory.GetFiles(tempFolderPath, searchPattern);
-				foreach (string tempFile in tempFiles)
-				{
-					try
-					{
-						Log.Debug($"Deleting temp file {tempFile}");
-						File.Delete(tempFile);
-					}
-					catch (Exception e)
-					{
-						Log.Debug($"Failed to delete temp file {tempFile}, {e.Message}. Deleting at reboot");
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to delete temp files {e}");
-			}
 		}
 
 		private string CopyFileToProgramFiles()

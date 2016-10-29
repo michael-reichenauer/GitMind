@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
+using GitMind.ApplicationHandling.Installation;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.ApplicationHandling.Testing;
 using GitMind.Utils;
 
 
-namespace GitMind.ApplicationHandling.Installation.Private
+namespace GitMind.ApplicationHandling
 {
 	internal class WorkingFolderService
 	{
