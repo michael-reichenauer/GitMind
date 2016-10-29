@@ -34,11 +34,10 @@ namespace GitMind.Git.Private
 		{
 		}
 
-	
+
 
 		public Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId)
 		{
-			Log.Debug($"Getting files for {commitId} ...");
 			return repoCaller.UseRepoAsync(workingFolder, repo =>
 			{
 				if (commitId == GitCommit.UncommittedId)
@@ -172,7 +171,7 @@ namespace GitMind.Git.Private
 
 		public void AddPaths(
 			LibGit2Sharp.Repository repo,
-			string workingFolder, 
+			string workingFolder,
 			IReadOnlyList<CommitFile> paths)
 		{
 			List<string> added = new List<string>();
@@ -201,7 +200,7 @@ namespace GitMind.Git.Private
 		public GitCommit Commit(LibGit2Sharp.Repository repo, string message)
 		{
 			Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
-		
+
 			CommitOptions commitOptions = new CommitOptions();
 
 			LibGit2Sharp.Commit commit = repo.Commit(message, signature, signature, commitOptions);
@@ -224,8 +223,8 @@ namespace GitMind.Git.Private
 				{
 					if (gitFile.IsModified || gitFile.IsDeleted)
 					{
-						CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
-						repo.CheckoutPaths("HEAD", new[] {path}, options);
+						CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+						repo.CheckoutPaths("HEAD", new[] { path }, options);
 					}
 
 					if (gitFile.IsAdded || gitFile.IsRenamed)
@@ -239,8 +238,8 @@ namespace GitMind.Git.Private
 
 					if (gitFile.IsRenamed)
 					{
-						CheckoutOptions options = new CheckoutOptions {CheckoutModifiers = CheckoutModifiers.Force};
-						repo.CheckoutPaths("HEAD", new[] {gitFile.OldFile}, options);
+						CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+						repo.CheckoutPaths("HEAD", new[] { gitFile.OldFile }, options);
 					}
 				}
 			});
