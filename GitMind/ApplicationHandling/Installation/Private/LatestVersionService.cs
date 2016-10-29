@@ -4,12 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.MainWindowViews;
 using GitMind.Utils;
 
 
@@ -24,7 +21,6 @@ namespace GitMind.ApplicationHandling.Installation.Private
 			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
 		private static readonly string UserAgent = "GitMind";
 
-		private readonly JsonSerializerX serializer = new JsonSerializerX();
 		private readonly ICmd cmd = new Cmd();
 
 		private DispatcherTimer newVersionTimer;
@@ -144,7 +140,7 @@ namespace GitMind.ApplicationHandling.Installation.Private
 						}
 					}
 
-					return serializer.Deserialize<LatestInfo>(latestInfoText);
+					return Json.As<LatestInfo>(latestInfoText);
 				}
 			}
 			catch (Exception e) when (e.IsNotFatal())
@@ -225,26 +221,18 @@ namespace GitMind.ApplicationHandling.Installation.Private
 		}
 
 
-		[DataContract]
+		// Type used when parsing latest version information json
 		public class LatestInfo
 		{
-			[DataMember]
 			public string tag_name;
-
-			[DataMember]
 			public Asset[] assets;
 		}
 
-		[DataContract]
+		// Type used when parsing latest version information json
 		internal class Asset
 		{
-			[DataMember]
 			public string name;
-
-			[DataMember]
 			public int download_count;
-
-			[DataMember]
 			public string browser_download_url;
 		}
 	}

@@ -244,7 +244,6 @@
     <Compile Include="ApplicationHandling\SettingsHandling\ProgramSettings.cs" />
     <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
     <Compile Include="Utils\CmdResult.cs" />
-    <Compile Include="Utils\JsonSerializerX.cs" />
     <Compile Include="Utils\R.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
     <Compile Include="Utils\TaskExtensions.cs" />

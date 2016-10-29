@@ -136,7 +136,7 @@ namespace GitMind
 
 		private static MessageDialog CreateTempMainWindow()
 		{
-			// Window used as a temp main window
+			// Window used as a temp main window, when handling commands (i.e. no "real" main windows)
 			return new MessageDialog(null, "", "", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 	}
