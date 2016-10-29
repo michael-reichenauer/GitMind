@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using GitMind.SettingsHandling;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
 
 

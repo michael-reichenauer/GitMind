@@ -9,13 +9,13 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling.Installation;
 using GitMind.ApplicationHandling.Installation.Private;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
-using GitMind.SettingsHandling;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 

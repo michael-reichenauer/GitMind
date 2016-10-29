@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using GitMind.SettingsHandling;
-using GitMind.Testing;
+using GitMind.ApplicationHandling.SettingsHandling;
+using GitMind.ApplicationHandling.Testing;
 using GitMind.Utils;
 
 

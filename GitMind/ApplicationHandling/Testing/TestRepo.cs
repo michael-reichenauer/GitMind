@@ -1,4 +1,4 @@
-namespace GitMind.Testing
+namespace GitMind.ApplicationHandling.Testing
 {
 	public static class TestRepo
 	{		

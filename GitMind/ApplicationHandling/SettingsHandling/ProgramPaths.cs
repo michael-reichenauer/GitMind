@@ -7,7 +7,7 @@ using GitMind.Git.Private;
 using GitMind.Utils;
 
 
-namespace GitMind.SettingsHandling
+namespace GitMind.ApplicationHandling.SettingsHandling
 {
 	internal static class ProgramPaths
 	{

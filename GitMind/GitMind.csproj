@@ -141,9 +141,9 @@
     <Compile Include="RepositoryViews\CredentialsDialog.cs" />
     <Compile Include="RepositoryViews\DisabledStatus.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
-    <Compile Include="SettingsHandling\Settings.cs" />
-    <Compile Include="SettingsHandling\Options.cs" />
-    <Compile Include="SettingsHandling\WorkFolderSettings.cs" />
+    <Compile Include="ApplicationHandling\SettingsHandling\Settings.cs" />
+    <Compile Include="ApplicationHandling\SettingsHandling\Options.cs" />
+    <Compile Include="ApplicationHandling\SettingsHandling\WorkFolderSettings.cs" />
     <Compile Include="Utils\Equatable.cs" />
     <Compile Include="Utils\IpcService.cs" />
     <Compile Include="Utils\Json.cs" />
@@ -238,8 +238,8 @@
     <Compile Include="ApplicationHandling\Installation\ILatestVersionService.cs" />
     <Compile Include="ApplicationHandling\Installation\Private\LatestVersionService.cs" />
     <Compile Include="ApplicationHandling\Installation\Private\Installer.cs" />
-    <Compile Include="SettingsHandling\ProgramPaths.cs" />
-    <Compile Include="SettingsHandling\ProgramSettings.cs" />
+    <Compile Include="ApplicationHandling\SettingsHandling\ProgramPaths.cs" />
+    <Compile Include="ApplicationHandling\SettingsHandling\ProgramSettings.cs" />
     <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
     <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\JsonSerializerX.cs" />
@@ -257,7 +257,7 @@
     <Compile Include="Git\IGitCommitsService.cs" />
     <Compile Include="Git\GitStatus.cs" />
     <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
-    <Compile Include="Testing\TestRepo.cs" />
+    <Compile Include="ApplicationHandling\Testing\TestRepo.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />
     <Compile Include="Utils\Timing.cs" />
