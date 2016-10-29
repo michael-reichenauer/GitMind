@@ -209,8 +209,7 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
 
 
-		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(
-			branch => branchService.MergeBranchAsync(this, branch));
+		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
 
 
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
@@ -1030,6 +1029,18 @@ namespace GitMind.RepositoryViews
 				}
 			}
 		}
+
+
+		private async Task MergeBranchAsync(Branch branch)
+		{
+			await branchService.MergeBranchAsync(this, branch);
+
+			if (Repository.Status.ConflictCount > 0)
+			{
+				IsShowCommitDetails = true;
+			}
+		}
+
 
 
 		private Task SetBranchAsync(Commit commit)
