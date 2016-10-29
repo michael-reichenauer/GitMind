@@ -38,20 +38,11 @@ namespace GitMind.Git
 		}
 
 
-		public static IReadOnlyList<string> GetRefsIds(string folder)
-		{
-			using (Repository repo = new Repository(folder))
-			{
-				return repo.Refs.Select(r => r.CanonicalName + r.TargetIdentifier)
-					.ToList();
-			}
-		}
-
-		//public static string GetStatusText(string folder)
+		//public static IReadOnlyList<string> GetRefsIds(string folder)
 		//{
 		//	using (Repository repo = new Repository(folder))
 		//	{
-		//		return repo.
+		//		return repo.Refs.Select(r => r.CanonicalName + r.TargetIdentifier)
 		//			.ToList();
 		//	}
 		//}
