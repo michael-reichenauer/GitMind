@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 
 
-namespace GitMind.Installation
+namespace GitMind.ApplicationHandling.Installation
 {
 	internal interface ILatestVersionService
 	{

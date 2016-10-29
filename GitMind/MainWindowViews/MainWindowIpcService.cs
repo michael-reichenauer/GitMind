@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows;
-using GitMind.Installation.Private;
+using GitMind.ApplicationHandling.Installation.Private;
 using GitMind.SettingsHandling;
 using GitMind.Utils;
 

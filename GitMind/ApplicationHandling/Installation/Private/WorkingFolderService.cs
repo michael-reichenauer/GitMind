@@ -5,7 +5,7 @@ using GitMind.Testing;
 using GitMind.Utils;
 
 
-namespace GitMind.Installation.Private
+namespace GitMind.ApplicationHandling.Installation.Private
 {
 	internal class WorkingFolderService
 	{

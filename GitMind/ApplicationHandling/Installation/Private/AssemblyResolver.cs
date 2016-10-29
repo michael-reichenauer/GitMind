@@ -4,7 +4,7 @@ using System.Reflection;
 using GitMind.Utils;
 
 
-namespace GitMind.Installation.Private
+namespace GitMind.ApplicationHandling.Installation.Private
 {
 	internal class AssemblyResolver
 	{

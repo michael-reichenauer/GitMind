@@ -7,7 +7,7 @@ using GitMind.Utils;
 using Microsoft.Win32;
 
 
-namespace GitMind.Installation.Private
+namespace GitMind.ApplicationHandling.Installation.Private
 {
 	internal class Installer : IInstaller
 	{
