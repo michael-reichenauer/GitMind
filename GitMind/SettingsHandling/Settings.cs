@@ -5,7 +5,7 @@ using GitMind.Utils;
 
 namespace GitMind.SettingsHandling
 {
-	public static class Config
+	public static class Settings
 	{
 		public static T Get<T>()
 		{

@@ -52,7 +52,7 @@ namespace GitMind.MainWindowViews
 			{
 				viewModel.WorkingFolder = value;
 
-				WorkFolderSettings settings = Config.GetWorkFolderSetting(value);
+				WorkFolderSettings settings = Settings.GetWorkFolderSetting(value);
 				Top = settings.Top;
 				Left = settings.Left;
 				Height = settings.Height;
@@ -75,7 +75,7 @@ namespace GitMind.MainWindowViews
 				}
 				else
 				{
-					WorkFolderSettings settings = Config.GetWorkFolderSetting(viewModel.WorkingFolder);
+					WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
 					viewModel.SpecifiedBranchNames = settings.ShownBranches
 						.Select(name => new BranchName(name)).ToList();
 				}
@@ -169,7 +169,7 @@ namespace GitMind.MainWindowViews
 
 		private void MainWindow_OnClosed(object sender, EventArgs e)
 		{
-			WorkFolderSettings settings = Config.GetWorkFolderSetting(viewModel.WorkingFolder);
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
 	
 			settings.Top = Top;
 			settings.Left = Left;
@@ -182,7 +182,7 @@ namespace GitMind.MainWindowViews
 				.Select(b => b.Branch.Name.ToString())
 				.ToList();
 		
-			Config.SetWorkFolderSetting(viewModel.WorkingFolder, settings);
+			Settings.SetWorkFolderSetting(viewModel.WorkingFolder, settings);
 		}
 	}
 }

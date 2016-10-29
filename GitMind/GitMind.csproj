@@ -141,7 +141,7 @@
     <Compile Include="RepositoryViews\CredentialsDialog.cs" />
     <Compile Include="RepositoryViews\DisabledStatus.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
-    <Compile Include="SettingsHandling\Config.cs" />
+    <Compile Include="SettingsHandling\Settings.cs" />
     <Compile Include="SettingsHandling\Options.cs" />
     <Compile Include="SettingsHandling\WorkFolderSettings.cs" />
     <Compile Include="Utils\Equatable.cs" />

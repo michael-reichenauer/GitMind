@@ -60,7 +60,7 @@ namespace GitMind.Installation.Private
 			if (!path.HasValue)
 			{
 				
-				string lastUsedFolder = Config.Get<ProgramSettings>().LastUsedWorkingFolder;
+				string lastUsedFolder = Settings.Get<ProgramSettings>().LastUsedWorkingFolder;
 
 				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
 				{

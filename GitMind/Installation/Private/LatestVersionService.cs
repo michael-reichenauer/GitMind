@@ -73,7 +73,7 @@ namespace GitMind.Installation.Private
 			{
 				using (HttpClient httpClient = GetHttpClient())
 				{
-					ProgramSettings programSettings = Config.Get<ProgramSettings>();
+					ProgramSettings programSettings = Settings.Get<ProgramSettings>();
 						
 					string eTag = programSettings.LatestVersionInfoETag;
 
@@ -101,10 +101,10 @@ namespace GitMind.Installation.Private
 
 						if (!string.IsNullOrEmpty(eTag))
 						{
-							programSettings = Config.Get<ProgramSettings>();
+							programSettings = Settings.Get<ProgramSettings>();
 							programSettings.LatestVersionInfoETag = eTag;
 							programSettings.LatestVersionInfo = latestInfoText;
-							Config.Set(programSettings);
+							Settings.Set(programSettings);
 						}
 					}
 
