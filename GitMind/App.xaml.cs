@@ -38,6 +38,7 @@ namespace GitMind
 		private static Mutex programMutex;
 		private DispatcherTimer newVersionTimer;
 		private MainWindow mainWindow;
+		private static readonly TimeSpan FirstLastestVersionCheckTime = TimeSpan.FromSeconds(1);
 
 
 		public ICommandLine CommandLine { get; private set; }
@@ -53,9 +54,13 @@ namespace GitMind
 			// Make sure that when assemblies that GitMind depends on are extracted whenever requested 
 			AssemblyResolver.Activate();
 
-			App app = new App();
-			app.Start();
+			App application = new App();
+			ExceptionHandling.Init();
+			WpfBindingTraceListener.Register();
+			application.InitializeComponent();
+			application.Run();
 		}
+
 
 		protected override void OnExit(ExitEventArgs e)
 		{
@@ -68,25 +73,9 @@ namespace GitMind
 		{
 			base.OnStartup(e);
 
-			OnStartup();
-		}
-
-
-		private void Start()
-		{
 			CommandLine = new CommandLine(Environment.GetCommandLineArgs());
 			workingFolderService = new WorkingFolderService(CommandLine);
-			ExceptionHandling.Init();
-			WpfBindingTraceListener.Register();
 
-			InitializeComponent();
-
-			Run();
-		}
-
-
-		private void OnStartup()
-		{
 			if (IsCommands())
 			{
 				// Commands like Install, Uninstall, Diff, can be handled immediately
@@ -141,7 +130,7 @@ namespace GitMind
 		{
 			newVersionTimer = new DispatcherTimer();
 			newVersionTimer.Tick += NewVersionCheckAsync;
-			newVersionTimer.Interval = TimeSpan.FromSeconds(5);
+			newVersionTimer.Interval = FirstLastestVersionCheckTime;
 			newVersionTimer.Start();
 		}
 

@@ -15,16 +15,17 @@ namespace GitMind.Common
 		private static readonly TimeSpan MinTimeBeforeAutoRestart = TimeSpan.FromSeconds(10);
 
 		private static readonly ICmd cmd = new Cmd();
+
 		private static bool hasDisplayedErrorMessageBox;
 		private static bool hasFailed;
 		private static bool hasShutdown;
-		public static DateTime InitTime;
+		public static DateTime StartTime;
 		
 
 
 		public static void Init()
 		{
-			InitTime = DateTime.Now;
+			StartTime = DateTime.Now;
 
 			// Add the event handler for handling UI thread exceptions to the event		
 			Application.Current.DispatcherUnhandledException += (s, e) =>
@@ -98,7 +99,7 @@ namespace GitMind.Common
 				Debugger.Break();
 			}
 
-			if (DateTime.Now - InitTime >= MinTimeBeforeAutoRestart)
+			if (DateTime.Now - StartTime >= MinTimeBeforeAutoRestart)
 			{
 				Restart();
 			}
@@ -114,10 +115,10 @@ namespace GitMind.Common
 				return;
 			}
 
-			if (DateTime.Now - InitTime < MinTimeBeforeAutoRestart)
+			if (DateTime.Now - StartTime < MinTimeBeforeAutoRestart)
 			{
 				Message.ShowError("Sorry, but an unexpected error just occurred", "GitMind");
-				InitTime = DateTime.Now;
+				StartTime = DateTime.Now;
 			}
 
 			hasDisplayedErrorMessageBox = true;
