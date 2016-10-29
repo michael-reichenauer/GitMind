@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -64,7 +65,22 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public IReadOnlyList<BranchName> BranchNames { set { viewModel.SpecifiedBranchNames = value; } }
+		public IReadOnlyList<BranchName> BranchNames
+		{
+			set
+			{
+				if (value.Any())
+				{
+					viewModel.SpecifiedBranchNames = value;
+				}
+				else
+				{
+					WorkFolderSettings settings = Config.GetWorkFolderSetting(viewModel.WorkingFolder);
+					viewModel.SpecifiedBranchNames = settings.ShownBranches
+						.Select(name => new BranchName(name)).ToList();
+				}
+			}
+		}
 
 
 		public bool IsNewVersionVisible
@@ -162,6 +178,10 @@ namespace GitMind.MainWindowViews
 			settings.IsMaximized = WindowState == WindowState.Maximized;
 			settings.IsShowCommitDetails = viewModel.RepositoryViewModel.IsShowCommitDetails;
 
+			settings.ShownBranches = viewModel.RepositoryViewModel.Branches
+				.Select(b => b.Branch.Name.ToString())
+				.ToList();
+		
 			Config.SetWorkFolderSetting(viewModel.WorkingFolder, settings);
 		}
 	}
