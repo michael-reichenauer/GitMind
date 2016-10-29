@@ -17,18 +17,21 @@
 			Style="{StaticResource IconButtonStyle}" 
 			Content="&#xE15B;" 
 			Padding="4,4,4,0" 
+			ToolTip="Minimize (Escape)"
 			Command="{Binding MinimizeCommand}"/>
 
 		<!-- Maximize button-->
 		<Button 
 			Style="{StaticResource IconButtonStyle}" 
 			FontSize="14" Content="&#xE3C1;" 
+			ToolTip="Maximize"
 			Command="{Binding ToggleMaximizeCommand}"/>
 
 		<!-- Close Button -->
 		<Button 
 			Style="{StaticResource IconButtonStyle}" 
 			Content="&#xE14C;" 
+			ToolTip="Close (Ctrl-Q)"
 			Command="{Binding CloseCommand}"/>
 		
 	</StackPanel>
