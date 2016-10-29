@@ -195,7 +195,7 @@ namespace GitMind.GitModel.Private
 			}
 			if (gitStatus.IsMerging)
 			{
-				commit.Subject = "Merge in progress: " + commit.Subject;
+				commit.Subject = $"{gitStatus.Message?.Trim()} ({commit.Subject})";
 				commit.IsMerging = true;
 			}
 

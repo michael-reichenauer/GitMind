@@ -209,8 +209,7 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
 
 
-		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(
-			branch => branchService.MergeBranchAsync(this, branch));
+		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
 
 
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
@@ -381,18 +380,18 @@ namespace GitMind.RepositoryViews
 
 			return refreshThrottler.Run(async () =>
 			{
-				if (isRepoChange)
-				{
-					Log.Debug("Check if Repository has changed");
-					if (!await repositoryService.IsRepositoryChangedAsync(Repository))
-					{
-						Log.Debug("Repository has not changed");
-						return;
-					}
-				}
+				//if (isRepoChange)
+				//{
+				//	Log.Debug("Check if Repository has changed");
+				//	if (!await repositoryService.IsRepositoryChangedAsync(Repository))
+				//	{
+				//		Log.Debug("Repository has not changed");
+				//		return;
+				//	}
+				//}
 
 				Log.Debug("Refreshing after status/repo change ...");
-				Log.Usage("Refresh after status change");
+				Log.Usage("Refresh after status/repo change");
 
 				using (busyIndicator.Progress())
 				{
@@ -1030,6 +1029,18 @@ namespace GitMind.RepositoryViews
 				}
 			}
 		}
+
+
+		private async Task MergeBranchAsync(Branch branch)
+		{
+			await branchService.MergeBranchAsync(this, branch);
+
+			if (Repository.Status.ConflictCount > 0)
+			{
+				IsShowCommitDetails = true;
+			}
+		}
+
 
 
 		private Task SetBranchAsync(Commit commit)

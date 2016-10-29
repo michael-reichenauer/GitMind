@@ -136,18 +136,21 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public Task<bool> IsRepositoryChangedAsync(Repository repository)
-		{
-			return Task.Run(() =>
-			{
-				string workingFolder = repository.MRepository.WorkingFolder;
-				IReadOnlyList<string> currentTips = GitRepository.GetRefsIds(workingFolder);
+		//public Task<bool> IsRepositoryChangedAsync(Repository repository)
+		//{
+		//	return Task.Run(() =>
+		//	{
+		//		string workingFolder = repository.MRepository.WorkingFolder;
+		//		IReadOnlyList<string> currentTips = GitRepository.GetRefsIds(workingFolder);
 
-				IReadOnlyList<string> tips = repository.MRepository.Tips;
+		//		IReadOnlyList<string> tips = repository.MRepository.Tips;
+		//		repository.MRepository.StatusText = $"";
+		//		Status status = repository.Status;
+		//		string statusText = $"{status.isOk},{status.ConflictCount},{status.IsMerging},{status.StatusCount}";
 
-				return !currentTips.SequenceEqual(tips);				
-			});
-		}
+		//		return !currentTips.SequenceEqual(tips) || statusText != repository.MRepository.StatusText;				
+		//	});
+		//}
 
 
 		private Task<MRepository> UpdateAsync(MRepository mRepository)
@@ -185,7 +188,7 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			string gitRepositoryPath = repository.WorkingFolder;
 
-			repository.Tips = GitRepository.GetRefsIds(gitRepositoryPath);
+			// repository.Tips = GitRepository.GetRefsIds(gitRepositoryPath);
 			using (GitRepository gitRepository = GitRepository.Open(gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;

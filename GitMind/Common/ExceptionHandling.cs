@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using GitMind.Common.MessageDialogs;
-using GitMind.Settings;
+using GitMind.SettingsHandling;
 using GitMind.Utils;
 
 
@@ -117,6 +117,7 @@ namespace GitMind.Common
 			if (DateTime.Now - InitTime < MinTimeBeforeAutoRestart)
 			{
 				Message.ShowError("Sorry, but an unexpected error just occurred", "GitMind");
+				InitTime = DateTime.Now;
 			}
 
 			hasDisplayedErrorMessageBox = true;

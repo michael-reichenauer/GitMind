@@ -13,7 +13,7 @@ using GitMind.Git;
 using GitMind.Installation;
 using GitMind.Installation.Private;
 using GitMind.RepositoryViews;
-using GitMind.Settings;
+using GitMind.SettingsHandling;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
@@ -167,7 +167,9 @@ namespace GitMind.MainWindowViews
 			if (path.HasValue)
 			{
 				WorkingFolder = path.Value;
-				ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
+				ProgramSettings settings = Settings.Get<ProgramSettings>();
+				settings.LastUsedWorkingFolder = path.Value;
+				Settings.Set(settings);
 
 				await RepositoryViewModel.FirstLoadAsync();
 				isLoaded = true;
@@ -419,7 +421,9 @@ namespace GitMind.MainWindowViews
 			}
 
 			Log.Info($"Setting working folder '{selectedPath}'");
-			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
+			ProgramSettings settings = Settings.Get<ProgramSettings>();
+			settings.LastUsedWorkingFolder = selectedPath;
+			Settings.Set(settings);
 			return true;
 		}
 

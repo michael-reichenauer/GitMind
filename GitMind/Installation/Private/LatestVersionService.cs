@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using GitMind.Settings;
+using GitMind.SettingsHandling;
 using GitMind.Utils;
 
 
@@ -73,7 +73,9 @@ namespace GitMind.Installation.Private
 			{
 				using (HttpClient httpClient = GetHttpClient())
 				{
-					string eTag = ProgramSettings.TryGetLatestVersionETag();
+					ProgramSettings programSettings = Settings.Get<ProgramSettings>();
+						
+					string eTag = programSettings.LatestVersionInfoETag;
 
 					if (!string.IsNullOrEmpty(eTag))
 					{
@@ -89,21 +91,23 @@ namespace GitMind.Installation.Private
 					if (response.StatusCode == HttpStatusCode.NotModified)
 					{
 						Log.Debug("Latest version info is not changed");
-						latestInfoText = ProgramSettings.TryGetLatestVersionInfo();
+						latestInfoText = programSettings.LatestVersionInfo;
 					}
 					else
 					{
-					
+
 						latestInfoText = await response.Content.ReadAsStringAsync();
 						Log.Debug("New version info");
 
 						if (!string.IsNullOrEmpty(eTag))
 						{
-							ProgramSettings.SetLatestVersionETag(eTag);
-							ProgramSettings.SetLatestVersionInfo(latestInfoText);
+							programSettings = Settings.Get<ProgramSettings>();
+							programSettings.LatestVersionInfoETag = eTag;
+							programSettings.LatestVersionInfo = latestInfoText;
+							Settings.Set(programSettings);
 						}
 					}
-				
+
 					return serializer.Deserialize<LatestInfo>(latestInfoText);
 				}
 			}
