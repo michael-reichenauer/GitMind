@@ -169,8 +169,16 @@ namespace GitMind.MainWindowViews
 
 		private void MainWindow_OnClosed(object sender, EventArgs e)
 		{
+			StoreWindowSettings();
+
+			StoreLasteUsedFolder();
+		}
+
+
+		private void StoreWindowSettings()
+		{
 			WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
-	
+
 			settings.Top = Top;
 			settings.Left = Left;
 			settings.Height = Height;
@@ -181,8 +189,16 @@ namespace GitMind.MainWindowViews
 			settings.ShownBranches = viewModel.RepositoryViewModel.Branches
 				.Select(b => b.Branch.Name.ToString())
 				.ToList();
-		
+
 			Settings.SetWorkFolderSetting(viewModel.WorkingFolder, settings);
+		}
+
+
+		private void StoreLasteUsedFolder()
+		{
+			ProgramSettings programSettings = Settings.Get<ProgramSettings>();
+			programSettings.LastUsedWorkingFolder = viewModel.WorkingFolder;
+			Settings.Set(programSettings);
 		}
 	}
 }
