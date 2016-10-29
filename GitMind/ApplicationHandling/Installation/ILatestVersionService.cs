@@ -9,5 +9,6 @@ namespace GitMind.ApplicationHandling.Installation
 		Task<bool> InstallLatestVersionAsync();
 		Task<bool> RunLatestVersionAsync();
 		bool IsNewVersionInstalled();
+		void StartCheckForLatestVersion();
 	}
 }

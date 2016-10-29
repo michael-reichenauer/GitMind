@@ -6,7 +6,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
+using GitMind.MainWindowViews;
 using GitMind.Utils;
 
 
@@ -14,12 +17,45 @@ namespace GitMind.ApplicationHandling.Installation.Private
 {
 	internal class LatestVersionService : ILatestVersionService
 	{
+		private static readonly TimeSpan FirstLastestVersionCheckTime = TimeSpan.FromSeconds(1);
+		private static readonly TimeSpan LatestCheckIntervall = TimeSpan.FromHours(3);
+
 		private static readonly string latestUri =
 			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
 		private static readonly string UserAgent = "GitMind";
 
 		private readonly JsonSerializerX serializer = new JsonSerializerX();
 		private readonly ICmd cmd = new Cmd();
+
+		private DispatcherTimer newVersionTimer;
+
+
+		public void StartCheckForLatestVersion()
+		{
+			newVersionTimer = new DispatcherTimer();
+			newVersionTimer.Tick += NewVersionCheckAsync;
+			newVersionTimer.Interval = FirstLastestVersionCheckTime;
+			newVersionTimer.Start();
+		}
+
+
+		private async void NewVersionCheckAsync(object sender, EventArgs e)
+		{
+			newVersionTimer.Interval = LatestCheckIntervall;
+
+			if (await IsNewVersionAvailableAsync())
+			{
+				await InstallLatestVersionAsync();
+
+				// The actual installation (copy of files) is done by another, allow some time for that
+				await Task.Delay(TimeSpan.FromSeconds(5));
+			}
+
+			NotifyNewVesrionIsAvailable();
+		}
+
+
+
 
 
 		public bool IsNewVersionInstalled()
@@ -74,7 +110,7 @@ namespace GitMind.ApplicationHandling.Installation.Private
 				using (HttpClient httpClient = GetHttpClient())
 				{
 					ProgramSettings programSettings = Settings.Get<ProgramSettings>();
-						
+
 					string eTag = programSettings.LatestVersionInfoETag;
 
 					if (!string.IsNullOrEmpty(eTag))
@@ -164,7 +200,7 @@ namespace GitMind.ApplicationHandling.Installation.Private
 			try
 			{
 				cmd.Start(ProgramPaths.GetInstallFilePath(), null);
-				return true;			
+				return true;
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
@@ -173,6 +209,13 @@ namespace GitMind.ApplicationHandling.Installation.Private
 
 			return false;
 		}
+
+
+		private void NotifyNewVesrionIsAvailable()
+		{
+			App.Current.Window.IsNewVersionVisible = IsNewVersionInstalled();
+		}
+
 
 		private static HttpClient GetHttpClient()
 		{
