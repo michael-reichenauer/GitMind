@@ -606,8 +606,12 @@ namespace GitMind.RepositoryViews
 			{
 				toolTip += "\nRemote branch";
 			}
+			else if (!branch.IsRemote && !branch.IsLocalPart)
+			{
+				toolTip += "\n(Deleted branch)";
+			}
 
-			if (branch.ChildBranchNames.Count > 1)
+				if (branch.ChildBranchNames.Count > 1)
 			{
 				toolTip += $"\n\nBranch could be one of:";
 				foreach (BranchName branchName in branch.ChildBranchNames)
