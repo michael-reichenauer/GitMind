@@ -6,7 +6,21 @@ using GitMind.Utils;
 namespace GitMind.Settings
 {
 	public static class Config
-	{	
+	{
+		public static T Get<T>()
+		{
+			string path = GetProgramSettingsPath<T>();
+			return ReadAs<T>(path);
+		}
+
+
+		public static void Set<T>(T setting)
+		{
+			string path = GetProgramSettingsPath<T>();
+			WriteAs(path, setting);
+		}
+
+
 		public static WorkFolderSettings GetWorkFolderSetting(string workingFolder)
 		{
 			string path = GetWorkFolderSettingsPath(workingFolder);
@@ -92,6 +106,12 @@ namespace GitMind.Settings
 			{
 				Log.Warn($"Failed to write file {path}, {e}");
 			}
+		}
+
+
+		private static string GetProgramSettingsPath<T>()
+		{
+			return Path.Combine(ProgramPaths.DataFolderPath, typeof(T).Name + ".json");
 		}
 
 

@@ -73,7 +73,9 @@ namespace GitMind.Installation.Private
 			{
 				using (HttpClient httpClient = GetHttpClient())
 				{
-					string eTag = ProgramSettings.TryGetLatestVersionETag();
+					ProgramSettings programSettings = Config.Get<ProgramSettings>();
+						
+					string eTag = programSettings.LatestVersionInfoETag;
 
 					if (!string.IsNullOrEmpty(eTag))
 					{
@@ -89,21 +91,23 @@ namespace GitMind.Installation.Private
 					if (response.StatusCode == HttpStatusCode.NotModified)
 					{
 						Log.Debug("Latest version info is not changed");
-						latestInfoText = ProgramSettings.TryGetLatestVersionInfo();
+						latestInfoText = programSettings.LatestVersionInfo;
 					}
 					else
 					{
-					
+
 						latestInfoText = await response.Content.ReadAsStringAsync();
 						Log.Debug("New version info");
 
 						if (!string.IsNullOrEmpty(eTag))
 						{
-							ProgramSettings.SetLatestVersionETag(eTag);
-							ProgramSettings.SetLatestVersionInfo(latestInfoText);
+							programSettings = Config.Get<ProgramSettings>();
+							programSettings.LatestVersionInfoETag = eTag;
+							programSettings.LatestVersionInfo = latestInfoText;
+							Config.Set(programSettings);
 						}
 					}
-				
+
 					return serializer.Deserialize<LatestInfo>(latestInfoText);
 				}
 			}

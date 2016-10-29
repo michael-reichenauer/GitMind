@@ -167,7 +167,9 @@ namespace GitMind.MainWindowViews
 			if (path.HasValue)
 			{
 				WorkingFolder = path.Value;
-				ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
+				ProgramSettings settings = Config.Get<ProgramSettings>();
+				settings.LastUsedWorkingFolder = path.Value;
+				Config.Set(settings);
 
 				await RepositoryViewModel.FirstLoadAsync();
 				isLoaded = true;
@@ -419,7 +421,9 @@ namespace GitMind.MainWindowViews
 			}
 
 			Log.Info($"Setting working folder '{selectedPath}'");
-			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
+			ProgramSettings settings = Config.Get<ProgramSettings>();
+			settings.LastUsedWorkingFolder = selectedPath;
+			Config.Set(settings);
 			return true;
 		}
 
