@@ -144,8 +144,11 @@ namespace GitMind.GitModel.Private
 				IReadOnlyList<string> currentTips = GitRepository.GetRefsIds(workingFolder);
 
 				IReadOnlyList<string> tips = repository.MRepository.Tips;
+				repository.MRepository.StatusText = $"";
+				Status status = repository.Status;
+				string statusText = $"{status.isOk},{status.ConflictCount},{status.IsMerging},{status.StatusCount}";
 
-				return !currentTips.SequenceEqual(tips);				
+				return !currentTips.SequenceEqual(tips) || statusText != repository.MRepository.StatusText;				
 			});
 		}
 
@@ -189,7 +192,9 @@ namespace GitMind.GitModel.Private
 			using (GitRepository gitRepository = GitRepository.Open(gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;
-				repository.Status = gitStatus;
+				//string statusText = $"{gitStatus.isOk},{status.ConflictCount},{status.IsMerging},{status.StatusCount}";
+				//repository.Status
+				//repository.Status = gitStatus;
 				t.Log("Got git status");
 
 				CleanRepositoryOfTempData(repository);

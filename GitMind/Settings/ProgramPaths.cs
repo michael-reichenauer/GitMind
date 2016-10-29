@@ -30,6 +30,11 @@ namespace GitMind.Settings
 		private static readonly string LatestInfoFileName = "latestinfo";
 
 
+		public static string DataFolderPath = Path.Combine(
+			Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+			ProgramName);
+
+
 		public static string RemoteSetupPath
 		{
 			get

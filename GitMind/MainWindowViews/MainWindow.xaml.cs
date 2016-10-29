@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
+using GitMind.Settings;
 using GitMind.Utils;
 
 
@@ -44,11 +45,22 @@ namespace GitMind.MainWindowViews
 		}
 
 
-
-
 		public string WorkingFolder
 		{
-			set {viewModel.WorkingFolder = value;}
+			set
+			{
+				viewModel.WorkingFolder = value;
+
+				WorkFolderSettings settings = Config.GetWorkFolderSetting(value);
+				Top = settings.Top;
+				Left = settings.Left;
+				Height = settings.Height;
+				Width = settings.Width;
+
+				WindowState = settings.IsMaximized ? WindowState.Maximized : WindowState.Normal;
+
+				viewModel.RepositoryViewModel.IsShowCommitDetails = settings.IsShowCommitDetails;
+			}
 		}
 
 
@@ -136,6 +148,21 @@ namespace GitMind.MainWindowViews
 		{
 			UncommittedContextMenu.PlacementTarget = this;
 			UncommittedContextMenu.IsOpen = true;
+		}
+
+
+		private void MainWindow_OnClosed(object sender, EventArgs e)
+		{
+			WorkFolderSettings settings = Config.GetWorkFolderSetting(viewModel.WorkingFolder);
+	
+			settings.Top = Top;
+			settings.Left = Left;
+			settings.Height = Height;
+			settings.Width = Width;
+			settings.IsMaximized = WindowState == WindowState.Maximized;
+			settings.IsShowCommitDetails = viewModel.RepositoryViewModel.IsShowCommitDetails;
+
+			Config.SetWorkFolderSetting(viewModel.WorkingFolder, settings);
 		}
 	}
 }

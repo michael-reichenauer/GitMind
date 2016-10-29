@@ -47,6 +47,15 @@ namespace GitMind.Git
 			}
 		}
 
+		//public static string GetStatusText(string folder)
+		//{
+		//	using (Repository repo = new Repository(folder))
+		//	{
+		//		return repo.
+		//			.ToList();
+		//	}
+		//}
+
 
 		public IEnumerable<GitBranch> Branches => repository.Branches
 			.Select(b => new GitBranch(b, repository));
