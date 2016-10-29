@@ -259,8 +259,6 @@ namespace GitMind.Git.Private
 
 		public R<string> GetFullMessage(string workingFolder, string commitId)
 		{
-			Log.Debug($"Get full commit message for commit {commitId} ...");
-
 			return repoCaller.UseRepo(workingFolder, repo =>
 			{
 				LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(new ObjectId(commitId));
