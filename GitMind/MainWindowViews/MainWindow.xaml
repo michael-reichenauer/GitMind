@@ -179,8 +179,8 @@
 									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Grid Margin="0">
-											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
-											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Padding="2,0,0,0"/>
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0" Background="Transparent"/>
 										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -219,8 +219,8 @@
 									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Grid Margin="0">
-											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Padding="1,0,0,0"/>
-											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0"/>
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Padding="2,0,0,0"/>
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0" Background="Transparent"/>
 										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
