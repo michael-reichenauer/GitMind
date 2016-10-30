@@ -11,10 +11,10 @@ namespace GitMind.ApplicationHandling.Installation
 {
 	internal class Installer : IInstaller
 	{
-		private readonly ICmd cmd;
+		public static readonly string ProductGuid = "0000278d-5c40-4973-aad9-1c33196fd1a2";
 
 		private static readonly string UninstallSubKey =
-			$"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{{{ProgramPaths.ProductGuid}}}_is1";
+			$"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{{{ProductGuid}}}_is1";
 		private static readonly string UninstallRegKey = "HKEY_CURRENT_USER\\" + UninstallSubKey;
 		private static readonly string subFolderContextMenuPath =
 			"Software\\Classes\\Folder\\shell\\gitmind";
@@ -29,6 +29,9 @@ namespace GitMind.ApplicationHandling.Installation
 		private static readonly string directoryCommandContextMenuPath =
 			directoryContextMenuPath + "\\command";
 		private static readonly string SetupTitle = "GitMind - Setup";
+
+
+		private readonly ICmd cmd;
 
 
 
@@ -89,7 +92,7 @@ namespace GitMind.ApplicationHandling.Installation
 			while (true)
 			{
 				bool created = false;
-				using (new Mutex(true, ProgramPaths.ProductGuid, out created))
+				using (new Mutex(true, ProductGuid, out created))
 				{
 					if (created)
 					{

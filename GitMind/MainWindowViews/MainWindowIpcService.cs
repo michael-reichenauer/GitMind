@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 using GitMind.ApplicationHandling;
-using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
 
 
@@ -9,6 +8,8 @@ namespace GitMind.MainWindowViews
 {
 	internal class MainWindowIpcService : IpcService
 	{
+		private static readonly string InstanceId = "0000278d-5c40-4973-aad9-1c33196fd1a2";
+
 		private readonly MainWindowViewModel mainWindowViewModel;
 
 
@@ -19,7 +20,7 @@ namespace GitMind.MainWindowViews
 
 
 		public static string GetId(string workingFolder) =>
-			ProgramPaths.ProductGuid + Uri.EscapeDataString(workingFolder);
+			InstanceId + Uri.EscapeDataString(workingFolder);
 
 
 		public void Activate(string[] args)

@@ -17,7 +17,6 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 		private static readonly string remoteSetupFilePath2 =
 			@"\\storage03\n_axis_releases_sa\GitMind\GitMindSetup.exe";
 
-		public static readonly string ProductGuid = "0000278d-5c40-4973-aad9-1c33196fd1a2";
 		public static readonly string TempPrefix = "_tmp_";
 
 		public static readonly string ProgramName = "GitMind";

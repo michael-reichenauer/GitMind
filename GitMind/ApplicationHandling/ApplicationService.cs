@@ -33,7 +33,7 @@ namespace GitMind.ApplicationHandling
 		public void SetIsStarted()
 		{
 			// This mutex is used by the installer (or uninstaller) to determine if instances are running
-			applicationMutex = new Mutex(true, ProgramPaths.ProductGuid);
+			applicationMutex = new Mutex(true, Installer.ProductGuid);
 		}
 
 
