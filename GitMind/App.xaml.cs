@@ -20,8 +20,6 @@ namespace GitMind
 	/// </summary>
 	public partial class App : Application
 	{
-		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
-		private WorkingFolderService workingFolderService;
 		private ApplicationService applicationService;
 
 
@@ -60,24 +58,26 @@ namespace GitMind
 			base.OnStartup(e);
 
 			CommandLine = new CommandLine(Environment.GetCommandLineArgs());
-			workingFolderService = new WorkingFolderService(CommandLine);
-			applicationService = new ApplicationService(CommandLine, workingFolderService);
 
-			if (applicationService.IsCommands())
+			if (IsInstallOrUninstall())
 			{
-				// Command line contains some command like install, diff, ..., which will be handled
-				// Need some main window when only message boxes will be shown for commands
-				MainWindow = CreateTempMainWindow();
-
-				// Commands like Install, Uninstall, Diff, can be handled immediately
-				applicationService.HandleCommands();
-
-				// Exit this instance after commands have been handled
+				// A installation or uninstallation was triggered, lets end this instance
 				Application.Current.Shutdown(0);
 				return;
 			}
 
-			if (applicationService.IsActivatedOtherInstance(workingFolderService.WorkingFolder))
+			applicationService = new ApplicationService(CommandLine);
+
+			if (applicationService.IsCommands())
+			{
+				// Command line contains some command like diff 
+				// which will be handled and then this instance can end.
+				HandleCommand();
+				Application.Current.Shutdown(0);
+				return;
+			}
+
+			if (TriggerOtherRunningInstance())
 			{
 				// Another instance for this working folder is already running and it received the
 				// command line from this instance, lets exit this instance, while other instance continuous
@@ -90,14 +90,47 @@ namespace GitMind
 		}
 
 
+		private bool TriggerOtherRunningInstance()
+		{
+			return applicationService.IsActivatedOtherInstance(applicationService.WorkingFolder);
+		}
+
+
+		private bool IsInstallOrUninstall()
+		{
+			if (CommandLine.IsInstall || CommandLine.IsUninstall)
+			{
+				// Tis is an installation (Setup file or "/install" arg) or uninstallation (/uninstall arg)
+				// Need some temp main window when only message boxes will be shown for commands
+				MainWindow = CreateTempMainWindow();
+
+				IInstaller installer = new Installer(CommandLine);
+				installer.InstallOrUninstall();
+
+				return true;
+			}
+
+			return false;
+		}
+
+
+		private void HandleCommand()
+		{
+			// Need some main window when only message boxes will be shown for commands
+			MainWindow = CreateTempMainWindow();
+
+			// Commands like Install, Uninstall, Diff, can be handled immediately
+			applicationService.HandleCommands();
+		}
+
+
 		private void Start()
 		{
 			applicationService.SetIsStarted();
 
 			ShowMainWindow();
 
-			applicationService.TryDeleteTempFiles();
-			latestVersionService.StartCheckForLatestVersion();
+			applicationService.Start();
 		}
 
 
@@ -106,7 +139,7 @@ namespace GitMind
 			Window = new MainWindow();
 			MainWindow = Window;
 
-			Window.WorkingFolder = workingFolderService.WorkingFolder;
+			Window.WorkingFolder = applicationService.WorkingFolder;
 			Window.BranchNames = CommandLine.BranchNames.Select(name => new BranchName(name)).ToList();
 			MainWindow.Show();
 		}

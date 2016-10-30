@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using GitMind.ApplicationHandling.Installation;
 using GitMind.ApplicationHandling.SettingsHandling;
+using GitMind.ApplicationHandling.Testing;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
@@ -13,27 +14,37 @@ namespace GitMind.ApplicationHandling
 {
 	internal class ApplicationService
 	{
-		private readonly Lazy<IDiffService> diffService = new Lazy<IDiffService>(() => new DiffService());
+		private readonly IDiffService diffService = new DiffService();
+		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 		private readonly ICommandLine commandLine;
-		private readonly WorkingFolderService workingFolderService;
-		private readonly IInstaller installer = new Installer();
+
+		private readonly Lazy<string> lazyWorkingFolder;
 
 		// This mutex is used by the installer (or uninstaller) to determine if instances are running
 		private static Mutex applicationMutex;
 
-		public ApplicationService(
-			ICommandLine commandLine,
-			WorkingFolderService workingFolderService)
+
+		public ApplicationService(ICommandLine commandLine)
 		{
 			this.commandLine = commandLine;
-			this.workingFolderService = workingFolderService;
+
+			lazyWorkingFolder = new Lazy<string>(GetWorkingFolder);
 		}
 
+
+		public string WorkingFolder => lazyWorkingFolder.Value;
 
 		public void SetIsStarted()
 		{
 			// This mutex is used by the installer (or uninstaller) to determine if instances are running
 			applicationMutex = new Mutex(true, Installer.ProductGuid);
+		}
+
+
+		public void Start()
+		{
+			TryDeleteTempFiles();
+			latestVersionService.StartCheckForLatestVersion();
 		}
 
 
@@ -57,22 +68,18 @@ namespace GitMind.ApplicationHandling
 
 		public bool IsCommands()
 		{
-			return commandLine.IsShowDiff || commandLine.IsInstall || commandLine.IsUninstall;
+			return commandLine.IsShowDiff;
 		}
+
 
 		public void HandleCommands()
 		{
-
-
 			if (commandLine.IsShowDiff)
 			{
-				diffService.Value.ShowDiff(Commit.UncommittedId, workingFolderService.WorkingFolder);
-			}
-			else
-			{
-				InstallOrUninstall();
+				diffService.ShowDiff(Commit.UncommittedId, WorkingFolder);
 			}
 		}
+
 
 		public void TryDeleteTempFiles()
 		{
@@ -100,44 +107,58 @@ namespace GitMind.ApplicationHandling
 			}
 		}
 
-
-
-
-		private bool InstallOrUninstall()
+		
+		// Must be able to handle:
+		// * Starting app from start menu or pinned (no parameters and unknown current dir)
+		// * Starting on command line in some dir (no parameters but known dir)
+		// * Starting as right click on folder (parameter "/d:<dir>"
+		// * Starting on command line with some parameters (branch names)
+		// * Starting with parameters "/test"
+		private string GetWorkingFolder()
 		{
-			if (commandLine.IsInstall && !commandLine.IsSilent)
-			{
-				installer.InstallNormal();
+			string workingFolder = null;
 
-				return false;
+			if (commandLine.HasFolder)
+			{
+				// Call from e.g. Windows Explorer folder context menu
+				workingFolder = commandLine.Folder;
 			}
-			else if (commandLine.IsInstall && commandLine.IsSilent)
+			else if (commandLine.IsTest && Directory.Exists(TestRepo.Path))
 			{
-				installer.InstallSilent();
+				workingFolder = TestRepo.Path;
+			}
 
-				if (commandLine.IsRunInstalled)
+			if (workingFolder == null)
+			{
+				workingFolder = TryGetWorkingFolder();
+			}
+
+			Log.Debug($"Current working folder {workingFolder}");
+			return workingFolder;
+		}
+
+
+		private static string TryGetWorkingFolder()
+		{
+			R<string> path = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory);
+
+			if (!path.HasValue)
+			{
+
+				string lastUsedFolder = Settings.Get<ProgramSettings>().LastUsedWorkingFolder;
+
+				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
 				{
-					installer.StartInstalled();
+					path = ProgramPaths.GetWorkingFolderPath(lastUsedFolder);
 				}
-
-				return false;
 			}
-			else if (commandLine.IsUninstall && !commandLine.IsSilent)
+
+			if (path.HasValue)
 			{
-				installer.UninstallNormal();
-
-				return false;
-			}
-			else if (commandLine.IsUninstall && commandLine.IsSilent)
-			{
-				installer.UninstallSilent();
-
-				return false;
+				return path.Value;
 			}
 
-			TryDeleteTempFiles();
-
-			return true;
+			return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 		}
 	}
 }

@@ -11,6 +11,7 @@ namespace GitMind.ApplicationHandling.Installation
 {
 	internal class Installer : IInstaller
 	{
+		private readonly ICommandLine commandLine;
 		public static readonly string ProductGuid = "0000278d-5c40-4973-aad9-1c33196fd1a2";
 
 		private static readonly string UninstallSubKey =
@@ -34,10 +35,10 @@ namespace GitMind.ApplicationHandling.Installation
 		private readonly ICmd cmd;
 
 
-
-		public Installer()
+		public Installer(ICommandLine commandLine)
 			: this(new Cmd())
 		{
+			this.commandLine = commandLine;
 		}
 
 
@@ -47,7 +48,43 @@ namespace GitMind.ApplicationHandling.Installation
 		}
 
 
-		public void InstallNormal()
+		public bool InstallOrUninstall()
+		{
+			if (commandLine.IsInstall && !commandLine.IsSilent)
+			{
+				InstallNormal();
+
+				return false;
+			}
+			else if (commandLine.IsInstall && commandLine.IsSilent)
+			{
+				InstallSilent();
+
+				if (commandLine.IsRunInstalled)
+				{
+					StartInstalled();
+				}
+
+				return false;
+			}
+			else if (commandLine.IsUninstall && !commandLine.IsSilent)
+			{
+				UninstallNormal();
+
+				return false;
+			}
+			else if (commandLine.IsUninstall && commandLine.IsSilent)
+			{
+				UninstallSilent();
+
+				return false;
+			}
+
+			return true;
+		}
+
+
+		private void InstallNormal()
 		{
 			Log.Usage("Install normal.");
 
@@ -80,7 +117,7 @@ namespace GitMind.ApplicationHandling.Installation
 
 
 
-		public void StartInstalled()
+		private void StartInstalled()
 		{
 			string targetPath = ProgramPaths.GetInstallFilePath();
 			cmd.Start(targetPath, "");
@@ -110,7 +147,7 @@ namespace GitMind.ApplicationHandling.Installation
 		}
 
 
-		public void InstallSilent()
+		private void InstallSilent()
 		{
 			Log.Usage("Installing ...");
 			string path = CopyFileToProgramFiles();
@@ -123,7 +160,7 @@ namespace GitMind.ApplicationHandling.Installation
 		}
 
 
-		public void UninstallNormal()
+		private void UninstallNormal()
 		{
 			Log.Usage("Uninstall normal");
 			if (IsInstalledInstance())
@@ -153,7 +190,7 @@ namespace GitMind.ApplicationHandling.Installation
 		}
 
 
-		public void UninstallSilent()
+		private void UninstallSilent()
 		{
 			Log.Debug("Uninstalling...");
 			DeleteProgramFilesFolder();
