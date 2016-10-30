@@ -14,8 +14,8 @@ namespace GitMind.ApplicationHandling.Installation.Private
 {
 	internal class LatestVersionService : ILatestVersionService
 	{
-		private static readonly TimeSpan FirstLastestVersionCheckTime = TimeSpan.FromSeconds(1);
-		private static readonly TimeSpan LatestCheckIntervall = TimeSpan.FromHours(3);
+		private static readonly TimeSpan FirstCheckTime = TimeSpan.FromSeconds(1);
+		private static readonly TimeSpan CheckIntervall = TimeSpan.FromHours(3);
 
 		private static readonly string latestUri =
 			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
@@ -23,23 +23,43 @@ namespace GitMind.ApplicationHandling.Installation.Private
 
 		private readonly ICmd cmd = new Cmd();
 
-		private DispatcherTimer newVersionTimer;
+		private DispatcherTimer checkTimer;
 
 
 		public void StartCheckForLatestVersion()
 		{
-			newVersionTimer = new DispatcherTimer();
-			newVersionTimer.Tick += NewVersionCheckAsync;
-			newVersionTimer.Interval = FirstLastestVersionCheckTime;
-			newVersionTimer.Start();
+			checkTimer = new DispatcherTimer();
+			checkTimer.Tick += CheckLatestVersionAsync;
+			checkTimer.Interval = FirstCheckTime;
+			checkTimer.Start();
 		}
 
 
-		private async void NewVersionCheckAsync(object sender, EventArgs e)
+		public async Task<bool> StartLatestInstalledVersionAsync()
 		{
-			newVersionTimer.Interval = LatestCheckIntervall;
+			await Task.Yield();
 
-			if (await IsNewVersionAvailableAsync())
+			try
+			{
+				string installedPath = ProgramPaths.GetInstallFilePath();
+
+				cmd.Start(installedPath, null);
+				return true;
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				Log.Error($"Failed to install new version {e}");
+			}
+
+			return false;
+		}
+
+
+		private async void CheckLatestVersionAsync(object sender, EventArgs e)
+		{
+			checkTimer.Interval = CheckIntervall;
+
+			if (await IsNewRemoteVersionAvailableAsync())
 			{
 				await InstallLatestVersionAsync();
 
@@ -47,38 +67,76 @@ namespace GitMind.ApplicationHandling.Installation.Private
 				await Task.Delay(TimeSpan.FromSeconds(5));
 			}
 
-			NotifyNewVesrionIsAvailable();
+			NotifyNewVersionIsAvailable();
 		}
 
 
 
-
-
-		public bool IsNewVersionInstalled()
-		{
-			Version currentVersion = ProgramPaths.GetCurrentVersion();
-			Version installedVersion = ProgramPaths.GetInstalledVersion();
-
-			Log.Debug($"Current version: {currentVersion} installed version: {installedVersion}");
-			return currentVersion < installedVersion;
-		}
-
-
-		public async Task<bool> IsNewVersionAvailableAsync()
+		private async Task<bool> IsNewRemoteVersionAvailableAsync()
 		{
 			Log.Debug($"Checking remote version of {latestUri} ...");
 			Version remoteVersion = await GetLatestRemoteVersionAsync();
-			Version currentVersion = ProgramPaths.GetCurrentVersion();
+			Version currentVersion = ProgramPaths.GetRunningVersion();
 			Version installedVersion = ProgramPaths.GetInstalledVersion();
-			LogVersion(currentVersion, installedVersion, remoteVersion);
 
+			LogVersion(currentVersion, installedVersion, remoteVersion);
 			return installedVersion < remoteVersion;
 		}
 
 
-		private static void LogVersion(Version current, Version installed, Version remote)
+		private async Task<bool> InstallLatestVersionAsync()
 		{
-			Log.Usage($"Version current: {current}, installed: {installed} remote: {remote}");
+			try
+			{
+				Log.Debug($"Downloading remote setup {latestUri} ...");
+
+				LatestInfo latestInfo = GetCachedLatestVersionInfo();
+
+				using (HttpClient httpClient = GetHttpClient())
+				{
+					string setupPath = await DownloadSetupAsync(httpClient, latestInfo);
+
+					InstallDownloadedSetup(setupPath);
+					return true;
+				}				
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				Log.Error($"Failed to install new version {e}");
+			}
+
+			return false;
+		}
+
+
+		private static async Task<string> DownloadSetupAsync(HttpClient httpClient, LatestInfo latestInfo)
+		{
+			Asset setupFileInfo = latestInfo.assets.First(a => a.name == "GitMindSetup.exe");
+
+			string downloadUrl = setupFileInfo.browser_download_url;
+			Log.Debug($"Downloading {latestInfo.tag_name} from {downloadUrl} ...");
+
+			byte[] remoteFileData = await httpClient.GetByteArrayAsync(downloadUrl);
+
+			string setupPath = ProgramPaths.GetTempFilePath() + "." + setupFileInfo.name;
+			File.WriteAllBytes(setupPath, remoteFileData);
+
+			Log.Debug($"Downloaded {latestInfo.tag_name} to {setupPath}");
+			return setupPath;
+		}
+
+
+		private void InstallDownloadedSetup(string setupPath)
+		{
+			cmd.Start(setupPath, "/install /silent");
+		}
+
+
+		private LatestInfo GetCachedLatestVersionInfo()
+		{
+			ProgramSettings programSettings = Settings.Get<ProgramSettings>();
+			
+			return Json.As<LatestInfo>(programSettings.LatestVersionInfo);
 		}
 
 
@@ -86,7 +144,10 @@ namespace GitMind.ApplicationHandling.Installation.Private
 		{
 			R<LatestInfo> latestInfo = await GetLatestInfoAsync();
 
-			if (latestInfo.IsFaulted) return new Version(0, 0, 0, 0);
+			if (latestInfo.IsFaulted)
+			{
+				return new Version(0, 0, 0, 0);
+			}
 
 			Version version = Version.Parse(latestInfo.Value.tag_name.Substring(1));
 			Log.Debug($"Remote version: {version}");
@@ -105,12 +166,15 @@ namespace GitMind.ApplicationHandling.Installation.Private
 			{
 				using (HttpClient httpClient = GetHttpClient())
 				{
+					// Try get cached information about latest remote version
 					ProgramSettings programSettings = Settings.Get<ProgramSettings>();
-
 					string eTag = programSettings.LatestVersionInfoETag;
+					string latestVersionInfo = programSettings.LatestVersionInfo;
 
 					if (!string.IsNullOrEmpty(eTag))
 					{
+						// There is cached information, lets use the ETag when checking to follow
+						// GitHub Rate Limiting method.
 						httpClient.DefaultRequestHeaders.IfNoneMatch.Clear();
 						httpClient.DefaultRequestHeaders.IfNoneMatch.Add(new EntityTagHeaderValue(eTag));
 					}
@@ -122,22 +186,15 @@ namespace GitMind.ApplicationHandling.Installation.Private
 					string latestInfoText;
 					if (response.StatusCode == HttpStatusCode.NotModified)
 					{
-						Log.Debug("Latest version info is not changed");
-						latestInfoText = programSettings.LatestVersionInfo;
+						Log.Debug("Remote latest version info same as cached info");						
+						latestInfoText = latestVersionInfo;
 					}
 					else
 					{
-
 						latestInfoText = await response.Content.ReadAsStringAsync();
 						Log.Debug("New version info");
 
-						if (!string.IsNullOrEmpty(eTag))
-						{
-							programSettings = Settings.Get<ProgramSettings>();
-							programSettings.LatestVersionInfoETag = eTag;
-							programSettings.LatestVersionInfo = latestInfoText;
-							Settings.Set(programSettings);
-						}
+						CacheLatestVersionInfo(eTag, latestInfoText);
 					}
 
 					return Json.As<LatestInfo>(latestInfoText);
@@ -151,65 +208,39 @@ namespace GitMind.ApplicationHandling.Installation.Private
 		}
 
 
-		public async Task<bool> InstallLatestVersionAsync()
+		private static void CacheLatestVersionInfo(string eTag, string latestInfoText)
 		{
-			try
+			ProgramSettings programSettings;
+			if (!string.IsNullOrEmpty(eTag))
 			{
-				Log.Debug($"Downloading remote setup {latestUri} ...");
-
-				R<LatestInfo> latestInfo = await GetLatestInfoAsync();
-				if (latestInfo.IsFaulted) return false;
-
-				if (latestInfo.Value.assets != null)
-				{
-					Asset setupInfo = latestInfo.Value.assets.First(a => a.name == "GitMindSetup.exe");
-
-					using (HttpClient httpClient = GetHttpClient())
-					{
-						Log.Debug(
-							$"Downloading {latestInfo.Value.tag_name} from {setupInfo.browser_download_url}");
-
-						byte[] remoteFileData = await httpClient.GetByteArrayAsync(
-							setupInfo.browser_download_url);
-
-						string tempPath = ProgramPaths.GetTempFilePath() + "." + setupInfo.name;
-						File.WriteAllBytes(tempPath, remoteFileData);
-
-						Log.Debug($"Downloaded {latestInfo.Value.tag_name} to {tempPath}");
-
-						cmd.Start(tempPath, "/install /silent");
-						return true;
-					}
-				}
+				// Cache the latest version info
+				programSettings = Settings.Get<ProgramSettings>();
+				programSettings.LatestVersionInfoETag = eTag;
+				programSettings.LatestVersionInfo = latestInfoText;
+				Settings.Set(programSettings);
 			}
-			catch (Exception e) when (e.IsNotFatal())
-			{
-				Log.Error($"Failed to install new version {e}");
-			}
-
-			return false;
-		}
-
-		public async Task<bool> RunLatestVersionAsync()
-		{
-			await Task.Yield();
-			try
-			{
-				cmd.Start(ProgramPaths.GetInstallFilePath(), null);
-				return true;
-			}
-			catch (Exception e) when (e.IsNotFatal())
-			{
-				Log.Error($"Failed to install new version {e}");
-			}
-
-			return false;
 		}
 
 
-		private void NotifyNewVesrionIsAvailable()
+		private static void LogVersion(Version current, Version installed, Version remote)
+		{
+			Log.Usage($"Version current: {current}, installed: {installed} remote: {remote}");
+		}
+
+
+		private void NotifyNewVersionIsAvailable()
 		{
 			App.Current.Window.IsNewVersionVisible = IsNewVersionInstalled();
+		}
+
+
+		private bool IsNewVersionInstalled()
+		{
+			Version currentVersion = ProgramPaths.GetRunningVersion();
+			Version installedVersion = ProgramPaths.GetInstalledVersion();
+
+			Log.Debug($"Current version: {currentVersion} installed version: {installedVersion}");
+			return currentVersion < installedVersion;
 		}
 
 

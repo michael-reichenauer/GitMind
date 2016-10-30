@@ -96,10 +96,9 @@ namespace GitMind
 		{
 			applicationService.SetIsStarted();
 
-			applicationService.TryDeleteTempFiles();
-
 			ShowMainWindow();
 
+			applicationService.TryDeleteTempFiles();
 			latestVersionService.StartCheckForLatestVersion();
 		}
 

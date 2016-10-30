@@ -5,10 +5,8 @@ namespace GitMind.ApplicationHandling.Installation
 {
 	internal interface ILatestVersionService
 	{
-		Task<bool> IsNewVersionAvailableAsync();
-		Task<bool> InstallLatestVersionAsync();
-		Task<bool> RunLatestVersionAsync();
-		bool IsNewVersionInstalled();
 		void StartCheckForLatestVersion();
+
+		Task<bool> StartLatestInstalledVersionAsync();
 	}
 }

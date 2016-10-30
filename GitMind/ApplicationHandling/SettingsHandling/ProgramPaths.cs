@@ -153,7 +153,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 		}
 
 
-		public static Version GetCurrentVersion()
+		public static Version GetRunningVersion()
 		{
 			AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
 			return assemblyName.Version;
