@@ -237,7 +237,7 @@ namespace GitMind.ApplicationHandling
 
 		private static void NotifyNewVersionIsAvailable()
 		{
-			App.Current.Window.IsNewVersionVisible = IsNewVersionInstalled();
+			App.Current.Window.IsNewVersionAvailable = IsNewVersionInstalled();
 		}
 
 
