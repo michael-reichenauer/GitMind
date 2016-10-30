@@ -26,11 +26,11 @@ namespace GitMind.MainWindowViews
 		private readonly FolderMonitorService folderMonitor;
 		private readonly JumpListService jumpListService = new JumpListService();
 
+		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
 		private readonly Window owner;
 		private readonly Action setSearchFocus;
 		private readonly Action setRepositoryViewFocus;
 		private bool isLoaded = false;
-		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
 
 
 		internal MainWindowViewModel(

@@ -125,14 +125,15 @@ namespace GitMind.RepositoryViews
 				files.Clear();
 				commitFiles
 					.OrderBy(f => f.Status, Comparer<GitFileStatus>.Create(Compare))
+					.ThenBy(f => f.Path)
 					.ForEach(f => files.Add(
-					new CommitFileViewModel(f, UndoUncommittedFileCommand)
-					{
-						Id = commit.CommitId,
-						Name = f.Path,
-						Status = f.StatusText,
-						WorkingFolder = commit.WorkingFolder
-					}));
+						new CommitFileViewModel(f, UndoUncommittedFileCommand)
+						{
+							Id = commit.CommitId,
+							Name = f.Path,
+							Status = f.StatusText,
+							WorkingFolder = commit.WorkingFolder
+						}));
 			}
 		}
 
