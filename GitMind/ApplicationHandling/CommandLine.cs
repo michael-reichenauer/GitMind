@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 
 
-namespace GitMind.ApplicationHandling.Installation.Private
+namespace GitMind.ApplicationHandling
 {
 	internal class CommandLine : ICommandLine
 	{

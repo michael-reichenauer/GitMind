@@ -10,7 +10,7 @@ using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
 
 
-namespace GitMind.ApplicationHandling.Installation.Private
+namespace GitMind.ApplicationHandling
 {
 	internal class LatestVersionService : ILatestVersionService
 	{

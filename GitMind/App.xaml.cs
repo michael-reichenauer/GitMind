@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.Installation;
-using GitMind.ApplicationHandling.Installation.Private;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Git;
@@ -22,7 +21,6 @@ namespace GitMind
 	public partial class App : Application
 	{
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
-		private readonly OtherInstanceService instanceService = new OtherInstanceService();
 		private WorkingFolderService workingFolderService;
 		private ApplicationService applicationService;
 
@@ -79,7 +77,7 @@ namespace GitMind
 				return;
 			}
 
-			if (instanceService.IsActivatedOtherInstance(workingFolderService.WorkingFolder))
+			if (applicationService.IsActivatedOtherInstance(workingFolderService.WorkingFolder))
 			{
 				// Another instance for this working folder is already running and it received the
 				// command line from this instance, lets exit this instance, while other instance continuous
