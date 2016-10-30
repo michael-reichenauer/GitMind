@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Settings;
+using GitMind.ApplicationHandling.SettingsHandling;
 
 
 namespace GitMind.Utils

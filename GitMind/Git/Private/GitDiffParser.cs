@@ -86,16 +86,25 @@ namespace GitMind.Git.Private
 				string leftPath = Path.Combine(tempPath, leftName);
 				string rightPath = Path.Combine(tempPath, rightName);
 
-				StringBuilder filesText = new StringBuilder();
+			
 
-				filesText.AppendLine($"Changed files: {files.Count}");
-				files.ForEach(file =>
+				if (addPrefixes)
 				{
-					filesText.AppendLine("   " + file);
-				});
+					StringBuilder filesText = new StringBuilder();
+					filesText.AppendLine($"Changed files: {files.Count}");
+					files.ForEach(file =>
+					{
+						filesText.AppendLine("   " + file);
+					});
 
-				File.WriteAllText(leftPath, filesText + "\n\n" + left);
-				File.WriteAllText(rightPath, filesText + "\n\n" + right);
+					File.WriteAllText(leftPath, filesText + "\n\n" + left);
+					File.WriteAllText(rightPath, filesText + "\n\n" + right);
+				}
+				else
+				{
+					File.WriteAllText(leftPath, left.ToString());
+					File.WriteAllText(rightPath, right.ToString());
+				}			
 
 				return new CommitDiff(leftPath, rightPath);
 			});

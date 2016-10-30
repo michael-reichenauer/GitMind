@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 
 
-namespace GitMind.Installation.Private
+namespace GitMind.ApplicationHandling
 {
 	internal class CommandLine : ICommandLine
 	{
@@ -14,7 +14,7 @@ namespace GitMind.Installation.Private
 
 		public CommandLine(string[] args)
 		{
-			this.args = args ?? new[] { "GitMind.exe" };
+			this.args = Environment.GetCommandLineArgs();
 			lazyBranchNames = new Lazy<IReadOnlyList<string>>(GetBranchNames);
 		}
 

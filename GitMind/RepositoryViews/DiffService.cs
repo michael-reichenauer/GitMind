@@ -261,6 +261,13 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		public void ShowDiff(string uncommittedId, string workingFolder)
+		{
+			Task.Run(() => ShowDiffAsync(Commit.UncommittedId, workingFolder).Wait())
+				.Wait();
+		}
+
+
 		private void CleanTempPaths(string workingFolder, CommitFile file)
 		{
 			DeletePath(GetPath(workingFolder, file, Base));

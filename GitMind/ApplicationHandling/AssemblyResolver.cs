@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using GitMind.Utils;
 
 
-namespace GitMind.Installation.Private
+namespace GitMind.ApplicationHandling
 {
 	internal class AssemblyResolver
 	{

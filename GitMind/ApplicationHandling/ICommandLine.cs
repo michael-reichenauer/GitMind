@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace GitMind.Installation
+namespace GitMind.ApplicationHandling
 {
 	public interface ICommandLine
 	{

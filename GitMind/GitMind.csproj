@@ -83,6 +83,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="ApplicationHandling\ApplicationService.cs" />
     <Compile Include="Common\JumpListService.cs" />
     <Compile Include="Common\MessageDialogs\Message.cs" />
     <Compile Include="Common\MessageDialogs\MessageDialog.xaml.cs">
@@ -129,7 +130,7 @@
     <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
     <Compile Include="Git\Private\IRepoCaller.cs" />
     <Compile Include="Git\Private\RepoCaller.cs" />
-    <Compile Include="Installation\Private\WorkingFolderService.cs" />
+    <Compile Include="ApplicationHandling\WorkingFolderService.cs" />
     <Compile Include="MainWindowViews\MainWindowIpcService.cs" />
     <Compile Include="RepositoryViews\CredentialHandler.cs" />
     <Compile Include="Git\GitConflict.cs" />
@@ -137,12 +138,16 @@
     <Compile Include="Git\GitFileStatus.cs" />
     <Compile Include="Git\GitNote.cs" />
     <Compile Include="Git\ICredentialHandler.cs" />
-    <Compile Include="Installation\Private\AssemblyResolver.cs" />
+    <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="RepositoryViews\CredentialsDialog.cs" />
     <Compile Include="RepositoryViews\DisabledStatus.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
+    <Compile Include="ApplicationHandling\SettingsHandling\Settings.cs" />
+    <Compile Include="ApplicationHandling\SettingsHandling\Options.cs" />
+    <Compile Include="ApplicationHandling\SettingsHandling\WorkFolderSettings.cs" />
     <Compile Include="Utils\Equatable.cs" />
     <Compile Include="Utils\IpcService.cs" />
+    <Compile Include="Utils\Json.cs" />
     <Compile Include="Utils\Serializer.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
     <Compile Include="Utils\UI\VisibleWindow.cs" />
@@ -222,23 +227,22 @@
     <Compile Include="Utils\FatalExceptionsExtensions.cs" />
     <Compile Include="GitModel\Private\CacheService.cs" />
     <Compile Include="GitModel\Private\ICacheService.cs" />
-    <Compile Include="Installation\Private\CommandLine.cs" />
-    <Compile Include="Installation\ICommandLine.cs" />
+    <Compile Include="ApplicationHandling\CommandLine.cs" />
+    <Compile Include="ApplicationHandling\ICommandLine.cs" />
     <Compile Include="Utils\AsyncSemaphore.cs" />
     <Compile Include="Utils\EnumerableExtensions.cs" />
     <Compile Include="Utils\Error.cs" />
     <Compile Include="Git\Private\GitDiffParser.cs" />
     <Compile Include="Git\Private\IGitDiffParser.cs" />
     <Compile Include="GitModel\Private\MergeBranchNames.cs" />
-    <Compile Include="Installation\IInstaller.cs" />
-    <Compile Include="Installation\ILatestVersionService.cs" />
-    <Compile Include="Installation\Private\LatestVersionService.cs" />
-    <Compile Include="Installation\Private\Installer.cs" />
-    <Compile Include="Settings\ProgramPaths.cs" />
-    <Compile Include="Settings\ProgramSettings.cs" />
+    <Compile Include="ApplicationHandling\Installation\IInstaller.cs" />
+    <Compile Include="ApplicationHandling\ILatestVersionService.cs" />
+    <Compile Include="ApplicationHandling\LatestVersionService.cs" />
+    <Compile Include="ApplicationHandling\Installation\Installer.cs" />
+    <Compile Include="ApplicationHandling\SettingsHandling\ProgramPaths.cs" />
+    <Compile Include="ApplicationHandling\SettingsHandling\ProgramSettings.cs" />
     <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
     <Compile Include="Utils\CmdResult.cs" />
-    <Compile Include="Utils\JsonSerializer.cs" />
     <Compile Include="Utils\R.cs" />
     <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
     <Compile Include="Utils\TaskExtensions.cs" />
@@ -253,7 +257,6 @@
     <Compile Include="Git\IGitCommitsService.cs" />
     <Compile Include="Git\GitStatus.cs" />
     <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
-    <Compile Include="Testing\TestRepo.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />
     <Compile Include="Utils\Timing.cs" />

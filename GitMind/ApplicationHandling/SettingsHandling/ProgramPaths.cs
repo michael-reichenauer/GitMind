@@ -7,7 +7,7 @@ using GitMind.Git.Private;
 using GitMind.Utils;
 
 
-namespace GitMind.Settings
+namespace GitMind.ApplicationHandling.SettingsHandling
 {
 	internal static class ProgramPaths
 	{
@@ -17,7 +17,6 @@ namespace GitMind.Settings
 		private static readonly string remoteSetupFilePath2 =
 			@"\\storage03\n_axis_releases_sa\GitMind\GitMindSetup.exe";
 
-		public static readonly string ProductGuid = "0000278d-5c40-4973-aad9-1c33196fd1a2";
 		public static readonly string TempPrefix = "_tmp_";
 
 		public static readonly string ProgramName = "GitMind";
@@ -28,6 +27,11 @@ namespace GitMind.Settings
 		private static readonly string SettingsFileName = "settings";
 		private static readonly string LatestETagFileName = "latestetag";
 		private static readonly string LatestInfoFileName = "latestinfo";
+
+
+		public static string DataFolderPath = Path.Combine(
+			Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+			ProgramName);
 
 
 		public static string RemoteSetupPath
@@ -148,7 +152,7 @@ namespace GitMind.Settings
 		}
 
 
-		public static Version GetCurrentVersion()
+		public static Version GetRunningVersion()
 		{
 			AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
 			return assemblyName.Version;

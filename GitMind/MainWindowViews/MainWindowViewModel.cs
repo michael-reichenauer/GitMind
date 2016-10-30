@@ -7,13 +7,12 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.ApplicationHandling;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
-using GitMind.Installation;
-using GitMind.Installation.Private;
 using GitMind.RepositoryViews;
-using GitMind.Settings;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
@@ -27,11 +26,11 @@ namespace GitMind.MainWindowViews
 		private readonly FolderMonitorService folderMonitor;
 		private readonly JumpListService jumpListService = new JumpListService();
 
+		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
 		private readonly Window owner;
 		private readonly Action setSearchFocus;
 		private readonly Action setRepositoryViewFocus;
 		private bool isLoaded = false;
-		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
 
 
 		internal MainWindowViewModel(
@@ -124,7 +123,7 @@ namespace GitMind.MainWindowViews
 		{
 			get
 			{
-				Version version = ProgramPaths.GetCurrentVersion();
+				Version version = ProgramPaths.GetRunningVersion();
 				DateTime buildTime = ProgramPaths.BuildTime();
 				string dateText = buildTime.ToString("yyyy-MM-dd\nHH:mm");
 				string text = $"Version: {version.Major}.{version.Minor}\n{dateText}";
@@ -167,7 +166,9 @@ namespace GitMind.MainWindowViews
 			if (path.HasValue)
 			{
 				WorkingFolder = path.Value;
-				ProgramSettings.SetLatestUsedWorkingFolderPath(path.Value);
+				ProgramSettings settings = Settings.Get<ProgramSettings>();
+				settings.LastUsedWorkingFolder = path.Value;
+				Settings.Set(settings);
 
 				await RepositoryViewModel.FirstLoadAsync();
 				isLoaded = true;
@@ -316,11 +317,11 @@ namespace GitMind.MainWindowViews
 
 		private async void RunLatestVersion()
 		{
-			bool isInstalling = await latestVersionService.RunLatestVersionAsync();
+			bool IsStarting = await latestVersionService.StartLatestInstalledVersionAsync();
 
-			if (isInstalling)
+			if (IsStarting)
 			{
-				// Newer version is being installed and will run, close this instance
+				// Newer version is started, close this instance
 				Application.Current.Shutdown(0);
 			}
 		}
@@ -419,7 +420,9 @@ namespace GitMind.MainWindowViews
 			}
 
 			Log.Info($"Setting working folder '{selectedPath}'");
-			ProgramSettings.SetLatestUsedWorkingFolderPath(selectedPath);
+			ProgramSettings settings = Settings.Get<ProgramSettings>();
+			settings.LastUsedWorkingFolder = selectedPath;
+			Settings.Set(settings);
 			return true;
 		}
 

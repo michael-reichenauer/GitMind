@@ -10,7 +10,7 @@ namespace GitMind.Utils
 {
 	public static class Serializer
 	{
-		public static void RegisterSerializedTypes()
+		static Serializer()
 		{
 			RegisterMBranch();
 			RegisterMCommit();

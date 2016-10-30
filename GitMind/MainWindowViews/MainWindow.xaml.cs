@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using GitMind.Features.FolderMonitoring;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -16,26 +18,23 @@ namespace GitMind.MainWindowViews
 	public partial class MainWindow : Window
 	{
 		private static readonly TimeSpan remoteCheckInterval = TimeSpan.FromMinutes(10);
-		private static readonly TimeSpan OnActivatedInterval = TimeSpan.FromSeconds(10);
 
 		private readonly DispatcherTimer remoteCheckTimer = new DispatcherTimer();
 
 		private readonly MainWindowViewModel viewModel;
-	
 
 
 		public MainWindow()
 		{
 			InitializeComponent();
 
+			SetShowToolTipLonger();
+
 			// Make sure maximize window does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
 
-			remoteCheckTimer.Tick += RemoteCheck;
-			remoteCheckTimer.Interval = remoteCheckInterval;
-
 			viewModel = new MainWindowViewModel(
-				this, 
+				this,
 				() => Search.SearchBox.Focus(),
 				() => RepositoryView.ItemsListBox.Focus());
 			DataContext = viewModel;
@@ -44,18 +43,30 @@ namespace GitMind.MainWindowViews
 		}
 
 
-
-
 		public string WorkingFolder
 		{
-			set {viewModel.WorkingFolder = value;}
+			set
+			{
+				viewModel.WorkingFolder = value;
+				RestoreWindowSettings(value);
+			}
 		}
 
 
-		public IReadOnlyList<BranchName> BranchNames { set { viewModel.SpecifiedBranchNames = value; } }
+		public void SetBranchNames(IReadOnlyList<string> names)
+		{
+			if (!names.Any())
+			{
+				names = RestoreShownBranches();
+			}
+
+			List<BranchName> branchNames = names.Select(name => new BranchName(name)).ToList();
+			viewModel.SpecifiedBranchNames = branchNames;
+		}
 
 
-		public bool IsNewVersionVisible
+
+		public bool IsNewVersionAvailable
 		{
 			set { viewModel.IsNewVersionVisible = value; }
 		}
@@ -65,9 +76,16 @@ namespace GitMind.MainWindowViews
 		{
 			await viewModel.FirstLoadAsync();
 
-			remoteCheckTimer.Start();
+			StartRemoteCheck();		
 		}
 
+
+		private void StartRemoteCheck()
+		{
+			remoteCheckTimer.Tick += RemoteCheck;
+			remoteCheckTimer.Interval = remoteCheckInterval;
+			remoteCheckTimer.Start();
+		}
 
 
 		private void RemoteCheck(object sender, EventArgs e)
@@ -136,6 +154,68 @@ namespace GitMind.MainWindowViews
 		{
 			UncommittedContextMenu.PlacementTarget = this;
 			UncommittedContextMenu.IsOpen = true;
+		}
+
+
+		private void MainWindow_OnClosed(object sender, EventArgs e)
+		{
+			StoreWindowSettings();
+
+			StoreLasteUsedFolder();
+		}
+
+
+		private void StoreWindowSettings()
+		{
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
+
+			settings.Top = Top;
+			settings.Left = Left;
+			settings.Height = Height;
+			settings.Width = Width;
+			settings.IsMaximized = WindowState == WindowState.Maximized;
+			settings.IsShowCommitDetails = viewModel.RepositoryViewModel.IsShowCommitDetails;
+
+			settings.ShownBranches = viewModel.RepositoryViewModel.Branches
+				.Select(b => b.Branch.Name.ToString())
+				.ToList();
+
+			Settings.SetWorkFolderSetting(viewModel.WorkingFolder, settings);
+		}
+
+		private void RestoreWindowSettings(string workingFolder)
+		{
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
+			Top = settings.Top;
+			Left = settings.Left;
+			Height = settings.Height;
+			Width = settings.Width;
+
+			WindowState = settings.IsMaximized ? WindowState.Maximized : WindowState.Normal;
+
+			viewModel.RepositoryViewModel.IsShowCommitDetails = settings.IsShowCommitDetails;
+		}
+
+
+		private IReadOnlyList<string> RestoreShownBranches()
+		{
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
+			return settings.ShownBranches;
+		}
+
+
+		private void StoreLasteUsedFolder()
+		{
+			ProgramSettings settings = Settings.Get<ProgramSettings>();
+			settings.LastUsedWorkingFolder = viewModel.WorkingFolder;
+			Settings.Set(settings);
+		}
+
+
+		private static void SetShowToolTipLonger()
+		{
+			ToolTipService.ShowDurationProperty.OverrideMetadata(
+				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
 		}
 	}
 }

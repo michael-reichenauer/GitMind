@@ -34,5 +34,6 @@ namespace GitMind.RepositoryViews
 		//bool IsDeleted(string workingFolder, CommitFile file);
 		//bool IsMerged(string workingFolder, CommitFile file);
 		IReadOnlyList<string> GetAllTempNames();
+		void ShowDiff(string uncommittedId, string workingFolder);
 	}
 }
