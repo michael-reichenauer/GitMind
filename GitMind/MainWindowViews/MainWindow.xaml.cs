@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -19,12 +18,10 @@ namespace GitMind.MainWindowViews
 	public partial class MainWindow : Window
 	{
 		private static readonly TimeSpan remoteCheckInterval = TimeSpan.FromMinutes(10);
-		private static readonly TimeSpan OnActivatedInterval = TimeSpan.FromSeconds(10);
 
 		private readonly DispatcherTimer remoteCheckTimer = new DispatcherTimer();
 
 		private readonly MainWindowViewModel viewModel;
-	
 
 
 		public MainWindow()
@@ -36,11 +33,8 @@ namespace GitMind.MainWindowViews
 			// Make sure maximize window does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
 
-			remoteCheckTimer.Tick += RemoteCheck;
-			remoteCheckTimer.Interval = remoteCheckInterval;
-
 			viewModel = new MainWindowViewModel(
-				this, 
+				this,
 				() => Search.SearchBox.Focus(),
 				() => RepositoryView.ItemsListBox.Focus());
 			DataContext = viewModel;
@@ -49,46 +43,30 @@ namespace GitMind.MainWindowViews
 		}
 
 
-
-
 		public string WorkingFolder
 		{
 			set
 			{
 				viewModel.WorkingFolder = value;
-
-				WorkFolderSettings settings = Settings.GetWorkFolderSetting(value);
-				Top = settings.Top;
-				Left = settings.Left;
-				Height = settings.Height;
-				Width = settings.Width;
-
-				WindowState = settings.IsMaximized ? WindowState.Maximized : WindowState.Normal;
-
-				viewModel.RepositoryViewModel.IsShowCommitDetails = settings.IsShowCommitDetails;
+				RestoreWindowSettings(value);
 			}
 		}
 
 
-		public IReadOnlyList<BranchName> BranchNames
+		public void SetBranchNames(IReadOnlyList<string> names)
 		{
-			set
+			if (!names.Any())
 			{
-				if (value.Any())
-				{
-					viewModel.SpecifiedBranchNames = value;
-				}
-				else
-				{
-					WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
-					viewModel.SpecifiedBranchNames = settings.ShownBranches
-						.Select(name => new BranchName(name)).ToList();
-				}
+				names = RestoreShownBranches();
 			}
+
+			List<BranchName> branchNames = names.Select(name => new BranchName(name)).ToList();
+			viewModel.SpecifiedBranchNames = branchNames;
 		}
 
 
-		public bool IsNewVersionVisible
+
+		public bool IsNewVersionAvailable
 		{
 			set { viewModel.IsNewVersionVisible = value; }
 		}
@@ -98,9 +76,16 @@ namespace GitMind.MainWindowViews
 		{
 			await viewModel.FirstLoadAsync();
 
-			remoteCheckTimer.Start();
+			StartRemoteCheck();		
 		}
 
+
+		private void StartRemoteCheck()
+		{
+			remoteCheckTimer.Tick += RemoteCheck;
+			remoteCheckTimer.Interval = remoteCheckInterval;
+			remoteCheckTimer.Start();
+		}
 
 
 		private void RemoteCheck(object sender, EventArgs e)
@@ -198,12 +183,32 @@ namespace GitMind.MainWindowViews
 			Settings.SetWorkFolderSetting(viewModel.WorkingFolder, settings);
 		}
 
+		private void RestoreWindowSettings(string workingFolder)
+		{
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
+			Top = settings.Top;
+			Left = settings.Left;
+			Height = settings.Height;
+			Width = settings.Width;
+
+			WindowState = settings.IsMaximized ? WindowState.Maximized : WindowState.Normal;
+
+			viewModel.RepositoryViewModel.IsShowCommitDetails = settings.IsShowCommitDetails;
+		}
+
+
+		private IReadOnlyList<string> RestoreShownBranches()
+		{
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
+			return settings.ShownBranches;
+		}
+
 
 		private void StoreLasteUsedFolder()
 		{
-			ProgramSettings programSettings = Settings.Get<ProgramSettings>();
-			programSettings.LastUsedWorkingFolder = viewModel.WorkingFolder;
-			Settings.Set(programSettings);
+			ProgramSettings settings = Settings.Get<ProgramSettings>();
+			settings.LastUsedWorkingFolder = viewModel.WorkingFolder;
+			Settings.Set(settings);
 		}
 
 

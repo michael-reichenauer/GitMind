@@ -8,7 +8,6 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling;
-using GitMind.ApplicationHandling.Installation;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Features.FolderMonitoring;
@@ -27,11 +26,11 @@ namespace GitMind.MainWindowViews
 		private readonly FolderMonitorService folderMonitor;
 		private readonly JumpListService jumpListService = new JumpListService();
 
+		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
 		private readonly Window owner;
 		private readonly Action setSearchFocus;
 		private readonly Action setRepositoryViewFocus;
 		private bool isLoaded = false;
-		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
 
 
 		internal MainWindowViewModel(
