@@ -15,7 +15,7 @@ namespace GitMind.ApplicationHandling.Installation.Private
 	internal class LatestVersionService : ILatestVersionService
 	{
 		private static readonly TimeSpan FirstCheckTime = TimeSpan.FromSeconds(1);
-		private static readonly TimeSpan CheckIntervall = TimeSpan.FromHours(3);
+		private static readonly TimeSpan CheckInterval = TimeSpan.FromHours(3);
 
 		private static readonly string latestUri =
 			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
@@ -57,7 +57,7 @@ namespace GitMind.ApplicationHandling.Installation.Private
 
 		private async void CheckLatestVersionAsync(object sender, EventArgs e)
 		{
-			checkTimer.Interval = CheckIntervall;
+			checkTimer.Interval = CheckInterval;
 
 			if (await IsNewRemoteVersionAvailableAsync())
 			{
@@ -69,7 +69,6 @@ namespace GitMind.ApplicationHandling.Installation.Private
 
 			NotifyNewVersionIsAvailable();
 		}
-
 
 
 		private async Task<bool> IsNewRemoteVersionAvailableAsync()
@@ -98,7 +97,7 @@ namespace GitMind.ApplicationHandling.Installation.Private
 
 					InstallDownloadedSetup(setupPath);
 					return true;
-				}				
+				}
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
@@ -132,31 +131,31 @@ namespace GitMind.ApplicationHandling.Installation.Private
 		}
 
 
-		private LatestInfo GetCachedLatestVersionInfo()
-		{
-			ProgramSettings programSettings = Settings.Get<ProgramSettings>();
-			
-			return Json.As<LatestInfo>(programSettings.LatestVersionInfo);
-		}
-
-
 		private async Task<Version> GetLatestRemoteVersionAsync()
 		{
-			R<LatestInfo> latestInfo = await GetLatestInfoAsync();
-
-			if (latestInfo.IsFaulted)
+			try
 			{
-				return new Version(0, 0, 0, 0);
+				R<LatestInfo> latestInfo = await GetLatestInfoAsync();
+
+				if (latestInfo.IsOk)
+				{
+					Version version = Version.Parse(latestInfo.Value.tag_name.Substring(1));
+					Log.Debug($"Remote version: {version}");
+
+					foreach (var asset in latestInfo.Value.assets)
+					{
+						Log.Debug($"Name: {asset.name}, Count: {asset.download_count}");
+					}
+
+					return version;
+				}
+			}
+			catch (Exception e) when(e.IsNotFatal())
+			{
+				Log.Warn($"Failed to get latest version {e}");
 			}
 
-			Version version = Version.Parse(latestInfo.Value.tag_name.Substring(1));
-			Log.Debug($"Remote version: {version}");
-			foreach (var asset in latestInfo.Value.assets)
-			{
-				Log.Debug($"Name: {asset.name}, Count: {asset.download_count}");
-			}
-
-			return version;
+			return new Version(0, 0, 0, 0);
 		}
 
 
@@ -167,9 +166,7 @@ namespace GitMind.ApplicationHandling.Installation.Private
 				using (HttpClient httpClient = GetHttpClient())
 				{
 					// Try get cached information about latest remote version
-					ProgramSettings programSettings = Settings.Get<ProgramSettings>();
-					string eTag = programSettings.LatestVersionInfoETag;
-					string latestVersionInfo = programSettings.LatestVersionInfo;
+					string eTag = GetCachedLatestVersionInfoEtag();
 
 					if (!string.IsNullOrEmpty(eTag))
 					{
@@ -181,23 +178,20 @@ namespace GitMind.ApplicationHandling.Installation.Private
 
 					HttpResponseMessage response = await httpClient.GetAsync(latestUri);
 
-					eTag = response.Headers.ETag.Tag;
-
-					string latestInfoText;
 					if (response.StatusCode == HttpStatusCode.NotModified)
 					{
 						Log.Debug("Remote latest version info same as cached info");						
-						latestInfoText = latestVersionInfo;
+						return GetCachedLatestVersionInfo();
 					}
 					else
 					{
-						latestInfoText = await response.Content.ReadAsStringAsync();
+						string latestInfoText = await response.Content.ReadAsStringAsync();
 						Log.Debug("New version info");
 
+						eTag = response.Headers.ETag.Tag;
 						CacheLatestVersionInfo(eTag, latestInfoText);
-					}
-
-					return Json.As<LatestInfo>(latestInfoText);
+						return Json.As<LatestInfo>(latestInfoText);
+					}			
 				}
 			}
 			catch (Exception e) when (e.IsNotFatal())
@@ -208,17 +202,30 @@ namespace GitMind.ApplicationHandling.Installation.Private
 		}
 
 
+		private LatestInfo GetCachedLatestVersionInfo()
+		{
+			ProgramSettings programSettings = Settings.Get<ProgramSettings>();
+
+			return Json.As<LatestInfo>(programSettings.LatestVersionInfo);
+		}
+
+
+		private static string GetCachedLatestVersionInfoEtag()
+		{
+			ProgramSettings programSettings = Settings.Get<ProgramSettings>();
+			return programSettings.LatestVersionInfoETag;
+		}
+
+
 		private static void CacheLatestVersionInfo(string eTag, string latestInfoText)
 		{
-			ProgramSettings programSettings;
-			if (!string.IsNullOrEmpty(eTag))
-			{
-				// Cache the latest version info
-				programSettings = Settings.Get<ProgramSettings>();
-				programSettings.LatestVersionInfoETag = eTag;
-				programSettings.LatestVersionInfo = latestInfoText;
-				Settings.Set(programSettings);
-			}
+			if (string.IsNullOrEmpty(eTag)) return;
+
+			// Cache the latest version info
+			ProgramSettings programSettings = Settings.Get<ProgramSettings>();
+			programSettings.LatestVersionInfoETag = eTag;
+			programSettings.LatestVersionInfo = latestInfoText;
+			Settings.Set(programSettings);
 		}
 
 
@@ -228,13 +235,13 @@ namespace GitMind.ApplicationHandling.Installation.Private
 		}
 
 
-		private void NotifyNewVersionIsAvailable()
+		private static void NotifyNewVersionIsAvailable()
 		{
 			App.Current.Window.IsNewVersionVisible = IsNewVersionInstalled();
 		}
 
 
-		private bool IsNewVersionInstalled()
+		private static bool IsNewVersionInstalled()
 		{
 			Version currentVersion = ProgramPaths.GetRunningVersion();
 			Version installedVersion = ProgramPaths.GetInstalledVersion();
@@ -258,6 +265,7 @@ namespace GitMind.ApplicationHandling.Installation.Private
 			public string tag_name;
 			public Asset[] assets;
 		}
+
 
 		// Type used when parsing latest version information json
 		internal class Asset
