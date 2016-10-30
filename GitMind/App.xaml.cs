@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
+using Autofac;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.Installation;
 using GitMind.Common;
@@ -18,7 +19,9 @@ namespace GitMind
 	/// </summary>
 	public partial class App : Application
 	{
-		private ApplicationService applicationService;
+		private IContainer container;
+
+		private IApplicationService applicationService;
 
 		public MainWindow Window;
 
@@ -64,7 +67,9 @@ namespace GitMind
 				return;
 			}
 
-			applicationService = new ApplicationService(CommandLine);
+			container = RegisterTypes();
+
+			applicationService = container.Resolve<IApplicationService>();
 
 			if (applicationService.IsCommands())
 			{
@@ -140,6 +145,29 @@ namespace GitMind
 			Window.WorkingFolder = applicationService.WorkingFolder;
 			Window.SetBranchNames(CommandLine.BranchNames);
 			MainWindow.Show();
+		}
+
+
+		private static IContainer RegisterTypes()
+		{
+			try
+			{
+				ContainerBuilder builder = new ContainerBuilder();
+
+				builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
+					//.Where(t => t.Name.EndsWith("Repository"))
+					.AsSelf()
+					.AsImplementedInterfaces()
+					.SingleInstance()
+					.OwnedByLifetimeScope();
+
+				return builder.Build();
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to register types {e}");
+				throw;
+			}
 		}
 
 

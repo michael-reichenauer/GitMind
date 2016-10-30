@@ -9,9 +9,9 @@ using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
-namespace GitMind.ApplicationHandling
+namespace GitMind.ApplicationHandling.Private
 {
-	internal class ApplicationService
+	internal class ApplicationService : IApplicationService
 	{
 		private readonly IDiffService diffService = new DiffService();
 		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
@@ -32,6 +32,7 @@ namespace GitMind.ApplicationHandling
 
 
 		public string WorkingFolder => lazyWorkingFolder.Value;
+
 
 		public void SetIsStarted()
 		{

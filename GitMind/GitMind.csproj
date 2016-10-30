@@ -87,7 +87,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="ApplicationHandling\ApplicationService.cs" />
+    <Compile Include="ApplicationHandling\Private\ApplicationService.cs" />
+    <Compile Include="ApplicationHandling\IApplicationService.cs" />
     <Compile Include="Common\JumpListService.cs" />
     <Compile Include="Common\MessageDialogs\Message.cs" />
     <Compile Include="Common\MessageDialogs\MessageDialog.xaml.cs">
