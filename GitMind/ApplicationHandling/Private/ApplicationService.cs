@@ -13,26 +13,30 @@ namespace GitMind.ApplicationHandling.Private
 {
 	internal class ApplicationService : IApplicationService
 	{
-		private readonly IDiffService diffService = new DiffService();
-		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
+		private readonly IDiffService diffService;
+		private readonly ILatestVersionService latestVersionService;
+		private readonly IWorkingFolderService workingFolderService;
 		private readonly ICommandLine commandLine;
-
-		private readonly Lazy<string> lazyWorkingFolder;
+	
 
 		// This mutex is used by the installer (or uninstaller) to determine if instances are running
 		private static Mutex applicationMutex;
 
 
-		public ApplicationService(ICommandLine commandLine)
+		public ApplicationService(
+			ICommandLine commandLine, 
+			IDiffService diffService,
+			ILatestVersionService latestVersionService,
+			IWorkingFolderService workingFolderService)
 		{
 			this.commandLine = commandLine;
-
-			lazyWorkingFolder = new Lazy<string>(GetWorkingFolder);
+			this.diffService = diffService;
+			this.latestVersionService = latestVersionService;
+			this.workingFolderService = workingFolderService;
 		}
 
 
-		public string WorkingFolder => lazyWorkingFolder.Value;
-
+	
 
 		public void SetIsStarted()
 		{
@@ -48,9 +52,9 @@ namespace GitMind.ApplicationHandling.Private
 		}
 
 
-		public bool IsActivatedOtherInstance(string workingFolder)
+		public bool IsActivatedOtherInstance()
 		{
-			string id = MainWindowIpcService.GetId(workingFolder);
+			string id = MainWindowIpcService.GetId(workingFolderService.WorkingFolder);
 			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 			{
 				if (!ipcRemotingService.TryCreateServer(id))
@@ -76,7 +80,7 @@ namespace GitMind.ApplicationHandling.Private
 		{
 			if (commandLine.IsShowDiff)
 			{
-				diffService.ShowDiff(Commit.UncommittedId, WorkingFolder);
+				diffService.ShowDiff(Commit.UncommittedId, workingFolderService.WorkingFolder);
 			}
 		}
 
@@ -105,55 +109,6 @@ namespace GitMind.ApplicationHandling.Private
 			{
 				Log.Warn($"Failed to delete temp files {e}");
 			}
-		}
-
-
-		// Must be able to handle:
-		// * Starting app from start menu or pinned (no parameters and unknown current dir)
-		// * Starting on command line in some dir (no parameters but known dir)
-		// * Starting as right click on folder (parameter "/d:<dir>"
-		// * Starting on command line with some parameters (branch names)
-		// * Starting with parameters "/test"
-		private string GetWorkingFolder()
-		{
-			string workingFolder = null;
-
-			if (commandLine.HasFolder)
-			{
-				// Call from e.g. Windows Explorer folder context menu
-				workingFolder = commandLine.Folder;
-			}
-
-			if (workingFolder == null)
-			{
-				workingFolder = TryGetWorkingFolder();
-			}
-
-			Log.Debug($"Current working folder {workingFolder}");
-			return workingFolder;
-		}
-
-
-		private static string TryGetWorkingFolder()
-		{
-			R<string> path = ProgramPaths.GetWorkingFolderPath(Environment.CurrentDirectory);
-
-			if (!path.HasValue)
-			{
-				string lastUsedFolder = Settings.Get<ProgramSettings>().LastUsedWorkingFolder;
-
-				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
-				{
-					path = ProgramPaths.GetWorkingFolderPath(lastUsedFolder);
-				}
-			}
-
-			if (path.HasValue)
-			{
-				return path.Value;
-			}
-
-			return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 		}
 	}
 }

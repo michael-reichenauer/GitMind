@@ -27,6 +27,7 @@ namespace GitMind.MainWindowViews
 		private readonly JumpListService jumpListService = new JumpListService();
 
 		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
+		private readonly IWorkingFolderService workingFolderService;
 		private readonly Window owner;
 		private readonly Action setSearchFocus;
 		private readonly Action setRepositoryViewFocus;
@@ -34,11 +35,13 @@ namespace GitMind.MainWindowViews
 
 
 		internal MainWindowViewModel(
+			IWorkingFolderService workingFolderService,
 			Window owner,
 			Action setSearchFocus,
 			Action setRepositoryViewFocus)
 		{
 			RepositoryViewModel = new RepositoryViewModel(owner, Busy);
+			this.workingFolderService = workingFolderService;
 			this.owner = owner;
 			this.setSearchFocus = setSearchFocus;
 			this.setRepositoryViewFocus = setRepositoryViewFocus;

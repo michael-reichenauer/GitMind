@@ -6,13 +6,12 @@
 
 		void Start();
 
-		bool IsActivatedOtherInstance(string workingFolder);
+		bool IsActivatedOtherInstance();
 
 		bool IsCommands();
 
 		void HandleCommands();
 
 		void TryDeleteTempFiles();
-		string WorkingFolder { get; }
 	}
 }

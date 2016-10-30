@@ -80,7 +80,9 @@ namespace GitMind.RepositoryViews
 
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; } = new Branch[0];
-		public string WorkingFolder { get; set; }
+
+		//public string WorkingFolder { get; set; }
+
 		public IReadOnlyList<BranchName> SpecifiedBranchNames { get; set; }
 		public ZoomableCanvas Canvas { get; set; }
 

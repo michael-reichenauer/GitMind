@@ -80,7 +80,7 @@ namespace GitMind
 				return;
 			}
 
-			if (TriggerOtherRunningInstance())
+			if (applicationService.IsActivatedOtherInstance())
 			{
 				// Another instance for this working folder is already running and it received the
 				// command line from this instance, lets exit this instance, while other instance continuous
@@ -93,12 +93,6 @@ namespace GitMind
 		}
 
 
-		private bool TriggerOtherRunningInstance()
-		{
-			return applicationService.IsActivatedOtherInstance(applicationService.WorkingFolder);
-		}
-
-
 		private bool IsInstallOrUninstall()
 		{
 			if (CommandLine.IsInstall || CommandLine.IsUninstall)
@@ -107,6 +101,8 @@ namespace GitMind
 				// Need some temp main window when only message boxes will be shown for commands
 				MainWindow = CreateTempMainWindow();
 
+				// Not using Dependency injection for resolving Installer, since DI container is built
+				// after installer code to avoid resolving libgit2 during installation 
 				IInstaller installer = new Installer(CommandLine);
 				installer.InstallOrUninstall();
 
@@ -139,11 +135,9 @@ namespace GitMind
 
 		private void ShowMainWindow()
 		{
-			Window = new MainWindow();
+			Window = container.Resolve<MainWindow>();
 			MainWindow = Window;
 
-			Window.WorkingFolder = applicationService.WorkingFolder;
-			Window.SetBranchNames(CommandLine.BranchNames);
 			MainWindow.Show();
 		}
 
