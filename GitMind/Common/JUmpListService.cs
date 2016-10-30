@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Shell;
-using GitMind.SettingsHandling;
+using GitMind.ApplicationHandling.SettingsHandling;
 
 
 namespace GitMind.Common

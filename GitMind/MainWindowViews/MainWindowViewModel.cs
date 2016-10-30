@@ -7,13 +7,13 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using GitMind.ApplicationHandling;
+using GitMind.ApplicationHandling.Installation;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
-using GitMind.Installation;
-using GitMind.Installation.Private;
 using GitMind.RepositoryViews;
-using GitMind.SettingsHandling;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
@@ -124,7 +124,7 @@ namespace GitMind.MainWindowViews
 		{
 			get
 			{
-				Version version = ProgramPaths.GetCurrentVersion();
+				Version version = ProgramPaths.GetRunningVersion();
 				DateTime buildTime = ProgramPaths.BuildTime();
 				string dateText = buildTime.ToString("yyyy-MM-dd\nHH:mm");
 				string text = $"Version: {version.Major}.{version.Minor}\n{dateText}";
@@ -318,11 +318,11 @@ namespace GitMind.MainWindowViews
 
 		private async void RunLatestVersion()
 		{
-			bool isInstalling = await latestVersionService.RunLatestVersionAsync();
+			bool IsStarting = await latestVersionService.StartLatestInstalledVersionAsync();
 
-			if (isInstalling)
+			if (IsStarting)
 			{
-				// Newer version is being installed and will run, close this instance
+				// Newer version is started, close this instance
 				Application.Current.Shutdown(0);
 			}
 		}

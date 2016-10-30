@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
-using GitMind.SettingsHandling;
 using GitMind.Utils;
 
 
@@ -30,6 +31,8 @@ namespace GitMind.MainWindowViews
 		{
 			InitializeComponent();
 
+			SetShowToolTipLonger();
+
 			// Make sure maximize window does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
 
@@ -44,6 +47,8 @@ namespace GitMind.MainWindowViews
 
 			Activate();
 		}
+
+
 
 
 		public string WorkingFolder
@@ -199,6 +204,13 @@ namespace GitMind.MainWindowViews
 			ProgramSettings programSettings = Settings.Get<ProgramSettings>();
 			programSettings.LastUsedWorkingFolder = viewModel.WorkingFolder;
 			Settings.Set(programSettings);
+		}
+
+
+		private static void SetShowToolTipLonger()
+		{
+			ToolTipService.ShowDurationProperty.OverrideMetadata(
+				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
 		}
 	}
 }

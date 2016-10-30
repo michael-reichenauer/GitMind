@@ -1,20 +1,21 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
-using GitMind.SettingsHandling;
 using GitMind.Utils;
 using Microsoft.Win32;
 
 
-namespace GitMind.Installation.Private
+namespace GitMind.ApplicationHandling.Installation
 {
 	internal class Installer : IInstaller
 	{
-		private readonly ICmd cmd;
+		private readonly ICommandLine commandLine;
+		public static readonly string ProductGuid = "0000278d-5c40-4973-aad9-1c33196fd1a2";
 
 		private static readonly string UninstallSubKey =
-			$"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{{{ProgramPaths.ProductGuid}}}_is1";
+			$"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{{{ProductGuid}}}_is1";
 		private static readonly string UninstallRegKey = "HKEY_CURRENT_USER\\" + UninstallSubKey;
 		private static readonly string subFolderContextMenuPath =
 			"Software\\Classes\\Folder\\shell\\gitmind";
@@ -31,10 +32,13 @@ namespace GitMind.Installation.Private
 		private static readonly string SetupTitle = "GitMind - Setup";
 
 
+		private readonly ICmd cmd;
 
-		public Installer()
+
+		public Installer(ICommandLine commandLine)
 			: this(new Cmd())
 		{
+			this.commandLine = commandLine;
 		}
 
 
@@ -44,7 +48,43 @@ namespace GitMind.Installation.Private
 		}
 
 
-		public void InstallNormal()
+		public bool InstallOrUninstall()
+		{
+			if (commandLine.IsInstall && !commandLine.IsSilent)
+			{
+				InstallNormal();
+
+				return false;
+			}
+			else if (commandLine.IsInstall && commandLine.IsSilent)
+			{
+				InstallSilent();
+
+				if (commandLine.IsRunInstalled)
+				{
+					StartInstalled();
+				}
+
+				return false;
+			}
+			else if (commandLine.IsUninstall && !commandLine.IsSilent)
+			{
+				UninstallNormal();
+
+				return false;
+			}
+			else if (commandLine.IsUninstall && commandLine.IsSilent)
+			{
+				UninstallSilent();
+
+				return false;
+			}
+
+			return true;
+		}
+
+
+		private void InstallNormal()
 		{
 			Log.Usage("Install normal.");
 
@@ -77,7 +117,7 @@ namespace GitMind.Installation.Private
 
 
 
-		public void StartInstalled()
+		private void StartInstalled()
 		{
 			string targetPath = ProgramPaths.GetInstallFilePath();
 			cmd.Start(targetPath, "");
@@ -89,7 +129,7 @@ namespace GitMind.Installation.Private
 			while (true)
 			{
 				bool created = false;
-				using (new Mutex(true, ProgramPaths.ProductGuid, out created))
+				using (new Mutex(true, ProductGuid, out created))
 				{
 					if (created)
 					{
@@ -107,7 +147,7 @@ namespace GitMind.Installation.Private
 		}
 
 
-		public void InstallSilent()
+		private void InstallSilent()
 		{
 			Log.Usage("Installing ...");
 			string path = CopyFileToProgramFiles();
@@ -116,12 +156,11 @@ namespace GitMind.Installation.Private
 			CreateStartMenuShortcut(path);
 			AddToPathVariable(path);
 			AddFolderContextMenu();
-			TryDeleteTempFiles();
 			Log.Usage("Installed");
 		}
 
 
-		public void UninstallNormal()
+		private void UninstallNormal()
 		{
 			Log.Usage("Uninstall normal");
 			if (IsInstalledInstance())
@@ -151,7 +190,7 @@ namespace GitMind.Installation.Private
 		}
 
 
-		public void UninstallSilent()
+		private void UninstallSilent()
 		{
 			Log.Debug("Uninstalling...");
 			DeleteProgramFilesFolder();
@@ -161,33 +200,6 @@ namespace GitMind.Installation.Private
 			DeleteFolderContextMenu();
 			DeleteUninstallSupport();
 			Log.Debug("Uninstalled");
-		}
-
-
-		public void TryDeleteTempFiles()
-		{
-			try
-			{
-				string tempFolderPath = ProgramPaths.GetTempFolderPath();
-				string searchPattern = $"{ProgramPaths.TempPrefix}*";
-				string[] tempFiles = Directory.GetFiles(tempFolderPath, searchPattern);
-				foreach (string tempFile in tempFiles)
-				{
-					try
-					{
-						Log.Debug($"Deleting temp file {tempFile}");
-						File.Delete(tempFile);
-					}
-					catch (Exception e)
-					{
-						Log.Debug($"Failed to delete temp file {tempFile}, {e.Message}. Deleting at reboot");
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to delete temp files {e}");
-			}
 		}
 
 		private string CopyFileToProgramFiles()

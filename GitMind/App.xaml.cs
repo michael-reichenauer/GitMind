@@ -2,20 +2,13 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Threading;
+using GitMind.ApplicationHandling;
+using GitMind.ApplicationHandling.Installation;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Git;
-using GitMind.GitModel;
-using GitMind.Installation;
-using GitMind.Installation.Private;
 using GitMind.MainWindowViews;
-using GitMind.RepositoryViews;
-using GitMind.SettingsHandling;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 
@@ -27,18 +20,10 @@ namespace GitMind
 	/// </summary>
 	public partial class App : Application
 	{
-		private static readonly TimeSpan LatestCheckIntervall = TimeSpan.FromHours(3);
+		private ApplicationService applicationService;
 
-		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
 
-		private readonly Lazy<IDiffService> diffService = new Lazy<IDiffService>(() => new DiffService());
-		private readonly IInstaller installer = new Installer();
-		private WorkingFolderService workingFolderService;
-
-		private static Mutex programMutex;
-		private DispatcherTimer newVersionTimer;
-		private MainWindow mainWindow;
-
+		public MainWindow Window;
 
 		public ICommandLine CommandLine { get; private set; }
 
@@ -50,11 +35,16 @@ namespace GitMind
 		{
 			Log.Debug(GetStartlineText());
 
+			// Make sure that when assemblies that GitMind depends on are extracted whenever requested 
 			AssemblyResolver.Activate();
 
-			App app = new App();
-			app.Start();
+			App application = new App();
+			ExceptionHandling.Init();
+			WpfBindingTraceListener.Register();
+			application.InitializeComponent();
+			application.Run();
 		}
+
 
 		protected override void OnExit(ExitEventArgs e)
 		{
@@ -67,153 +57,102 @@ namespace GitMind
 		{
 			base.OnStartup(e);
 
-			OnStartup();
+			CommandLine = new CommandLine(Environment.GetCommandLineArgs());
+
+			if (IsInstallOrUninstall())
+			{
+				// A installation or uninstallation was triggered, lets end this instance
+				Application.Current.Shutdown(0);
+				return;
+			}
+
+			applicationService = new ApplicationService(CommandLine);
+
+			if (applicationService.IsCommands())
+			{
+				// Command line contains some command like diff 
+				// which will be handled and then this instance can end.
+				HandleCommand();
+				Application.Current.Shutdown(0);
+				return;
+			}
+
+			if (TriggerOtherRunningInstance())
+			{
+				// Another instance for this working folder is already running and it received the
+				// command line from this instance, lets exit this instance, while other instance continuous
+				Application.Current.Shutdown(0);
+				return;
+			}
+
+			Log.Usage($"Start version: {GetProgramVersion()}");
+			Start();
+		}
+
+
+		private bool TriggerOtherRunningInstance()
+		{
+			return applicationService.IsActivatedOtherInstance(applicationService.WorkingFolder);
+		}
+
+
+		private bool IsInstallOrUninstall()
+		{
+			if (CommandLine.IsInstall || CommandLine.IsUninstall)
+			{
+				// Tis is an installation (Setup file or "/install" arg) or uninstallation (/uninstall arg)
+				// Need some temp main window when only message boxes will be shown for commands
+				MainWindow = CreateTempMainWindow();
+
+				IInstaller installer = new Installer(CommandLine);
+				installer.InstallOrUninstall();
+
+				return true;
+			}
+
+			return false;
+		}
+
+
+		private void HandleCommand()
+		{
+			// Need some main window when only message boxes will be shown for commands
+			MainWindow = CreateTempMainWindow();
+
+			// Commands like Install, Uninstall, Diff, can be handled immediately
+			applicationService.HandleCommands();
 		}
 
 
 		private void Start()
 		{
-			CommandLine = new CommandLine(Environment.GetCommandLineArgs());
-			workingFolderService = new WorkingFolderService(CommandLine);
-			ExceptionHandling.Init();
-			WpfBindingTraceListener.Register();
+			applicationService.SetIsStarted();
 
-			InitializeComponent();
+			ShowMainWindow();
 
-			Run();
+			applicationService.Start();
 		}
 
-		private void OnStartup()
+
+		private void ShowMainWindow()
 		{
-			if (CommandLine.IsShowDiff || CommandLine.IsInstall || CommandLine.IsUninstall)
-			{
-				// Need some main window when only message boxes will be shown for diff or installation
-				MainWindow = CreateTempMainWindow();
+			Window = new MainWindow();
+			MainWindow = Window;
 
-				if (CommandLine.IsShowDiff)
-				{			
-					Task.Run(() => diffService.Value.ShowDiffAsync(
-						Commit.UncommittedId, workingFolderService.WorkingFolder).Wait())
-					.Wait();
-				}
-				else
-				{
-					InstallOrUninstall();
-				}			
-				
-				Application.Current.Shutdown(0);
-				return;			
-			}
-
-			newVersionTimer = new DispatcherTimer();
-			ToolTipService.ShowDurationProperty.OverrideMetadata(
-				typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
-
-			installer.TryDeleteTempFiles();
-
-
-			mainWindow = new MainWindow();
-			MainWindow = mainWindow;
-
-			Serializer.RegisterSerializedTypes();
-	
-
-			string id = MainWindowIpcService.GetId(workingFolderService.WorkingFolder);
-			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
-			{
-				if (!ipcRemotingService.TryCreateServer(id))
-				{
-					// Another GitMind instance for that working folder is already running, activate that.
-					string[] args = Environment.GetCommandLineArgs();
-					ipcRemotingService.CallService<MainWindowIpcService>(
-						id, service => service.Activate(args));
-
-					Application.Current.Shutdown(0);
-					return;
-				}
-			}
-
-
-			Log.Usage($"Start version: {GetProgramVersion()}");
-
-			programMutex = new Mutex(true, ProgramPaths.ProductGuid);
-
-			// Must not use WorkingFolder before installation code
-			mainWindow.WorkingFolder = workingFolderService.WorkingFolder;
-			mainWindow.BranchNames = CommandLine.BranchNames.Select(name => new BranchName(name)).ToList();
+			Window.WorkingFolder = applicationService.WorkingFolder;
+			Window.BranchNames = CommandLine.BranchNames.Select(name => new BranchName(name)).ToList();
 			MainWindow.Show();
-
-			newVersionTimer.Tick += NewVersionCheckAsync;
-			newVersionTimer.Interval = TimeSpan.FromSeconds(5);
-			newVersionTimer.Start();
 		}
-
-
-
-
-		private bool InstallOrUninstall()
-		{
-			if (CommandLine.IsInstall && !CommandLine.IsSilent)
-			{
-				installer.InstallNormal();
-
-				return false;
-			}
-			else if (CommandLine.IsInstall && CommandLine.IsSilent)
-			{
-				installer.InstallSilent();
-
-				if (CommandLine.IsRunInstalled)
-				{
-					installer.StartInstalled();
-				}
-
-				return false;
-			}
-			else if (CommandLine.IsUninstall && !CommandLine.IsSilent)
-			{
-				installer.UninstallNormal();
-
-				return false;
-			}
-			else if (CommandLine.IsUninstall && CommandLine.IsSilent)
-			{
-				installer.UninstallSilent();
-
-				return false;
-			}
-
-			installer.TryDeleteTempFiles();
-
-			return true;
-		}
-
-
-		private async void NewVersionCheckAsync(object sender, EventArgs e)
-		{
-			if (await latestVersionService.IsNewVersionAvailableAsync())
-			{
-				await latestVersionService.InstallLatestVersionAsync();
-
-				// The actual installation (copy of files) is done by another, allow some time for that
-				await Task.Delay(TimeSpan.FromSeconds(5));
-			}
-
-			mainWindow.IsNewVersionVisible = latestVersionService.IsNewVersionInstalled();
-
-			newVersionTimer.Interval = LatestCheckIntervall;
-		}
-
 
 
 		private static string GetStartlineText()
 		{
 			string version = GetProgramVersion();
 
-			string[] commandLineArgs = Environment.GetCommandLineArgs();
-			string argsText = string.Join("','", commandLineArgs);
+			string[] args = Environment.GetCommandLineArgs();
+			string argsText = string.Join("','", args);
 
-			return $"Start version: {version}, Args: '{argsText}'";
+			return $"Start version: {version}, args: '{argsText}'";
 		}
 
 
@@ -225,10 +164,9 @@ namespace GitMind
 		}
 
 
-
 		private static MessageDialog CreateTempMainWindow()
 		{
-			// Window used as a temp main window
+			// Window used as a temp main window, when handling commands (i.e. no "real" main windows)
 			return new MessageDialog(null, "", "", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 	}
