@@ -4,7 +4,7 @@ using GitMind.Git;
 using GitMind.Utils;
 
 
-namespace GitMind.ApplicationHandling
+namespace GitMind.ApplicationHandling.Private
 {
 	internal class WorkingFolderService : IWorkingFolderService
 	{
@@ -22,13 +22,18 @@ namespace GitMind.ApplicationHandling
 			this.gitInfoService = gitInfoService;
 		}
 
+
+		public bool IsValid { get; private set; }
+
+
 		public string WorkingFolder
 		{
 			get
 			{
 				if (workingFolder != null)
 				{
-					workingFolder = GetWorkingFolder();
+					workingFolder = GetInitialWorkingFolder();
+					StoreLasteUsedFolder();
 				}
 
 				return workingFolder;
@@ -38,9 +43,23 @@ namespace GitMind.ApplicationHandling
 
 		public void SetWorkingFolder(string path)
 		{
-			workingFolder = path;
+			R<string> rootFolder = GetRootFolderPath(path);
+			IsValid = rootFolder.HasValue;
+			
+			workingFolder = rootFolder.HasValue ? rootFolder.Value : commandLine.Folder;
+			StoreLasteUsedFolder();
 		}
 
+
+		private void StoreLasteUsedFolder()
+		{
+			if (IsValid)
+			{
+				ProgramSettings settings = Settings.Get<ProgramSettings>();
+				settings.LastUsedWorkingFolder = workingFolder;
+				Settings.Set(settings);
+			}
+		}
 
 
 		// Must be able to handle:
@@ -49,60 +68,58 @@ namespace GitMind.ApplicationHandling
 		// * Starting as right click on folder (parameter "/d:<dir>"
 		// * Starting on command line with some parameters (branch names)
 		// * Starting with parameters "/test"
-		private string GetWorkingFolder()
+		private string GetInitialWorkingFolder()
 		{
-			string workingFolder = null;
-
+			R<string> rootFolder;
 			if (commandLine.HasFolder)
 			{
 				// Call from e.g. Windows Explorer folder context menu
-				workingFolder = commandLine.Folder;
+				rootFolder = GetRootFolderPath(commandLine.Folder);
+				IsValid = rootFolder.HasValue;
+				return rootFolder.HasValue ? rootFolder.Value : commandLine.Folder;
 			}
 
-			if (workingFolder == null)
+			rootFolder = GetRootFolderPath(Environment.CurrentDirectory);
+			if (!rootFolder.HasValue)
 			{
-				workingFolder = TryGetWorkingFolder();
-			}
-
-			Log.Debug($"Current working folder {workingFolder}");
-			return workingFolder;
-		}
-
-
-		private string TryGetWorkingFolder()
-		{
-			R<string> path = GetWorkingFolderPath(Environment.CurrentDirectory);
-
-			if (!path.HasValue)
-			{
-				string lastUsedFolder = Settings.Get<ProgramSettings>().LastUsedWorkingFolder;
-
+				string lastUsedFolder = GetLastUsedWorkingFolder();
 				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
 				{
-					path = GetWorkingFolderPath(lastUsedFolder);
+					rootFolder = GetRootFolderPath(lastUsedFolder);
 				}
 			}
 
-			if (path.HasValue)
+			IsValid = rootFolder.HasValue;
+			if (rootFolder.HasValue)
 			{
-				return path.Value;
+				return rootFolder.Value;
 			}
 
+			return GetMyDocumentsPath();
+		}
+
+
+		private static string GetMyDocumentsPath()
+		{
 			return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 		}
 
 
-		public R<string> GetWorkingFolderPath(string path)
+		private static string GetLastUsedWorkingFolder()
+		{
+			return Settings.Get<ProgramSettings>().LastUsedWorkingFolder;
+		}
+
+
+		public R<string> GetRootFolderPath(string path)
 		{
 			if (path == null)
 			{
 				return Error.From("No working folder");
 			}
 
-
 			return gitInfoService.GetCurrentRootPath(path)
 				.OnError(e => Log.Debug($"Not a working folder {path}, {e}"));
 		}
-
 	}
 }
