@@ -941,7 +941,7 @@ namespace GitMind.RepositoryViews
 				}
 
 				progress.SetText("Update status after push all branches ...");
-				await RefreshAfterCommandAsync(false);
+				await RefreshAfterCommandAsync(true);
 			});
 		}
 
