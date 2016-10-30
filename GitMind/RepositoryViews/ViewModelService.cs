@@ -463,7 +463,8 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.ShowDiffCommand,
 				repositoryViewModel.SetBranchCommand,
 				repositoryViewModel.UndoCleanWorkingFolderCommand,
-				repositoryViewModel.UndoUncommittedChangesCommand));
+				repositoryViewModel.UndoUncommittedChangesCommand,
+				repositoryViewModel.UncommitCommand));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
