@@ -70,21 +70,16 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public IReadOnlyList<BranchName> BranchNames
+		public void SetBranchNames(IReadOnlyList<string> names)
 		{
-			set
+			if (!names.Any())
 			{
-				if (value.Any())
-				{
-					viewModel.SpecifiedBranchNames = value;
-				}
-				else
-				{
-					WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
-					viewModel.SpecifiedBranchNames = settings.ShownBranches
-						.Select(name => new BranchName(name)).ToList();
-				}
+				WorkFolderSettings settings = Settings.GetWorkFolderSetting(viewModel.WorkingFolder);
+				names = settings.ShownBranches;
 			}
+
+			List<BranchName> branchNames = names.Select(name => new BranchName(name)).ToList();
+			viewModel.SpecifiedBranchNames = branchNames;
 		}
 
 

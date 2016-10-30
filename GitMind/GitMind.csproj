@@ -257,7 +257,6 @@
     <Compile Include="Git\IGitCommitsService.cs" />
     <Compile Include="Git\GitStatus.cs" />
     <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
-    <Compile Include="ApplicationHandling\Testing\TestRepo.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />
     <Compile Include="Utils\Timing.cs" />

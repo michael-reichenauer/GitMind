@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.Installation;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
-using GitMind.Git;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -22,12 +20,12 @@ namespace GitMind
 	{
 		private ApplicationService applicationService;
 
-
 		public MainWindow Window;
 
 		public ICommandLine CommandLine { get; private set; }
 
 		public new static App Current => (App)Application.Current;
+
 
 
 		[STAThread]
@@ -140,7 +138,7 @@ namespace GitMind
 			MainWindow = Window;
 
 			Window.WorkingFolder = applicationService.WorkingFolder;
-			Window.BranchNames = CommandLine.BranchNames.Select(name => new BranchName(name)).ToList();
+			Window.SetBranchNames(CommandLine.BranchNames);
 			MainWindow.Show();
 		}
 

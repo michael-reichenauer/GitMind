@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading;
 using GitMind.ApplicationHandling.Installation;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.ApplicationHandling.Testing;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
@@ -107,7 +106,7 @@ namespace GitMind.ApplicationHandling
 			}
 		}
 
-		
+
 		// Must be able to handle:
 		// * Starting app from start menu or pinned (no parameters and unknown current dir)
 		// * Starting on command line in some dir (no parameters but known dir)
@@ -122,10 +121,6 @@ namespace GitMind.ApplicationHandling
 			{
 				// Call from e.g. Windows Explorer folder context menu
 				workingFolder = commandLine.Folder;
-			}
-			else if (commandLine.IsTest && Directory.Exists(TestRepo.Path))
-			{
-				workingFolder = TestRepo.Path;
 			}
 
 			if (workingFolder == null)
@@ -144,7 +139,6 @@ namespace GitMind.ApplicationHandling
 
 			if (!path.HasValue)
 			{
-
 				string lastUsedFolder = Settings.Get<ProgramSettings>().LastUsedWorkingFolder;
 
 				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
