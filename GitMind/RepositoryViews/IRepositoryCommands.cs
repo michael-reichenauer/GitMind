@@ -8,7 +8,6 @@ namespace GitMind.RepositoryViews
 {
 	internal interface IRepositoryCommands
 	{
-		string WorkingFolder { get; }
 		Window Owner { get; }
 		Repository Repository { get;  }
 		Commit UnCommited { get; }

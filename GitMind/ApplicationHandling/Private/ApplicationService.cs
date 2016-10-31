@@ -54,16 +54,23 @@ namespace GitMind.ApplicationHandling.Private
 
 		public bool IsActivatedOtherInstance()
 		{
-			string id = MainWindowIpcService.GetId(workingFolderService.WorkingFolder);
-			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
+			try
 			{
-				if (!ipcRemotingService.TryCreateServer(id))
+				string id = MainWindowIpcService.GetId(workingFolderService.WorkingFolder);
+				using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 				{
-					// Another GitMind instance for that working folder is already running, activate that.
-					var args = Environment.GetCommandLineArgs();
-					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(args));
-					return true;
+					if (!ipcRemotingService.TryCreateServer(id))
+					{
+						// Another GitMind instance for that working folder is already running, activate that.
+						var args = Environment.GetCommandLineArgs();
+						ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(args));
+						return true;
+					}
 				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to activate other instance {e}");
 			}
 
 			return false;
