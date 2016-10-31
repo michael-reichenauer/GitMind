@@ -33,6 +33,7 @@ namespace GitMind.ApplicationHandling
 
 		public string WorkingFolder => lazyWorkingFolder.Value;
 
+
 		public void SetIsStarted()
 		{
 			// This mutex is used by the installer (or uninstaller) to determine if instances are running
@@ -49,17 +50,24 @@ namespace GitMind.ApplicationHandling
 
 		public bool IsActivatedOtherInstance(string workingFolder)
 		{
-			string id = MainWindowIpcService.GetId(workingFolder);
-			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
+			try
 			{
-				if (!ipcRemotingService.TryCreateServer(id))
+				string id = MainWindowIpcService.GetId(workingFolder);
+				using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 				{
-					// Another GitMind instance for that working folder is already running, activate that.
-					var args = Environment.GetCommandLineArgs();
-					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(args));
-					return true;
+					if (!ipcRemotingService.TryCreateServer(id))
+					{
+						// Another GitMind instance for that working folder is already running, activate that.
+						var args = Environment.GetCommandLineArgs();
+						ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(args));
+						return true;
+					}
 				}
 			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to activate other instance {e}");
+			}	
 
 			return false;
 		}
