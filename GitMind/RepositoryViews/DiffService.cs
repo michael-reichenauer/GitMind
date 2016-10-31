@@ -298,7 +298,7 @@ namespace GitMind.RepositoryViews
 			{
 				Message.ShowWarning(
 					Application.Current.MainWindow,
-					"Could not locate diff tool.\nPlease edit DiffTool in the options file.");
+					$"Could not locate diff tool:\n{tool.Command}.\n\nPlease edit DiffTool in the options.");
 				return false;
 			}
 
@@ -320,7 +320,7 @@ namespace GitMind.RepositoryViews
 			{
 				Message.ShowWarning(
 					Application.Current.MainWindow,
-					"Could not locate merge tool.\nPlease edit MergeTool in the options file.");
+					$"Could not locate merge tool.\n{tool.Command}.\n\nPlease edit MergeTool in the options.");
 				return false;
 			}
 
