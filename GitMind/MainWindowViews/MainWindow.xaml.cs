@@ -182,6 +182,7 @@ namespace GitMind.MainWindowViews
 
 			settings.ShownBranches = viewModel.RepositoryViewModel.Branches
 				.Select(b => b.Branch.Name.ToString())
+				.Distinct()
 				.ToList();
 
 			Settings.SetWorkFolderSetting(workingFolderService.WorkingFolder, settings);

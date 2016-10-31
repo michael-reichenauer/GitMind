@@ -216,6 +216,9 @@ namespace GitMind.RepositoryViews
 
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
 		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
+		public Command<Commit> UncommitCommand => AsyncCommand<Commit>(UncommitAsync);
+
+
 		public Command CommitCommand => AsyncCommand(
 			() => commitService.CommitChangesAsync(this),
 			() => IsUncommitted);
@@ -984,6 +987,11 @@ namespace GitMind.RepositoryViews
 			return Repository.CurrentBranch.CanBePushed;
 		}
 
+
+		private async Task UncommitAsync(Commit commit)
+		{
+			await commitService.UnCommitAsync(this, commit);
+		}
 
 
 		private void ShowDiff(Commit commit)

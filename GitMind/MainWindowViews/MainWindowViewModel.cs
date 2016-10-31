@@ -142,6 +142,8 @@ namespace GitMind.MainWindowViews
 
 		public Command FeedbackCommand => Command(Feedback);
 
+		public Command OptionsCommand => Command(OpenOptions);
+
 		public Command HelpCommand => Command(OpenHelp);
 
 		public Command MinimizeCommand => Command(Minimize);
@@ -343,6 +345,23 @@ namespace GitMind.MainWindowViews
 				Log.Error($"Failed to open feedback link {ex}");
 			}
 		}
+
+
+		private void OpenOptions()
+		{
+			try
+			{
+				Process proc = new Process();
+				string optionsName = nameof(Options);
+				proc.StartInfo.FileName = Path.Combine(ProgramPaths.DataFolderPath, $"{optionsName}.json");
+				proc.Start();
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				Log.Error($"Failed to open options {e}");
+			}
+		}
+
 
 
 		private void OpenHelp()

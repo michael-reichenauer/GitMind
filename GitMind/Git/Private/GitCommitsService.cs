@@ -80,6 +80,13 @@ namespace GitMind.Git.Private
 		}
 
 
+		public Task<R> UnCommitAsync(string workingFolder)
+		{
+			return repoCaller.UseRepoAsync(workingFolder, 
+				repo => repo.Reset(ResetMode.Mixed, repo.Head.Commits.ElementAt(1)));
+		}
+
+
 		public Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync(string workingFolder)
 		{
 			return repoCaller.UseLibRepoAsync(workingFolder, repo =>
