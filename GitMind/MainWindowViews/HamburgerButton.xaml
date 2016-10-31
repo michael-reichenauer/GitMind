@@ -118,6 +118,16 @@
 				<Separator Background="{StaticResource BorderBrush}"/>
 
 				<MenuItem 
+					Header="Options ..." 
+					Command="{Binding OptionsCommand}">
+					<MenuItem.Icon>
+						<Border>
+							<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE8B8;"/>
+						</Border>
+					</MenuItem.Icon>
+				</MenuItem>
+
+				<MenuItem 
 					Header="Send feedback ..." 
 					Command="{Binding FeedbackCommand}">
 					<MenuItem.Icon>

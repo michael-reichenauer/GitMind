@@ -22,7 +22,8 @@ namespace GitMind.RepositoryViews
 			Command<Commit> showCommitDiffCommand,
 			Command<Commit> setBranchCommand,
 			Command undoCleanWorkingFolderCommand,
-			Command undoUncommittedChangesCommand)
+			Command undoUncommittedChangesCommand,
+			Command<Commit> uncommitCommand)
 		{
 			this.repositoryCommands = repositoryCommands;
 			ToggleDetailsCommand = toggleDetailsCommand;
@@ -31,6 +32,7 @@ namespace GitMind.RepositoryViews
 				() => Commit.IsVirtual && !Commit.IsUncommitted ? Commit.FirstParent : Commit);
 			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
 			UndoCleanWorkingFolderCommand = undoCleanWorkingFolderCommand;
+			UncommitCommand = uncommitCommand.With(() => Commit); ;
 		}
 
 
@@ -49,6 +51,7 @@ namespace GitMind.RepositoryViews
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.Id == Commit.UncommittedId;
+		public bool CanUncommit => !IsUncommitted && IsCurrent && Commit.IsLocalAhead;
 		public bool IsShown => BranchTips == null;
 		public string BranchToolTip { get; set; }
 
@@ -120,6 +123,9 @@ namespace GitMind.RepositoryViews
 
 		public Command UndoUncommittedChangesCommand { get; }
 		public Command UndoCleanWorkingFolderCommand { get; }
+		public Command UncommitCommand { get; }
+
+		
 
 		// Values used by other properties
 		public Commit Commit { get; set; }

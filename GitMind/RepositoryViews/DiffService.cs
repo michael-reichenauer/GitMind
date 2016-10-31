@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -36,55 +37,30 @@ namespace GitMind.RepositoryViews
 		}
 
 
-
 		public async Task ShowDiffAsync(string commitId, string workingFolder)
 		{
-			string p4mergeExe;
-			if (!IsDiffSupported(out p4mergeExe))
-			{
-				return;
-			}
-
 			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffAsync(workingFolder, commitId);
 
 			if (commitDiff.HasValue)
 			{
-				await Task.Run(() =>
-				{
-					cmd.Run(p4mergeExe, $"\"{commitDiff.Value.LeftPath}\" \"{commitDiff.Value.RightPath}\"");
-				});
+				await ShowDiffImplAsync(commitDiff.Value.LeftPath, commitDiff.Value.RightPath);
 			}
 		}
 
 
 		public async Task ShowDiffRangeAsync(string id1, string id2, string workingFolder)
 		{
-			string p4mergeExe;
-			if (!IsDiffSupported(out p4mergeExe))
-			{
-				return;
-			}
-
 			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffRangeAsync(workingFolder, id1, id2);
 
 			if (commitDiff.HasValue)
 			{
-				await Task.Run(() =>
-				{
-					cmd.Run(p4mergeExe, $"\"{commitDiff.Value.LeftPath}\" \"{commitDiff.Value.RightPath}\"");
-				});
+				await ShowDiffImplAsync(commitDiff.Value.LeftPath, commitDiff.Value.RightPath);
 			}
 		}
 
 
 		public async Task MergeConflictsAsync(string workingFolder, string id, CommitFile file)
 		{
-			string p4mergeExe;
-			if (!IsDiffSupported(out p4mergeExe))
-			{
-				return;
-			}
-
 			CleanTempPaths(workingFolder, file);
 
 			string basePath = GetPath(workingFolder, file, Base);
@@ -99,10 +75,7 @@ namespace GitMind.RepositoryViews
 
 			if (File.Exists(yoursPath) && File.Exists(theirsPath) && File.Exists(basePath))
 			{
-				await Task.Run(() =>
-				{
-					cmd.Run(p4mergeExe, $"\"{basePath}\" \"{theirsPath}\"  \"{yoursPath}\" \"{fullPath}\"");
-				});
+				await ShowMergeImplAsync(theirsPath, yoursPath, basePath, fullPath);
 
 				if (!HasConflicts(workingFolder, file))
 				{
@@ -198,12 +171,6 @@ namespace GitMind.RepositoryViews
 
 		public async Task ShowYourDiffAsync(string workingFolder, CommitFile file)
 		{
-			string p4mergeExe;
-			if (!IsDiffSupported(out p4mergeExe))
-			{
-				return;
-			}
-
 			string yoursPath = GetPath(workingFolder, file, Theirs);
 			string basePath = GetPath(workingFolder, file, Base);
 
@@ -212,10 +179,7 @@ namespace GitMind.RepositoryViews
 
 			if (File.Exists(yoursPath) && File.Exists(basePath))
 			{
-				await Task.Run(() =>
-				{
-					cmd.Run(p4mergeExe, $"\"{basePath}\" \"{yoursPath}\"");
-				});
+				await ShowDiffImplAsync(yoursPath, basePath);
 
 				DeletePath(basePath);
 				DeletePath(yoursPath);
@@ -226,12 +190,6 @@ namespace GitMind.RepositoryViews
 
 		public async Task ShowTheirDiffAsync(string workingFolder, CommitFile file)
 		{
-			string p4mergeExe;
-			if (!IsDiffSupported(out p4mergeExe))
-			{
-				return;
-			}
-
 			string basePath = GetPath(workingFolder, file, Base);
 			string theirsPath = GetPath(workingFolder, file, Theirs);
 
@@ -240,10 +198,7 @@ namespace GitMind.RepositoryViews
 
 			if (File.Exists(theirsPath) && File.Exists(basePath))
 			{
-				await Task.Run(() =>
-				{
-					cmd.Run(p4mergeExe, $"\"{basePath}\" \"{theirsPath}\"");
-				});
+				await ShowDiffImplAsync(theirsPath, basePath);
 
 				DeletePath(basePath);
 				DeletePath(theirsPath);
@@ -285,34 +240,99 @@ namespace GitMind.RepositoryViews
 
 
 		public async Task ShowFileDiffAsync(string workingFolder, string commitId, string name)
-		{
-			string p4mergeExe;
-			if (!IsDiffSupported(out p4mergeExe))
-			{
-				return;
-			}
-
+		{	
 			R<CommitDiff> commitDiff = await gitDiffService.GetFileDiffAsync(workingFolder, commitId, name);
 
 			if (commitDiff.HasValue)
 			{
-				await Task.Run(() =>
-				{
-					cmd.Run(p4mergeExe, $"\"{commitDiff.Value.LeftPath}\" \"{commitDiff.Value.RightPath}\"");
-				});
+				await ShowDiffImplAsync(commitDiff.Value.LeftPath, commitDiff.Value.RightPath);
 			}
 		}
 
 
-		private static bool IsDiffSupported(out string p4mergeExe)
+		private async Task ShowDiffImplAsync(string theirs, string mine)
 		{
-			p4mergeExe = "C:\\Program Files\\Perforce\\p4merge.exe";
+			DiffTool diffTool = Settings.Get<Options>().DiffTool;
+			if (!IsDiffSupported(diffTool))
+			{
+				return;
+			}
 
-			if (!File.Exists(p4mergeExe))
+			await Task.Run(() =>
+			{
+				string args = diffTool.Arguments
+					.Replace("%theirs", $"\"{theirs}\"")
+					.Replace("%mine", $"\"{mine}\"");
+
+				cmd.Run(diffTool.Command, args);
+			});			
+		}
+
+
+		private async Task ShowMergeImplAsync(
+			string theirs, string mine, string basePath, string merged)
+		{
+			MergeTool mergeTool = Settings.Get<Options>().MergeTool;
+			if (!IsMergeSupported(mergeTool))
+			{
+				return;
+			}
+
+			await Task.Run(() =>
+			{
+				string args = mergeTool.Arguments
+					.Replace("%theirs", $"\"{theirs}\"")
+					.Replace("%mine", $"\"{mine}\"")
+					.Replace("%base", $"\"{basePath}\"")
+					.Replace("%merged", $"\"{merged}\"");
+
+				cmd.Run(mergeTool.Command, args);
+			});
+		}
+
+
+
+		private static bool IsDiffSupported(DiffTool tool)
+		{
+			if (!File.Exists(tool.Command))
 			{
 				Message.ShowWarning(
 					Application.Current.MainWindow,
-					"Could not locate compatible diff tool.\nPlease install Perforce p4merge.");
+					$"Could not locate diff tool:\n{tool.Command}.\n\nPlease edit DiffTool in the options.");
+				return false;
+			}
+
+			if (!tool.Arguments.Contains("%theirs") 
+				|| !tool.Arguments.Contains("%mine"))
+			{
+				Message.ShowWarning(
+					Application.Current.MainWindow,
+					"DiffTool arguments must contain '%theirs' and '%mine'");
+				return false;
+			}
+
+			return true;
+		}
+
+		private static bool IsMergeSupported(MergeTool tool)
+		{
+			if (!File.Exists(tool.Command))
+			{
+				Message.ShowWarning(
+					Application.Current.MainWindow,
+					$"Could not locate merge tool.\n{tool.Command}.\n\nPlease edit MergeTool in the options.");
+				return false;
+			}
+
+			if (
+				!tool.Arguments.Contains("%theirs") 
+				|| !tool.Arguments.Contains("%mine")
+				|| !tool.Arguments.Contains("%base")
+				|| !tool.Arguments.Contains("%merged"))
+			{
+				Message.ShowWarning(
+					Application.Current.MainWindow,
+					"MergeTool arguments must contain '%theirs', '%mine', '%base' and '%merged'");
 				return false;
 			}
 

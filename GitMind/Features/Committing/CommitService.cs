@@ -102,6 +102,28 @@ namespace GitMind.Features.Committing
 		}
 
 
+		public Task UnCommitAsync(IRepositoryCommands repositoryCommands, Commit commit)
+		{
+			Window owner = repositoryCommands.Owner;
+			string workingFolder = repositoryCommands.WorkingFolder;
+
+			Progress.ShowDialog(owner, $"Uncommit in {commit} ...", async progress =>
+			{
+				R result = await gitCommitsService.UnCommitAsync(workingFolder);
+
+				if (result.IsFaulted)
+				{
+					Message.ShowWarning(owner, $"Failed to uncommit.\n{result.Error.Exception.Message}");
+				}
+
+				progress.SetText("Update status after uncommit ...");
+				await repositoryCommands.RefreshAfterCommandAsync(true);
+			});
+
+			return Task.CompletedTask;
+		}
+
+
 		public async Task ShowUncommittedDiff(IRepositoryCommands repositoryCommands)
 		{
 			string workingFolder = repositoryCommands.WorkingFolder;

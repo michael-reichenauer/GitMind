@@ -434,7 +434,7 @@ namespace GitMind.RepositoryViews
 		IEnumerable<Branch> branches, Branch branch)
 		{
 			IEnumerable<Branch> children = branches
-				.Where(b => b.HasParentBranch && b.ParentBranch == branch);
+				.Where(b => b.HasParentBranch && b.ParentBranch == branch || b.MainBranchId == branch.Id);
 
 			return
 				new[] { branch }.Concat(children.SelectMany(b => GetBranchAndDescendants(branches, b)));
@@ -463,7 +463,8 @@ namespace GitMind.RepositoryViews
 				repositoryViewModel.ShowDiffCommand,
 				repositoryViewModel.SetBranchCommand,
 				repositoryViewModel.UndoCleanWorkingFolderCommand,
-				repositoryViewModel.UndoUncommittedChangesCommand));
+				repositoryViewModel.UndoUncommittedChangesCommand,
+				repositoryViewModel.UncommitCommand));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
@@ -488,7 +489,7 @@ namespace GitMind.RepositoryViews
 
 				commitViewModel.GraphWidth = graphWidth;
 				commitViewModel.Width = repositoryViewModel.Width - 35;
-				
+
 				commitViewModel.Rect = new Rect(0, y, commitViewModel.Width, CommitHeight);
 
 				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
@@ -538,7 +539,7 @@ namespace GitMind.RepositoryViews
 				branch.TipRowIndex = commits.FindIndex(c => c == sourceBranch.TipCommit);
 				branch.FirstRowIndex = commits.FindIndex(c => c == sourceBranch.FirstCommit);
 				int height = Converters.ToY(branch.FirstRowIndex - branch.TipRowIndex) + 8;
-			
+
 				branch.BranchColumn = FindFreeBranchColumn(addedBranchColumns, branch);
 				maxColumn = Math.Max(branch.BranchColumn, maxColumn);
 				addedBranchColumns.Add(branch);
@@ -611,7 +612,7 @@ namespace GitMind.RepositoryViews
 				toolTip += "\n(Deleted branch)";
 			}
 
-				if (branch.ChildBranchNames.Count > 1)
+			if (branch.ChildBranchNames.Count > 1)
 			{
 				toolTip += $"\n\nBranch could be one of:";
 				foreach (BranchName branchName in branch.ChildBranchNames)
@@ -758,7 +759,7 @@ namespace GitMind.RepositoryViews
 
 			int childX = childCommit.X;
 			int parentX = parentCommit.X;
-		
+
 			int x1 = childX <= parentX ? 0 : childX - parentX - 6;
 			int y1 = 0;
 			int x2 = parentX <= childX ? 0 : parentX - childX - 6;

@@ -33,7 +33,10 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 		{
 			string path = GetWorkFolderSettingsPath(workingFolder);
 
-			WriteAs(path, settings);
+			if (Directory.Exists(Path.GetDirectoryName(path)))
+			{
+				WriteAs(path, settings);
+			}
 		}
 
 

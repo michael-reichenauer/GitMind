@@ -14,7 +14,7 @@ namespace GitMind.ApplicationHandling
 
 		public CommandLine(string[] args)
 		{
-			this.args = Environment.GetCommandLineArgs();
+			this.args = args;
 			lazyBranchNames = new Lazy<IReadOnlyList<string>>(GetBranchNames);
 		}
 
