@@ -348,6 +348,7 @@ namespace GitMind.MainWindowViews
 		{
 			try
 			{
+				Settings.EnsureExists<Options>();
 				Process proc = new Process();
 				string optionsName = nameof(Options);
 				proc.StartInfo.FileName = Path.Combine(ProgramPaths.DataFolderPath, $"{optionsName}.json");
