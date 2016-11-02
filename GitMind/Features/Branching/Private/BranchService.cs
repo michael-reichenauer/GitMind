@@ -338,13 +338,13 @@ namespace GitMind.Features.Branching.Private
 				if (isLocal)
 				{
 					progress.SetText($"Delete local branch {branch.Name} ...");
-					await DeleteBranchImpl(repositoryCommands, branch, false, false);
+					await DeleteBranchImpl(repositoryCommands, branch, false);
 				}
 
 				if (isRemote)
 				{
 					progress.SetText($"Delete remote branch {branch.Name} ...");
-					await DeleteBranchImpl(repositoryCommands, branch, true, !isLocal);
+					await DeleteBranchImpl(repositoryCommands, branch, true);
 				}
 
 				progress.SetText($"Updating status after delete {branch.Name} ...");
@@ -355,23 +355,22 @@ namespace GitMind.Features.Branching.Private
 		private async Task DeleteBranchImpl(
 			IRepositoryCommands repositoryCommands,
 			Branch branch,
-			bool isRemote,
-			bool isNoLongerLocal)
+			bool isRemote)
 		{
 			string workingFolder = repositoryCommands.WorkingFolder;
 			Window owner = repositoryCommands.Owner;
 			string text = isRemote ? "Remote" : "Local";
 
-			if (!IsBranchFullyMerged(branch, isRemote, isNoLongerLocal))
-			{
+			//if (!IsBranchFullyMerged(branch, isRemote, isNoLongerLocal))
+			//{
 				
-				if (!Message.ShowWarningAskYesNo(owner,
-					$"{text} branch '{branch.Name}' is not fully merged.\n" +
-					"Do you want to delete the branch anyway?"))
-				{
-					return;
-				}
-			}
+			//	if (!Message.ShowWarningAskYesNo(owner,
+			//		$"{text} branch '{branch.Name}' is not fully merged.\n" +
+			//		"Do you want to delete the branch anyway?"))
+			//	{
+			//		return;
+			//	}
+			//}
 
 			R deleted;
 			if (isRemote)
@@ -393,45 +392,6 @@ namespace GitMind.Features.Branching.Private
 					owner,
 					$"Failed to delete {text} branch '{branch.Name}'\n{deleted.Error.Exception.Message}");
 			}	
-		}
-
-
-		private bool IsBranchFullyMerged(Branch branch, bool isRemote, bool isNoLongerLocal)
-		{
-			if (branch.TipCommit.IsVirtual && branch.TipCommit.Id != Commit.UncommittedId)
-			{
-				// OK to delete branch, which is just a branch tip with a commit on another branch
-				return true;
-			}
-
-			if (isRemote && isNoLongerLocal)
-			{
-				return false;
-			}
-
-			Stack<Commit> stack = new Stack<Commit>();
-			stack.Push(branch.TipCommit);
-
-			while (stack.Any())
-			{
-				Commit commit = stack.Pop();
-
-				if ((commit.Branch.IsLocal && commit.Branch.IsRemote)
-					|| (commit.Branch != branch && commit.Branch.IsActive))
-				{
-					if (!(commit.Branch == branch && !isRemote && branch.LocalAheadCount > 0))
-					{
-						// The commit is on a branch that is both local and remote
-						// or the commit is on another active branch
-						// but branch has no unpublished local commits
-						return true;
-					}
-				}
-
-				commit.Children.ForEach(child => stack.Push(child));
-			}
-
-			return false;
 		}
 
 
@@ -480,5 +440,43 @@ namespace GitMind.Features.Branching.Private
 				}
 			}
 		}
+
+		//private bool IsBranchFullyMerged(Branch branch, bool isRemote, bool isNoLongerLocal)
+		//{
+		//	if (branch.TipCommit.IsVirtual && branch.TipCommit.Id != Commit.UncommittedId)
+		//	{
+		//		// OK to delete branch, which is just a branch tip with a commit on another branch
+		//		return true;
+		//	}
+
+		//	if (isRemote && isNoLongerLocal)
+		//	{
+		//		return false;
+		//	}
+
+		//	Stack<Commit> stack = new Stack<Commit>();
+		//	stack.Push(branch.TipCommit);
+
+		//	while (stack.Any())
+		//	{
+		//		Commit commit = stack.Pop();
+
+		//		if ((commit.Branch.IsLocal && commit.Branch.IsRemote)
+		//			|| (commit.Branch != branch && commit.Branch.IsActive))
+		//		{
+		//			if (!(commit.Branch == branch && !isRemote && branch.LocalAheadCount > 0))
+		//			{
+		//				// The commit is on a branch that is both local and remote
+		//				// or the commit is on another active branch
+		//				// but branch has no unpublished local commits
+		//				return true;
+		//			}
+		//		}
+
+		//		commit.Children.ForEach(child => stack.Push(child));
+		//	}
+
+		//	return false;
+		//}
 	}
 }
