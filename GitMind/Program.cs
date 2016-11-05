@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using Autofac;
-using Autofac.Core.Activators.Reflection;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Utils;
@@ -13,7 +10,7 @@ namespace GitMind
 {
 	public class Program
 	{
-		private IContainer container;
+		private readonly DependencyInjection dependencyInjection = new DependencyInjection();
 
 
 		[STAThread]
@@ -35,10 +32,10 @@ namespace GitMind
 			ActivateExternalDependenciesResolver();
 
 			// Activate dependency injection support
-			container = RegisterDependencyInjectionTypes();
+			dependencyInjection.RegisterDependencyInjectionTypes();
 
 			// Start application
-			App application = container.Resolve<App>();
+			App application = dependencyInjection.Resolve<App>();
 			ExceptionHandling.HandleDispatcherUnhandledException();
 			application.InitializeComponent();
 			application.Run();
@@ -55,54 +52,6 @@ namespace GitMind
 				// LibGit2 requires native git2.dll, which should not be extracted during install/uninstall
 				AssemblyResolver.DoNotExtractLibGit2();
 			}
-		}
-
-
-		private static IContainer RegisterDependencyInjectionTypes()
-		{
-			try
-			{
-				ContainerBuilder builder = new ContainerBuilder();
-
-				// Need to make Autofac find also "internal" constructors e.g. windows dialogs
-				DefaultConstructorFinder constructorFinder = new DefaultConstructorFinder(
-					type => type.GetConstructors(
-						BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
-
-				Assembly executingAssembly = Assembly.GetExecutingAssembly();
-
-				// Register single instance types
-				builder.RegisterAssemblyTypes(executingAssembly)
-					.Where(IsSingleInstance)
-					.FindConstructorsWith(constructorFinder)
-					.AsSelf()
-					.AsImplementedInterfaces()
-					.SingleInstance()
-					.OwnedByLifetimeScope();
-
-				// Register non single instance types
-				builder.RegisterAssemblyTypes(executingAssembly)
-					.Where(t => !IsSingleInstance(t))
-					.FindConstructorsWith(constructorFinder)
-					.AsSelf()
-					.AsImplementedInterfaces()
-					.OwnedByLifetimeScope();
-
-				return builder.Build();
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to register types {e}");
-				throw;
-			}
-		}
-
-
-		private static bool IsSingleInstance(Type type)
-		{
-			// All types that are marked with the "SingleInstance" attribute
-			return type.GetCustomAttributes(false).FirstOrDefault(
-				obj => obj.GetType().Name == "SingleInstanceAttribute") != null;
 		}
 
 

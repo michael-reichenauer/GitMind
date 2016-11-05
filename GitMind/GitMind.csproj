@@ -119,6 +119,7 @@
       <DependentUpon>ProgressDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
+    <Compile Include="Utils\DependencyInjection.cs" />
     <Compile Include="Features\Branching\Private\CrateBranchDialog.xaml.cs">
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>
     </Compile>
