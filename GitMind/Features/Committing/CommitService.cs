@@ -29,6 +29,7 @@ namespace GitMind.Features.Committing
 		private readonly Lazy<IRepositoryCommands> repositoryCommands;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
+		private readonly IProgressService progress;
 
 
 		public CommitService(
@@ -37,6 +38,7 @@ namespace GitMind.Features.Committing
 			Lazy<IRepositoryCommands> repositoryCommands,
 			IGitCommitsService gitCommitsService,
 			IDiffService diffService,
+			IProgressService progressService,
 			Func<
 				BranchName, 
 				IEnumerable<CommitFile>, 
@@ -50,6 +52,7 @@ namespace GitMind.Features.Committing
 			this.repositoryCommands = repositoryCommands;
 			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;
+			this.progress = progressService;
 		}
 
 
@@ -84,7 +87,7 @@ namespace GitMind.Features.Committing
 
 				if (dialog.ShowDialog() == true)
 				{
-					Progress.ShowDialog(owner, $"Commit current branch {branchName} ...", async () =>
+					progress.Show($"Commit current branch {branchName} ...", async () =>
 					{
 						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
 							workingFolder, dialog.CommitMessage, branchName, dialog.CommitFiles);
@@ -103,7 +106,7 @@ namespace GitMind.Features.Committing
 				}
 				else if (dialog.IsChanged)
 				{
-					Progress.ShowDialog(owner, "Updating status ...", async () =>
+					progress.Show("Updating status ...", async () =>
 					{
 						await repositoryCommands.Value.RefreshAfterCommandAsync(false);
 					});
@@ -118,7 +121,7 @@ namespace GitMind.Features.Committing
 
 		public Task UnCommitAsync(Commit commit)
 		{
-			Progress.ShowDialog(owner, $"Uncommit in {commit} ...", async progress =>
+			progress.Show($"Uncommit in {commit} ...", async state =>
 			{
 				R result = await gitCommitsService.UnCommitAsync(workingFolder);
 
@@ -127,7 +130,7 @@ namespace GitMind.Features.Committing
 					Message.ShowWarning(owner, $"Failed to uncommit.\n{result.Error.Exception.Message}");
 				}
 
-				progress.SetText("Update status after uncommit ...");
+				state.SetText("Update status after uncommit ...");
 				await repositoryCommands.Value.RefreshAfterCommandAsync(true);
 			});
 
@@ -143,7 +146,7 @@ namespace GitMind.Features.Committing
 
 		public Task UndoUncommittedFileAsync(string path)
 		{
-			Progress.ShowDialog(owner, $"Undo file change in {path} ...", async () =>
+			progress.Show($"Undo file change in {path} ...", async () =>
 			{
 				await gitCommitsService.UndoFileInWorkingFolderAsync(workingFolder, path);
 			});

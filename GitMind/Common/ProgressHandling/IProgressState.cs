@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Common.ProgressHandling
 {
-	internal interface IProgressWorker
+	internal interface IProgressState
 	{
 		Task DoAsync(Action<string> textSetter);
 	}

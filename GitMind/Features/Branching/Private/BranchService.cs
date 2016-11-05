@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Committing;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
@@ -27,6 +25,7 @@ namespace GitMind.Features.Branching.Private
 		private readonly ICommitService commitService;
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
+		private readonly IProgressService progress;
 		private readonly Lazy<IRepositoryCommands> lazyRepositoryCommands;
 
 
@@ -36,6 +35,7 @@ namespace GitMind.Features.Branching.Private
 			ICommitService commitService,
 			WorkingFolder workingFolder,
 			WindowOwner owner,
+			IProgressService progressService,
 			Lazy<IRepositoryCommands> repositoryCommands)
 		{
 			this.gitBranchService = gitBranchService;
@@ -43,6 +43,7 @@ namespace GitMind.Features.Branching.Private
 			this.commitService = commitService;
 			this.workingFolder = workingFolder;
 			this.owner = owner;
+			this.progress = progressService;
 			this.lazyRepositoryCommands = repositoryCommands;
 		}
 
@@ -66,8 +67,8 @@ namespace GitMind.Features.Branching.Private
 					BranchName branchName = dialog.BranchName;
 					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
 
-					Progress.ShowDialog(owner, $"Create branch {dialog.BranchName} ...", async progress =>
-					{					
+					progress.Show($"Create branch {dialog.BranchName} ...", async state =>
+					{
 						string commitId = commit.Id;
 						if (commitId == Commit.UncommittedId || commit.IsVirtual)
 						{
@@ -81,7 +82,7 @@ namespace GitMind.Features.Branching.Private
 
 							if (dialog.IsPublish)
 							{
-								progress.SetText($"Publish branch {dialog.BranchName}...");
+								state.SetText($"Publish branch {dialog.BranchName}...");
 
 								R publish = await gitNetworkService.PublishBranchAsync(
 									workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
@@ -99,7 +100,7 @@ namespace GitMind.Features.Branching.Private
 								owner, $"Failed to create branch {branchName}\n{result.Error.Exception.Message}");
 						}
 
-						progress.SetText($"Updating status after create branch {branchName} ...");
+						state.SetText($"Updating status after create branch {branchName} ...");
 						await repositoryCommands.RefreshAfterCommandAsync(true);
 					});
 				}
@@ -113,7 +114,7 @@ namespace GitMind.Features.Branching.Private
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				Progress.ShowDialog(owner, $"Publish branch {branch.Name} ...", async progress =>
+				progress.Show($"Publish branch {branch.Name} ...", async state =>
 				{
 					R publish = await gitNetworkService.PublishBranchAsync(
 						workingFolder, branch.Name, repositoryCommands.GetCredentialsHandler());
@@ -121,11 +122,11 @@ namespace GitMind.Features.Branching.Private
 					if (publish.IsFaulted)
 					{
 						Message.ShowWarning(
-							owner, 
+							owner,
 							$"Failed to publish the branch {branch.Name}.\n{publish.Error.Exception.Message}");
 					}
 
-					progress.SetText($"Updating status after publish {branch.Name} ...");
+					state.SetText($"Updating status after publish {branch.Name} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(false);
 				});
 			}
@@ -136,7 +137,7 @@ namespace GitMind.Features.Branching.Private
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				Progress.ShowDialog(owner, $"Push branch {branch.Name} ...", async progress =>
+				progress.Show($"Push branch {branch.Name} ...", async state =>
 				{
 					R result = await gitNetworkService.PushBranchAsync(
 						workingFolder, branch.Name, repositoryCommands.GetCredentialsHandler());
@@ -144,11 +145,11 @@ namespace GitMind.Features.Branching.Private
 					if (result.IsFaulted)
 					{
 						Message.ShowWarning(
-							owner, 
+							owner,
 							$"Failed to push the branch {branch.Name}.\n{result.Error.Exception.Message}");
 					}
 
-					progress.SetText($"Updating status after push {branch.Name} ...");
+					state.SetText($"Updating status after push {branch.Name} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(true);
 				});
 			}
@@ -159,10 +160,10 @@ namespace GitMind.Features.Branching.Private
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				Progress.ShowDialog(owner, $"Update branch {branch.Name} ...", async progress =>
+				progress.Show($"Update branch {branch.Name} ...", async state =>
 				{
 					R result;
-					if (branch == branch.Repository.CurrentBranch || 
+					if (branch == branch.Repository.CurrentBranch ||
 						branch.IsMainPart && branch.LocalSubBranch == branch.Repository.CurrentBranch)
 					{
 						Log.Debug("Update current branch");
@@ -181,11 +182,11 @@ namespace GitMind.Features.Branching.Private
 					if (result.IsFaulted)
 					{
 						Message.ShowWarning(
-							owner, 
+							owner,
 							$"Failed to update the branch {branch.Name}.\n{result.Error.Exception.Message}");
 					}
 
-					progress.SetText($"Updating status after update {branch.Name} ...");
+					state.SetText($"Updating status after update {branch.Name} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(false);
 				});
 			}
@@ -196,7 +197,7 @@ namespace GitMind.Features.Branching.Private
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				Progress.ShowDialog(owner, $"Switch to branch {branch.Name} ...", async progress =>
+				progress.Show($"Switch to branch {branch.Name} ...", async state =>
 				{
 					R result = await gitBranchService.SwitchToBranchAsync(workingFolder, branch.Name);
 					if (result.IsFaulted)
@@ -204,7 +205,7 @@ namespace GitMind.Features.Branching.Private
 						Message.ShowWarning(owner, $"Failed to switch,\n{result.Error.Exception.Message}");
 					}
 
-					progress.SetText($"Updating status after switch to {branch.Name} ...");
+					state.SetText($"Updating status after switch to {branch.Name} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(true);
 				});
 
@@ -234,7 +235,7 @@ namespace GitMind.Features.Branching.Private
 					return Task.CompletedTask;
 				}
 
-				Progress.ShowDialog(owner, "Switch to commit ...", async progress =>
+				progress.Show("Switch to commit ...", async state =>
 				{
 					BranchName branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
 
@@ -252,9 +253,9 @@ namespace GitMind.Features.Branching.Private
 							owner,
 							$"Failed to switch to the branch {branchName}.\n{switchedNamed.Error.Exception.Message}");
 						repositoryCommands.ShowBranch(null);
-					}	
+					}
 
-					progress.SetText("Updating status after switch to commit ...");
+					state.SetText("Updating status after switch to commit ...");
 					await repositoryCommands.RefreshAfterCommandAsync(true);
 				});
 
@@ -319,21 +320,21 @@ namespace GitMind.Features.Branching.Private
 			bool isLocal,
 			bool isRemote)
 		{
-			Progress.ShowDialog(owner, async progress =>
+			progress.Show(async state =>
 			{
 				if (isLocal)
 				{
-					progress.SetText($"Delete local branch {branch.Name} ...");
+					state.SetText($"Delete local branch {branch.Name} ...");
 					await DeleteBranchImpl(branch, false, false);
 				}
 
 				if (isRemote)
 				{
-					progress.SetText($"Delete remote branch {branch.Name} ...");
+					state.SetText($"Delete remote branch {branch.Name} ...");
 					await DeleteBranchImpl(branch, true, !isLocal);
 				}
 
-				progress.SetText($"Updating status after delete {branch.Name} ...");
+				state.SetText($"Updating status after delete {branch.Name} ...");
 				await repositoryCommands.RefreshAfterCommandAsync(true);
 			});
 		}
@@ -347,7 +348,7 @@ namespace GitMind.Features.Branching.Private
 
 			if (!IsBranchFullyMerged(branch, isRemote, isNoLongerLocal))
 			{
-				
+
 				if (!Message.ShowWarningAskYesNo(owner,
 					$"{text} branch '{branch.Name}' is not fully merged.\n" +
 					"Do you want to delete the branch anyway?"))
@@ -368,14 +369,14 @@ namespace GitMind.Features.Branching.Private
 			{
 				deleted = await gitBranchService.DeleteLocalBranchAsync(workingFolder, branch.Name);
 			}
-		
+
 
 			if (deleted.IsFaulted)
 			{
 				Message.ShowWarning(
 					owner,
 					$"Failed to delete {text} branch '{branch.Name}'\n{deleted.Error.Exception.Message}");
-			}	
+			}
 		}
 
 
@@ -437,13 +438,12 @@ namespace GitMind.Features.Branching.Private
 				}
 
 				Branch currentBranch = branch.Repository.CurrentBranch;
-				Progress.ShowDialog(owner, $"Merge branch {branch.Name} into {currentBranch.Name} ...",
-					async progress =>
+				progress.Show($"Merge branch {branch.Name} into {currentBranch.Name} ...", async text =>
 				{
 					await gitBranchService.MergeAsync(workingFolder, branch.Name);
 
 					repositoryCommands.SetCurrentMerging(branch);
-					progress.SetText(
+					text.SetText(
 						$"Updating status after merge {branch.Name} into {currentBranch.Name} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(false);
 				});

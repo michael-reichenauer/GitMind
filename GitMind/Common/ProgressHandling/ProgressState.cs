@@ -7,14 +7,14 @@ using GitMind.Utils;
 
 namespace GitMind.Common.ProgressHandling
 {
-	public class Progress : IProgressWorker
+	internal class ProgressState : IProgressState
 	{
-		private readonly Func<Progress, Task<object>> progressAction;
+		private readonly Func<ProgressState, Task<object>> progressAction;
 		private object result;
 		private Exception exception;
 		private Action<string> progressTextSetter;
 
-		private Progress(Func<Progress, Task<object>> progressAction)
+		private ProgressState(Func<ProgressState, Task<object>> progressAction)
 		{
 			this.progressAction = progressAction;
 		}
@@ -27,7 +27,7 @@ namespace GitMind.Common.ProgressHandling
 		}
 
 
-		async Task IProgressWorker.DoAsync(Action<string> textSetter)
+		async Task IProgressState.DoAsync(Action<string> textSetter)
 		{
 			progressTextSetter = textSetter;
 			try
@@ -38,7 +38,7 @@ namespace GitMind.Common.ProgressHandling
 			{
 				Log.Warn($"Exception {e}");
 				exception = e;
-			}			
+			}
 		}
 
 
@@ -54,7 +54,7 @@ namespace GitMind.Common.ProgressHandling
 				});
 		}
 
-		public static void ShowDialog(Window owner, Func<Progress, Task> progressAction)
+		public static void ShowDialog(Window owner, Func<ProgressState, Task> progressAction)
 		{
 			ShowImpl(
 				owner,
@@ -67,7 +67,7 @@ namespace GitMind.Common.ProgressHandling
 		}
 
 
-		public static void ShowDialog(Window owner, string text, Func<Progress, Task> progressAction)
+		public static void ShowDialog(Window owner, string text, Func<ProgressState, Task> progressAction)
 		{
 			ShowImpl(
 				owner,
@@ -86,13 +86,13 @@ namespace GitMind.Common.ProgressHandling
 		}
 
 
-		public static T ShowDialog<T>(Window owner, Func<Progress, Task<T>> progressAction)
+		public static T ShowDialog<T>(Window owner, Func<ProgressState, Task<T>> progressAction)
 		{
 			return ShowDialog(owner, null, async progress => await progressAction(progress));
 		}
 
 
-		public static T ShowDialog<T>(Window owner, string text, Func<Progress, Task<T>> progressAction)
+		public static T ShowDialog<T>(Window owner, string text, Func<ProgressState, Task<T>> progressAction)
 		{
 			return (T)ShowImpl(
 				owner,
@@ -101,22 +101,22 @@ namespace GitMind.Common.ProgressHandling
 		}
 
 
-		private static object ShowImpl(
-			Window owner, string text, Func<Progress, Task<object>> progressAction)
+		public static object ShowImpl(
+			Window owner, string text, Func<ProgressState, Task<object>> progressAction)
 		{
 			Log.Debug($"Progress status: {text}");
-			Progress progress = new Progress(progressAction);
+			ProgressState progressState = new ProgressState(progressAction);
 
-			ProgressDialog progressDialog = new ProgressDialog(owner, text, progress);
+			ProgressDialog progressDialog = new ProgressDialog(owner, text, progressState);
 			progressDialog.ShowDialog();
 
 			Log.Debug("Progress done");
-			if (progress.exception != null)
+			if (progressState.exception != null)
 			{
-				ExceptionDispatchInfo.Capture(progress.exception).Throw();
+				ExceptionDispatchInfo.Capture(progressState.exception).Throw();
 			}
 
-			return progress.result;
+			return progressState.result;
 		}
 	}
 }
