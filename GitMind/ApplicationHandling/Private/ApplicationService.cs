@@ -15,7 +15,7 @@ namespace GitMind.ApplicationHandling.Private
 	{
 		private readonly IDiffService diffService;
 		private readonly ILatestVersionService latestVersionService;
-		private readonly IWorkingFolderService workingFolderService;
+		private readonly WorkingFolder workingFolder;
 		private readonly ICommandLine commandLine;
 	
 
@@ -27,12 +27,12 @@ namespace GitMind.ApplicationHandling.Private
 			ICommandLine commandLine, 
 			IDiffService diffService,
 			ILatestVersionService latestVersionService,
-			IWorkingFolderService workingFolderService)
+			WorkingFolder workingFolder)
 		{
 			this.commandLine = commandLine;
 			this.diffService = diffService;
 			this.latestVersionService = latestVersionService;
-			this.workingFolderService = workingFolderService;
+			this.workingFolder = workingFolder;
 		}
 
 
@@ -56,7 +56,7 @@ namespace GitMind.ApplicationHandling.Private
 		{
 			try
 			{
-				string id = MainWindowIpcService.GetId(workingFolderService.WorkingFolder);
+				string id = MainWindowIpcService.GetId(workingFolder);
 				using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 				{
 					if (!ipcRemotingService.TryCreateServer(id))
@@ -87,7 +87,7 @@ namespace GitMind.ApplicationHandling.Private
 		{
 			if (commandLine.IsShowDiff)
 			{
-				diffService.ShowDiff(Commit.UncommittedId, workingFolderService.WorkingFolder);
+				diffService.ShowDiff(Commit.UncommittedId, workingFolder);
 			}
 		}
 

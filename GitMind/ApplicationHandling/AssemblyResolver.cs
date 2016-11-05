@@ -10,10 +10,18 @@ namespace GitMind.ApplicationHandling
 	{
 		private static readonly string GitBinaryDll = "git2-785d8c4.dll";
 
+		private static bool shouldExtractLibGit2 = true;
+
 
 		public static void Activate()
 		{
 			AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+		}
+
+
+		public static void DoNotExtractLibGit2()
+		{
+			shouldExtractLibGit2 = false;
 		}
 
 
@@ -26,7 +34,7 @@ namespace GitMind.ApplicationHandling
 				string resolveName = args.Name.Split(',')[0];
 				string resourceName = $"{name}.Dependencies.{resolveName}.dll";
 				
-				if (resolveName == "LibGit2Sharp")
+				if (resolveName == "LibGit2Sharp" && shouldExtractLibGit2)
 				{				
 					HandleLibGit2SharpDependency(executingAssembly, name);
 				}

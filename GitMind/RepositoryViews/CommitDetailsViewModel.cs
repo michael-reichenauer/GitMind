@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Media;
 using GitMind.Features.Committing;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -16,19 +15,25 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitDetailsViewModel : ViewModel
 	{
-		private readonly ICommitService commitService = new CommitService();
-		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
+		private readonly ICommitService commitService;
+		private readonly IGitCommitsService gitCommitsService;
 		private readonly IRepositoryCommands repositoryCommands;
 
 		private readonly ObservableCollection<CommitFileViewModel> files =
 			new ObservableCollection<CommitFileViewModel>();
+
 		private string filesCommitId = null;
 		private CommitViewModel commitViewModel;
 
 
-		public CommitDetailsViewModel(IRepositoryCommands repositoryCommands)
+		public CommitDetailsViewModel(
+			IRepositoryCommands repositoryCommands,
+			ICommitService commitService,
+			IGitCommitsService gitCommitsService)
 		{
 			this.repositoryCommands = repositoryCommands;
+			this.commitService = commitService;
+			this.gitCommitsService = gitCommitsService;
 		}
 
 
@@ -62,7 +67,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (CommitViewModel != null)
 			{
-				if (filesCommitId != CommitViewModel.Commit.CommitId 
+				if (filesCommitId != CommitViewModel.Commit.CommitId
 					|| filesCommitId == Commit.UncommittedId)
 				{
 					files.Clear();
@@ -151,7 +156,7 @@ namespace GitMind.RepositoryViews
 			else
 			{
 				return 0;
-			}			
+			}
 		}
 	}
 }

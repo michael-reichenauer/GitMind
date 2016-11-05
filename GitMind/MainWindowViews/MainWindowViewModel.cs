@@ -20,32 +20,34 @@ using Application = System.Windows.Application;
 
 namespace GitMind.MainWindowViews
 {
+	[SingleInstance]
 	internal class MainWindowViewModel : ViewModel
 	{
-		private readonly ILatestVersionService latestVersionService = new LatestVersionService();
+		private readonly ILatestVersionService latestVersionService;
+		private readonly IMainWindowService mainWindowService;
 		private readonly FolderMonitorService folderMonitor;
 		private readonly JumpListService jumpListService = new JumpListService();
 
 		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
-		private readonly IWorkingFolderService workingFolderService;
-		private readonly Window owner;
-		private readonly Action setSearchFocus;
-		private readonly Action setRepositoryViewFocus;
+		private readonly WorkingFolder workingFolder;
+
 		private bool isLoaded = false;
 
 
 		internal MainWindowViewModel(
-			IWorkingFolderService workingFolderService,
-			Window owner,
-			Action setSearchFocus,
-			Action setRepositoryViewFocus)
+			WorkingFolder workingFolder,
+			ILatestVersionService latestVersionService,
+			IMainWindowService mainWindowService,
+			Func<BusyIndicator, RepositoryViewModel> RepositoryViewModelProvider)
 		{
-			RepositoryViewModel = new RepositoryViewModel(owner, Busy);
-			this.workingFolderService = workingFolderService;
-			this.owner = owner;
-			this.setSearchFocus = setSearchFocus;
-			this.setRepositoryViewFocus = setRepositoryViewFocus;
+			this.workingFolder = workingFolder;
+			this.latestVersionService = latestVersionService;
+			this.mainWindowService = mainWindowService;
+
+			RepositoryViewModel = RepositoryViewModelProvider(Busy);
 			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
+
+			workingFolder.OnChange += (s, e) => Notify(nameof(WorkingFolder));
 		}
 
 
@@ -58,46 +60,47 @@ namespace GitMind.MainWindowViews
 			set { Set(value); }
 		}
 
-
-		public string WorkingFolder
-		{
-			get { return Get(); }
-			set
-			{
-				if (Set(value).IsSet)
-				{
-					if (ipcRemotingService != null)
-					{
-						ipcRemotingService.Dispose();
-					}
-
-					ipcRemotingService = new IpcRemotingService();
-
-					string id = MainWindowIpcService.GetId(value);
-					if (ipcRemotingService.TryCreateServer(id))
-					{
-						ipcRemotingService.PublishService(new MainWindowIpcService(this));
-					}
-					else
-					{
-						// Another GitMind instance for that working folder is already running, activate that.
-						ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(null));
-						Application.Current.Shutdown(0);
-						ipcRemotingService.Dispose();
-						return;
-					}
-
-					jumpListService.Add(value);
-					RepositoryViewModel.WorkingFolder = value;
-					folderMonitor.Monitor(value);
-					Notify(nameof(Title));
-				}
-			}
-		}
+		public string WorkingFolder => workingFolder;
+	
 
 
-		public string Title => WorkingFolder != null
-		? $"{Path.GetFileName(WorkingFolder)} - GitMind" : "GitMind";
+		//public string WorkingFolder
+		//{
+		//	get { return Get(); }
+		//	set
+		//	{
+		//		if (Set(value).IsSet)
+		//		{
+		//			if (ipcRemotingService != null)
+		//			{
+		//				ipcRemotingService.Dispose();
+		//			}
+
+		//			ipcRemotingService = new IpcRemotingService();
+
+		//			string id = MainWindowIpcService.GetId(value);
+		//			if (ipcRemotingService.TryCreateServer(id))
+		//			{
+		//				ipcRemotingService.PublishService(new MainWindowIpcService(this));
+		//			}
+		//			else
+		//			{
+		//				// Another GitMind instance for that working folder is already running, activate that.
+		//				ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(null));
+		//				Application.Current.Shutdown(0);
+		//				ipcRemotingService.Dispose();
+		//				return;
+		//			}
+
+		//			jumpListService.Add(value);
+		//			folderMonitor.Monitor(value);
+		//			Notify(nameof(Title));
+		//		}
+		//	}
+		//}
+
+
+		public string Title => $"{workingFolder.Name} - GitMind";
 
 
 		public string SearchBox
@@ -163,18 +166,10 @@ namespace GitMind.MainWindowViews
 		public Command SearchCommand => Command(Search);
 
 
-
-
 		public async Task FirstLoadAsync()
 		{
-			R<string> path = ProgramPaths.GetWorkingFolderPath(WorkingFolder);
-			if (path.HasValue)
+			if (workingFolder.IsValid)
 			{
-				WorkingFolder = path.Value;
-				ProgramSettings settings = Settings.Get<ProgramSettings>();
-				settings.LastUsedWorkingFolder = path.Value;
-				Settings.Set(settings);
-
 				await RepositoryViewModel.FirstLoadAsync();
 				isLoaded = true;
 			}
@@ -184,14 +179,11 @@ namespace GitMind.MainWindowViews
 					DispatcherPriority.Normal,
 					new Action(async () =>
 					{
-						string selectedPath;
-						if (!GetWorkingFolder(WorkingFolder, out selectedPath))
+						if (!TryLetUserSelectWorkingFolder())
 						{
 							Application.Current.Shutdown(0);
 							return;
 						}
-
-						WorkingFolder = selectedPath;
 
 						await RepositoryViewModel.FirstLoadAsync();
 						isLoaded = true;
@@ -227,7 +219,7 @@ namespace GitMind.MainWindowViews
 
 		private void Search()
 		{
-			setSearchFocus();
+			mainWindowService.SetSearchFocus();
 		}
 
 
@@ -262,12 +254,12 @@ namespace GitMind.MainWindowViews
 			if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
-				setRepositoryViewFocus();
+				mainWindowService.SetRepositoryViewFocus();
 			}
 			else if (RepositoryViewModel.IsShowCommitDetails)
 			{
 				RepositoryViewModel.IsShowCommitDetails = false;
-				setRepositoryViewFocus();
+				mainWindowService.SetRepositoryViewFocus();
 			}
 			else
 			{
@@ -363,7 +355,6 @@ namespace GitMind.MainWindowViews
 		}
 
 
-
 		private void OpenHelp()
 		{
 			try
@@ -383,7 +374,7 @@ namespace GitMind.MainWindowViews
 			if (!string.IsNullOrWhiteSpace(SearchBox))
 			{
 				SearchBox = "";
-				setRepositoryViewFocus();
+				mainWindowService.SetRepositoryViewFocus();
 			}
 		}
 
@@ -391,61 +382,48 @@ namespace GitMind.MainWindowViews
 		private async void SelectWorkingFolder()
 		{
 			isLoaded = false;
-			string selectedPath;
-			if (!GetWorkingFolder(WorkingFolder, out selectedPath))
+
+			if (!TryLetUserSelectWorkingFolder())
 			{
 				isLoaded = true;
 				return;
 			}
-
-			WorkingFolder = selectedPath;
 
 			await RepositoryViewModel.FirstLoadAsync();
 			isLoaded = true;
 		}
 
 
-		public bool GetWorkingFolder(string currentFolder, out string selectedPath)
+		public bool TryLetUserSelectWorkingFolder()
 		{
-			selectedPath = null;
-
 			while (true)
 			{
 				var dialog = new FolderBrowserDialog();
 				dialog.Description = "Select a working folder with a valid git repository.";
 				dialog.ShowNewFolderButton = false;
 				dialog.RootFolder = Environment.SpecialFolder.MyComputer;
-				if (currentFolder != null)
+
+				if (workingFolder.HasValue)
 				{
-					dialog.SelectedPath = currentFolder;
+					dialog.SelectedPath = workingFolder;
 				}
 
-
-				if (dialog.ShowDialog(owner.GetIWin32Window()) != DialogResult.OK)
+				if (dialog.ShowDialog(mainWindowService.Owner.GetIWin32Window()) != DialogResult.OK)
 				{
-					Log.Warn("User canceled selecting a Working folder");
+					Log.Debug("User canceled selecting a Working folder");
 					return false;
 				}
 
-
-				R<string> workingFolder = ProgramPaths.GetWorkingFolderPath(dialog.SelectedPath);
-				if (workingFolder.HasValue)
+				if (workingFolder.TrySetPath(dialog.SelectedPath))
 				{
-					Log.Debug($"User selected valid {workingFolder.Value}");
-					selectedPath = workingFolder.Value;
-					break;
+					Log.Debug($"User selected valid '{dialog.SelectedPath}' in root '{workingFolder}'");
+					return true;
 				}
 				else
 				{
-					Log.Warn($"User selected an invalid working folder: {dialog.SelectedPath}");
+					Log.Debug($"User selected an invalid working folder: {dialog.SelectedPath}");
 				}
 			}
-
-			Log.Info($"Setting working folder '{selectedPath}'");
-			ProgramSettings settings = Settings.Get<ProgramSettings>();
-			settings.LastUsedWorkingFolder = selectedPath;
-			Settings.Set(settings);
-			return true;
 		}
 
 

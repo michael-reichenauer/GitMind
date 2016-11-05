@@ -35,15 +35,9 @@ namespace GitMind.ApplicationHandling.Installation
 		private readonly ICmd cmd;
 
 
-		public Installer(ICommandLine commandLine)
-			: this(new Cmd())
+		public Installer(ICommandLine commandLine, ICmd cmd)
 		{
 			this.commandLine = commandLine;
-		}
-
-
-		public Installer(ICmd cmd)
-		{
 			this.cmd = cmd;
 		}
 

@@ -16,9 +16,22 @@ namespace GitMind.RepositoryViews
 	/// </summary>
 	internal class ViewModelService : IViewModelService
 	{
-		private readonly IBrushService brushService = new BrushService();
 		private static readonly int CommitHeight = Converters.ToY(1);
 
+		private readonly IBrushService brushService;
+		private readonly Func<IRepositoryCommands, CommitViewModel> commitViewModelProvider;
+		private readonly Func<IRepositoryCommands, BranchViewModel> branchViewModelProvider;
+
+
+		public ViewModelService(
+			IBrushService brushService,
+			Func<IRepositoryCommands, CommitViewModel> commitViewModelProvider,
+			Func<IRepositoryCommands, BranchViewModel> branchViewModelProvider)
+		{
+			this.brushService = brushService;
+			this.commitViewModelProvider = commitViewModelProvider;
+			this.branchViewModelProvider = branchViewModelProvider;
+		}
 
 		public void UpdateViewModel(RepositoryViewModel repositoryViewModel)
 		{
@@ -457,14 +470,8 @@ namespace GitMind.RepositoryViews
 			List<CommitViewModel> commits = repositoryViewModel.Commits;
 			var commitsById = repositoryViewModel.CommitsById;
 
-			SetNumberOfItems(commits, sourceCommits.Count, i => new CommitViewModel(
-				repositoryViewModel,
-				repositoryViewModel.ToggleDetailsCommand,
-				repositoryViewModel.ShowDiffCommand,
-				repositoryViewModel.SetBranchCommand,
-				repositoryViewModel.UndoCleanWorkingFolderCommand,
-				repositoryViewModel.UndoUncommittedChangesCommand,
-				repositoryViewModel.UncommitCommand));
+			SetNumberOfItems(commits, sourceCommits.Count, i => commitViewModelProvider(
+				repositoryViewModel));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
@@ -517,14 +524,8 @@ namespace GitMind.RepositoryViews
 			int maxColumn = 0;
 			var branches = repositoryViewModel.Branches;
 
-			SetNumberOfItems(branches, sourceBranches.Count, i => new BranchViewModel(
-				repositoryViewModel,
-				repositoryViewModel.ShowBranchCommand,
-				repositoryViewModel.MergeBranchCommand,
-				repositoryViewModel.DeleteBranchCommand,
-				repositoryViewModel.PublishBranchCommand,
-				repositoryViewModel.PushBranchCommand,
-				repositoryViewModel.UpdateBranchCommand));
+			SetNumberOfItems(branches, sourceBranches.Count, i => branchViewModelProvider(
+				repositoryViewModel));
 
 			int index = 0;
 			List<BranchViewModel> addedBranchColumns = new List<BranchViewModel>();

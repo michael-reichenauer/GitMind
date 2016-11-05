@@ -25,7 +25,7 @@ namespace GitMind.MainWindowViews
 
 		public void Activate(string[] args)
 		{
-			CommandLine commandLine = new CommandLine(args);
+			CommandLine commandLine = new CommandLine();
 
 			Application.Current.Dispatcher.InvokeAsync(() =>
 			{
@@ -33,7 +33,7 @@ namespace GitMind.MainWindowViews
 				Application.Current.MainWindow.Activate();
 				Application.Current.MainWindow.WindowState = WindowState.Normal;
 
-				if (commandLine.IsCommit)
+				if (commandLine.IsCommitCommand(args))
 				{
 					Log.Usage("Activated and commit");
 					if (mainWindowViewModel.RepositoryViewModel.CommitCommand.CanExecute())

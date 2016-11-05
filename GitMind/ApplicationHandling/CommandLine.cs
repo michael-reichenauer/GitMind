@@ -3,24 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using GitMind.Utils;
 
 
 namespace GitMind.ApplicationHandling
 {
+	[SingleInstance]
 	internal class CommandLine : ICommandLine
 	{
-		private readonly Lazy<IReadOnlyList<string>> lazyBranchNames;
+		private readonly Lazy<IReadOnlyList<string>> lazyBranchNames = null;
 		private readonly string[] args;
 
+
 		public CommandLine()
-			: this(Environment.GetCommandLineArgs())
 		{
-		}
-
-
-		public CommandLine(string[] args)
-		{
-			this.args = args;
+			this.args = Environment.GetCommandLineArgs();
 			lazyBranchNames = new Lazy<IReadOnlyList<string>>(GetBranchNames);
 		}
 
@@ -36,6 +33,13 @@ namespace GitMind.ApplicationHandling
 		public bool IsShowDiff => args.Length > 1 && args[1] == "diff";
 
 		public bool IsCommit => args.Length > 1 && args[1] == "commit";
+
+
+		public bool IsCommitCommand(string[] instanceArgs)
+		{
+			return instanceArgs.Length > 1 && instanceArgs[1] == "commit";
+		}
+
 
 		public bool IsTest => args.Contains("/test");
 

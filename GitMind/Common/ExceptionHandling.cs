@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Utils;
+using GitMind.Utils.UI;
 
 
 namespace GitMind.Common
@@ -16,24 +17,17 @@ namespace GitMind.Common
 
 		private static readonly ICmd cmd = new Cmd();
 
+
 		private static bool hasDisplayedErrorMessageBox;
 		private static bool hasFailed;
 		private static bool hasShutdown;
-		public static DateTime StartTime;
-		
+		private static DateTime StartTime = DateTime.Now;
+		private static bool IsDispatcherInitialized = false;
 
 
-		public static void Init()
+
+		public static void HandleUnhandledException()
 		{
-			StartTime = DateTime.Now;
-
-			// Add the event handler for handling UI thread exceptions to the event		
-			Application.Current.DispatcherUnhandledException += (s, e) =>
-			{
-				HandleException("dispatcher exception", e.Exception);
-				e.Handled = true;
-			};
-
 			// Add the event handler for handling non-UI thread exceptions to the event. 
 			AppDomain.CurrentDomain.UnhandledException += (s, e) =>
 			{
@@ -47,6 +41,22 @@ namespace GitMind.Common
 				e.SetObserved();
 			};
 		}
+
+
+		public static void HandleDispatcherUnhandledException()
+		{
+			// Add the event handler for handling UI thread exceptions to the event		
+			Application.Current.DispatcherUnhandledException += (s, e) =>
+			{
+				HandleException("dispatcher exception", e.Exception);
+				e.Handled = true;
+			};
+
+			WpfBindingTraceListener.Register();
+
+			IsDispatcherInitialized = true;
+		}
+
 
 
 		private static void HandleException(string errorType, Exception exception)
@@ -84,14 +94,17 @@ namespace GitMind.Common
 			string errorMessage = $"{message}:\n{e}";
 			Log.Error(errorMessage);
 
-			var dispatcher = GetApplicationDispatcher();
-			if (dispatcher.CheckAccess())
+			if (IsDispatcherInitialized)
 			{
-				ShowExceptionDialog(e);
-			}
-			else
-			{
-				dispatcher.Invoke(() => ShowExceptionDialog(e));
+				var dispatcher = GetApplicationDispatcher();
+				if (dispatcher.CheckAccess())
+				{
+					ShowExceptionDialog(e);
+				}
+				else
+				{
+					dispatcher.Invoke(() => ShowExceptionDialog(e));
+				}
 			}
 
 			if (Debugger.IsAttached)
@@ -104,7 +117,14 @@ namespace GitMind.Common
 				Restart();
 			}
 
-			Application.Current.Shutdown(0);
+			if (IsDispatcherInitialized)
+			{
+				Application.Current.Shutdown(0);
+			}
+			else
+			{
+				throw new Exception($"Unhandled exception {message}", e);
+			}
 		}
 
 

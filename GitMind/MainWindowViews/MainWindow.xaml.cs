@@ -16,9 +16,10 @@ namespace GitMind.MainWindowViews
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
+	[SingleInstance]
 	public partial class MainWindow : Window
 	{
-		private readonly IWorkingFolderService workingFolderService;
+		private readonly WorkingFolder workingFolder;
 		private readonly ICommandLine commandLine;
 		private static readonly TimeSpan remoteCheckInterval = TimeSpan.FromMinutes(10);
 
@@ -28,29 +29,26 @@ namespace GitMind.MainWindowViews
 
 
 		internal MainWindow(
-			IWorkingFolderService workingFolderService,
+			WorkingFolder workingFolder,
 			ICommandLine commandLine,
-			Func<MainWindow, Action, Action, MainWindowViewModel> mainWindowViewModelProvider)
+			Func<MainWindowViewModel> mainWindowViewModelProvider)
 		{
-			this.workingFolderService = workingFolderService;
+			this.workingFolder = workingFolder;
 			this.commandLine = commandLine;
 
 			InitializeComponent();
-
+				
 			SetShowToolTipLonger();
 
 			// Make sure maximize window does not cover the task bar
 			MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 8;
 
-			viewModel = mainWindowViewModelProvider(
-				this,
-				() => Search.SearchBox.Focus(),
-				() => RepositoryView.ItemsListBox.Focus());
+			viewModel = mainWindowViewModelProvider();
 			DataContext = viewModel;
 
 			Activate();
 
-			RestoreWindowSettings(workingFolderService.WorkingFolder);
+			RestoreWindowSettings(workingFolder);
 			SetBranchNames();
 		}
 
@@ -69,10 +67,21 @@ namespace GitMind.MainWindowViews
 		}
 
 
-
 		public bool IsNewVersionAvailable
 		{
 			set { viewModel.IsNewVersionVisible = value; }
+		}
+
+
+		public void SetSearchFocus()
+		{
+			Search.SearchBox.Focus();
+		}
+
+
+		public void SetRepositoryViewFocus()
+		{
+			RepositoryView.ItemsListBox.Focus();
 		}
 
 
@@ -80,7 +89,7 @@ namespace GitMind.MainWindowViews
 		{
 			await viewModel.FirstLoadAsync();
 
-			StartRemoteCheck();		
+			StartRemoteCheck();
 		}
 
 
@@ -171,7 +180,7 @@ namespace GitMind.MainWindowViews
 
 		private void StoreWindowSettings()
 		{
-			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolderService.WorkingFolder);
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
 
 			settings.Top = Top;
 			settings.Left = Left;
@@ -185,8 +194,9 @@ namespace GitMind.MainWindowViews
 				.Distinct()
 				.ToList();
 
-			Settings.SetWorkFolderSetting(workingFolderService.WorkingFolder, settings);
+			Settings.SetWorkFolderSetting(workingFolder, settings);
 		}
+
 
 		private void RestoreWindowSettings(string workingFolder)
 		{
@@ -204,7 +214,7 @@ namespace GitMind.MainWindowViews
 
 		private IReadOnlyList<string> RestoreShownBranches()
 		{
-			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolderService.WorkingFolder);
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
 			return settings.ShownBranches;
 		}
 
@@ -212,7 +222,7 @@ namespace GitMind.MainWindowViews
 		private void StoreLasteUsedFolder()
 		{
 			ProgramSettings settings = Settings.Get<ProgramSettings>();
-			settings.LastUsedWorkingFolder = workingFolderService.WorkingFolder;
+			settings.LastUsedWorkingFolder = workingFolder;
 			Settings.Set(settings);
 		}
 

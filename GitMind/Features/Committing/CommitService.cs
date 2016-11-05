@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
@@ -15,20 +16,35 @@ namespace GitMind.Features.Committing
 {
 	internal class CommitService : ICommitService
 	{
+		private readonly Func<
+			Window,
+			IRepositoryCommands,
+			BranchName,
+			IEnumerable<CommitFile>,
+			string,
+			bool,
+			CommitDialog> commitDialogProvider;
+
+		private readonly WorkingFolder workingFolder;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
 
 
-		public CommitService()
-			: this(new GitCommitsService(), new DiffService())
-		{
-		}
-
-
 		public CommitService(
+			WorkingFolder workingFolder,
 			IGitCommitsService gitCommitsService,
-			IDiffService diffService)
+			IDiffService diffService,
+			Func<
+				Window, 
+				IRepositoryCommands, 
+				BranchName, 
+				IEnumerable<CommitFile>, 
+				string,
+				bool,
+				CommitDialog> commitDialogProvider)
 		{
+			this.commitDialogProvider = commitDialogProvider;
+			this.workingFolder = workingFolder;
 			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;
 		}
@@ -39,13 +55,12 @@ namespace GitMind.Features.Committing
 			Window owner = repositoryCommands.Owner;
 			Repository repository = repositoryCommands.Repository;
 			BranchName branchName = repository.CurrentBranch.Name;
-			string workingFolder = repositoryCommands.WorkingFolder;
 
 			using (repositoryCommands.DisableStatus())
 			{
 				if (repository.CurrentBranch.IsDetached)
 				{
-					Message.ShowInfo(owner, 
+					Message.ShowInfo(owner,
 						"Current branch is in detached head status.\n" +
 						"You must first create or switch to branch before commit.");
 					return;
@@ -56,14 +71,13 @@ namespace GitMind.Features.Committing
 				{
 					commitFiles = await repositoryCommands.UnCommited.FilesTask;
 				}
-			
+
 				string commitMessage = repository.Status.Message;
 
-				CommitDialog dialog = new CommitDialog(
+				CommitDialog dialog = commitDialogProvider(
 					owner,
 					repositoryCommands,
 					branchName,
-					workingFolder,
 					commitFiles,
 					commitMessage,
 					repository.Status.IsMerging);
@@ -105,7 +119,6 @@ namespace GitMind.Features.Committing
 		public Task UnCommitAsync(IRepositoryCommands repositoryCommands, Commit commit)
 		{
 			Window owner = repositoryCommands.Owner;
-			string workingFolder = repositoryCommands.WorkingFolder;
 
 			Progress.ShowDialog(owner, $"Uncommit in {commit} ...", async progress =>
 			{
@@ -126,8 +139,6 @@ namespace GitMind.Features.Committing
 
 		public async Task ShowUncommittedDiff(IRepositoryCommands repositoryCommands)
 		{
-			string workingFolder = repositoryCommands.WorkingFolder;
-
 			await diffService.ShowDiffAsync(Commit.UncommittedId, workingFolder);
 		}
 
@@ -135,7 +146,6 @@ namespace GitMind.Features.Committing
 		public Task UndoUncommittedFileAsync(IRepositoryCommands repositoryCommands, string path)
 		{
 			Window owner = repositoryCommands.Owner;
-			string workingFolder = repositoryCommands.WorkingFolder;
 			Progress.ShowDialog(owner, $"Undo file change in {path} ...", async () =>
 			{
 				await gitCommitsService.UndoFileInWorkingFolderAsync(workingFolder, path);

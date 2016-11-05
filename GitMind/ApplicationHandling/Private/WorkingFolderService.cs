@@ -6,6 +6,7 @@ using GitMind.Utils;
 
 namespace GitMind.ApplicationHandling.Private
 {
+	[SingleInstance]
 	internal class WorkingFolderService : IWorkingFolderService
 	{
 		private readonly ICommandLine commandLine;
@@ -26,11 +27,13 @@ namespace GitMind.ApplicationHandling.Private
 		public bool IsValid { get; private set; }
 
 
+		public event EventHandler OnChange;
+
 		public string WorkingFolder
 		{
 			get
 			{
-				if (workingFolder != null)
+				if (workingFolder == null)
 				{
 					workingFolder = GetInitialWorkingFolder();
 					StoreLasteUsedFolder();
@@ -48,7 +51,26 @@ namespace GitMind.ApplicationHandling.Private
 			
 			workingFolder = rootFolder.HasValue ? rootFolder.Value : commandLine.Folder;
 			StoreLasteUsedFolder();
+			OnChange?.Invoke(this, EventArgs.Empty);
 		}
+
+
+		public bool TrySetWorkingFolder(string path)
+		{
+			R<string> rootFolder = GetRootFolderPath(path);
+
+			if (rootFolder.HasValue)
+			{
+				IsValid = rootFolder.HasValue;
+
+				workingFolder = rootFolder.HasValue ? rootFolder.Value : commandLine.Folder;
+				StoreLasteUsedFolder();
+				OnChange?.Invoke(this, EventArgs.Empty);
+			}
+
+			return rootFolder.HasValue;
+		}
+
 
 
 		private void StoreLasteUsedFolder()

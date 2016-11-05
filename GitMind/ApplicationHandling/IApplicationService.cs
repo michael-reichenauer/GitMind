@@ -1,6 +1,6 @@
 ﻿namespace GitMind.ApplicationHandling
 {
-	internal interface IApplicationService
+	public interface IApplicationService
 	{
 		void SetIsStarted();
 
