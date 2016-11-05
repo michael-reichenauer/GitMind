@@ -14,7 +14,6 @@ namespace GitMind.RepositoryViews
 	internal class BranchViewModel : ViewModel
 	{
 		private readonly IBranchService branchService;
-		private readonly IRepositoryCommands repositoryCommands;
 
 		private readonly Command<Branch> showBranchCommand;
 		private readonly Command<Branch> deleteBranchCommand;
@@ -31,7 +30,6 @@ namespace GitMind.RepositoryViews
 			IRepositoryCommands repositoryCommands)
 		{
 			this.branchService = branchService;
-			this.repositoryCommands = repositoryCommands;
 			this.showBranchCommand = repositoryCommands.ShowBranchCommand;
 			this.deleteBranchCommand = repositoryCommands.DeleteBranchCommand;
 			this.publishBranchCommand = repositoryCommands.PublishBranchCommand;
@@ -91,11 +89,11 @@ namespace GitMind.RepositoryViews
 		}
 
 		public Command SwitchBranchCommand => Command(
-			() => branchService.SwitchBranchAsync(repositoryCommands, Branch),
+			() => branchService.SwitchBranchAsync(Branch),
 			() => branchService.CanExecuteSwitchBranch(Branch));
 
 		public Command CreateBranchCommand => Command(
-			() => branchService.CreateBranchAsync(repositoryCommands, Branch));
+			() => branchService.CreateBranchAsync(Branch));
 
 		public Command MergeBranchCommand { get; }
 		public Command DeleteBranchCommand => 

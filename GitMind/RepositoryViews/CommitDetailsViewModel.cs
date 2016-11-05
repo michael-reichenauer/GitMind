@@ -17,7 +17,6 @@ namespace GitMind.RepositoryViews
 	{
 		private readonly ICommitService commitService;
 		private readonly IGitCommitsService gitCommitsService;
-		private readonly IRepositoryCommands repositoryCommands;
 
 		private readonly ObservableCollection<CommitFileViewModel> files =
 			new ObservableCollection<CommitFileViewModel>();
@@ -27,11 +26,9 @@ namespace GitMind.RepositoryViews
 
 
 		public CommitDetailsViewModel(
-			IRepositoryCommands repositoryCommands,
 			ICommitService commitService,
 			IGitCommitsService gitCommitsService)
 		{
-			this.repositoryCommands = repositoryCommands;
 			this.commitService = commitService;
 			this.gitCommitsService = gitCommitsService;
 		}
@@ -117,7 +114,7 @@ namespace GitMind.RepositoryViews
 
 		public Command EditBranchCommand => CommitViewModel.SetCommitBranchCommand;
 		public Command<string> UndoUncommittedFileCommand => Command<string>(
-			path => commitService.UndoUncommittedFileAsync(repositoryCommands, path));
+			path => commitService.UndoUncommittedFileAsync(path));
 		public Command ShowCommitDiffCommand => CommitViewModel?.ShowCommitDiffCommand;
 
 		public override string ToString() => $"{Id} {Subject}";

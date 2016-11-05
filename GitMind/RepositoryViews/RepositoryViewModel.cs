@@ -92,7 +92,7 @@ namespace GitMind.RepositoryViews
 			IViewModelService viewModelService,
 			ICommitService commitService,
 			BusyIndicator busyIndicator,
-			Func<IRepositoryCommands, CommitDetailsViewModel> commitDetailsViewModelProvider)
+			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
 		{
 			this.mainWindowService = mainWindowService;
 			this.workingFolder = workingFolder;
@@ -107,7 +107,7 @@ namespace GitMind.RepositoryViews
 			filterTriggerTimer.Tick += FilterTrigger;
 			filterTriggerTimer.Interval = FilterDelay;
 
-			CommitDetailsViewModel = commitDetailsViewModelProvider(this);
+			CommitDetailsViewModel = commitDetailsViewModelProvider();
 		}
 
 
@@ -203,13 +203,13 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
 		public Command<Branch> DeleteBranchCommand => Command<Branch>(
-			branch => branchService.DeleteBranch(this, branch));
+			branch => branchService.DeleteBranch(branch));
 		public Command<Branch> PublishBranchCommand => Command<Branch>(
-			branch => branchService.PublishBranch(this, branch));
+			branch => branchService.PublishBranch(branch));
 		public Command<Branch> PushBranchCommand => Command<Branch>(
-			branch => branchService.PushBranch(this, branch));
+			branch => branchService.PushBranch(branch));
 		public Command<Branch> UpdateBranchCommand => Command<Branch>(
-			branch => branchService.UpdateBranch(this, branch));
+			branch => branchService.UpdateBranch(branch));
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
 		public Command ToggleDetailsCommand => Command(ToggleDetails);
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
@@ -226,11 +226,11 @@ namespace GitMind.RepositoryViews
 
 
 		public Command CommitCommand => AsyncCommand(
-			() => commitService.CommitChangesAsync(this),
+			() => commitService.CommitChangesAsync(),
 			() => IsUncommitted);
 
 		public Command ShowUncommittedDiffCommand => Command(
-			() => commitService.ShowUncommittedDiff(this),
+			() => commitService.ShowUncommittedDiff(),
 			() => IsUncommitted);
 
 		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
@@ -997,7 +997,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task UncommitAsync(Commit commit)
 		{
-			await commitService.UnCommitAsync(this, commit);
+			await commitService.UnCommitAsync(commit);
 		}
 
 
@@ -1050,7 +1050,7 @@ namespace GitMind.RepositoryViews
 
 		private async Task MergeBranchAsync(Branch branch)
 		{
-			await branchService.MergeBranchAsync(this, branch);
+			await branchService.MergeBranchAsync(branch);
 
 			if (Repository.Status.ConflictCount > 0)
 			{

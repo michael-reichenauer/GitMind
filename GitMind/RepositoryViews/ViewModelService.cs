@@ -19,14 +19,14 @@ namespace GitMind.RepositoryViews
 		private static readonly int CommitHeight = Converters.ToY(1);
 
 		private readonly IBrushService brushService;
-		private readonly Func<IRepositoryCommands, CommitViewModel> commitViewModelProvider;
-		private readonly Func<IRepositoryCommands, BranchViewModel> branchViewModelProvider;
+		private readonly Func<CommitViewModel> commitViewModelProvider;
+		private readonly Func<BranchViewModel> branchViewModelProvider;
 
 
 		public ViewModelService(
 			IBrushService brushService,
-			Func<IRepositoryCommands, CommitViewModel> commitViewModelProvider,
-			Func<IRepositoryCommands, BranchViewModel> branchViewModelProvider)
+			Func<CommitViewModel> commitViewModelProvider,
+			Func<BranchViewModel> branchViewModelProvider)
 		{
 			this.brushService = brushService;
 			this.commitViewModelProvider = commitViewModelProvider;
@@ -470,8 +470,7 @@ namespace GitMind.RepositoryViews
 			List<CommitViewModel> commits = repositoryViewModel.Commits;
 			var commitsById = repositoryViewModel.CommitsById;
 
-			SetNumberOfItems(commits, sourceCommits.Count, i => commitViewModelProvider(
-				repositoryViewModel));
+			SetNumberOfItems(commits, sourceCommits.Count, i => commitViewModelProvider());
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
@@ -524,8 +523,7 @@ namespace GitMind.RepositoryViews
 			int maxColumn = 0;
 			var branches = repositoryViewModel.Branches;
 
-			SetNumberOfItems(branches, sourceBranches.Count, i => branchViewModelProvider(
-				repositoryViewModel));
+			SetNumberOfItems(branches, sourceBranches.Count, i => branchViewModelProvider());
 
 			int index = 0;
 			List<BranchViewModel> addedBranchColumns = new List<BranchViewModel>();

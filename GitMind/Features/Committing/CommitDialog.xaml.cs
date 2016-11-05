@@ -18,7 +18,6 @@ namespace GitMind.Features.Committing
 		internal CommitDialog(
 			Func<
 				CommitDialog,
-				IRepositoryCommands,
 				BranchName,
 				IEnumerable<CommitFile>,
 				string,
@@ -35,7 +34,6 @@ namespace GitMind.Features.Committing
 			InitializeComponent();
 			viewModel = CommitDialogViewModelProvider(
 				this,
-				repositoryCommands,
 				branchName,
 				files,
 				commitMessage,

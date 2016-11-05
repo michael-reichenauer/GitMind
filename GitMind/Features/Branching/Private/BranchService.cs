@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,28 +25,33 @@ namespace GitMind.Features.Branching.Private
 		private readonly IGitNetworkService gitNetworkService;
 		private readonly ICommitService commitService;
 		private readonly WorkingFolder workingFolder;
+		private readonly Lazy<IRepositoryCommands> lazyRepositoryCommands;
 
 
 		public BranchService(
 			IGitBranchService gitBranchService,
 			IGitNetworkService gitNetworkService,
 			ICommitService commitService,
-			WorkingFolder workingFolder)
+			WorkingFolder workingFolder,
+			Lazy<IRepositoryCommands> repositoryCommands)
 		{
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
 			this.commitService = commitService;
 			this.workingFolder = workingFolder;
+			this.lazyRepositoryCommands = repositoryCommands;
 		}
 
 
-		public Task CreateBranchAsync(IRepositoryCommands repositoryCommands, Branch branch)
+		public IRepositoryCommands repositoryCommands => lazyRepositoryCommands.Value;
+
+		public Task CreateBranchAsync(Branch branch)
 		{
-			return CreateBranchFromCommitAsync(repositoryCommands, branch.TipCommit);
+			return CreateBranchFromCommitAsync(branch.TipCommit);
 		}
 
 
-		public Task CreateBranchFromCommitAsync(IRepositoryCommands repositoryCommands, Commit commit)
+		public Task CreateBranchFromCommitAsync(Commit commit)
 		{
 			using (repositoryCommands.DisableStatus())
 			{
@@ -101,7 +107,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public void PublishBranch(IRepositoryCommands repositoryCommands, Branch branch)
+		public void PublishBranch(Branch branch)
 		{
 			using (repositoryCommands.DisableStatus())
 			{
@@ -126,7 +132,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public void PushBranch(IRepositoryCommands repositoryCommands, Branch branch)
+		public void PushBranch(Branch branch)
 		{
 			using (repositoryCommands.DisableStatus())
 			{
@@ -151,7 +157,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public void UpdateBranch(IRepositoryCommands repositoryCommands, Branch branch)
+		public void UpdateBranch(Branch branch)
 		{
 			using (repositoryCommands.DisableStatus())
 			{
@@ -190,7 +196,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public Task SwitchBranchAsync(IRepositoryCommands repositoryCommands, Branch branch)
+		public Task SwitchBranchAsync(Branch branch)
 		{
 			Window owner = repositoryCommands.Owner;
 
@@ -223,7 +229,7 @@ namespace GitMind.Features.Branching.Private
 
 
 
-		public Task SwitchToBranchCommitAsync(IRepositoryCommands repositoryCommands, Commit commit)
+		public Task SwitchToBranchCommitAsync(Commit commit)
 		{
 			Window owner = repositoryCommands.Owner;
 
@@ -274,7 +280,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public void DeleteBranch(IRepositoryCommands repositoryCommands, Branch branch)
+		public void DeleteBranch(Branch branch)
 		{
 			using (repositoryCommands.DisableStatus())
 			{
@@ -312,14 +318,13 @@ namespace GitMind.Features.Branching.Private
 						return;
 					}
 
-					DeleteBranch(repositoryCommands, branch, dialog.IsLocal, dialog.IsRemote);
+					DeleteBranch(branch, dialog.IsLocal, dialog.IsRemote);
 				}
 			}
 		}
 
 
 		private void DeleteBranch(
-			IRepositoryCommands repositoryCommands,
 			Branch branch,
 			bool isLocal,
 			bool isRemote)
@@ -331,13 +336,13 @@ namespace GitMind.Features.Branching.Private
 				if (isLocal)
 				{
 					progress.SetText($"Delete local branch {branch.Name} ...");
-					await DeleteBranchImpl(repositoryCommands, branch, false, false);
+					await DeleteBranchImpl(branch, false, false);
 				}
 
 				if (isRemote)
 				{
 					progress.SetText($"Delete remote branch {branch.Name} ...");
-					await DeleteBranchImpl(repositoryCommands, branch, true, !isLocal);
+					await DeleteBranchImpl(branch, true, !isLocal);
 				}
 
 				progress.SetText($"Updating status after delete {branch.Name} ...");
@@ -346,7 +351,6 @@ namespace GitMind.Features.Branching.Private
 		}
 
 		private async Task DeleteBranchImpl(
-			IRepositoryCommands repositoryCommands,
 			Branch branch,
 			bool isRemote,
 			bool isNoLongerLocal)
@@ -427,7 +431,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public async Task MergeBranchAsync(IRepositoryCommands repositoryCommands, Branch branch)
+		public async Task MergeBranchAsync(Branch branch)
 		{
 			Window owner = repositoryCommands.Owner;
 
@@ -467,7 +471,7 @@ namespace GitMind.Features.Branching.Private
 
 				if (repositoryCommands.Repository.Status.ConflictCount == 0)
 				{
-					await commitService.CommitChangesAsync(repositoryCommands);
+					await commitService.CommitChangesAsync();
 				}
 			}
 		}

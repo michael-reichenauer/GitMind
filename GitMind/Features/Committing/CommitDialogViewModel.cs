@@ -72,7 +72,7 @@ namespace GitMind.Features.Committing
 		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
 		public Command ShowUncommittedDiffCommand => AsyncCommand(
-			() => commitService.ShowUncommittedDiff(repositoryCommands));
+			() => commitService.ShowUncommittedDiff());
 
 		public Command<string> UndoUncommittedFileCommand => Command<string>(UndoUncommittedFile);
 
@@ -84,7 +84,7 @@ namespace GitMind.Features.Committing
 
 			if (file != null)
 			{
-				commitService.UndoUncommittedFileAsync(repositoryCommands, path);
+				commitService.UndoUncommittedFileAsync(path);
 
 				Files.Remove(file);
 				IsChanged = true;

@@ -17,8 +17,6 @@ namespace GitMind.Features.Committing
 	internal class CommitService : ICommitService
 	{
 		private readonly Func<
-			Window,
-			IRepositoryCommands,
 			BranchName,
 			IEnumerable<CommitFile>,
 			string,
@@ -26,17 +24,17 @@ namespace GitMind.Features.Committing
 			CommitDialog> commitDialogProvider;
 
 		private readonly WorkingFolder workingFolder;
+		private readonly Lazy<IRepositoryCommands> repositoryCommands;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
 
 
 		public CommitService(
 			WorkingFolder workingFolder,
+			Lazy<IRepositoryCommands> repositoryCommands,
 			IGitCommitsService gitCommitsService,
 			IDiffService diffService,
 			Func<
-				Window, 
-				IRepositoryCommands, 
 				BranchName, 
 				IEnumerable<CommitFile>, 
 				string,
@@ -45,18 +43,19 @@ namespace GitMind.Features.Committing
 		{
 			this.commitDialogProvider = commitDialogProvider;
 			this.workingFolder = workingFolder;
+			this.repositoryCommands = repositoryCommands;
 			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;
 		}
 
 
-		public async Task CommitChangesAsync(IRepositoryCommands repositoryCommands)
+		public async Task CommitChangesAsync()
 		{
-			Window owner = repositoryCommands.Owner;
-			Repository repository = repositoryCommands.Repository;
+			Window owner = repositoryCommands.Value.Owner;
+			Repository repository = repositoryCommands.Value.Repository;
 			BranchName branchName = repository.CurrentBranch.Name;
 
-			using (repositoryCommands.DisableStatus())
+			using (repositoryCommands.Value.DisableStatus())
 			{
 				if (repository.CurrentBranch.IsDetached)
 				{
@@ -67,16 +66,14 @@ namespace GitMind.Features.Committing
 				}
 
 				IEnumerable<CommitFile> commitFiles = Enumerable.Empty<CommitFile>();
-				if (repositoryCommands.UnCommited != null)
+				if (repositoryCommands.Value.UnCommited != null)
 				{
-					commitFiles = await repositoryCommands.UnCommited.FilesTask;
+					commitFiles = await repositoryCommands.Value.UnCommited.FilesTask;
 				}
 
 				string commitMessage = repository.Status.Message;
 
 				CommitDialog dialog = commitDialogProvider(
-					owner,
-					repositoryCommands,
 					branchName,
 					commitFiles,
 					commitMessage,
@@ -91,7 +88,7 @@ namespace GitMind.Features.Committing
 
 						if (gitCommit.HasValue)
 						{
-							await repositoryCommands.RefreshAfterCommandAsync(false);
+							await repositoryCommands.Value.RefreshAfterCommandAsync(false);
 						}
 						else
 						{
@@ -105,7 +102,7 @@ namespace GitMind.Features.Committing
 				{
 					Progress.ShowDialog(owner, "Updating status ...", async () =>
 					{
-						await repositoryCommands.RefreshAfterCommandAsync(false);
+						await repositoryCommands.Value.RefreshAfterCommandAsync(false);
 					});
 				}
 				else if (repository.Status.IsMerging && !commitFiles.Any())
@@ -116,9 +113,9 @@ namespace GitMind.Features.Committing
 		}
 
 
-		public Task UnCommitAsync(IRepositoryCommands repositoryCommands, Commit commit)
+		public Task UnCommitAsync(Commit commit)
 		{
-			Window owner = repositoryCommands.Owner;
+			Window owner = repositoryCommands.Value.Owner;
 
 			Progress.ShowDialog(owner, $"Uncommit in {commit} ...", async progress =>
 			{
@@ -130,22 +127,22 @@ namespace GitMind.Features.Committing
 				}
 
 				progress.SetText("Update status after uncommit ...");
-				await repositoryCommands.RefreshAfterCommandAsync(true);
+				await repositoryCommands.Value.RefreshAfterCommandAsync(true);
 			});
 
 			return Task.CompletedTask;
 		}
 
 
-		public async Task ShowUncommittedDiff(IRepositoryCommands repositoryCommands)
+		public async Task ShowUncommittedDiff()
 		{
 			await diffService.ShowDiffAsync(Commit.UncommittedId, workingFolder);
 		}
 
 
-		public Task UndoUncommittedFileAsync(IRepositoryCommands repositoryCommands, string path)
+		public Task UndoUncommittedFileAsync(string path)
 		{
-			Window owner = repositoryCommands.Owner;
+			Window owner = repositoryCommands.Value.Owner;
 			Progress.ShowDialog(owner, $"Undo file change in {path} ...", async () =>
 			{
 				await gitCommitsService.UndoFileInWorkingFolderAsync(workingFolder, path);

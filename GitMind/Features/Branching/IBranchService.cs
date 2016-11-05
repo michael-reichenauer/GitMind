@@ -7,17 +7,17 @@ namespace GitMind.Features.Branching
 {
 	internal interface IBranchService
 	{
-		Task CreateBranchAsync(IRepositoryCommands repositoryCommands, Branch branch);
+		Task CreateBranchAsync(Branch branch);
 
-		Task CreateBranchFromCommitAsync(IRepositoryCommands repositoryCommands, Commit commit);
-		Task SwitchBranchAsync(IRepositoryCommands repositoryCommands, Branch branch);
+		Task CreateBranchFromCommitAsync(Commit commit);
+		Task SwitchBranchAsync(Branch branch);
 		bool CanExecuteSwitchBranch(Branch branch);
-		Task SwitchToBranchCommitAsync(IRepositoryCommands repositoryCommands, Commit commit);
+		Task SwitchToBranchCommitAsync(Commit commit);
 		bool CanExecuteSwitchToBranchCommit(Commit commit);
-		void DeleteBranch(IRepositoryCommands repositoryCommands, Branch branch);
-		Task MergeBranchAsync(IRepositoryCommands repositoryCommands, Branch branch);
-		void PublishBranch(IRepositoryCommands repositoryCommands, Branch branch);
-		void PushBranch(IRepositoryCommands repositoryCommands, Branch branch);
-		void UpdateBranch(IRepositoryCommands repositoryCommands, Branch branch);
+		void DeleteBranch(Branch branch);
+		Task MergeBranchAsync(Branch branch);
+		void PublishBranch(Branch branch);
+		void PushBranch(Branch branch);
+		void UpdateBranch(Branch branch);
 	}
 }
