@@ -50,6 +50,7 @@ namespace GitMind.MainWindowViews
 
 			workingFolder.OnChange += (s, e) => Notify(nameof(WorkingFolder));
 			latestVersionService.OnNewVersionAvailable += (s, e) => IsNewVersionVisible = true;
+			latestVersionService.StartCheckForLatestVersion();
 		}
 
 
