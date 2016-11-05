@@ -20,7 +20,6 @@ namespace GitMind.MainWindowViews
 			set { mainWindow.Value.IsNewVersionAvailable = value; }
 		}
 
-		public Window Owner => mainWindow.Value;
 
 		public void SetSearchFocus()
 		{

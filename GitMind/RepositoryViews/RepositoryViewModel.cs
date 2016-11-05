@@ -44,6 +44,7 @@ namespace GitMind.RepositoryViews
 		private readonly IDiffService diffService = new DiffService();
 		private readonly IMainWindowService mainWindowService;
 		private readonly WorkingFolder workingFolder;
+		private readonly WindowOwner owner;
 		private readonly IBranchService branchService;
 		private readonly ICommandLine commandLine;
 		private readonly ICommitService commitService;
@@ -87,6 +88,7 @@ namespace GitMind.RepositoryViews
 		public RepositoryViewModel(
 			IMainWindowService mainWindowService,
 			WorkingFolder workingFolder, 
+			WindowOwner owner,
 			IBranchService branchService,
 			ICommandLine commandLine,
 			IViewModelService viewModelService,
@@ -96,6 +98,7 @@ namespace GitMind.RepositoryViews
 		{
 			this.mainWindowService = mainWindowService;
 			this.workingFolder = workingFolder;
+			this.owner = owner;
 			this.branchService = branchService;
 			this.commandLine = commandLine;
 			this.viewModelService = viewModelService;
@@ -118,7 +121,7 @@ namespace GitMind.RepositoryViews
 
 		public CredentialHandler GetCredentialsHandler()
 		{
-			return new CredentialHandler(mainWindowService.Owner);
+			return new CredentialHandler(owner);
 		}
 
 
@@ -302,8 +305,6 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Window Owner => mainWindowService.Owner;
-
 		public void ShowBranch(BranchName branchName)
 		{
 			SpecifiedBranchNames = new[] { branchName };
@@ -320,7 +321,7 @@ namespace GitMind.RepositoryViews
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(workingFolder);
 				string statusText = isRepositoryCached ? "Loading ..." : "First time branch structure analyze ...";
 
-				Progress.ShowDialog(Owner, statusText, async () =>
+				Progress.ShowDialog(owner, statusText, async () =>
 				{
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(workingFolder);
 					UpdateInitialViewModel(repository);
@@ -329,7 +330,7 @@ namespace GitMind.RepositoryViews
 
 				if (!gitInfoService.IsSupportedRemoteUrl(workingFolder))
 				{
-					Message.ShowWarning(Owner,
+					Message.ShowWarning(owner,
 						"SSH URL protocol is not yet supported for remote access.\n" +
 						"Use git:// or https:// instead.");
 				}
@@ -464,7 +465,7 @@ namespace GitMind.RepositoryViews
 
 		public Task ManualRefreshAsync()
 		{
-			Progress.ShowDialog(Owner, "Analyze branch structure", async () =>
+			Progress.ShowDialog(owner, "Analyze branch structure", async () =>
 			{
 				await refreshThrottler.Run(async () =>
 				{
@@ -821,7 +822,7 @@ namespace GitMind.RepositoryViews
 		{
 			Log.Debug("Try update all branches");
 			isInternalDialog = true;
-			Progress.ShowDialog(Owner, "Update all branches ...", async progress =>
+			Progress.ShowDialog(owner, "Update all branches ...", async progress =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
@@ -838,7 +839,7 @@ namespace GitMind.RepositoryViews
 				if (result.IsFaulted)
 				{
 					Message.ShowWarning(
-						Owner,
+						owner,
 						$"Failed to update current branch {currentBranch.Name}\n{result.Error.Exception.Message}.");
 				}
 
@@ -885,7 +886,7 @@ namespace GitMind.RepositoryViews
 		{
 			isInternalDialog = true;
 			BranchName branchName = Repository.CurrentBranch.Name;
-			Progress.ShowDialog(Owner, $"Update current branch {branchName} ...", async progress =>
+			Progress.ShowDialog(owner, $"Update current branch {branchName} ...", async progress =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
@@ -900,7 +901,7 @@ namespace GitMind.RepositoryViews
 				if (result.IsFaulted)
 				{
 					Message.ShowWarning(
-						Owner, $"Failed to update current branch {branchName}.\n{result.Error.Exception.Message}");
+						owner, $"Failed to update current branch {branchName}.\n{result.Error.Exception.Message}");
 				}
 
 				progress.SetText($"Update status after pull current branch {branchName} ...");
@@ -919,7 +920,7 @@ namespace GitMind.RepositoryViews
 		{
 			Log.Debug("Try push all branches");
 			isInternalDialog = true;
-			Progress.ShowDialog(Owner, "Push all branches ...", async progress =>
+			Progress.ShowDialog(owner, "Push all branches ...", async progress =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
@@ -930,14 +931,14 @@ namespace GitMind.RepositoryViews
 				if (currentBranch.CanBePushed)
 				{
 					progress.SetText($"Push current branch {currentBranch.Name} ...");
-					CredentialHandler credentialHandler = new CredentialHandler(Owner);
+					CredentialHandler credentialHandler = new CredentialHandler(owner);
 					result = await networkService.PushCurrentBranchAsync(workingFolder, credentialHandler);
 				}
 
 				if (result.IsFaulted)
 				{
 					Message.ShowWarning(
-						Owner, 
+						owner, 
 						$"Failed to push current branch {currentBranch.Name}.\n{result.Error.Exception.Message}");
 				}
 
@@ -969,7 +970,7 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			BranchName branchName = Repository.CurrentBranch.Name;
 			Progress.ShowDialog(
-				Owner, $"Push current branch {branchName} ...", async progress =>
+				owner, $"Push current branch {branchName} ...", async progress =>
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
@@ -980,7 +981,7 @@ namespace GitMind.RepositoryViews
 				if (result.IsFaulted)
 				{
 					Message.ShowWarning(
-						Owner, $"Failed to push current branch {branchName}.\n{result.Error.Exception.Message}");
+						owner, $"Failed to push current branch {branchName}.\n{result.Error.Exception.Message}");
 				}
 
 				progress.SetText($"Updating status after push {branchName} ...");
@@ -1081,7 +1082,7 @@ namespace GitMind.RepositoryViews
 
 				if (commit.SpecifiedBranchName != branchName)
 				{
-					Progress.ShowDialog(Owner, $"Set commit branch name {branchName} ...", async () =>
+					Progress.ShowDialog(owner, $"Set commit branch name {branchName} ...", async () =>
 					{
 						await repositoryService.SetSpecifiedCommitBranchAsync(
 							workingFolder, commit.Id, commit.Repository.RootId, branchName, GetCredentialsHandler());
@@ -1122,7 +1123,7 @@ namespace GitMind.RepositoryViews
 			await Task.Yield();
 
 			isInternalDialog = true;
-			Progress.ShowDialog(Owner, $"Undo changes and clean working folder {workingFolder} ...", async () =>
+			Progress.ShowDialog(owner, $"Undo changes and clean working folder {workingFolder} ...", async () =>
 			{
 				failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync(workingFolder);
 
@@ -1131,7 +1132,7 @@ namespace GitMind.RepositoryViews
 
 			if (failedPaths.IsFaulted)
 			{
-				Message.ShowWarning(Owner, failedPaths.ToString());
+				Message.ShowWarning(owner, failedPaths.ToString());
 			}
 			else if (failedPaths.Value.Any())
 			{
@@ -1145,7 +1146,7 @@ namespace GitMind.RepositoryViews
 					text += "   ...";
 				}
 
-				Message.ShowWarning(Owner, text);
+				Message.ShowWarning(owner, text);
 			}
 
 			isInternalDialog = true;
@@ -1157,7 +1158,7 @@ namespace GitMind.RepositoryViews
 			await Task.Yield();
 
 			isInternalDialog = true;
-			Progress.ShowDialog(Owner, $"Undo changes in working folder {workingFolder} ...", async () =>
+			Progress.ShowDialog(owner, $"Undo changes in working folder {workingFolder} ...", async () =>
 			{
 				await gitCommitsService.UndoWorkingFolderAsync(workingFolder);
 
@@ -1204,6 +1205,12 @@ namespace GitMind.RepositoryViews
 				ScrollRows(rowsChange);
 				VirtualItemsSource.DataChanged(width);
 			}
+		}
+
+
+		public void SetMainWindowFocus()
+		{
+			owner.Window.Focus();
 		}
 	}
 }

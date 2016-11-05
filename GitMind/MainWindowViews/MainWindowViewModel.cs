@@ -30,17 +30,20 @@ namespace GitMind.MainWindowViews
 
 		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
 		private readonly WorkingFolder workingFolder;
+		private readonly WindowOwner owner;
 
 		private bool isLoaded = false;
 
 
 		internal MainWindowViewModel(
 			WorkingFolder workingFolder,
+			WindowOwner owner,
 			ILatestVersionService latestVersionService,
 			IMainWindowService mainWindowService,
 			Func<BusyIndicator, RepositoryViewModel> RepositoryViewModelProvider)
 		{
 			this.workingFolder = workingFolder;
+			this.owner = owner;
 			this.latestVersionService = latestVersionService;
 			this.mainWindowService = mainWindowService;
 
@@ -408,7 +411,7 @@ namespace GitMind.MainWindowViews
 					dialog.SelectedPath = workingFolder;
 				}
 
-				if (dialog.ShowDialog(mainWindowService.Owner.GetIWin32Window()) != DialogResult.OK)
+				if (dialog.ShowDialog(owner.Win32Window) != DialogResult.OK)
 				{
 					Log.Debug("User canceled selecting a Working folder");
 					return false;

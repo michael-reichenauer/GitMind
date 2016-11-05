@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using System.Windows;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
@@ -9,11 +8,9 @@ namespace GitMind.RepositoryViews
 {
 	internal interface IRepositoryCommands
 	{
-		Repository Repository { get;  }
+		Repository Repository { get; }
 		Commit UnCommited { get; }
 		CredentialHandler GetCredentialsHandler();
-
-		Window Owner { get; }
 		Command<Branch> ShowBranchCommand { get; }
 		Command<Branch> HideBranchCommand { get; }
 		Command<Branch> DeleteBranchCommand { get; }

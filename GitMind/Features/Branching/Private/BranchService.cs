@@ -10,6 +10,7 @@ using GitMind.Features.Committing;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
+using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 
@@ -25,6 +26,7 @@ namespace GitMind.Features.Branching.Private
 		private readonly IGitNetworkService gitNetworkService;
 		private readonly ICommitService commitService;
 		private readonly WorkingFolder workingFolder;
+		private readonly WindowOwner owner;
 		private readonly Lazy<IRepositoryCommands> lazyRepositoryCommands;
 
 
@@ -33,12 +35,14 @@ namespace GitMind.Features.Branching.Private
 			IGitNetworkService gitNetworkService,
 			ICommitService commitService,
 			WorkingFolder workingFolder,
+			WindowOwner owner,
 			Lazy<IRepositoryCommands> repositoryCommands)
 		{
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
 			this.commitService = commitService;
 			this.workingFolder = workingFolder;
+			this.owner = owner;
 			this.lazyRepositoryCommands = repositoryCommands;
 		}
 
@@ -55,8 +59,6 @@ namespace GitMind.Features.Branching.Private
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				Window owner = repositoryCommands.Owner;
-
 				CrateBranchDialog dialog = new CrateBranchDialog(owner);
 
 				if (dialog.ShowDialog() == true)
@@ -111,8 +113,6 @@ namespace GitMind.Features.Branching.Private
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				Window owner = repositoryCommands.Owner;
-
 				Progress.ShowDialog(owner, $"Publish branch {branch.Name} ...", async progress =>
 				{
 					R publish = await gitNetworkService.PublishBranchAsync(
@@ -136,8 +136,6 @@ namespace GitMind.Features.Branching.Private
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				Window owner = repositoryCommands.Owner;
-
 				Progress.ShowDialog(owner, $"Push branch {branch.Name} ...", async progress =>
 				{
 					R result = await gitNetworkService.PushBranchAsync(
@@ -161,8 +159,6 @@ namespace GitMind.Features.Branching.Private
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				Window owner = repositoryCommands.Owner;
-
 				Progress.ShowDialog(owner, $"Update branch {branch.Name} ...", async progress =>
 				{
 					R result;
@@ -198,8 +194,6 @@ namespace GitMind.Features.Branching.Private
 
 		public Task SwitchBranchAsync(Branch branch)
 		{
-			Window owner = repositoryCommands.Owner;
-
 			using (repositoryCommands.DisableStatus())
 			{
 				Progress.ShowDialog(owner, $"Switch to branch {branch.Name} ...", async progress =>
@@ -231,8 +225,6 @@ namespace GitMind.Features.Branching.Private
 
 		public Task SwitchToBranchCommitAsync(Commit commit)
 		{
-			Window owner = repositoryCommands.Owner;
-
 			using (repositoryCommands.DisableStatus())
 			{
 				if (commit.IsRemoteAhead)
@@ -284,8 +276,6 @@ namespace GitMind.Features.Branching.Private
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				Window owner = repositoryCommands.Owner;
-
 				if (branch.Name == BranchName.Master)
 				{
 					Message.ShowWarning(owner, "You cannot delete master branch.");
@@ -329,8 +319,6 @@ namespace GitMind.Features.Branching.Private
 			bool isLocal,
 			bool isRemote)
 		{
-			Window owner = repositoryCommands.Owner;
-
 			Progress.ShowDialog(owner, async progress =>
 			{
 				if (isLocal)
@@ -355,7 +343,6 @@ namespace GitMind.Features.Branching.Private
 			bool isRemote,
 			bool isNoLongerLocal)
 		{
-			Window owner = repositoryCommands.Owner;
 			string text = isRemote ? "Remote" : "Local";
 
 			if (!IsBranchFullyMerged(branch, isRemote, isNoLongerLocal))
@@ -433,8 +420,6 @@ namespace GitMind.Features.Branching.Private
 
 		public async Task MergeBranchAsync(Branch branch)
 		{
-			Window owner = repositoryCommands.Owner;
-
 			using (repositoryCommands.DisableStatus())
 			{
 

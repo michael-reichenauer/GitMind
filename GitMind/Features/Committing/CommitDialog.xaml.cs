@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using GitMind.Git;
 using GitMind.GitModel;
+using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 
 
@@ -16,6 +17,7 @@ namespace GitMind.Features.Committing
 		private readonly CommitDialogViewModel viewModel;
 
 		internal CommitDialog(
+			WindowOwner owner,
 			Func<
 				CommitDialog,
 				BranchName,
@@ -23,14 +25,13 @@ namespace GitMind.Features.Committing
 				string,
 				bool,
 				CommitDialogViewModel> CommitDialogViewModelProvider,
-			IRepositoryCommands repositoryCommands,
 			BranchName branchName,
 
 			IEnumerable<CommitFile> files,
 			string commitMessage,
 			bool isMerging)
 		{
-			Owner = repositoryCommands.Owner;
+			Owner = owner;
 			InitializeComponent();
 			viewModel = CommitDialogViewModelProvider(
 				this,

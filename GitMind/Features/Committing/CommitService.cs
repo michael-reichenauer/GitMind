@@ -8,6 +8,7 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Git;
 using GitMind.GitModel;
+using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 
@@ -24,6 +25,7 @@ namespace GitMind.Features.Committing
 			CommitDialog> commitDialogProvider;
 
 		private readonly WorkingFolder workingFolder;
+		private readonly WindowOwner owner;
 		private readonly Lazy<IRepositoryCommands> repositoryCommands;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
@@ -31,6 +33,7 @@ namespace GitMind.Features.Committing
 
 		public CommitService(
 			WorkingFolder workingFolder,
+			WindowOwner owner,
 			Lazy<IRepositoryCommands> repositoryCommands,
 			IGitCommitsService gitCommitsService,
 			IDiffService diffService,
@@ -43,6 +46,7 @@ namespace GitMind.Features.Committing
 		{
 			this.commitDialogProvider = commitDialogProvider;
 			this.workingFolder = workingFolder;
+			this.owner = owner;
 			this.repositoryCommands = repositoryCommands;
 			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;
@@ -51,7 +55,6 @@ namespace GitMind.Features.Committing
 
 		public async Task CommitChangesAsync()
 		{
-			Window owner = repositoryCommands.Value.Owner;
 			Repository repository = repositoryCommands.Value.Repository;
 			BranchName branchName = repository.CurrentBranch.Name;
 
@@ -115,8 +118,6 @@ namespace GitMind.Features.Committing
 
 		public Task UnCommitAsync(Commit commit)
 		{
-			Window owner = repositoryCommands.Value.Owner;
-
 			Progress.ShowDialog(owner, $"Uncommit in {commit} ...", async progress =>
 			{
 				R result = await gitCommitsService.UnCommitAsync(workingFolder);
@@ -142,7 +143,6 @@ namespace GitMind.Features.Committing
 
 		public Task UndoUncommittedFileAsync(string path)
 		{
-			Window owner = repositoryCommands.Value.Owner;
 			Progress.ShowDialog(owner, $"Undo file change in {path} ...", async () =>
 			{
 				await gitCommitsService.UndoFileInWorkingFolderAsync(workingFolder, path);
