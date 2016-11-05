@@ -6,9 +6,9 @@ namespace GitMind.ApplicationHandling
 	internal interface IWorkingFolderService
 	{
 		event EventHandler OnChange;
-		string WorkingFolder { get; }
+		string Path { get; }
 		bool IsValid { get; }
 
-		bool TrySetWorkingFolder(string path);
+		bool TrySetPath(string path);
 	}
 }

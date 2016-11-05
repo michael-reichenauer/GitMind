@@ -232,6 +232,8 @@ namespace GitMind.RepositoryViews
 			() => commitService.CommitChangesAsync(),
 			() => IsUncommitted);
 
+
+
 		public Command ShowUncommittedDiffCommand => Command(
 			() => commitService.ShowUncommittedDiff(),
 			() => IsUncommitted);

@@ -65,7 +65,6 @@ namespace GitMind
 				return;
 			}
 
-
 			if (IsCommands())
 			{
 				// Command line contains some command like diff 

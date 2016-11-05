@@ -29,7 +29,7 @@ namespace GitMind.ApplicationHandling.Private
 
 		public event EventHandler OnChange;
 
-		public string WorkingFolder
+		public string Path
 		{
 			get
 			{
@@ -44,7 +44,7 @@ namespace GitMind.ApplicationHandling.Private
 		}
 
 
-		public bool TrySetWorkingFolder(string path)
+		public bool TrySetPath(string path)
 		{
 			R<string> rootFolder = GetRootFolderPath(path);
 
@@ -52,9 +52,12 @@ namespace GitMind.ApplicationHandling.Private
 			{
 				IsValid = rootFolder.HasValue;
 
-				workingFolder = rootFolder.HasValue ? rootFolder.Value : commandLine.Folder;
-				StoreLasteUsedFolder();
-				OnChange?.Invoke(this, EventArgs.Empty);
+				if (workingFolder != path)
+				{
+					workingFolder = rootFolder.HasValue ? rootFolder.Value : commandLine.Folder;
+					StoreLasteUsedFolder();
+					OnChange?.Invoke(this, EventArgs.Empty);
+				}
 			}
 
 			return rootFolder.HasValue;

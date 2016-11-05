@@ -221,9 +221,7 @@ namespace GitMind.MainWindowViews
 
 		private void StoreLasteUsedFolder()
 		{
-			ProgramSettings settings = Settings.Get<ProgramSettings>();
-			settings.LastUsedWorkingFolder = workingFolder;
-			Settings.Set(settings);
+			Settings.Edit<ProgramSettings>(s => s.LastUsedWorkingFolder = workingFolder);
 		}
 
 

@@ -23,7 +23,7 @@ namespace GitMind.ApplicationHandling
 		}
 	
 
-		public string Path => workingFolderService.WorkingFolder;
+		public string Path => workingFolderService.Path;
 
 		public bool IsValid => workingFolderService.IsValid;
 
@@ -36,7 +36,7 @@ namespace GitMind.ApplicationHandling
 
 		public bool TrySetPath(string path)
 		{
-			return workingFolderService.TrySetWorkingFolder(path);
+			return workingFolderService.TrySetPath(path);
 		}
 	}
 }
