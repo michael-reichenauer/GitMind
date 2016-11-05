@@ -9,7 +9,6 @@ namespace GitMind.ApplicationHandling
 		string WorkingFolder { get; }
 		bool IsValid { get; }
 
-		void SetWorkingFolder(string path);
 		bool TrySetWorkingFolder(string path);
 	}
 }

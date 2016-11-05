@@ -5,8 +5,6 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Media;
-using System.Windows.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
@@ -28,7 +26,7 @@ namespace GitMind.MainWindowViews
 		private readonly FolderMonitorService folderMonitor;
 		private readonly JumpListService jumpListService = new JumpListService();
 
-		private IpcRemotingService ipcRemotingService = new IpcRemotingService();
+		private IpcRemotingService ipcRemotingService = null;
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
 
@@ -64,43 +62,7 @@ namespace GitMind.MainWindowViews
 		}
 
 		public string WorkingFolder => workingFolder;
-	
 
-
-		//public string WorkingFolder
-		//{
-		//	get { return Get(); }
-		//	set
-		//	{
-		//		if (Set(value).IsSet)
-		//		{
-		//			if (ipcRemotingService != null)
-		//			{
-		//				ipcRemotingService.Dispose();
-		//			}
-
-		//			ipcRemotingService = new IpcRemotingService();
-
-		//			string id = MainWindowIpcService.GetId(value);
-		//			if (ipcRemotingService.TryCreateServer(id))
-		//			{
-		//				ipcRemotingService.PublishService(new MainWindowIpcService(this));
-		//			}
-		//			else
-		//			{
-		//				// Another GitMind instance for that working folder is already running, activate that.
-		//				ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(null));
-		//				Application.Current.Shutdown(0);
-		//				ipcRemotingService.Dispose();
-		//				return;
-		//			}
-
-		//			jumpListService.Add(value);
-		//			folderMonitor.Monitor(value);
-		//			Notify(nameof(Title));
-		//		}
-		//	}
-		//}
 
 
 		public string Title => $"{workingFolder.Name} - GitMind";
@@ -142,7 +104,7 @@ namespace GitMind.MainWindowViews
 
 		public Command RefreshCommand => AsyncCommand(ManualRefreshAsync);
 
-		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
+		public Command SelectWorkingFolderCommand => AsyncCommand(SelectWorkingFolderAsync);
 
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
@@ -173,25 +135,66 @@ namespace GitMind.MainWindowViews
 		{
 			if (workingFolder.IsValid)
 			{
-				await RepositoryViewModel.FirstLoadAsync();
-				isLoaded = true;
+				await SetWorkingFolderAsync();
 			}
 			else
 			{
-				await Application.Current.Dispatcher.BeginInvoke(
-					DispatcherPriority.Normal,
-					new Action(async () =>
-					{
-						if (!TryLetUserSelectWorkingFolder())
-						{
-							Application.Current.Shutdown(0);
-							return;
-						}
+				isLoaded = false;
 
-						await RepositoryViewModel.FirstLoadAsync();
-						isLoaded = true;
-					}));
+				if (!TryLetUserSelectWorkingFolder())
+				{
+					Application.Current.Shutdown(0);
+					return;
+				}
+
+				await SetWorkingFolderAsync();
 			}
+		}
+
+
+		private async Task SelectWorkingFolderAsync()
+		{
+			isLoaded = false;
+
+			if (!TryLetUserSelectWorkingFolder())
+			{
+				isLoaded = true;
+				return;
+			}
+
+			await SetWorkingFolderAsync();
+		}
+
+
+		private async Task SetWorkingFolderAsync()
+		{
+			if (ipcRemotingService != null)
+			{
+				ipcRemotingService.Dispose();
+			}
+
+			ipcRemotingService = new IpcRemotingService();
+
+			string id = MainWindowIpcService.GetId(workingFolder);
+			if (ipcRemotingService.TryCreateServer(id))
+			{
+				ipcRemotingService.PublishService(new MainWindowIpcService(this));
+			}
+			else
+			{
+				// Another GitMind instance for that working folder is already running, activate that.
+				ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(null));
+				Application.Current.Shutdown(0);
+				ipcRemotingService.Dispose();
+				return;
+			}
+
+			jumpListService.Add(workingFolder);
+			folderMonitor.Monitor(workingFolder);
+			Notify(nameof(Title));
+
+			await RepositoryViewModel.FirstLoadAsync();
+			isLoaded = true;
 		}
 
 
@@ -379,21 +382,6 @@ namespace GitMind.MainWindowViews
 				SearchBox = "";
 				mainWindowService.SetRepositoryViewFocus();
 			}
-		}
-
-
-		private async void SelectWorkingFolder()
-		{
-			isLoaded = false;
-
-			if (!TryLetUserSelectWorkingFolder())
-			{
-				isLoaded = true;
-				return;
-			}
-
-			await RepositoryViewModel.FirstLoadAsync();
-			isLoaded = true;
 		}
 
 

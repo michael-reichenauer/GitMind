@@ -44,17 +44,6 @@ namespace GitMind.ApplicationHandling.Private
 		}
 
 
-		public void SetWorkingFolder(string path)
-		{
-			R<string> rootFolder = GetRootFolderPath(path);
-			IsValid = rootFolder.HasValue;
-			
-			workingFolder = rootFolder.HasValue ? rootFolder.Value : commandLine.Folder;
-			StoreLasteUsedFolder();
-			OnChange?.Invoke(this, EventArgs.Empty);
-		}
-
-
 		public bool TrySetWorkingFolder(string path)
 		{
 			R<string> rootFolder = GetRootFolderPath(path);

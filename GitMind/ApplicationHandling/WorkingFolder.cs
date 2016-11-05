@@ -34,12 +34,6 @@ namespace GitMind.ApplicationHandling
 		public static implicit operator string(WorkingFolder workingFolder) => workingFolder.Path;
 
 
-		public void SetPath(string path)
-		{
-			workingFolderService.SetWorkingFolder(path);
-		}
-
-
 		public bool TrySetPath(string path)
 		{
 			return workingFolderService.TrySetWorkingFolder(path);
