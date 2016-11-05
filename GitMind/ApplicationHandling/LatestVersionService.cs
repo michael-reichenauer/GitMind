@@ -7,12 +7,12 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.MainWindowViews;
 using GitMind.Utils;
 
 
 namespace GitMind.ApplicationHandling
 {
+	[SingleInstance]
 	internal class LatestVersionService : ILatestVersionService
 	{
 		private static readonly TimeSpan FirstCheckTime = TimeSpan.FromSeconds(1);
@@ -22,18 +22,18 @@ namespace GitMind.ApplicationHandling
 			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
 		private static readonly string UserAgent = "GitMind";
 
-		private readonly IMainWindowService mainWindowService;
 		private readonly ICmd cmd;
 
 		private DispatcherTimer checkTimer;
 
 
-		public LatestVersionService(IMainWindowService mainWindowService, ICmd cmd)
+		public LatestVersionService(ICmd cmd)
 		{
-			this.mainWindowService = mainWindowService;
 			this.cmd = cmd;
 		}
 
+
+		public event EventHandler OnNewVersionAvailable;
 
 		public void StartCheckForLatestVersion()
 		{
@@ -76,7 +76,7 @@ namespace GitMind.ApplicationHandling
 				await Task.Delay(TimeSpan.FromSeconds(5));
 			}
 
-			NotifyNewVersionIsAvailable();
+			NotifyIfNewVersionIsAvailable();
 		}
 
 
@@ -244,9 +244,12 @@ namespace GitMind.ApplicationHandling
 		}
 
 
-		private void NotifyNewVersionIsAvailable()
+		private void NotifyIfNewVersionIsAvailable()
 		{
-			mainWindowService.IsNewVersionAvailable = IsNewVersionInstalled();
+			if (IsNewVersionInstalled())
+			{
+				OnNewVersionAvailable?.Invoke(this, EventArgs.Empty);
+			}
 		}
 
 

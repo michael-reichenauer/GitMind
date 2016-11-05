@@ -49,6 +49,7 @@ namespace GitMind.MainWindowViews
 			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
 
 			workingFolder.OnChange += (s, e) => Notify(nameof(WorkingFolder));
+			latestVersionService.OnNewVersionAvailable += (s, e) => IsNewVersionVisible = true;
 		}
 
 
