@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Media;
 using GitMind.Features.Committing;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -16,19 +15,25 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitDetailsViewModel : ViewModel
 	{
-		private readonly ICommitService commitService = new CommitService();
-		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
-		private readonly IRepositoryCommands repositoryCommands;
+		private readonly IDiffService diffService;
+		private readonly ICommitService commitService;
+		private readonly IGitCommitsService gitCommitsService;
 
 		private readonly ObservableCollection<CommitFileViewModel> files =
 			new ObservableCollection<CommitFileViewModel>();
+
 		private string filesCommitId = null;
 		private CommitViewModel commitViewModel;
 
 
-		public CommitDetailsViewModel(IRepositoryCommands repositoryCommands)
+		public CommitDetailsViewModel(
+			IDiffService diffService,
+			ICommitService commitService,
+			IGitCommitsService gitCommitsService)
 		{
-			this.repositoryCommands = repositoryCommands;
+			this.diffService = diffService;
+			this.commitService = commitService;
+			this.gitCommitsService = gitCommitsService;
 		}
 
 
@@ -62,7 +67,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (CommitViewModel != null)
 			{
-				if (filesCommitId != CommitViewModel.Commit.CommitId 
+				if (filesCommitId != CommitViewModel.Commit.CommitId
 					|| filesCommitId == Commit.UncommittedId)
 				{
 					files.Clear();
@@ -112,7 +117,7 @@ namespace GitMind.RepositoryViews
 
 		public Command EditBranchCommand => CommitViewModel.SetCommitBranchCommand;
 		public Command<string> UndoUncommittedFileCommand => Command<string>(
-			path => commitService.UndoUncommittedFileAsync(repositoryCommands, path));
+			path => commitService.UndoUncommittedFileAsync(path));
 		public Command ShowCommitDiffCommand => CommitViewModel?.ShowCommitDiffCommand;
 
 		public override string ToString() => $"{Id} {Subject}";
@@ -127,7 +132,7 @@ namespace GitMind.RepositoryViews
 					.OrderBy(f => f.Status, Comparer<GitFileStatus>.Create(Compare))
 					.ThenBy(f => f.Path)
 					.ForEach(f => files.Add(
-						new CommitFileViewModel(f, UndoUncommittedFileCommand)
+						new CommitFileViewModel(diffService, f, UndoUncommittedFileCommand)
 						{
 							Id = commit.CommitId,
 							Name = f.Path,
@@ -151,7 +156,7 @@ namespace GitMind.RepositoryViews
 			else
 			{
 				return 0;
-			}			
+			}
 		}
 	}
 }

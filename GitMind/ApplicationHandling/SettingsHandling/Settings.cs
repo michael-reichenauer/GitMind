@@ -13,6 +13,20 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			Get<T>();
 		}
 
+		public static void Edit<T>(Action<T> editAction)
+		{
+			try
+			{
+				T settings = Get<T>();
+				editAction(settings);
+				Set(settings);
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Error editing the settings {e}");
+			}
+		}
+
 		public static T Get<T>()
 		{
 			string path = GetProgramSettingsPath<T>();

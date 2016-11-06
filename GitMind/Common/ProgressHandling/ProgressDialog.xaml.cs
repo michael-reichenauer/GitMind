@@ -8,13 +8,13 @@ namespace GitMind.Common.ProgressHandling
 	/// </summary>
 	public partial class ProgressDialog : Window
 	{
-		private readonly IProgressWorker progressWorker;
+		private readonly IProgressState progressState;
 		private readonly ProgressDialogViewModel viewModel;
 		
 		internal ProgressDialog(
-			Window owner, string text, IProgressWorker progressWorker)
+			Window owner, string text, IProgressState progressState)
 		{
-			this.progressWorker = progressWorker;
+			this.progressState = progressState;
 			Owner = owner;
 			InitializeComponent();
 
@@ -27,7 +27,7 @@ namespace GitMind.Common.ProgressHandling
 		private async void ProgressDialog_OnLoaded(object sender, RoutedEventArgs e)
 		{
 			viewModel.Start();
-			await progressWorker.DoAsync(SetText);
+			await progressState.DoAsync(SetText);
 		
 			viewModel.Stop();
 			DialogResult = true;

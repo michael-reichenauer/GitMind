@@ -18,6 +18,21 @@
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -43,9 +58,13 @@
     <ApplicationIcon>MainWindowViews\Application.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>GitMind.App</StartupObject>
+    <StartupObject>GitMind.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=4.1.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.1.1\lib\net45\Autofac.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="LibGit2Sharp, Version=0.22.0.0, Culture=neutral, PublicKeyToken=7cbde695407f0333, processorArchitecture=MSIL">
       <HintPath>..\packages\LibGit2Sharp.0.22.0\lib\net40\LibGit2Sharp.dll</HintPath>
       <Private>True</Private>
@@ -83,19 +102,27 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="ApplicationHandling\ApplicationService.cs" />
+    <Compile Include="ApplicationHandling\IWorkingFolderService.cs" />
+    <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
+    <Compile Include="ApplicationHandling\WorkingFolder.cs" />
     <Compile Include="Common\JumpListService.cs" />
     <Compile Include="Common\MessageDialogs\Message.cs" />
     <Compile Include="Common\MessageDialogs\MessageDialog.xaml.cs">
       <DependentUpon>MessageDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\MessageDialogs\MessageDialogViewModel.cs" />
-    <Compile Include="Common\ProgressHandling\IProgressWorker.cs" />
-    <Compile Include="Common\ProgressHandling\Progress.cs" />
+    <Compile Include="Common\ProgressHandling\IProgressService.cs" />
+    <Compile Include="Common\ProgressHandling\IProgressState.cs" />
+    <Compile Include="Common\ProgressHandling\ProgressState.cs" />
     <Compile Include="Common\ProgressHandling\ProgressDialog.xaml.cs">
       <DependentUpon>ProgressDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
+    <Compile Include="Common\ProgressHandling\ProgressService.cs" />
+    <Compile Include="Features\Branching\MergeCommand.cs" />
+    <Compile Include="Features\Committing\CommitCommand.cs" />
+    <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
+    <Compile Include="Utils\DependencyInjection.cs" />
     <Compile Include="Features\Branching\Private\CrateBranchDialog.xaml.cs">
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>
     </Compile>
@@ -130,8 +157,11 @@
     <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
     <Compile Include="Git\Private\IRepoCaller.cs" />
     <Compile Include="Git\Private\RepoCaller.cs" />
-    <Compile Include="ApplicationHandling\WorkingFolderService.cs" />
+    <Compile Include="MainWindowViews\IMainWindowService.cs" />
     <Compile Include="MainWindowViews\MainWindowIpcService.cs" />
+    <Compile Include="MainWindowViews\MainWindowService.cs" />
+    <Compile Include="MainWindowViews\WindowOwner.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="RepositoryViews\CredentialHandler.cs" />
     <Compile Include="Git\GitConflict.cs" />
     <Compile Include="Git\GitConflictStatus.cs" />
@@ -149,6 +179,7 @@
     <Compile Include="Utils\IpcService.cs" />
     <Compile Include="Utils\Json.cs" />
     <Compile Include="Utils\Serializer.cs" />
+    <Compile Include="Utils\SingleInstanceAttribute.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
     <Compile Include="Utils\UI\VisibleWindow.cs" />
     <Compile Include="Utils\UI\WpfBindingTraceListener.cs" />
@@ -436,10 +467,25 @@
   <ItemGroup>
     <EmbeddedResource Include="Dependencies\git2-785d8c4.dll" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Dependencies\Autofac.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>mkdir "$(ProjectDir)\Dependencies" 2&gt; NUL
+copy /Y /B "$(SolutionDir)packages\Autofac.4.1.1\lib\net45\Autofac.dll" "$(ProjectDir)\Dependencies\Autofac.dll"
 copy /Y /B "$(SolutionDir)packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll" "$(ProjectDir)\Dependencies\Newtonsoft.Json.dll"
 copy /Y /B "$(SolutionDir)packages\protobuf-net.2.1.0\lib\net451\protobuf-net.dll" "$(ProjectDir)\Dependencies\protobuf-net.dll"
 copy /Y /B "$(SolutionDir)packages\LibGit2Sharp.0.22.0\lib\net40\LibGit2Sharp.dll" "$(ProjectDir)\Dependencies\LibGit2Sharp.dll"

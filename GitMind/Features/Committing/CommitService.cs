@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
+using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 
@@ -15,73 +17,91 @@ namespace GitMind.Features.Committing
 {
 	internal class CommitService : ICommitService
 	{
+		private readonly Func<
+			BranchName,
+			IEnumerable<CommitFile>,
+			string,
+			bool,
+			CommitDialog> commitDialogProvider;
+
+		private readonly WorkingFolder workingFolder;
+		private readonly IMessage message;
+		private readonly WindowOwner owner;
+		private readonly Lazy<IRepositoryCommands> repositoryCommands;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
-
-
-		public CommitService()
-			: this(new GitCommitsService(), new DiffService())
-		{
-		}
+		private readonly IProgressService progress;
 
 
 		public CommitService(
+			WorkingFolder workingFolder,
+			IMessage message,
+			WindowOwner owner,
+			Lazy<IRepositoryCommands> repositoryCommands,
 			IGitCommitsService gitCommitsService,
-			IDiffService diffService)
+			IDiffService diffService,
+			IProgressService progressService,
+			Func<
+				BranchName, 
+				IEnumerable<CommitFile>, 
+				string,
+				bool,
+				CommitDialog> commitDialogProvider)
 		{
+			this.commitDialogProvider = commitDialogProvider;
+			this.workingFolder = workingFolder;
+			this.message = message;
+			this.owner = owner;
+			this.repositoryCommands = repositoryCommands;
 			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;
+			this.progress = progressService;
 		}
 
 
-		public async Task CommitChangesAsync(IRepositoryCommands repositoryCommands)
+		public async Task CommitChangesAsync()
 		{
-			Window owner = repositoryCommands.Owner;
-			Repository repository = repositoryCommands.Repository;
+			Repository repository = repositoryCommands.Value.Repository;
 			BranchName branchName = repository.CurrentBranch.Name;
-			string workingFolder = repositoryCommands.WorkingFolder;
 
-			using (repositoryCommands.DisableStatus())
+			using (repositoryCommands.Value.DisableStatus())
 			{
 				if (repository.CurrentBranch.IsDetached)
 				{
-					Message.ShowInfo(owner, 
+					message.ShowInfo(
 						"Current branch is in detached head status.\n" +
 						"You must first create or switch to branch before commit.");
 					return;
 				}
 
 				IEnumerable<CommitFile> commitFiles = Enumerable.Empty<CommitFile>();
-				if (repositoryCommands.UnCommited != null)
+				if (repositoryCommands.Value.UnCommited != null)
 				{
-					commitFiles = await repositoryCommands.UnCommited.FilesTask;
+					commitFiles = await repositoryCommands.Value.UnCommited.FilesTask;
 				}
-			
+
 				string commitMessage = repository.Status.Message;
 
-				CommitDialog dialog = new CommitDialog(
-					owner,
-					repositoryCommands,
+				CommitDialog dialog = commitDialogProvider(
 					branchName,
-					workingFolder,
 					commitFiles,
 					commitMessage,
 					repository.Status.IsMerging);
 
 				if (dialog.ShowDialog() == true)
 				{
-					Progress.ShowDialog(owner, $"Commit current branch {branchName} ...", async () =>
+					progress.Show($"Commit current branch {branchName} ...", async () =>
 					{
 						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
 							workingFolder, dialog.CommitMessage, branchName, dialog.CommitFiles);
 
 						if (gitCommit.HasValue)
 						{
-							await repositoryCommands.RefreshAfterCommandAsync(false);
+							await repositoryCommands.Value.RefreshAfterCommandAsync(false);
 						}
 						else
 						{
-							Message.ShowWarning(owner, "Failed to commit");
+							message.ShowWarning("Failed to commit");
 						}
 					});
 
@@ -89,9 +109,9 @@ namespace GitMind.Features.Committing
 				}
 				else if (dialog.IsChanged)
 				{
-					Progress.ShowDialog(owner, "Updating status ...", async () =>
+					progress.Show("Updating status ...", async () =>
 					{
-						await repositoryCommands.RefreshAfterCommandAsync(false);
+						await repositoryCommands.Value.RefreshAfterCommandAsync(false);
 					});
 				}
 				else if (repository.Status.IsMerging && !commitFiles.Any())
@@ -102,41 +122,34 @@ namespace GitMind.Features.Committing
 		}
 
 
-		public Task UnCommitAsync(IRepositoryCommands repositoryCommands, Commit commit)
+		public Task UnCommitAsync(Commit commit)
 		{
-			Window owner = repositoryCommands.Owner;
-			string workingFolder = repositoryCommands.WorkingFolder;
-
-			Progress.ShowDialog(owner, $"Uncommit in {commit} ...", async progress =>
+			progress.Show($"Uncommit in {commit} ...", async state =>
 			{
 				R result = await gitCommitsService.UnCommitAsync(workingFolder);
 
 				if (result.IsFaulted)
 				{
-					Message.ShowWarning(owner, $"Failed to uncommit.\n{result.Error.Exception.Message}");
+					message.ShowWarning($"Failed to uncommit.\n{result.Error.Exception.Message}");
 				}
 
-				progress.SetText("Update status after uncommit ...");
-				await repositoryCommands.RefreshAfterCommandAsync(true);
+				state.SetText("Update status after uncommit ...");
+				await repositoryCommands.Value.RefreshAfterCommandAsync(true);
 			});
 
 			return Task.CompletedTask;
 		}
 
 
-		public async Task ShowUncommittedDiff(IRepositoryCommands repositoryCommands)
+		public async Task ShowUncommittedDiff()
 		{
-			string workingFolder = repositoryCommands.WorkingFolder;
-
 			await diffService.ShowDiffAsync(Commit.UncommittedId, workingFolder);
 		}
 
 
-		public Task UndoUncommittedFileAsync(IRepositoryCommands repositoryCommands, string path)
+		public Task UndoUncommittedFileAsync(string path)
 		{
-			Window owner = repositoryCommands.Owner;
-			string workingFolder = repositoryCommands.WorkingFolder;
-			Progress.ShowDialog(owner, $"Undo file change in {path} ...", async () =>
+			progress.Show($"Undo file change in {path} ...", async () =>
 			{
 				await gitCommitsService.UndoFileInWorkingFolderAsync(workingFolder, path);
 			});

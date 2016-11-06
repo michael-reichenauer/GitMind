@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.RepositoryViews;
 using LibGit2Sharp;
 
 
@@ -7,6 +8,7 @@ namespace GitMind.Git
 {
 	internal class GitDiff
 	{
+		private readonly IDiffService diffService = new DiffService();
 		private readonly Diff diff;
 		private readonly Repository repository;
 		private static readonly SimilarityOptions DetectRenames =

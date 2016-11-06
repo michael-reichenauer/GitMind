@@ -1,7 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Features.Branching;
-using GitMind.Features.Branching.Private;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
@@ -11,28 +10,24 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitViewModel : ViewModel
 	{
-		private readonly IBranchService branchService = new BranchService();
-		private readonly IRepositoryCommands repositoryCommands;
+		private readonly IBranchService branchService;
+
+
 		private int windowWidth;
 
 
 		public CommitViewModel(
-			IRepositoryCommands repositoryCommands,
-			Command toggleDetailsCommand,
-			Command<Commit> showCommitDiffCommand,
-			Command<Commit> setBranchCommand,
-			Command undoCleanWorkingFolderCommand,
-			Command undoUncommittedChangesCommand,
-			Command<Commit> uncommitCommand)
+			IBranchService branchService,
+			IRepositoryCommands repositoryCommands)
 		{
-			this.repositoryCommands = repositoryCommands;
-			ToggleDetailsCommand = toggleDetailsCommand;
-			SetCommitBranchCommand = setBranchCommand.With(() => Commit);
-			ShowCommitDiffCommand = showCommitDiffCommand.With(
+			this.branchService = branchService;
+			ToggleDetailsCommand = repositoryCommands.ToggleDetailsCommand;
+			SetCommitBranchCommand = repositoryCommands.SetBranchCommand.With(() => Commit);
+			ShowCommitDiffCommand = repositoryCommands.ShowDiffCommand.With(
 				() => Commit.IsVirtual && !Commit.IsUncommitted ? Commit.FirstParent : Commit);
-			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
-			UndoCleanWorkingFolderCommand = undoCleanWorkingFolderCommand;
-			UncommitCommand = uncommitCommand.With(() => Commit); ;
+			UndoUncommittedChangesCommand = repositoryCommands.UndoUncommittedChangesCommand;
+			UndoCleanWorkingFolderCommand = repositoryCommands.UndoCleanWorkingFolderCommand;
+			UncommitCommand = repositoryCommands.UncommitCommand.With(() => Commit); ;
 		}
 
 
@@ -111,21 +106,21 @@ namespace GitMind.RepositoryViews
 		public Command ShowCommitDiffCommand { get; }
 		public Command SetCommitBranchCommand { get; }
 		public Command SwitchToCommitCommand => Command(
-			() => branchService.SwitchToBranchCommitAsync(repositoryCommands, Commit),
+			() => branchService.SwitchToBranchCommitAsync(Commit),
 			() => branchService.CanExecuteSwitchToBranchCommit(Commit));
 
 		public Command SwitchToBranchCommand => Command(
-			() => branchService.SwitchBranchAsync(repositoryCommands, Commit.Branch),
+			() => branchService.SwitchBranchAsync(Commit.Branch),
 			() => branchService.CanExecuteSwitchBranch(Commit.Branch));
 
 		public Command CreateBranchFromCommitCommand => Command(
-			() => branchService.CreateBranchFromCommitAsync(repositoryCommands, Commit));
+			() => branchService.CreateBranchFromCommitAsync(Commit));
 
 		public Command UndoUncommittedChangesCommand { get; }
 		public Command UndoCleanWorkingFolderCommand { get; }
 		public Command UncommitCommand { get; }
 
-		
+
 
 		// Values used by other properties
 		public Commit Commit { get; set; }
@@ -133,7 +128,7 @@ namespace GitMind.RepositoryViews
 		// If second parent is other branch (i.e. no a pull merge)
 		// If commit is first commit in a branch (first parent is other branch)
 		// If commit is tip commit, but not master
-		public bool IsMergePoint => 
+		public bool IsMergePoint =>
 			(Commit.IsMergePoint && Commit.Branch != Commit.SecondParent.Branch)
 			|| (Commit.HasFirstParent && Commit.Branch != Commit.FirstParent.Branch)
 			|| (Commit == Commit.Branch.TipCommit && Commit.Branch.Name != BranchName.Master);

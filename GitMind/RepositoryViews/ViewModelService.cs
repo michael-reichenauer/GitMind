@@ -16,9 +16,22 @@ namespace GitMind.RepositoryViews
 	/// </summary>
 	internal class ViewModelService : IViewModelService
 	{
-		private readonly IBrushService brushService = new BrushService();
 		private static readonly int CommitHeight = Converters.ToY(1);
 
+		private readonly IBrushService brushService;
+		private readonly Func<CommitViewModel> commitViewModelProvider;
+		private readonly Func<BranchViewModel> branchViewModelProvider;
+
+
+		public ViewModelService(
+			IBrushService brushService,
+			Func<CommitViewModel> commitViewModelProvider,
+			Func<BranchViewModel> branchViewModelProvider)
+		{
+			this.brushService = brushService;
+			this.commitViewModelProvider = commitViewModelProvider;
+			this.branchViewModelProvider = branchViewModelProvider;
+		}
 
 		public void UpdateViewModel(RepositoryViewModel repositoryViewModel)
 		{
@@ -66,14 +79,14 @@ namespace GitMind.RepositoryViews
 			branches
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.ShownBranches.Add(
-					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand, null)));
 
 			repositoryViewModel.HidableBranches.Clear();
 			branches
 				.Where(b => b.Name != BranchName.Master)
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.HidableBranches.Add(
-					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand, null)));
 
 			repositoryViewModel.ShowableBranches.Clear();
 			IEnumerable<Branch> showableBranches = repositoryViewModel.Repository.Branches
@@ -457,14 +470,7 @@ namespace GitMind.RepositoryViews
 			List<CommitViewModel> commits = repositoryViewModel.Commits;
 			var commitsById = repositoryViewModel.CommitsById;
 
-			SetNumberOfItems(commits, sourceCommits.Count, i => new CommitViewModel(
-				repositoryViewModel,
-				repositoryViewModel.ToggleDetailsCommand,
-				repositoryViewModel.ShowDiffCommand,
-				repositoryViewModel.SetBranchCommand,
-				repositoryViewModel.UndoCleanWorkingFolderCommand,
-				repositoryViewModel.UndoUncommittedChangesCommand,
-				repositoryViewModel.UncommitCommand));
+			SetNumberOfItems(commits, sourceCommits.Count, i => commitViewModelProvider());
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
@@ -517,14 +523,7 @@ namespace GitMind.RepositoryViews
 			int maxColumn = 0;
 			var branches = repositoryViewModel.Branches;
 
-			SetNumberOfItems(branches, sourceBranches.Count, i => new BranchViewModel(
-				repositoryViewModel,
-				repositoryViewModel.ShowBranchCommand,
-				repositoryViewModel.MergeBranchCommand,
-				repositoryViewModel.DeleteBranchCommand,
-				repositoryViewModel.PublishBranchCommand,
-				repositoryViewModel.PushBranchCommand,
-				repositoryViewModel.UpdateBranchCommand));
+			SetNumberOfItems(branches, sourceBranches.Count, i => branchViewModelProvider());
 
 			int index = 0;
 			List<BranchViewModel> addedBranchColumns = new List<BranchViewModel>();

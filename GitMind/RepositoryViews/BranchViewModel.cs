@@ -13,8 +13,8 @@ namespace GitMind.RepositoryViews
 {
 	internal class BranchViewModel : ViewModel
 	{
-		private readonly IBranchService branchService = new BranchService();
-		private readonly IRepositoryCommands repositoryCommands;
+		private readonly IBranchService branchService;
+
 		private readonly Command<Branch> showBranchCommand;
 		private readonly Command<Branch> deleteBranchCommand;
 		private readonly Command<Branch> publishBranchCommand;
@@ -26,23 +26,18 @@ namespace GitMind.RepositoryViews
 
 		
 		public BranchViewModel(
+			IBranchService branchService,
 			IRepositoryCommands repositoryCommands,
-			Command<Branch> showBranchCommand,
-			Command<Branch> mergeBranchCommand,
-			Command<Branch> deleteBranchCommand,
-			Command<Branch> publishBranchCommand,
-			Command<Branch> pushBranchCommand,
-			Command<Branch> updateBranchCommand)
+			MergeCommand mergeCommand)
 		{
-			this.repositoryCommands = repositoryCommands;
-			this.showBranchCommand = showBranchCommand;
-			this.deleteBranchCommand = deleteBranchCommand;
-			this.publishBranchCommand = publishBranchCommand;
-			this.pushBranchCommand = pushBranchCommand;
-			this.updateBranchCommand = updateBranchCommand;
+			this.branchService = branchService;
+			this.showBranchCommand = repositoryCommands.ShowBranchCommand;
+			this.deleteBranchCommand = repositoryCommands.DeleteBranchCommand;
+			this.publishBranchCommand = repositoryCommands.PublishBranchCommand;
+			this.pushBranchCommand = repositoryCommands.PushBranchCommand;
+			this.updateBranchCommand = repositoryCommands.UpdateBranchCommand;
 
-
-			MergeBranchCommand = mergeBranchCommand.With(() => Branch);
+			MergeBranchCommand = mergeCommand.With(() => Branch);
 		}
 
 		// UI properties
@@ -94,11 +89,11 @@ namespace GitMind.RepositoryViews
 		}
 
 		public Command SwitchBranchCommand => Command(
-			() => branchService.SwitchBranchAsync(repositoryCommands, Branch),
+			() => branchService.SwitchBranchAsync(Branch),
 			() => branchService.CanExecuteSwitchBranch(Branch));
 
 		public Command CreateBranchCommand => Command(
-			() => branchService.CreateBranchAsync(repositoryCommands, Branch));
+			() => branchService.CreateBranchAsync(Branch));
 
 		public Command MergeBranchCommand { get; }
 		public Command DeleteBranchCommand => 

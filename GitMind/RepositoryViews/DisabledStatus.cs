@@ -8,7 +8,9 @@ namespace GitMind.RepositoryViews
 		private readonly RepositoryViewModel repositoryViewModel;
 
 
-		public DisabledStatus(RepositoryViewModel repositoryViewModel)
+
+		public DisabledStatus(
+			RepositoryViewModel repositoryViewModel)
 		{
 			this.repositoryViewModel = repositoryViewModel;
 			repositoryViewModel.SetIsInternalDialog(true);
@@ -18,7 +20,7 @@ namespace GitMind.RepositoryViews
 		public void Dispose()
 		{
 			repositoryViewModel.SetIsInternalDialog(false);
-			repositoryViewModel.Owner.Focus();
+			repositoryViewModel.SetMainWindowFocus();
 		}
 	}
 }

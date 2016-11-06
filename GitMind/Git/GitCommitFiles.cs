@@ -16,7 +16,7 @@ namespace GitMind.Git
 		public IReadOnlyList<GitFile> Files { get; set; }
 
 
-		public GitCommitFiles(string commitId, TreeChanges treeChanges)
+		internal GitCommitFiles(string commitId, TreeChanges treeChanges)
 		{
 			Id = commitId;
 			if (treeChanges == null)

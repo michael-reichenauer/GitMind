@@ -209,20 +209,6 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			}
 		}
 
-		public static R<string> GetWorkingFolderPath(string path)
-		{
-			if (path == null)
-			{
-				return Error.From("No working folder");
-			}
-
-			IGitInfoService gitInfoService = new GitInfoService();
-			
-			return gitInfoService.GetCurrentRootPath(path)
-				.OnError(e => Log.Debug($"Not a working folder {path}, {e}"));
-		}
-
-
 		public static string GetLogFilePath()
 		{
 			string folderPath = GetProgramDataFolderPath();

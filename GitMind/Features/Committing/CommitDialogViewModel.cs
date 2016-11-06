@@ -2,8 +2,11 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using GitMind.ApplicationHandling;
+using GitMind.Common.MessageDialogs;
 using GitMind.Git;
 using GitMind.GitModel;
+using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -13,9 +16,9 @@ namespace GitMind.Features.Committing
 {
 	internal class CommitDialogViewModel : ViewModel
 	{
-		private readonly ICommitService commitService = new CommitService();
-		private readonly Window owner;
-		private readonly IRepositoryCommands repositoryCommands;
+		private readonly ICommitService commitService;
+		private readonly IDiffService diffService;
+		private readonly IMessage message;
 		private readonly bool isMerging;
 
 		//private static readonly string TestSubject =
@@ -26,18 +29,20 @@ namespace GitMind.Features.Committing
 
 
 		public CommitDialogViewModel(
-			Window owner,
-			IRepositoryCommands repositoryCommands,
+			ICommitService commitService,
+			WorkingFolder workingFolder,
+			IDiffService diffService, 
+			IMessage message,
 			BranchName branchName,
-			string workingFolder,
 			IEnumerable<CommitFile> files,
 			string commitMessage,
 			bool isMerging)
 		{
 			CommitFiles = files.ToList();
 
-			this.owner = owner;
-			this.repositoryCommands = repositoryCommands;
+			this.commitService = commitService;
+			this.diffService = diffService;
+			this.message = message;
 			this.isMerging = isMerging;
 
 			files.ForEach(f => Files.Add(
@@ -72,7 +77,7 @@ namespace GitMind.Features.Committing
 		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
 		public Command ShowUncommittedDiffCommand => AsyncCommand(
-			() => commitService.ShowUncommittedDiff(repositoryCommands));
+			() => commitService.ShowUncommittedDiff());
 
 		public Command<string> UndoUncommittedFileCommand => Command<string>(UndoUncommittedFile);
 
@@ -84,7 +89,7 @@ namespace GitMind.Features.Committing
 
 			if (file != null)
 			{
-				commitService.UndoUncommittedFileAsync(repositoryCommands, path);
+				commitService.UndoUncommittedFileAsync(path);
 
 				Files.Remove(file);
 				IsChanged = true;
@@ -137,7 +142,7 @@ namespace GitMind.Features.Committing
 		{
 			if (string.IsNullOrWhiteSpace(Message) || (Files.Count == 0 && !isMerging))
 			{
-				Common.MessageDialogs.Message.ShowInfo(owner, "Nothing to commit.");
+				message.ShowInfo("Nothing to commit.");
 				return;
 			}
 
@@ -149,7 +154,7 @@ namespace GitMind.Features.Committing
 
 		private CommitFileViewModel ToCommitFileViewModel(string workingFolder, CommitFile file)
 		{
-			return new CommitFileViewModel(file, UndoUncommittedFileCommand)
+			return new CommitFileViewModel(diffService, file, UndoUncommittedFileCommand)
 			{
 				WorkingFolder = workingFolder,
 				Id = Commit.UncommittedId,

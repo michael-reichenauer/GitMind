@@ -10,14 +10,16 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitFileViewModel : ViewModel
 	{
-		private readonly IDiffService diffService = new DiffService();
+		private readonly IDiffService diffService;
 
 		private readonly CommitFile file;
 
-
-
-		public CommitFileViewModel(CommitFile file, Command<string> undoUncommittedFileCommand)
+		public CommitFileViewModel(
+			IDiffService diffService, 
+			CommitFile file, 
+			Command<string> undoUncommittedFileCommand)
 		{
+			this.diffService = diffService;
 			this.file = file;
 			UndoUncommittedFileCommand = undoUncommittedFileCommand.With(() => Name);
 		}
