@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Features.Branching;
+using GitMind.Features.Committing;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
@@ -12,14 +13,14 @@ namespace GitMind.RepositoryViews
 	{
 		private readonly IBranchService branchService;
 
-
 		private int windowWidth;
 
 
 		public CommitViewModel(
 			IBranchService branchService,
 			IRepositoryCommands repositoryCommands,
-			ToggleDetailsCommand toggleDetailsCommand)
+			ToggleDetailsCommand toggleDetailsCommand,
+			UncommitCommand uncommitCommand)
 		{
 			this.branchService = branchService;
 			ToggleDetailsCommand = toggleDetailsCommand;
@@ -28,7 +29,7 @@ namespace GitMind.RepositoryViews
 				() => Commit.IsVirtual && !Commit.IsUncommitted ? Commit.FirstParent : Commit);
 			UndoUncommittedChangesCommand = repositoryCommands.UndoUncommittedChangesCommand;
 			UndoCleanWorkingFolderCommand = repositoryCommands.UndoCleanWorkingFolderCommand;
-			UncommitCommand = repositoryCommands.UncommitCommand.With(() => Commit); ;
+			UncommitCommand = uncommitCommand.With(() => Commit);
 		}
 
 
@@ -47,7 +48,7 @@ namespace GitMind.RepositoryViews
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.Id == Commit.UncommittedId;
-		public bool CanUncommit => !IsUncommitted && IsCurrent && Commit.IsLocalAhead;
+		public bool CanUncommit => UncommitCommand.CanExecute();
 		public bool IsShown => BranchTips == null;
 		public string BranchToolTip { get; set; }
 

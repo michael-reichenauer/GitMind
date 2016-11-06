@@ -24,7 +24,6 @@ namespace GitMind.RepositoryViews
 		Command<Commit> SetBranchCommand { get; }
 		Command UndoCleanWorkingFolderCommand { get; }
 		Command UndoUncommittedChangesCommand { get; }
-		Command<Commit> UncommitCommand { get; }
 		Command ShowUncommittedDiffCommand { get; }
 		Command ShowSelectedDiffCommand { get; }
 		Command TryUpdateAllBranchesCommand { get; }

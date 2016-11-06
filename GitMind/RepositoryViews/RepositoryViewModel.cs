@@ -105,7 +105,8 @@ namespace GitMind.RepositoryViews
 			CommitCommand commitCommand,
 			MergeCommand mergeCommand,
 			ToggleDetailsCommand toggleDetailsCommand,
-			DeleteBranchCommand deleteBranchCommand)
+			DeleteBranchCommand deleteBranchCommand,
+			UncommitCommand uncommitCommand)
 		{
 			this.workingFolder = workingFolder;
 			this.diffService = diffService;
@@ -133,6 +134,7 @@ namespace GitMind.RepositoryViews
 			MergeBranchCommand = mergeCommand;
 			ToggleDetailsCommand = toggleDetailsCommand;
 			DeleteBranchCommand = deleteBranchCommand;
+			UncommitCommand = uncommitCommand;
 		}
 
 
@@ -242,7 +244,7 @@ namespace GitMind.RepositoryViews
 
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
 		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
-		public Command<Commit> UncommitCommand => AsyncCommand<Commit>(UncommitAsync);
+		public Command<Commit> UncommitCommand { get; }
 
 
 		private Command CommitCommand { get; }
@@ -1000,10 +1002,10 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private async Task UncommitAsync(Commit commit)
-		{
-			await commitService.UnCommitAsync(commit);
-		}
+		//private async Task UncommitAsync(Commit commit)
+		//{
+		//	await commitService.UnCommitAsync(commit);
+		//}
 
 
 		private void ShowDiff(Commit commit)

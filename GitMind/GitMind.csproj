@@ -122,6 +122,7 @@
     <Compile Include="Features\Branching\DeleteBranchCommand.cs" />
     <Compile Include="Features\Branching\MergeCommand.cs" />
     <Compile Include="Features\Committing\CommitCommand.cs" />
+    <Compile Include="Features\Committing\UncommitCommand.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
     <Compile Include="RepositoryViews\OpenDetailsCommand.cs" />
