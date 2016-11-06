@@ -26,7 +26,6 @@ namespace GitMind.RepositoryViews
 		Command UndoCleanWorkingFolderCommand { get; }
 		Command UndoUncommittedChangesCommand { get; }
 		Command<Commit> UncommitCommand { get; }
-		Command CommitCommand { get; }
 		Command ShowUncommittedDiffCommand { get; }
 		Command ShowSelectedDiffCommand { get; }
 		Command TryUpdateAllBranchesCommand { get; }

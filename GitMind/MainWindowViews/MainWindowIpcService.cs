@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using GitMind.ApplicationHandling;
+using GitMind.Features.Committing;
 using GitMind.Utils;
 
 
@@ -8,14 +9,14 @@ namespace GitMind.MainWindowViews
 {
 	internal class MainWindowIpcService : IpcService
 	{
+		private readonly CommitCommand commitCommand;
 		private static readonly string InstanceId = "0000278d-5c40-4973-aad9-1c33196fd1a2";
 
-		private readonly MainWindowViewModel mainWindowViewModel;
 
-
-		public MainWindowIpcService(MainWindowViewModel mainWindowViewModel)
+		public MainWindowIpcService(CommitCommand commitCommand)
 		{
-			this.mainWindowViewModel = mainWindowViewModel;
+			this.commitCommand = commitCommand;
+
 		}
 
 
@@ -36,9 +37,9 @@ namespace GitMind.MainWindowViews
 				if (commandLine.IsCommitCommand(args))
 				{
 					Log.Usage("Activated and commit");
-					if (mainWindowViewModel.RepositoryViewModel.CommitCommand.CanExecute())
+					if (commitCommand.CanExecute())
 					{
-						mainWindowViewModel.RepositoryViewModel.CommitCommand.Execute();
+						commitCommand.Execute();
 					}
 				}
 				else

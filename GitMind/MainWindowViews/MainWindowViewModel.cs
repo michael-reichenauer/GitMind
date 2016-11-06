@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
+using GitMind.Features.Committing;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
 using GitMind.RepositoryViews;
@@ -23,6 +24,7 @@ namespace GitMind.MainWindowViews
 	{
 		private readonly ILatestVersionService latestVersionService;
 		private readonly IMainWindowService mainWindowService;
+		private readonly MainWindowIpcService mainWindowIpcService;
 		private readonly FolderMonitorService folderMonitor;
 		private readonly JumpListService jumpListService = new JumpListService();
 
@@ -36,14 +38,18 @@ namespace GitMind.MainWindowViews
 		internal MainWindowViewModel(
 			WorkingFolder workingFolder,
 			WindowOwner owner,
+			CommitCommand commitCommand,
 			ILatestVersionService latestVersionService,
 			IMainWindowService mainWindowService,
+			MainWindowIpcService mainWindowIpcService,
 			Func<BusyIndicator, RepositoryViewModel> RepositoryViewModelProvider)
 		{
 			this.workingFolder = workingFolder;
 			this.owner = owner;
 			this.latestVersionService = latestVersionService;
 			this.mainWindowService = mainWindowService;
+			this.mainWindowIpcService = mainWindowIpcService;
+			CommitCommand = commitCommand;
 
 			RepositoryViewModel = RepositoryViewModelProvider(Busy);
 			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
@@ -103,6 +109,8 @@ namespace GitMind.MainWindowViews
 				return text;
 			}
 		}
+
+		public Command CommitCommand { get; }
 
 		public Command RefreshCommand => AsyncCommand(ManualRefreshAsync);
 
@@ -180,7 +188,7 @@ namespace GitMind.MainWindowViews
 			string id = MainWindowIpcService.GetId(workingFolder);
 			if (ipcRemotingService.TryCreateServer(id))
 			{
-				ipcRemotingService.PublishService(new MainWindowIpcService(this));
+				ipcRemotingService.PublishService(mainWindowIpcService);
 			}
 			else
 			{

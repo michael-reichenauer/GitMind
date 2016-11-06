@@ -7,29 +7,33 @@ namespace GitMind.Utils.UI
 {
 	public class Command : ICommand
 	{
-		private readonly Command<object> command;
+		private Command<object> command;
 
 
 		public Command(Action executeMethod, string memberName)
 		{
-			command = new Command<object>(_ => executeMethod(), memberName);
+			SetCommand(executeMethod, memberName);
 		}
 
 		public Command(Action executeMethod, Func<bool> canExecuteMethod, string memberName)
 		{
-			command = new Command<object>((object _) => executeMethod(), _ => canExecuteMethod(), memberName);
+			SetCommand(executeMethod, canExecuteMethod, memberName);
 		}
 
 		public Command(Func<Task> executeMethodAsync, string memberName)
 		{
-			command = new Command<object>(_ => executeMethodAsync(), memberName);
+			SetCommand(executeMethodAsync,  memberName);
 		}
 
 		public Command(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod, string memberName)
 		{
-			command = new Command<object>(_ => executeMethodAsync(), _ => canExecuteMethod(), memberName);
-
+			SetCommand(executeMethodAsync, canExecuteMethod, memberName);
 		}
+
+		protected Command()
+		{
+		}
+
 
 		public event EventHandler CanExecuteChanged
 		{
@@ -70,6 +74,27 @@ namespace GitMind.Utils.UI
 		public void RaiseCanExecuteChanaged()
 		{
 			command.RaiseCanExecuteChanaged();
+		}
+
+
+		protected void SetCommand(Action executeMethod, string memberName)
+		{
+			command = new Command<object>(_ => executeMethod(), memberName);
+		}
+
+		protected void SetCommand(Action executeMethod, Func<bool> canExecuteMethod, string memberName)
+		{
+			command = new Command<object>((object _) => executeMethod(), _ => canExecuteMethod(), memberName);
+		}
+
+		protected void SetCommand(Func<Task> executeMethodAsync, string memberName)
+		{
+			command = new Command<object>(_ => executeMethodAsync(), memberName);
+		}
+
+		protected void SetCommand(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod, string memberName)
+		{
+			command = new Command<object>(_ => executeMethodAsync(), _ => canExecuteMethod(), memberName);
 		}
 	}
 

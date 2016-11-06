@@ -119,6 +119,8 @@
     </Compile>
     <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
     <Compile Include="Common\ProgressHandling\ProgressService.cs" />
+    <Compile Include="Features\Committing\CommitCommand.cs" />
+    <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
     <Compile Include="Features\Branching\Private\CrateBranchDialog.xaml.cs">
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>

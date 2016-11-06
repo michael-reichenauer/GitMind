@@ -40,6 +40,6 @@ namespace GitMind.GitModel
 		public MRepository MRepository { get; }
 		public CommitsFiles CommitsFiles { get; }
 		public Status Status { get; }
-		public string RootId { get; set; }
+		public string RootId { get; }
 	}
 }

@@ -35,7 +35,7 @@
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
 		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding RepositoryViewModel.ShowUncommittedDiffCommand}" />
-		<KeyBinding Modifiers="Control+Shift" Key="Enter" Command="{Binding RepositoryViewModel.CommitCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="Enter" Command="{Binding CommitCommand}" />
 		<KeyBinding Modifiers="Control" Key="D" Command="{Binding RepositoryViewModel.ShowSelectedDiffCommand}" />
 		<KeyBinding Modifiers="Control" Key="Up" Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}" />
 		<KeyBinding Modifiers="Control+Shift" Key="Up" Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}" />
@@ -148,7 +148,7 @@
 								<MenuItem 
 									Header="Commit ..." 
 									InputGestureText="Ctrl-Shift-Enter"
-									Command="{Binding RepositoryViewModel.CommitCommand}">
+									Command="{Binding CommitCommand}">
 									<MenuItem.Icon>
 										<Border>
 											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE5DD;"/>

@@ -30,7 +30,7 @@ namespace GitMind.RepositoryViews
 	/// View model
 	/// </summary>
 	[SingleInstance]
-	internal class RepositoryViewModel : ViewModel, IRepositoryCommands
+	internal class RepositoryViewModel : ViewModel, IRepositoryCommands, IRepositoryMgr
 	{
 		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
 
@@ -95,7 +95,8 @@ namespace GitMind.RepositoryViews
 			ICommitService commitService,
 			BusyIndicator busyIndicator,
 			IProgressService progressService,
-			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
+			Func<CommitDetailsViewModel> commitDetailsViewModelProvider,
+			CommitCommand commitCommand)
 		{
 			this.workingFolder = workingFolder;
 			this.diffService = diffService;
@@ -113,6 +114,7 @@ namespace GitMind.RepositoryViews
 			filterTriggerTimer.Interval = FilterDelay;
 
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
+			CommitCommand = commitCommand;
 		}
 
 
@@ -230,9 +232,8 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> UncommitCommand => AsyncCommand<Commit>(UncommitAsync);
 
 
-		public Command CommitCommand => AsyncCommand(
-			() => commitService.CommitChangesAsync(),
-			() => IsUncommitted);
+		private Command CommitCommand { get; }
+
 
 
 
