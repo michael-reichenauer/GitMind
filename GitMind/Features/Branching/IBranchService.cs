@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using GitMind.GitModel;
-using GitMind.RepositoryViews;
 
 
 namespace GitMind.Features.Branching

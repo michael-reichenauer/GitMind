@@ -79,14 +79,14 @@ namespace GitMind.RepositoryViews
 			branches
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.ShownBranches.Add(
-					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand, null)));
 
 			repositoryViewModel.HidableBranches.Clear();
 			branches
 				.Where(b => b.Name != BranchName.Master)
 				.OrderBy(b => b.Name)
 				.ForEach(b => repositoryViewModel.HidableBranches.Add(
-					new BranchItem(b, repositoryViewModel.ShowBranchCommand, repositoryViewModel.MergeBranchCommand)));
+					new BranchItem(b, repositoryViewModel.ShowBranchCommand, null)));
 
 			repositoryViewModel.ShowableBranches.Clear();
 			IEnumerable<Branch> showableBranches = repositoryViewModel.Repository.Branches

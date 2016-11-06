@@ -9,6 +9,7 @@ using System.Windows.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
+using GitMind.Features.Branching;
 using GitMind.Features.Branching.Private;
 using GitMind.Features.Committing;
 using GitMind.Git;
@@ -96,7 +97,8 @@ namespace GitMind.RepositoryViews
 			BusyIndicator busyIndicator,
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider,
-			CommitCommand commitCommand)
+			CommitCommand commitCommand,
+			MergeCommand mergeCommand)
 		{
 			this.workingFolder = workingFolder;
 			this.diffService = diffService;
@@ -115,6 +117,7 @@ namespace GitMind.RepositoryViews
 
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
 			CommitCommand = commitCommand;
+			MergeBranchCommand = mergeCommand;
 		}
 
 
@@ -224,7 +227,7 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
 
 
-		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(MergeBranchAsync);
+		public Command<Branch> MergeBranchCommand { get; }
 
 
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
@@ -1053,15 +1056,15 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private async Task MergeBranchAsync(Branch branch)
-		{
-			await branchService.MergeBranchAsync(branch);
+		//private async Task MergeBranchAsync(Branch branch)
+		//{
+		//	await branchService.MergeBranchAsync(branch);
 
-			if (Repository.Status.ConflictCount > 0)
-			{
-				IsShowCommitDetails = true;
-			}
-		}
+		//	if (Repository.Status.ConflictCount > 0)
+		//	{
+		//		IsShowCommitDetails = true;
+		//	}
+		//}
 
 
 

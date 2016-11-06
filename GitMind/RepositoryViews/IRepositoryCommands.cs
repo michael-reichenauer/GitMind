@@ -22,7 +22,7 @@ namespace GitMind.RepositoryViews
 		Command ShowUncommittedDetailsCommand { get; }
 		Command ShowCurrentBranchCommand { get; }
 		Command<Commit> SetBranchCommand { get; }
-		Command<Branch> MergeBranchCommand { get; }
+		//Command<Branch> MergeBranchCommand { get; }
 		Command UndoCleanWorkingFolderCommand { get; }
 		Command UndoUncommittedChangesCommand { get; }
 		Command<Commit> UncommitCommand { get; }

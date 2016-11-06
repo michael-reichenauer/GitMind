@@ -102,10 +102,25 @@ namespace GitMind.Utils.UI
 	public class Command<T> : ICommand
 	{
 		private readonly Action<T> executeMethod;
-		private readonly string memberName;
-		private readonly Func<T, Task> executeMethodAsync;
+		private string memberName;
+		private Func<T, Task> executeMethodAsync;
 		private readonly Func<T, bool> canExecuteMethod;
 		private bool canExecute = true;
+
+
+		protected Command()
+		{
+			
+		}
+
+
+		protected void SetCommand(Func<T, Task> methodAsync, string name)
+		{
+			Asserter.NotNull(methodAsync);
+
+			executeMethodAsync = methodAsync;
+			memberName = name;
+		}
 
 		public Command(Action<T> executeMethod, string memberName)
 		{
@@ -128,10 +143,7 @@ namespace GitMind.Utils.UI
 
 		public Command(Func<T, Task> executeMethodAsync, string memberName)
 		{
-			Asserter.NotNull(executeMethodAsync);
-
-			this.executeMethodAsync = executeMethodAsync;
-			this.memberName = memberName;
+			SetCommand(executeMethodAsync, memberName);
 		}
 
 
