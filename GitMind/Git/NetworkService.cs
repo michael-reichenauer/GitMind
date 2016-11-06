@@ -20,37 +20,37 @@ namespace GitMind.Git
 		}
 
 
-		public Task<R> FetchAsync(string workingFolder)
+		public Task<R> FetchAsync()
 		{
-			return gitNetworkService.FetchAsync(workingFolder);
+			return gitNetworkService.FetchAsync();
 		}
 
 
-		public Task<R> FetchBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> FetchBranchAsync(BranchName branchName)
 		{
-			return gitNetworkService.FetchBranchAsync(workingFolder, branchName);
+			return gitNetworkService.FetchBranchAsync(branchName);
 		}
 
 
-		public Task<R> PushCurrentBranchAsync(string workingFolder)
+		public Task<R> PushCurrentBranchAsync()
 		{
-			return gitNetworkService.PushCurrentBranchAsync(workingFolder);
+			return gitNetworkService.PushCurrentBranchAsync();
 		}
 
 
-		public Task<R> PushBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> PushBranchAsync(BranchName branchName)
 		{
-			return gitNetworkService.PushBranchAsync(workingFolder, branchName);
+			return gitNetworkService.PushBranchAsync(branchName);
 		}
 
 
-		public Task PushNotesAsync(string workingFolder, string rootId)
+		public Task PushNotesAsync(string rootId)
 		{
 			return gitCommitBranchNameService.PushNotesAsync(rootId);
 		}
 
 
-		public Task<R> FetchAllNotesAsync(string workingFolder)
+		public Task<R> FetchAllNotesAsync()
 		{
 			return gitCommitBranchNameService.FetchAllNotesAsync();
 		}

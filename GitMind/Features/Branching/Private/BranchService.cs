@@ -85,7 +85,7 @@ namespace GitMind.Features.Branching.Private
 							{
 								state.SetText($"Publish branch {dialog.BranchName}...");
 
-								R publish = await gitNetworkService.PublishBranchAsync(workingFolder, branchName);
+								R publish = await gitNetworkService.PublishBranchAsync(branchName);
 								if (publish.IsFaulted)
 								{
 									message.ShowWarning($"Failed to publish the branch {branchName}.");
@@ -115,7 +115,7 @@ namespace GitMind.Features.Branching.Private
 			{
 				progress.Show($"Publish branch {branch.Name} ...", async state =>
 				{
-					R publish = await gitNetworkService.PublishBranchAsync(workingFolder, branch.Name);
+					R publish = await gitNetworkService.PublishBranchAsync(branch.Name);
 
 					if (publish.IsFaulted)
 					{
@@ -135,7 +135,7 @@ namespace GitMind.Features.Branching.Private
 			{
 				progress.Show($"Push branch {branch.Name} ...", async state =>
 				{
-					R result = await gitNetworkService.PushBranchAsync(workingFolder, branch.Name);
+					R result = await gitNetworkService.PushBranchAsync(branch.Name);
 
 					if (result.IsFaulted)
 					{
@@ -160,7 +160,7 @@ namespace GitMind.Features.Branching.Private
 						branch.IsMainPart && branch.LocalSubBranch == branch.Repository.CurrentBranch)
 					{
 						Log.Debug("Update current branch");
-						result = await gitNetworkService.FetchAsync(workingFolder);
+						result = await gitNetworkService.FetchAsync();
 						if (result.IsOk)
 						{
 							result = await gitBranchService.MergeCurrentBranchAsync();
@@ -169,7 +169,7 @@ namespace GitMind.Features.Branching.Private
 					else
 					{
 						Log.Debug($"Update branch {branch.Name}");
-						result = await gitNetworkService.FetchBranchAsync(workingFolder, branch.Name);
+						result = await gitNetworkService.FetchBranchAsync(branch.Name);
 					}
 
 					if (result.IsFaulted)
@@ -347,7 +347,7 @@ namespace GitMind.Features.Branching.Private
 			R deleted;
 			if (isRemote)
 			{
-				deleted = await gitNetworkService.DeleteRemoteBranchAsync(workingFolder, branch.Name);
+				deleted = await gitNetworkService.DeleteRemoteBranchAsync(branch.Name);
 			}
 			else
 			{

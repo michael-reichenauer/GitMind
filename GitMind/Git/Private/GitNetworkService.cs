@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling;
 using GitMind.Utils;
 using LibGit2Sharp;
 
@@ -18,20 +19,23 @@ namespace GitMind.Git.Private
 		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
 		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
+		private readonly WorkingFolder workingFolder;
 		private readonly IRepoCaller repoCaller;
 		private readonly ICredentialHandler credentialHandler;
 
 
 		public GitNetworkService(
+			WorkingFolder workingFolder,
 			IRepoCaller repoCaller,
 			ICredentialHandler credentialHandler)
 		{
+			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
 			this.credentialHandler = credentialHandler;
 		}
 
 
-		public Task<R> FetchAsync(string workingFolder)
+		public Task<R> FetchAsync()
 		{
 			Log.Debug("Fetch all ...");
 			return repoCaller.UseRepoAsync(workingFolder, FetchTimeout,
@@ -39,17 +43,17 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> FetchBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> FetchBranchAsync(BranchName branchName)
 		{
 			Log.Debug($"Fetch branch {branchName}...");
 
 			string[] refspecs = { $"{branchName}:{branchName}" };
 
-			return FetchRefsAsync(workingFolder, refspecs);
+			return FetchRefsAsync(refspecs);
 		}
 
 
-		public Task<R> FetchRefsAsync(string workingFolder, IEnumerable<string> refspecs)
+		public Task<R> FetchRefsAsync(IEnumerable<string> refspecs)
 		{
 			string refsText = string.Join(",", refspecs);
 			Log.Debug($"Fetch refs {refsText} ...");
@@ -62,16 +66,16 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> PushBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> PushBranchAsync(BranchName branchName)
 		{
 			Log.Debug($"Push branch {branchName} ...");
 
 			string[] refspecs = { $"refs/heads/{branchName}:refs/heads/{branchName}"};
-			return PushRefsAsync(workingFolder, refspecs);
+			return PushRefsAsync(refspecs);
 		}
 
 
-		public Task<R> PushCurrentBranchAsync(string workingFolder)
+		public Task<R> PushCurrentBranchAsync()
 		{
 			Log.Debug("Push current branch ...");
 
@@ -84,7 +88,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> PushRefsAsync(string workingFolder,IEnumerable<string> refspecs)
+		public Task<R> PushRefsAsync(IEnumerable<string> refspecs)
 		{
 			string refsText = string.Join(",", refspecs);
 			Log.Debug($"Push refs {refsText} ...");
@@ -93,7 +97,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> PublishBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> PublishBranchAsync(BranchName branchName)
 		{
 			Log.Debug($"Publish branch {branchName} ...");
 
@@ -133,7 +137,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> DeleteRemoteBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> DeleteRemoteBranchAsync(BranchName branchName)
 		{
 			Log.Debug($"Delete remote branch {branchName} ...");
 

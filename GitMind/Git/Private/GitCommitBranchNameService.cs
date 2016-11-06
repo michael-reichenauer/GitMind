@@ -137,7 +137,7 @@ namespace GitMind.Git.Private
 				repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 
 			string[] refs = { $"refs/notes/{nameSpace}:refs/notes/{nameSpace}" };
-			R result = await gitNetworkService.PushRefsAsync(workingFolder, refs);
+			R result = await gitNetworkService.PushRefsAsync(refs);
 			if (result.IsOk)
 			{
 				string file = Path.Combine(workingFolder, ".git", nameSpace);
@@ -158,7 +158,7 @@ namespace GitMind.Git.Private
 				$"+refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
 			};
 
-			return await gitNetworkService.FetchRefsAsync(workingFolder, noteRefs);
+			return await gitNetworkService.FetchRefsAsync(noteRefs);
 		}
 
 
@@ -171,7 +171,7 @@ namespace GitMind.Git.Private
 				$"+refs/notes/{nameSpace}:refs/notes/{nameSpace}"
 			};
 
-			return await gitNetworkService.FetchRefsAsync(workingFolder, noteRefs);
+			return await gitNetworkService.FetchRefsAsync(noteRefs);
 		}
 
 

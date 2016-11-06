@@ -560,7 +560,7 @@ namespace GitMind.RepositoryViews
 		private async Task FetchRemoteChangesAsync(Repository repository, bool isFetchNotes)
 		{
 			Log.Debug("Fetching");
-			R result = await networkService.FetchAsync(repository.MRepository.WorkingFolder);
+			R result = await networkService.FetchAsync();
 			FetchErrorText = "";
 			if (result.IsFaulted)
 			{
@@ -570,7 +570,7 @@ namespace GitMind.RepositoryViews
 			}
 			else if (isFetchNotes)
 			{
-				await networkService.FetchAllNotesAsync(repository.MRepository.WorkingFolder);
+				await networkService.FetchAllNotesAsync();
 			}
 
 			fetchedTime = DateTime.Now;
@@ -839,11 +839,10 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			progress.Show("Update all branches ...", async state =>
 			{
-				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
 				Branch uncommittedBranch = UnCommited?.Branch;
 
-				R result = await networkService.FetchAsync(workingFolder);
+				R result = await networkService.FetchAsync();
 
 				if (result.IsOk && currentBranch.CanBeUpdated)
 				{
@@ -869,11 +868,11 @@ namespace GitMind.RepositoryViews
 				{
 					state.SetText($"Update branch {branch.Name} ...");
 
-					await networkService.FetchBranchAsync(workingFolder, branch.Name);
+					await networkService.FetchBranchAsync(branch.Name);
 				}
 
 				state.SetText("Update all branches ...");
-				await networkService.FetchAllNotesAsync(workingFolder);
+				await networkService.FetchAllNotesAsync();
 
 				state.SetText($"Update status after update all branches ...");
 				await RefreshAfterCommandAsync(false);
@@ -903,14 +902,12 @@ namespace GitMind.RepositoryViews
 			BranchName branchName = Repository.CurrentBranch.Name;
 			progress.Show($"Update current branch {branchName} ...", async state =>
 			{
-				string workingFolder = Repository.MRepository.WorkingFolder;
-
-				R result = await networkService.FetchAsync(workingFolder);
+				R result = await networkService.FetchAsync();
 				if (result.IsOk)
 				{
 					result = await gitBranchService.MergeCurrentBranchAsync();
 
-					await networkService.FetchAllNotesAsync(workingFolder);
+					await networkService.FetchAllNotesAsync();
 				}
 
 				if (result.IsFaulted)
@@ -937,16 +934,15 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			progress.Show("Push all branches ...", async state =>
 			{
-				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
 
-				await networkService.PushNotesAsync(workingFolder, Repository.RootId);
+				await networkService.PushNotesAsync( Repository.RootId);
 
 				R result = R.Ok;
 				if (currentBranch.CanBePushed)
 				{
 					state.SetText($"Push current branch {currentBranch.Name} ...");
-					result = await networkService.PushCurrentBranchAsync(workingFolder);
+					result = await networkService.PushCurrentBranchAsync();
 				}
 
 				if (result.IsFaulted)
@@ -964,7 +960,7 @@ namespace GitMind.RepositoryViews
 				{
 					state.SetText($"Push branch {branch.Name} ...");
 
-					await networkService.PushBranchAsync(workingFolder, branch.Name);
+					await networkService.PushBranchAsync(branch.Name);
 				}
 
 				state.SetText("Update status after push all branches ...");
@@ -985,11 +981,9 @@ namespace GitMind.RepositoryViews
 			BranchName branchName = Repository.CurrentBranch.Name;
 			progress.Show($"Push current branch {branchName} ...", async state =>
 			{
-				string workingFolder = Repository.MRepository.WorkingFolder;
+				await networkService.PushNotesAsync(Repository.RootId);
 
-				await networkService.PushNotesAsync(workingFolder, Repository.RootId);
-
-				R result = await networkService.PushCurrentBranchAsync(workingFolder);
+				R result = await networkService.PushCurrentBranchAsync();
 
 				if (result.IsFaulted)
 				{
