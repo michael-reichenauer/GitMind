@@ -18,10 +18,11 @@ namespace GitMind.RepositoryViews
 
 		public CommitViewModel(
 			IBranchService branchService,
-			IRepositoryCommands repositoryCommands)
+			IRepositoryCommands repositoryCommands,
+			ToggleDetailsCommand toggleDetailsCommand)
 		{
 			this.branchService = branchService;
-			ToggleDetailsCommand = repositoryCommands.ToggleDetailsCommand;
+			ToggleDetailsCommand = toggleDetailsCommand;
 			SetCommitBranchCommand = repositoryCommands.SetBranchCommand.With(() => Commit);
 			ShowCommitDiffCommand = repositoryCommands.ShowDiffCommand.With(
 				() => Commit.IsVirtual && !Commit.IsUncommitted ? Commit.FirstParent : Commit);

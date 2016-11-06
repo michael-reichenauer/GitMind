@@ -122,6 +122,8 @@
     <Compile Include="Features\Branching\MergeCommand.cs" />
     <Compile Include="Features\Committing\CommitCommand.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
+    <Compile Include="RepositoryViews\OpenDetailsCommand.cs" />
+    <Compile Include="RepositoryViews\ToggleDetailsCommand.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
     <Compile Include="Features\Branching\Private\CrateBranchDialog.xaml.cs">
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>

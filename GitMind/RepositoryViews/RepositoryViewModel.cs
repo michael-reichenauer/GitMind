@@ -98,7 +98,8 @@ namespace GitMind.RepositoryViews
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider,
 			CommitCommand commitCommand,
-			MergeCommand mergeCommand)
+			MergeCommand mergeCommand,
+			ToggleDetailsCommand toggleDetailsCommand)
 		{
 			this.workingFolder = workingFolder;
 			this.diffService = diffService;
@@ -118,6 +119,7 @@ namespace GitMind.RepositoryViews
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
 			CommitCommand = commitCommand;
 			MergeBranchCommand = mergeCommand;
+			ToggleDetailsCommand = toggleDetailsCommand;
 		}
 
 
@@ -221,7 +223,7 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> UpdateBranchCommand => Command<Branch>(
 			branch => branchService.UpdateBranch(branch));
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
-		public Command ToggleDetailsCommand => Command(ToggleDetails);
+		public Command ToggleDetailsCommand { get; }
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
@@ -807,12 +809,6 @@ namespace GitMind.RepositoryViews
 			viewModelService.HideBranch(this, branch);
 		}
 
-
-		private void ToggleDetails()
-		{
-			IsShowCommitDetails = !IsShowCommitDetails;
-		}
-
 		private void ShowUncommittedDetails()
 		{
 			SelectedIndex = 0;
@@ -1054,18 +1050,6 @@ namespace GitMind.RepositoryViews
 				}
 			}
 		}
-
-
-		//private async Task MergeBranchAsync(Branch branch)
-		//{
-		//	await branchService.MergeBranchAsync(branch);
-
-		//	if (Repository.Status.ConflictCount > 0)
-		//	{
-		//		IsShowCommitDetails = true;
-		//	}
-		//}
-
 
 
 		private Task SetBranchAsync(Commit commit)

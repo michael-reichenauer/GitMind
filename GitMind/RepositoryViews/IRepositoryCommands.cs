@@ -9,6 +9,7 @@ namespace GitMind.RepositoryViews
 	internal interface IRepositoryCommands
 	{
 		Repository Repository { get; }
+		bool IsShowCommitDetails { get; set; }
 		Commit UnCommited { get; }
 		CredentialHandler GetCredentialsHandler();
 		Command<Branch> ShowBranchCommand { get; }
@@ -18,11 +19,9 @@ namespace GitMind.RepositoryViews
 		Command<Branch> PushBranchCommand { get; }
 		Command<Branch> UpdateBranchCommand { get; }
 		Command<Commit> ShowDiffCommand { get; }
-		Command ToggleDetailsCommand { get; }
 		Command ShowUncommittedDetailsCommand { get; }
 		Command ShowCurrentBranchCommand { get; }
 		Command<Commit> SetBranchCommand { get; }
-		//Command<Branch> MergeBranchCommand { get; }
 		Command UndoCleanWorkingFolderCommand { get; }
 		Command UndoUncommittedChangesCommand { get; }
 		Command<Commit> UncommitCommand { get; }
