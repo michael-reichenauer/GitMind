@@ -119,6 +119,7 @@
     </Compile>
     <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
     <Compile Include="Common\ProgressHandling\ProgressService.cs" />
+    <Compile Include="Features\Branching\DeleteBranchCommand.cs" />
     <Compile Include="Features\Branching\MergeCommand.cs" />
     <Compile Include="Features\Committing\CommitCommand.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />

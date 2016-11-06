@@ -11,10 +11,10 @@ namespace GitMind.RepositoryViews
 		Repository Repository { get; }
 		bool IsShowCommitDetails { get; set; }
 		Commit UnCommited { get; }
-		//CredentialHandler GetCredentialsHandler();
+
 		Command<Branch> ShowBranchCommand { get; }
 		Command<Branch> HideBranchCommand { get; }
-		Command<Branch> DeleteBranchCommand { get; }
+	
 		Command<Branch> PublishBranchCommand { get; }
 		Command<Branch> PushBranchCommand { get; }
 		Command<Branch> UpdateBranchCommand { get; }

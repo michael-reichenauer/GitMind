@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Features.Branching;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -21,16 +22,19 @@ namespace GitMind.RepositoryViews
 		private readonly IBrushService brushService;
 		private readonly Func<CommitViewModel> commitViewModelProvider;
 		private readonly Func<BranchViewModel> branchViewModelProvider;
+		private readonly DeleteBranchCommand deleteBranchCommand;
 
 
 		public ViewModelService(
 			IBrushService brushService,
 			Func<CommitViewModel> commitViewModelProvider,
-			Func<BranchViewModel> branchViewModelProvider)
+			Func<BranchViewModel> branchViewModelProvider,
+			DeleteBranchCommand deleteBranchCommand)
 		{
 			this.brushService = brushService;
 			this.commitViewModelProvider = commitViewModelProvider;
 			this.branchViewModelProvider = branchViewModelProvider;
+			this.deleteBranchCommand = deleteBranchCommand;
 		}
 
 		public void UpdateViewModel(RepositoryViewModel repositoryViewModel)
@@ -100,8 +104,7 @@ namespace GitMind.RepositoryViews
 			IEnumerable<Branch> deletableBranches = repositoryViewModel.Repository.Branches
 				.Where(b => b.IsActive && b.Name != BranchName.Master);
 			IReadOnlyList<BranchItem> deletableBrancheItems = BranchItem.GetBranches(
-				deletableBranches,
-				repositoryViewModel.DeleteBranchCommand);
+				deletableBranches, deleteBranchCommand);
 			deletableBrancheItems.ForEach(b => repositoryViewModel.DeletableBranches.Add(b));
 
 			UpdateViewModel(repositoryViewModel, branches, commits);

@@ -104,7 +104,8 @@ namespace GitMind.RepositoryViews
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider,
 			CommitCommand commitCommand,
 			MergeCommand mergeCommand,
-			ToggleDetailsCommand toggleDetailsCommand)
+			ToggleDetailsCommand toggleDetailsCommand,
+			DeleteBranchCommand deleteBranchCommand)
 		{
 			this.workingFolder = workingFolder;
 			this.diffService = diffService;
@@ -131,6 +132,7 @@ namespace GitMind.RepositoryViews
 			CommitCommand = commitCommand;
 			MergeBranchCommand = mergeCommand;
 			ToggleDetailsCommand = toggleDetailsCommand;
+			DeleteBranchCommand = deleteBranchCommand;
 		}
 
 
@@ -138,11 +140,6 @@ namespace GitMind.RepositoryViews
 		public Repository Repository { get; private set; }
 
 		public Branch MergingBranch { get; private set; }
-
-		//public CredentialHandler GetCredentialsHandler()
-		//{
-		//	return new CredentialHandler(owner);
-		//}
 
 
 		public DisabledStatus DisableStatus()
@@ -225,8 +222,8 @@ namespace GitMind.RepositoryViews
 
 		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
-		public Command<Branch> DeleteBranchCommand => Command<Branch>(
-			branch => branchService.DeleteBranch(branch));
+		public Command<Branch> DeleteBranchCommand { get; }
+
 		public Command<Branch> PublishBranchCommand => Command<Branch>(
 			branch => branchService.PublishBranch(branch));
 		public Command<Branch> PushBranchCommand => Command<Branch>(

@@ -16,7 +16,7 @@ namespace GitMind.RepositoryViews
 		private readonly IBranchService branchService;
 
 		private readonly Command<Branch> showBranchCommand;
-		private readonly Command<Branch> deleteBranchCommand;
+	
 		private readonly Command<Branch> publishBranchCommand;
 		private readonly Command<Branch> pushBranchCommand;
 		private readonly Command<Branch> updateBranchCommand;
@@ -28,11 +28,12 @@ namespace GitMind.RepositoryViews
 		public BranchViewModel(
 			IBranchService branchService,
 			IRepositoryCommands repositoryCommands,
-			MergeCommand mergeCommand)
+			MergeCommand mergeCommand,
+			DeleteBranchCommand deleteBranchCommand)
 		{
 			this.branchService = branchService;
 			this.showBranchCommand = repositoryCommands.ShowBranchCommand;
-			this.deleteBranchCommand = repositoryCommands.DeleteBranchCommand;
+			DeleteBranchCommand = deleteBranchCommand.With(() => Branch);
 			this.publishBranchCommand = repositoryCommands.PublishBranchCommand;
 			this.pushBranchCommand = repositoryCommands.PushBranchCommand;
 			this.updateBranchCommand = repositoryCommands.UpdateBranchCommand;
@@ -96,8 +97,8 @@ namespace GitMind.RepositoryViews
 			() => branchService.CreateBranchAsync(Branch));
 
 		public Command MergeBranchCommand { get; }
-		public Command DeleteBranchCommand => 
-			Command(() => deleteBranchCommand.Execute(Branch), () => Branch.IsActive);
+		public Command DeleteBranchCommand { get; }
+	
 		public Command PublishBranchCommand => Command(() => publishBranchCommand.Execute(Branch));
 		public Command PushBranchCommand => Command(() => pushBranchCommand.Execute(Branch));
 		public Command UpdateBranchCommand => Command(() => updateBranchCommand.Execute(Branch));
