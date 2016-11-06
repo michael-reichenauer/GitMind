@@ -94,7 +94,7 @@ namespace GitMind.Features.Committing
 					progress.Show($"Commit current branch {branchName} ...", async () =>
 					{
 						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
-							workingFolder, dialog.CommitMessage, branchName, dialog.CommitFiles);
+							dialog.CommitMessage, branchName, dialog.CommitFiles);
 
 						if (gitCommit.HasValue)
 						{
@@ -117,7 +117,7 @@ namespace GitMind.Features.Committing
 				}
 				else if (repository.Status.IsMerging && !commitFiles.Any())
 				{
-					await gitCommitsService.ResetMerge(workingFolder);
+					await gitCommitsService.ResetMerge();
 				}
 			}
 		}
@@ -127,7 +127,7 @@ namespace GitMind.Features.Committing
 		{
 			progress.Show($"Uncommit in {commit} ...", async state =>
 			{
-				R result = await gitCommitsService.UnCommitAsync(workingFolder);
+				R result = await gitCommitsService.UnCommitAsync();
 
 				if (result.IsFaulted)
 				{
@@ -152,7 +152,7 @@ namespace GitMind.Features.Committing
 		{
 			progress.Show($"Undo file change in {path} ...", async () =>
 			{
-				await gitCommitsService.UndoFileInWorkingFolderAsync(workingFolder, path);
+				await gitCommitsService.UndoFileInWorkingFolderAsync(path);
 			});
 
 			return Task.CompletedTask;

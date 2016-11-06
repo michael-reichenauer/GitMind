@@ -93,7 +93,7 @@ namespace GitMind.RepositoryViews
 				{
 					string workingFolder = CommitViewModel.Commit.WorkingFolder;
 					string commitId = CommitViewModel.Commit.CommitId;
-					subject = gitCommitsService.GetFullMessage(workingFolder, commitId)
+					subject = gitCommitsService.GetFullMessage(commitId)
 						.Or(CommitViewModel?.Subject);
 				}
 

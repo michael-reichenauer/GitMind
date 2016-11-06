@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling;
 using GitMind.Utils;
 
 
@@ -13,63 +14,65 @@ namespace GitMind.Git.Private
 		public static readonly string CommitBranchNoteNameSpace = "GitMind.Branches";
 		public static readonly string ManualBranchNoteNameSpace = "GitMind.Branches.Manual";
 
+		private readonly WorkingFolder workingFolder;
 		private readonly IRepoCaller repoCaller;
 		private readonly IGitNetworkService gitNetworkService;
 
 
 		public GitCommitBranchNameService(
+			WorkingFolder workingFolder,
 			IRepoCaller repoCaller,
 			IGitNetworkService gitNetworkService)
 		{
+			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
 			this.gitNetworkService = gitNetworkService;
 		}
 
 
 		public async Task EditCommitBranchNameAsync(
-			string workingFolder,
 			string commitId,
 			string rootId,
 			BranchName branchName)
 		{
 			Log.Debug($"Set manual branch name {branchName} for commit {commitId} ...");
-			SetNoteBranches(workingFolder, ManualBranchNoteNameSpace, commitId, branchName);
+			SetNoteBranches(ManualBranchNoteNameSpace, commitId, branchName);
 
-			await PushNotesAsync(workingFolder, ManualBranchNoteNameSpace, rootId);
+			await PushNotesAsync(ManualBranchNoteNameSpace, rootId);
 		}
 
 
-		public Task SetCommitBranchNameAsync(string workingFolder, string commitId, BranchName branchName)
+		public Task SetCommitBranchNameAsync(string commitId, BranchName branchName)
 		{
 			Log.Debug($"Set commit branch name {branchName} for commit {commitId} ...");
-			SetNoteBranches(workingFolder, CommitBranchNoteNameSpace, commitId, branchName);
+			SetNoteBranches(CommitBranchNoteNameSpace, commitId, branchName);
 
 			return Task.CompletedTask;
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetEditedBranchNames(string workingFolder, string rootId)
+		public IReadOnlyList<CommitBranchName> GetEditedBranchNames(string rootId)
 		{
-			return GetNoteBranches(workingFolder, ManualBranchNoteNameSpace, rootId);
+			return GetNoteBranches(ManualBranchNoteNameSpace, rootId);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetCommitBrancheNames(string workingFolder, string rootId)
+		public IReadOnlyList<CommitBranchName> GetCommitBrancheNames(string rootId)
 		{
-			return GetNoteBranches(workingFolder, CommitBranchNoteNameSpace, rootId);
+			return GetNoteBranches(CommitBranchNoteNameSpace, rootId);
 		}
 
 
 
-		public async Task PushNotesAsync(string workingFolder, string rootId)
+		public async Task PushNotesAsync(string rootId)
 		{
-			await PushNotesAsync(workingFolder, CommitBranchNoteNameSpace, rootId);
-			await PushNotesAsync(workingFolder, ManualBranchNoteNameSpace, rootId);
+			await PushNotesAsync(CommitBranchNoteNameSpace, rootId);
+			await PushNotesAsync(ManualBranchNoteNameSpace, rootId);
 		}
 
 
 		private void SetNoteBranches(
-			string workingFolder, string nameSpace, string commitId, BranchName branchName)
+			string nameSpace, string commitId, BranchName branchName)
 		{
 			Log.Debug($"Set note {nameSpace} for commit {commitId} with branch {branchName} ...");
 
@@ -85,8 +88,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task PushNotesAsync(
-			string workingFolder, string nameSpace, string rootId)
+		private async Task PushNotesAsync(string nameSpace, string rootId)
 		{
 			Log.Debug($"Push notes {nameSpace} at root commit {rootId} ...");
 
@@ -118,7 +120,7 @@ namespace GitMind.Git.Private
 				Log.Debug($"Adding notes:\n{addedNotesText}");
 			}
 
-			await FetchNotesAsync(workingFolder, nameSpace);
+			await FetchNotesAsync(nameSpace);
 
 			string originNotesText = repoCaller.UseRepo(workingFolder, repo =>
 			{
@@ -147,7 +149,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<R> FetchAllNotesAsync(string workingFolder)
+		public async Task<R> FetchAllNotesAsync()
 		{
 			Log.Debug("Fetch all notes ...");
 			string[] noteRefs =
@@ -160,7 +162,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task<R> FetchNotesAsync(string workingFolder, string nameSpace)
+		private async Task<R> FetchNotesAsync(string nameSpace)
 		{
 			Log.Debug($"Fetch notes for {nameSpace} ...");
 			string[] noteRefs =
@@ -173,8 +175,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private IReadOnlyList<CommitBranchName> GetNoteBranches(
-			string workingFolder, string nameSpace, string rootId)
+		private IReadOnlyList<CommitBranchName> GetNoteBranches(string nameSpace, string rootId)
 		{
 			Log.Debug($"Getting notes {nameSpace} from root commit {rootId} ...");
 

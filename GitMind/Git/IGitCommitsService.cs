@@ -11,23 +11,23 @@ namespace GitMind.Git
 	{
 		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string commitId);
 
-		Task EditCommitBranchAsync(string workingFolder, string commitId, string rootId, BranchName branchName);
+		Task EditCommitBranchAsync(string commitId, string rootId, BranchName branchName);
 	
-		IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId);
-		IReadOnlyList<CommitBranchName> GetCommitBranches(string workingFolder, string rootId);
+		IReadOnlyList<CommitBranchName> GetSpecifiedNames(string rootId);
+		IReadOnlyList<CommitBranchName> GetCommitBranches(string rootId);
 
 	
-		Task<R<GitCommit>> CommitAsync(string workingFolder, string message, string branchName, IReadOnlyList<CommitFile> paths);
+		Task<R<GitCommit>> CommitAsync(string message, string branchName, IReadOnlyList<CommitFile> paths);
 
-		R<string> GetFullMessage(string workingFolder, string commitId);
+		R<string> GetFullMessage(string commitId);
 
 
-		Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync(string workingFolder);
+		Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync();
 
-		Task UndoFileInWorkingFolderAsync(string workingFolder, string path);
+		Task UndoFileInWorkingFolderAsync(string path);
 
-		Task UndoWorkingFolderAsync(string workingFolder);
-		Task<R> ResetMerge(string workingFolder);
-		Task<R> UnCommitAsync(string workingFolder);
+		Task UndoWorkingFolderAsync();
+		Task<R> ResetMerge();
+		Task<R> UnCommitAsync();
 	}
 }

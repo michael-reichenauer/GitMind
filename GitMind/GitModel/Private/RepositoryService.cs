@@ -113,8 +113,7 @@ namespace GitMind.GitModel.Private
 			string rootId,
 			BranchName branchName)
 		{
-			return gitCommitsService.EditCommitBranchAsync(
-				gitRepositoryPath, commitId, rootId, branchName);
+			return gitCommitsService.EditCommitBranchAsync(commitId, rootId, branchName);
 		}
 
 
@@ -195,8 +194,6 @@ namespace GitMind.GitModel.Private
 			GitStatus gitStatus,
 			GitRepository gitRepository)
 		{
-			string gitRepositoryPath = repository.WorkingFolder;
-
 			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
 
 			MSubBranch mSubBranch = repository.SubBranches
@@ -204,10 +201,10 @@ namespace GitMind.GitModel.Private
 			MCommit commit = mSubBranch.TipCommit.FirstAncestors().Last();
 
 			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitsService.GetSpecifiedNames(
-				gitRepositoryPath, commit.Id);
+				commit.Id);
 
 			IReadOnlyList<CommitBranchName> commitBranches = gitCommitsService.GetCommitBranches(
-				gitRepositoryPath, commit.Id);
+				commit.Id);
 
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);

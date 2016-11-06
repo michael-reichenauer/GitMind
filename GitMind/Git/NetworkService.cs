@@ -46,13 +46,13 @@ namespace GitMind.Git
 
 		public Task PushNotesAsync(string workingFolder, string rootId)
 		{
-			return gitCommitBranchNameService.PushNotesAsync(workingFolder, rootId);
+			return gitCommitBranchNameService.PushNotesAsync(rootId);
 		}
 
 
 		public Task<R> FetchAllNotesAsync(string workingFolder)
 		{
-			return gitCommitBranchNameService.FetchAllNotesAsync(workingFolder);
+			return gitCommitBranchNameService.FetchAllNotesAsync();
 		}
 	}
 }

@@ -1126,7 +1126,7 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			progress.Show($"Undo changes and clean working folder {workingFolder} ...", async () =>
 			{
-				failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync(workingFolder);
+				failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync();
 
 				await RefreshAfterCommandAsync(false);
 			});
@@ -1161,7 +1161,7 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = true;
 			progress.Show($"Undo changes in working folder {workingFolder} ...", async () =>
 			{
-				await gitCommitsService.UndoWorkingFolderAsync(workingFolder);
+				await gitCommitsService.UndoWorkingFolderAsync();
 
 				await RefreshAfterCommandAsync(false);
 			});

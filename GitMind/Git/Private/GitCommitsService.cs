@@ -47,43 +47,38 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task EditCommitBranchAsync(
-			string workingFolder,
-			string commitId,
-			string rootId,
-			BranchName branchName)
+		public Task EditCommitBranchAsync(string commitId, string rootId, BranchName branchName)
 		{
-			return gitCommitBranchNameService.EditCommitBranchNameAsync(
-				workingFolder, commitId, rootId, branchName);
+			return gitCommitBranchNameService.EditCommitBranchNameAsync(commitId, rootId, branchName);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId)
+		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(string rootId)
 		{
-			return gitCommitBranchNameService.GetEditedBranchNames(workingFolder, rootId);
+			return gitCommitBranchNameService.GetEditedBranchNames(rootId);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetCommitBranches(string workingFolder, string rootId)
+		public IReadOnlyList<CommitBranchName> GetCommitBranches(string rootId)
 		{
-			return gitCommitBranchNameService.GetCommitBrancheNames(workingFolder, rootId);
+			return gitCommitBranchNameService.GetCommitBrancheNames(rootId);
 		}
 
 
-		public Task<R> ResetMerge(string workingFolder)
+		public Task<R> ResetMerge()
 		{
 			return repoCaller.UseRepoAsync(workingFolder, repo => repo.Reset(ResetMode.Hard));
 		}
 
 
-		public Task<R> UnCommitAsync(string workingFolder)
+		public Task<R> UnCommitAsync()
 		{
-			return repoCaller.UseRepoAsync(workingFolder, 
+			return repoCaller.UseRepoAsync(workingFolder,
 				repo => repo.Reset(ResetMode.Mixed, repo.Head.Commits.ElementAt(1)));
 		}
 
 
-		public Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync(string workingFolder)
+		public Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync()
 		{
 			return repoCaller.UseLibRepoAsync(workingFolder, repo =>
 			{
@@ -121,7 +116,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task UndoWorkingFolderAsync(string workingFolder)
+		public Task UndoWorkingFolderAsync()
 		{
 			return repoCaller.UseRepoAsync(workingFolder, repo =>
 			{
@@ -157,25 +152,22 @@ namespace GitMind.Git.Private
 
 
 		public Task<R<GitCommit>> CommitAsync(
-			string workingFolder, string message, string branchName, IReadOnlyList<CommitFile> paths)
+			string message, string branchName, IReadOnlyList<CommitFile> paths)
 		{
 			Log.Debug($"Commit {paths.Count} files: {message} ...");
 
 			return repoCaller.UseLibRepoAsync(workingFolder,
 				repo =>
 				{
-					AddPaths(repo, workingFolder, paths);
+					AddPaths(repo, paths);
 					GitCommit gitCommit = Commit(repo, message);
-					gitCommitBranchNameService.SetCommitBranchNameAsync(workingFolder, gitCommit.Id, branchName);
+					gitCommitBranchNameService.SetCommitBranchNameAsync(gitCommit.Id, branchName);
 					return gitCommit;
 				});
 		}
 
 
-		public void AddPaths(
-			LibGit2Sharp.Repository repo,
-			string workingFolder,
-			IReadOnlyList<CommitFile> paths)
+		public void AddPaths(LibGit2Sharp.Repository repo, IReadOnlyList<CommitFile> paths)
 		{
 			List<string> added = new List<string>();
 			foreach (CommitFile commitFile in paths)
@@ -212,7 +204,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task UndoFileInWorkingFolderAsync(string workingFolder, string path)
+		public Task UndoFileInWorkingFolderAsync(string path)
 		{
 			Log.Debug($"Undo uncommitted file {path} ...");
 
@@ -259,7 +251,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public R<string> GetFullMessage(string workingFolder, string commitId)
+		public R<string> GetFullMessage(string commitId)
 		{
 			return repoCaller.UseRepo(workingFolder, repo =>
 			{
