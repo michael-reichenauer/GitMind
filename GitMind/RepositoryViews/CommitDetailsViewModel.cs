@@ -15,6 +15,7 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitDetailsViewModel : ViewModel
 	{
+		private readonly IDiffService diffService;
 		private readonly ICommitService commitService;
 		private readonly IGitCommitsService gitCommitsService;
 
@@ -26,9 +27,11 @@ namespace GitMind.RepositoryViews
 
 
 		public CommitDetailsViewModel(
+			IDiffService diffService,
 			ICommitService commitService,
 			IGitCommitsService gitCommitsService)
 		{
+			this.diffService = diffService;
 			this.commitService = commitService;
 			this.gitCommitsService = gitCommitsService;
 		}
@@ -129,7 +132,7 @@ namespace GitMind.RepositoryViews
 					.OrderBy(f => f.Status, Comparer<GitFileStatus>.Create(Compare))
 					.ThenBy(f => f.Path)
 					.ForEach(f => files.Add(
-						new CommitFileViewModel(f, UndoUncommittedFileCommand)
+						new CommitFileViewModel(diffService, f, UndoUncommittedFileCommand)
 						{
 							Id = commit.CommitId,
 							Name = f.Path,

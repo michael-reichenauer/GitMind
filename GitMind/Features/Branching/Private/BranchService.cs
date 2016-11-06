@@ -24,8 +24,9 @@ namespace GitMind.Features.Branching.Private
 		private readonly IGitNetworkService gitNetworkService;
 		private readonly ICommitService commitService;
 		private readonly WorkingFolder workingFolder;
-		private readonly WindowOwner owner;
 		private readonly IProgressService progress;
+		private readonly IMessage message;
+		private readonly WindowOwner owner;
 		private readonly Lazy<IRepositoryCommands> lazyRepositoryCommands;
 
 
@@ -34,16 +35,18 @@ namespace GitMind.Features.Branching.Private
 			IGitNetworkService gitNetworkService,
 			ICommitService commitService,
 			WorkingFolder workingFolder,
-			WindowOwner owner,
 			IProgressService progressService,
+			IMessage message,
+			WindowOwner owner,
 			Lazy<IRepositoryCommands> repositoryCommands)
 		{
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
 			this.commitService = commitService;
 			this.workingFolder = workingFolder;
-			this.owner = owner;
 			this.progress = progressService;
+			this.message = message;
+			this.owner = owner;
 			this.lazyRepositoryCommands = repositoryCommands;
 		}
 
@@ -88,7 +91,7 @@ namespace GitMind.Features.Branching.Private
 									workingFolder, branchName, repositoryCommands.GetCredentialsHandler());
 								if (publish.IsFaulted)
 								{
-									Message.ShowWarning(owner, $"Failed to publish the branch {branchName}.");
+									message.ShowWarning($"Failed to publish the branch {branchName}.");
 								}
 							}
 
@@ -96,8 +99,7 @@ namespace GitMind.Features.Branching.Private
 						}
 						else
 						{
-							Message.ShowWarning(
-								owner, $"Failed to create branch {branchName}\n{result.Error.Exception.Message}");
+							message.ShowWarning($"Failed to create branch {branchName}\n{result.Error.Exception.Message}");
 						}
 
 						state.SetText($"Updating status after create branch {branchName} ...");
@@ -121,9 +123,7 @@ namespace GitMind.Features.Branching.Private
 
 					if (publish.IsFaulted)
 					{
-						Message.ShowWarning(
-							owner,
-							$"Failed to publish the branch {branch.Name}.\n{publish.Error.Exception.Message}");
+						message.ShowWarning($"Failed to publish the branch {branch.Name}.\n{publish.Error.Exception.Message}");
 					}
 
 					state.SetText($"Updating status after publish {branch.Name} ...");
@@ -144,9 +144,7 @@ namespace GitMind.Features.Branching.Private
 
 					if (result.IsFaulted)
 					{
-						Message.ShowWarning(
-							owner,
-							$"Failed to push the branch {branch.Name}.\n{result.Error.Exception.Message}");
+						message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Error.Exception.Message}");
 					}
 
 					state.SetText($"Updating status after push {branch.Name} ...");
@@ -181,9 +179,7 @@ namespace GitMind.Features.Branching.Private
 
 					if (result.IsFaulted)
 					{
-						Message.ShowWarning(
-							owner,
-							$"Failed to update the branch {branch.Name}.\n{result.Error.Exception.Message}");
+						message.ShowWarning($"Failed to update the branch {branch.Name}.\n{result.Error.Exception.Message}");
 					}
 
 					state.SetText($"Updating status after update {branch.Name} ...");
@@ -202,7 +198,7 @@ namespace GitMind.Features.Branching.Private
 					R result = await gitBranchService.SwitchToBranchAsync(workingFolder, branch.Name);
 					if (result.IsFaulted)
 					{
-						Message.ShowWarning(owner, $"Failed to switch,\n{result.Error.Exception.Message}");
+						message.ShowWarning($"Failed to switch,\n{result.Error.Exception.Message}");
 					}
 
 					state.SetText($"Updating status after switch to {branch.Name} ...");
@@ -230,8 +226,7 @@ namespace GitMind.Features.Branching.Private
 			{
 				if (commit.IsRemoteAhead)
 				{
-					Message.ShowInfo(
-						owner, "Commit is remote, you must first update before switching to this commit.");
+					message.ShowInfo("Commit is remote, you must first update before switching to this commit.");
 					return Task.CompletedTask;
 				}
 
@@ -249,9 +244,7 @@ namespace GitMind.Features.Branching.Private
 					else
 					{
 						// Show current branch
-						Message.ShowWarning(
-							owner,
-							$"Failed to switch to the branch {branchName}.\n{switchedNamed.Error.Exception.Message}");
+						message.ShowWarning($"Failed to switch to the branch {branchName}.\n{switchedNamed.Error.Exception.Message}");
 						repositoryCommands.ShowBranch(null);
 					}
 
@@ -279,13 +272,13 @@ namespace GitMind.Features.Branching.Private
 			{
 				if (branch.Name == BranchName.Master)
 				{
-					Message.ShowWarning(owner, "You cannot delete master branch.");
+					message.ShowWarning("You cannot delete master branch.");
 					return;
 				}
 
 				if (!branch.IsRemote && branch == branch.Repository.CurrentBranch)
 				{
-					Message.ShowWarning(owner, "You cannot delete current local branch.");
+					message.ShowWarning("You cannot delete current local branch.");
 					return;
 				}
 
@@ -299,13 +292,13 @@ namespace GitMind.Features.Branching.Private
 				{
 					if (dialog.IsLocal && branch == branch.Repository.CurrentBranch)
 					{
-						Message.ShowWarning(owner, "You cannot delete current local branch.");
+						message.ShowWarning("You cannot delete current local branch.");
 						return;
 					}
 
 					if (!dialog.IsLocal && !dialog.IsRemote)
 					{
-						Message.ShowWarning(owner, "Neither local nor remote branch was selected.");
+						message.ShowWarning("Neither local nor remote branch was selected.");
 						return;
 					}
 
@@ -349,8 +342,7 @@ namespace GitMind.Features.Branching.Private
 			if (!IsBranchFullyMerged(branch, isRemote, isNoLongerLocal))
 			{
 
-				if (!Message.ShowWarningAskYesNo(owner,
-					$"{text} branch '{branch.Name}' is not fully merged.\n" +
+				if (!message.ShowWarningAskYesNo($"{text} branch '{branch.Name}' is not fully merged.\n" +
 					"Do you want to delete the branch anyway?"))
 				{
 					return;
@@ -373,9 +365,7 @@ namespace GitMind.Features.Branching.Private
 
 			if (deleted.IsFaulted)
 			{
-				Message.ShowWarning(
-					owner,
-					$"Failed to delete {text} branch '{branch.Name}'\n{deleted.Error.Exception.Message}");
+				message.ShowWarning($"Failed to delete {text} branch '{branch.Name}'\n{deleted.Error.Exception.Message}");
 			}
 		}
 
@@ -426,14 +416,13 @@ namespace GitMind.Features.Branching.Private
 
 				if (branch == branch.Repository.CurrentBranch)
 				{
-					Message.ShowWarning(owner, "You cannot merge current branch into it self.");
+					message.ShowWarning("You cannot merge current branch into it self.");
 					return;
 				}
 
 				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.StatusCount > 0)
 				{
-					Message.ShowInfo(
-						owner, "You must first commit uncommitted changes before merging.");
+					message.ShowInfo("You must first commit uncommitted changes before merging.");
 					return;
 				}
 

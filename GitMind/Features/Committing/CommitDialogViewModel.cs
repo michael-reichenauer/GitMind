@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using GitMind.ApplicationHandling;
+using GitMind.Common.MessageDialogs;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
@@ -16,7 +17,8 @@ namespace GitMind.Features.Committing
 	internal class CommitDialogViewModel : ViewModel
 	{
 		private readonly ICommitService commitService;
-		private readonly WindowOwner owner;
+		private readonly IDiffService diffService;
+		private readonly IMessage message;
 		private readonly bool isMerging;
 
 		//private static readonly string TestSubject =
@@ -29,7 +31,8 @@ namespace GitMind.Features.Committing
 		public CommitDialogViewModel(
 			ICommitService commitService,
 			WorkingFolder workingFolder,
-			WindowOwner owner,
+			IDiffService diffService, 
+			IMessage message,
 			BranchName branchName,
 			IEnumerable<CommitFile> files,
 			string commitMessage,
@@ -38,7 +41,8 @@ namespace GitMind.Features.Committing
 			CommitFiles = files.ToList();
 
 			this.commitService = commitService;
-			this.owner = owner;
+			this.diffService = diffService;
+			this.message = message;
 			this.isMerging = isMerging;
 
 			files.ForEach(f => Files.Add(
@@ -138,7 +142,7 @@ namespace GitMind.Features.Committing
 		{
 			if (string.IsNullOrWhiteSpace(Message) || (Files.Count == 0 && !isMerging))
 			{
-				Common.MessageDialogs.Message.ShowInfo(owner, "Nothing to commit.");
+				message.ShowInfo("Nothing to commit.");
 				return;
 			}
 
@@ -150,7 +154,7 @@ namespace GitMind.Features.Committing
 
 		private CommitFileViewModel ToCommitFileViewModel(string workingFolder, CommitFile file)
 		{
-			return new CommitFileViewModel(file, UndoUncommittedFileCommand)
+			return new CommitFileViewModel(diffService, file, UndoUncommittedFileCommand)
 			{
 				WorkingFolder = workingFolder,
 				Id = Commit.UncommittedId,

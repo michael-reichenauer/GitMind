@@ -25,6 +25,7 @@ namespace GitMind.Features.Committing
 			CommitDialog> commitDialogProvider;
 
 		private readonly WorkingFolder workingFolder;
+		private readonly IMessage message;
 		private readonly WindowOwner owner;
 		private readonly Lazy<IRepositoryCommands> repositoryCommands;
 		private readonly IGitCommitsService gitCommitsService;
@@ -34,6 +35,7 @@ namespace GitMind.Features.Committing
 
 		public CommitService(
 			WorkingFolder workingFolder,
+			IMessage message,
 			WindowOwner owner,
 			Lazy<IRepositoryCommands> repositoryCommands,
 			IGitCommitsService gitCommitsService,
@@ -48,6 +50,7 @@ namespace GitMind.Features.Committing
 		{
 			this.commitDialogProvider = commitDialogProvider;
 			this.workingFolder = workingFolder;
+			this.message = message;
 			this.owner = owner;
 			this.repositoryCommands = repositoryCommands;
 			this.gitCommitsService = gitCommitsService;
@@ -65,7 +68,7 @@ namespace GitMind.Features.Committing
 			{
 				if (repository.CurrentBranch.IsDetached)
 				{
-					Message.ShowInfo(owner,
+					message.ShowInfo(
 						"Current branch is in detached head status.\n" +
 						"You must first create or switch to branch before commit.");
 					return;
@@ -98,7 +101,7 @@ namespace GitMind.Features.Committing
 						}
 						else
 						{
-							Message.ShowWarning(owner, "Failed to commit");
+							message.ShowWarning("Failed to commit");
 						}
 					});
 
@@ -127,7 +130,7 @@ namespace GitMind.Features.Committing
 
 				if (result.IsFaulted)
 				{
-					Message.ShowWarning(owner, $"Failed to uncommit.\n{result.Error.Exception.Message}");
+					message.ShowWarning($"Failed to uncommit.\n{result.Error.Exception.Message}");
 				}
 
 				state.SetText("Update status after uncommit ...");

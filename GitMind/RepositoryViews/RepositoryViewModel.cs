@@ -41,8 +41,7 @@ namespace GitMind.RepositoryViews
 		private readonly IGitInfoService gitInfoService = new GitInfoService();
 		private readonly INetworkService networkService = new NetworkService();
 		private readonly IBrushService brushService = new BrushService();
-		private readonly IDiffService diffService = new DiffService();
-		private readonly IMainWindowService mainWindowService;
+		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
 		private readonly IBranchService branchService;
@@ -87,8 +86,8 @@ namespace GitMind.RepositoryViews
 
 
 		public RepositoryViewModel(
-			IMainWindowService mainWindowService,
 			WorkingFolder workingFolder, 
+			IDiffService diffService,
 			WindowOwner owner,
 			IBranchService branchService,
 			ICommandLine commandLine,
@@ -98,8 +97,8 @@ namespace GitMind.RepositoryViews
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
 		{
-			this.mainWindowService = mainWindowService;
 			this.workingFolder = workingFolder;
+			this.diffService = diffService;
 			this.owner = owner;
 			this.branchService = branchService;
 			this.commandLine = commandLine;

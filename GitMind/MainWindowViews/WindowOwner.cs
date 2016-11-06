@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Media;
 using GitMind.Utils;
 
 
@@ -18,9 +17,20 @@ namespace GitMind.MainWindowViews
 		}
 
 		public static implicit operator Window(WindowOwner owner) => owner.Window;
-		
 
-		public Window Window => mainWindow.Value;
+
+		public Window Window
+		{
+			get
+			{
+				if (Application.Current?.MainWindow is MainWindow)
+				{
+					return mainWindow.Value;
+				}
+
+				return null;
+			}
+		}
 
 
 		public System.Windows.Forms.IWin32Window Win32Window
