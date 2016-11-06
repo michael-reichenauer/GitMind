@@ -8,6 +8,7 @@ using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.Installation;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
+using GitMind.Features.Diffing;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;

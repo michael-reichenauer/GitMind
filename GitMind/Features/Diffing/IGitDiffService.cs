@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
+using GitMind.Git;
 using GitMind.Utils;
 
 
-namespace GitMind.Git
+namespace GitMind.Features.Diffing
 {
 	internal interface IGitDiffService
 	{

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Features.Diffing;
 using GitMind.RepositoryViews;
 using LibGit2Sharp;
 

@@ -8,10 +8,11 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
+using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
-namespace GitMind.RepositoryViews
+namespace GitMind.Features.Diffing
 {
 	internal class DiffService : IDiffService
 	{

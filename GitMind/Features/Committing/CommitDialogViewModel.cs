@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
+using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;

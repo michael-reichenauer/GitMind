@@ -12,6 +12,7 @@ using GitMind.Common.ProgressHandling;
 using GitMind.Features.Branching;
 using GitMind.Features.Branching.Private;
 using GitMind.Features.Committing;
+using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;

@@ -1,10 +1,12 @@
 using System.IO;
 using System.Threading.Tasks;
+using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.Utils;
 
 
-namespace GitMind.Git.Private
+namespace GitMind.Features.Diffing
 {
 	internal class GitDiffService : IGitDiffService
 	{

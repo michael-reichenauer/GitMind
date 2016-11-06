@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GitMind.Git;
 using GitMind.GitModel;
 
 
-namespace GitMind.RepositoryViews
+namespace GitMind.Features.Diffing
 {
 	internal interface IDiffService
 	{
@@ -16,8 +15,7 @@ namespace GitMind.RepositoryViews
 		Task MergeConflictsAsync(string workingFolder, string id, CommitFile file);
 		bool CanMergeConflict(CommitFile file);
 
-		//Task ResolveAsync(string workingFolder, CommitFile path);
-		//bool CanResolve(string workingFolder, CommitFile file);
+
 		Task UseYoursAsync(string workingFolder, CommitFile file);
 		bool CanUseYours(CommitFile file);
 		Task UseTheirsAsync(string workingFolder, CommitFile file);
@@ -28,11 +26,6 @@ namespace GitMind.RepositoryViews
 		bool CanDelete(string workingFolder, CommitFile file);
 		Task ShowYourDiffAsync(string workingFolder, CommitFile file);
 		Task ShowTheirDiffAsync(string workingFolder, CommitFile file);
-		//bool IsUseYours(string workingFolder, CommitFile file);
-		//bool IsUseTheirs(string workingFolder, CommitFile file);
-		//bool IsUseBase(string workingFolder, CommitFile file);
-		//bool IsDeleted(string workingFolder, CommitFile file);
-		//bool IsMerged(string workingFolder, CommitFile file);
 		IReadOnlyList<string> GetAllTempNames();
 		void ShowDiff(string uncommittedId, string workingFolder);
 	}

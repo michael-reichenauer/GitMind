@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GitMind.Git;
 
 
-namespace GitMind.Git.Private
+namespace GitMind.Features.Diffing
 {
 	internal class GitDiffParser : IGitDiffParser
 	{
