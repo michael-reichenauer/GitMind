@@ -11,12 +11,6 @@ namespace GitMind.Git.Private
 		private readonly IRepoCaller repoCaller;
 
 
-		public GitInfoService()
-			: this(new RepoCaller())
-		{
-		}
-
-
 		public GitInfoService(IRepoCaller repoCaller)
 		{
 			this.repoCaller = repoCaller;

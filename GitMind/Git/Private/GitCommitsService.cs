@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
+using GitMind.Features.Diffing;
 using GitMind.GitModel;
 using GitMind.Utils;
 using LibGit2Sharp;
@@ -20,16 +21,19 @@ namespace GitMind.Git.Private
 		private readonly WorkingFolder workingFolder;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 		private readonly IRepoCaller repoCaller;
+		private readonly IDiffService diffService;
 
 
 		public GitCommitsService(
 			WorkingFolder workingFolder,
 			IGitCommitBranchNameService gitCommitBranchNameService,
-			IRepoCaller repoCaller)
+			IRepoCaller repoCaller,
+			IDiffService diffService)
 		{
 			this.workingFolder = workingFolder;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 			this.repoCaller = repoCaller;
+			this.diffService = diffService;
 		}
 
 
@@ -241,13 +245,13 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static GitStatus GetGitStatus(LibGit2Sharp.Repository repo)
+		private GitStatus GetGitStatus(LibGit2Sharp.Repository repo)
 		{
 			RepositoryStatus repositoryStatus = repo.RetrieveStatus(StatusOptions);
 			ConflictCollection conflicts = repo.Index.Conflicts;
 			bool isFullyMerged = repo.Index.IsFullyMerged;
 
-			return new GitStatus(repositoryStatus, conflicts, repo.Info, isFullyMerged);
+			return new GitStatus(diffService, repositoryStatus, conflicts, repo.Info, isFullyMerged);
 		}
 
 

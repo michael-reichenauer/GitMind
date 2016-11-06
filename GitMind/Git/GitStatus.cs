@@ -1,3 +1,4 @@
+using GitMind.Features.Diffing;
 using LibGit2Sharp;
 
 
@@ -5,12 +6,17 @@ namespace GitMind.Git
 {
 	public class GitStatus
 	{
-		public GitStatus(
+		private readonly IDiffService diffService;
+
+
+		internal GitStatus(
+			IDiffService diffService,
 			RepositoryStatus status, 
 			ConflictCollection conflicts,
 			RepositoryInformation info, 
 			bool isFullyMerged)
 		{
+			this.diffService = diffService;
 			SetStatus(status, conflicts);
 			IsFullyMerged = isFullyMerged;
 			CurrentOperation = info.CurrentOperation;
@@ -24,17 +30,17 @@ namespace GitMind.Git
 		public bool IsFullyMerged { get; }
 
 		public int Count => CommitFiles.Files.Count;
-		public GitCommitFiles CommitFiles { get; private set; }
+		internal GitCommitFiles CommitFiles { get; private set; }
 
 		public int ConflictCount => ConflictFiles.Files.Count;
-		public GitCommitFiles ConflictFiles { get; private set; }
+		internal GitCommitFiles ConflictFiles { get; private set; }
 
 
 		private void SetStatus(RepositoryStatus status, ConflictCollection conflicts)
 		{
-			CommitFiles = new GitCommitFiles(GitCommit.UncommittedId, status, conflicts);
+			CommitFiles = new GitCommitFiles(diffService, GitCommit.UncommittedId, status, conflicts);
 
-			ConflictFiles = new GitCommitFiles(GitCommit.UncommittedId, conflicts);
+			ConflictFiles = new GitCommitFiles(diffService, GitCommit.UncommittedId, conflicts);
 		}
 	}
 }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Features.Diffing;
-using GitMind.RepositoryViews;
 using LibGit2Sharp;
 
 
@@ -9,7 +8,7 @@ namespace GitMind.Git
 {
 	internal class GitDiff
 	{
-		private readonly IDiffService diffService = new DiffService();
+		private readonly IDiffService diffService;
 		private readonly Diff diff;
 		private readonly Repository repository;
 		private static readonly SimilarityOptions DetectRenames =
@@ -23,8 +22,9 @@ namespace GitMind.Git
 		{ ContextLines = 10000, Similarity = DetectRenames };
 
 
-		public GitDiff(Diff diff, Repository repository)
+		public GitDiff(IDiffService diffService, Diff diff, Repository repository)
 		{
+			this.diffService = diffService;
 			this.diff = diff;
 			this.repository = repository;
 		}
@@ -174,10 +174,10 @@ namespace GitMind.Git
 					commit.Tree,
 					DefultCompareOptions);
 
-				return new GitCommitFiles(commitId, treeChanges);
+				return new GitCommitFiles(diffService, commitId, treeChanges);
 			}
 
-			return new GitCommitFiles(commitId, (TreeChanges)null);
+			return new GitCommitFiles(diffService, commitId, (TreeChanges)null);
 		}
 	}
 }

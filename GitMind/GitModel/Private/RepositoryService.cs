@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -18,6 +19,7 @@ namespace GitMind.GitModel.Private
 		private readonly IBranchHierarchyService branchHierarchyService;
 		private readonly ITagService tagService;
 		private readonly ICommitsFiles commitsFiles;
+		private readonly IDiffService diffService;
 
 
 		public RepositoryService(
@@ -28,7 +30,8 @@ namespace GitMind.GitModel.Private
 			ICommitBranchNameService commitBranchNameService,
 			IBranchHierarchyService branchHierarchyService,
 			ITagService tagService,
-			ICommitsFiles commitsFiles)
+			ICommitsFiles commitsFiles,
+			IDiffService diffService)
 		{
 			this.gitCommitsService = gitCommitsService;
 			this.cacheService = cacheService;
@@ -38,6 +41,7 @@ namespace GitMind.GitModel.Private
 			this.branchHierarchyService = branchHierarchyService;
 			this.tagService = tagService;
 			this.commitsFiles = commitsFiles;
+			this.diffService = diffService;
 		}
 
 
@@ -170,7 +174,7 @@ namespace GitMind.GitModel.Private
 			string gitRepositoryPath = repository.WorkingFolder;
 
 			// repository.Tips = GitRepository.GetRefsIds(gitRepositoryPath);
-			using (GitRepository gitRepository = GitRepository.Open(gitRepositoryPath))
+			using (GitRepository gitRepository = GitRepository.Open(diffService, gitRepositoryPath))
 			{
 				GitStatus gitStatus = gitRepository.Status;
 				repository.Status = gitStatus;

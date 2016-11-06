@@ -32,12 +32,6 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public DiffService()
-			: this(new GitDiffService(), new Cmd())
-		{
-		}
-
-
 		public async Task ShowDiffAsync(string commitId, string workingFolder)
 		{
 			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffAsync(workingFolder, commitId);

@@ -14,12 +14,6 @@ namespace GitMind.Features.Diffing
 		private readonly IGitDiffParser gitDiffParser;
 
 
-		public GitDiffService()
-			: this(new RepoCaller(), new GitDiffParser())
-		{			
-		}
-
-
 		public GitDiffService(
 			IRepoCaller repoCaller,
 			IGitDiffParser gitDiffParser)

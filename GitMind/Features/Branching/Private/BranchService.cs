@@ -21,7 +21,6 @@ namespace GitMind.Features.Branching.Private
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitNetworkService gitNetworkService;
 		private readonly ICommitService commitService;
-		private readonly WorkingFolder workingFolder;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
@@ -32,7 +31,6 @@ namespace GitMind.Features.Branching.Private
 			IGitBranchService gitBranchService,
 			IGitNetworkService gitNetworkService,
 			ICommitService commitService,
-			WorkingFolder workingFolder,
 			IProgressService progressService,
 			IMessage message,
 			WindowOwner owner,
@@ -41,7 +39,6 @@ namespace GitMind.Features.Branching.Private
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
 			this.commitService = commitService;
-			this.workingFolder = workingFolder;
 			this.progress = progressService;
 			this.message = message;
 			this.owner = owner;

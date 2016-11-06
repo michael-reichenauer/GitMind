@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Features.Diffing;
 using GitMind.Utils;
 using LibGit2Sharp;
 
@@ -10,6 +11,15 @@ namespace GitMind.Git.Private
 {
 	internal class RepoCaller : IRepoCaller
 	{
+		private readonly Lazy<IDiffService> diffService;
+
+
+		public RepoCaller(Lazy<IDiffService> diffService)
+		{
+			this.diffService = diffService;
+		}
+
+
 		public R UseRepo(
 			string workingFolder,
 			Action<GitRepository> doAction,
@@ -18,7 +28,7 @@ namespace GitMind.Git.Private
 			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
 			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(diffService.Value, workingFolder))
 				{
 					doAction(gitRepository);
 
@@ -156,7 +166,7 @@ namespace GitMind.Git.Private
 			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
 			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(diffService.Value, workingFolder))
 				{
 					T functionResult = doFunction(gitRepository);
 
@@ -237,7 +247,7 @@ namespace GitMind.Git.Private
 			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
 			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(diffService.Value, workingFolder))
 				{
 					R result = doFunction(gitRepository);
 
@@ -364,7 +374,7 @@ namespace GitMind.Git.Private
 				Log.Debug($"{memberName} in {workingFolder} ...");
 				try
 				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(diffService.Value, workingFolder))
 					{
 						T functionResult = await doFunction(gitRepository);
 
