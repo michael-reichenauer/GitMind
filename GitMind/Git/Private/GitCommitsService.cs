@@ -39,7 +39,7 @@ namespace GitMind.Git.Private
 
 		public Task<R<GitCommitFiles>> GetFilesForCommitAsync(string commitId)
 		{
-			return repoCaller.UseRepoAsync(workingFolder, repo =>
+			return repoCaller.UseRepoAsync(repo =>
 			{
 				if (commitId == GitCommit.UncommittedId)
 				{
@@ -71,20 +71,20 @@ namespace GitMind.Git.Private
 
 		public Task<R> ResetMerge()
 		{
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.Reset(ResetMode.Hard));
+			return repoCaller.UseRepoAsync(repo => repo.Reset(ResetMode.Hard));
 		}
 
 
 		public Task<R> UnCommitAsync()
 		{
-			return repoCaller.UseRepoAsync(workingFolder,
+			return repoCaller.UseRepoAsync(
 				repo => repo.Reset(ResetMode.Mixed, repo.Head.Commits.ElementAt(1)));
 		}
 
 
 		public Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync()
 		{
-			return repoCaller.UseLibRepoAsync(workingFolder, repo =>
+			return repoCaller.UseLibRepoAsync(repo =>
 			{
 				List<string> failedPaths = new List<string>();
 
@@ -122,7 +122,7 @@ namespace GitMind.Git.Private
 
 		public Task UndoWorkingFolderAsync()
 		{
-			return repoCaller.UseRepoAsync(workingFolder, repo =>
+			return repoCaller.UseRepoAsync(repo =>
 			{
 				Log.Debug("Undo changes in working folder");
 				repo.Reset(ResetMode.Hard);
@@ -160,7 +160,7 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Commit {paths.Count} files: {message} ...");
 
-			return repoCaller.UseLibRepoAsync(workingFolder,
+			return repoCaller.UseLibRepoAsync(
 				repo =>
 				{
 					AddPaths(repo, paths);
@@ -212,7 +212,7 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Undo uncommitted file {path} ...");
 
-			return repoCaller.UseLibRepoAsync(workingFolder, repo =>
+			return repoCaller.UseLibRepoAsync(repo =>
 			{
 				GitStatus gitStatus = GetGitStatus(repo);
 
@@ -257,7 +257,7 @@ namespace GitMind.Git.Private
 
 		public R<string> GetFullMessage(string commitId)
 		{
-			return repoCaller.UseRepo(workingFolder, repo =>
+			return repoCaller.UseRepo(repo =>
 			{
 				LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(new ObjectId(commitId));
 				if (commit != null)

@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
@@ -10,23 +11,26 @@ namespace GitMind.Features.Diffing
 {
 	internal class GitDiffService : IGitDiffService
 	{
+		private readonly WorkingFolder workingFolder;
 		private readonly IRepoCaller repoCaller;
 		private readonly IGitDiffParser gitDiffParser;
 
 
 		public GitDiffService(
+			WorkingFolder workingFolder,
 			IRepoCaller repoCaller,
 			IGitDiffParser gitDiffParser)
 		{
+			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
 			this.gitDiffParser = gitDiffParser;
 		}
 		 
 
-		public Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string path)
+		public Task<R<CommitDiff>> GetFileDiffAsync(string commitId, string path)
 		{
 			Log.Debug($"Get diff for file {path} for commit {commitId} ...");
-			return repoCaller.UseRepoAsync(workingFolder, async repo =>
+			return repoCaller.UseRepoAsync(async repo =>
 			{
 				string patch = repo.Diff.GetFilePatch(commitId, path);
 
@@ -46,10 +50,10 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId)
+		public Task<R<CommitDiff>> GetCommitDiffAsync(string commitId)
 		{
 			Log.Debug($"Get diff for commit {commitId} ...");
-			return repoCaller.UseRepoAsync(workingFolder, async repo =>
+			return repoCaller.UseRepoAsync(async repo =>
 			{
 				string patch = repo.Diff.GetPatch(commitId);
 
@@ -58,10 +62,10 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public Task<R<CommitDiff>> GetCommitDiffRangeAsync(string workingFolder, string id1, string id2)
+		public Task<R<CommitDiff>> GetCommitDiffRangeAsync(string id1, string id2)
 		{
 			Log.Debug($"Get diff for commit range {id1}-{id2} ...");
-			return repoCaller.UseRepoAsync(workingFolder, async repo =>
+			return repoCaller.UseRepoAsync(async repo =>
 			{
 				string patch = repo.Diff.GetPatchRange(id1, id2);
 
@@ -70,17 +74,17 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public void GetFile(string workingFolder, string fileId, string filePath)
+		public void GetFile(string fileId, string filePath)
 		{
 			Log.Debug($"Get file {fileId}, {filePath} ...");
-			repoCaller.UseRepo(workingFolder, repo => repo.GetFile(fileId, filePath));
+			repoCaller.UseRepo(repo => repo.GetFile(fileId, filePath));
 		}
 
 
-		public Task ResolveAsync(string workingFolder, string path)
+		public Task ResolveAsync(string path)
 		{
 			Log.Debug($"Resolve {path}  ...");
-			return repoCaller.UseRepoAsync(workingFolder, repo => repo.Resolve(path));
+			return repoCaller.UseRepoAsync(repo => repo.Resolve(path));
 		}
 
 	}

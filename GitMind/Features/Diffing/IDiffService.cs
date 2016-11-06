@@ -7,26 +7,26 @@ namespace GitMind.Features.Diffing
 {
 	internal interface IDiffService
 	{
-		Task ShowDiffAsync(string commitId, string workingFolder);
+		Task ShowDiffAsync(string commitId);
 
-		Task ShowFileDiffAsync(string workingFolder, string commitId, string name);
-		Task ShowDiffRangeAsync(string id1, string id2, string workingFolder);
+		Task ShowFileDiffAsync(string commitId, string name);
+		Task ShowDiffRangeAsync(string id1, string id2);
 
-		Task MergeConflictsAsync(string workingFolder, string id, CommitFile file);
+		Task MergeConflictsAsync(string id, CommitFile file);
 		bool CanMergeConflict(CommitFile file);
 
 
-		Task UseYoursAsync(string workingFolder, CommitFile file);
+		Task UseYoursAsync(CommitFile file);
 		bool CanUseYours(CommitFile file);
-		Task UseTheirsAsync(string workingFolder, CommitFile file);
+		Task UseTheirsAsync(CommitFile file);
 		bool CanUseTheirs(CommitFile file);
-		Task UseBaseAsync(string workingFolder, CommitFile file);
-		bool CanUseBase(string workingFolder, CommitFile file);
-		Task DeleteAsync(string workingFolder, CommitFile file);
-		bool CanDelete(string workingFolder, CommitFile file);
-		Task ShowYourDiffAsync(string workingFolder, CommitFile file);
-		Task ShowTheirDiffAsync(string workingFolder, CommitFile file);
+		Task UseBaseAsync(CommitFile file);
+		bool CanUseBase(CommitFile file);
+		Task DeleteAsync(CommitFile file);
+		bool CanDelete(CommitFile file);
+		Task ShowYourDiffAsync(CommitFile file);
+		Task ShowTheirDiffAsync(CommitFile file);
 		IReadOnlyList<string> GetAllTempNames();
-		void ShowDiff(string uncommittedId, string workingFolder);
+		void ShowDiff(string uncommittedId);
 	}
 }

@@ -7,14 +7,14 @@ namespace GitMind.Features.Diffing
 {
 	internal interface IGitDiffService
 	{
-		Task<R<CommitDiff>> GetCommitDiffAsync(string workingFolder, string commitId);
+		Task<R<CommitDiff>> GetCommitDiffAsync(string commitId);
 
-		Task<R<CommitDiff>> GetCommitDiffRangeAsync(string workingFolder, string id1, string id2);
+		Task<R<CommitDiff>> GetCommitDiffRangeAsync(string id1, string id2);
 
-		Task<R<CommitDiff>> GetFileDiffAsync(string workingFolder, string commitId, string path);
+		Task<R<CommitDiff>> GetFileDiffAsync(string commitId, string path);
 
-		void GetFile(string workingFolder, string fileId, string filePath);
+		void GetFile(string fileId, string filePath);
 
-		Task ResolveAsync(string workingFolder, string path);
+		Task ResolveAsync(string path);
 	}
 }

@@ -40,7 +40,7 @@ namespace GitMind.Features.Branching.Private
 		{
 			Log.Debug($"Merge branch {branchName} into current branch ...");
 
-			return repoCaller.UseLibRepoAsync(workingFolder, repository =>
+			return repoCaller.UseLibRepoAsync(repository =>
 			{
 				Signature signature = GetSignature(repository);
 
@@ -78,7 +78,7 @@ namespace GitMind.Features.Branching.Private
 		{
 			Log.Debug($"Create branch {branchName} at commit {commitId} ...");
 
-			return repoCaller.UseLibRepoAsync(workingFolder, repository =>
+			return repoCaller.UseLibRepoAsync(repository =>
 			{
 				Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 				if (commit == null)
@@ -106,7 +106,7 @@ namespace GitMind.Features.Branching.Private
 		public Task<R> SwitchToBranchAsync(BranchName branchName)
 		{
 			Log.Debug($"Switch to branch {branchName} ...");
-			return repoCaller.UseLibRepoAsync(workingFolder, repository =>
+			return repoCaller.UseLibRepoAsync(repository =>
 			{
 				Branch branch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
 
@@ -132,7 +132,7 @@ namespace GitMind.Features.Branching.Private
 		public Task<R<BranchName>> SwitchToCommitAsync(string commitId, BranchName branchName)
 		{
 			Log.Debug($"Switch to commit {commitId} with branch name '{branchName}' ...");
-			return repoCaller.UseLibRepoAsync(workingFolder, repository =>
+			return repoCaller.UseLibRepoAsync(repository =>
 			{
 				Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 				if (commit == null)
@@ -167,7 +167,7 @@ namespace GitMind.Features.Branching.Private
 
 		public Task<R> MergeCurrentBranchFastForwardOnlyAsync()
 		{
-			return repoCaller.UseRepoAsync(workingFolder, repo =>
+			return repoCaller.UseRepoAsync(repo =>
 			{
 				Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
 				repo.MergeFetchedRefs(committer, MergeFastForwardOnly);
@@ -177,7 +177,7 @@ namespace GitMind.Features.Branching.Private
 
 		public Task<R> MergeCurrentBranchAsync()
 		{
-			return repoCaller.UseRepoAsync(workingFolder, repo =>
+			return repoCaller.UseRepoAsync(repo =>
 			{
 				Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
 
@@ -198,7 +198,7 @@ namespace GitMind.Features.Branching.Private
 		{
 			Log.Debug($"Delete local branch {branchName}  ...");
 
-			return repoCaller.UseRepoAsync(workingFolder, repo =>
+			return repoCaller.UseRepoAsync(repo =>
 			{
 				repo.Branches.Remove(branchName, false);
 			});
@@ -207,7 +207,7 @@ namespace GitMind.Features.Branching.Private
 
 		public R<GitDivergence> CheckAheadBehind(string localTip, string remoteTip)
 		{
-			return repoCaller.UseRepo(workingFolder,
+			return repoCaller.UseRepo(
 				repo =>
 				{
 					Commit local = repo.Lookup<Commit>(new ObjectId(localTip));

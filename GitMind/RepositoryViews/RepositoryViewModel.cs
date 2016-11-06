@@ -1013,7 +1013,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (ListBox.SelectedItems.Count < 2)
 			{
-				diffService.ShowDiffAsync(commit.Id, workingFolder).RunInBackground();
+				diffService.ShowDiffAsync(commit.Id).RunInBackground();
 			}
 			else
 			{
@@ -1030,7 +1030,7 @@ namespace GitMind.RepositoryViews
 						? bottomCommit.Commit.FirstParent.Id
 						: bottomCommit.Commit.Id;
 
-					diffService.ShowDiffRangeAsync(id1, id2, workingFolder).RunInBackground();
+					diffService.ShowDiffRangeAsync(id1, id2).RunInBackground();
 				}
 				else if (topCommit != null)
 				{
@@ -1050,7 +1050,7 @@ namespace GitMind.RepositoryViews
 
 					string id1 = topCommit.Commit.Id;
 					string id2 = current.Id;
-					diffService.ShowDiffRangeAsync(id1, id2, workingFolder).RunInBackground(); ;
+					diffService.ShowDiffRangeAsync(id1, id2).RunInBackground(); ;
 				}
 			}
 		}
@@ -1107,7 +1107,7 @@ namespace GitMind.RepositoryViews
 
 			if (commit != null)
 			{
-				await diffService.ShowDiffAsync(commit.Commit.Id, workingFolder);
+				await diffService.ShowDiffAsync(commit.Commit.Id);
 			}
 		}
 

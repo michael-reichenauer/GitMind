@@ -122,7 +122,7 @@ namespace GitMind.Git.Private
 
 			await FetchNotesAsync(nameSpace);
 
-			string originNotesText = repoCaller.UseRepo(workingFolder, repo =>
+			string originNotesText = repoCaller.UseRepo(repo =>
 			{
 				IReadOnlyList<GitNote> notes = repo.GetCommitNotes(rootId);
 				GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
@@ -133,8 +133,7 @@ namespace GitMind.Git.Private
 
 			string notesText = originNotesText + addedNotesText;
 
-			repoCaller.UseRepo(workingFolder, repo =>
-				repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
+			repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 
 			string[] refs = { $"refs/notes/{nameSpace}:refs/notes/{nameSpace}" };
 			R result = await gitNetworkService.PushRefsAsync(refs);
@@ -179,7 +178,7 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Getting notes {nameSpace} from root commit {rootId} ...");
 
-			string notesText = repoCaller.UseRepo(workingFolder, repo =>
+			string notesText = repoCaller.UseRepo(repo =>
 			{
 				IReadOnlyList<GitNote> notes = repo.GetCommitNotes(rootId);
 				GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");

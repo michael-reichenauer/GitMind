@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Git;
@@ -21,20 +22,25 @@ namespace GitMind.Features.Diffing
 		private static readonly string Theirs = "THEIRS";
 		private static readonly string ConflictMarker = "<<<<<<< HEAD";
 
+		private readonly WorkingFolder workingFolder;
 		private readonly IGitDiffService gitDiffService;
 		private readonly ICmd cmd;
 
 
-		public DiffService(IGitDiffService gitDiffService, ICmd cmd)
+		public DiffService(
+			WorkingFolder workingFolder,
+			IGitDiffService gitDiffService,
+			ICmd cmd)
 		{
+			this.workingFolder = workingFolder;
 			this.gitDiffService = gitDiffService;
 			this.cmd = cmd;
 		}
 
 
-		public async Task ShowDiffAsync(string commitId, string workingFolder)
+		public async Task ShowDiffAsync(string commitId)
 		{
-			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffAsync(workingFolder, commitId);
+			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffAsync(commitId);
 
 			if (commitDiff.HasValue)
 			{
@@ -43,9 +49,9 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public async Task ShowDiffRangeAsync(string id1, string id2, string workingFolder)
+		public async Task ShowDiffRangeAsync(string id1, string id2)
 		{
-			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffRangeAsync(workingFolder, id1, id2);
+			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffRangeAsync(id1, id2);
 
 			if (commitDiff.HasValue)
 			{
@@ -54,31 +60,31 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public async Task MergeConflictsAsync(string workingFolder, string id, CommitFile file)
+		public async Task MergeConflictsAsync(string id, CommitFile file)
 		{
-			CleanTempPaths(workingFolder, file);
+			CleanTempPaths(file);
 
-			string basePath = GetPath(workingFolder, file, Base);
-			string yoursPath = GetPath(workingFolder, file, Yours);
-			string theirsPath = GetPath(workingFolder, file, Theirs);
+			string basePath = GetPath(file, Base);
+			string yoursPath = GetPath(file, Yours);
+			string theirsPath = GetPath(file, Theirs);
 
-			string fullPath = Path.Combine(workingFolder, file.Path);
+			string fullPath = Path.Combine(file.Path);
 
-			gitDiffService.GetFile(workingFolder, file.Conflict.OursId, yoursPath);
-			gitDiffService.GetFile(workingFolder, file.Conflict.TheirsId, theirsPath);
-			gitDiffService.GetFile(workingFolder, file.Conflict.BaseId, basePath);
+			gitDiffService.GetFile(file.Conflict.OursId, yoursPath);
+			gitDiffService.GetFile(file.Conflict.TheirsId, theirsPath);
+			gitDiffService.GetFile(file.Conflict.BaseId, basePath);
 
 			if (File.Exists(yoursPath) && File.Exists(theirsPath) && File.Exists(basePath))
 			{
 				await ShowMergeImplAsync(theirsPath, yoursPath, basePath, fullPath);
 
-				if (!HasConflicts(workingFolder, file))
+				if (!HasConflicts(file))
 				{
-					await gitDiffService.ResolveAsync(workingFolder, file.Path);
+					await gitDiffService.ResolveAsync(file.Path);
 				}
 			}
 
-			CleanTempPaths(workingFolder, file);
+			CleanTempPaths(file);
 		}
 
 
@@ -93,13 +99,13 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public async Task UseYoursAsync(string workingFolder, CommitFile file)
+		public async Task UseYoursAsync(CommitFile file)
 		{
-			CleanTempPaths(workingFolder, file);
+			CleanTempPaths(file);
 
-			UseFile(workingFolder, file, file.Conflict.OursId);
+			UseFile(file, file.Conflict.OursId);
 
-			await gitDiffService.ResolveAsync(workingFolder, file.Path);
+			await gitDiffService.ResolveAsync(file.Path);
 		}
 
 
@@ -112,13 +118,13 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public async Task UseTheirsAsync(string workingFolder, CommitFile file)
+		public async Task UseTheirsAsync(CommitFile file)
 		{
-			CleanTempPaths(workingFolder, file);
+			CleanTempPaths(file);
 
-			UseFile(workingFolder, file, file.Conflict.TheirsId);
+			UseFile(file, file.Conflict.TheirsId);
 
-			await gitDiffService.ResolveAsync(workingFolder, file.Path);
+			await gitDiffService.ResolveAsync(file.Path);
 		}
 
 
@@ -130,16 +136,16 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public async Task UseBaseAsync(string workingFolder, CommitFile file)
+		public async Task UseBaseAsync(CommitFile file)
 		{
-			CleanTempPaths(workingFolder, file);
-			UseFile(workingFolder, file, file.Conflict.BaseId);
+			CleanTempPaths(file);
+			UseFile(file, file.Conflict.BaseId);
 
-			await gitDiffService.ResolveAsync(workingFolder, file.Path);
+			await gitDiffService.ResolveAsync(file.Path);
 		}
 
 
-		public bool CanUseBase(string workingFolder, CommitFile file)
+		public bool CanUseBase(CommitFile file)
 		{
 			return
 				file.Status.HasFlag(GitFileStatus.Conflict)
@@ -147,30 +153,30 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public async Task DeleteAsync(string workingFolder, CommitFile file)
+		public async Task DeleteAsync(CommitFile file)
 		{
-			CleanTempPaths(workingFolder, file);
+			CleanTempPaths(file);
 			string fullPath = Path.Combine(workingFolder, file.Path);
 
 			DeletePath(fullPath);
 
-			await gitDiffService.ResolveAsync(workingFolder, file.Path);
+			await gitDiffService.ResolveAsync(file.Path);
 		}
 
 
-		public bool CanDelete(string workingFolder, CommitFile file)
+		public bool CanDelete( CommitFile file)
 		{
 			return file.Status.HasFlag(GitFileStatus.Conflict);
 		}
 
 
-		public async Task ShowYourDiffAsync(string workingFolder, CommitFile file)
+		public async Task ShowYourDiffAsync(CommitFile file)
 		{
-			string yoursPath = GetPath(workingFolder, file, Theirs);
-			string basePath = GetPath(workingFolder, file, Base);
+			string yoursPath = GetPath(file, Theirs);
+			string basePath = GetPath(file, Base);
 
-			gitDiffService.GetFile(workingFolder, file.Conflict.OursId, yoursPath);
-			gitDiffService.GetFile(workingFolder, file.Conflict.BaseId, basePath);
+			gitDiffService.GetFile(file.Conflict.OursId, yoursPath);
+			gitDiffService.GetFile(file.Conflict.BaseId, basePath);
 
 			if (File.Exists(yoursPath) && File.Exists(basePath))
 			{
@@ -183,13 +189,13 @@ namespace GitMind.Features.Diffing
 
 
 
-		public async Task ShowTheirDiffAsync(string workingFolder, CommitFile file)
+		public async Task ShowTheirDiffAsync(CommitFile file)
 		{
-			string basePath = GetPath(workingFolder, file, Base);
-			string theirsPath = GetPath(workingFolder, file, Theirs);
+			string basePath = GetPath(file, Base);
+			string theirsPath = GetPath(file, Theirs);
 
-			gitDiffService.GetFile(workingFolder, file.Conflict.BaseId, basePath);
-			gitDiffService.GetFile(workingFolder, file.Conflict.TheirsId, theirsPath);
+			gitDiffService.GetFile(file.Conflict.BaseId, basePath);
+			gitDiffService.GetFile(file.Conflict.TheirsId, theirsPath);
 
 			if (File.Exists(theirsPath) && File.Exists(basePath))
 			{
@@ -211,32 +217,32 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public void ShowDiff(string uncommittedId, string workingFolder)
+		public void ShowDiff(string uncommittedId)
 		{
-			Task.Run(() => ShowDiffAsync(Commit.UncommittedId, workingFolder).Wait())
+			Task.Run(() => ShowDiffAsync(Commit.UncommittedId).Wait())
 				.Wait();
 		}
 
 
-		private void CleanTempPaths(string workingFolder, CommitFile file)
+		private void CleanTempPaths(CommitFile file)
 		{
-			DeletePath(GetPath(workingFolder, file, Base));
-			DeletePath(GetPath(workingFolder, file, Yours));
-			DeletePath(GetPath(workingFolder, file, Theirs));
+			DeletePath(GetPath(file, Base));
+			DeletePath(GetPath(file, Yours));
+			DeletePath(GetPath(file, Theirs));
 		}
 
 
-		private void UseFile(string workingFolder, CommitFile file, string fileId)
+		private void UseFile(CommitFile file, string fileId)
 		{
 			string fullPath = Path.Combine(workingFolder, file.Path);
 
-			gitDiffService.GetFile(workingFolder, fileId, fullPath);
+			gitDiffService.GetFile(fileId, fullPath);
 		}
 
 
-		public async Task ShowFileDiffAsync(string workingFolder, string commitId, string name)
+		public async Task ShowFileDiffAsync(string commitId, string name)
 		{	
-			R<CommitDiff> commitDiff = await gitDiffService.GetFileDiffAsync(workingFolder, commitId, name);
+			R<CommitDiff> commitDiff = await gitDiffService.GetFileDiffAsync(commitId, name);
 
 			if (commitDiff.HasValue)
 			{
@@ -335,20 +341,20 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		private static string GetPath(string workingFolder, CommitFile file, string type)
+		private string GetPath(CommitFile file, string type)
 		{
-			return GetPath(workingFolder, file.Path, type);
+			return GetPath(file.Path, type);
 		}
 
 
-		private static string GetPath(string workingFolder, string path, string type)
+		private string GetPath(string path, string type)
 		{
 			string fullPath = Path.Combine(workingFolder, path);
 			string extension = Path.GetExtension(fullPath);
 			return Path.ChangeExtension(fullPath, type + extension);
 		}
 
-		private static bool HasConflicts(string workingFolder, CommitFile file)
+		private bool HasConflicts(CommitFile file)
 		{
 			string fullPath = Path.Combine(workingFolder, file.Path);
 

@@ -144,7 +144,7 @@ namespace GitMind.Features.Committing
 
 		public async Task ShowUncommittedDiff()
 		{
-			await diffService.ShowDiffAsync(Commit.UncommittedId, workingFolder);
+			await diffService.ShowDiffAsync(Commit.UncommittedId);
 		}
 
 

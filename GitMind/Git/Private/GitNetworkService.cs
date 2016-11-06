@@ -38,8 +38,7 @@ namespace GitMind.Git.Private
 		public Task<R> FetchAsync()
 		{
 			Log.Debug("Fetch all ...");
-			return repoCaller.UseRepoAsync(workingFolder, FetchTimeout,
-				repo => repo.Fetch(Origin, fetchAllOptions));
+			return repoCaller.UseRepoAsync(FetchTimeout, repo => repo.Fetch(Origin, fetchAllOptions));
 		}
 
 
@@ -58,7 +57,7 @@ namespace GitMind.Git.Private
 			string refsText = string.Join(",", refspecs);
 			Log.Debug($"Fetch refs {refsText} ...");
 
-			return repoCaller.UseRepoAsync(workingFolder, repo =>
+			return repoCaller.UseRepoAsync(repo =>
 				{
 					Remote remote = Remote(repo);		
 					repo.Network.Fetch(remote, refspecs);
@@ -79,7 +78,7 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug("Push current branch ...");
 
-			return repoCaller.UseRepoAsync(workingFolder, PushTimeout, repo =>
+			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 				{
 					Branch currentBranch = repo.Head;
 					string[] refspecs = {$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"};
@@ -93,7 +92,7 @@ namespace GitMind.Git.Private
 			string refsText = string.Join(",", refspecs);
 			Log.Debug($"Push refs {refsText} ...");
 
-			return repoCaller.UseRepoAsync(workingFolder, PushTimeout, repo => PushRefs(refspecs, repo));
+			return repoCaller.UseRepoAsync(PushTimeout, repo => PushRefs(refspecs, repo));
 		}
 
 
@@ -101,7 +100,7 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Publish branch {branchName} ...");
 
-			return repoCaller.UseLibRepoAsync(workingFolder, repo =>
+			return repoCaller.UseLibRepoAsync(repo =>
 			{
 				Branch localBranch = repo.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
 				if (localBranch == null)
@@ -141,7 +140,7 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Delete remote branch {branchName} ...");
 
-			return repoCaller.UseRepoAsync(workingFolder, PushTimeout, repo =>
+			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 			{
 				repo.Branches.Remove(branchName, true);
 

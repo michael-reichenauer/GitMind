@@ -137,7 +137,7 @@ namespace GitMind
 		{
 			if (commandLine.IsShowDiff)
 			{
-				diffService.ShowDiff(Commit.UncommittedId, workingFolder);
+				diffService.ShowDiff(Commit.UncommittedId);
 			}
 		}
 
