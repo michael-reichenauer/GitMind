@@ -32,6 +32,7 @@ namespace GitMind.Utils.UI
 
 		protected Command()
 		{
+			SetCommand(RunAsync, CanRun, GetType().FullName);
 		}
 
 
@@ -77,24 +78,35 @@ namespace GitMind.Utils.UI
 		}
 
 
-		protected void SetCommand(Action executeMethod, string memberName)
+		private void SetCommand(Action executeMethod, string memberName)
 		{
 			command = new Command<object>(_ => executeMethod(), memberName);
 		}
 
-		protected void SetCommand(Action executeMethod, Func<bool> canExecuteMethod, string memberName)
+		private void SetCommand(Action executeMethod, Func<bool> canExecuteMethod, string memberName)
 		{
 			command = new Command<object>((object _) => executeMethod(), _ => canExecuteMethod(), memberName);
 		}
 
-		protected void SetCommand(Func<Task> executeMethodAsync, string memberName)
+		private void SetCommand(Func<Task> executeMethodAsync, string memberName)
 		{
 			command = new Command<object>(_ => executeMethodAsync(), memberName);
 		}
 
-		protected void SetCommand(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod, string memberName)
+		private void SetCommand(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod, string memberName)
 		{
 			command = new Command<object>(_ => executeMethodAsync(), _ => canExecuteMethod(), memberName);
+		}
+
+
+		protected virtual Task RunAsync()
+		{
+			return Task.CompletedTask;
+		}
+
+		protected virtual bool CanRun()
+		{
+			return true;
 		}
 	}
 
@@ -104,17 +116,27 @@ namespace GitMind.Utils.UI
 		private readonly Action<T> executeMethod;
 		private string memberName;
 		private Func<T, Task> executeMethodAsync;
-		private readonly Func<T, bool> canExecuteMethod;
+		private Func<T, bool> canExecuteMethod;
 		private bool canExecute = true;
 
 
 		protected Command()
 		{
-			
+			SetCommand(RunAsync, CanRun, GetType().FullName);
 		}
 
 
-		protected void SetCommand(Func<T, Task> methodAsync, string name)
+		private void SetCommand(Func<T, Task> methodAsync, Func<T, bool> canRun, string name)
+		{
+			Asserter.NotNull(methodAsync);
+			Asserter.NotNull(canExecute);
+
+			executeMethodAsync = methodAsync;
+			canExecuteMethod = canRun;
+			memberName = name;
+		}
+
+		private void SetCommand(Func<T, Task> methodAsync, string name)
 		{
 			Asserter.NotNull(methodAsync);
 
@@ -246,6 +268,17 @@ namespace GitMind.Utils.UI
 				canExecute = true;
 				RaiseCanExecuteChanaged();
 			}
+		}
+
+
+		protected virtual Task RunAsync(T parameter)
+		{
+			return Task.CompletedTask;
+		}
+
+		protected virtual bool CanRun(T parameter)
+		{
+			return true;
 		}
 	}
 }

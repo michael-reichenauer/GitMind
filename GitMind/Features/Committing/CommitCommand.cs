@@ -19,17 +19,16 @@ namespace GitMind.Features.Committing
 		{
 			this.commitService = commitService;
 			this.repositoryMgr = repositoryMgr;
-			SetCommand(CommitAsync, CanCommit, nameof(CommitCommand));
 		}
 
 
-		private Task CommitAsync()
+		protected override Task RunAsync()
 		{
 			return commitService.CommitChangesAsync();
 		}
 
 
-		private bool CanCommit()
+		protected override bool CanRun()
 		{
 			Repository repository = repositoryMgr.Value.Repository;
 			Commit uncommitted;

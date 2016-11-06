@@ -17,12 +17,10 @@ namespace GitMind.Features.Branching
 		{
 			this.branchService = branchService;
 			//this.repositoryMgr = repositoryMgr;
-
-			SetCommand(MergeAsync, nameof(MergeCommand));
 		}
 
 
-		private Task MergeAsync(Branch branch)
+		protected override Task RunAsync(Branch branch)
 		{
 			return branchService.MergeBranchAsync(branch);
 
