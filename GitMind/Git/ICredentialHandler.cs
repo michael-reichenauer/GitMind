@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Threading;
+﻿using System.Net;
 
 
 namespace GitMind.Git
@@ -10,7 +8,5 @@ namespace GitMind.Git
 		NetworkCredential GetCredential(string url, string usernameFromUrl);
 
 		void SetConfirm(bool isConfirmed);
-
-		CancellationToken GetTimeoutToken(TimeSpan timeout);
 	}
 }

@@ -19,17 +19,15 @@ namespace GitMind.Git.Private
 		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
 		private readonly IRepoCaller repoCaller;
+		private readonly ICredentialHandler credentialHandler;
 
 
-		public GitNetworkService()
-			: this(new RepoCaller())
-		{
-		}
-
-
-		public GitNetworkService(IRepoCaller repoCaller)
+		public GitNetworkService(
+			IRepoCaller repoCaller,
+			ICredentialHandler credentialHandler)
 		{
 			this.repoCaller = repoCaller;
+			this.credentialHandler = credentialHandler;
 		}
 
 
@@ -64,21 +62,16 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> PushBranchAsync(
-			string workingFolder, 
-			BranchName branchName, 
-			ICredentialHandler credentialHandler)
+		public Task<R> PushBranchAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Push branch {branchName} ...");
 
 			string[] refspecs = { $"refs/heads/{branchName}:refs/heads/{branchName}"};
-			return PushRefsAsync(workingFolder, refspecs, credentialHandler);
+			return PushRefsAsync(workingFolder, refspecs);
 		}
 
 
-		public Task<R> PushCurrentBranchAsync(
-			string workingFolder, 
-			ICredentialHandler credentialHandler)
+		public Task<R> PushCurrentBranchAsync(string workingFolder)
 		{
 			Log.Debug("Push current branch ...");
 
@@ -86,26 +79,21 @@ namespace GitMind.Git.Private
 				{
 					Branch currentBranch = repo.Head;
 					string[] refspecs = {$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"};
-					PushRefs(refspecs, credentialHandler, repo);
+					PushRefs(refspecs, repo);
 				});
 		}
 
 
-		public Task<R> PushRefsAsync(
-			string workingFolder,
-			IEnumerable<string> refspecs,
-			ICredentialHandler credentialHandler)
+		public Task<R> PushRefsAsync(string workingFolder,IEnumerable<string> refspecs)
 		{
 			string refsText = string.Join(",", refspecs);
 			Log.Debug($"Push refs {refsText} ...");
 
-			return repoCaller.UseRepoAsync(workingFolder, PushTimeout,
-				repo => PushRefs(refspecs, credentialHandler, repo));
+			return repoCaller.UseRepoAsync(workingFolder, PushTimeout, repo => PushRefs(refspecs, repo));
 		}
 
 
-		public Task<R> PublishBranchAsync(
-			string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
+		public Task<R> PublishBranchAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Publish branch {branchName} ...");
 
@@ -117,7 +105,7 @@ namespace GitMind.Git.Private
 					throw new Exception($"No local branch with name {branchName}");
 				}
 
-				PushOptions pushOptions = GetPushOptions(credentialHandler);
+				PushOptions pushOptions = GetPushOptions();
 
 				// Check if corresponding remote branch exists
 				Branch remoteBranch = repo.Branches
@@ -145,8 +133,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> DeleteRemoteBranchAsync(
-			string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
+		public Task<R> DeleteRemoteBranchAsync(string workingFolder, BranchName branchName)
 		{
 			Log.Debug($"Delete remote branch {branchName} ...");
 
@@ -154,7 +141,7 @@ namespace GitMind.Git.Private
 			{
 				repo.Branches.Remove(branchName, true);
 
-				PushOptions pushOptions = GetPushOptions(credentialHandler);
+				PushOptions pushOptions = GetPushOptions();
 
 				Remote remote = Remote(repo);
 
@@ -166,14 +153,11 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static void PushRefs(
-			IEnumerable<string> refspecs, 
-			ICredentialHandler credentialHandler,
-			Repository repo)
+		private void PushRefs(IEnumerable<string> refspecs, Repository repo)
 		{
 			try
 			{
-				PushOptions pushOptions = GetPushOptions(credentialHandler);
+				PushOptions pushOptions = GetPushOptions();
 
 				Remote remote = Remote(repo);
 
@@ -195,7 +179,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static PushOptions GetPushOptions(ICredentialHandler credentialHandler)
+		private PushOptions GetPushOptions()
 		{
 			PushOptions pushOptions = new PushOptions();
 

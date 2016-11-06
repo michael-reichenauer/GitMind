@@ -14,9 +14,7 @@ using GitMind.Features.Branching.Private;
 using GitMind.Features.Committing;
 using GitMind.Features.Diffing;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
-using GitMind.GitModel.Private;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -37,12 +35,12 @@ namespace GitMind.RepositoryViews
 		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
 
 		private readonly IViewModelService viewModelService;
-		private readonly IRepositoryService repositoryService = new RepositoryService();
-		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
-		private readonly IGitBranchService gitBranchService = new GitBranchService();
-		private readonly IGitInfoService gitInfoService = new GitInfoService();
-		private readonly INetworkService networkService = new NetworkService();
-		private readonly IBrushService brushService = new BrushService();
+		private readonly IRepositoryService repositoryService;
+		private readonly IGitCommitsService gitCommitsService;
+		private readonly IGitBranchService gitBranchService;
+		private readonly IGitInfoService gitInfoService;
+		private readonly INetworkService networkService;
+		private readonly IBrushService brushService;
 		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
@@ -88,13 +86,19 @@ namespace GitMind.RepositoryViews
 
 
 		public RepositoryViewModel(
-			WorkingFolder workingFolder, 
+			WorkingFolder workingFolder,
 			IDiffService diffService,
 			WindowOwner owner,
 			IBranchService branchService,
 			ICommandLine commandLine,
 			IViewModelService viewModelService,
 			ICommitService commitService,
+			IRepositoryService repositoryService,
+			IGitCommitsService gitCommitsService,
+			IGitBranchService gitBranchService,
+			IGitInfoService gitInfoService,
+			INetworkService networkService,
+			IBrushService brushService,
 			BusyIndicator busyIndicator,
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider,
@@ -109,6 +113,12 @@ namespace GitMind.RepositoryViews
 			this.commandLine = commandLine;
 			this.viewModelService = viewModelService;
 			this.commitService = commitService;
+			this.repositoryService = repositoryService;
+			this.gitCommitsService = gitCommitsService;
+			this.gitBranchService = gitBranchService;
+			this.gitInfoService = gitInfoService;
+			this.networkService = networkService;
+			this.brushService = brushService;
 			this.busyIndicator = busyIndicator;
 			this.progress = progressService;
 
@@ -129,10 +139,10 @@ namespace GitMind.RepositoryViews
 
 		public Branch MergingBranch { get; private set; }
 
-		public CredentialHandler GetCredentialsHandler()
-		{
-			return new CredentialHandler(owner);
-		}
+		//public CredentialHandler GetCredentialsHandler()
+		//{
+		//	return new CredentialHandler(owner);
+		//}
 
 
 		public DisabledStatus DisableStatus()
@@ -930,20 +940,19 @@ namespace GitMind.RepositoryViews
 				string workingFolder = Repository.MRepository.WorkingFolder;
 				Branch currentBranch = Repository.CurrentBranch;
 
-				await networkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
+				await networkService.PushNotesAsync(workingFolder, Repository.RootId);
 
 				R result = R.Ok;
 				if (currentBranch.CanBePushed)
 				{
 					state.SetText($"Push current branch {currentBranch.Name} ...");
-					CredentialHandler credentialHandler = new CredentialHandler(owner);
-					result = await networkService.PushCurrentBranchAsync(workingFolder, credentialHandler);
+					result = await networkService.PushCurrentBranchAsync(workingFolder);
 				}
 
 				if (result.IsFaulted)
 				{
 					Message.ShowWarning(
-						owner, 
+						owner,
 						$"Failed to push current branch {currentBranch.Name}.\n{result.Error.Exception.Message}");
 				}
 
@@ -955,7 +964,7 @@ namespace GitMind.RepositoryViews
 				{
 					state.SetText($"Push branch {branch.Name} ...");
 
-					await networkService.PushBranchAsync(workingFolder, branch.Name, GetCredentialsHandler());
+					await networkService.PushBranchAsync(workingFolder, branch.Name);
 				}
 
 				state.SetText("Update status after push all branches ...");
@@ -978,9 +987,9 @@ namespace GitMind.RepositoryViews
 			{
 				string workingFolder = Repository.MRepository.WorkingFolder;
 
-				await networkService.PushNotesAsync(workingFolder, Repository.RootId, GetCredentialsHandler());
+				await networkService.PushNotesAsync(workingFolder, Repository.RootId);
 
-				R result = await networkService.PushCurrentBranchAsync(workingFolder, GetCredentialsHandler());
+				R result = await networkService.PushCurrentBranchAsync(workingFolder);
 
 				if (result.IsFaulted)
 				{
@@ -1077,7 +1086,7 @@ namespace GitMind.RepositoryViews
 					progress.Show($"Set commit branch name {branchName} ...", async () =>
 					{
 						await repositoryService.SetSpecifiedCommitBranchAsync(
-							workingFolder, commit.Id, commit.Repository.RootId, branchName, GetCredentialsHandler());
+							workingFolder, commit.Id, commit.Repository.RootId, branchName);
 						if (branchName != null)
 						{
 							SpecifiedBranchNames = new[] { branchName };
@@ -1167,7 +1176,7 @@ namespace GitMind.RepositoryViews
 			double clickY = position.Y - 5;
 
 			int row = Converters.ToRow(clickY);
-		
+
 			if (row < 0 || row >= Commits.Count - 1 || clickX < 0 || clickX >= graphWidth)
 			{
 				// Click is not within supported area.

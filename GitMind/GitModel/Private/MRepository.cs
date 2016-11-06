@@ -53,8 +53,6 @@ namespace GitMind.GitModel.Private
 			return children;
 		}
 
-
-		internal CommitsFiles CommitsFiles { get; set; } = new CommitsFiles();
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
 		public IReadOnlyList<string> Tips { get; set; } = new List<string>();

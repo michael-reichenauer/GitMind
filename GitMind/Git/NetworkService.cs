@@ -11,11 +11,6 @@ namespace GitMind.Git
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 
 
-		public NetworkService()
-			: this(new GitNetworkService(), new GitCommitBranchNameService())
-		{			
-		}
-
 		public NetworkService(
 			IGitNetworkService gitNetworkService,
 			IGitCommitBranchNameService gitCommitBranchNameService)
@@ -37,21 +32,21 @@ namespace GitMind.Git
 		}
 
 
-		public Task<R> PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler)
+		public Task<R> PushCurrentBranchAsync(string workingFolder)
 		{
-			return gitNetworkService.PushCurrentBranchAsync(workingFolder, credentialHandler);
+			return gitNetworkService.PushCurrentBranchAsync(workingFolder);
 		}
 
 
-		public Task<R> PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler)
+		public Task<R> PushBranchAsync(string workingFolder, BranchName branchName)
 		{
-			return gitNetworkService.PushBranchAsync(workingFolder, branchName, credentialHandler);
+			return gitNetworkService.PushBranchAsync(workingFolder, branchName);
 		}
 
 
-		public Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler)
+		public Task PushNotesAsync(string workingFolder, string rootId)
 		{
-			return gitCommitBranchNameService.PushNotesAsync(workingFolder, rootId, credentialHandler);
+			return gitCommitBranchNameService.PushNotesAsync(workingFolder, rootId);
 		}
 
 

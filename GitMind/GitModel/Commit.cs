@@ -103,10 +103,7 @@ namespace GitMind.GitModel
 		public string WorkingFolder => Repository.MRepository.WorkingFolder;
 		public Repository Repository { get; }
 
-		//public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
-		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(WorkingFolder, CommitId);
-		
-
+		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(CommitId);
 
 		public override string ToString() => $"{ShortId} {Subject} {CommitDate}";
 	}

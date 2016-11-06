@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.Utils;
 
 
@@ -18,22 +16,8 @@ namespace GitMind.GitModel.Private
 		private readonly IBranchService branchService;
 		private readonly ICommitBranchNameService commitBranchNameService;
 		private readonly IBranchHierarchyService branchHierarchyService;
-		//private readonly IAheadBehindService aheadBehindService;
 		private readonly ITagService tagService;
-
-
-		public RepositoryService()
-			: this(
-					new GitCommitsService(),
-					new CacheService(),
-					new CommitsService(),
-					new BranchService(),
-					new CommitBranchNameService(),
-					new BranchHierarchyService(),
-					//new AheadBehindService(),
-					new TagService())
-		{
-		}
+		private readonly ICommitsFiles commitsFiles;
 
 
 		public RepositoryService(
@@ -43,8 +27,8 @@ namespace GitMind.GitModel.Private
 			IBranchService branchService,
 			ICommitBranchNameService commitBranchNameService,
 			IBranchHierarchyService branchHierarchyService,
-			//IAheadBehindService aheadBehindService,
-			ITagService tagService)
+			ITagService tagService,
+			ICommitsFiles commitsFiles)
 		{
 			this.gitCommitsService = gitCommitsService;
 			this.cacheService = cacheService;
@@ -52,8 +36,8 @@ namespace GitMind.GitModel.Private
 			this.branchService = branchService;
 			this.commitBranchNameService = commitBranchNameService;
 			this.branchHierarchyService = branchHierarchyService;
-			//this.aheadBehindService = aheadBehindService;
 			this.tagService = tagService;
+			this.commitsFiles = commitsFiles;
 		}
 
 
@@ -108,7 +92,6 @@ namespace GitMind.GitModel.Private
 			Log.Debug($"Updating repository");
 
 			MRepository mRepository = sourcerepository.MRepository;
-			mRepository.CommitsFiles = sourcerepository.CommitsFiles;
 
 			Timing t = new Timing();
 
@@ -125,14 +108,13 @@ namespace GitMind.GitModel.Private
 
 
 		public Task SetSpecifiedCommitBranchAsync(
-			string gitRepositoryPath, 
-			string commitId, 
+			string gitRepositoryPath,
+			string commitId,
 			string rootId,
-			BranchName branchName, 
-			ICredentialHandler credentialHandler)
+			BranchName branchName)
 		{
 			return gitCommitsService.EditCommitBranchAsync(
-				gitRepositoryPath, commitId, rootId, branchName, credentialHandler);
+				gitRepositoryPath, commitId, rootId, branchName);
 		}
 
 
@@ -170,9 +152,9 @@ namespace GitMind.GitModel.Private
 			catch (Exception e)
 			{
 				Log.Error($"Failed to update repository {e}");
-				
+
 				Log.Debug("Retry from scratch using a new repository ...");
-				
+
 				repository = new MRepository();
 				repository.WorkingFolder = workingFolder;
 				Update(repository);
@@ -201,7 +183,7 @@ namespace GitMind.GitModel.Private
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
 				AnalyzeBranchStructure(repository, gitStatus, gitRepository);
-				t.Log("AnalyzeBranchStructure");		
+				t.Log("AnalyzeBranchStructure");
 			}
 
 			t.Log("Done");
@@ -209,11 +191,11 @@ namespace GitMind.GitModel.Private
 
 
 		private void AnalyzeBranchStructure(
-			MRepository repository, 
-			GitStatus gitStatus, 
+			MRepository repository,
+			GitStatus gitStatus,
 			GitRepository gitRepository)
 		{
-			string gitRepositoryPath = repository.WorkingFolder;		
+			string gitRepositoryPath = repository.WorkingFolder;
 
 			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
 
@@ -243,12 +225,12 @@ namespace GitMind.GitModel.Private
 			branchService.AddMultiBranches(repository);
 
 			branchHierarchyService.SetBranchHierarchy(repository);
-			
+
 			//aheadBehindService.SetAheadBehind(repository);
 
 			tagService.AddTags(gitRepository, repository);
 
-			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);	
+			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);
 			repository.CurrentBranchId = currentBranch.Id;
 
 			repository.CurrentCommitId = gitStatus.OK
@@ -265,7 +247,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static Repository ToRepository(MRepository mRepository)
+		private Repository ToRepository(MRepository mRepository)
 		{
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
 			KeyedList<string, Commit> rCommits = new KeyedList<string, Commit>(c => c.Id);
@@ -281,7 +263,7 @@ namespace GitMind.GitModel.Private
 				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
-				mRepository.CommitsFiles,
+				commitsFiles,
 				ToStatus(mRepository),
 				rootCommit.Id);
 
@@ -295,7 +277,7 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			
+
 
 			foreach (var mBranch in mRepository.Branches)
 			{

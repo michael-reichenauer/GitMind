@@ -3,57 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.Utils;
 
 
 namespace GitMind.GitModel
 {
-	internal class CommitsFiles
+	[SingleInstance]
+	internal class CommitsFiles : ICommitsFiles
 	{
-		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
+		private readonly IGitCommitsService gitCommitsService;
+
 		private readonly ConcurrentDictionary<string, IList<CommitFile>> commitsFiles =
 			new ConcurrentDictionary<string, IList<CommitFile>>();
+
 		private Task currentTask = Task.FromResult(true);
 		private string nextIdToGet;
 
 
-		private static readonly List<CommitFile> EmptyFileList = Enumerable.Empty<CommitFile>().ToList();
-
-		public int Count => commitsFiles.Count;
-
-		public bool Add(CommitFiles commitFiles)
+		public CommitsFiles(IGitCommitsService gitCommitsService)
 		{
-			if (commitsFiles.ContainsKey(commitFiles.Id))
-			{
-				return false;
-			}
-
-			commitsFiles[commitFiles.Id] = commitFiles.Files ?? EmptyFileList;
-			return true;
+			this.gitCommitsService = gitCommitsService;
 		}
 
 
-
-		public IEnumerable<CommitFile> this[string commitId]
-		{
-			get
-			{
-				IList<CommitFile> files;
-				if (!commitsFiles.TryGetValue(commitId, out files))
-				{
-					Log.Warn($"Commit {commitId} not cached");
-
-					return Enumerable.Empty<CommitFile>();
-				}
-
-				return files;
-			}
-		}
-
-
-		public async Task<IEnumerable<CommitFile>> GetAsync(
-			string gitRepositoryPath, string commitId)
+		public async Task<IEnumerable<CommitFile>> GetAsync(string commitId)
 		{
 			IList<CommitFile> files;
 			if (commitId == Commit.UncommittedId || !commitsFiles.TryGetValue(commitId, out files))
@@ -67,7 +40,8 @@ namespace GitMind.GitModel
 				}
 
 				Task<R<GitCommitFiles>> commitsFilesForCommitTask =
-					gitCommitsService.GetFilesForCommitAsync(gitRepositoryPath, commitId);
+					gitCommitsService.GetFilesForCommitAsync(commitId);
+
 				currentTask = commitsFilesForCommitTask;
 				var commitsFilesForCommit = await commitsFilesForCommitTask;
 
@@ -85,7 +59,5 @@ namespace GitMind.GitModel
 
 			return files;
 		}
-
-
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling;
 using GitMind.GitModel;
 using GitMind.Utils;
 using LibGit2Sharp;
@@ -16,27 +17,23 @@ namespace GitMind.Git.Private
 		private static readonly StatusOptions StatusOptions = new StatusOptions
 		{ DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
 
+		private readonly WorkingFolder workingFolder;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 		private readonly IRepoCaller repoCaller;
 
 
 		public GitCommitsService(
+			WorkingFolder workingFolder,
 			IGitCommitBranchNameService gitCommitBranchNameService,
 			IRepoCaller repoCaller)
 		{
+			this.workingFolder = workingFolder;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 			this.repoCaller = repoCaller;
 		}
 
 
-		public GitCommitsService()
-			: this(new GitCommitBranchNameService(), new RepoCaller())
-		{
-		}
-
-
-
-		public Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId)
+		public Task<R<GitCommitFiles>> GetFilesForCommitAsync(string commitId)
 		{
 			return repoCaller.UseRepoAsync(workingFolder, repo =>
 			{
@@ -54,11 +51,10 @@ namespace GitMind.Git.Private
 			string workingFolder,
 			string commitId,
 			string rootId,
-			BranchName branchName,
-			ICredentialHandler credentialHandler)
+			BranchName branchName)
 		{
 			return gitCommitBranchNameService.EditCommitBranchNameAsync(
-				workingFolder, commitId, rootId, branchName, credentialHandler);
+				workingFolder, commitId, rootId, branchName);
 		}
 
 

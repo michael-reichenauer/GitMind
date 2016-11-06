@@ -29,13 +29,7 @@ namespace GitMind.GitModel.Private
 		{
 			//await Task.Yield();
 			//return null;
-			MRepository repository = await TryReadRepositoryAsync(gitRepositoryPath);
-			if (repository != null)
-			{
-				repository.CommitsFiles = new CommitsFiles();
-			}
-
-			return repository;
+			return await TryReadRepositoryAsync(gitRepositoryPath);
 		}
 
 
@@ -80,22 +74,6 @@ namespace GitMind.GitModel.Private
 				return repository;
 			}));
 		}
-
-
-		public async Task ReadCommitFilesAsync(CommitsFiles commitsFiles)
-		{
-			await TaskThrottler.Run(() => Task.Run(() =>
-			{
-				Log.Debug("Reading cached commit files ...");
-				string cachePath = GetCachePath(null) + ".files";
-				Timing t = new Timing();
-
-				DeserializeCommitsFiles(cachePath, commitsFiles);
-
-				t.Log($"Read commits file for {commitsFiles.Count} commits");
-			}));
-		}
-
 
 
 		private void Serialize<T>(string cachePath, T data)
@@ -178,38 +156,6 @@ namespace GitMind.GitModel.Private
 			{
 				Log.Warn($"Failed to read cache {e.Message}");
 				return default(T);
-			}
-		}
-
-
-		private void DeserializeCommitsFiles(string cachePath, CommitsFiles commitsFiles)
-		{
-			try
-			{
-				if (!File.Exists(cachePath))
-				{
-					Log.Debug("No commits files cache");
-					return;
-				}
-
-				using (var file = File.OpenRead(cachePath))
-				{
-					while (true)
-					{
-						CommitFiles commitFiles = Serializer.DeserializeWithLengthPrefix<CommitFiles>(file);
-						if (commitFiles == null)
-						{
-							return;
-						}
-
-						commitsFiles.Add(commitFiles);
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Log.Warn($"Failed to read cache {e}");
-				return;
 			}
 		}
 

@@ -10,18 +10,12 @@ namespace GitMind.Git.Private
 {
 	internal class GitCommitBranchNameService : IGitCommitBranchNameService
 	{
-		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
-
 		public static readonly string CommitBranchNoteNameSpace = "GitMind.Branches";
 		public static readonly string ManualBranchNoteNameSpace = "GitMind.Branches.Manual";
 
 		private readonly IRepoCaller repoCaller;
 		private readonly IGitNetworkService gitNetworkService;
 
-		public GitCommitBranchNameService()
-			: this(new RepoCaller(), new GitNetworkService())
-		{
-		}
 
 		public GitCommitBranchNameService(
 			IRepoCaller repoCaller,
@@ -36,13 +30,12 @@ namespace GitMind.Git.Private
 			string workingFolder,
 			string commitId,
 			string rootId,
-			BranchName branchName,
-			ICredentialHandler credentialHandler)
+			BranchName branchName)
 		{
 			Log.Debug($"Set manual branch name {branchName} for commit {commitId} ...");
 			SetNoteBranches(workingFolder, ManualBranchNoteNameSpace, commitId, branchName);
 
-			await PushNotesAsync(workingFolder, ManualBranchNoteNameSpace, rootId, credentialHandler);
+			await PushNotesAsync(workingFolder, ManualBranchNoteNameSpace, rootId);
 		}
 
 
@@ -68,11 +61,10 @@ namespace GitMind.Git.Private
 
 
 
-		public async Task PushNotesAsync(
-			string workingFolder, string rootId, ICredentialHandler credentialHandler)
+		public async Task PushNotesAsync(string workingFolder, string rootId)
 		{
-			await PushNotesAsync(workingFolder, CommitBranchNoteNameSpace, rootId, credentialHandler);
-			await PushNotesAsync(workingFolder, ManualBranchNoteNameSpace, rootId, credentialHandler);
+			await PushNotesAsync(workingFolder, CommitBranchNoteNameSpace, rootId);
+			await PushNotesAsync(workingFolder, ManualBranchNoteNameSpace, rootId);
 		}
 
 
@@ -94,7 +86,7 @@ namespace GitMind.Git.Private
 
 
 		private async Task PushNotesAsync(
-			string workingFolder, string nameSpace, string rootId, ICredentialHandler credentialHandler)
+			string workingFolder, string nameSpace, string rootId)
 		{
 			Log.Debug($"Push notes {nameSpace} at root commit {rootId} ...");
 
@@ -143,7 +135,7 @@ namespace GitMind.Git.Private
 				repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 
 			string[] refs = { $"refs/notes/{nameSpace}:refs/notes/{nameSpace}" };
-			R result = await gitNetworkService.PushRefsAsync(workingFolder, refs, credentialHandler);
+			R result = await gitNetworkService.PushRefsAsync(workingFolder, refs);
 			if (result.IsOk)
 			{
 				string file = Path.Combine(workingFolder, ".git", nameSpace);

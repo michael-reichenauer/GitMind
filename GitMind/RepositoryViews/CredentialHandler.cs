@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Net;
-using System.Threading;
-using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Interop;
 using System.Windows.Threading;
 using GitMind.Git;
+using GitMind.MainWindowViews;
 using GitMind.Utils;
 using Application = System.Windows.Application;
 
@@ -14,68 +12,40 @@ namespace GitMind.RepositoryViews
 {
 	internal class CredentialHandler : ICredentialHandler
 	{
-		private readonly Window owner;
+		private readonly WindowOwner owner;
 
 		private CredentialsDialog dialog;
 		private NetworkCredential networkCredential = null;
 
-		private readonly CancellationTokenSource cts = new CancellationTokenSource();
-		private readonly System.Threading.Timer timer;
-		private TimeSpan cancelTimeout = TimeSpan.MaxValue;
 
-
-		private void Cancel(object state)
-		{
-			cts.Cancel();
-		}
-
-
-		public CredentialHandler(Window owner)
+		public CredentialHandler(WindowOwner owner)
 		{
 			this.owner = owner;
-			timer = new System.Threading.Timer(Cancel);
 		}
 
 
 		public NetworkCredential GetCredential(string url, string usernameFromUrl)
 		{
-			try
+			Uri uri = null;
+			string target = null;
+			if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri))
 			{
-				// Disable timer (if started).
-				if (cancelTimeout != TimeSpan.MaxValue)
-				{
-					timer.Change(Timeout.Infinite, Timeout.Infinite);
-				}
-
-				Uri uri = null;
-				string target = null;
-				if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri))
-				{
-					target = uri.Host;
-				}
-
-				string message = $"Enter credentials for: {target ?? url}";
-
-				var dispatcher = GetApplicationDispatcher();
-				if (dispatcher.CheckAccess())
-				{
-					ShowDialog(target, usernameFromUrl, message);
-				}
-				else
-				{
-					dispatcher.Invoke(() => ShowDialog(target, usernameFromUrl, message));
-				}
-
-				return networkCredential;
+				target = uri.Host;
 			}
-			finally
+
+			string message = $"Enter credentials for: {target ?? url}";
+
+			var dispatcher = GetApplicationDispatcher();
+			if (dispatcher.CheckAccess())
 			{
-				// Enable timer (if started)
-				if (cancelTimeout != TimeSpan.MaxValue)
-				{
-					timer.Change(cancelTimeout, TimeSpan.Zero);
-				}
+				ShowDialog(target, usernameFromUrl, message);
 			}
+			else
+			{
+				dispatcher.Invoke(() => ShowDialog(target, usernameFromUrl, message));
+			}
+
+			return networkCredential;
 		}
 
 
@@ -104,19 +74,9 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public CancellationToken GetTimeoutToken(TimeSpan timeout)
-		{
-			cancelTimeout = timeout;
-			timer.Change(cancelTimeout, TimeSpan.Zero);
-
-			return cts.Token;
-		}
-
 
 		private void ShowDialog(string target, string usernameFromUrl, string message)
 		{
-			System.Windows.Forms.IWin32Window ownerHandle = new WindowWrapper(owner);
-
 			networkCredential = null;
 			dialog = new CredentialsDialog(target, "GitMind", message);
 
@@ -124,7 +84,7 @@ namespace GitMind.RepositoryViews
 
 			dialog.Name = usernameFromUrl;
 
-			if (dialog.Show(ownerHandle) == DialogResult.OK)
+			if (dialog.Show(owner.Win32Window) == DialogResult.OK)
 			{
 				networkCredential = new NetworkCredential(dialog.Name, dialog.Password);
 			}
@@ -133,16 +93,5 @@ namespace GitMind.RepositoryViews
 
 		private static Dispatcher GetApplicationDispatcher() =>
 			Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
-
-
-		private class WindowWrapper : System.Windows.Forms.IWin32Window
-		{
-			public WindowWrapper(Window window)
-			{
-				Handle = new WindowInteropHelper(window).Handle;
-			}
-
-			public IntPtr Handle { get; }
-		}
 	}
 }

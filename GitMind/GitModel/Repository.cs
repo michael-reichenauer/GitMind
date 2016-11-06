@@ -19,7 +19,7 @@ namespace GitMind.GitModel
 			Lazy<IReadOnlyKeyedList<string, Commit>> commits,
 			Lazy<Branch> currentBranch,
 			Lazy<Commit> currentCommit,
-			CommitsFiles commitsFiles,
+			ICommitsFiles commitsFiles,
 			Status status,
 			string rootId)
 		{
@@ -38,7 +38,7 @@ namespace GitMind.GitModel
 		public Branch CurrentBranch => currentBranch.Value;
 		public Commit CurrentCommit => currentCommit.Value;
 		public MRepository MRepository { get; }
-		public CommitsFiles CommitsFiles { get; }
+		public ICommitsFiles CommitsFiles { get; }
 		public Status Status { get; }
 		public string RootId { get; }
 	}

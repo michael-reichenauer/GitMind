@@ -9,9 +9,9 @@ namespace GitMind.Git
 {
 	internal interface IGitCommitsService
 	{
-		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string workingFolder, string commitId);
+		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string commitId);
 
-		Task EditCommitBranchAsync(string workingFolder, string commitId, string rootId, BranchName branchName, ICredentialHandler credentialHandler);
+		Task EditCommitBranchAsync(string workingFolder, string commitId, string rootId, BranchName branchName);
 	
 		IReadOnlyList<CommitBranchName> GetSpecifiedNames(string workingFolder, string rootId);
 		IReadOnlyList<CommitBranchName> GetCommitBranches(string workingFolder, string rootId);
