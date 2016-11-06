@@ -13,11 +13,6 @@ namespace GitMind.GitModel.Private
 		private readonly IGitBranchService gitBranchService;
 
 
-		public BranchHierarchyService()
-			: this(new GitBranchService())
-		{
-		}
-
 		public BranchHierarchyService(IGitBranchService gitBranchService)
 		{
 			this.gitBranchService = gitBranchService;
@@ -285,8 +280,7 @@ namespace GitMind.GitModel.Private
 					localTip = branch.Repository.Commits[branch.LocalTipCommitId].FirstParentId;
 				}
 
-				R<GitDivergence> div = gitBranchService.CheckAheadBehind(
-					repository.WorkingFolder, localTip, remoteTip);
+				R<GitDivergence> div = gitBranchService.CheckAheadBehind(localTip, remoteTip);
 
 				if (div.HasValue)
 				{

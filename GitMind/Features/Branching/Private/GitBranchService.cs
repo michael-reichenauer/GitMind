@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.Utils;
@@ -22,21 +23,20 @@ namespace GitMind.Features.Branching.Private
 			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true };
 
 
+		private readonly WorkingFolder workingFolder;
 		private readonly IRepoCaller repoCaller;
 
-		public GitBranchService()
-			: this(new RepoCaller())
-		{
-		}
 
-
-		public GitBranchService(IRepoCaller repoCaller)
+		public GitBranchService(
+			WorkingFolder workingFolder,
+			IRepoCaller repoCaller)
 		{
+			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
 		}
 
 
-		public Task<R> MergeAsync(string workingFolder, BranchName branchName)
+		public Task<R> MergeAsync(BranchName branchName)
 		{
 			Log.Debug($"Merge branch {branchName} into current branch ...");
 
@@ -74,7 +74,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public Task<R> CreateBranchAsync(string workingFolder, BranchName branchName, string commitId)
+		public Task<R> CreateBranchAsync(BranchName branchName, string commitId)
 		{
 			Log.Debug($"Create branch {branchName} at commit {commitId} ...");
 
@@ -103,7 +103,7 @@ namespace GitMind.Features.Branching.Private
 
 
 
-		public Task<R> SwitchToBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> SwitchToBranchAsync(BranchName branchName)
 		{
 			Log.Debug($"Switch to branch {branchName} ...");
 			return repoCaller.UseLibRepoAsync(workingFolder, repository =>
@@ -129,8 +129,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public Task<R<BranchName>> SwitchToCommitAsync(
-			string workingFolder, string commitId, BranchName branchName)
+		public Task<R<BranchName>> SwitchToCommitAsync(string commitId, BranchName branchName)
 		{
 			Log.Debug($"Switch to commit {commitId} with branch name '{branchName}' ...");
 			return repoCaller.UseLibRepoAsync(workingFolder, repository =>
@@ -166,7 +165,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public Task<R> MergeCurrentBranchFastForwardOnlyAsync(string workingFolder)
+		public Task<R> MergeCurrentBranchFastForwardOnlyAsync()
 		{
 			return repoCaller.UseRepoAsync(workingFolder, repo =>
 			{
@@ -176,7 +175,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public Task<R> MergeCurrentBranchAsync(string workingFolder)
+		public Task<R> MergeCurrentBranchAsync()
 		{
 			return repoCaller.UseRepoAsync(workingFolder, repo =>
 			{
@@ -195,7 +194,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public Task<R> DeleteLocalBranchAsync(string workingFolder, BranchName branchName)
+		public Task<R> DeleteLocalBranchAsync(BranchName branchName)
 		{
 			Log.Debug($"Delete local branch {branchName}  ...");
 
@@ -206,7 +205,7 @@ namespace GitMind.Features.Branching.Private
 		}
 
 
-		public R<GitDivergence> CheckAheadBehind(string workingFolder, string localTip, string remoteTip)
+		public R<GitDivergence> CheckAheadBehind(string localTip, string remoteTip)
 		{
 			return repoCaller.UseRepo(workingFolder,
 				repo =>

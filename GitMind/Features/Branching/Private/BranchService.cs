@@ -76,7 +76,7 @@ namespace GitMind.Features.Branching.Private
 							commitId = commit.FirstParent.CommitId;
 						}
 
-						R result = await gitBranchService.CreateBranchAsync(workingFolder, branchName, commitId);
+						R result = await gitBranchService.CreateBranchAsync(branchName, commitId);
 						if (result.IsOk)
 						{
 							Log.Debug($"Created branch {branchName}, from {commit.Branch}");
@@ -163,7 +163,7 @@ namespace GitMind.Features.Branching.Private
 						result = await gitNetworkService.FetchAsync(workingFolder);
 						if (result.IsOk)
 						{
-							result = await gitBranchService.MergeCurrentBranchAsync(workingFolder);
+							result = await gitBranchService.MergeCurrentBranchAsync();
 						}
 					}
 					else
@@ -190,7 +190,7 @@ namespace GitMind.Features.Branching.Private
 			{
 				progress.Show($"Switch to branch {branch.Name} ...", async state =>
 				{
-					R result = await gitBranchService.SwitchToBranchAsync(workingFolder, branch.Name);
+					R result = await gitBranchService.SwitchToBranchAsync(branch.Name);
 					if (result.IsFaulted)
 					{
 						message.ShowWarning($"Failed to switch,\n{result.Error.Exception.Message}");
@@ -230,7 +230,7 @@ namespace GitMind.Features.Branching.Private
 					BranchName branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
 
 					R<BranchName> switchedNamed = await gitBranchService.SwitchToCommitAsync(
-						workingFolder, commit.CommitId, branchName);
+						commit.CommitId, branchName);
 
 					if (switchedNamed.HasValue)
 					{
@@ -351,7 +351,7 @@ namespace GitMind.Features.Branching.Private
 			}
 			else
 			{
-				deleted = await gitBranchService.DeleteLocalBranchAsync(workingFolder, branch.Name);
+				deleted = await gitBranchService.DeleteLocalBranchAsync(branch.Name);
 			}
 
 
@@ -382,7 +382,7 @@ namespace GitMind.Features.Branching.Private
 				Branch currentBranch = branch.Repository.CurrentBranch;
 				progress.Show($"Merge branch {branch.Name} into {currentBranch.Name} ...", async text =>
 				{
-					await gitBranchService.MergeAsync(workingFolder, branch.Name);
+					await gitBranchService.MergeAsync(branch.Name);
 
 					repositoryCommands.SetCurrentMerging(branch);
 					text.SetText(

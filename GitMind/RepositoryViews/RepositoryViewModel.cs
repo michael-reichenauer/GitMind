@@ -848,7 +848,7 @@ namespace GitMind.RepositoryViews
 				if (result.IsOk && currentBranch.CanBeUpdated)
 				{
 					state.SetText($"Update current branch {currentBranch.Name} ...");
-					result = await gitBranchService.MergeCurrentBranchAsync(workingFolder);
+					result = await gitBranchService.MergeCurrentBranchAsync();
 				}
 
 				if (result.IsFaulted)
@@ -908,7 +908,7 @@ namespace GitMind.RepositoryViews
 				R result = await networkService.FetchAsync(workingFolder);
 				if (result.IsOk)
 				{
-					result = await gitBranchService.MergeCurrentBranchAsync(workingFolder);
+					result = await gitBranchService.MergeCurrentBranchAsync();
 
 					await networkService.FetchAllNotesAsync(workingFolder);
 				}
