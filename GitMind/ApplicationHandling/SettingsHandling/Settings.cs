@@ -7,6 +7,12 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 {
 	public static class Settings
 	{
+		public static void EnsureExists<T>()
+		{
+			// A Get will ensure that the file exists
+			Get<T>();
+		}
+
 		public static void Edit<T>(Action<T> editAction)
 		{
 			try
