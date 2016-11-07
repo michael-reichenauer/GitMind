@@ -99,14 +99,18 @@ namespace GitMind.GitModel.Private
 				{
 					try
 					{
-						if (File.Exists(tempPath2))
+						string folderPath = Path.GetDirectoryName(cachePath);
+						string name = Path.GetFileName(cachePath);
+						DirectoryInfo dirInfo = new DirectoryInfo(folderPath);
+						FileInfo[] files = dirInfo.GetFiles(name + ".tmp.*");
+						foreach (FileInfo fileInfo in files)
 						{
-							File.Delete(tempPath2);
-						}
+							TryDeleteFile(fileInfo.FullName);
+						}				
 					}
 					catch (Exception e) when(e.IsNotFatal())
 					{
-						Log.Warn($"Failed to delete {tempPath2}, {e.Message}");
+						Log.Warn($"Failed to delete temp files, {e.Message}");
 					}			
 				}).RunInBackground();
 			}
@@ -114,6 +118,22 @@ namespace GitMind.GitModel.Private
 			{
 				Log.Warn($"Failed to serialize data {e.Message}");
 			}		
+		}
+
+
+		private static void TryDeleteFile(string path)
+		{
+			try
+			{
+				if (File.Exists(path))
+				{
+					File.Delete(path);
+				}
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				Log.Warn($"Failed to delete {path}, {e.Message}");
+			}
 		}
 
 
