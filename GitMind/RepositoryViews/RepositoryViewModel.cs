@@ -409,6 +409,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (isInternalDialog)
 			{
+				Log.Debug("IsInternal dialog");
 				return Task.CompletedTask;
 			}
 
@@ -935,7 +936,7 @@ namespace GitMind.RepositoryViews
 			{
 				Branch currentBranch = Repository.CurrentBranch;
 
-				await networkService.PushNotesAsync( Repository.RootId);
+				await networkService.PushNotesAsync(Repository.RootId);
 
 				R result = R.Ok;
 				if (currentBranch.CanBePushed)
@@ -1143,7 +1144,7 @@ namespace GitMind.RepositoryViews
 				Message.ShowWarning(owner, text);
 			}
 
-			isInternalDialog = true;
+			isInternalDialog = false;
 		}
 
 
@@ -1158,8 +1159,6 @@ namespace GitMind.RepositoryViews
 
 				await RefreshAfterCommandAsync(false);
 			});
-
-			isInternalDialog = true;
 		}
 
 
