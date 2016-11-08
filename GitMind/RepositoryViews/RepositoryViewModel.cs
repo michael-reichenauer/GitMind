@@ -108,7 +108,8 @@ namespace GitMind.RepositoryViews
 			ToggleDetailsCommand toggleDetailsCommand,
 			DeleteBranchCommand deleteBranchCommand,
 			UncommitCommand uncommitCommand,
-			UndoUncommittedChangesCommand undoUncommittedChangesCommand)
+			UndoUncommittedChangesCommand undoUncommittedChangesCommand,
+			UndoCleanWorkingFolderCommand cleanWorkingFolderCommand)
 		{
 			this.workingFolder = workingFolder;
 			this.diffService = diffService;
@@ -138,6 +139,7 @@ namespace GitMind.RepositoryViews
 			DeleteBranchCommand = deleteBranchCommand;
 			UncommitCommand = uncommitCommand;
 			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
+			UndoCleanWorkingFolderCommand = cleanWorkingFolderCommand;
 		}
 
 
@@ -245,7 +247,7 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> MergeBranchCommand { get; }
 
 
-		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
+		public Command UndoCleanWorkingFolderCommand { get; }
 		public Command UndoUncommittedChangesCommand { get; }
 		public Command<Commit> UncommitCommand { get; }
 
@@ -1114,41 +1116,6 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-
-		private async Task UndoCleanWorkingFolderAsync()
-		{
-			R<IReadOnlyList<string>> failedPaths = R.From(new string[0].AsReadOnlyList());
-			await Task.Yield();
-
-			isInternalDialog = true;
-			progress.Show($"Undo changes and clean working folder {workingFolder} ...", async () =>
-			{
-				failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync();
-
-				await RefreshAfterCommandAsync(false);
-			});
-
-			if (failedPaths.IsFaulted)
-			{
-				Message.ShowWarning(owner, failedPaths.ToString());
-			}
-			else if (failedPaths.Value.Any())
-			{
-				string text = $"Failed to undo and clean working folder.\nSome items where locked:\n";
-				foreach (string path in failedPaths.Value.Take(10))
-				{
-					text += $"\n   {path}";
-				}
-				if (failedPaths.Value.Count > 10)
-				{
-					text += "   ...";
-				}
-
-				Message.ShowWarning(owner, text);
-			}
-
-			isInternalDialog = false;
-		}
 
 
 

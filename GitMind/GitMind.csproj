@@ -123,6 +123,7 @@
     <Compile Include="Features\Branches\MergeCommand.cs" />
     <Compile Include="Features\Commits\CommitCommand.cs" />
     <Compile Include="Features\Commits\UncommitCommand.cs" />
+    <Compile Include="Features\Commits\UndoCleanWorkingFolderCommand.cs" />
     <Compile Include="Features\Commits\UndoUncommittedChangesCommand.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
