@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
@@ -25,9 +24,8 @@ namespace GitMind.Features.Committing
 			bool,
 			CommitDialog> commitDialogProvider;
 
-		private readonly WorkingFolder workingFolder;
+
 		private readonly IMessage message;
-		private readonly WindowOwner owner;
 		private readonly Lazy<IRepositoryCommands> repositoryCommands;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
@@ -35,24 +33,20 @@ namespace GitMind.Features.Committing
 
 
 		public CommitService(
-			WorkingFolder workingFolder,
 			IMessage message,
-			WindowOwner owner,
 			Lazy<IRepositoryCommands> repositoryCommands,
 			IGitCommitsService gitCommitsService,
 			IDiffService diffService,
 			IProgressService progressService,
 			Func<
-				BranchName, 
-				IEnumerable<CommitFile>, 
+				BranchName,
+				IEnumerable<CommitFile>,
 				string,
 				bool,
 				CommitDialog> commitDialogProvider)
 		{
 			this.commitDialogProvider = commitDialogProvider;
-			this.workingFolder = workingFolder;
 			this.message = message;
-			this.owner = owner;
 			this.repositoryCommands = repositoryCommands;
 			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;

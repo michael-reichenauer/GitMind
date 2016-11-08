@@ -195,7 +195,7 @@ namespace GitMind.GitModel.Private
 			}
 			if (gitStatus.IsMerging)
 			{
-				commit.Subject = $"{gitStatus.Message?.Trim()} ({commit.Subject})";
+				commit.Subject = $"{ShortSubject(gitStatus)} ({commit.Subject})";
 				commit.IsMerging = true;
 			}
 
@@ -206,6 +206,13 @@ namespace GitMind.GitModel.Private
 			commit.ParentIds = new List<string> { parentId };
 		}
 
+
+		private static string ShortSubject(GitStatus gitStatus)
+		{
+			string subject = gitStatus.Message?.Trim()??"";
+			string firstLine = subject.Split("\\n".ToCharArray())[0];
+			return firstLine;
+		}
 
 
 		private static bool IsMergeCommit(MCommit commit)
