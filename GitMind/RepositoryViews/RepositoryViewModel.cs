@@ -107,7 +107,8 @@ namespace GitMind.RepositoryViews
 			MergeCommand mergeCommand,
 			ToggleDetailsCommand toggleDetailsCommand,
 			DeleteBranchCommand deleteBranchCommand,
-			UncommitCommand uncommitCommand)
+			UncommitCommand uncommitCommand,
+			UndoUncommittedChangesCommand undoUncommittedChangesCommand)
 		{
 			this.workingFolder = workingFolder;
 			this.diffService = diffService;
@@ -136,6 +137,7 @@ namespace GitMind.RepositoryViews
 			ToggleDetailsCommand = toggleDetailsCommand;
 			DeleteBranchCommand = deleteBranchCommand;
 			UncommitCommand = uncommitCommand;
+			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
 		}
 
 
@@ -244,7 +246,7 @@ namespace GitMind.RepositoryViews
 
 
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(UndoCleanWorkingFolderAsync);
-		public Command UndoUncommittedChangesCommand => AsyncCommand(UndoUncommittedChangesAsync);
+		public Command UndoUncommittedChangesCommand { get; }
 		public Command<Commit> UncommitCommand { get; }
 
 
@@ -1148,19 +1150,6 @@ namespace GitMind.RepositoryViews
 			isInternalDialog = false;
 		}
 
-
-		private async Task UndoUncommittedChangesAsync()
-		{
-			await Task.Yield();
-
-			isInternalDialog = true;
-			progress.Show($"Undo changes in working folder {workingFolder} ...", async () =>
-			{
-				await gitCommitsService.UndoWorkingFolderAsync();
-
-				await RefreshAfterCommandAsync(false);
-			});
-		}
 
 
 		public void Clicked(Point position)

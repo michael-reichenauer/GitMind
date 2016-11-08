@@ -21,14 +21,15 @@ namespace GitMind.RepositoryViews
 			IBranchService branchService,
 			IRepositoryCommands repositoryCommands,
 			ToggleDetailsCommand toggleDetailsCommand,
-			UncommitCommand uncommitCommand)
+			UncommitCommand uncommitCommand,
+			UndoUncommittedChangesCommand undoUncommittedChangesCommand)
 		{
 			this.branchService = branchService;
 			ToggleDetailsCommand = toggleDetailsCommand;
 			SetCommitBranchCommand = repositoryCommands.SetBranchCommand.With(() => Commit);
 			ShowCommitDiffCommand = repositoryCommands.ShowDiffCommand.With(
 				() => Commit.IsVirtual && !Commit.IsUncommitted ? Commit.FirstParent : Commit);
-			UndoUncommittedChangesCommand = repositoryCommands.UndoUncommittedChangesCommand;
+			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
 			UndoCleanWorkingFolderCommand = repositoryCommands.UndoCleanWorkingFolderCommand;
 			UncommitCommand = uncommitCommand.With(() => Commit);
 		}
