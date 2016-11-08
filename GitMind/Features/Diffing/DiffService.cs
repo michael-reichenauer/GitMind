@@ -7,9 +7,7 @@ using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
-using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
@@ -68,7 +66,7 @@ namespace GitMind.Features.Diffing
 			string yoursPath = GetPath(file, Yours);
 			string theirsPath = GetPath(file, Theirs);
 
-			string fullPath = Path.Combine(file.Path);
+			string fullPath = Path.Combine(workingFolder, file.Path);
 
 			gitDiffService.GetFile(file.Conflict.OursId, yoursPath);
 			gitDiffService.GetFile(file.Conflict.TheirsId, theirsPath);
@@ -164,7 +162,7 @@ namespace GitMind.Features.Diffing
 		}
 
 
-		public bool CanDelete( CommitFile file)
+		public bool CanDelete(CommitFile file)
 		{
 			return file.Status.HasFlag(GitFileStatus.Conflict);
 		}
@@ -241,7 +239,7 @@ namespace GitMind.Features.Diffing
 
 
 		public async Task ShowFileDiffAsync(string commitId, string name)
-		{	
+		{
 			R<CommitDiff> commitDiff = await gitDiffService.GetFileDiffAsync(commitId, name);
 
 			if (commitDiff.HasValue)
@@ -266,7 +264,7 @@ namespace GitMind.Features.Diffing
 					.Replace("%mine", $"\"{mine}\"");
 
 				cmd.Run(diffTool.Command, args);
-			});			
+			});
 		}
 
 
@@ -303,7 +301,7 @@ namespace GitMind.Features.Diffing
 				return false;
 			}
 
-			if (!tool.Arguments.Contains("%theirs") 
+			if (!tool.Arguments.Contains("%theirs")
 				|| !tool.Arguments.Contains("%mine"))
 			{
 				Message.ShowWarning(
@@ -326,7 +324,7 @@ namespace GitMind.Features.Diffing
 			}
 
 			if (
-				!tool.Arguments.Contains("%theirs") 
+				!tool.Arguments.Contains("%theirs")
 				|| !tool.Arguments.Contains("%mine")
 				|| !tool.Arguments.Contains("%base")
 				|| !tool.Arguments.Contains("%merged"))
