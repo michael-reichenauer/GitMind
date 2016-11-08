@@ -139,11 +139,11 @@
     </Compile>
     <Compile Include="Features\Branches\Private\DeleteBranchDialogViewModel.cs" />
     <Compile Include="Features\Branches\IBranchService.cs" />
-    <Compile Include="Features\Commits\CommitDialog.xaml.cs">
+    <Compile Include="Features\Commits\Private\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Commits\CommitDialogViewModel.cs" />
-    <Compile Include="Features\Commits\CommitService.cs" />
+    <Compile Include="Features\Commits\Private\CommitDialogViewModel.cs" />
+    <Compile Include="Features\Commits\Private\CommitService.cs" />
     <Compile Include="Features\Commits\ICommitService.cs" />
     <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
@@ -213,7 +213,7 @@
     <Compile Include="Utils\UI\BusyProgress.cs" />
     <Compile Include="Utils\UI\HideableGridSplitter.cs" />
     <Compile Include="Utils\Compare.cs" />
-    <Compile Include="Features\Commits\SetBranchPromptDialog.xaml.cs">
+    <Compile Include="Features\Commits\Private\SetBranchPromptDialog.xaml.cs">
       <DependentUpon>SetBranchPromptDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="GitModel\CommitFile.cs" />
@@ -335,7 +335,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Commits\CommitDialog.xaml">
+    <Page Include="Features\Commits\Private\CommitDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -347,7 +347,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Commits\SetBranchPromptDialog.xaml">
+    <Page Include="Features\Commits\Private\SetBranchPromptDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

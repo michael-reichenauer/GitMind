@@ -7,7 +7,7 @@ using GitMind.MainWindowViews;
 using Log = GitMind.Utils.Log;
 
 
-namespace GitMind.Features.Commits
+namespace GitMind.Features.Commits.Private
 {
 	/// <summary>
 	/// Interaction logic for SetBranchPromptDialog.xaml

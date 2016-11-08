@@ -11,7 +11,7 @@ using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
-namespace GitMind.Features.Commits
+namespace GitMind.Features.Commits.Private
 {
 	internal class CommitService : ICommitService
 	{

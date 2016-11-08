@@ -1,11 +1,12 @@
 ﻿<Window 
-	x:Class="GitMind.Features.Commits.SetBranchPromptDialog"
+	x:Class="GitMind.Features.Commits.Private.SetBranchPromptDialog"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:repositoryViews="clr-namespace:GitMind.RepositoryViews"
 	xmlns:commits="clr-namespace:GitMind.Features.Commits"
+	xmlns:private="clr-namespace:GitMind.Features.Commits.Private"
 	mc:Ignorable="d"
 	Title="Set Branch"
 	Width="350" Height="280" ResizeMode="NoResize"
@@ -17,7 +18,7 @@
 	<!-- Enable "normal" windows behavior with drag and resize,
 	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
 	<Window.Resources>
-		<Style TargetType="{x:Type commits:SetBranchPromptDialog}">
+		<Style TargetType="{x:Type private:SetBranchPromptDialog}">
 			<Setter Property="WindowChrome.WindowChrome">
 				<Setter.Value>
 					<WindowChrome />

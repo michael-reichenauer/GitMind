@@ -1,5 +1,5 @@
 ﻿<Window 
-	x:Class="GitMind.Features.Commits.CommitDialog"
+	x:Class="GitMind.Features.Commits.Private.CommitDialog"
 	Name="CommitDialogWindow"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,6 +7,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:repositoryViews="clr-namespace:GitMind.RepositoryViews"
 	xmlns:commiting="clr-namespace:GitMind.Features.Commits"
+	xmlns:private="clr-namespace:GitMind.Features.Commits.Private"
 	mc:Ignorable="d"
 	Title="Commit" 
 	Width="500" Height="380" Background="{StaticResource BackgroundBrush}"
@@ -17,7 +18,7 @@
 	<!-- Enable "normal" windows behavior with drag and resize,
 	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
 	<Window.Resources>
-		<Style TargetType="{x:Type commiting:CommitDialog}">
+		<Style TargetType="{x:Type private:CommitDialog}">
 			<Setter Property="WindowChrome.WindowChrome">
 				<Setter.Value>
 					<WindowChrome />

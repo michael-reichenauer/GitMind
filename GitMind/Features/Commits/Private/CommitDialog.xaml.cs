@@ -4,10 +4,9 @@ using System.Windows;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
-using GitMind.RepositoryViews;
 
 
-namespace GitMind.Features.Commits
+namespace GitMind.Features.Commits.Private
 {
 	/// <summary>
 	/// Interaction logic for CommitDialog.xaml

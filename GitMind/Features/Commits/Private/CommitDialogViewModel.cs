@@ -7,13 +7,12 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.GitModel;
-using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Features.Commits
+namespace GitMind.Features.Commits.Private
 {
 	internal class CommitDialogViewModel : ViewModel
 	{
