@@ -5,7 +5,7 @@ using GitMind.Git;
 using GitMind.GitModel;
 
 
-namespace GitMind.Features.Brushes
+namespace GitMind.Common.Brushes
 {
 	internal class BrushService : IBrushService
 	{

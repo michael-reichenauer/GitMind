@@ -192,7 +192,7 @@
     <Compile Include="RepositoryViews\BranchItem.cs" />
     <Compile Include="RepositoryViews\BranchNameItem.cs" />
     <Compile Include="RepositoryViews\BranchViewModel.cs" />
-    <Compile Include="Features\Brushes\BrushService.cs" />
+    <Compile Include="Common\Brushes\BrushService.cs" />
     <Compile Include="RepositoryViews\CommitDetailsView.xaml.cs">
       <DependentUpon>CommitDetailsView.xaml</DependentUpon>
     </Compile>
@@ -220,7 +220,7 @@
     <Compile Include="RepositoryViews\CommitViewModel.cs" />
     <Compile Include="RepositoryViews\Converters.cs" />
     <Compile Include="Features\Diffing\DiffService.cs" />
-    <Compile Include="Features\Brushes\IBrushService.cs" />
+    <Compile Include="Common\Brushes\IBrushService.cs" />
     <Compile Include="Features\Diffing\IDiffService.cs" />
     <Compile Include="RepositoryViews\IViewModelService.cs" />
     <Compile Include="RepositoryViews\MergeViewModel.cs" />

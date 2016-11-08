@@ -1,5 +1,5 @@
 using System.Windows.Media;
-using GitMind.Features.Brushes;
+using GitMind.Common.Brushes;
 using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.GitModel;
