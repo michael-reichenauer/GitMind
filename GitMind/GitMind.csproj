@@ -191,7 +191,7 @@
     <Compile Include="RepositoryViews\BranchItem.cs" />
     <Compile Include="RepositoryViews\BranchNameItem.cs" />
     <Compile Include="RepositoryViews\BranchViewModel.cs" />
-    <Compile Include="RepositoryViews\BrushService.cs" />
+    <Compile Include="Features\Brushes\BrushService.cs" />
     <Compile Include="RepositoryViews\CommitDetailsView.xaml.cs">
       <DependentUpon>CommitDetailsView.xaml</DependentUpon>
     </Compile>
@@ -219,7 +219,7 @@
     <Compile Include="RepositoryViews\CommitViewModel.cs" />
     <Compile Include="RepositoryViews\Converters.cs" />
     <Compile Include="Features\Diffing\DiffService.cs" />
-    <Compile Include="RepositoryViews\IBrushService.cs" />
+    <Compile Include="Features\Brushes\IBrushService.cs" />
     <Compile Include="Features\Diffing\IDiffService.cs" />
     <Compile Include="RepositoryViews\IViewModelService.cs" />
     <Compile Include="RepositoryViews\MergeViewModel.cs" />
@@ -486,6 +486,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="RepositoryViews\Private\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

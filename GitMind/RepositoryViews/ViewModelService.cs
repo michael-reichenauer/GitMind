@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Features.Branching;
+using GitMind.Features.Brushes;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;

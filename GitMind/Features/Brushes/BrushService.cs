@@ -5,12 +5,12 @@ using GitMind.Git;
 using GitMind.GitModel;
 
 
-namespace GitMind.RepositoryViews
+namespace GitMind.Features.Brushes
 {
 	internal class BrushService : IBrushService
 	{
 		private static readonly SolidColorBrush MasterBranchBrush = BrushFromHex("#E540FF");
-		private static readonly SolidColorBrush MultiBranchBrush = Brushes.White;
+		private static readonly SolidColorBrush MultiBranchBrush = System.Windows.Media.Brushes.White;
 		private static readonly SolidColorBrush LighterBaseBrush = BrushFromHex("#FFFFFFFF");
 
 		private readonly List<Brush> brushes = new List<Brush>();
@@ -23,15 +23,15 @@ namespace GitMind.RepositoryViews
 		public SolidColorBrush RemoteAheadBrush { get; } = BrushFromHex("#BBBBFB");
 
 		public static SolidColorBrush ConflictBrush { get; } = BrushFromHex("#FCB9B6");
-		public static Brush MergeBrush { get; } = Brushes.Gold;
+		public static Brush MergeBrush { get; } = System.Windows.Media.Brushes.Gold;
 
-		public SolidColorBrush UnCommittedBrush { get; } = Brushes.BurlyWood;
-		public static SolidColorBrush BranchTipBrush { get; } = Brushes.Aqua;
+		public SolidColorBrush UnCommittedBrush { get; } = System.Windows.Media.Brushes.BurlyWood;
+		public static SolidColorBrush BranchTipBrush { get; } = System.Windows.Media.Brushes.Aqua;
 
 		public static SolidColorBrush TagBrush { get; } = BrushFromHex("#42C650");
 		public static SolidColorBrush TextBrush { get; } = BrushFromHex("#D4D4D4");
 		public static SolidColorBrush TicketBrush { get; } = BrushFromHex("#F25B54");
-		public static Brush DimBrush { get; } = Brushes.DimGray;
+		public static Brush DimBrush { get; } = System.Windows.Media.Brushes.DimGray;
 	
 		public static Brush ErrorBrush { get; } = BrushFromHex("#FCB9B6");
 
@@ -165,7 +165,7 @@ namespace GitMind.RepositoryViews
 		private SolidColorBrush DarkBrush(SolidColorBrush brush)
 		{
 			SolidColorBrush darkerBrush = new SolidColorBrush(brush.Color);
-			darkerBrush.Color = InterpolateColors(brush.Color, Brushes.Black.Color, 0.6f);
+			darkerBrush.Color = InterpolateColors(brush.Color, System.Windows.Media.Brushes.Black.Color, 0.6f);
 			return darkerBrush;
 		}
 

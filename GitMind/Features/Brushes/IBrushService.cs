@@ -2,7 +2,7 @@ using System.Windows.Media;
 using GitMind.GitModel;
 
 
-namespace GitMind.RepositoryViews
+namespace GitMind.Features.Brushes
 {
 	internal interface IBrushService
 	{
