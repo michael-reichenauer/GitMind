@@ -169,14 +169,14 @@
     <Compile Include="MainWindowViews\MainWindowService.cs" />
     <Compile Include="MainWindowViews\WindowOwner.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="RepositoryViews\CredentialHandler.cs" />
+    <Compile Include="Common\CredentialHandler.cs" />
     <Compile Include="Git\GitConflict.cs" />
     <Compile Include="Git\GitConflictStatus.cs" />
     <Compile Include="Git\GitFileStatus.cs" />
     <Compile Include="Git\GitNote.cs" />
     <Compile Include="Git\ICredentialHandler.cs" />
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
-    <Compile Include="RepositoryViews\CredentialsDialog.cs" />
+    <Compile Include="Common\CredentialsDialog.cs" />
     <Compile Include="RepositoryViews\DisabledStatus.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
     <Compile Include="ApplicationHandling\SettingsHandling\Settings.cs" />
@@ -227,7 +227,7 @@
     <Compile Include="RepositoryViews\MergeViewModel.cs" />
     <Compile Include="RepositoryViews\RepositoryVirtualItemsSource.cs" />
     <Compile Include="RepositoryViews\RepositoryViewModel.cs" />
-    <Compile Include="RepositoryViews\ViewModelService.cs" />
+    <Compile Include="RepositoryViews\Private\ViewModelService.cs" />
     <Compile Include="GitModel\Branch.cs" />
     <Compile Include="GitModel\Commit.cs" />
     <Compile Include="GitModel\CommitFiles.cs" />
@@ -489,9 +489,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="RepositoryViews\Private\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>mkdir "$(ProjectDir)\Dependencies" 2&gt; NUL

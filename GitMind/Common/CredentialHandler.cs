@@ -8,7 +8,7 @@ using GitMind.Utils;
 using Application = System.Windows.Application;
 
 
-namespace GitMind.RepositoryViews
+namespace GitMind.Common
 {
 	internal class CredentialHandler : ICredentialHandler
 	{

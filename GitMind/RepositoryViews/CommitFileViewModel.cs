@@ -1,7 +1,5 @@
-using System.Threading.Tasks;
 using System.Windows.Media;
 using GitMind.Features.Brushes;
-using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.GitModel;
@@ -17,8 +15,8 @@ namespace GitMind.RepositoryViews
 		private readonly CommitFile file;
 
 		public CommitFileViewModel(
-			IDiffService diffService, 
-			CommitFile file, 
+			IDiffService diffService,
+			CommitFile file,
 			Command<string> undoUncommittedFileCommand)
 		{
 			this.diffService = diffService;
@@ -51,7 +49,7 @@ namespace GitMind.RepositoryViews
 		//public bool IsUseYours => diffService.IsUseYours(WorkingFolder, file);
 		//public bool IsUseTheirs => diffService.IsUseTheirs(WorkingFolder, file);
 
-		public Brush FileNameBrush => file.Status != GitFileStatus.Conflict 
+		public Brush FileNameBrush => file.Status != GitFileStatus.Conflict
 			? BrushService.TextBrush : BrushService.ConflictBrush;
 
 		public bool IsUncommitted => HasNotConflicts && Id == Commit.UncommittedId;
