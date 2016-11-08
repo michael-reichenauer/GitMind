@@ -6,7 +6,7 @@ using GitMind.RepositoryViews;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Features.Committing
+namespace GitMind.Features.Commits
 {
 	internal class CommitCommand : Command
 	{

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
-using GitMind.Features.Committing;
+using GitMind.Features.Commits;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;

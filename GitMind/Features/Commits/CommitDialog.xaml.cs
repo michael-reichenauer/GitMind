@@ -7,7 +7,7 @@ using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 
 
-namespace GitMind.Features.Committing
+namespace GitMind.Features.Commits
 {
 	/// <summary>
 	/// Interaction logic for CommitDialog.xaml

@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
-using GitMind.Features.Committing;
+using GitMind.Features.Commits;
 using GitMind.Features.FolderMonitoring;
 using GitMind.Git;
 using GitMind.RepositoryViews;

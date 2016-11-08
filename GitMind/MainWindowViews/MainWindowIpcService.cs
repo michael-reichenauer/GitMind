@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 using GitMind.ApplicationHandling;
-using GitMind.Features.Committing;
+using GitMind.Features.Commits;
 using GitMind.Utils;
 
 

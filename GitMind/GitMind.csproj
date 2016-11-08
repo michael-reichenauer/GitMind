@@ -121,8 +121,8 @@
     <Compile Include="Common\ProgressHandling\ProgressService.cs" />
     <Compile Include="Features\Branching\DeleteBranchCommand.cs" />
     <Compile Include="Features\Branching\MergeCommand.cs" />
-    <Compile Include="Features\Committing\CommitCommand.cs" />
-    <Compile Include="Features\Committing\UncommitCommand.cs" />
+    <Compile Include="Features\Commits\CommitCommand.cs" />
+    <Compile Include="Features\Commits\UncommitCommand.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
     <Compile Include="RepositoryViews\OpenDetailsCommand.cs" />
@@ -138,12 +138,12 @@
     </Compile>
     <Compile Include="Features\Branching\Private\DeleteBranchDialogViewModel.cs" />
     <Compile Include="Features\Branching\IBranchService.cs" />
-    <Compile Include="Features\Committing\CommitDialog.xaml.cs">
+    <Compile Include="Features\Commits\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Committing\CommitDialogViewModel.cs" />
-    <Compile Include="Features\Committing\CommitService.cs" />
-    <Compile Include="Features\Committing\ICommitService.cs" />
+    <Compile Include="Features\Commits\CommitDialogViewModel.cs" />
+    <Compile Include="Features\Commits\CommitService.cs" />
+    <Compile Include="Features\Commits\ICommitService.cs" />
     <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\BranchName.cs" />
@@ -334,7 +334,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Committing\CommitDialog.xaml">
+    <Page Include="Features\Commits\CommitDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

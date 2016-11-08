@@ -13,7 +13,7 @@ using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
-namespace GitMind.Features.Committing
+namespace GitMind.Features.Commits
 {
 	internal class CommitService : ICommitService
 	{

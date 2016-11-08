@@ -3,7 +3,7 @@ using GitMind.GitModel;
 using GitMind.RepositoryViews;
 
 
-namespace GitMind.Features.Committing
+namespace GitMind.Features.Commits
 {
 	internal interface ICommitService
 	{

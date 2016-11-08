@@ -3,7 +3,7 @@ using GitMind.GitModel;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Features.Committing
+namespace GitMind.Features.Commits
 {
 	internal class UncommitCommand : Command<Commit>
 	{

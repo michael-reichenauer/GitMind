@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using GitMind.Features.Committing;
+using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.GitModel;
