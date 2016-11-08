@@ -3,7 +3,7 @@ using GitMind.Git;
 using GitMind.Utils;
 
 
-namespace GitMind.Features.Branching.Private
+namespace GitMind.Features.Branches.Private
 {
 	internal interface IGitBranchService
 	{

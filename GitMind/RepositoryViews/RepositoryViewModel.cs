@@ -9,8 +9,8 @@ using System.Windows.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
-using GitMind.Features.Branching;
-using GitMind.Features.Branching.Private;
+using GitMind.Features.Branches;
+using GitMind.Features.Branches.Private;
 using GitMind.Features.Brushes;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
@@ -21,7 +21,7 @@ using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
 using Application = System.Windows.Application;
-using IBranchService = GitMind.Features.Branching.IBranchService;
+using IBranchService = GitMind.Features.Branches.IBranchService;
 using ListBox = System.Windows.Controls.ListBox;
 
 

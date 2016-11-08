@@ -11,7 +11,7 @@ using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
-namespace GitMind.Features.Branching.Private
+namespace GitMind.Features.Branches.Private
 {
 	/// <summary>
 	/// Branch service

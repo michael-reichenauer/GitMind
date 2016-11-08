@@ -119,8 +119,8 @@
     </Compile>
     <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
     <Compile Include="Common\ProgressHandling\ProgressService.cs" />
-    <Compile Include="Features\Branching\DeleteBranchCommand.cs" />
-    <Compile Include="Features\Branching\MergeCommand.cs" />
+    <Compile Include="Features\Branches\DeleteBranchCommand.cs" />
+    <Compile Include="Features\Branches\MergeCommand.cs" />
     <Compile Include="Features\Commits\CommitCommand.cs" />
     <Compile Include="Features\Commits\UncommitCommand.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
@@ -128,16 +128,16 @@
     <Compile Include="RepositoryViews\OpenDetailsCommand.cs" />
     <Compile Include="RepositoryViews\ToggleDetailsCommand.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
-    <Compile Include="Features\Branching\Private\CrateBranchDialog.xaml.cs">
+    <Compile Include="Features\Branches\Private\CrateBranchDialog.xaml.cs">
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Branching\Private\CreateBranchDialogViewModel.cs" />
-    <Compile Include="Features\Branching\Private\BranchService.cs" />
-    <Compile Include="Features\Branching\Private\DeleteBranchDialog.xaml.cs">
+    <Compile Include="Features\Branches\Private\CreateBranchDialogViewModel.cs" />
+    <Compile Include="Features\Branches\Private\BranchService.cs" />
+    <Compile Include="Features\Branches\Private\DeleteBranchDialog.xaml.cs">
       <DependentUpon>DeleteBranchDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\Branching\Private\DeleteBranchDialogViewModel.cs" />
-    <Compile Include="Features\Branching\IBranchService.cs" />
+    <Compile Include="Features\Branches\Private\DeleteBranchDialogViewModel.cs" />
+    <Compile Include="Features\Branches\IBranchService.cs" />
     <Compile Include="Features\Commits\CommitDialog.xaml.cs">
       <DependentUpon>CommitDialog.xaml</DependentUpon>
     </Compile>
@@ -154,11 +154,11 @@
     <Compile Include="Features\Diffing\IGitDiffService.cs" />
     <Compile Include="Git\Private\GitNetworkService.cs" />
     <Compile Include="Git\IGitNetworkService.cs" />
-    <Compile Include="Features\Branching\Private\GitBranchService.cs" />
+    <Compile Include="Features\Branches\Private\GitBranchService.cs" />
     <Compile Include="Git\Private\GitInfoService.cs" />
     <Compile Include="Git\IGitInfoService.cs" />
     <Compile Include="Git\Private\GitCommitBranchNameService.cs" />
-    <Compile Include="Features\Branching\Private\IGitBranchService.cs" />
+    <Compile Include="Features\Branches\Private\IGitBranchService.cs" />
     <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
     <Compile Include="Git\Private\IRepoCaller.cs" />
     <Compile Include="Git\Private\RepoCaller.cs" />
@@ -326,11 +326,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Branching\Private\CrateBranchDialog.xaml">
+    <Page Include="Features\Branches\Private\CrateBranchDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Features\Branching\Private\DeleteBranchDialog.xaml">
+    <Page Include="Features\Branches\Private\DeleteBranchDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

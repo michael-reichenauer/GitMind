@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using GitMind.GitModel;
 
 
-namespace GitMind.Features.Branching
+namespace GitMind.Features.Branches
 {
 	internal interface IBranchService
 	{

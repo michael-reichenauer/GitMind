@@ -3,7 +3,7 @@ using GitMind.GitModel;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Features.Branching
+namespace GitMind.Features.Branches
 {
 	internal class DeleteBranchCommand : Command<Branch>
 	{

@@ -9,7 +9,7 @@ using GitMind.Utils;
 using LibGit2Sharp;
 
 
-namespace GitMind.Features.Branching.Private
+namespace GitMind.Features.Branches.Private
 {
 	internal class GitBranchService : IGitBranchService
 	{

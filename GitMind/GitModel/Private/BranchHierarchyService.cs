@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GitMind.Features.Branching.Private;
+using GitMind.Features.Branches.Private;
 using GitMind.Git;
 using GitMind.Utils;
 

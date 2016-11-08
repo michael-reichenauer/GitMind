@@ -5,7 +5,7 @@ using GitMind.RepositoryViews;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Features.Branching
+namespace GitMind.Features.Branches
 {
 	internal class MergeCommand : Command<Branch>
 	{
