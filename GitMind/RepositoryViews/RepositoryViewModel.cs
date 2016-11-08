@@ -104,7 +104,6 @@ namespace GitMind.RepositoryViews
 			BusyIndicator busyIndicator,
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider,
-			CommitCommand commitCommand,
 			MergeCommand mergeCommand,
 			ToggleDetailsCommand toggleDetailsCommand,
 			DeleteBranchCommand deleteBranchCommand,
@@ -134,7 +133,6 @@ namespace GitMind.RepositoryViews
 			filterTriggerTimer.Interval = FilterDelay;
 
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
-			CommitCommand = commitCommand;
 			MergeBranchCommand = mergeCommand;
 			ToggleDetailsCommand = toggleDetailsCommand;
 			DeleteBranchCommand = deleteBranchCommand;
@@ -254,7 +252,7 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> UncommitCommand { get; }
 
 
-		private Command CommitCommand { get; }
+		private Command CommitCommand => AsyncCommand(commitService.CommitChangesAsync);
 
 
 

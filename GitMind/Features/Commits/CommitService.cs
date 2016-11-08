@@ -30,6 +30,7 @@ namespace GitMind.Features.Commits
 		private readonly IDiffService diffService;
 		private readonly IRepositoryService repositoryService;
 		private readonly IProgressService progress;
+		private readonly OpenDetailsCommand openDetailsCommand;
 
 
 		public CommitService(
@@ -40,6 +41,7 @@ namespace GitMind.Features.Commits
 			IDiffService diffService,
 			IRepositoryService repositoryService,
 			IProgressService progressService,
+			OpenDetailsCommand openDetailsCommand,
 			Func<
 				BranchName,
 				IEnumerable<CommitFile>,
@@ -55,12 +57,29 @@ namespace GitMind.Features.Commits
 			this.diffService = diffService;
 			this.repositoryService = repositoryService;
 			this.progress = progressService;
+			this.openDetailsCommand = openDetailsCommand;
 		}
 
 
 		public async Task CommitChangesAsync()
 		{
 			Repository repository = repositoryCommands.Value.Repository;
+			Commit uncommitted;
+			if (repository.Commits.TryGetValue(Commit.UncommittedId, out uncommitted))
+			{
+				if (uncommitted.HasConflicts)
+				{
+					message.ShowInfo("There are merge conflicts that needs be resolved before committing.");
+					await openDetailsCommand.ExecuteAsync();
+					return;
+				}
+			}
+			else
+			{
+				message.ShowInfo("No changes, nothing to commit.");
+				return;
+			}
+
 			BranchName branchName = repository.CurrentBranch.Name;
 
 			using (repositoryCommands.Value.DisableStatus())

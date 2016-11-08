@@ -31,6 +31,7 @@ namespace GitMind.MainWindowViews
 		private IpcRemotingService ipcRemotingService = null;
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
+		private readonly ICommitService commitService;
 
 		private bool isLoaded = false;
 
@@ -38,7 +39,7 @@ namespace GitMind.MainWindowViews
 		internal MainWindowViewModel(
 			WorkingFolder workingFolder,
 			WindowOwner owner,
-			CommitCommand commitCommand,
+			ICommitService commitService,
 			ILatestVersionService latestVersionService,
 			IMainWindowService mainWindowService,
 			MainWindowIpcService mainWindowIpcService,
@@ -46,10 +47,10 @@ namespace GitMind.MainWindowViews
 		{
 			this.workingFolder = workingFolder;
 			this.owner = owner;
+			this.commitService = commitService;
 			this.latestVersionService = latestVersionService;
 			this.mainWindowService = mainWindowService;
 			this.mainWindowIpcService = mainWindowIpcService;
-			CommitCommand = commitCommand;
 
 			RepositoryViewModel = RepositoryViewModelProvider(Busy);
 			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
@@ -110,7 +111,7 @@ namespace GitMind.MainWindowViews
 			}
 		}
 
-		public Command CommitCommand { get; }
+		public Command CommitCommand => AsyncCommand(commitService.CommitChangesAsync);
 
 		public Command RefreshCommand => AsyncCommand(ManualRefreshAsync);
 
