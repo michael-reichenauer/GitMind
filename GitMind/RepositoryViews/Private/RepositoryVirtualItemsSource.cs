@@ -3,7 +3,7 @@ using System.Windows;
 using GitMind.Utils.UI.VirtualCanvas;
 
 
-namespace GitMind.RepositoryViews
+namespace GitMind.RepositoryViews.Private
 {
 	internal class RepositoryVirtualItemsSource : VirtualItemsSource
 	{

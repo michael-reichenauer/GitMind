@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using GitMind.GitModel;
-using GitMind.RepositoryViews;
 
 
 namespace GitMind.Features.Commits
@@ -11,5 +10,7 @@ namespace GitMind.Features.Commits
 		Task UndoUncommittedFileAsync(string path);
 		Task CommitChangesAsync();
 		Task UnCommitAsync(Commit commit);
+
+		Task EditCommitBranchAsync(Commit commit);
 	}
 }

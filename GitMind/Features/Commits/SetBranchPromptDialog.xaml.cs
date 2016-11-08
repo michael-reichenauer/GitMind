@@ -3,20 +3,21 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using GitMind.Git;
+using GitMind.MainWindowViews;
 using Log = GitMind.Utils.Log;
 
 
-namespace GitMind.RepositoryViews
+namespace GitMind.Features.Commits
 {
 	/// <summary>
 	/// Interaction logic for SetBranchPromptDialog.xaml
 	/// </summary>
 	public partial class SetBranchPromptDialog : Window
 	{
-		public SetBranchPromptDialog()
+		internal SetBranchPromptDialog(WindowOwner owner)
 		{
 			InitializeComponent();
-			Owner = Application.Current.MainWindow;
+			Owner = owner;
 		}
 
 

@@ -17,6 +17,7 @@ using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
+using GitMind.RepositoryViews.Private;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
@@ -241,7 +242,8 @@ namespace GitMind.RepositoryViews
 		public Command ToggleDetailsCommand { get; }
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
-		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(SetBranchAsync);
+
+		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(commitService.EditCommitBranchAsync);
 
 
 		public Command<Branch> MergeBranchCommand { get; }
@@ -1061,51 +1063,6 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private Task SetBranchAsync(Commit commit)
-		{
-			SetBranchPromptDialog dialog = new SetBranchPromptDialog();
-			dialog.PromptText = commit.SpecifiedBranchName;
-			dialog.IsAutomatically = commit.SpecifiedBranchName == null;
-			foreach (Branch childBranch in commit.Branch.GetChildBranches())
-			{
-				if (!childBranch.IsMultiBranch && !childBranch.Name.StartsWith("_"))
-				{
-					dialog.AddBranchName(childBranch.Name);
-				}
-			}
-
-			isInternalDialog = true;
-			if (dialog.ShowDialog() == true)
-			{
-				Application.Current.MainWindow.Focus();
-				BranchName branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
-
-				if (commit.SpecifiedBranchName != branchName)
-				{
-					progress.Show($"Set commit branch name {branchName} ...", async () =>
-					{
-						await repositoryService.SetSpecifiedCommitBranchAsync(
-							workingFolder, commit.Id, commit.Repository.RootId, branchName);
-						if (branchName != null)
-						{
-							SpecifiedBranchNames = new[] { branchName };
-						}
-
-						await RefreshAfterCommandAsync(true);
-					});
-				}
-			}
-			else
-			{
-				Application.Current.MainWindow.Focus();
-			}
-
-			isInternalDialog = false;
-			return Task.CompletedTask;
-		}
-
-
-
 		private async void ShowSelectedDiff()
 		{
 			CommitViewModel commit = SelectedItem as CommitViewModel;
@@ -1115,7 +1072,6 @@ namespace GitMind.RepositoryViews
 				await diffService.ShowDiffAsync(commit.Commit.Id);
 			}
 		}
-
 
 
 

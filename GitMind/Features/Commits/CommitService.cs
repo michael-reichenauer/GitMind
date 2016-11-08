@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.GitModel;
-using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 
@@ -27,16 +25,20 @@ namespace GitMind.Features.Commits
 
 		private readonly IMessage message;
 		private readonly Lazy<IRepositoryCommands> repositoryCommands;
+		private readonly Func<SetBranchPromptDialog> setBranchPromptDialogProvider;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
+		private readonly IRepositoryService repositoryService;
 		private readonly IProgressService progress;
 
 
 		public CommitService(
 			IMessage message,
 			Lazy<IRepositoryCommands> repositoryCommands,
+			Func<SetBranchPromptDialog> setBranchPromptDialogProvider,
 			IGitCommitsService gitCommitsService,
 			IDiffService diffService,
+			IRepositoryService repositoryService,
 			IProgressService progressService,
 			Func<
 				BranchName,
@@ -48,8 +50,10 @@ namespace GitMind.Features.Commits
 			this.commitDialogProvider = commitDialogProvider;
 			this.message = message;
 			this.repositoryCommands = repositoryCommands;
+			this.setBranchPromptDialogProvider = setBranchPromptDialogProvider;
 			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;
+			this.repositoryService = repositoryService;
 			this.progress = progressService;
 		}
 
@@ -131,6 +135,46 @@ namespace GitMind.Features.Commits
 				state.SetText("Update status after uncommit ...");
 				await repositoryCommands.Value.RefreshAfterCommandAsync(true);
 			});
+
+			return Task.CompletedTask;
+		}
+
+
+		public Task EditCommitBranchAsync(Commit commit)
+		{
+			SetBranchPromptDialog dialog = setBranchPromptDialogProvider();
+			dialog.PromptText = commit.SpecifiedBranchName;
+			dialog.IsAutomatically = commit.SpecifiedBranchName == null;
+			foreach (Branch childBranch in commit.Branch.GetChildBranches())
+			{
+				if (!childBranch.IsMultiBranch && !childBranch.Name.StartsWith("_"))
+				{
+					dialog.AddBranchName(childBranch.Name);
+				}
+			}
+
+			using (repositoryCommands.Value.DisableStatus())
+			{
+				if (dialog.ShowDialog() == true)
+				{
+					Git.BranchName branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
+
+					if (commit.SpecifiedBranchName != branchName)
+					{
+						progress.Show($"Set commit branch name {branchName} ...", async () =>
+						{
+							await repositoryService.SetSpecifiedCommitBranchAsync(
+								commit.Id, commit.Repository.RootId, branchName);
+							if (branchName != null)
+							{
+								repositoryCommands.Value.ShowBranch(branchName);
+							}
+
+							await repositoryCommands.Value.RefreshAfterCommandAsync(true);
+						});
+					}
+				}
+			}
 
 			return Task.CompletedTask;
 		}
