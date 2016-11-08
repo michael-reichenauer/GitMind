@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using GitMind.Git;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
+using GitMind.Utils.UI;
 using Application = System.Windows.Application;
 
 

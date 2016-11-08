@@ -6,7 +6,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 
-namespace GitMind.Common
+namespace GitMind.Utils.UI
 {
 	/// <summary>Encapsulates dialog functionality from the Credential Management API.</summary>
 	public sealed class CredentialsDialog
@@ -16,25 +16,25 @@ namespace GitMind.Common
 		/// <summary>The only valid bitmap width (in pixels) of a user-defined banner.</summary>
 		private const int ValidBannerWidth = 320;
 
-		/// <summary>Initializes a new instance of the <see cref="T:GitMind.Common.CredentialsDialog"/> class
+		/// <summary>Initializes a new instance of the <see cref="T:GitMind.Utils.UI.CredentialsDialog"/> class
 		/// with the specified target.</summary>
 		/// <param name="target">The name of the target for the credentials, typically a server name.</param>
 		public CredentialsDialog(string target) : this(target, null)
 		{ }
-		/// <summary>Initializes a new instance of the <see cref="T:GitMind.Common.CredentialsDialog"/> class
+		/// <summary>Initializes a new instance of the <see cref="T:GitMind.Utils.UI.CredentialsDialog"/> class
 		/// with the specified target and caption.</summary>
 		/// <param name="target">The name of the target for the credentials, typically a server name.</param>
 		/// <param name="caption">The caption of the dialog (null will cause a system default title to be used).</param>
 		public CredentialsDialog(string target, string caption) : this(target, caption, null)
 		{ }
-		/// <summary>Initializes a new instance of the <see cref="T:GitMind.Common.CredentialsDialog"/> class
+		/// <summary>Initializes a new instance of the <see cref="T:GitMind.Utils.UI.CredentialsDialog"/> class
 		/// with the specified target, caption and message.</summary>
 		/// <param name="target">The name of the target for the credentials, typically a server name.</param>
 		/// <param name="caption">The caption of the dialog (null will cause a system default title to be used).</param>
 		/// <param name="message">The message of the dialog (null will cause a system default message to be used).</param>
 		public CredentialsDialog(string target, string caption, string message) : this(target, caption, message, null)
 		{ }
-		/// <summary>Initializes a new instance of the <see cref="T:GitMind.Common.CredentialsDialog"/> class
+		/// <summary>Initializes a new instance of the <see cref="T:GitMind.Utils.UI.CredentialsDialog"/> class
 		/// with the specified target, caption, message and banner.</summary>
 		/// <param name="target">The name of the target for the credentials, typically a server name.</param>
 		/// <param name="caption">The caption of the dialog (null will cause a system default title to be used).</param>
