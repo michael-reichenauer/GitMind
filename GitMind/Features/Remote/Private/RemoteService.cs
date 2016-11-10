@@ -52,17 +52,6 @@ namespace GitMind.Features.Remote.Private
 		}
 
 
-		public Task<R> FetchBranchAsync(BranchName branchName)
-		{
-			return gitNetworkService.FetchBranchAsync(branchName);
-		}
-
-
-		public Task<R> PushCurrentBranchAsync()
-		{
-			return gitNetworkService.PushCurrentBranchAsync();
-		}
-
 
 		public Task<R> PushBranchAsync(BranchName branchName)
 		{
@@ -120,7 +109,7 @@ namespace GitMind.Features.Remote.Private
 					{
 						state.SetText($"Update branch {branch.Name} ...");
 
-						await FetchBranchAsync(branch.Name);
+						await gitNetworkService.FetchBranchAsync(branch.Name);
 					}
 
 					state.SetText("Update all branches ...");
@@ -243,5 +232,10 @@ namespace GitMind.Features.Remote.Private
 			return Repository.Branches.Any(b => b.CanBePushed);
 		}
 
+
+		private Task<R> PushCurrentBranchAsync()
+		{
+			return gitNetworkService.PushCurrentBranchAsync();
+		}
 	}
 }
