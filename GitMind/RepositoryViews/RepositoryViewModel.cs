@@ -266,7 +266,7 @@ namespace GitMind.RepositoryViews
 			remoteService.TryUpdateAllBranches, remoteService.CanExecuteTryUpdateAllBranches);
 
 		public Command PullCurrentBranchCommand => Command(
-			PullCurrentBranch, CanExecutePullCurrentBranch);
+			remoteService.PullCurrentBranch, remoteService.CanExecutePullCurrentBranch);
 
 		public Command TryPushAllBranchesCommand => Command(
 			TryPushAllBranches, CanExecuteTryPushAllBranches);
@@ -837,36 +837,6 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private void PullCurrentBranch()
-		{
-			isInternalDialog = true;
-			BranchName branchName = Repository.CurrentBranch.Name;
-			progress.Show($"Update current branch {branchName} ...", async state =>
-			{
-				R result = await remoteService.FetchAsync();
-				if (result.IsOk)
-				{
-					result = await gitBranchService.MergeCurrentBranchAsync();
-
-					await remoteService.FetchAllNotesAsync();
-				}
-
-				if (result.IsFaulted)
-				{
-					Message.ShowWarning(
-						owner, $"Failed to update current branch {branchName}.\n{result.Error.Exception.Message}");
-				}
-
-				state.SetText($"Update status after pull current branch {branchName} ...");
-				await RefreshAfterCommandAsync(false);
-			});
-		}
-
-
-		private bool CanExecutePullCurrentBranch()
-		{
-			return Repository.CurrentBranch.CanBeUpdated;
-		}
 
 
 		private void TryPushAllBranches()

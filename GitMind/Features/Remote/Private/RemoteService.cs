@@ -127,5 +127,39 @@ namespace GitMind.Features.Remote.Private
 				});
 			}
 		}
+
+
+		public void PullCurrentBranch()
+		{
+			using (repositoryCommands.DisableStatus())
+			{
+				BranchName branchName = repositoryCommands.Repository.CurrentBranch.Name;
+				progress.Show($"Update current branch {branchName} ...", async state =>
+				{
+					R result = await FetchAsync();
+					if (result.IsOk)
+					{
+						result = await gitBranchService.MergeCurrentBranchAsync();
+
+						await FetchAllNotesAsync();
+					}
+
+					if (result.IsFaulted)
+					{
+						message.ShowWarning(
+							$"Failed to update current branch {branchName}.\n{result.Error.Exception.Message}");
+					}
+
+					state.SetText($"Update status after pull current branch {branchName} ...");
+					await repositoryCommands.RefreshAfterCommandAsync(false);
+				});
+			}
+		}
+
+
+		public bool CanExecutePullCurrentBranch()
+		{
+			return repositoryCommands.Repository.CurrentBranch.CanBeUpdated;
+		}
 	}
 }

@@ -15,5 +15,7 @@ namespace GitMind.Features.Remote
 		Task<R> FetchAllNotesAsync();
 		bool CanExecuteTryUpdateAllBranches();
 		void TryUpdateAllBranches();
+		void PullCurrentBranch();
+		bool CanExecutePullCurrentBranch();
 	}
 }
