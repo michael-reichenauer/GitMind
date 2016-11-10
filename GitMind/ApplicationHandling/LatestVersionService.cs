@@ -187,7 +187,7 @@ namespace GitMind.ApplicationHandling
 
 					HttpResponseMessage response = await httpClient.GetAsync(latestUri);
 
-					if (response.StatusCode == HttpStatusCode.NotModified)
+					if (response.StatusCode == HttpStatusCode.NotModified || response.Content == null)
 					{
 						Log.Debug("Remote latest version info same as cached info");						
 						return GetCachedLatestVersionInfo();
