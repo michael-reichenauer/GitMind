@@ -164,7 +164,7 @@
 					<!-- Remote ahead status "-->
 					<Button
 						Content="&#xE258;"
-						Visibility="{Binding TryUpdateAllBranchesCommand, Converter={StaticResource VC}}"					
+						Visibility="{Binding RepositoryViewModel.RemoteAheadText, Converter={StaticResource VC}}"					
 						Style="{StaticResource IconButtonStyle}"
 						Foreground="{StaticResource RemoteAheadBrush}"
 						Click="RemoteAhead_OnClick"
