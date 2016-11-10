@@ -89,18 +89,18 @@ namespace GitMind.GitModel
 		public Repository Repository { get; }
 
 		public bool CanBePublish => IsActive && IsLocal && !IsRemote && !IsLocalPart;
+
 		public bool CanBePushed =>
 			IsActive
+			&& !IsUncommited
 			&& ((IsLocal && IsRemote) || (IsLocalPart && MainbBranch.RemoteAheadCount == 0))
 			&& LocalAheadCount > 0
-			&& RemoteAheadCount == 0 
-			&& !IsUncommited;
+			&& RemoteAheadCount == 0;
 
 		public bool CanBeUpdated =>
 			IsActive
-			&& ((IsLocal && IsRemote) || (IsMainPart || IsLocalPart))
-			&& RemoteAheadCount > 0
-			&& !IsUncommited;
+			&& ((IsCurrentBranch && !IsUncommited && RemoteAheadCount > 0)
+				|| (!IsCurrentBranch && RemoteAheadCount > 0 && LocalAheadCount == 0));
 
 
 
