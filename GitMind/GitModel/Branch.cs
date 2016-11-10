@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Git;
@@ -100,7 +101,9 @@ namespace GitMind.GitModel
 		public bool CanBeUpdated =>
 			IsActive
 			&& ((IsCurrentBranch && !IsUncommited && RemoteAheadCount > 0)
-				|| (!IsCurrentBranch && RemoteAheadCount > 0 && LocalAheadCount == 0));
+			    || (IsCurrentBranch && !IsUncommited && IsLocalPart && MainbBranch.RemoteAheadCount > 0)
+					|| (!IsCurrentBranch && RemoteAheadCount > 0 && !IsMainPart)
+			    || (!IsCurrentBranch && IsLocalPart && MainbBranch.RemoteAheadCount > 0));
 
 
 
