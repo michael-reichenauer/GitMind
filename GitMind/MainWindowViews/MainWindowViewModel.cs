@@ -10,6 +10,7 @@ using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Features.Commits;
 using GitMind.Features.FolderMonitoring;
+using GitMind.Features.Remote;
 using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
@@ -31,6 +32,7 @@ namespace GitMind.MainWindowViews
 		private IpcRemotingService ipcRemotingService = null;
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
+		private readonly IRemoteService remoteService;
 		private readonly ICommitService commitService;
 
 		private bool isLoaded = false;
@@ -39,6 +41,7 @@ namespace GitMind.MainWindowViews
 		internal MainWindowViewModel(
 			WorkingFolder workingFolder,
 			WindowOwner owner,
+			IRemoteService remoteService,
 			ICommitService commitService,
 			ILatestVersionService latestVersionService,
 			IMainWindowService mainWindowService,
@@ -47,6 +50,7 @@ namespace GitMind.MainWindowViews
 		{
 			this.workingFolder = workingFolder;
 			this.owner = owner;
+			this.remoteService = remoteService;
 			this.commitService = commitService;
 			this.latestVersionService = latestVersionService;
 			this.mainWindowService = mainWindowService;
@@ -110,6 +114,9 @@ namespace GitMind.MainWindowViews
 				return text;
 			}
 		}
+
+		public Command TryUpdateAllBranchesCommand => Command(
+			remoteService.TryUpdateAllBranches, remoteService.CanExecuteTryUpdateAllBranches);
 
 		public Command CommitCommand => AsyncCommand(commitService.CommitChangesAsync);
 

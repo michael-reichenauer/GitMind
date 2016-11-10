@@ -14,6 +14,7 @@ using GitMind.Features.Branches;
 using GitMind.Features.Branches.Private;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
+using GitMind.Features.Remote;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
@@ -21,7 +22,6 @@ using GitMind.RepositoryViews.Private;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
-using Application = System.Windows.Application;
 using IBranchService = GitMind.Features.Branches.IBranchService;
 using ListBox = System.Windows.Controls.ListBox;
 
@@ -43,6 +43,7 @@ namespace GitMind.RepositoryViews
 		private readonly IGitInfoService gitInfoService;
 		private readonly INetworkService networkService;
 		private readonly IBrushService brushService;
+		private readonly IRemoteService remoteService;
 		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
@@ -101,6 +102,7 @@ namespace GitMind.RepositoryViews
 			IGitInfoService gitInfoService,
 			INetworkService networkService,
 			IBrushService brushService,
+			IRemoteService remoteService,
 			BusyIndicator busyIndicator,
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider,
@@ -124,6 +126,7 @@ namespace GitMind.RepositoryViews
 			this.gitInfoService = gitInfoService;
 			this.networkService = networkService;
 			this.brushService = brushService;
+			this.remoteService = remoteService;
 			this.busyIndicator = busyIndicator;
 			this.progress = progressService;
 
@@ -255,8 +258,6 @@ namespace GitMind.RepositoryViews
 		private Command CommitCommand => AsyncCommand(commitService.CommitChangesAsync);
 
 
-
-
 		public Command ShowUncommittedDiffCommand => Command(
 			() => commitService.ShowUncommittedDiff(),
 			() => IsUncommitted);
@@ -264,7 +265,7 @@ namespace GitMind.RepositoryViews
 		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
 
 		public Command TryUpdateAllBranchesCommand => Command(
-			TryUpdateAllBranches, CanExecuteTryUpdateAllBranches);
+			remoteService.TryUpdateAllBranches, remoteService.CanExecuteTryUpdateAllBranches);
 
 		public Command PullCurrentBranchCommand => Command(
 			PullCurrentBranch, CanExecutePullCurrentBranch);
@@ -835,69 +836,6 @@ namespace GitMind.RepositoryViews
 		private void ShowCurrentBranch()
 		{
 			viewModelService.ShowBranch(this, Repository.CurrentBranch);
-		}
-
-
-		private void TryUpdateAllBranches()
-		{
-			Log.Debug("Try update all branches");
-			isInternalDialog = true;
-			progress.Show("Update all branches ...", async state =>
-			{
-				Branch currentBranch = Repository.CurrentBranch;
-				Branch uncommittedBranch = UnCommited?.Branch;
-
-				R result = await networkService.FetchAsync();
-
-				if (result.IsOk && currentBranch.CanBeUpdated)
-				{
-					state.SetText($"Update current branch {currentBranch.Name} ...");
-					result = await gitBranchService.MergeCurrentBranchAsync();
-				}
-
-				if (result.IsFaulted)
-				{
-					Message.ShowWarning(
-						owner,
-						$"Failed to update current branch {currentBranch.Name}\n{result.Error.Exception.Message}.");
-				}
-
-				IEnumerable<Branch> updatableBranches = Repository.Branches
-					.Where(b =>
-						!b.IsCurrentBranch
-						&& b != uncommittedBranch
-						&& b.RemoteAheadCount > 0
-						&& b.LocalAheadCount == 0).ToList();
-
-				foreach (Branch branch in updatableBranches)
-				{
-					state.SetText($"Update branch {branch.Name} ...");
-
-					await networkService.FetchBranchAsync(branch.Name);
-				}
-
-				state.SetText("Update all branches ...");
-				await networkService.FetchAllNotesAsync();
-
-				state.SetText($"Update status after update all branches ...");
-				await RefreshAfterCommandAsync(false);
-			});
-		}
-
-		private bool CanExecuteTryUpdateAllBranches()
-		{
-			//return false;
-			if (!string.IsNullOrEmpty(ConflictsText))
-			{
-				return false;
-			}
-
-			Branch uncommittedBranch = UnCommited?.Branch;
-
-			return Repository.Branches.Any(
-				b => b != uncommittedBranch
-				&& b.RemoteAheadCount > 0
-				&& b.LocalAheadCount == 0);
 		}
 
 

@@ -164,7 +164,7 @@
 					<!-- Remote ahead status "-->
 					<Button
 						Content="&#xE258;"
-						Visibility="{Binding RepositoryViewModel.RemoteAheadText, Converter={StaticResource VC}}"					
+						Visibility="{Binding TryUpdateAllBranchesCommand, Converter={StaticResource VC}}"					
 						Style="{StaticResource IconButtonStyle}"
 						Foreground="{StaticResource RemoteAheadBrush}"
 						Click="RemoteAhead_OnClick"
@@ -176,7 +176,7 @@
 								<MenuItem
 									Header="Update all branches"
 									InputGestureText="Ctrl+Shift-Down"
-									Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}">
+									Command="{Binding TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Grid Margin="0">
 											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Padding="2,0,0,0"/>

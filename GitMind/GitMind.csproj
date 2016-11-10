@@ -124,6 +124,8 @@
     <Compile Include="Features\Commits\UncommitCommand.cs" />
     <Compile Include="Features\Commits\UndoCleanWorkingFolderCommand.cs" />
     <Compile Include="Features\Commits\UndoUncommittedChangesCommand.cs" />
+    <Compile Include="Features\Remote\IRemoteService.cs" />
+    <Compile Include="Features\Remote\Private\RemoteService.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
     <Compile Include="RepositoryViews\OpenDetailsCommand.cs" />
