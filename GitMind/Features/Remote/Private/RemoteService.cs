@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Branches.Private;
 using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
@@ -17,8 +19,9 @@ namespace GitMind.Features.Remote.Private
 		private readonly Lazy<IRepositoryCommands> lazyRepositoryCommands;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
-		private readonly INetworkService networkService;
 		private readonly IGitBranchService gitBranchService;
+		private readonly IGitNetworkService gitNetworkService;
+		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 		private IRepositoryCommands repositoryCommands => lazyRepositoryCommands.Value;
 
 
@@ -26,14 +29,52 @@ namespace GitMind.Features.Remote.Private
 			Lazy<IRepositoryCommands> repositoryCommands,
 			IProgressService progress,
 			IMessage message,
-			INetworkService networkService,
-			IGitBranchService gitBranchService)
+			IGitBranchService gitBranchService,
+			IGitNetworkService gitNetworkService,
+			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
 			this.lazyRepositoryCommands = repositoryCommands;
 			this.progress = progress;
 			this.message = message;
-			this.networkService = networkService;
 			this.gitBranchService = gitBranchService;
+			this.gitNetworkService = gitNetworkService;
+			this.gitCommitBranchNameService = gitCommitBranchNameService;
+		}
+
+
+		public Task<R> FetchAsync()
+		{
+			return gitNetworkService.FetchAsync();
+		}
+
+
+		public Task<R> FetchBranchAsync(BranchName branchName)
+		{
+			return gitNetworkService.FetchBranchAsync(branchName);
+		}
+
+
+		public Task<R> PushCurrentBranchAsync()
+		{
+			return gitNetworkService.PushCurrentBranchAsync();
+		}
+
+
+		public Task<R> PushBranchAsync(BranchName branchName)
+		{
+			return gitNetworkService.PushBranchAsync(branchName);
+		}
+
+
+		public Task PushNotesAsync(string rootId)
+		{
+			return gitCommitBranchNameService.PushNotesAsync(rootId);
+		}
+
+
+		public Task<R> FetchAllNotesAsync()
+		{
+			return gitCommitBranchNameService.FetchAllNotesAsync();
 		}
 
 
@@ -53,7 +94,7 @@ namespace GitMind.Features.Remote.Private
 				{
 					Branch currentBranch = repositoryCommands.Repository.CurrentBranch;
 
-					R result = await networkService.FetchAsync();
+					R result = await FetchAsync();
 
 					if (result.IsOk && currentBranch.CanBeUpdated)
 					{
@@ -75,11 +116,11 @@ namespace GitMind.Features.Remote.Private
 					{
 						state.SetText($"Update branch {branch.Name} ...");
 
-						await networkService.FetchBranchAsync(branch.Name);
+						await FetchBranchAsync(branch.Name);
 					}
 
 					state.SetText("Update all branches ...");
-					await networkService.FetchAllNotesAsync();
+					await FetchAllNotesAsync();
 
 					state.SetText($"Update status after update all branches ...");
 					await repositoryCommands.RefreshAfterCommandAsync(false);

@@ -38,10 +38,10 @@ namespace GitMind.RepositoryViews
 
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService;
-		private readonly IGitCommitsService gitCommitsService;
+
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitInfoService gitInfoService;
-		private readonly INetworkService networkService;
+
 		private readonly IBrushService brushService;
 		private readonly IRemoteService remoteService;
 		private readonly IDiffService diffService;
@@ -97,10 +97,8 @@ namespace GitMind.RepositoryViews
 			IViewModelService viewModelService,
 			ICommitService commitService,
 			IRepositoryService repositoryService,
-			IGitCommitsService gitCommitsService,
 			IGitBranchService gitBranchService,
 			IGitInfoService gitInfoService,
-			INetworkService networkService,
 			IBrushService brushService,
 			IRemoteService remoteService,
 			BusyIndicator busyIndicator,
@@ -121,10 +119,10 @@ namespace GitMind.RepositoryViews
 			this.viewModelService = viewModelService;
 			this.commitService = commitService;
 			this.repositoryService = repositoryService;
-			this.gitCommitsService = gitCommitsService;
+
 			this.gitBranchService = gitBranchService;
 			this.gitInfoService = gitInfoService;
-			this.networkService = networkService;
+
 			this.brushService = brushService;
 			this.remoteService = remoteService;
 			this.busyIndicator = busyIndicator;
@@ -566,7 +564,7 @@ namespace GitMind.RepositoryViews
 		private async Task FetchRemoteChangesAsync(Repository repository, bool isFetchNotes)
 		{
 			Log.Debug("Fetching");
-			R result = await networkService.FetchAsync();
+			R result = await remoteService.FetchAsync();
 			FetchErrorText = "";
 			if (result.IsFaulted)
 			{
@@ -576,7 +574,7 @@ namespace GitMind.RepositoryViews
 			}
 			else if (isFetchNotes)
 			{
-				await networkService.FetchAllNotesAsync();
+				await remoteService.FetchAllNotesAsync();
 			}
 
 			fetchedTime = DateTime.Now;
@@ -845,12 +843,12 @@ namespace GitMind.RepositoryViews
 			BranchName branchName = Repository.CurrentBranch.Name;
 			progress.Show($"Update current branch {branchName} ...", async state =>
 			{
-				R result = await networkService.FetchAsync();
+				R result = await remoteService.FetchAsync();
 				if (result.IsOk)
 				{
 					result = await gitBranchService.MergeCurrentBranchAsync();
 
-					await networkService.FetchAllNotesAsync();
+					await remoteService.FetchAllNotesAsync();
 				}
 
 				if (result.IsFaulted)
@@ -879,13 +877,13 @@ namespace GitMind.RepositoryViews
 			{
 				Branch currentBranch = Repository.CurrentBranch;
 
-				await networkService.PushNotesAsync(Repository.RootId);
+				await remoteService.PushNotesAsync(Repository.RootId);
 
 				R result = R.Ok;
 				if (currentBranch.CanBePushed)
 				{
 					state.SetText($"Push current branch {currentBranch.Name} ...");
-					result = await networkService.PushCurrentBranchAsync();
+					result = await remoteService.PushCurrentBranchAsync();
 				}
 
 				if (result.IsFaulted)
@@ -903,7 +901,7 @@ namespace GitMind.RepositoryViews
 				{
 					state.SetText($"Push branch {branch.Name} ...");
 
-					await networkService.PushBranchAsync(branch.Name);
+					await remoteService.PushBranchAsync(branch.Name);
 				}
 
 				state.SetText("Update status after push all branches ...");
@@ -924,9 +922,9 @@ namespace GitMind.RepositoryViews
 			BranchName branchName = Repository.CurrentBranch.Name;
 			progress.Show($"Push current branch {branchName} ...", async state =>
 			{
-				await networkService.PushNotesAsync(Repository.RootId);
+				await remoteService.PushNotesAsync(Repository.RootId);
 
-				R result = await networkService.PushCurrentBranchAsync();
+				R result = await remoteService.PushCurrentBranchAsync();
 
 				if (result.IsFaulted)
 				{
