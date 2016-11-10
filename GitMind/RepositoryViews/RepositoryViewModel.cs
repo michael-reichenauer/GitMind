@@ -269,7 +269,7 @@ namespace GitMind.RepositoryViews
 			remoteService.PullCurrentBranch, remoteService.CanExecutePullCurrentBranch);
 
 		public Command TryPushAllBranchesCommand => Command(
-			TryPushAllBranches, CanExecuteTryPushAllBranches);
+			remoteService.TryPushAllBranches, remoteService.CanExecuteTryPushAllBranches);
 
 		public Command PushCurrentBranchCommand => Command(
 			remoteService.PushCurrentBranch, remoteService.CanExecutePushCurrentBranch);
@@ -839,59 +839,8 @@ namespace GitMind.RepositoryViews
 
 
 
-		private void TryPushAllBranches()
-		{
-			Log.Debug("Try push all branches");
-			isInternalDialog = true;
-			progress.Show("Push all branches ...", async state =>
-			{
-				Branch currentBranch = Repository.CurrentBranch;
-
-				await remoteService.PushNotesAsync(Repository.RootId);
-
-				R result = R.Ok;
-				if (currentBranch.CanBePushed)
-				{
-					state.SetText($"Push current branch {currentBranch.Name} ...");
-					result = await remoteService.PushCurrentBranchAsync();
-				}
-
-				if (result.IsFaulted)
-				{
-					Message.ShowWarning(
-						owner,
-						$"Failed to push current branch {currentBranch.Name}.\n{result.Error.Exception.Message}");
-				}
-
-				IEnumerable<Branch> pushableBranches = Repository.Branches
-					.Where(b => !b.IsCurrentBranch && b.CanBePushed)
-					.ToList();
-
-				foreach (Branch branch in pushableBranches)
-				{
-					state.SetText($"Push branch {branch.Name} ...");
-
-					await remoteService.PushBranchAsync(branch.Name);
-				}
-
-				state.SetText("Update status after push all branches ...");
-				await RefreshAfterCommandAsync(true);
-			});
-		}
-
-
-		private bool CanExecuteTryPushAllBranches()
-		{
-			return Repository.Branches.Any(b => b.CanBePushed);
-		}
-
 
 	
-
-		//private async Task UncommitAsync(Commit commit)
-		//{
-		//	await commitService.UnCommitAsync(commit);
-		//}
 
 
 		private void ShowDiff(Commit commit)

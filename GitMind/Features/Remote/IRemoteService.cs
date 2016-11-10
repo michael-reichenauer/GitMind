@@ -17,7 +17,9 @@ namespace GitMind.Features.Remote
 		void TryUpdateAllBranches();
 		void PullCurrentBranch();
 		bool CanExecutePullCurrentBranch();
-		bool CanExecutePushCurrentBranch();
 		void PushCurrentBranch();
+		bool CanExecutePushCurrentBranch();
+		void TryPushAllBranches();
+		bool CanExecuteTryPushAllBranches();
 	}
 }

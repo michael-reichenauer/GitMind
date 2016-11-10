@@ -194,5 +194,54 @@ namespace GitMind.Features.Remote.Private
 		{
 			return Repository.CurrentBranch.CanBePushed;
 		}
+
+
+		public void TryPushAllBranches()
+		{
+			Log.Debug("Try push all branches");
+			using (repositoryCommands.DisableStatus())
+			{
+				progress.Show("Push all branches ...", async state =>
+				{
+					Branch currentBranch = Repository.CurrentBranch;
+
+					await PushNotesAsync(Repository.RootId);
+
+					R result = R.Ok;
+					if (currentBranch.CanBePushed)
+					{
+						state.SetText($"Push current branch {currentBranch.Name} ...");
+						result = await PushCurrentBranchAsync();
+					}
+
+					if (result.IsFaulted)
+					{
+						message.ShowWarning(
+							$"Failed to push current branch {currentBranch.Name}.\n{result.Error.Exception.Message}");
+					}
+
+					IEnumerable<Branch> pushableBranches = Repository.Branches
+						.Where(b => !b.IsCurrentBranch && b.CanBePushed)
+						.ToList();
+
+					foreach (Branch branch in pushableBranches)
+					{
+						state.SetText($"Push branch {branch.Name} ...");
+
+						await PushBranchAsync(branch.Name);
+					}
+
+					state.SetText("Update status after push all branches ...");
+					await repositoryCommands.RefreshAfterCommandAsync(true);
+				});
+			}
+		}
+
+
+		public bool CanExecuteTryPushAllBranches()
+		{
+			return Repository.Branches.Any(b => b.CanBePushed);
+		}
+
 	}
 }
