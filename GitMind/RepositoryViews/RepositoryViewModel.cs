@@ -272,7 +272,7 @@ namespace GitMind.RepositoryViews
 			TryPushAllBranches, CanExecuteTryPushAllBranches);
 
 		public Command PushCurrentBranchCommand => Command(
-			PushCurrentBranch, CanExecutePushCurrentBranch);
+			remoteService.PushCurrentBranch, remoteService.CanExecutePushCurrentBranch);
 
 
 
@@ -886,33 +886,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private void PushCurrentBranch()
-		{
-			isInternalDialog = true;
-			BranchName branchName = Repository.CurrentBranch.Name;
-			progress.Show($"Push current branch {branchName} ...", async state =>
-			{
-				await remoteService.PushNotesAsync(Repository.RootId);
-
-				R result = await remoteService.PushCurrentBranchAsync();
-
-				if (result.IsFaulted)
-				{
-					Message.ShowWarning(
-						owner, $"Failed to push current branch {branchName}.\n{result.Error.Exception.Message}");
-				}
-
-				state.SetText($"Updating status after push {branchName} ...");
-				await RefreshAfterCommandAsync(true);
-			});
-		}
-
-
-		private bool CanExecutePushCurrentBranch()
-		{
-			return Repository.CurrentBranch.CanBePushed;
-		}
-
+	
 
 		//private async Task UncommitAsync(Commit commit)
 		//{

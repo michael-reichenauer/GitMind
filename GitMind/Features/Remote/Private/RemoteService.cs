@@ -22,8 +22,8 @@ namespace GitMind.Features.Remote.Private
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitNetworkService gitNetworkService;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
-		private IRepositoryCommands repositoryCommands => lazyRepositoryCommands.Value;
 
+		
 
 		public RemoteService(
 			Lazy<IRepositoryCommands> repositoryCommands,
@@ -40,6 +40,10 @@ namespace GitMind.Features.Remote.Private
 			this.gitNetworkService = gitNetworkService;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 		}
+
+		private Repository Repository => repositoryCommands.Repository;
+
+		private IRepositoryCommands repositoryCommands => lazyRepositoryCommands.Value;
 
 
 		public Task<R> FetchAsync()
@@ -80,7 +84,7 @@ namespace GitMind.Features.Remote.Private
 
 		public bool CanExecuteTryUpdateAllBranches()
 		{
-			return repositoryCommands.Repository?.Branches.Any(b => b.CanBeUpdated) ?? false;
+			return Repository?.Branches.Any(b => b.CanBeUpdated) ?? false;
 		}
 
 
@@ -92,7 +96,7 @@ namespace GitMind.Features.Remote.Private
 			{
 				progress.Show("Update all branches ...", async state =>
 				{
-					Branch currentBranch = repositoryCommands.Repository.CurrentBranch;
+					Branch currentBranch = Repository.CurrentBranch;
 
 					R result = await FetchAsync();
 
@@ -108,7 +112,7 @@ namespace GitMind.Features.Remote.Private
 							$"Failed to update current branch {currentBranch.Name}\n{result.Error.Exception.Message}.");
 					}
 
-					IEnumerable<Branch> updatableBranches = repositoryCommands.Repository.Branches
+					IEnumerable<Branch> updatableBranches = Repository.Branches
 						.Where(b => !b.IsCurrentBranch && b.CanBeUpdated)
 						.ToList();
 
@@ -133,7 +137,7 @@ namespace GitMind.Features.Remote.Private
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				BranchName branchName = repositoryCommands.Repository.CurrentBranch.Name;
+				BranchName branchName = Repository.CurrentBranch.Name;
 				progress.Show($"Update current branch {branchName} ...", async state =>
 				{
 					R result = await FetchAsync();
@@ -159,7 +163,36 @@ namespace GitMind.Features.Remote.Private
 
 		public bool CanExecutePullCurrentBranch()
 		{
-			return repositoryCommands.Repository.CurrentBranch.CanBeUpdated;
+			return Repository.CurrentBranch.CanBeUpdated;
+		}
+
+		public void PushCurrentBranch()
+		{
+			using (repositoryCommands.DisableStatus())
+			{
+				BranchName branchName = Repository.CurrentBranch.Name;
+				progress.Show($"Push current branch {branchName} ...", async state =>
+				{
+					await PushNotesAsync(Repository.RootId);
+
+					R result = await PushCurrentBranchAsync();
+
+					if (result.IsFaulted)
+					{
+						message.ShowWarning(
+							 $"Failed to push current branch {branchName}.\n{result.Error.Exception.Message}");
+					}
+
+					state.SetText($"Updating status after push {branchName} ...");
+					await repositoryCommands.RefreshAfterCommandAsync(true);
+				});
+			}
+		}
+
+
+		public bool CanExecutePushCurrentBranch()
+		{
+			return Repository.CurrentBranch.CanBePushed;
 		}
 	}
 }
