@@ -23,6 +23,6 @@ namespace GitMind.Features.Branches
 			return Task.CompletedTask;
 		}
 
-		protected override bool CanRun(Branch branch) => branch.IsActive;
+		protected override bool CanRun(Branch branch) => branch?.IsActive ?? false;
 	}
 }
