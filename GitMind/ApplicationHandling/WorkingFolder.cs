@@ -38,5 +38,8 @@ namespace GitMind.ApplicationHandling
 		{
 			return workingFolderService.TrySetPath(path);
 		}
+
+
+		public override string ToString() => Path;
 	}
 }
