@@ -12,12 +12,12 @@ namespace GitMind.Features.Remote
 		Task PushNotesAsync(string rootId);
 		Task<R> FetchAllNotesAsync();
 		bool CanExecuteTryUpdateAllBranches();
-		void TryUpdateAllBranches();
-		void PullCurrentBranch();
+		Task TryUpdateAllBranchesAsync();
+		Task PullCurrentBranchAsync();
 		bool CanExecutePullCurrentBranch();
-		void PushCurrentBranch();
+		Task PushCurrentBranchAsync();
 		bool CanExecutePushCurrentBranch();
-		void TryPushAllBranches();
+		Task TryPushAllBranchesAsync();
 		bool CanExecuteTryPushAllBranches();
 	}
 }

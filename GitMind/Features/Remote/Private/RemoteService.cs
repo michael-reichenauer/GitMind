@@ -75,13 +75,13 @@ namespace GitMind.Features.Remote.Private
 		}
 
 
-		public void TryUpdateAllBranches()
+		public async Task TryUpdateAllBranchesAsync()
 		{
 			Log.Debug("Try update all branches");
 
 			using (repositoryCommands.DisableStatus())
 			{
-				progress.Show("Update all branches ...", async state =>
+				using (progress.ShowDialog("Update all branches ..."))
 				{
 					Branch currentBranch = Repository.CurrentBranch;
 
@@ -89,7 +89,7 @@ namespace GitMind.Features.Remote.Private
 
 					if (result.IsOk && currentBranch.CanBeUpdated)
 					{
-						state.SetText($"Update current branch {currentBranch.Name} ...");
+						progress.SetText($"Update current branch {currentBranch.Name} ...");
 						result = await gitBranchService.MergeCurrentBranchAsync();
 					}
 
@@ -105,27 +105,27 @@ namespace GitMind.Features.Remote.Private
 
 					foreach (Branch branch in updatableBranches)
 					{
-						state.SetText($"Update branch {branch.Name} ...");
+						progress.SetText($"Update branch {branch.Name} ...");
 
 						await gitNetworkService.FetchBranchAsync(branch.Name);
 					}
 
-					state.SetText("Update all branches ...");
+					progress.SetText("Update all branches ...");
 					await FetchAllNotesAsync();
 
-					state.SetText($"Update status after update all branches ...");
+					progress.SetText($"Update status after update all branches ...");
 					await repositoryCommands.RefreshAfterCommandAsync(false);
-				});
+				}
 			}
 		}
 
 
-		public void PullCurrentBranch()
+		public async Task PullCurrentBranchAsync()
 		{
 			using (repositoryCommands.DisableStatus())
 			{
 				BranchName branchName = Repository.CurrentBranch.Name;
-				progress.Show($"Update current branch {branchName} ...", async state =>
+				using (progress.ShowDialog($"Update current branch {branchName} ..."))
 				{
 					R result = await FetchAsync();
 					if (result.IsOk)
@@ -141,9 +141,9 @@ namespace GitMind.Features.Remote.Private
 							$"Failed to update current branch {branchName}.\n{result.Error.Exception.Message}");
 					}
 
-					state.SetText($"Update status after pull current branch {branchName} ...");
+					progress.SetText($"Update status after pull current branch {branchName} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(false);
-				});
+				}
 			}
 		}
 
@@ -153,16 +153,16 @@ namespace GitMind.Features.Remote.Private
 			return Repository.CurrentBranch.CanBeUpdated;
 		}
 
-		public void PushCurrentBranch()
+		public async Task PushCurrentBranchAsync()
 		{
 			using (repositoryCommands.DisableStatus())
 			{
 				BranchName branchName = Repository.CurrentBranch.Name;
-				progress.Show($"Push current branch {branchName} ...", async state =>
+				using (progress.ShowDialog($"Push current branch {branchName} ..."))
 				{
 					await PushNotesAsync(Repository.RootId);
 
-					R result = await PushCurrentBranchAsync();
+					R result = await gitNetworkService.PushCurrentBranchAsync();
 
 					if (result.IsFaulted)
 					{
@@ -170,9 +170,9 @@ namespace GitMind.Features.Remote.Private
 							 $"Failed to push current branch {branchName}.\n{result.Error.Exception.Message}");
 					}
 
-					state.SetText($"Updating status after push {branchName} ...");
+					progress.SetText($"Updating status after push {branchName} ...");
 					await repositoryCommands.RefreshAfterCommandAsync(true);
-				});
+				}
 			}
 		}
 
@@ -183,12 +183,12 @@ namespace GitMind.Features.Remote.Private
 		}
 
 
-		public void TryPushAllBranches()
+		public async Task TryPushAllBranchesAsync()
 		{
 			Log.Debug("Try push all branches");
 			using (repositoryCommands.DisableStatus())
 			{
-				progress.Show("Push all branches ...", async state =>
+				using (progress.ShowDialog("Push all branches ..."))
 				{
 					Branch currentBranch = Repository.CurrentBranch;
 
@@ -197,8 +197,8 @@ namespace GitMind.Features.Remote.Private
 					R result = R.Ok;
 					if (currentBranch.CanBePushed)
 					{
-						state.SetText($"Push current branch {currentBranch.Name} ...");
-						result = await PushCurrentBranchAsync();
+						progress.SetText($"Push current branch {currentBranch.Name} ...");
+						result = await gitNetworkService.PushCurrentBranchAsync();
 					}
 
 					if (result.IsFaulted)
@@ -213,14 +213,14 @@ namespace GitMind.Features.Remote.Private
 
 					foreach (Branch branch in pushableBranches)
 					{
-						state.SetText($"Push branch {branch.Name} ...");
+						progress.SetText($"Push branch {branch.Name} ...");
 
 						await PushBranchAsync(branch.Name);
 					}
 
-					state.SetText("Update status after push all branches ...");
+					progress.SetText("Update status after push all branches ...");
 					await repositoryCommands.RefreshAfterCommandAsync(true);
-				});
+				}
 			}
 		}
 
@@ -228,12 +228,6 @@ namespace GitMind.Features.Remote.Private
 		public bool CanExecuteTryPushAllBranches()
 		{
 			return Repository.Branches.Any(b => b.CanBePushed);
-		}
-
-
-		private Task<R> PushCurrentBranchAsync()
-		{
-			return gitNetworkService.PushCurrentBranchAsync();
 		}
 	}
 }

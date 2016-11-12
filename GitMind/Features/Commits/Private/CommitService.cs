@@ -106,7 +106,7 @@ namespace GitMind.Features.Commits.Private
 
 				if (dialog.ShowDialog() == true)
 				{
-					progress.Show($"Commit current branch {branchName} ...", async () =>
+					using (progress.ShowDialog($"Commit current branch {branchName} ..."))
 					{
 						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
 							dialog.CommitMessage, branchName, dialog.CommitFiles);
@@ -119,16 +119,16 @@ namespace GitMind.Features.Commits.Private
 						{
 							message.ShowWarning("Failed to commit");
 						}
-					});
+					}
 
 					Log.Debug("After commit dialog, refresh done");
 				}
 				else if (dialog.IsChanged)
 				{
-					progress.Show("Updating status ...", async () =>
+					using (progress.ShowDialog("Updating status ..."))
 					{
 						await repositoryCommands.RefreshAfterCommandAsync(false);
-					});
+					}
 				}
 				else if (repository.Status.IsMerging && !commitFiles.Any())
 				{
@@ -138,9 +138,9 @@ namespace GitMind.Features.Commits.Private
 		}
 
 
-		public Task UnCommitAsync(Commit commit)
+		public async Task UnCommitAsync(Commit commit)
 		{
-			progress.Show($"Uncommit in {commit} ...", async state =>
+			using (progress.ShowDialog($"Uncommit in {commit} ..."))
 			{
 				R result = await gitCommitsService.UnCommitAsync();
 
@@ -149,11 +149,9 @@ namespace GitMind.Features.Commits.Private
 					message.ShowWarning($"Failed to uncommit.\n{result.Error.Exception.Message}");
 				}
 
-				state.SetText("Update status after uncommit ...");
+				progress.SetText("Update status after uncommit ...");
 				await repositoryCommands.RefreshAfterCommandAsync(true);
-			});
-
-			return Task.CompletedTask;
+			}
 		}
 
 
@@ -166,7 +164,7 @@ namespace GitMind.Features.Commits.Private
 		}
 
 
-		public Task EditCommitBranchAsync(Commit commit)
+		public async Task EditCommitBranchAsync(Commit commit)
 		{
 			SetBranchPromptDialog dialog = setBranchPromptDialogProvider();
 			dialog.PromptText = commit.SpecifiedBranchName;
@@ -187,7 +185,7 @@ namespace GitMind.Features.Commits.Private
 
 					if (commit.SpecifiedBranchName != branchName)
 					{
-						progress.Show($"Set commit branch name {branchName} ...", async () =>
+						using (progress.ShowDialog($"Set commit branch name {branchName} ..."))
 						{
 							await repositoryService.SetSpecifiedCommitBranchAsync(
 								commit.Id, commit.Repository.RootId, branchName);
@@ -197,43 +195,39 @@ namespace GitMind.Features.Commits.Private
 							}
 
 							await repositoryCommands.RefreshAfterCommandAsync(true);
-						});
+						}
 					}
 				}
 			}
-
-			return Task.CompletedTask;
 		}
 
 
-		public Task UndoUncommittedChangesAsync()
+		public async Task UndoUncommittedChangesAsync()
 		{
 			using (repositoryCommands.DisableStatus())
 			{
-				progress.Show($"Undo changes in working folder ...", async () =>
+				using (progress.ShowDialog($"Undo changes in working folder ..."))
 				{
 					await gitCommitsService.UndoWorkingFolderAsync();
 
 					await repositoryCommands.RefreshAfterCommandAsync(false);
-				});
+				}
 			}
-
-			return Task.CompletedTask;
 		}
 
 
-		public Task UndoCleanWorkingFolderAsync()
+		public async Task UndoCleanWorkingFolderAsync()
 		{
 			R<IReadOnlyList<string>> failedPaths = R.From(new string[0].AsReadOnlyList());
 
 			using (repositoryCommands.DisableStatus())
 			{
-				progress.Show($"Undo changes and clean working folder  ...", async () =>
+				using (progress.ShowDialog($"Undo changes and clean working folder  ..."))
 				{
 					failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync();
 
 					await repositoryCommands.RefreshAfterCommandAsync(false);
-				});
+				}
 
 				if (failedPaths.IsFaulted)
 				{
@@ -255,8 +249,6 @@ namespace GitMind.Features.Commits.Private
 					message.ShowWarning(text);
 				}
 			}
-
-			return Task.CompletedTask;
 		}
 
 
@@ -272,14 +264,12 @@ namespace GitMind.Features.Commits.Private
 		}
 
 
-		public Task UndoUncommittedFileAsync(string path)
+		public async Task UndoUncommittedFileAsync(string path)
 		{
-			progress.Show($"Undo file change in {path} ...", async () =>
+			using (progress.ShowDialog($"Undo file change in {path} ..."))
 			{
 				await gitCommitsService.UndoFileInWorkingFolderAsync(path);
-			});
-
-			return Task.CompletedTask;
+			}
 		}
 	}
 }

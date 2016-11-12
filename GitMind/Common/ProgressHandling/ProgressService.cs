@@ -24,7 +24,7 @@ namespace GitMind.Common.ProgressHandling
 		}
 
 
-		public Progress ShowDialog(string text)
+		public Progress ShowDialog(string text = "")
 		{
 			Log.Debug($"Progress status: {text}");
 

@@ -16,8 +16,8 @@ namespace GitMind.Features.Branches
 		Task DeleteBranchAsync(Branch branch);
 		bool CanDeleteBranch(Branch branch);
 		Task MergeBranchAsync(Branch branch);
-		void PublishBranch(Branch branch);
-		void PushBranch(Branch branch);
-		void UpdateBranch(Branch branch);
+		Task PublishBranchAsync(Branch branch);
+		Task PushBranchAsync(Branch branch);
+		Task UpdateBranchAsync(Branch branch);
 	}
 }

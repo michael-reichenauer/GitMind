@@ -115,18 +115,17 @@ namespace GitMind.MainWindowViews
 			}
 		}
 
-		public Command TryUpdateAllBranchesCommand => Command(
-			remoteService.TryUpdateAllBranches, remoteService.CanExecuteTryUpdateAllBranches);
+		public Command TryUpdateAllBranchesCommand => AsyncCommand(
+			remoteService.TryUpdateAllBranchesAsync, remoteService.CanExecuteTryUpdateAllBranches);
 
-		public Command PullCurrentBranchCommand => Command(
-			remoteService.PullCurrentBranch, remoteService.CanExecutePullCurrentBranch);
+		public Command PullCurrentBranchCommand => AsyncCommand(
+			remoteService.PullCurrentBranchAsync, remoteService.CanExecutePullCurrentBranch);
 
+		public Command TryPushAllBranchesCommand => AsyncCommand(
+			remoteService.TryPushAllBranchesAsync, remoteService.CanExecuteTryPushAllBranches);
 
-		public Command TryPushAllBranchesCommand => Command(
-			remoteService.TryPushAllBranches, remoteService.CanExecuteTryPushAllBranches);
-
-		public Command PushCurrentBranchCommand => Command(
-			remoteService.PushCurrentBranch, remoteService.CanExecutePushCurrentBranch);
+		public Command PushCurrentBranchCommand => AsyncCommand(
+			remoteService.PushCurrentBranchAsync, remoteService.CanExecutePushCurrentBranch);
 
 
 
