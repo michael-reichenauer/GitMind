@@ -8,7 +8,7 @@ namespace GitMind.GitModel.Private
 {
 	internal class CacheService : ICacheService
 	{
-		private readonly TaskThrottler TaskThrottler = new TaskThrottler(1);
+		private readonly AsyncLock asyncLock = new AsyncLock();
 
 
 		public async Task CacheAsync(MRepository repository)
@@ -35,20 +35,20 @@ namespace GitMind.GitModel.Private
 
 		private async Task WriteRepository(MRepository repository)
 		{
-			await TaskThrottler.Run(() => Task.Run(() =>
+			using (await asyncLock.LockAsync())
 			{
 				string cachePath = GetCachePath(repository.WorkingFolder);
 				Timing t = new Timing();
 
 				Serialize(cachePath, repository);
 				t.Log($"Wrote cached repository with {repository.Commits.Count} commits");
-			}));
+			}
 		}
 
 
 		public async Task<MRepository> TryReadRepositoryAsync(string gitRepositoryPath)
 		{
-			return await TaskThrottler.Run(() => Task.Run(() =>
+			using (await asyncLock.LockAsync())
 			{
 				string cachePath = GetCachePath(gitRepositoryPath);
 				Timing t = new Timing();
@@ -72,7 +72,7 @@ namespace GitMind.GitModel.Private
 				repository.CompleteDeserialization(gitRepositoryPath);
 				t.Log($"Read cached repository with {repository.Commits.Count} commits");
 				return repository;
-			}));
+			}
 		}
 
 

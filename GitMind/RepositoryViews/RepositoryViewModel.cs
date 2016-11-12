@@ -74,7 +74,7 @@ namespace GitMind.RepositoryViews
 		private static readonly TimeSpan AutoRemoteCheckInterval = TimeSpan.FromMinutes(9);
 		private static readonly TimeSpan FreshRepositoryInterval = TimeSpan.FromMinutes(10);
 
-		private readonly TaskThrottler refreshThrottler = new TaskThrottler(1);
+		private readonly AsyncLock refreshLock = new AsyncLock();
 
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; } = new Branch[0];
@@ -322,15 +322,14 @@ namespace GitMind.RepositoryViews
 
 		public async Task FirstLoadAsync()
 		{
-			Repository repository;
-
-			await refreshThrottler.Run(async () =>
+			using (await refreshLock.LockAsync())
 			{
 				Log.Debug("Loading repository ...");
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(workingFolder);
-				string statusText = isRepositoryCached ? "Loading ..." : "Create branch structure ...";
+				string progressText = isRepositoryCached ? "Loading ..." : "Create branch structure ...";
 
-				using (progress.ShowDialog(statusText))
+				Repository repository;
+				using (progress.ShowDialog(progressText))
 				{
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(workingFolder);
 					UpdateInitialViewModel(repository);
@@ -366,7 +365,7 @@ namespace GitMind.RepositoryViews
 				FreshRepositoryTime = DateTime.Now;
 				repository = await repositoryService.GetFreshRepositoryAsync(workingFolder);
 				UpdateViewModel(repository);
-			});
+			}
 		}
 
 
@@ -393,26 +392,16 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
+		public async Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
 		{
 			if (isInternalDialog)
 			{
 				Log.Debug("IsInternal dialog");
-				return Task.CompletedTask;
+				return;
 			}
 
-			return refreshThrottler.Run(async () =>
+			using (await refreshLock.LockAsync())
 			{
-				//if (isRepoChange)
-				//{
-				//	Log.Debug("Check if Repository has changed");
-				//	if (!await repositoryService.IsRepositoryChangedAsync(Repository))
-				//	{
-				//		Log.Debug("Repository has not changed");
-				//		return;
-				//	}
-				//}
-
 				Log.Debug("Refreshing after status/repo change ...");
 				Log.Usage("Refresh after status/repo change");
 
@@ -434,14 +423,14 @@ namespace GitMind.RepositoryViews
 					UpdateViewModel(repository);
 					Log.Debug("Refreshed after status/repo change done");
 				}
-			});
+			}
 		}
 
 
 		public async Task RefreshAfterCommandAsync(bool useFreshRepository)
 		{
 			isInternalDialog = true;
-			await refreshThrottler.Run(async () =>
+			using (await refreshLock.LockAsync())
 			{
 				Log.Debug("Refreshing after command ...");
 
@@ -460,7 +449,7 @@ namespace GitMind.RepositoryViews
 
 				UpdateViewModel(repository);
 				Log.Debug("Refreshed after command done");
-			});
+			}
 
 			isInternalDialog = false;
 		}
@@ -476,7 +465,7 @@ namespace GitMind.RepositoryViews
 		{
 			using (progress.ShowDialog("Refresh branch structure ..."))
 			{
-				await refreshThrottler.Run(async () =>
+				using (await refreshLock.LockAsync())
 				{
 					Log.Debug("Refreshing after manual trigger ...");
 
@@ -488,7 +477,7 @@ namespace GitMind.RepositoryViews
 					FreshRepositoryTime = DateTime.Now;
 					UpdateViewModel(repository);
 					Log.Debug("Refreshed after manual trigger done");
-				});
+				}
 			}
 		}
 
