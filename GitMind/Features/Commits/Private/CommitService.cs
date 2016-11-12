@@ -224,6 +224,44 @@ namespace GitMind.Features.Commits.Private
 		}
 
 
+		public Task UndoCleanWorkingFolderAsync()
+		{
+			R<IReadOnlyList<string>> failedPaths = R.From(new string[0].AsReadOnlyList());
+
+			using (repositoryCommands.Value.DisableStatus())
+			{
+				progress.Show($"Undo changes and clean working folder  ...", async () =>
+				{
+					failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync();
+
+					await repositoryCommands.Value.RefreshAfterCommandAsync(false);
+				});
+
+				if (failedPaths.IsFaulted)
+				{
+					message.ShowWarning(failedPaths.ToString());
+				}
+				else if (failedPaths.Value.Any())
+				{
+					int count = failedPaths.Value.Count;
+					string text = $"Failed to undo and clean working folder.\n{count} items where locked:\n";
+					foreach (string path in failedPaths.Value.Take(10))
+					{
+						text += $"\n   {path}";
+					}
+					if (count > 10)
+					{
+						text += "   ...";
+					}
+
+					message.ShowWarning(text);
+				}
+			}
+
+			return Task.CompletedTask;
+		}
+
+
 		public async Task ShowUncommittedDiff()
 		{
 			await diffService.ShowDiffAsync(Commit.UncommittedId);

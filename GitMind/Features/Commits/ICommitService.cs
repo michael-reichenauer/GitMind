@@ -15,5 +15,7 @@ namespace GitMind.Features.Commits
 		Task EditCommitBranchAsync(Commit commit);
 
 		Task UndoUncommittedChangesAsync();
+
+		Task UndoCleanWorkingFolderAsync();
 	}
 }

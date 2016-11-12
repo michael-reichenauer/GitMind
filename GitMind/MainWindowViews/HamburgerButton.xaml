@@ -101,7 +101,7 @@
 					</MenuItem.Icon>
 					<MenuItem 
 						Header="Undo changes and clean ignored files" 
-						Command="{Binding RepositoryViewModel.UndoCleanWorkingFolderCommand}">
+						Command="{Binding UndoCleanWorkingFolderCommand}">
 						<MenuItem.Icon>
 							<Border>
 								<TextBlock 
