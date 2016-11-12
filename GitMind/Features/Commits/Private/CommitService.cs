@@ -68,7 +68,7 @@ namespace GitMind.Features.Commits.Private
 				if (uncommitted.HasConflicts)
 				{
 					message.ShowInfo("There are merge conflicts that needs be resolved before committing.");
-					repositoryCommands.Value.IsShowCommitDetails = true;
+					repositoryCommands.Value.ShowCommitDetails();
 					return;
 				}
 			}

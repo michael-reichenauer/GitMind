@@ -13,6 +13,7 @@ namespace GitMind.RepositoryViews
 	internal class CommitViewModel : ViewModel
 	{
 		private readonly IBranchService branchService;
+		private readonly IRepositoryCommands repositoryCommands;
 		private readonly ICommitService commitService;
 
 		private int windowWidth;
@@ -21,12 +22,11 @@ namespace GitMind.RepositoryViews
 		public CommitViewModel(
 			IBranchService branchService,
 			IRepositoryCommands repositoryCommands,
-			ICommitService commitService,
-			ToggleDetailsCommand toggleDetailsCommand)
+			ICommitService commitService)
 		{
 			this.branchService = branchService;
+			this.repositoryCommands = repositoryCommands;
 			this.commitService = commitService;
-			ToggleDetailsCommand = toggleDetailsCommand;
 			SetCommitBranchCommand = Command(() => commitService.EditCommitBranchAsync(Commit));
 			ShowCommitDiffCommand = repositoryCommands.ShowDiffCommand.With(
 				() => Commit.IsVirtual && !Commit.IsUncommitted ? Commit.FirstParent : Commit);
@@ -105,7 +105,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Command ToggleDetailsCommand { get; }
+		public Command ToggleDetailsCommand => Command(repositoryCommands.ToggleCommitDetails);
 		public Command ShowCommitDiffCommand { get; }
 		public Command SetCommitBranchCommand { get; }
 		public Command SwitchToCommitCommand => Command(

@@ -9,7 +9,13 @@ namespace GitMind.RepositoryViews
 	internal interface IRepositoryCommands
 	{
 		Repository Repository { get; }
-		bool IsShowCommitDetails { get; set; }
+
+		bool IsShowCommitDetails { get;}
+
+		void ShowCommitDetails();
+		void ToggleCommitDetails();
+
+
 		Commit UnCommited { get; }
 
 		Command<Branch> ShowBranchCommand { get; }

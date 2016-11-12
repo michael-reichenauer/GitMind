@@ -99,8 +99,7 @@ namespace GitMind.RepositoryViews
 			IRemoteService remoteService,
 			BusyIndicator busyIndicator,
 			IProgressService progressService,
-			Func<CommitDetailsViewModel> commitDetailsViewModelProvider,
-			ToggleDetailsCommand toggleDetailsCommand)
+			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
 		{
 			this.workingFolder = workingFolder;
 			this.diffService = diffService;
@@ -124,7 +123,6 @@ namespace GitMind.RepositoryViews
 			filterTriggerTimer.Interval = FilterDelay;
 
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
-			ToggleDetailsCommand = toggleDetailsCommand;
 		}
 
 
@@ -142,6 +140,18 @@ namespace GitMind.RepositoryViews
 		public void SetIsInternalDialog(bool isInternal)
 		{
 			isInternalDialog = isInternal;
+		}
+
+
+		public void ShowCommitDetails()
+		{
+			IsShowCommitDetails = true;
+		}
+
+
+		public void ToggleCommitDetails()
+		{
+			IsShowCommitDetails = !IsShowCommitDetails;
 		}
 
 
@@ -224,7 +234,7 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> UpdateBranchCommand => Command<Branch>(
 			branch => branchService.UpdateBranch(branch));
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
-		public Command ToggleDetailsCommand { get; }
+		public Command ToggleDetailsCommand => Command(ToggleCommitDetails);
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 

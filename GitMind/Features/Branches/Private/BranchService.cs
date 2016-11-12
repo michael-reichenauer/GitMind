@@ -405,7 +405,7 @@ namespace GitMind.Features.Branches.Private
 
 			if (repository.Status.ConflictCount > 0)
 			{
-				repositoryCommands.IsShowCommitDetails = true;
+				repositoryCommands.ShowCommitDetails();
 			}
 		}
 	}
