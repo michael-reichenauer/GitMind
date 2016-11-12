@@ -482,8 +482,6 @@ namespace GitMind.RepositoryViews
 
 					await FetchRemoteChangesAsync(Repository, true);
 
-					await Task.Delay(10000);
-
 					Log.Debug("Get fresh repository from scratch");
 					Repository repository = await repositoryService.GetFreshRepositoryAsync(workingFolder);
 

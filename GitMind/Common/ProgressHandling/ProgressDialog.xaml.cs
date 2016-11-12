@@ -9,27 +9,11 @@ namespace GitMind.Common.ProgressHandling
 	/// </summary>
 	public partial class ProgressDialog : Window
 	{
-		private readonly IProgressState progressState;
 		private readonly Task closeTask;
 		private readonly ProgressDialogViewModel viewModel;
-		
-		internal ProgressDialog(
-			Window owner, string text, IProgressState progressState)
-		{
-			this.progressState = progressState;
-			Owner = owner;
-			InitializeComponent();
-
-			viewModel = new ProgressDialogViewModel();
-			viewModel.Text = text;
-			DataContext = viewModel;
-		}
 
 
-		internal ProgressDialog(
-			Window owner, 
-			string text,
-			Task closeTask)
+		internal ProgressDialog(Window owner, string text, Task closeTask)
 		{
 			this.closeTask = closeTask;
 
@@ -44,21 +28,11 @@ namespace GitMind.Common.ProgressHandling
 
 		private async void ProgressDialog_OnLoaded(object sender, RoutedEventArgs e)
 		{
-			if (closeTask != null)
-			{
-				viewModel.Start();
-
-				await closeTask;
-				viewModel.Stop();
-				DialogResult = true;
-
-				return;
-			}
-
-
 			viewModel.Start();
-			await progressState.DoAsync(SetText);
-		
+
+			// This dialog was shown async in "using" statement, await the close/dispose before closing
+			await closeTask;
+
 			viewModel.Stop();
 			DialogResult = true;
 		}
