@@ -12,5 +12,6 @@ namespace GitMind.Common.ProgressHandling
 		T Show<T>(string text, Func<Task<T>> progressAction);
 		T Show<T>(Func<ProgressState, Task<T>> progressAction);
 		T Show<T>(string text, Func<ProgressState, Task<T>> progressAction);
+		Progress ShowDialog(string text);
 	}
 }

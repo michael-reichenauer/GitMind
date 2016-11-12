@@ -113,6 +113,7 @@
     <Compile Include="Common\MessageDialogs\MessageDialogViewModel.cs" />
     <Compile Include="Common\ProgressHandling\IProgressService.cs" />
     <Compile Include="Common\ProgressHandling\IProgressState.cs" />
+    <Compile Include="Common\ProgressHandling\Progress.cs" />
     <Compile Include="Common\ProgressHandling\ProgressState.cs" />
     <Compile Include="Common\ProgressHandling\ProgressDialog.xaml.cs">
       <DependentUpon>ProgressDialog.xaml</DependentUpon>

@@ -328,14 +328,13 @@ namespace GitMind.RepositoryViews
 			{
 				Log.Debug("Loading repository ...");
 				bool isRepositoryCached = repositoryService.IsRepositoryCached(workingFolder);
-				string statusText = isRepositoryCached ? "Loading ..." : "First time branch structure analyze ...";
+				string statusText = isRepositoryCached ? "Loading ..." : "Create branch structure ...";
 
-				progress.Show(statusText, async () =>
+				using (progress.ShowDialog(statusText))
 				{
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(workingFolder);
 					UpdateInitialViewModel(repository);
-				});
-
+				}
 
 				if (!gitInfoService.IsSupportedRemoteUrl(workingFolder))
 				{
@@ -473,15 +472,17 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public Task ManualRefreshAsync()
+		public async Task ManualRefreshAsync()
 		{
-			progress.Show("Analyze branch structure", async () =>
+			using (progress.ShowDialog("Refresh branch structure ..."))
 			{
 				await refreshThrottler.Run(async () =>
 				{
 					Log.Debug("Refreshing after manual trigger ...");
 
 					await FetchRemoteChangesAsync(Repository, true);
+
+					await Task.Delay(10000);
 
 					Log.Debug("Get fresh repository from scratch");
 					Repository repository = await repositoryService.GetFreshRepositoryAsync(workingFolder);
@@ -490,9 +491,7 @@ namespace GitMind.RepositoryViews
 					UpdateViewModel(repository);
 					Log.Debug("Refreshed after manual trigger done");
 				});
-			});
-
-			return Task.CompletedTask;
+			}
 		}
 
 
