@@ -11,7 +11,6 @@ using GitMind.Common.Brushes;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Branches;
-using GitMind.Features.Branches.Private;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
 using GitMind.Features.Remote;
@@ -39,7 +38,6 @@ namespace GitMind.RepositoryViews
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService;
 
-		private readonly IGitBranchService gitBranchService;
 		private readonly IGitInfoService gitInfoService;
 
 		private readonly IBrushService brushService;
@@ -97,7 +95,6 @@ namespace GitMind.RepositoryViews
 			IViewModelService viewModelService,
 			ICommitService commitService,
 			IRepositoryService repositoryService,
-			IGitBranchService gitBranchService,
 			IGitInfoService gitInfoService,
 			IBrushService brushService,
 			IRemoteService remoteService,
@@ -118,7 +115,6 @@ namespace GitMind.RepositoryViews
 			this.commitService = commitService;
 			this.repositoryService = repositoryService;
 
-			this.gitBranchService = gitBranchService;
 			this.gitInfoService = gitInfoService;
 
 			this.brushService = brushService;
@@ -246,7 +242,7 @@ namespace GitMind.RepositoryViews
 
 		public Command UndoCleanWorkingFolderCommand { get; }
 
-		public Command UndoUncommittedChangesCommand  => AsyncCommand(
+		public Command UndoUncommittedChangesCommand => AsyncCommand(
 			() => commitService.UndoUncommittedChangesAsync());
 
 		public Command<Commit> UncommitCommand => AsyncCommand<Commit>(
@@ -840,7 +836,7 @@ namespace GitMind.RepositoryViews
 
 
 
-	
+
 
 
 		private void ShowDiff(Commit commit)
