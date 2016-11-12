@@ -260,8 +260,14 @@ namespace GitMind.Features.Commits.Private
 		}
 
 
-		public async Task ShowUncommittedDiff()
+		public async Task ShowUncommittedDiffAsync()
 		{
+			if (!repositoryCommands.Repository.Commits.Contains(Commit.UncommittedId))
+			{
+				message.ShowInfo("There are no uncommitted changes");
+				return;
+			}
+
 			await diffService.ShowDiffAsync(Commit.UncommittedId);
 		}
 

@@ -6,7 +6,7 @@ namespace GitMind.Features.Commits
 {
 	internal interface ICommitService
 	{
-		Task ShowUncommittedDiff();
+		Task ShowUncommittedDiffAsync();
 		Task UndoUncommittedFileAsync(string path);
 		Task CommitChangesAsync();
 		Task UnCommitAsync(Commit commit);

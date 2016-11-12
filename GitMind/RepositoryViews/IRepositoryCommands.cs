@@ -29,7 +29,6 @@ namespace GitMind.RepositoryViews
 		Command ShowCurrentBranchCommand { get; }
 		Command<Commit> SetBranchCommand { get; }
 		Command UndoCleanWorkingFolderCommand { get; }
-		Command ShowUncommittedDiffCommand { get; }
 		Command ShowSelectedDiffCommand { get; }
 
 		DisabledStatus DisableStatus();

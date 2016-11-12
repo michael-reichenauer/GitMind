@@ -76,8 +76,7 @@ namespace GitMind.Features.Commits.Private
 
 		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
-		public Command ShowUncommittedDiffCommand => AsyncCommand(
-			() => commitService.ShowUncommittedDiff());
+		public Command ShowUncommittedDiffCommand => AsyncCommand(commitService.ShowUncommittedDiffAsync);
 
 		public Command<string> UndoUncommittedFileCommand => Command<string>(UndoUncommittedFile);
 

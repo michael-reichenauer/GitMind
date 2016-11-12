@@ -128,6 +128,10 @@ namespace GitMind.MainWindowViews
 		public Command PushCurrentBranchCommand => Command(
 			remoteService.PushCurrentBranch, remoteService.CanExecutePushCurrentBranch);
 
+
+
+		public Command ShowUncommittedDiffCommand => AsyncCommand(commitService.ShowUncommittedDiffAsync);
+
 		public Command CommitCommand => AsyncCommand(commitService.CommitChangesAsync);
 
 		public Command RefreshCommand => AsyncCommand(ManualRefreshAsync);

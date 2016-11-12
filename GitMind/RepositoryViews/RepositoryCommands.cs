@@ -39,7 +39,6 @@ namespace GitMind.RepositoryViews
 		public Command ShowCurrentBranchCommand => viewModel.ShowCurrentBranchCommand;
 		public Command<Commit> SetBranchCommand => viewModel.SetBranchCommand;
 		public Command UndoCleanWorkingFolderCommand => viewModel.UndoCleanWorkingFolderCommand;
-		public Command ShowUncommittedDiffCommand => viewModel.ShowUncommittedDiffCommand;
 		public Command ShowSelectedDiffCommand => viewModel.ShowSelectedDiffCommand;
 		public DisabledStatus DisableStatus() => viewModel.DisableStatus();
 

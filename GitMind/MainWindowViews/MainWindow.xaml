@@ -34,7 +34,7 @@
 		<KeyBinding Modifiers="Ctrl" Key="Q" Command="{Binding ExitCommand}" />
 		<KeyBinding Key="F1" Command="{Binding HelpCommand}" />
 		<KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
-		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding RepositoryViewModel.ShowUncommittedDiffCommand}" />
+		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding ShowUncommittedDiffCommand}" />
 		<KeyBinding Modifiers="Control+Shift" Key="Enter" Command="{Binding CommitCommand}" />
 		<KeyBinding Modifiers="Control" Key="D" Command="{Binding RepositoryViewModel.ShowSelectedDiffCommand}" />
 		<KeyBinding Modifiers="Control" Key="Up" Command="{Binding PushCurrentBranchCommand}" />
@@ -135,7 +135,7 @@
 								<MenuItem 
 									Header="Show uncommitted diff ..." 
 									InputGestureText="Ctrl-Enter"
-									Command="{Binding RepositoryViewModel.ShowUncommittedDiffCommand}">
+									Command="{Binding ShowUncommittedDiffCommand}">
 									<MenuItem.Icon>
 										<Border>
 											<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;"/>
