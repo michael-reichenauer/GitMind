@@ -33,7 +33,7 @@ namespace GitMind.MainWindowViews
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
 		private readonly IRemoteService remoteService;
-		private readonly ICommitService commitService;
+		private readonly ICommitsService commitsService;
 
 		private bool isLoaded = false;
 
@@ -42,7 +42,7 @@ namespace GitMind.MainWindowViews
 			WorkingFolder workingFolder,
 			WindowOwner owner,
 			IRemoteService remoteService,
-			ICommitService commitService,
+			ICommitsService commitsService,
 			ILatestVersionService latestVersionService,
 			IMainWindowService mainWindowService,
 			MainWindowIpcService mainWindowIpcService,
@@ -51,7 +51,7 @@ namespace GitMind.MainWindowViews
 			this.workingFolder = workingFolder;
 			this.owner = owner;
 			this.remoteService = remoteService;
-			this.commitService = commitService;
+			this.commitsService = commitsService;
 			this.latestVersionService = latestVersionService;
 			this.mainWindowService = mainWindowService;
 			this.mainWindowIpcService = mainWindowIpcService;
@@ -129,9 +129,9 @@ namespace GitMind.MainWindowViews
 
 
 
-		public Command ShowUncommittedDiffCommand => AsyncCommand(commitService.ShowUncommittedDiffAsync);
+		public Command ShowUncommittedDiffCommand => AsyncCommand(commitsService.ShowUncommittedDiffAsync);
 
-		public Command CommitCommand => AsyncCommand(commitService.CommitChangesAsync);
+		public Command CommitCommand => AsyncCommand(commitsService.CommitChangesAsync);
 
 		public Command RefreshCommand => AsyncCommand(ManualRefreshAsync);
 
@@ -162,7 +162,7 @@ namespace GitMind.MainWindowViews
 		public Command SearchCommand => Command(Search);
 
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(
-			commitService.UndoCleanWorkingFolderAsync);
+			commitsService.UndoCleanWorkingFolderAsync);
 
 
 		public async Task FirstLoadAsync()

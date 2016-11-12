@@ -9,14 +9,14 @@ namespace GitMind.MainWindowViews
 {
 	internal class MainWindowIpcService : IpcService
 	{
-		private readonly ICommitService commitService;
+		private readonly ICommitsService commitsService;
 
 		private static readonly string InstanceId = "0000278d-5c40-4973-aad9-1c33196fd1a2";
 
 
-		public MainWindowIpcService(ICommitService commitService)
+		public MainWindowIpcService(ICommitsService commitsService)
 		{
-			this.commitService = commitService;
+			this.commitsService = commitsService;
 		}
 
 
@@ -37,7 +37,7 @@ namespace GitMind.MainWindowViews
 				if (commandLine.IsCommitCommand(args))
 				{
 					Log.Usage("Activated and commit");
-					commitService.CommitChangesAsync().RunInBackground();					
+					commitsService.CommitChangesAsync().RunInBackground();					
 				}
 				else
 				{

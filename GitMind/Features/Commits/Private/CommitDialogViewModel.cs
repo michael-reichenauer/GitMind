@@ -16,7 +16,7 @@ namespace GitMind.Features.Commits.Private
 {
 	internal class CommitDialogViewModel : ViewModel
 	{
-		private readonly ICommitService commitService;
+		private readonly ICommitsService commitsService;
 		private readonly IDiffService diffService;
 		private readonly IMessage message;
 		private readonly bool isMerging;
@@ -29,7 +29,7 @@ namespace GitMind.Features.Commits.Private
 
 
 		public CommitDialogViewModel(
-			ICommitService commitService,
+			ICommitsService commitsService,
 			WorkingFolder workingFolder,
 			IDiffService diffService, 
 			IMessage message,
@@ -40,7 +40,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			CommitFiles = files.ToList();
 
-			this.commitService = commitService;
+			this.commitsService = commitsService;
 			this.diffService = diffService;
 			this.message = message;
 			this.isMerging = isMerging;
@@ -76,7 +76,7 @@ namespace GitMind.Features.Commits.Private
 
 		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
-		public Command ShowUncommittedDiffCommand => AsyncCommand(commitService.ShowUncommittedDiffAsync);
+		public Command ShowUncommittedDiffCommand => AsyncCommand(commitsService.ShowUncommittedDiffAsync);
 
 		public Command<string> UndoUncommittedFileCommand => Command<string>(UndoUncommittedFile);
 
@@ -88,7 +88,7 @@ namespace GitMind.Features.Commits.Private
 
 			if (file != null)
 			{
-				commitService.UndoUncommittedFileAsync(path);
+				commitsService.UndoUncommittedFileAsync(path);
 
 				Files.Remove(file);
 				IsChanged = true;

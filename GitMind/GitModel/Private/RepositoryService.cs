@@ -117,23 +117,6 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		//public Task<bool> IsRepositoryChangedAsync(Repository repository)
-		//{
-		//	return Task.Run(() =>
-		//	{
-		//		string workingFolder = repository.MRepository.WorkingFolder;
-		//		IReadOnlyList<string> currentTips = GitRepository.GetRefsIds(workingFolder);
-
-		//		IReadOnlyList<string> tips = repository.MRepository.Tips;
-		//		repository.MRepository.StatusText = $"";
-		//		Status status = repository.Status;
-		//		string statusText = $"{status.isOk},{status.ConflictCount},{status.IsMerging},{status.StatusCount}";
-
-		//		return !currentTips.SequenceEqual(tips) || statusText != repository.MRepository.StatusText;				
-		//	});
-		//}
-
-
 		private Task<MRepository> UpdateAsync(MRepository mRepository)
 		{
 			return Task.Run(() => UpdateRepository(mRepository));

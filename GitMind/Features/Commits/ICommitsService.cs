@@ -4,7 +4,7 @@ using GitMind.GitModel;
 
 namespace GitMind.Features.Commits
 {
-	internal interface ICommitService
+	internal interface ICommitsService
 	{
 		Task ShowUncommittedDiffAsync();
 		Task UndoUncommittedFileAsync(string path);

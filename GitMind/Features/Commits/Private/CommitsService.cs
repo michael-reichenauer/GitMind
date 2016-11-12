@@ -13,7 +13,7 @@ using GitMind.Utils;
 
 namespace GitMind.Features.Commits.Private
 {
-	internal class CommitService : ICommitService
+	internal class CommitsService : ICommitsService
 	{
 		private readonly Func<
 			BranchName,
@@ -33,7 +33,7 @@ namespace GitMind.Features.Commits.Private
 
 
 
-		public CommitService(
+		public CommitsService(
 			IMessage message,
 			IRepositoryCommands repositoryCommands,
 			Func<SetBranchPromptDialog> setBranchPromptDialogProvider,

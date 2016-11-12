@@ -20,7 +20,7 @@ namespace GitMind.Features.Branches.Private
 	{
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitNetworkService gitNetworkService;
-		private readonly ICommitService commitService;
+		private readonly ICommitsService commitsService;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
@@ -30,7 +30,7 @@ namespace GitMind.Features.Branches.Private
 		public BranchService(
 			IGitBranchService gitBranchService,
 			IGitNetworkService gitNetworkService,
-			ICommitService commitService,
+			ICommitsService commitsService,
 			IProgressService progressService,
 			IMessage message,
 			WindowOwner owner,
@@ -38,7 +38,7 @@ namespace GitMind.Features.Branches.Private
 		{
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
-			this.commitService = commitService;
+			this.commitsService = commitsService;
 			this.progress = progressService;
 			this.message = message;
 			this.owner = owner;
@@ -375,7 +375,7 @@ namespace GitMind.Features.Branches.Private
 
 				if (repositoryCommands.Repository.Status.ConflictCount == 0)
 				{
-					await commitService.CommitChangesAsync();
+					await commitsService.CommitChangesAsync();
 				}
 			}
 

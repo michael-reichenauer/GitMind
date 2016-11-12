@@ -46,7 +46,7 @@ namespace GitMind.RepositoryViews
 		private readonly WindowOwner owner;
 		private readonly IBranchService branchService;
 		private readonly ICommandLine commandLine;
-		private readonly ICommitService commitService;
+		private readonly ICommitsService commitsService;
 
 		private readonly BusyIndicator busyIndicator;
 		private readonly IProgressService progress;
@@ -92,7 +92,7 @@ namespace GitMind.RepositoryViews
 			IBranchService branchService,
 			ICommandLine commandLine,
 			IViewModelService viewModelService,
-			ICommitService commitService,
+			ICommitsService commitsService,
 			IRepositoryService repositoryService,
 			IGitInfoService gitInfoService,
 			IBrushService brushService,
@@ -107,7 +107,7 @@ namespace GitMind.RepositoryViews
 			this.branchService = branchService;
 			this.commandLine = commandLine;
 			this.viewModelService = viewModelService;
-			this.commitService = commitService;
+			this.commitsService = commitsService;
 			this.repositoryService = repositoryService;
 
 			this.gitInfoService = gitInfoService;
@@ -238,24 +238,24 @@ namespace GitMind.RepositoryViews
 		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
 		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 
-		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(commitService.EditCommitBranchAsync);
+		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(commitsService.EditCommitBranchAsync);
 
 
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(branchService.MergeBranchAsync);
 
 
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(
-			commitService.UndoCleanWorkingFolderAsync);
+			commitsService.UndoCleanWorkingFolderAsync);
 
 
 		public Command UndoUncommittedChangesCommand => AsyncCommand(
-			() => commitService.UndoUncommittedChangesAsync());
+			() => commitsService.UndoUncommittedChangesAsync());
 
 		public Command<Commit> UncommitCommand => AsyncCommand<Commit>(
-			commitService.UnCommitAsync, commitService.CanUnCommit);
+			commitsService.UnCommitAsync, commitsService.CanUnCommit);
 
 
-		private Command CommitCommand => AsyncCommand(commitService.CommitChangesAsync);
+		private Command CommitCommand => AsyncCommand(commitsService.CommitChangesAsync);
 
 
 		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);

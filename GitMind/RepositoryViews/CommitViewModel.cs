@@ -14,7 +14,7 @@ namespace GitMind.RepositoryViews
 	{
 		private readonly IBranchService branchService;
 		private readonly IRepositoryCommands repositoryCommands;
-		private readonly ICommitService commitService;
+		private readonly ICommitsService commitsService;
 
 		private int windowWidth;
 
@@ -22,12 +22,12 @@ namespace GitMind.RepositoryViews
 		public CommitViewModel(
 			IBranchService branchService,
 			IRepositoryCommands repositoryCommands,
-			ICommitService commitService)
+			ICommitsService commitsService)
 		{
 			this.branchService = branchService;
 			this.repositoryCommands = repositoryCommands;
-			this.commitService = commitService;
-			SetCommitBranchCommand = Command(() => commitService.EditCommitBranchAsync(Commit));
+			this.commitsService = commitsService;
+			SetCommitBranchCommand = Command(() => commitsService.EditCommitBranchAsync(Commit));
 			ShowCommitDiffCommand = repositoryCommands.ShowDiffCommand.With(
 				() => Commit.IsVirtual && !Commit.IsUncommitted ? Commit.FirstParent : Commit);
 			UndoCleanWorkingFolderCommand = repositoryCommands.UndoCleanWorkingFolderCommand;
@@ -120,12 +120,12 @@ namespace GitMind.RepositoryViews
 			() => branchService.CreateBranchFromCommitAsync(Commit));
 
 		public Command UndoUncommittedChangesCommand => AsyncCommand(
-			() => commitService.UndoUncommittedChangesAsync());
+			() => commitsService.UndoUncommittedChangesAsync());
 
 		public Command UndoCleanWorkingFolderCommand { get; }
 
 		public Command UncommitCommand => AsyncCommand(
-		 () => commitService.UnCommitAsync(Commit), () => commitService.CanUnCommit(Commit));
+		 () => commitsService.UnCommitAsync(Commit), () => commitsService.CanUnCommit(Commit));
 
 
 

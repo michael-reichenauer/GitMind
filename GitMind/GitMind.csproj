@@ -138,8 +138,8 @@
       <DependentUpon>CommitDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Features\Commits\Private\CommitDialogViewModel.cs" />
-    <Compile Include="Features\Commits\Private\CommitService.cs" />
-    <Compile Include="Features\Commits\ICommitService.cs" />
+    <Compile Include="Features\Commits\Private\CommitsService.cs" />
+    <Compile Include="Features\Commits\ICommitsService.cs" />
     <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\BranchName.cs" />
