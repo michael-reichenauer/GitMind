@@ -9,6 +9,7 @@ using GitMind.Features.Branches;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
+using GitMind.Utils.UI;
 
 
 namespace GitMind.RepositoryViews.Private
@@ -23,19 +24,21 @@ namespace GitMind.RepositoryViews.Private
 		private readonly IBrushService brushService;
 		private readonly Func<CommitViewModel> commitViewModelProvider;
 		private readonly Func<BranchViewModel> branchViewModelProvider;
-		private readonly DeleteBranchCommand deleteBranchCommand;
+		private readonly Command<Branch> deleteBranchCommand;
 
 
 		public ViewModelService(
+			IBranchService branchService,
 			IBrushService brushService,
 			Func<CommitViewModel> commitViewModelProvider,
-			Func<BranchViewModel> branchViewModelProvider,
-			DeleteBranchCommand deleteBranchCommand)
+			Func<BranchViewModel> branchViewModelProvider)
 		{
 			this.brushService = brushService;
 			this.commitViewModelProvider = commitViewModelProvider;
 			this.branchViewModelProvider = branchViewModelProvider;
-			this.deleteBranchCommand = deleteBranchCommand;
+
+			this.deleteBranchCommand = new Command<Branch>(
+				branchService.DeleteBranchAsync, branchService.CanDeleteBranch, nameof(deleteBranchCommand));
 		}
 
 		public void UpdateViewModel(RepositoryViewModel repositoryViewModel)

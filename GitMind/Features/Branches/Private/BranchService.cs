@@ -258,20 +258,20 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		public void DeleteBranch(Branch branch)
+		public Task DeleteBranchAsync(Branch branch)
 		{
 			using (repositoryCommands.DisableStatus())
 			{
 				if (branch.Name == BranchName.Master)
 				{
 					message.ShowWarning("You cannot delete master branch.");
-					return;
+					return Task.CompletedTask;
 				}
 
 				if (!branch.IsRemote && branch == branch.Repository.CurrentBranch)
 				{
 					message.ShowWarning("You cannot delete current local branch.");
-					return;
+					return Task.CompletedTask;
 				}
 
 				DeleteBranchDialog dialog = new DeleteBranchDialog(
@@ -285,18 +285,26 @@ namespace GitMind.Features.Branches.Private
 					if (dialog.IsLocal && branch == branch.Repository.CurrentBranch)
 					{
 						message.ShowWarning("You cannot delete current local branch.");
-						return;
+						return Task.CompletedTask;
 					}
 
 					if (!dialog.IsLocal && !dialog.IsRemote)
 					{
 						message.ShowWarning("Neither local nor remote branch was selected.");
-						return;
+						return Task.CompletedTask;
 					}
 
 					DeleteBranch(branch, dialog.IsLocal, dialog.IsRemote);
 				}
 			}
+
+			return Task.CompletedTask;
+		}
+			
+
+		public bool CanDeleteBranch(Branch branch)
+		{
+			return branch?.IsActive ?? false;
 		}
 
 

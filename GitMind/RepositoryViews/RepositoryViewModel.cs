@@ -102,8 +102,7 @@ namespace GitMind.RepositoryViews
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider,
 			MergeCommand mergeCommand,
-			ToggleDetailsCommand toggleDetailsCommand,
-			DeleteBranchCommand deleteBranchCommand)
+			ToggleDetailsCommand toggleDetailsCommand)
 		{
 			this.workingFolder = workingFolder;
 			this.diffService = diffService;
@@ -129,7 +128,6 @@ namespace GitMind.RepositoryViews
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
 			MergeBranchCommand = mergeCommand;
 			ToggleDetailsCommand = toggleDetailsCommand;
-			DeleteBranchCommand = deleteBranchCommand;
 		}
 
 
@@ -219,7 +217,8 @@ namespace GitMind.RepositoryViews
 
 		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
-		public Command<Branch> DeleteBranchCommand { get; }
+		public Command<Branch> DeleteBranchCommand => AsyncCommand<Branch>(
+			branchService.DeleteBranchAsync, branchService.CanDeleteBranch);
 
 		public Command<Branch> PublishBranchCommand => Command<Branch>(
 			branch => branchService.PublishBranch(branch));

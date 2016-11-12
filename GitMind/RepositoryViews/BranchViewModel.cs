@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Features.Branches;
-using GitMind.Features.Branches.Private;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -16,24 +15,22 @@ namespace GitMind.RepositoryViews
 		private readonly IBranchService branchService;
 
 		private readonly Command<Branch> showBranchCommand;
-	
+
 		private readonly Command<Branch> publishBranchCommand;
 		private readonly Command<Branch> pushBranchCommand;
 		private readonly Command<Branch> updateBranchCommand;
 
-		private readonly ObservableCollection<BranchItem> childBranches 
+		private readonly ObservableCollection<BranchItem> childBranches
 			= new ObservableCollection<BranchItem>();
 
-		
+
 		public BranchViewModel(
 			IBranchService branchService,
 			IRepositoryCommands repositoryCommands,
-			MergeCommand mergeCommand,
-			DeleteBranchCommand deleteBranchCommand)
+			MergeCommand mergeCommand)
 		{
 			this.branchService = branchService;
 			this.showBranchCommand = repositoryCommands.ShowBranchCommand;
-			DeleteBranchCommand = deleteBranchCommand.With(() => Branch);
 			this.publishBranchCommand = repositoryCommands.PublishBranchCommand;
 			this.pushBranchCommand = repositoryCommands.PushBranchCommand;
 			this.updateBranchCommand = repositoryCommands.UpdateBranchCommand;
@@ -55,7 +52,7 @@ namespace GitMind.RepositoryViews
 		public double Height => Rect.Height;
 		public string Line { get; set; }
 		public string Dashes { get; set; }
-		
+
 		public int StrokeThickness { get; set; }
 		public Brush Brush { get; set; }
 		public Brush HoverBrush { get; set; }
@@ -97,8 +94,9 @@ namespace GitMind.RepositoryViews
 			() => branchService.CreateBranchAsync(Branch));
 
 		public Command MergeBranchCommand { get; }
-		public Command DeleteBranchCommand { get; }
-	
+		public Command DeleteBranchCommand => AsyncCommand(
+			() => branchService.DeleteBranchAsync(Branch), () => branchService.CanDeleteBranch(Branch));
+
 		public Command PublishBranchCommand => Command(() => publishBranchCommand.Execute(Branch));
 		public Command PushBranchCommand => Command(() => pushBranchCommand.Execute(Branch));
 		public Command UpdateBranchCommand => Command(() => updateBranchCommand.Execute(Branch));

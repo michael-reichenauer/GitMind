@@ -13,7 +13,8 @@ namespace GitMind.Features.Branches
 		bool CanExecuteSwitchBranch(Branch branch);
 		Task SwitchToBranchCommitAsync(Commit commit);
 		bool CanExecuteSwitchToBranchCommit(Commit commit);
-		void DeleteBranch(Branch branch);
+		Task DeleteBranchAsync(Branch branch);
+		bool CanDeleteBranch(Branch branch);
 		Task MergeBranchAsync(Branch branch);
 		void PublishBranch(Branch branch);
 		void PushBranch(Branch branch);
