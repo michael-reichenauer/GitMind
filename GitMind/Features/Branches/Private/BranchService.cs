@@ -400,6 +400,13 @@ namespace GitMind.Features.Branches.Private
 					await commitService.CommitChangesAsync();
 				}
 			}
+
+			Repository repository = repositoryCommands.Repository;
+
+			if (repository.Status.ConflictCount > 0)
+			{
+				repositoryCommands.IsShowCommitDetails = true;
+			}
 		}
 	}
 }

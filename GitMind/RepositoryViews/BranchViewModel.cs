@@ -26,16 +26,13 @@ namespace GitMind.RepositoryViews
 
 		public BranchViewModel(
 			IBranchService branchService,
-			IRepositoryCommands repositoryCommands,
-			MergeCommand mergeCommand)
+			IRepositoryCommands repositoryCommands)
 		{
 			this.branchService = branchService;
 			this.showBranchCommand = repositoryCommands.ShowBranchCommand;
 			this.publishBranchCommand = repositoryCommands.PublishBranchCommand;
 			this.pushBranchCommand = repositoryCommands.PushBranchCommand;
 			this.updateBranchCommand = repositoryCommands.UpdateBranchCommand;
-
-			MergeBranchCommand = mergeCommand.With(() => Branch);
 		}
 
 		// UI properties
@@ -93,7 +90,7 @@ namespace GitMind.RepositoryViews
 		public Command CreateBranchCommand => Command(
 			() => branchService.CreateBranchAsync(Branch));
 
-		public Command MergeBranchCommand { get; }
+		public Command MergeBranchCommand => AsyncCommand(() => branchService.MergeBranchAsync(Branch));
 		public Command DeleteBranchCommand => AsyncCommand(
 			() => branchService.DeleteBranchAsync(Branch), () => branchService.CanDeleteBranch(Branch));
 

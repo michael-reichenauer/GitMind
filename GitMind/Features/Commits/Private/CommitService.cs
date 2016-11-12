@@ -30,7 +30,7 @@ namespace GitMind.Features.Commits.Private
 		private readonly IDiffService diffService;
 		private readonly IRepositoryService repositoryService;
 		private readonly IProgressService progress;
-		private readonly OpenDetailsCommand openDetailsCommand;
+	
 
 
 		public CommitService(
@@ -41,7 +41,6 @@ namespace GitMind.Features.Commits.Private
 			IDiffService diffService,
 			IRepositoryService repositoryService,
 			IProgressService progressService,
-			OpenDetailsCommand openDetailsCommand,
 			Func<
 				BranchName,
 				IEnumerable<CommitFile>,
@@ -57,7 +56,6 @@ namespace GitMind.Features.Commits.Private
 			this.diffService = diffService;
 			this.repositoryService = repositoryService;
 			this.progress = progressService;
-			this.openDetailsCommand = openDetailsCommand;
 		}
 
 
@@ -70,7 +68,7 @@ namespace GitMind.Features.Commits.Private
 				if (uncommitted.HasConflicts)
 				{
 					message.ShowInfo("There are merge conflicts that needs be resolved before committing.");
-					await openDetailsCommand.ExecuteAsync();
+					repositoryCommands.Value.IsShowCommitDetails = true;
 					return;
 				}
 			}

@@ -10,7 +10,6 @@ using GitMind.ApplicationHandling;
 using GitMind.Common.Brushes;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
-using GitMind.Features.Branches;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
 using GitMind.Features.Remote;
@@ -101,7 +100,6 @@ namespace GitMind.RepositoryViews
 			BusyIndicator busyIndicator,
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider,
-			MergeCommand mergeCommand,
 			ToggleDetailsCommand toggleDetailsCommand)
 		{
 			this.workingFolder = workingFolder;
@@ -126,7 +124,6 @@ namespace GitMind.RepositoryViews
 			filterTriggerTimer.Interval = FilterDelay;
 
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
-			MergeBranchCommand = mergeCommand;
 			ToggleDetailsCommand = toggleDetailsCommand;
 		}
 
@@ -234,7 +231,7 @@ namespace GitMind.RepositoryViews
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(commitService.EditCommitBranchAsync);
 
 
-		public Command<Branch> MergeBranchCommand { get; }
+		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(branchService.MergeBranchAsync);
 
 
 		public Command UndoCleanWorkingFolderCommand => AsyncCommand(
