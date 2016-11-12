@@ -207,6 +207,7 @@ namespace GitMind.Utils.UI
 			return (Command<T>)command;
 		}
 
+
 		protected Command<T> AsyncCommand<T>(
 			Func<T, Task> executeMethodAsync, Func<T, bool> canExecuteMethod, [CallerMemberName] string memberName = "")
 		{

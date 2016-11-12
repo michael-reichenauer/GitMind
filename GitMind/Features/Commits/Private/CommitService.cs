@@ -159,6 +159,15 @@ namespace GitMind.Features.Commits.Private
 		}
 
 
+		public bool CanUnCommit(Commit commit)
+		{
+			return commit != null
+				&& commit.Id != Commit.UncommittedId 
+				&& commit.IsCurrent 
+				&& commit.IsLocalAhead;
+		}
+
+
 		public Task EditCommitBranchAsync(Commit commit)
 		{
 			SetBranchPromptDialog dialog = setBranchPromptDialogProvider();

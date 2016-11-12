@@ -10,6 +10,7 @@ namespace GitMind.Features.Commits
 		Task UndoUncommittedFileAsync(string path);
 		Task CommitChangesAsync();
 		Task UnCommitAsync(Commit commit);
+		bool CanUnCommit(Commit commit);
 
 		Task EditCommitBranchAsync(Commit commit);
 	}

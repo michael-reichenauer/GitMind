@@ -121,7 +121,6 @@
     <Compile Include="Common\ProgressHandling\ProgressService.cs" />
     <Compile Include="Features\Branches\DeleteBranchCommand.cs" />
     <Compile Include="Features\Branches\MergeCommand.cs" />
-    <Compile Include="Features\Commits\UncommitCommand.cs" />
     <Compile Include="Features\Commits\UndoCleanWorkingFolderCommand.cs" />
     <Compile Include="Features\Commits\UndoUncommittedChangesCommand.cs" />
     <Compile Include="Features\Remote\IRemoteService.cs" />
