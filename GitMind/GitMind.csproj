@@ -123,6 +123,7 @@
     <Compile Include="Features\Remote\Private\RemoteService.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
+    <Compile Include="RepositoryViews\RepositoryCommands.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
     <Compile Include="Features\Branches\Private\CrateBranchDialog.xaml.cs">
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>

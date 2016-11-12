@@ -16,7 +16,7 @@ namespace GitMind.Features.Remote.Private
 {
 	internal class RemoteService : IRemoteService
 	{
-		private readonly Lazy<IRepositoryCommands> lazyRepositoryCommands;
+		private readonly IRepositoryCommands repositoryCommands;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
 		private readonly IGitBranchService gitBranchService;
@@ -26,14 +26,14 @@ namespace GitMind.Features.Remote.Private
 		
 
 		public RemoteService(
-			Lazy<IRepositoryCommands> repositoryCommands,
+			IRepositoryCommands repositoryCommands,
 			IProgressService progress,
 			IMessage message,
 			IGitBranchService gitBranchService,
 			IGitNetworkService gitNetworkService,
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
-			this.lazyRepositoryCommands = repositoryCommands;
+			this.repositoryCommands = repositoryCommands;
 			this.progress = progress;
 			this.message = message;
 			this.gitBranchService = gitBranchService;
@@ -42,8 +42,6 @@ namespace GitMind.Features.Remote.Private
 		}
 
 		private Repository Repository => repositoryCommands.Repository;
-
-		private IRepositoryCommands repositoryCommands => lazyRepositoryCommands.Value;
 
 
 		public Task<R> FetchAsync()

@@ -24,7 +24,7 @@ namespace GitMind.Features.Branches.Private
 		private readonly IProgressService progress;
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
-		private readonly Lazy<IRepositoryCommands> lazyRepositoryCommands;
+		private readonly IRepositoryCommands repositoryCommands;
 
 
 		public BranchService(
@@ -34,7 +34,7 @@ namespace GitMind.Features.Branches.Private
 			IProgressService progressService,
 			IMessage message,
 			WindowOwner owner,
-			Lazy<IRepositoryCommands> repositoryCommands)
+			IRepositoryCommands repositoryCommands)
 		{
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
@@ -42,11 +42,9 @@ namespace GitMind.Features.Branches.Private
 			this.progress = progressService;
 			this.message = message;
 			this.owner = owner;
-			this.lazyRepositoryCommands = repositoryCommands;
+			this.repositoryCommands = repositoryCommands;
 		}
 
-
-		public IRepositoryCommands repositoryCommands => lazyRepositoryCommands.Value;
 
 		public Task CreateBranchAsync(Branch branch)
 		{

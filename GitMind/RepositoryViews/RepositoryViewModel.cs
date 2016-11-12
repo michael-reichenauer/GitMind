@@ -30,7 +30,7 @@ namespace GitMind.RepositoryViews
 	/// View model
 	/// </summary>
 	[SingleInstance]
-	internal class RepositoryViewModel : ViewModel, IRepositoryCommands, IRepositoryMgr
+	internal class RepositoryViewModel : ViewModel, IRepositoryMgr
 	{
 		private static readonly TimeSpan FilterDelay = TimeSpan.FromMilliseconds(300);
 
