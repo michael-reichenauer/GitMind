@@ -208,6 +208,22 @@ namespace GitMind.Features.Commits.Private
 		}
 
 
+		public Task UndoUncommittedChangesAsync()
+		{
+			using (repositoryCommands.Value.DisableStatus())
+			{
+				progress.Show($"Undo changes in working folder ...", async () =>
+				{
+					await gitCommitsService.UndoWorkingFolderAsync();
+
+					await repositoryCommands.Value.RefreshAfterCommandAsync(false);
+				});
+			}
+
+			return Task.CompletedTask;
+		}
+
+
 		public async Task ShowUncommittedDiff()
 		{
 			await diffService.ShowDiffAsync(Commit.UncommittedId);

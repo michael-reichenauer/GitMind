@@ -22,8 +22,7 @@ namespace GitMind.RepositoryViews
 			IBranchService branchService,
 			IRepositoryCommands repositoryCommands,
 			ICommitService commitService,
-			ToggleDetailsCommand toggleDetailsCommand,
-			UndoUncommittedChangesCommand undoUncommittedChangesCommand)
+			ToggleDetailsCommand toggleDetailsCommand)
 		{
 			this.branchService = branchService;
 			this.commitService = commitService;
@@ -31,7 +30,6 @@ namespace GitMind.RepositoryViews
 			SetCommitBranchCommand = Command(() => commitService.EditCommitBranchAsync(Commit));
 			ShowCommitDiffCommand = repositoryCommands.ShowDiffCommand.With(
 				() => Commit.IsVirtual && !Commit.IsUncommitted ? Commit.FirstParent : Commit);
-			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
 			UndoCleanWorkingFolderCommand = repositoryCommands.UndoCleanWorkingFolderCommand;
 		}
 
@@ -121,7 +119,9 @@ namespace GitMind.RepositoryViews
 		public Command CreateBranchFromCommitCommand => Command(
 			() => branchService.CreateBranchFromCommitAsync(Commit));
 
-		public Command UndoUncommittedChangesCommand { get; }
+		public Command UndoUncommittedChangesCommand => AsyncCommand(
+			() => commitService.UndoUncommittedChangesAsync());
+
 		public Command UndoCleanWorkingFolderCommand { get; }
 
 		public Command UncommitCommand => AsyncCommand(

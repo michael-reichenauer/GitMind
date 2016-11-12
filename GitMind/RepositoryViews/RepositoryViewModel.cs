@@ -107,7 +107,6 @@ namespace GitMind.RepositoryViews
 			MergeCommand mergeCommand,
 			ToggleDetailsCommand toggleDetailsCommand,
 			DeleteBranchCommand deleteBranchCommand,
-			UndoUncommittedChangesCommand undoUncommittedChangesCommand,
 			UndoCleanWorkingFolderCommand cleanWorkingFolderCommand)
 		{
 			this.workingFolder = workingFolder;
@@ -136,7 +135,6 @@ namespace GitMind.RepositoryViews
 			MergeBranchCommand = mergeCommand;
 			ToggleDetailsCommand = toggleDetailsCommand;
 			DeleteBranchCommand = deleteBranchCommand;
-			UndoUncommittedChangesCommand = undoUncommittedChangesCommand;
 			UndoCleanWorkingFolderCommand = cleanWorkingFolderCommand;
 		}
 
@@ -247,7 +245,9 @@ namespace GitMind.RepositoryViews
 
 
 		public Command UndoCleanWorkingFolderCommand { get; }
-		public Command UndoUncommittedChangesCommand { get; }
+
+		public Command UndoUncommittedChangesCommand  => AsyncCommand(
+			() => commitService.UndoUncommittedChangesAsync());
 
 		public Command<Commit> UncommitCommand => AsyncCommand<Commit>(
 			commitService.UnCommitAsync, commitService.CanUnCommit);
