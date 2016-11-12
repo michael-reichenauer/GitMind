@@ -11,7 +11,7 @@ using GitMind.GitModel;
 using GitMind.Utils;
 
 
-namespace GitMind.Features.Diffing
+namespace GitMind.Features.Diffing.Private
 {
 	internal class DiffService : IDiffService
 	{

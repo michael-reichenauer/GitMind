@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using GitMind.Git;
 
 
-namespace GitMind.Features.Diffing
+namespace GitMind.Features.Diffing.Private
 {
 	internal interface IGitDiffParser
 	{

@@ -14,7 +14,7 @@ namespace GitMind.GitModel.Private
 			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
 			if (gitRepository.Head.IsDetached)
 			{
-				rootCommits = rootCommits.Concat(new[] {gitRepository.Head.Tip});
+				rootCommits = rootCommits.Concat(new[] { gitRepository.Head.Tip });
 			}
 
 			Dictionary<string, object> added = new Dictionary<string, object>();
@@ -191,7 +191,7 @@ namespace GitMind.GitModel.Private
 			if (gitStatus.ConflictCount > 0)
 			{
 				commit.Subject = $"{gitStatus.ConflictCount} conflicts and " + commit.Subject;
-				commit.HasConflicts = true;;
+				commit.HasConflicts = true; ;
 			}
 			if (gitStatus.IsMerging)
 			{
@@ -209,7 +209,7 @@ namespace GitMind.GitModel.Private
 
 		private static string ShortSubject(GitStatus gitStatus)
 		{
-			string subject = gitStatus.Message?.Trim()??"";
+			string subject = gitStatus.Message?.Trim() ?? "";
 			string firstLine = subject.Split("\\n".ToCharArray())[0];
 			return firstLine;
 		}
