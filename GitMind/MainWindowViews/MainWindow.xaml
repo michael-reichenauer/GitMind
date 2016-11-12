@@ -37,10 +37,10 @@
 		<KeyBinding Modifiers="Control" Key="Enter" Command="{Binding RepositoryViewModel.ShowUncommittedDiffCommand}" />
 		<KeyBinding Modifiers="Control+Shift" Key="Enter" Command="{Binding CommitCommand}" />
 		<KeyBinding Modifiers="Control" Key="D" Command="{Binding RepositoryViewModel.ShowSelectedDiffCommand}" />
-		<KeyBinding Modifiers="Control" Key="Up" Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}" />
-		<KeyBinding Modifiers="Control+Shift" Key="Up" Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}" />
-		<KeyBinding Modifiers="Control" Key="Down" Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}" />
-		<KeyBinding Modifiers="Control+Shift" Key="Down" Command="{Binding RepositoryViewModel.TryUpdateAllBranchesCommand}" />
+		<KeyBinding Modifiers="Control" Key="Up" Command="{Binding PushCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="Up" Command="{Binding TryPushAllBranchesCommand}" />
+		<KeyBinding Modifiers="Control" Key="Down" Command="{Binding PullCurrentBranchCommand}" />
+		<KeyBinding Modifiers="Control+Shift" Key="Down" Command="{Binding TryUpdateAllBranchesCommand}" />
 		<KeyBinding Modifiers="Control" Key="F" Command="{Binding SearchCommand}" />
 
 	</Window.InputBindings>
@@ -190,7 +190,7 @@
 								<MenuItem
 									Header="{Binding RepositoryViewModel.PullCurrentBranchText}"
 									InputGestureText="Ctrl-Down"
-									Command="{Binding RepositoryViewModel.PullCurrentBranchCommand}">
+									Command="{Binding PullCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
 											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}"/>
@@ -216,7 +216,7 @@
 								<MenuItem
 									Header="Push all branches"
 									InputGestureText="Ctrl+Shift-Up"
-									Command="{Binding RepositoryViewModel.TryPushAllBranchesCommand}">
+									Command="{Binding TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Grid Margin="0">
 											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Padding="2,0,0,0"/>
@@ -230,7 +230,7 @@
 								<MenuItem 
 									Header="{Binding RepositoryViewModel.PushCurrentBranchText}"
 									InputGestureText="Ctrl-Up"
-									Command="{Binding RepositoryViewModel.PushCurrentBranchCommand}">
+									Command="{Binding PushCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
 											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}"/>

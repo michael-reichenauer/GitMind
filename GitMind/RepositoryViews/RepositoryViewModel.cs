@@ -264,19 +264,6 @@ namespace GitMind.RepositoryViews
 
 		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
 
-		public Command TryUpdateAllBranchesCommand => Command(
-			remoteService.TryUpdateAllBranches, remoteService.CanExecuteTryUpdateAllBranches);
-
-		public Command PullCurrentBranchCommand => Command(
-			remoteService.PullCurrentBranch, remoteService.CanExecutePullCurrentBranch);
-
-		public Command TryPushAllBranchesCommand => Command(
-			remoteService.TryPushAllBranches, remoteService.CanExecuteTryPushAllBranches);
-
-		public Command PushCurrentBranchCommand => Command(
-			remoteService.PushCurrentBranch, remoteService.CanExecutePushCurrentBranch);
-
-
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
