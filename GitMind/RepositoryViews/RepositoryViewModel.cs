@@ -127,10 +127,9 @@ namespace GitMind.RepositoryViews
 
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
 
-			statusService.FileChanged += (s, e) => OnStatusChange(e.DateTime);
+			statusService.StatusChanged += (s, e) => OnStatusChange(e.DateTime);
 			statusService.RepoChanged += (s, e) => OnRepoChange(e.DateTime);
 		}
-
 
 
 		public Repository Repository { get; private set; }
@@ -221,7 +220,7 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
 
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
-	
+
 		public Command ToggleDetailsCommand => Command(ToggleCommitDetails);
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
@@ -290,7 +289,7 @@ namespace GitMind.RepositoryViews
 				statusService.Monitor(workingFolder);
 
 				Log.Debug("Loading repository ...");
-			
+
 				Repository repository;
 				using (progress.ShowDialog("Create branch structure ..."))
 				{
@@ -312,7 +311,7 @@ namespace GitMind.RepositoryViews
 
 					if (commandLine.IsCommit)
 					{
-						await commitsService.CommitChangesAsync();					
+						await commitsService.CommitChangesAsync();
 					}
 
 					await FetchRemoteChangesAsync(Repository, true);

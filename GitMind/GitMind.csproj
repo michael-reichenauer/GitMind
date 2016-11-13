@@ -122,7 +122,12 @@
     <Compile Include="Features\Remote\Private\RemoteService.cs" />
     <Compile Include="Features\StatusHandling\IStatusService.cs" />
     <Compile Include="Features\StatusHandling\Private\FileEventArgs.cs" />
+    <Compile Include="Features\StatusHandling\Private\GitStatusService.cs" />
     <Compile Include="Features\StatusHandling\Private\IFolderMonitorService.cs" />
+    <Compile Include="Features\StatusHandling\Private\IGitStatusService.cs" />
+    <Compile Include="Features\StatusHandling\Private\StatusChangedEventArgs.cs" />
+    <Compile Include="Features\StatusHandling\Status.cs" />
+    <Compile Include="Features\StatusHandling\StatusFile.cs" />
     <Compile Include="Features\StatusHandling\Private\StatusService.cs" />
     <Compile Include="Features\StatusHandling\Refresh.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
