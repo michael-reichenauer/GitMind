@@ -54,7 +54,7 @@ namespace GitMind.RepositoryViews
 			Point viewPoint = e.GetPosition(ItemsListBox);
 			if (viewPoint.X > viewModel.GraphWidth)
 			{
-				viewModel.ToggleDetailsCommand.Execute();
+				viewModel.ToggleCommitDetails();
 			}
 		}
 

@@ -4,7 +4,7 @@ using System.Windows.Threading;
 using GitMind.Utils;
 
 
-namespace GitMind.Features.FolderMonitoring
+namespace GitMind.Features.StatusHandling.Private
 {
 	public class FolderMonitorService
 	{

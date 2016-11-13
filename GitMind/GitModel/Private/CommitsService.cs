@@ -210,7 +210,7 @@ namespace GitMind.GitModel.Private
 		private static string ShortSubject(GitStatus gitStatus)
 		{
 			string subject = gitStatus.Message?.Trim() ?? "";
-			string firstLine = subject.Split("\\n".ToCharArray())[0];
+			string firstLine = subject.Split("\n".ToCharArray())[0];
 			return firstLine;
 		}
 

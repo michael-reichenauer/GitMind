@@ -88,7 +88,7 @@ namespace GitMind.MainWindowViews
 		private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
 		{
 			await viewModel.FirstLoadAsync();
-
+			SetRepositoryViewFocus();
 			StartRemoteCheck();
 		}
 
