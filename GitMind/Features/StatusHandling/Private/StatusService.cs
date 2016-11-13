@@ -1,5 +1,6 @@
 using System;
 using GitMind.MainWindowViews;
+using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
@@ -10,14 +11,17 @@ namespace GitMind.Features.StatusHandling.Private
 	{
 		private readonly IFolderMonitorService folderMonitorService;
 		private readonly IMainWindowService mainWindowService;
+		private readonly IRepositoryCommands repositoryCommands;
 		private bool isPaused = false;
 
 		public StatusService(
 			IFolderMonitorService folderMonitorService,
-			IMainWindowService mainWindowService)
+			IMainWindowService mainWindowService,
+			IRepositoryCommands repositoryCommands)
 		{
 			this.folderMonitorService = folderMonitorService;
 			this.mainWindowService = mainWindowService;
+			this.repositoryCommands = repositoryCommands;
 
 			folderMonitorService.FileChanged += (s, e) => OnFileChanged(e);
 			folderMonitorService.RepoChanged += (s, e) => OnRepoChanged(e);
