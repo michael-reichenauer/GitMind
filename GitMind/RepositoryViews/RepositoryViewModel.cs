@@ -20,7 +20,6 @@ using GitMind.RepositoryViews.Private;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
-using IBranchService = GitMind.Features.Branches.IBranchService;
 using ListBox = System.Windows.Controls.ListBox;
 
 
@@ -45,7 +44,6 @@ namespace GitMind.RepositoryViews
 		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
-		private readonly IBranchService branchService;
 		private readonly ICommandLine commandLine;
 		private readonly ICommitsService commitsService;
 
@@ -90,7 +88,6 @@ namespace GitMind.RepositoryViews
 			WorkingFolder workingFolder,
 			IDiffService diffService,
 			WindowOwner owner,
-			IBranchService branchService,
 			ICommandLine commandLine,
 			IViewModelService viewModelService,
 			ICommitsService commitsService,
@@ -106,7 +103,6 @@ namespace GitMind.RepositoryViews
 			this.workingFolder = workingFolder;
 			this.diffService = diffService;
 			this.owner = owner;
-			this.branchService = branchService;
 			this.commandLine = commandLine;
 			this.viewModelService = viewModelService;
 			this.commitsService = commitsService;
@@ -295,11 +291,9 @@ namespace GitMind.RepositoryViews
 			using (await refreshLock.LockAsync())
 			{
 				Log.Debug("Loading repository ...");
-				bool isRepositoryCached = repositoryService.IsRepositoryCached(workingFolder);
-				string progressText = isRepositoryCached ? "Loading ..." : "Create branch structure ...";
-
+			
 				Repository repository;
-				using (progress.ShowDialog(progressText))
+				using (progress.ShowDialog("Create branch structure ..."))
 				{
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(workingFolder);
 					UpdateInitialViewModel(repository);

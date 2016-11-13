@@ -142,7 +142,7 @@
     <Compile Include="Features\Commits\Private\CommitDialogViewModel.cs" />
     <Compile Include="Features\Commits\Private\CommitsService.cs" />
     <Compile Include="Features\Commits\ICommitsService.cs" />
-    <Compile Include="Features\FolderMonitoring\FolderMonitorService.cs" />
+    <Compile Include="Features\StatusHandling\Private\FolderMonitorService.cs" />
     <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\BranchName.cs" />
     <Compile Include="Git\GitDivergence.cs" />
