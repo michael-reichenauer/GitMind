@@ -231,13 +231,6 @@ namespace GitMind.RepositoryViews
 	
 		public Command ToggleDetailsCommand => Command(ToggleCommitDetails);
 
-		public Command<Commit> UncommitCommand => AsyncCommand<Commit>(
-			commitsService.UnCommitAsync, commitsService.CanUnCommit);
-
-
-		private Command CommitCommand => AsyncCommand(commitsService.CommitChangesAsync);	
-
-
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
 
 		public ObservableCollection<BranchItem> ShowableBranches { get; }
@@ -326,10 +319,7 @@ namespace GitMind.RepositoryViews
 
 					if (commandLine.IsCommit)
 					{
-						if (CommitCommand.CanExecute())
-						{
-							CommitCommand.Execute();
-						}
+						await commitsService.CommitChangesAsync();					
 					}
 
 					await FetchRemoteChangesAsync(Repository, true);
