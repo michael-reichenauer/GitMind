@@ -32,10 +32,10 @@ namespace GitMind.RepositoryViews.Private
 		public void ShowBranch(Branch branch) => viewModel.ShowBranch(branch);
 		public void ShowCurrentBranch() => viewModel.ShowCurrentBranch();
 		public void ShowDiff(Commit commit) => viewModel.ShowDiff(commit);
+		public Task ShowSelectedDiffAsync() => viewModel.ShowSelectedDiffAsync();
 
 		public Commit UnCommited => viewModel.UnCommited;
 	
-		public Command ShowSelectedDiffCommand => viewModel.ShowSelectedDiffCommand;
 		public DisabledStatus DisableStatus() => viewModel.DisableStatus();
 
 		public void ShowBranch(BranchName branchName) => viewModel.ShowBranch(branchName);

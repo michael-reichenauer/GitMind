@@ -133,6 +133,8 @@ namespace GitMind.MainWindowViews
 		public Command ShowUncommittedDetailsCommand => Command(
 			() => repositoryCommands.ShowUncommittedDetails());
 
+		public Command ShowSelectedDiffCommand => AsyncCommand(repositoryCommands.ShowSelectedDiffAsync);
+
 		public Command ShowCurrentBranchCommand => Command(() => repositoryCommands.ShowCurrentBranch());
 
 		public Command ShowUncommittedDiffCommand => AsyncCommand(commitsService.ShowUncommittedDiffAsync);

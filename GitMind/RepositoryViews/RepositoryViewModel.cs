@@ -247,7 +247,7 @@ namespace GitMind.RepositoryViews
 		private Command CommitCommand => AsyncCommand(commitsService.CommitChangesAsync);
 
 
-		public Command ShowSelectedDiffCommand => Command(ShowSelectedDiff);
+		
 
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
@@ -844,7 +844,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private async void ShowSelectedDiff()
+		public async Task ShowSelectedDiffAsync()
 		{
 			CommitViewModel commit = SelectedItem as CommitViewModel;
 
