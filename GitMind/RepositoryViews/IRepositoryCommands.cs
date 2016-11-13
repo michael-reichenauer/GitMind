@@ -20,7 +20,6 @@ namespace GitMind.RepositoryViews
 
 		Commit UnCommited { get; }
 
-		Command<Commit> SetBranchCommand { get; }
 		Command ShowSelectedDiffCommand { get; }
 
 		DisabledStatus DisableStatus();

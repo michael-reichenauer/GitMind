@@ -234,9 +234,6 @@ namespace GitMind.RepositoryViews
 
 		public Command ToggleDetailsCommand => Command(ToggleCommitDetails);
 
-		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(commitsService.EditCommitBranchAsync);
-
-
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(branchService.MergeBranchAsync);
 
 
