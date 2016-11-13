@@ -41,6 +41,7 @@ namespace GitMind.RepositoryViews
 
 		private readonly IBrushService brushService;
 		private readonly IRemoteService remoteService;
+		private readonly IMessage message;
 		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
@@ -97,6 +98,7 @@ namespace GitMind.RepositoryViews
 			IGitInfoService gitInfoService,
 			IBrushService brushService,
 			IRemoteService remoteService,
+			IMessage message,
 			BusyIndicator busyIndicator,
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
@@ -114,6 +116,7 @@ namespace GitMind.RepositoryViews
 
 			this.brushService = brushService;
 			this.remoteService = remoteService;
+			this.message = message;
 			this.busyIndicator = busyIndicator;
 			this.progress = progressService;
 
@@ -226,17 +229,10 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
 		public Command<Branch> DeleteBranchCommand => AsyncCommand<Branch>(
 			branchService.DeleteBranchAsync, branchService.CanDeleteBranch);
-
-		public Command<Branch> PublishBranchCommand => AsyncCommand<Branch>(
-			branch => branchService.PublishBranchAsync(branch));
-		public Command<Branch> PushBranchCommand => AsyncCommand<Branch>(
-			branch => branchService.PushBranchAsync(branch));
-		public Command<Branch> UpdateBranchCommand => AsyncCommand<Branch>(
-			branch => branchService.UpdateBranchAsync(branch));
+		
 		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
+
 		public Command ToggleDetailsCommand => Command(ToggleCommitDetails);
-		public Command ShowUncommittedDetailsCommand => Command(ShowUncommittedDetails);
-		public Command ShowCurrentBranchCommand => Command(ShowCurrentBranch);
 
 		public Command<Commit> SetBranchCommand => AsyncCommand<Commit>(commitsService.EditCommitBranchAsync);
 
@@ -337,7 +333,7 @@ namespace GitMind.RepositoryViews
 
 				if (!gitInfoService.IsSupportedRemoteUrl(workingFolder))
 				{
-					Message.ShowWarning(owner,
+					message.ShowWarning(
 						"SSH URL protocol is not yet supported for remote access.\n" +
 						"Use git:// or https:// instead.");
 				}
@@ -785,24 +781,24 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private void ShowBranch(Branch branch)
+		public void ShowBranch(Branch branch)
 		{
 			viewModelService.ShowBranch(this, branch);
 		}
 
-		private void HideBranch(Branch branch)
+		public void HideBranch(Branch branch)
 		{
 			viewModelService.HideBranch(this, branch);
 		}
 
-		private void ShowUncommittedDetails()
+		public void ShowUncommittedDetails()
 		{
 			SelectedIndex = 0;
 			ScrollTo(0);
 			IsShowCommitDetails = true;
 		}
 
-		private void ShowCurrentBranch()
+		public void ShowCurrentBranch()
 		{
 			viewModelService.ShowBranch(this, Repository.CurrentBranch);
 		}

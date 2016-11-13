@@ -32,6 +32,7 @@ namespace GitMind.MainWindowViews
 		private IpcRemotingService ipcRemotingService = null;
 		private readonly WorkingFolder workingFolder;
 		private readonly WindowOwner owner;
+		private readonly IRepositoryCommands repositoryCommands;
 		private readonly IRemoteService remoteService;
 		private readonly ICommitsService commitsService;
 
@@ -41,6 +42,7 @@ namespace GitMind.MainWindowViews
 		internal MainWindowViewModel(
 			WorkingFolder workingFolder,
 			WindowOwner owner,
+			IRepositoryCommands repositoryCommands,
 			IRemoteService remoteService,
 			ICommitsService commitsService,
 			ILatestVersionService latestVersionService,
@@ -50,6 +52,7 @@ namespace GitMind.MainWindowViews
 		{
 			this.workingFolder = workingFolder;
 			this.owner = owner;
+			this.repositoryCommands = repositoryCommands;
 			this.remoteService = remoteService;
 			this.commitsService = commitsService;
 			this.latestVersionService = latestVersionService;
@@ -127,7 +130,10 @@ namespace GitMind.MainWindowViews
 		public Command PushCurrentBranchCommand => AsyncCommand(
 			remoteService.PushCurrentBranchAsync, remoteService.CanExecutePushCurrentBranch);
 
+		public Command ShowUncommittedDetailsCommand => Command(
+			() => repositoryCommands.ShowUncommittedDetails());
 
+		public Command ShowCurrentBranchCommand => Command(() => repositoryCommands.ShowCurrentBranch());
 
 		public Command ShowUncommittedDiffCommand => AsyncCommand(commitsService.ShowUncommittedDiffAsync);
 

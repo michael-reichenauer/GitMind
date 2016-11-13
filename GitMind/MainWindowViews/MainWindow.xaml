@@ -81,7 +81,7 @@
 						Style="{StaticResource BaseButtonStyle}"
 						FontSize="12"
 						Foreground="{StaticResource TextBrush}"
-						Command="{Binding RepositoryViewModel.ShowCurrentBranchCommand}"
+						Command="{Binding ShowCurrentBranchCommand}"
 						Margin="2,0,10,0">
 						<Button.ToolTip>
 							<ToolTip
@@ -108,7 +108,7 @@
 					<Button		
 						Style="{StaticResource IconButtonStyle}"
 						Visibility="{Binding RepositoryViewModel.ConflictsText, Converter={StaticResource VC}}"
-						Command="{Binding RepositoryViewModel.ShowUncommittedDetailsCommand}"
+						Command="{Binding ShowUncommittedDetailsCommand}"
 						ToolTip="{Binding RepositoryViewModel.ConflictsText}">
 						<TextBlock					
 							FontFamily="{StaticResource IconFont}"

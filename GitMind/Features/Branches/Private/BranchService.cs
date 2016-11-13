@@ -232,7 +232,7 @@ namespace GitMind.Features.Branches.Private
 					{
 						// Show current branch
 						message.ShowWarning($"Failed to switch to the branch {branchName}.\n{switchedNamed.Error.Exception.Message}");
-						repositoryCommands.ShowBranch(null);
+						repositoryCommands.ShowBranch((BranchName)null);
 					}
 
 					progress.SetText("Updating status after switch to commit ...");

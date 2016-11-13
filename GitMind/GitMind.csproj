@@ -123,7 +123,7 @@
     <Compile Include="Features\StatusHandling\IStatusService.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
-    <Compile Include="RepositoryViews\RepositoryCommands.cs" />
+    <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />
     <Compile Include="Utils\AsyncLock.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
     <Compile Include="Features\Branches\Private\CrateBranchDialog.xaml.cs">

@@ -5,7 +5,7 @@ using GitMind.GitModel;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.RepositoryViews
+namespace GitMind.RepositoryViews.Private
 {
 	internal class RepositoryCommands : IRepositoryCommands
 	{
@@ -26,17 +26,17 @@ namespace GitMind.RepositoryViews
 		public void ShowCommitDetails() => viewModel.ShowCommitDetails();
 
 		public void ToggleCommitDetails() => viewModel.ToggleCommitDetails();
+		public void ShowUncommittedDetails() => viewModel.ShowUncommittedDetails();
+
+
+		public void ShowBranch(Branch branch) => viewModel.ShowBranch(branch);
+		public void ShowCurrentBranch() => viewModel.ShowCurrentBranch();
 
 
 		public Commit UnCommited => viewModel.UnCommited;
 		public Command<Branch> ShowBranchCommand => viewModel.ShowBranchCommand;
 		public Command<Branch> HideBranchCommand => viewModel.HideBranchCommand;
-		public Command<Branch> PublishBranchCommand => viewModel.PublishBranchCommand;
-		public Command<Branch> PushBranchCommand => viewModel.PushBranchCommand;
-		public Command<Branch> UpdateBranchCommand => viewModel.UpdateBranchCommand;
 		public Command<Commit> ShowDiffCommand => viewModel.ShowDiffCommand;
-		public Command ShowUncommittedDetailsCommand => viewModel.ShowUncommittedDetailsCommand;
-		public Command ShowCurrentBranchCommand => viewModel.ShowCurrentBranchCommand;
 		public Command<Commit> SetBranchCommand => viewModel.SetBranchCommand;
 		public Command UndoCleanWorkingFolderCommand => viewModel.UndoCleanWorkingFolderCommand;
 		public Command ShowSelectedDiffCommand => viewModel.ShowSelectedDiffCommand;

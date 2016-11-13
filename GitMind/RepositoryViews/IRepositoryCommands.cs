@@ -10,23 +10,16 @@ namespace GitMind.RepositoryViews
 	{
 		Repository Repository { get; }
 
-		bool IsShowCommitDetails { get;}
-
 		void ShowCommitDetails();
 		void ToggleCommitDetails();
+		void ShowUncommittedDetails();
 
+		void ShowBranch(Branch branch);
+		void ShowCurrentBranch();
 
 		Commit UnCommited { get; }
 
-		Command<Branch> ShowBranchCommand { get; }
-		Command<Branch> HideBranchCommand { get; }
-	
-		Command<Branch> PublishBranchCommand { get; }
-		Command<Branch> PushBranchCommand { get; }
-		Command<Branch> UpdateBranchCommand { get; }
 		Command<Commit> ShowDiffCommand { get; }
-		Command ShowUncommittedDetailsCommand { get; }
-		Command ShowCurrentBranchCommand { get; }
 		Command<Commit> SetBranchCommand { get; }
 		Command UndoCleanWorkingFolderCommand { get; }
 		Command ShowSelectedDiffCommand { get; }
