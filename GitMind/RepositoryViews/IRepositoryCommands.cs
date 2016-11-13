@@ -16,12 +16,11 @@ namespace GitMind.RepositoryViews
 
 		void ShowBranch(Branch branch);
 		void ShowCurrentBranch();
+		void ShowDiff(Commit commit);
 
 		Commit UnCommited { get; }
 
-		Command<Commit> ShowDiffCommand { get; }
 		Command<Commit> SetBranchCommand { get; }
-		Command UndoCleanWorkingFolderCommand { get; }
 		Command ShowSelectedDiffCommand { get; }
 
 		DisabledStatus DisableStatus();

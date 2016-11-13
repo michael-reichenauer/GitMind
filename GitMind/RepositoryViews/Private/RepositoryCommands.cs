@@ -31,14 +31,13 @@ namespace GitMind.RepositoryViews.Private
 
 		public void ShowBranch(Branch branch) => viewModel.ShowBranch(branch);
 		public void ShowCurrentBranch() => viewModel.ShowCurrentBranch();
-
+		public void ShowDiff(Commit commit) => viewModel.ShowDiff(commit);
 
 		public Commit UnCommited => viewModel.UnCommited;
 		public Command<Branch> ShowBranchCommand => viewModel.ShowBranchCommand;
 		public Command<Branch> HideBranchCommand => viewModel.HideBranchCommand;
 		public Command<Commit> ShowDiffCommand => viewModel.ShowDiffCommand;
 		public Command<Commit> SetBranchCommand => viewModel.SetBranchCommand;
-		public Command UndoCleanWorkingFolderCommand => viewModel.UndoCleanWorkingFolderCommand;
 		public Command ShowSelectedDiffCommand => viewModel.ShowSelectedDiffCommand;
 		public DisabledStatus DisableStatus() => viewModel.DisableStatus();
 

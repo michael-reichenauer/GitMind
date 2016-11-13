@@ -240,10 +240,6 @@ namespace GitMind.RepositoryViews
 		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(branchService.MergeBranchAsync);
 
 
-		public Command UndoCleanWorkingFolderCommand => AsyncCommand(
-			commitsService.UndoCleanWorkingFolderAsync);
-
-
 		public Command UndoUncommittedChangesCommand => AsyncCommand(
 			() => commitsService.UndoUncommittedChangesAsync());
 
@@ -804,13 +800,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-
-
-
-
-
-
-		private void ShowDiff(Commit commit)
+		public void ShowDiff(Commit commit)
 		{
 			if (ListBox.SelectedItems.Count < 2)
 			{
