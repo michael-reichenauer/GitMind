@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows;
 
 
 namespace GitMind.MainWindowViews
@@ -30,6 +29,12 @@ namespace GitMind.MainWindowViews
 		public void SetRepositoryViewFocus()
 		{
 			mainWindow.Value.SetRepositoryViewFocus();
+		}
+
+
+		public void SetMainWindowFocus()
+		{
+			mainWindow.Value.Focus();
 		}
 	}
 }

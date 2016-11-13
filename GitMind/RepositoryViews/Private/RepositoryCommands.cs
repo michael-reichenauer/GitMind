@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using GitMind.Features.StatusHandling.Private;
 using GitMind.Git;
 using GitMind.GitModel;
-using GitMind.Utils.UI;
 
 
 namespace GitMind.RepositoryViews.Private
@@ -35,8 +35,6 @@ namespace GitMind.RepositoryViews.Private
 		public Task ShowSelectedDiffAsync() => viewModel.ShowSelectedDiffAsync();
 
 		public Commit UnCommited => viewModel.UnCommited;
-	
-		public DisabledStatus DisableStatus() => viewModel.DisableStatus();
 
 		public void ShowBranch(BranchName branchName) => viewModel.ShowBranch(branchName);
 

@@ -138,16 +138,6 @@ namespace GitMind.RepositoryViews
 		public Branch MergingBranch { get; private set; }
 
 
-		public DisabledStatus DisableStatus()
-		{
-			return new DisabledStatus(this);
-		}
-
-		public void SetIsInternalDialog(bool isInternal)
-		{
-			isInternalDialog = isInternal;
-		}
-
 
 		public void ShowCommitDetails()
 		{
@@ -888,12 +878,6 @@ namespace GitMind.RepositoryViews
 				ScrollRows(rowsChange);
 				VirtualItemsSource.DataChanged(width);
 			}
-		}
-
-
-		public void SetMainWindowFocus()
-		{
-			owner.Window.Focus();
 		}
 	}
 }

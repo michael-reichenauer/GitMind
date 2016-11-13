@@ -10,5 +10,6 @@ namespace GitMind.Features.StatusHandling
 		event EventHandler<FileEventArgs> RepoChanged;
 
 		void Monitor(string workingFolder);
+		IDisposable PauseStatusNotifications();
 	}
 }

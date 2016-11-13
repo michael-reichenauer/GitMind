@@ -21,7 +21,6 @@ namespace GitMind.RepositoryViews
 
 		Commit UnCommited { get; }
 
-		DisabledStatus DisableStatus();
 		void ShowBranch(BranchName branchName);
 		Task RefreshAfterCommandAsync(bool useFreshRepository);
 		void SetCurrentMerging(Branch branch);

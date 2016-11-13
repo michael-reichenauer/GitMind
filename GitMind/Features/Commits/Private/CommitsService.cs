@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Diffing;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
@@ -30,7 +31,7 @@ namespace GitMind.Features.Commits.Private
 		private readonly IDiffService diffService;
 		private readonly IRepositoryService repositoryService;
 		private readonly IProgressService progress;
-
+		private readonly IStatusService statusService;
 
 
 		public CommitsService(
@@ -41,6 +42,7 @@ namespace GitMind.Features.Commits.Private
 			IDiffService diffService,
 			IRepositoryService repositoryService,
 			IProgressService progressService,
+			IStatusService statusService,
 			Func<
 				BranchName,
 				IEnumerable<CommitFile>,
@@ -56,6 +58,7 @@ namespace GitMind.Features.Commits.Private
 			this.diffService = diffService;
 			this.repositoryService = repositoryService;
 			this.progress = progressService;
+			this.statusService = statusService;
 		}
 
 
@@ -80,7 +83,7 @@ namespace GitMind.Features.Commits.Private
 
 			BranchName branchName = repository.CurrentBranch.Name;
 
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
 			{
 				if (repository.CurrentBranch.IsDetached)
 				{
@@ -177,7 +180,7 @@ namespace GitMind.Features.Commits.Private
 				}
 			}
 
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
 			{
 				if (dialog.ShowDialog() == true)
 				{
@@ -204,15 +207,14 @@ namespace GitMind.Features.Commits.Private
 
 		public async Task UndoUncommittedChangesAsync()
 		{
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
+			using (progress.ShowDialog($"Undo changes in working folder ..."))
 			{
-				using (progress.ShowDialog($"Undo changes in working folder ..."))
-				{
-					await gitCommitsService.UndoWorkingFolderAsync();
+				await gitCommitsService.UndoWorkingFolderAsync();
 
-					await repositoryCommands.RefreshAfterCommandAsync(false);
-				}
+				await repositoryCommands.RefreshAfterCommandAsync(false);
 			}
+
 		}
 
 
@@ -220,34 +222,32 @@ namespace GitMind.Features.Commits.Private
 		{
 			R<IReadOnlyList<string>> failedPaths = R.From(new string[0].AsReadOnlyList());
 
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
+			using (progress.ShowDialog($"Undo changes and clean working folder  ..."))
 			{
-				using (progress.ShowDialog($"Undo changes and clean working folder  ..."))
-				{
-					failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync();
+				failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync();
 
-					await repositoryCommands.RefreshAfterCommandAsync(false);
+				await repositoryCommands.RefreshAfterCommandAsync(false);
+			}
+
+			if (failedPaths.IsFaulted)
+			{
+				message.ShowWarning(failedPaths.ToString());
+			}
+			else if (failedPaths.Value.Any())
+			{
+				int count = failedPaths.Value.Count;
+				string text = $"Failed to undo and clean working folder.\n{count} items where locked:\n";
+				foreach (string path in failedPaths.Value.Take(10))
+				{
+					text += $"\n   {path}";
+				}
+				if (count > 10)
+				{
+					text += "   ...";
 				}
 
-				if (failedPaths.IsFaulted)
-				{
-					message.ShowWarning(failedPaths.ToString());
-				}
-				else if (failedPaths.Value.Any())
-				{
-					int count = failedPaths.Value.Count;
-					string text = $"Failed to undo and clean working folder.\n{count} items where locked:\n";
-					foreach (string path in failedPaths.Value.Take(10))
-					{
-						text += $"\n   {path}";
-					}
-					if (count > 10)
-					{
-						text += "   ...";
-					}
-
-					message.ShowWarning(text);
-				}
+				message.ShowWarning(text);
 			}
 		}
 

@@ -177,7 +177,7 @@
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\Throttler.cs" />
     <Compile Include="Utils\UI\CredentialsDialog.cs" />
-    <Compile Include="RepositoryViews\DisabledStatus.cs" />
+    <Compile Include="Utils\Disposable.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
     <Compile Include="ApplicationHandling\SettingsHandling\Settings.cs" />
     <Compile Include="ApplicationHandling\SettingsHandling\Options.cs" />

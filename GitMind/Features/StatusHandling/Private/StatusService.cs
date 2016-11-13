@@ -1,4 +1,5 @@
 using System;
+using GitMind.MainWindowViews;
 using GitMind.Utils;
 
 
@@ -8,28 +9,58 @@ namespace GitMind.Features.StatusHandling.Private
 	internal class StatusService : IStatusService
 	{
 		private readonly IFolderMonitorService folderMonitorService;
+		private readonly IMainWindowService mainWindowService;
+		private bool isPaused = false;
 
-
-		public StatusService(IFolderMonitorService folderMonitorService)
+		public StatusService(
+			IFolderMonitorService folderMonitorService,
+			IMainWindowService mainWindowService)
 		{
 			this.folderMonitorService = folderMonitorService;
+			this.mainWindowService = mainWindowService;
+
+			folderMonitorService.FileChanged += (s, e) => OnFileChanged(e);
+			folderMonitorService.RepoChanged += (s, e) => OnRepoChanged(e);
 		}
 
-		public event EventHandler<FileEventArgs> FileChanged
-		{
-			add { folderMonitorService.FileChanged += value; }
-			remove { folderMonitorService.FileChanged -= value; }
-		}
 
-		public event EventHandler<FileEventArgs> RepoChanged
-		{
-			add { folderMonitorService.RepoChanged += value; }
-			remove { folderMonitorService.RepoChanged -= value; }
-		}
+		public event EventHandler<FileEventArgs> FileChanged;
+
+		public event EventHandler<FileEventArgs> RepoChanged;
+
 
 		public void Monitor(string workingFolder)
 		{
 			folderMonitorService.Monitor(workingFolder);
+		}
+
+
+		public IDisposable PauseStatusNotifications()
+		{
+			isPaused = true;
+			return new Disposable(() =>
+			{
+				isPaused = false;
+				mainWindowService.SetMainWindowFocus();
+			});
+		}
+
+
+		private void OnFileChanged(FileEventArgs fileEventArgs)
+		{
+			if (!isPaused)
+			{
+				FileChanged?.Invoke(this, fileEventArgs);
+			}
+		}
+
+
+		private void OnRepoChanged(FileEventArgs fileEventArgs)
+		{
+			if (!isPaused)
+			{
+				RepoChanged?.Invoke(this, fileEventArgs);
+			}
 		}
 	}
 }
