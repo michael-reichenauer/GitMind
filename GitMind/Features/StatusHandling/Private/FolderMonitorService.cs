@@ -6,7 +6,8 @@ using GitMind.Utils;
 
 namespace GitMind.Features.StatusHandling.Private
 {
-	public class FolderMonitorService
+	[SingleInstance]
+	internal class FolderMonitorService : IFolderMonitorService
 	{
 		private const string GitFolder = ".git";
 		private const string GitRefsFolder = "refs";
@@ -24,20 +25,19 @@ namespace GitMind.Features.StatusHandling.Private
 
 		private DateTime statusChangeTime;
 		private DateTime statusTriggerTime;
-		private readonly Action<DateTime> statusTriggerAction;
+		//private readonly Action<DateTime> statusTriggerAction;
 		private readonly DispatcherTimer statusTimer;
 
 		private DateTime repoChangeTime;
 		private DateTime repoTriggerTime;
-		private readonly Action<DateTime> repoTriggerAction;
+		//private readonly Action<DateTime> repoTriggerAction;
 		private readonly DispatcherTimer repoTimer;
 
 		private LibGit2Sharp.Repository repo = null;
 
 
-		public FolderMonitorService(Action<DateTime> statusTriggerAction, Action<DateTime> repoTriggerAction)
+		public FolderMonitorService()
 		{
-			this.statusTriggerAction = statusTriggerAction;
 			statusTimer = new DispatcherTimer();
 			statusTimer.Tick += (s, e) => OnStatusTimer();
 			statusTimer.Interval = MinTriggerTimeout;
@@ -46,7 +46,6 @@ namespace GitMind.Features.StatusHandling.Private
 			workFolderWatcher.Deleted += (s, e) => WorkingFolderChange(e.FullPath, e.Name, e.ChangeType);
 			workFolderWatcher.Renamed += (s, e) => WorkingFolderChange(e.FullPath, e.Name, e.ChangeType);
 
-			this.repoTriggerAction = repoTriggerAction;
 			repoTimer = new DispatcherTimer();
 			repoTimer.Tick += (s, e) => OnRepoTimer();
 			repoTimer.Interval = MinTriggerTimeout;
@@ -56,6 +55,10 @@ namespace GitMind.Features.StatusHandling.Private
 			refsWatcher.Renamed += (s, e) => RepoChange(e.FullPath, e.Name, e.ChangeType);
 		}
 
+
+		public event EventHandler<FileEventArgs> FileChanged;
+
+		public event EventHandler<FileEventArgs> RepoChanged;
 
 		public void Monitor(string workingFolder)
 		{
@@ -189,7 +192,7 @@ namespace GitMind.Features.StatusHandling.Private
 			{
 				statusTriggerTime = now;
 				statusChangeTime = now;
-				statusTriggerAction(triggerTime);
+				FileChanged?.Invoke(this, new FileEventArgs(triggerTime));
 			}
 
 			if (now - statusChangeTime > EndTriggerTimeout)
@@ -203,7 +206,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 				if (isEndTrigger)
 				{
-					statusTriggerAction(triggerTime);
+					FileChanged?.Invoke(this, new FileEventArgs(triggerTime));
 				}
 			}
 		}
@@ -221,7 +224,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 				repoTriggerTime = now;
 				repoChangeTime = now;
-				repoTriggerAction(triggerTime);
+				RepoChanged?.Invoke(this, new FileEventArgs(triggerTime));
 			}
 
 			if (now - repoChangeTime > EndTriggerTimeout)
@@ -239,7 +242,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 				if (isEndTrigger)
 				{
-					repoTriggerAction(triggerTime);
+					RepoChanged?.Invoke(this, new FileEventArgs(triggerTime));
 				}
 			}
 		}

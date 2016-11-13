@@ -1,12 +1,12 @@
 ﻿using System;
-using GitMind.Features.StatusHandling.Private;
 
 
-namespace GitMind.Features.StatusHandling
+namespace GitMind.Features.StatusHandling.Private
 {
-	internal interface IStatusService
+	internal interface IFolderMonitorService
 	{
 		event EventHandler<FileEventArgs> FileChanged;
+
 		event EventHandler<FileEventArgs> RepoChanged;
 
 		void Monitor(string workingFolder);

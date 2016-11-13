@@ -10,6 +10,7 @@ using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Features.Commits;
 using GitMind.Features.Remote;
+using GitMind.Features.StatusHandling;
 using GitMind.Features.StatusHandling.Private;
 using GitMind.Git;
 using GitMind.RepositoryViews;
@@ -26,7 +27,8 @@ namespace GitMind.MainWindowViews
 		private readonly ILatestVersionService latestVersionService;
 		private readonly IMainWindowService mainWindowService;
 		private readonly MainWindowIpcService mainWindowIpcService;
-		private readonly FolderMonitorService folderMonitor;
+		private readonly IStatusService statusService;
+
 		private readonly JumpListService jumpListService = new JumpListService();
 
 		private IpcRemotingService ipcRemotingService = null;
@@ -48,6 +50,7 @@ namespace GitMind.MainWindowViews
 			ILatestVersionService latestVersionService,
 			IMainWindowService mainWindowService,
 			MainWindowIpcService mainWindowIpcService,
+			IStatusService statusService,
 			Func<BusyIndicator, RepositoryViewModel> RepositoryViewModelProvider)
 		{
 			this.workingFolder = workingFolder;
@@ -58,9 +61,12 @@ namespace GitMind.MainWindowViews
 			this.latestVersionService = latestVersionService;
 			this.mainWindowService = mainWindowService;
 			this.mainWindowIpcService = mainWindowIpcService;
+			this.statusService = statusService;
 
 			RepositoryViewModel = RepositoryViewModelProvider(Busy);
-			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
+
+			statusService.FileChanged += (s, e) => OnStatusChange(e.DateTime);
+			statusService.RepoChanged += (s, e) => OnRepoChange(e.DateTime);
 
 			workingFolder.OnChange += (s, e) => Notify(nameof(WorkingFolder));
 			latestVersionService.OnNewVersionAvailable += (s, e) => IsNewVersionVisible = true;
@@ -232,7 +238,7 @@ namespace GitMind.MainWindowViews
 			}
 
 			jumpListService.Add(workingFolder);
-			folderMonitor.Monitor(workingFolder);
+			statusService.Monitor(workingFolder);
 			Notify(nameof(Title));
 
 			await RepositoryViewModel.FirstLoadAsync();
