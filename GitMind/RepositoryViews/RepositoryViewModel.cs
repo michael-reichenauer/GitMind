@@ -13,6 +13,7 @@ using GitMind.Common.ProgressHandling;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
 using GitMind.Features.Remote;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
@@ -43,6 +44,7 @@ namespace GitMind.RepositoryViews
 		private readonly IMessage message;
 		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
+		private readonly IStatusService statusService;
 		private readonly WindowOwner owner;
 		private readonly ICommandLine commandLine;
 		private readonly ICommitsService commitsService;
@@ -86,6 +88,7 @@ namespace GitMind.RepositoryViews
 
 		public RepositoryViewModel(
 			WorkingFolder workingFolder,
+			IStatusService statusService,
 			IDiffService diffService,
 			WindowOwner owner,
 			ICommandLine commandLine,
@@ -101,6 +104,7 @@ namespace GitMind.RepositoryViews
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
 		{
 			this.workingFolder = workingFolder;
+			this.statusService = statusService;
 			this.diffService = diffService;
 			this.owner = owner;
 			this.commandLine = commandLine;
@@ -122,6 +126,9 @@ namespace GitMind.RepositoryViews
 			filterTriggerTimer.Interval = FilterDelay;
 
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
+
+			statusService.FileChanged += (s, e) => OnStatusChange(e.DateTime);
+			statusService.RepoChanged += (s, e) => OnRepoChange(e.DateTime);
 		}
 
 
@@ -286,10 +293,12 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public async Task FirstLoadAsync()
+		public async Task LoadAsync()
 		{
 			using (await refreshLock.LockAsync())
 			{
+				statusService.Monitor(workingFolder);
+
 				Log.Debug("Loading repository ...");
 			
 				Repository repository;
@@ -440,6 +449,21 @@ namespace GitMind.RepositoryViews
 					Log.Debug("Refreshed after manual trigger done");
 				}
 			}
+		}
+
+
+
+		private void OnStatusChange(DateTime triggerTime)
+		{
+			Log.Debug("Status change");
+			StatusChangeRefreshAsync(triggerTime, false).RunInBackground();
+		}
+
+
+		private void OnRepoChange(DateTime triggerTime)
+		{
+			Log.Debug("Repo change");
+			StatusChangeRefreshAsync(triggerTime, true).RunInBackground();
 		}
 
 

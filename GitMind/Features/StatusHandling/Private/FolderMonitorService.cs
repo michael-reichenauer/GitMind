@@ -25,12 +25,10 @@ namespace GitMind.Features.StatusHandling.Private
 
 		private DateTime statusChangeTime;
 		private DateTime statusTriggerTime;
-		//private readonly Action<DateTime> statusTriggerAction;
 		private readonly DispatcherTimer statusTimer;
 
 		private DateTime repoChangeTime;
 		private DateTime repoTriggerTime;
-		//private readonly Action<DateTime> repoTriggerAction;
 		private readonly DispatcherTimer repoTimer;
 
 		private LibGit2Sharp.Repository repo = null;
