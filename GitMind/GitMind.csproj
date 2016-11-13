@@ -125,6 +125,7 @@
     <Compile Include="Features\StatusHandling\Private\GitStatusService.cs" />
     <Compile Include="Features\StatusHandling\Private\IFolderMonitorService.cs" />
     <Compile Include="Features\StatusHandling\Private\IGitStatusService.cs" />
+    <Compile Include="Features\StatusHandling\Private\RepoChangedEventArgs.cs" />
     <Compile Include="Features\StatusHandling\Private\StatusChangedEventArgs.cs" />
     <Compile Include="Features\StatusHandling\Status.cs" />
     <Compile Include="Features\StatusHandling\StatusFile.cs" />

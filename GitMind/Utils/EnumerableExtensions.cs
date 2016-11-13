@@ -20,6 +20,11 @@ namespace System.Linq
 			return source;
 		}
 
+		public static IReadOnlyList<TSource> ToReadOnlyList<TSource>(this IEnumerable<TSource> enumeration)
+		{
+			return enumeration.ToList();
+		}
+
 		/// <summary>
 		///  Returns distinct elements from a sequence by using a specified 
 		///  predicate to compare values of two elements.

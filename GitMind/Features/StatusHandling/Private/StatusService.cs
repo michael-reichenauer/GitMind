@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
@@ -9,14 +11,22 @@ namespace GitMind.Features.StatusHandling.Private
 	[SingleInstance]
 	internal class StatusService : IStatusService
 	{
+		private static readonly IReadOnlyList<string> None = Enumerable.Empty<string>().ToReadOnlyList();
+
 		private readonly IFolderMonitorService folderMonitorService;
 		private readonly IMainWindowService mainWindowService;
 		private readonly IGitStatusService gitStatusService;
 
 		private bool isPaused = false;
+
 		private Status oldStatus = Status.Default;
 		private Task currentStatusTask = Task.CompletedTask;
-		private int currentCheckCount = 0;
+		private int currentStatusCheckCount = 0;
+
+		private IReadOnlyList<string> oldBranchIds = None;
+		private Task currentRepoTask = Task.CompletedTask;
+		private int currentRepoCheckCount = 0;
+
 
 		public StatusService(
 			IFolderMonitorService folderMonitorService,
@@ -35,7 +45,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 		public event EventHandler<StatusChangedEventArgs> StatusChanged;
 
-		public event EventHandler<FileEventArgs> RepoChanged;
+		public event EventHandler<RepoChangedEventArgs> RepoChanged;
 
 
 		public void Monitor(string workingFolder)
@@ -46,17 +56,20 @@ namespace GitMind.Features.StatusHandling.Private
 
 		public async Task<Status> GetStatusAsync()
 		{
+			Timing t = new Timing();
 			R<Status> status = await gitStatusService.GetCurrentStatusAsync();
+			t.Log($"Got status {status}");
+
 			if (status.HasValue)
 			{
 				oldStatus = status.Value;
 				return status.Value;
 			}
 
-			Log.Warn($"Failed to retrieve status, {status}");
-
-			return Status.Default;
+			Log.Warn($"Failed to read status, using old status, {status}");
+			return oldStatus;
 		}
+
 
 
 		public IDisposable PauseStatusNotifications()
@@ -79,51 +92,114 @@ namespace GitMind.Features.StatusHandling.Private
 			}
 		}
 
-
-		private async Task StartCheckStatusAsync(FileEventArgs fileEventArgs)
+		private void OnRepoChanged(FileEventArgs fileEventArgs)
 		{
-			Log.Debug($"File change at {fileEventArgs.DateTime}");
-
-			if (await IsCheckAlreadyStartedAsync())
+			if (!isPaused)
 			{
-				return;
-			}
-
-			Task<R<Status>> newStatusTask = gitStatusService.GetCurrentStatusAsync();
-			currentStatusTask = newStatusTask;
-
-			R<Status> status = await newStatusTask;
-			if (status.HasValue)
-			{
-				Status newStatus = status.Value;
-				if (!newStatus.IsSame(oldStatus))
-				{
-					Log.Debug($"Changed status {oldStatus} => {newStatus}");
-					TriggerStatusChanged(fileEventArgs, newStatus, oldStatus);
-				}
-				else
-				{
-					Log.Debug($"Same status {oldStatus} == {newStatus}");
-				}
-
-				oldStatus = status.Value;
-			}
-			else
-			{
-				Log.Warn($"Failed to get new status {status.Error}");
+				StartCheckRepoAsync(fileEventArgs).RunInBackground();
 			}
 		}
 
 
-		private async Task<bool> IsCheckAlreadyStartedAsync()
+		private async Task StartCheckStatusAsync(FileEventArgs fileEventArgs)
 		{
-			int checkCount = ++currentCheckCount;
+			Log.Debug($"Checking status change at {fileEventArgs.DateTime} ...");
+
+			if (await IsStatusCheckStartedAsync())
+			{
+				return;
+			}
+
+			Task<Status> newStatusTask = GetStatusAsync();
+			currentStatusTask = newStatusTask;
+
+			Status newStatus = await newStatusTask;
+			if (!newStatus.IsSame(oldStatus))
+			{
+				Log.Debug($"Changed status {oldStatus} => {newStatus}");
+				TriggerStatusChanged(fileEventArgs, newStatus, oldStatus);
+			}
+			else
+			{
+				Log.Debug($"Same status {oldStatus} == {newStatus}");
+			}
+
+			oldStatus = newStatus;
+		}
+
+
+		private async Task StartCheckRepoAsync(FileEventArgs fileEventArgs)
+		{
+			Log.Debug($"Checking repo change at {fileEventArgs.DateTime} ...");
+
+			if (await IsRepoCheckStartedAsync())
+			{
+				return;
+			}
+
+			Task<IReadOnlyList<string>> newRepoTask = GetBranchIdsAsync();
+			currentRepoTask = newRepoTask;
+
+			IReadOnlyList<string> newBranchIds = await newRepoTask;
+
+			if (!oldBranchIds.SequenceEqual(newBranchIds))
+			{
+				Log.Debug("Changed repo");
+				TriggerRepoChanged(fileEventArgs);
+			}
+			else
+			{
+				Log.Debug("Same repo");
+			}
+
+			oldBranchIds = newBranchIds;
+		}
+
+
+		private async Task<IReadOnlyList<string>> GetBranchIdsAsync()
+		{
+			Timing t = new Timing();
+			R<IReadOnlyList<string>> branchIds = await gitStatusService.GetBrancheIdsAsync();
+			t.Log($"Got  {branchIds.Or(None).Count} branch ids");
+
+			if (branchIds.HasValue)
+			{
+				return branchIds.Value;
+			}
+			else
+			{
+				Log.Warn($"Failed to get branch ids {branchIds.Error}");
+			}
+
+			return None;
+		}
+
+
+		private async Task<bool> IsStatusCheckStartedAsync()
+		{
+			int checkStatusCount = ++currentStatusCheckCount;
 			await currentStatusTask;
 
-			if (checkCount != currentCheckCount)
+			if (checkStatusCount != currentStatusCheckCount)
 			{
 				// Some other trigger will handle the check
 				Log.Debug("Status already being checked");
+				return true;
+			}
+
+			return false;
+		}
+
+
+		private async Task<bool> IsRepoCheckStartedAsync()
+		{
+			int checkRepoCount = ++currentRepoCheckCount;
+			await currentRepoTask;
+
+			if (checkRepoCount != currentRepoCheckCount)
+			{
+				// Some other trigger will handle the check
+				Log.Debug("Repo already being checked");
 				return true;
 			}
 			return false;
@@ -131,19 +207,16 @@ namespace GitMind.Features.StatusHandling.Private
 
 
 		private void TriggerStatusChanged(
-			FileEventArgs fileEventArgs, Status newStatus, Status oldStatus)
+			FileEventArgs fileEventArgs, Status newStatus, Status old)
 		{
 			StatusChanged?.Invoke(this, new StatusChangedEventArgs(
-				newStatus, oldStatus, fileEventArgs.DateTime));
+				newStatus, old, fileEventArgs.DateTime));
 		}
 
 
-		private void OnRepoChanged(FileEventArgs fileEventArgs)
+		private void TriggerRepoChanged(FileEventArgs fileEventArgs)
 		{
-			if (!isPaused)
-			{
-				RepoChanged?.Invoke(this, fileEventArgs);
-			}
+			RepoChanged?.Invoke(this, new RepoChangedEventArgs(fileEventArgs.DateTime));
 		}
 	}
 }
