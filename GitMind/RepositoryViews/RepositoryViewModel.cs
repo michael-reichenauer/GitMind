@@ -226,28 +226,16 @@ namespace GitMind.RepositoryViews
 
 
 		public Command<Branch> ShowBranchCommand => Command<Branch>(ShowBranch);
+
 		public Command<Branch> HideBranchCommand => Command<Branch>(HideBranch);
-		public Command<Branch> DeleteBranchCommand => AsyncCommand<Branch>(
-			branchService.DeleteBranchAsync, branchService.CanDeleteBranch);
-		
-		public Command<Commit> ShowDiffCommand => Command<Commit>(ShowDiff);
-
+	
 		public Command ToggleDetailsCommand => Command(ToggleCommitDetails);
-
-		public Command<Branch> MergeBranchCommand => AsyncCommand<Branch>(branchService.MergeBranchAsync);
-
-
-		public Command UndoUncommittedChangesCommand => AsyncCommand(
-			() => commitsService.UndoUncommittedChangesAsync());
 
 		public Command<Commit> UncommitCommand => AsyncCommand<Commit>(
 			commitsService.UnCommitAsync, commitsService.CanUnCommit);
 
 
-		private Command CommitCommand => AsyncCommand(commitsService.CommitChangesAsync);
-
-
-		
+		private Command CommitCommand => AsyncCommand(commitsService.CommitChangesAsync);	
 
 
 		public RepositoryVirtualItemsSource VirtualItemsSource { get; }
