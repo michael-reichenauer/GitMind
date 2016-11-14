@@ -56,21 +56,9 @@ namespace GitMind.Features.StatusHandling.Private
 
 		public async Task<Status> GetStatusAsync()
 		{
-			Timing t = new Timing();
-			R<Status> status = await gitStatusService.GetCurrentStatusAsync();
-			t.Log($"Got status {status}");
-
-			if (status.HasValue)
-			{
-				oldStatus = status.Value;
-				return status.Value;
-			}
-
-			Log.Warn($"Failed to read status, using old status, {status}");
+			oldStatus = await GetStatusImplAsync();
 			return oldStatus;
 		}
-
-
 
 		public IDisposable PauseStatusNotifications()
 		{
@@ -110,7 +98,8 @@ namespace GitMind.Features.StatusHandling.Private
 				return;
 			}
 
-			Task<Status> newStatusTask = GetStatusAsync();
+			Log.Debug($"Old status is {oldStatus}, checking for new ...");
+			Task<Status> newStatusTask = GetStatusImplAsync();
 			currentStatusTask = newStatusTask;
 
 			Status newStatus = await newStatusTask;
@@ -204,6 +193,23 @@ namespace GitMind.Features.StatusHandling.Private
 			}
 			return false;
 		}
+
+
+		private async Task<Status> GetStatusImplAsync()
+		{
+			Timing t = new Timing();
+			R<Status> status = await gitStatusService.GetCurrentStatusAsync();
+			t.Log($"Got status {status}");
+
+			if (status.HasValue)
+			{
+				return status.Value;
+			}
+
+			Log.Warn($"Failed to read status, using old status, {status}");
+			return oldStatus;
+		}
+
 
 
 		private void TriggerStatusChanged(

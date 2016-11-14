@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GitMind.Utils;
 
 
 namespace GitMind.Features.StatusHandling
@@ -37,6 +38,7 @@ namespace GitMind.Features.StatusHandling
 
 		public bool IsSame(Status other)
 		{
+			Log.Debug($"Check if same '{this}' and '{other}'");
 			return
 				ChangedCount == other.ChangedCount
 				&& ConflictCount == other.ConflictCount
