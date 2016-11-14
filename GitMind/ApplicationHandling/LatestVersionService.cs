@@ -146,14 +146,17 @@ namespace GitMind.ApplicationHandling
 			{
 				R<LatestInfo> latestInfo = await GetLatestInfoAsync();
 
-				if (latestInfo.IsOk)
+				if (latestInfo.IsOk && latestInfo.Value.tag_name != null)
 				{
 					Version version = Version.Parse(latestInfo.Value.tag_name.Substring(1));
 					Log.Debug($"Remote version: {version}");
 
-					foreach (var asset in latestInfo.Value.assets)
+					if (latestInfo.Value.assets != null)
 					{
-						Log.Debug($"Name: {asset.name}, Count: {asset.download_count}");
+						foreach (var asset in latestInfo.Value.assets)
+						{
+							Log.Debug($"Name: {asset.name}, Count: {asset.download_count}");
+						}
 					}
 
 					return version;
@@ -197,8 +200,12 @@ namespace GitMind.ApplicationHandling
 						string latestInfoText = await response.Content.ReadAsStringAsync();
 						Log.Debug("New version info");
 
-						eTag = response.Headers.ETag.Tag;
-						CacheLatestVersionInfo(eTag, latestInfoText);
+						if (response.Headers.ETag != null)
+						{
+							eTag = response.Headers.ETag.Tag;
+							CacheLatestVersionInfo(eTag, latestInfoText);
+						}
+
 						return Json.As<LatestInfo>(latestInfoText);
 					}			
 				}
