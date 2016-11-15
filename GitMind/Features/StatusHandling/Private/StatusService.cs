@@ -100,6 +100,7 @@ namespace GitMind.Features.StatusHandling.Private
 			{
 				using (progress.ShowDialog($"Update branch structure ... "))
 				{
+					await Task.Delay(5000);
 					await repositoryCommands.RefreshAfterCommandAsync(isRefresh);
 				}
 			}
