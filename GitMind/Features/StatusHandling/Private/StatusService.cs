@@ -66,7 +66,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 		public async Task<Status> GetStatusAsync()
 		{
-			oldStatus = await GetStatusImplAsync();
+			oldStatus = await GetFreshStatusAsync();
 			return oldStatus;
 		}
 
@@ -102,7 +102,7 @@ namespace GitMind.Features.StatusHandling.Private
 				}
 				else
 				{
-					IReadOnlyList<string> newBranchIds = await GetBranchIdsAsync();
+					IReadOnlyList<string> newBranchIds = await GetFreshBranchIdsAsync();
 					if (!oldBranchIds.SequenceEqual(newBranchIds))
 					{
 						oldBranchIds = newBranchIds;
@@ -123,7 +123,7 @@ namespace GitMind.Features.StatusHandling.Private
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to check status, {e}");			
+				Log.Warn($"Failed to check status, {e}");
 			}
 			finally
 			{
@@ -169,7 +169,7 @@ namespace GitMind.Features.StatusHandling.Private
 			}
 
 			Log.Debug($"Old status is {oldStatus}, checking for new ...");
-			Task<Status> newStatusTask = GetStatusImplAsync();
+			Task<Status> newStatusTask = GetFreshStatusAsync();
 			currentStatusTask = newStatusTask;
 
 			Status newStatus = await newStatusTask;
@@ -196,7 +196,7 @@ namespace GitMind.Features.StatusHandling.Private
 				return;
 			}
 
-			Task<IReadOnlyList<string>> newRepoTask = GetBranchIdsAsync();
+			Task<IReadOnlyList<string>> newRepoTask = GetFreshBranchIdsAsync();
 			currentRepoTask = newRepoTask;
 
 			IReadOnlyList<string> newBranchIds = await newRepoTask;
@@ -212,25 +212,6 @@ namespace GitMind.Features.StatusHandling.Private
 			}
 
 			oldBranchIds = newBranchIds;
-		}
-
-
-		private async Task<IReadOnlyList<string>> GetBranchIdsAsync()
-		{
-			Timing t = new Timing();
-			R<IReadOnlyList<string>> branchIds = await gitStatusService.GetBrancheIdsAsync();
-			t.Log($"Got  {branchIds.Or(None).Count} branch ids");
-
-			if (branchIds.HasValue)
-			{
-				return branchIds.Value;
-			}
-			else
-			{
-				Log.Warn($"Failed to get branch ids {branchIds.Error}");
-			}
-
-			return None;
 		}
 
 
@@ -261,23 +242,41 @@ namespace GitMind.Features.StatusHandling.Private
 				Log.Debug("Repo already being checked");
 				return true;
 			}
+
 			return false;
 		}
 
 
-		private async Task<Status> GetStatusImplAsync()
+		private async Task<IReadOnlyList<string>> GetFreshBranchIdsAsync()
+		{
+			Timing t = new Timing();
+			R<IReadOnlyList<string>> branchIds = await gitStatusService.GetBrancheIdsAsync();
+			t.Log($"Got  {branchIds.Or(None).Count} branch ids");
+
+			if (branchIds.IsFaulted)
+			{
+				Log.Warn($"Failed to get branch ids {branchIds.Error}");
+				return oldBranchIds;
+			}
+
+			return branchIds.Value;
+		}
+
+
+		private async Task<Status> GetFreshStatusAsync()
 		{
 			Timing t = new Timing();
 			R<Status> status = await gitStatusService.GetCurrentStatusAsync();
 			t.Log($"Got status {status}");
 
-			if (status.HasValue)
+			if (status.IsFaulted)
 			{
-				return status.Value;
+				Log.Warn($"Failed to read status, using old status, {status}");
+				return oldStatus;
+
 			}
 
-			Log.Warn($"Failed to read status, using old status, {status}");
-			return oldStatus;
+			return status.Value;
 		}
 
 
