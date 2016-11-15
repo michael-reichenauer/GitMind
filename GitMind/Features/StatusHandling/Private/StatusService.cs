@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Common.ProgressHandling;
 using GitMind.MainWindowViews;
+using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
@@ -16,8 +18,12 @@ namespace GitMind.Features.StatusHandling.Private
 		private readonly IFolderMonitorService folderMonitorService;
 		private readonly IMainWindowService mainWindowService;
 		private readonly IGitStatusService gitStatusService;
+		private readonly IProgressService progress;
+		private readonly IRepositoryCommands repositoryCommands;
 
 		private bool isPaused = false;
+		private bool isStatusChanged = false;
+		private bool isRepoChanged = false;
 
 		private Status oldStatus = Status.Default;
 		private Task currentStatusTask = Task.CompletedTask;
@@ -31,11 +37,15 @@ namespace GitMind.Features.StatusHandling.Private
 		public StatusService(
 			IFolderMonitorService folderMonitorService,
 			IMainWindowService mainWindowService,
-			IGitStatusService gitStatusService)
+			IGitStatusService gitStatusService,
+			IProgressService progress,
+			IRepositoryCommands repositoryCommands)
 		{
 			this.folderMonitorService = folderMonitorService;
 			this.mainWindowService = mainWindowService;
 			this.gitStatusService = gitStatusService;
+			this.progress = progress;
+			this.repositoryCommands = repositoryCommands;
 
 
 			folderMonitorService.FileChanged += (s, e) => OnFileChanged(e);
@@ -60,15 +70,39 @@ namespace GitMind.Features.StatusHandling.Private
 			return oldStatus;
 		}
 
-		public IDisposable PauseStatusNotifications()
+		public IDisposable PauseStatusNotifications(Refresh refresh = Refresh.None)
 		{
+			Log.Debug("Pause status");
 			isPaused = true;
+			isStatusChanged = false;
+			isRepoChanged = false;
 
 			return new Disposable(() =>
 			{
+				Log.Debug("Enable status after pause");
 				isPaused = false;
 				mainWindowService.SetMainWindowFocus();
+				ShowStatusProgressAsync(refresh, isStatusChanged, isRepoChanged).RunInBackground();
 			});
+		}
+
+
+		private async Task ShowStatusProgressAsync(Refresh refresh, bool isStatus, bool isRepo)
+		{
+			isStatusChanged = false;
+			isRepoChanged = false;
+
+			bool isRefresh =
+				refresh == Refresh.Repo
+				|| refresh == Refresh.None && isRepo;
+
+			if (isRefresh || isStatus)
+			{
+				using (progress.ShowDialog($"Update branch structure ... "))
+				{
+					await repositoryCommands.RefreshAfterCommandAsync(isRefresh);
+				}
+			}
 		}
 
 
@@ -78,6 +112,11 @@ namespace GitMind.Features.StatusHandling.Private
 			{
 				StartCheckStatusAsync(fileEventArgs).RunInBackground();
 			}
+			else
+			{
+				isStatusChanged = true;
+				Log.Debug("paused status");
+			}
 		}
 
 		private void OnRepoChanged(FileEventArgs fileEventArgs)
@@ -85,6 +124,11 @@ namespace GitMind.Features.StatusHandling.Private
 			if (!isPaused)
 			{
 				StartCheckRepoAsync(fileEventArgs).RunInBackground();
+			}
+			else
+			{
+				isRepoChanged = true;
+				Log.Debug("paused status");
 			}
 		}
 

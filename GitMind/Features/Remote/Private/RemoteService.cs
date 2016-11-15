@@ -186,7 +186,6 @@ namespace GitMind.Features.Remote.Private
 		{
 			Log.Debug("Try push all branches");
 			using (statusService.PauseStatusNotifications())
-
 			using (progress.ShowDialog("Push all branches ..."))
 			{
 				Branch currentBranch = Repository.CurrentBranch;
