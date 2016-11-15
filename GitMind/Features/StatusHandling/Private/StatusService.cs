@@ -95,7 +95,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 				if (refresh == Refresh.Repo || isRepo)
 				{
-					using (progress.ShowDialog("Updating branches ... "))
+					using (progress.ShowDialog("Updating branch structure ... "))
 					{
 						await repositoryCommands.RefreshAfterCommandAsync(true);
 					}
@@ -106,7 +106,7 @@ namespace GitMind.Features.StatusHandling.Private
 					if (!oldBranchIds.SequenceEqual(newBranchIds))
 					{
 						oldBranchIds = newBranchIds;
-						using (progress.ShowDialog("Updating branches ... "))
+						using (progress.ShowDialog("Updating branch structure ... "))
 						{
 							await repositoryCommands.RefreshAfterCommandAsync(true);
 						}
@@ -123,8 +123,7 @@ namespace GitMind.Features.StatusHandling.Private
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to check status, {e}");
-				
+				Log.Warn($"Failed to check status, {e}");			
 			}
 			finally
 			{
