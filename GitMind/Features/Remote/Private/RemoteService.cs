@@ -113,9 +113,6 @@ namespace GitMind.Features.Remote.Private
 
 				progress.SetText("Update all branches ...");
 				await FetchAllNotesAsync();
-
-				progress.SetText($"Update status after update all branches ...");
-				await repositoryCommands.RefreshAfterCommandAsync(false);
 			}
 		}
 
@@ -140,9 +137,6 @@ namespace GitMind.Features.Remote.Private
 						message.ShowWarning(
 							$"Failed to update current branch {branchName}.\n{result.Error.Exception.Message}");
 					}
-
-					progress.SetText($"Update status after pull current branch {branchName} ...");
-					await repositoryCommands.RefreshAfterCommandAsync(false);
 				}
 			}
 		}
@@ -169,9 +163,6 @@ namespace GitMind.Features.Remote.Private
 					message.ShowWarning(
 						 $"Failed to push current branch {branchName}.\n{result.Error.Exception.Message}");
 				}
-
-				progress.SetText($"Updating status after push {branchName} ...");
-				await repositoryCommands.RefreshAfterCommandAsync(true);
 			}
 		}
 
@@ -215,9 +206,6 @@ namespace GitMind.Features.Remote.Private
 
 					await PushBranchAsync(branch.Name);
 				}
-
-				progress.SetText("Update status after push all branches ...");
-				await repositoryCommands.RefreshAfterCommandAsync(true);
 			}
 		}
 

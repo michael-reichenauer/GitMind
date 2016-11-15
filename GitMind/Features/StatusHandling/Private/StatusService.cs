@@ -70,6 +70,7 @@ namespace GitMind.Features.StatusHandling.Private
 			return oldStatus;
 		}
 
+
 		public IDisposable PauseStatusNotifications(Refresh refresh = Refresh.None)
 		{
 			Log.Debug("Pause status");
@@ -79,8 +80,6 @@ namespace GitMind.Features.StatusHandling.Private
 
 			return new Disposable(() =>
 			{
-				Log.Debug("Enable status after pause");
-				isPaused = false;
 				mainWindowService.SetMainWindowFocus();
 				ShowStatusProgressAsync(refresh, isStatusChanged, isRepoChanged).RunInBackground();
 			});
@@ -89,20 +88,47 @@ namespace GitMind.Features.StatusHandling.Private
 
 		private async Task ShowStatusProgressAsync(Refresh refresh, bool isStatus, bool isRepo)
 		{
-			isStatusChanged = false;
-			isRepoChanged = false;
-
-			bool isRefresh =
-				refresh == Refresh.Repo
-				|| refresh == Refresh.None && isRepo;
-
-			if (isRefresh || isStatus)
+			try
 			{
-				using (progress.ShowDialog($"Update branch structure ... "))
+				isStatusChanged = false;
+				isRepoChanged = false;
+
+				if (refresh == Refresh.Repo || isRepo)
 				{
-					await Task.Delay(5000);
-					await repositoryCommands.RefreshAfterCommandAsync(isRefresh);
+					using (progress.ShowDialog("Updating branches ... "))
+					{
+						await repositoryCommands.RefreshAfterCommandAsync(true);
+					}
 				}
+				else
+				{
+					IReadOnlyList<string> newBranchIds = await GetBranchIdsAsync();
+					if (!oldBranchIds.SequenceEqual(newBranchIds))
+					{
+						oldBranchIds = newBranchIds;
+						using (progress.ShowDialog("Updating branches ... "))
+						{
+							await repositoryCommands.RefreshAfterCommandAsync(true);
+						}
+					}
+					else
+					{
+						oldBranchIds = newBranchIds;
+						using (progress.ShowDialog("Updating status ... "))
+						{
+							await repositoryCommands.RefreshAfterCommandAsync(false);
+						}
+					}
+				}
+			}
+			catch (Exception e) when (e.IsNotFatal())
+			{
+				Log.Warn($"Failed to check status, {e}");
+				
+			}
+			finally
+			{
+				isPaused = false;
 			}
 		}
 

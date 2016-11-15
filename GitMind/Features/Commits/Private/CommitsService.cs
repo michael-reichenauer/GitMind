@@ -114,24 +114,13 @@ namespace GitMind.Features.Commits.Private
 						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
 							dialog.CommitMessage, branchName, dialog.CommitFiles);
 
-						if (gitCommit.HasValue)
-						{
-							await repositoryCommands.RefreshAfterCommandAsync(false);
-						}
-						else
+						if (!gitCommit.HasValue)
 						{
 							message.ShowWarning("Failed to commit");
 						}
 					}
 
 					Log.Debug("After commit dialog, refresh done");
-				}
-				else if (dialog.IsChanged)
-				{
-					using (progress.ShowDialog("Updating status ..."))
-					{
-						await repositoryCommands.RefreshAfterCommandAsync(false);
-					}
 				}
 				else if (repository.Status.IsMerging && !commitFiles.Any())
 				{
@@ -151,9 +140,6 @@ namespace GitMind.Features.Commits.Private
 				{
 					message.ShowWarning($"Failed to uncommit.\n{result.Error.Exception.Message}");
 				}
-
-				progress.SetText("Update status after uncommit ...");
-				await repositoryCommands.RefreshAfterCommandAsync(true);
 			}
 		}
 
@@ -196,8 +182,6 @@ namespace GitMind.Features.Commits.Private
 							{
 								repositoryCommands.ShowBranch(branchName);
 							}
-
-							await repositoryCommands.RefreshAfterCommandAsync(true);
 						}
 					}
 				}
@@ -208,13 +192,9 @@ namespace GitMind.Features.Commits.Private
 		public async Task UndoUncommittedChangesAsync()
 		{
 			using (statusService.PauseStatusNotifications())
+			using (progress.ShowDialog("Undo changes in working folder ..."))
 			{
-				using (progress.ShowDialog($"Undo changes in working folder ..."))
-				{
-					await gitCommitsService.UndoWorkingFolderAsync();
-
-					await repositoryCommands.RefreshAfterCommandAsync(false);
-				}
+				await gitCommitsService.UndoWorkingFolderAsync();
 			}
 		}
 
@@ -227,8 +207,6 @@ namespace GitMind.Features.Commits.Private
 			using (progress.ShowDialog($"Undo changes and clean working folder  ..."))
 			{
 				failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync();
-
-				await repositoryCommands.RefreshAfterCommandAsync(false);
 			}
 
 			if (failedPaths.IsFaulted)
