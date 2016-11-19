@@ -184,18 +184,23 @@ namespace GitMind.GitModel.Private
 
 		private static void CopyToCommit(GitStatus gitStatus, MCommit commit, string parentId)
 		{
+			int modifiedCount = gitStatus.Count;
+			int conflictCount = gitStatus.ConflictCount;
+
 			commit.Id = MCommit.UncommittedId;
 			commit.CommitId = MCommit.UncommittedId;
 			commit.ShortId = commit.Id.Substring(0, 6);
-			commit.Subject = $"{gitStatus.Count} uncommitted changes in working folder";
-			if (gitStatus.ConflictCount > 0)
+			commit.Subject = $"{modifiedCount} uncommitted changes in working folder";
+
+			if (conflictCount > 0)
 			{
-				commit.Subject = $"{gitStatus.ConflictCount} conflicts and " + commit.Subject;
-				commit.HasConflicts = true; ;
+				commit.Subject = 
+					$"{conflictCount} conflicts and {modifiedCount} changes, {ShortSubject(gitStatus)}";
+				commit.HasConflicts = true;
 			}
-			if (gitStatus.IsMerging)
+			else if (gitStatus.IsMerging)
 			{
-				commit.Subject = $"{ShortSubject(gitStatus)} ({commit.Subject})";
+				commit.Subject = $"{modifiedCount} changes, {ShortSubject(gitStatus)}";
 				commit.IsMerging = true;
 			}
 
