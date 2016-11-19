@@ -111,12 +111,6 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public Task SetSpecifiedCommitBranchAsync(string commitId, string rootId, BranchName branchName)
-		{
-			return gitCommitsService.EditCommitBranchAsync(commitId, rootId, branchName);
-		}
-
-
 		private Task<MRepository> UpdateAsync(MRepository mRepository)
 		{
 			return Task.Run(() => UpdateRepository(mRepository));
@@ -256,8 +250,6 @@ namespace GitMind.GitModel.Private
 					currentCommit = commit;
 				}
 			}
-
-
 
 			foreach (var mBranch in mRepository.Branches)
 			{

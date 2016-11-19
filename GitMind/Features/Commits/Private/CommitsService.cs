@@ -176,8 +176,7 @@ namespace GitMind.Features.Commits.Private
 					{
 						using (progress.ShowDialog($"Set commit branch name {branchName} ..."))
 						{
-							await repositoryService.SetSpecifiedCommitBranchAsync(
-								commit.Id, commit.Repository.RootId, branchName);
+							await SetSpecifiedCommitBranchAsync(commit.Id, commit.Repository.RootId, branchName);
 							if (branchName != null)
 							{
 								repositoryCommands.ShowBranch(branchName);
@@ -249,6 +248,13 @@ namespace GitMind.Features.Commits.Private
 			{
 				await gitCommitsService.UndoFileInWorkingFolderAsync(path);
 			}
+		}
+
+
+
+		public Task SetSpecifiedCommitBranchAsync(string commitId, string rootId, BranchName branchName)
+		{
+			return gitCommitsService.EditCommitBranchAsync(commitId, rootId, branchName);
 		}
 	}
 }
