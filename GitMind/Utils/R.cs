@@ -18,6 +18,7 @@ namespace GitMind.Utils
 
 		public bool IsFaulted => Error != Error.None;
 		public bool IsOk => Error == Error.None;
+		public string Message => Error.Message;
 
 		public static R<T> From<T>(T result) => new R<T>(result);
 

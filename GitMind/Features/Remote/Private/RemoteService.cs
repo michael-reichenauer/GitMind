@@ -97,7 +97,7 @@ namespace GitMind.Features.Remote.Private
 				if (result.IsFaulted)
 				{
 					message.ShowWarning(
-						$"Failed to update current branch {currentBranch.Name}\n{result.Error.Exception.Message}.");
+						$"Failed to update current branch {currentBranch.Name}\n{result.Message}.");
 				}
 
 				IEnumerable<Branch> updatableBranches = Repository.Branches
@@ -135,7 +135,7 @@ namespace GitMind.Features.Remote.Private
 					if (result.IsFaulted)
 					{
 						message.ShowWarning(
-							$"Failed to update current branch {branchName}.\n{result.Error.Exception.Message}");
+							$"Failed to update current branch {branchName}.\n{result.Message}");
 					}
 				}
 			}
@@ -161,7 +161,7 @@ namespace GitMind.Features.Remote.Private
 				if (result.IsFaulted)
 				{
 					message.ShowWarning(
-						 $"Failed to push current branch {branchName}.\n{result.Error.Exception.Message}");
+						 $"Failed to push current branch {branchName}.\n{result.Message}");
 				}
 			}
 		}
@@ -193,7 +193,7 @@ namespace GitMind.Features.Remote.Private
 				if (result.IsFaulted)
 				{
 					message.ShowWarning(
-						$"Failed to push current branch {currentBranch.Name}.\n{result.Error.Exception.Message}");
+						$"Failed to push current branch {currentBranch.Name}.\n{result.Message}");
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches

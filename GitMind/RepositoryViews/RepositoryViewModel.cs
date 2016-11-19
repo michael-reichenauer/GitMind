@@ -513,7 +513,7 @@ namespace GitMind.RepositoryViews
 			FetchErrorText = "";
 			if (result.IsFaulted)
 			{
-				string message = $"Fetch error: {result.Error.Exception.Message}";
+				string message = $"Fetch error: {result.Message}";
 				Log.Warn(message);
 				FetchErrorText = message;
 			}

@@ -138,7 +138,7 @@ namespace GitMind.Features.Commits.Private
 
 				if (result.IsFaulted)
 				{
-					message.ShowWarning($"Failed to uncommit.\n{result.Error.Exception.Message}");
+					message.ShowWarning($"Failed to uncommit.\n{result.Message}");
 				}
 			}
 		}

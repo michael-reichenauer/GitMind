@@ -93,7 +93,7 @@ namespace GitMind.Features.Branches.Private
 						}
 						else
 						{
-							message.ShowWarning($"Failed to create branch {branchName}\n{result.Error.Exception.Message}");
+							message.ShowWarning($"Failed to create branch {branchName}\n{result.Message}");
 						}
 					}
 				}
@@ -110,7 +110,7 @@ namespace GitMind.Features.Branches.Private
 
 				if (publish.IsFaulted)
 				{
-					message.ShowWarning($"Failed to publish the branch {branch.Name}.\n{publish.Error.Exception.Message}");
+					message.ShowWarning($"Failed to publish the branch {branch.Name}.\n{publish.Message}");
 				}
 			}
 		}
@@ -125,7 +125,7 @@ namespace GitMind.Features.Branches.Private
 
 				if (result.IsFaulted)
 				{
-					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Error.Exception.Message}");
+					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Message}");
 				}
 			}
 		}
@@ -155,7 +155,7 @@ namespace GitMind.Features.Branches.Private
 
 				if (result.IsFaulted)
 				{
-					message.ShowWarning($"Failed to update the branch {branch.Name}.\n{result.Error.Exception.Message}");
+					message.ShowWarning($"Failed to update the branch {branch.Name}.\n{result.Message}");
 				}
 			}
 		}
@@ -169,7 +169,7 @@ namespace GitMind.Features.Branches.Private
 				R result = await gitBranchService.SwitchToBranchAsync(branch.Name);
 				if (result.IsFaulted)
 				{
-					message.ShowWarning($"Failed to switch,\n{result.Error.Exception.Message}");
+					message.ShowWarning($"Failed to switch,\n{result.Message}");
 				}
 			}
 		}
@@ -209,7 +209,7 @@ namespace GitMind.Features.Branches.Private
 				else
 				{
 					// Show current branch
-					message.ShowWarning($"Failed to switch to the branch {branchName}.\n{switchedNamed.Error.Exception.Message}");
+					message.ShowWarning($"Failed to switch to the branch {branchName}.\n{switchedNamed.Message}");
 					repositoryCommands.ShowBranch((BranchName)null);
 				}
 			}
@@ -312,7 +312,7 @@ namespace GitMind.Features.Branches.Private
 
 			if (deleted.IsFaulted)
 			{
-				message.ShowWarning($"Failed to delete {text} branch '{branch.Name}'\n{deleted.Error.Exception.Message}");
+				message.ShowWarning($"Failed to delete {text} branch '{branch.Name}'\n{deleted.Message}");
 			}
 		}
 
