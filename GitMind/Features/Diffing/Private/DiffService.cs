@@ -178,7 +178,7 @@ namespace GitMind.Features.Diffing.Private
 
 			if (File.Exists(yoursPath) && File.Exists(basePath))
 			{
-				await ShowDiffImplAsync(yoursPath, basePath);
+				await ShowDiffImplAsync(basePath, yoursPath);
 
 				DeletePath(basePath);
 				DeletePath(yoursPath);
@@ -197,7 +197,7 @@ namespace GitMind.Features.Diffing.Private
 
 			if (File.Exists(theirsPath) && File.Exists(basePath))
 			{
-				await ShowDiffImplAsync(theirsPath, basePath);
+				await ShowDiffImplAsync(basePath, theirsPath);
 
 				DeletePath(basePath);
 				DeletePath(theirsPath);

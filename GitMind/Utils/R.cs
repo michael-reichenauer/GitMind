@@ -55,6 +55,20 @@ namespace GitMind.Utils
 		}
 
 
+		public object Voe
+		{
+			get
+			{
+				if (IsFaulted)
+				{
+					return Error;
+				}
+
+				return Value;
+			}
+		}
+
+
 		public static implicit operator R<T>(Error error) => new R<T>(error);
 		public static implicit operator R<T>(Exception e) => new R<T>(Error.From(e));
 
