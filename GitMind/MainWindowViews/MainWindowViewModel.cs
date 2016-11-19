@@ -143,7 +143,7 @@ namespace GitMind.MainWindowViews
 
 		public Command SelectWorkingFolderCommand => AsyncCommand(SelectWorkingFolderAsync);
 
-		public Command RunLatestVersionCommand => Command(RunLatestVersion);
+		public Command RunLatestVersionCommand => AsyncCommand(RunLatestVersionAsync);
 
 		public Command FeedbackCommand => Command(Feedback);
 
@@ -163,7 +163,7 @@ namespace GitMind.MainWindowViews
 
 		public Command ClearFilterCommand => Command(ClearFilter);
 
-		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
+		public Command SpecifyCommitBranchCommand => AsyncCommand(SpecifyCommitBranchAsync);
 
 		public Command SearchCommand => Command(Search);
 
@@ -344,7 +344,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private async void RunLatestVersion()
+		private async Task RunLatestVersionAsync()
 		{
 			bool IsStarting = await latestVersionService.StartLatestInstalledVersionAsync();
 
@@ -416,10 +416,12 @@ namespace GitMind.MainWindowViews
 		{
 			while (true)
 			{
-				var dialog = new FolderBrowserDialog();
-				dialog.Description = "Select a working folder with a valid git repository.";
-				dialog.ShowNewFolderButton = false;
-				dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+				var dialog = new FolderBrowserDialog()
+				{
+					Description = "Select a working folder with a valid git repository.",
+					ShowNewFolderButton = false,
+					RootFolder = Environment.SpecialFolder.MyComputer
+				};
 
 				if (workingFolder.HasValue)
 				{
@@ -445,7 +447,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private async void SpecifyCommitBranch()
+		private async Task SpecifyCommitBranchAsync()
 		{
 			var commit = RepositoryViewModel.SelectedItem as CommitViewModel;
 			if (commit != null)
