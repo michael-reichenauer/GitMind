@@ -104,7 +104,10 @@ namespace GitMind.GitModel.Private
 			cacheService.CacheAsync(mRepository).RunInBackground();
 
 			Repository repository = ToRepository(mRepository);
-			t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
+			int branchesCount = repository.Branches.Count;
+			int commitsCount = repository.Commits.Count;
+
+			t.Log($"Updated repository {branchesCount} branches, {commitsCount} commits");
 			Log.Debug("Updated to repository");
 
 			return repository;
@@ -223,6 +226,7 @@ namespace GitMind.GitModel.Private
 
 		private Repository ToRepository(MRepository mRepository)
 		{
+			Timing t = new Timing();
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
 			KeyedList<string, Commit> rCommits = new KeyedList<string, Commit>(c => c.Id);
 			Branch currentBranch = null;
@@ -262,19 +266,23 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
+			t.Log($"Created repositrory {repository.Commits.Count} commits");
 			return repository;
 		}
 
 
 		private static Status ToStatus(MRepository mRepository)
 		{
+			Timing t = new Timing();
 			int statusCount = mRepository.Status?.Count ?? 0;
 
 			int conflictCount = mRepository.Status?.ConflictCount ?? 0;
 			string message = mRepository.Status?.Message;
 			bool isMerging = mRepository.Status?.IsMerging ?? false;
 
-			return new Status(statusCount, conflictCount, message, isMerging);
+			Status status = new Status(statusCount, conflictCount, message, isMerging);
+			t.Log("Got status");
+			return status;
 		}
 
 
@@ -289,20 +297,6 @@ namespace GitMind.GitModel.Private
 
 		private static void RemoveVirtualCommits(MRepository repository)
 		{
-			//MCommit uncommitted;
-			//if (repository.Commits.TryGetValue(MCommit.UncommittedId, out uncommitted))
-			//{
-			//	repository.ChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
-			//	repository.FirstChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
-			//	repository.Commits.Remove(uncommitted.Id);
-			//	uncommitted.Branch.CommitIds.Remove(uncommitted.Id);
-			//	if (uncommitted.Branch.TipCommitId == uncommitted.Id)
-			//	{
-			//		uncommitted.Branch.TipCommitId = uncommitted.FirstParentId;
-			//	}
-			//}
-
-
 			List<MCommit> virtualCommits = repository.Commits.Values.Where(c => c.IsVirtual).ToList();
 			foreach (MCommit virtualCommit in virtualCommits)
 			{

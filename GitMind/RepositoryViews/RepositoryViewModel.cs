@@ -291,7 +291,7 @@ namespace GitMind.RepositoryViews
 				Log.Debug("Loading repository ...");
 
 				Repository repository;
-				using (progress.ShowDialog("Create branch structure ..."))
+				using (progress.ShowDialog("Loading branch structure ..."))
 				{
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(workingFolder);
 					UpdateInitialViewModel(repository);

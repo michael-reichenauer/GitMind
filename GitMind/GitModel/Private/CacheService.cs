@@ -27,7 +27,7 @@ namespace GitMind.GitModel.Private
 
 		public async Task<MRepository> TryGetRepositoryAsync(string gitRepositoryPath)
 		{
-			//await Task.Yield();
+			await Task.Yield();
 			//return null;
 			return await TryReadRepositoryAsync(gitRepositoryPath);
 		}
@@ -50,28 +50,30 @@ namespace GitMind.GitModel.Private
 		{
 			using (await asyncLock.LockAsync())
 			{
-				string cachePath = GetCachePath(gitRepositoryPath);
-				Timing t = new Timing();
-
-				MRepository repository = Deserialize<MRepository>(cachePath);
-
-				if (repository == null)
+				return await Task.Run(() =>
 				{
-					Log.Debug("No cached repository");
-					return null;
-				}
+					string cachePath = GetCachePath(gitRepositoryPath);
+					Timing t = new Timing();
 
+					MRepository repository = Deserialize<MRepository>(cachePath);
 
-				if (repository.Version != MRepository.CurrentVersion)
-				{
-					Log.Warn(
-						$"Cached version differs {repository.Version} != Current {MRepository.CurrentVersion}");
-					return null;
-				}
+					if (repository == null)
+					{
+						Log.Debug("No cached repository");
+						return null;
+					}
 
-				repository.CompleteDeserialization(gitRepositoryPath);
-				t.Log($"Read cached repository with {repository.Commits.Count} commits");
-				return repository;
+					if (repository.Version != MRepository.CurrentVersion)
+					{
+						Log.Warn(
+							$"Cached version differs {repository.Version} != Current {MRepository.CurrentVersion}");
+						return null;
+					}
+
+					repository.CompleteDeserialization(gitRepositoryPath);
+					t.Log($"Read cached repository with {repository.Commits.Count} commits");
+					return repository;
+				});
 			}
 		}
 
