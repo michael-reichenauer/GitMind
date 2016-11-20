@@ -255,27 +255,12 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public async Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
-		{
-			if (!isLoaded)
-			{
-				return;
-			}
-
-			Timing t = new Timing();
-
-			await RepositoryViewModel.StatusChangeRefreshAsync(triggerTime, isRepoChange);
-			t.Log($"Status change is repo change: {isRepoChange}");
-		}
-
-
 		public Task ActivateRefreshAsync()
 		{
 			if (!isLoaded)
 			{
 				return Task.CompletedTask;
 			}
-
 
 			return RepositoryViewModel.ActivateRefreshAsync();
 		}

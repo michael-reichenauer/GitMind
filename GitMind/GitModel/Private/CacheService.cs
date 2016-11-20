@@ -14,7 +14,7 @@ namespace GitMind.GitModel.Private
 		public async Task CacheAsync(MRepository repository)
 		{
 			//await Task.Yield();
-			await WriteRepository(repository);
+			await WriteRepositoryAsync(repository);
 		}
 
 
@@ -33,15 +33,18 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async Task WriteRepository(MRepository repository)
+		private async Task WriteRepositoryAsync(MRepository repository)
 		{
 			using (await asyncLock.LockAsync())
 			{
-				string cachePath = GetCachePath(repository.WorkingFolder);
-				Timing t = new Timing();
+				await Task.Run(() =>
+				{
+					string cachePath = GetCachePath(repository.WorkingFolder);
+					Timing t = new Timing();
 
-				Serialize(cachePath, repository);
-				t.Log($"Wrote cached repository with {repository.Commits.Count} commits");
+					Serialize(cachePath, repository);
+					t.Log($"Wrote cached repository with {repository.Commits.Count} commits");
+				});
 			}
 		}
 

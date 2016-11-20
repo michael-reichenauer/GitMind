@@ -29,7 +29,7 @@ namespace GitMind.Features.Commits.Private
 		private readonly Func<SetBranchPromptDialog> setBranchPromptDialogProvider;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
-		private readonly IRepositoryService repositoryService;
+		private readonly IRepositoryMgr repositoryMgr;
 		private readonly IProgressService progress;
 		private readonly IStatusService statusService;
 
@@ -40,7 +40,7 @@ namespace GitMind.Features.Commits.Private
 			Func<SetBranchPromptDialog> setBranchPromptDialogProvider,
 			IGitCommitsService gitCommitsService,
 			IDiffService diffService,
-			IRepositoryService repositoryService,
+			IRepositoryMgr repositoryMgr,
 			IProgressService progressService,
 			IStatusService statusService,
 			Func<
@@ -56,7 +56,7 @@ namespace GitMind.Features.Commits.Private
 			this.setBranchPromptDialogProvider = setBranchPromptDialogProvider;
 			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;
-			this.repositoryService = repositoryService;
+			this.repositoryMgr = repositoryMgr;
 			this.progress = progressService;
 			this.statusService = statusService;
 		}
@@ -64,9 +64,8 @@ namespace GitMind.Features.Commits.Private
 
 		public async Task CommitChangesAsync()
 		{
-			Repository repository = repositoryCommands.Repository;
-			Commit uncommitted;
-			if (repository.Commits.TryGetValue(Commit.UncommittedId, out uncommitted))
+			Repository repository = repositoryMgr.Repository;
+			if (repository.Commits.TryGetValue(Commit.UncommittedId, out var uncommitted))
 			{
 				if (uncommitted.HasConflicts)
 				{
@@ -232,7 +231,7 @@ namespace GitMind.Features.Commits.Private
 
 		public async Task ShowUncommittedDiffAsync()
 		{
-			if (!repositoryCommands.Repository.Commits.Contains(Commit.UncommittedId))
+			if (!repositoryMgr.Repository.Commits.Contains(Commit.UncommittedId))
 			{
 				message.ShowInfo("There are no uncommitted changes");
 				return;

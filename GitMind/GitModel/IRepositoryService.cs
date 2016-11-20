@@ -1,13 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using GitMind.Features.StatusHandling.Private;
-using GitMind.Git;
 
 
 namespace GitMind.GitModel
 {
 	internal interface IRepositoryService
 	{
+		Repository Repository { get; }
+
 		void Monitor(string workingFolder);
 
 		event EventHandler<StatusChangedEventArgs> StatusChanged;
@@ -16,10 +17,10 @@ namespace GitMind.GitModel
 
 		bool IsRepositoryCached(string workingFolder);
 
-		Task<Repository> GetCachedOrFreshRepositoryAsync(string workingFolder);
+		Task InitialCachedOrFreshRepositoryAsync(string workingFolder);
 
-		Task<Repository> GetFreshRepositoryAsync(string workingFolder);
+		Task UpdateFreshRepositoryAsync();
 
-		Task<Repository> UpdateRepositoryAsync(Repository repository);
+		Task UpdateRepositoryAsync();
 	}
 }

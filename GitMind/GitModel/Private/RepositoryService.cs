@@ -6,12 +6,14 @@ using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
 using GitMind.Features.StatusHandling.Private;
 using GitMind.Git;
+using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
 {
-	internal class RepositoryService : IRepositoryService
+	[SingleInstance]
+	internal class RepositoryService : IRepositoryService, IRepositoryMgr
 	{
 		private readonly IStatusService statusService;
 		private readonly IGitCommitsService gitCommitsService;
@@ -61,6 +63,9 @@ namespace GitMind.GitModel.Private
 			remove { statusService.RepoChanged -= value; }
 		}
 
+		public Repository Repository { get; private set; }
+
+
 		public void Monitor(string workingFolder)
 		{
 			statusService.Monitor(workingFolder);
@@ -73,19 +78,25 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public Task<Repository> GetCachedOrFreshRepositoryAsync(string workingFolder)
+		public async Task InitialCachedOrFreshRepositoryAsync(string workingFolder)
 		{
-			return GetRepositoryAsync(true, workingFolder);
+			Repository = await GetRepositoryAsync(true, workingFolder);
 		}
 
 
-		public Task<Repository> GetFreshRepositoryAsync(string workingFolder)
+		public async Task UpdateFreshRepositoryAsync()
 		{
-			return GetRepositoryAsync(false, workingFolder);
+			Repository = await GetRepositoryAsync(false, Repository.MRepository.WorkingFolder);
 		}
 
 
-		public async Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder)
+		public async Task UpdateRepositoryAsync()
+		{
+			Repository = await GetRepositoryAsync(false, Repository.MRepository.WorkingFolder);
+		}
+
+
+		private async Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder)
 		{
 			Timing t = new Timing();
 			MRepository mRepository = null;

@@ -17,6 +17,7 @@ namespace GitMind.Features.Remote.Private
 	internal class RemoteService : IRemoteService
 	{
 		private readonly IRepositoryCommands repositoryCommands;
+		private readonly IRepositoryMgr repositoryMgr;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
 		private readonly IStatusService statusService;
@@ -27,6 +28,7 @@ namespace GitMind.Features.Remote.Private
 
 		public RemoteService(
 			IRepositoryCommands repositoryCommands,
+			IRepositoryMgr repositoryMgr,
 			IProgressService progress,
 			IMessage message,
 			IStatusService statusService,
@@ -35,6 +37,7 @@ namespace GitMind.Features.Remote.Private
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
 			this.repositoryCommands = repositoryCommands;
+			this.repositoryMgr = repositoryMgr;
 			this.progress = progress;
 			this.message = message;
 			this.statusService = statusService;
@@ -43,7 +46,7 @@ namespace GitMind.Features.Remote.Private
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 		}
 
-		private Repository Repository => repositoryCommands.Repository;
+		private Repository Repository => repositoryMgr.Repository;
 
 
 		public Task<R> FetchAsync()

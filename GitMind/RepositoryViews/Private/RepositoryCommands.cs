@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using GitMind.Features.StatusHandling.Private;
 using GitMind.Git;
 using GitMind.GitModel;
 
@@ -19,8 +18,6 @@ namespace GitMind.RepositoryViews.Private
 
 
 		private RepositoryViewModel viewModel => lazyRepositoryViewModel.Value;
-
-		public Repository Repository => viewModel.Repository;
 
 		public bool IsShowCommitDetails => viewModel.IsShowCommitDetails;
 		public void ShowCommitDetails() => viewModel.ShowCommitDetails();

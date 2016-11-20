@@ -7,8 +7,6 @@ namespace GitMind.RepositoryViews
 {
 	internal interface IRepositoryCommands
 	{
-		Repository Repository { get; }
-
 		void ShowCommitDetails();
 		void ToggleCommitDetails();
 		void ShowUncommittedDetails();

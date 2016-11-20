@@ -22,6 +22,7 @@ namespace GitMind.RepositoryViews.Private
 		private static readonly int CommitHeight = Converters.ToY(1);
 
 		private readonly IBrushService brushService;
+		private readonly IRepositoryMgr repositoryMgr;
 		private readonly Func<CommitViewModel> commitViewModelProvider;
 		private readonly Func<BranchViewModel> branchViewModelProvider;
 		private readonly Command<Branch> deleteBranchCommand;
@@ -30,10 +31,12 @@ namespace GitMind.RepositoryViews.Private
 		public ViewModelService(
 			IBranchService branchService,
 			IBrushService brushService,
+			IRepositoryMgr repositoryMgr,
 			Func<CommitViewModel> commitViewModelProvider,
 			Func<BranchViewModel> branchViewModelProvider)
 		{
 			this.brushService = brushService;
+			this.repositoryMgr = repositoryMgr;
 			this.commitViewModelProvider = commitViewModelProvider;
 			this.branchViewModelProvider = branchViewModelProvider;
 
@@ -54,9 +57,9 @@ namespace GitMind.RepositoryViews.Private
 				// First try find active branch with name and then other branch
 				if (name != null)
 				{
-					branch = repositoryViewModel.Repository.Branches
+					branch = repositoryMgr.Repository.Branches
 						.FirstOrDefault(b => b.Name == name && b.IsActive)
-									 ?? repositoryViewModel.Repository.Branches.FirstOrDefault(b => b.Name == name);
+									 ?? repositoryMgr.Repository.Branches.FirstOrDefault(b => b.Name == name);
 					if (branch != null && !specifiedBranches.Any(b => b.Name == name))
 					{
 						specifiedBranches.Add(branch);
@@ -64,7 +67,7 @@ namespace GitMind.RepositoryViews.Private
 				}
 				else
 				{
-					branch = repositoryViewModel.Repository.Branches.First(b => b.IsCurrentBranch);
+					branch = repositoryMgr.Repository.Branches.First(b => b.IsCurrentBranch);
 					if (branch != null && !specifiedBranches.Any(b => b.Name == branch.Name))
 					{
 						specifiedBranches.Add(branch);
@@ -74,12 +77,12 @@ namespace GitMind.RepositoryViews.Private
 
 			if (!specifiedBranches.Any())
 			{
-				Branch currentBranch = repositoryViewModel.Repository.CurrentBranch;
+				Branch currentBranch = repositoryMgr.Repository.CurrentBranch;
 
 				specifiedBranches.Add(currentBranch);
 			}
 
-			IReadOnlyList<Branch> branches = GetBranchesIncludingParents(specifiedBranches, repositoryViewModel);
+			IReadOnlyList<Branch> branches = GetBranchesIncludingParents(specifiedBranches);
 
 			List<Commit> commits = GetCommits(branches);
 
@@ -97,7 +100,7 @@ namespace GitMind.RepositoryViews.Private
 					new BranchItem(b, repositoryViewModel.ShowBranchCommand, null)));
 
 			repositoryViewModel.ShowableBranches.Clear();
-			IEnumerable<Branch> showableBranches = repositoryViewModel.Repository.Branches
+			IEnumerable<Branch> showableBranches = repositoryMgr.Repository.Branches
 				.Where(b => b.IsActive);
 			IReadOnlyList<BranchItem> showableBrancheItems = BranchItem.GetBranches(
 				showableBranches,
@@ -105,7 +108,7 @@ namespace GitMind.RepositoryViews.Private
 			showableBrancheItems.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
 
 			repositoryViewModel.DeletableBranches.Clear();
-			IEnumerable<Branch> deletableBranches = repositoryViewModel.Repository.Branches
+			IEnumerable<Branch> deletableBranches = repositoryMgr.Repository.Branches
 				.Where(b => b.IsActive && b.Name != BranchName.Master);
 			IReadOnlyList<BranchItem> deletableBrancheItems = BranchItem.GetBranches(
 				deletableBranches, deleteBranchCommand);
@@ -311,7 +314,7 @@ namespace GitMind.RepositoryViews.Private
 			else
 			{
 				Timing t = new Timing();
-				List<Commit> commits = await GetFilteredCommitsAsync(repositoryViewModel, filterText);
+				List<Commit> commits = await GetFilteredCommitsAsync(filterText);
 				t.Log($"Got filtered {commits.Count} commits");
 
 				if (repositoryViewModel.PreFilterBranches == null)
@@ -327,15 +330,14 @@ namespace GitMind.RepositoryViews.Private
 			}
 		}
 
-		private static Task<List<Commit>> GetFilteredCommitsAsync(
-			RepositoryViewModel repositoryViewModel, string filterText)
+		private Task<List<Commit>> GetFilteredCommitsAsync(string filterText)
 		{
 			IEnumerable<Commit> commits = null;
 
 			bool isSearchSpecifiedNames = filterText == "$gm:";
 			bool isSearchCommitNames = filterText == "$gm:c";
 
-			Repository repository = repositoryViewModel.Repository;
+			Repository repository = repositoryMgr.Repository;
 
 			commits = repository.Commits;
 
@@ -381,16 +383,15 @@ namespace GitMind.RepositoryViews.Private
 		}
 
 
-		private static IReadOnlyList<Branch> GetBranchesIncludingParents(
-			IEnumerable<Branch> branches, RepositoryViewModel repositoryViewModel)
+		private IReadOnlyList<Branch> GetBranchesIncludingParents(IEnumerable<Branch> branches)
 		{
-			Branch masterBranch = GetMasterBranch(repositoryViewModel.Repository);
+			Branch masterBranch = GetMasterBranch(repositoryMgr.Repository);
 			Branch[] masterBranches = { masterBranch };
 
 			List<Branch> branchesInRepo = new List<Branch>();
 			foreach (Branch branch in branches.Where(b => b != null))
 			{
-				Branch branchInRepo = repositoryViewModel.Repository.Branches
+				Branch branchInRepo = repositoryMgr.Repository.Branches
 					.FirstOrDefault(b => b.Id == branch.Id);
 
 				if (branchInRepo != null)
@@ -576,7 +577,7 @@ namespace GitMind.RepositoryViews.Private
 				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
 				branch.DimBrushHighlight = brushService.GetLighterLighterBrush(branch.Brush);
 				branch.BranchToolTip = GetBranchToolTip(sourceBranch);
-				branch.CurrentBranchName = repositoryViewModel.Repository.CurrentBranch.Name;
+				branch.CurrentBranchName = repositoryMgr.Repository.CurrentBranch.Name;
 
 				branch.SetNormal();
 
@@ -696,11 +697,11 @@ namespace GitMind.RepositoryViews.Private
 				.ToList();
 
 			bool isMergeInProgress =
-				repositoryViewModel.Repository.Status.IsMerging
-				&& branches.Any(b => b.Branch == repositoryViewModel.Repository.CurrentBranch)
+				repositoryMgr.Repository.Status.IsMerging
+				&& branches.Any(b => b.Branch == repositoryMgr.Repository.CurrentBranch)
 				&& repositoryViewModel.MergingBranch != null
 				&& branches.Any(b => b.Branch.Id == repositoryViewModel.MergingBranch.Id)
-				&& repositoryViewModel.Repository.Commits.Contains(Commit.UncommittedId);
+				&& repositoryMgr.Repository.Commits.Contains(Commit.UncommittedId);
 
 			int mergeCount = mergePoints.Count + branchStarts.Count + (isMergeInProgress ? 1 : 0);
 
