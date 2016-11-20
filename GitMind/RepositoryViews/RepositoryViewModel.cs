@@ -44,8 +44,6 @@ namespace GitMind.RepositoryViews
 		private readonly IMessage message;
 		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
-		private readonly IStatusService statusService;
-		private readonly WindowOwner owner;
 		private readonly ICommandLine commandLine;
 		private readonly ICommitsService commitsService;
 
@@ -88,9 +86,7 @@ namespace GitMind.RepositoryViews
 
 		public RepositoryViewModel(
 			WorkingFolder workingFolder,
-			IStatusService statusService,
 			IDiffService diffService,
-			WindowOwner owner,
 			ICommandLine commandLine,
 			IViewModelService viewModelService,
 			ICommitsService commitsService,
@@ -104,9 +100,7 @@ namespace GitMind.RepositoryViews
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
 		{
 			this.workingFolder = workingFolder;
-			this.statusService = statusService;
 			this.diffService = diffService;
-			this.owner = owner;
 			this.commandLine = commandLine;
 			this.viewModelService = viewModelService;
 			this.commitsService = commitsService;
@@ -127,8 +121,8 @@ namespace GitMind.RepositoryViews
 
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
 
-			statusService.StatusChanged += (s, e) => OnStatusChange(e.DateTime);
-			statusService.RepoChanged += (s, e) => OnRepoChange(e.DateTime);
+			repositoryService.StatusChanged += (s, e) => OnStatusChange(e.DateTime);
+			repositoryService.RepoChanged += (s, e) => OnRepoChange(e.DateTime);
 		}
 
 
@@ -284,9 +278,11 @@ namespace GitMind.RepositoryViews
 
 		public async Task LoadAsync()
 		{
+			Timing t = new Timing();
+
 			using (await refreshLock.LockAsync())
 			{
-				statusService.Monitor(workingFolder);
+				repositoryService.Monitor(workingFolder);
 
 				Log.Debug("Loading repository ...");
 
@@ -294,7 +290,9 @@ namespace GitMind.RepositoryViews
 				using (progress.ShowDialog("Loading branch structure ..."))
 				{
 					repository = await repositoryService.GetCachedOrFreshRepositoryAsync(workingFolder);
+					t.Log("Read cached/fresh repositrory");
 					UpdateInitialViewModel(repository);
+					t.Log("Updated view model after cached/fresh");
 				}
 
 				if (!gitInfoService.IsSupportedRemoteUrl(workingFolder))
@@ -307,7 +305,9 @@ namespace GitMind.RepositoryViews
 				using (busyIndicator.Progress())
 				{
 					repository = await GetLocalChangesAsync(Repository);
+					t.Log("Read current local repository");
 					UpdateViewModel(repository);
+					t.Log("Updated view model after local read");
 
 					if (commandLine.IsCommit)
 					{
@@ -315,15 +315,20 @@ namespace GitMind.RepositoryViews
 					}
 
 					await FetchRemoteChangesAsync(true);
+					t.Log("Checked remote");
 					repository = await GetLocalChangesAsync(Repository);
+					t.Log("Read reposiotry with remote chenges");
 					UpdateViewModel(repository);
+					t.Log("Updated view model after remote changes");
 					Log.Debug("Loaded repository done");
 				}
 
 				Log.Debug("Get fresh repository from scratch");
 				FreshRepositoryTime = DateTime.Now;
 				repository = await repositoryService.GetFreshRepositoryAsync(workingFolder);
+				t.Log("Read fresh reposiotry");
 				UpdateViewModel(repository);
+				t.Log("Updated view model after fresh repositrory");
 			}
 		}
 
