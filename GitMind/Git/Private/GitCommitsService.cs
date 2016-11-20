@@ -82,13 +82,11 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync()
+		public Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync()
 		{
 			return repoCaller.UseLibRepoAsync(repo =>
 			{
 				List<string> failedPaths = new List<string>();
-
-				repo.Reset(ResetMode.Hard);
 
 				RepositoryStatus repositoryStatus = repo.RetrieveStatus(StatusOptions);
 				foreach (StatusEntry statusEntry in repositoryStatus.Ignored.Concat(repositoryStatus.Untracked))

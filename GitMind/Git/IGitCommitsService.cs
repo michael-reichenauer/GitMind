@@ -22,7 +22,7 @@ namespace GitMind.Git
 		R<string> GetFullMessage(string commitId);
 
 
-		Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync();
+		Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync();
 
 		Task UndoFileInWorkingFolderAsync(string path);
 

@@ -167,8 +167,8 @@ namespace GitMind.MainWindowViews
 
 		public Command SearchCommand => Command(Search);
 
-		public Command UndoCleanWorkingFolderCommand => AsyncCommand(
-			commitsService.UndoCleanWorkingFolderAsync);
+		public Command CleanWorkingFolderCommand => AsyncCommand(
+			commitsService.CleanWorkingFolderAsync);
 
 
 		public async Task FirstLoadAsync()

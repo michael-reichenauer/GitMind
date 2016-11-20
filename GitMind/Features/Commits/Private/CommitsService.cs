@@ -197,14 +197,14 @@ namespace GitMind.Features.Commits.Private
 		}
 
 
-		public async Task UndoCleanWorkingFolderAsync()
+		public async Task CleanWorkingFolderAsync()
 		{
 			R<IReadOnlyList<string>> failedPaths = R.From(new string[0].AsReadOnlyList());
 
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog($"Undo changes and clean working folder  ..."))
+			using (progress.ShowDialog("Cclean working folder  ..."))
 			{
-				failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync();
+				failedPaths = await gitCommitsService.CleanWorkingFolderAsync();
 			}
 
 			if (failedPaths.IsFaulted)
@@ -214,7 +214,7 @@ namespace GitMind.Features.Commits.Private
 			else if (failedPaths.Value.Any())
 			{
 				int count = failedPaths.Value.Count;
-				string text = $"Failed to undo and clean working folder.\n{count} items where locked:\n";
+				string text = $"Failed to clean working folder.\n{count} items where locked:\n";
 				foreach (string path in failedPaths.Value.Take(10))
 				{
 					text += $"\n   {path}";

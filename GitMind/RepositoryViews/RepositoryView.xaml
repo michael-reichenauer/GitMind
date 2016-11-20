@@ -424,13 +424,13 @@
 
 
 																<MenuItem
-																	Header="Undo changes and clean ignored files"
-																	Command="{Binding UndoCleanWorkingFolderCommand}">
+																	Header="Clean untracked/ignored files"
+																	Command="{Binding CleanWorkingFolderCommand}">
 																	<MenuItem.Icon>
 																		<Border>
 																			<TextBlock
 																				Style="{StaticResource MenuIconStyle}"
-																				Text="&#xE166;"
+																				Text="&#xE92B;"
 																				Foreground="{StaticResource UndoBrush}" />
 																		</Border>
 																	</MenuItem.Icon>
