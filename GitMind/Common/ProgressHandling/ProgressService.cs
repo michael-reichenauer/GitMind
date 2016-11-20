@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
+using GitMind.Utils.UI;
 
 
 namespace GitMind.Common.ProgressHandling
@@ -10,13 +11,21 @@ namespace GitMind.Common.ProgressHandling
 	internal class ProgressService : IProgressService
 	{
 		private readonly WindowOwner owner;
+		private readonly Lazy<MainWindowViewModel> mainWindowViewModel;
 		private Progress currentProgress = null;
 
-		public ProgressService(WindowOwner owner)
+		public ProgressService(
+			WindowOwner owner,
+			Lazy<MainWindowViewModel> mainWindowViewModel)
 		{
 			this.owner = owner;
+			this.mainWindowViewModel = mainWindowViewModel;
 		}
 
+		public IDisposable ShowBusy()
+		{
+			return mainWindowViewModel.Value.Busy.Progress();
+		}
 
 		public void SetText(string text)
 		{

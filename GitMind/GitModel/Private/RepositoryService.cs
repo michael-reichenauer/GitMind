@@ -167,8 +167,11 @@ namespace GitMind.GitModel.Private
 
 				Log.Debug("Retry from scratch using a new repository ...");
 
-				repository = new MRepository();
-				repository.WorkingFolder = workingFolder;
+				repository = new MRepository()
+				{
+					WorkingFolder = workingFolder
+				};
+
 				Update(repository);
 			}
 

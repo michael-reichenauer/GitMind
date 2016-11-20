@@ -47,7 +47,7 @@ namespace GitMind.MainWindowViews
 			ILatestVersionService latestVersionService,
 			IMainWindowService mainWindowService,
 			MainWindowIpcService mainWindowIpcService,
-			Func<BusyIndicator, RepositoryViewModel> RepositoryViewModelProvider)
+			RepositoryViewModel repositoryViewModel)
 		{
 			this.workingFolder = workingFolder;
 			this.owner = owner;
@@ -58,7 +58,7 @@ namespace GitMind.MainWindowViews
 			this.mainWindowService = mainWindowService;
 			this.mainWindowIpcService = mainWindowIpcService;
 
-			RepositoryViewModel = RepositoryViewModelProvider(Busy);
+			RepositoryViewModel = repositoryViewModel;
 
 			workingFolder.OnChange += (s, e) => Notify(nameof(WorkingFolder));
 			latestVersionService.OnNewVersionAvailable += (s, e) => IsNewVersionVisible = true;

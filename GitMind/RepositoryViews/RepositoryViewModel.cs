@@ -44,8 +44,6 @@ namespace GitMind.RepositoryViews
 		private readonly WorkingFolder workingFolder;
 		private readonly ICommandLine commandLine;
 		private readonly ICommitsService commitsService;
-
-		private readonly BusyIndicator busyIndicator;
 		private readonly IProgressService progress;
 
 
@@ -92,7 +90,6 @@ namespace GitMind.RepositoryViews
 			IBrushService brushService,
 			IRemoteService remoteService,
 			IMessage message,
-			BusyIndicator busyIndicator,
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
 		{
@@ -108,7 +105,6 @@ namespace GitMind.RepositoryViews
 			this.brushService = brushService;
 			this.remoteService = remoteService;
 			this.message = message;
-			this.busyIndicator = busyIndicator;
 			this.progress = progressService;
 
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
@@ -295,7 +291,7 @@ namespace GitMind.RepositoryViews
 						"Use git:// or https:// instead.");
 				}
 
-				using (busyIndicator.Progress())
+				using (progress.ShowBusy())
 				{
 					await GetLocalChangesAsync();
 					t.Log("Read current local repository");
@@ -331,7 +327,7 @@ namespace GitMind.RepositoryViews
 			if (DateTime.Now - fetchedTime > ActivateRemoteCheckInterval)
 			{
 				Log.Usage("Activate window");
-				using (busyIndicator.Progress())
+				using (progress.ShowBusy())
 				{
 					await FetchRemoteChangesAsync(false);
 				}
@@ -370,9 +366,8 @@ namespace GitMind.RepositoryViews
 				Log.Debug("Refreshing after status/repo change ...");
 				Log.Usage("Refresh after status/repo change");
 
-				using (busyIndicator.Progress())
+				using (progress.ShowBusy())
 				{
-
 					if (isRepoChange && triggerTime - FreshRepositoryTime > FreshRepositoryInterval)
 					{
 						Log.Debug("Get fresh repository from scratch");
@@ -661,7 +656,7 @@ namespace GitMind.RepositoryViews
 
 			CommitPosition commitPosition = TryGetSelectedCommitPosition();
 
-			using (busyIndicator.Progress())
+			using (progress.ShowBusy())
 			{
 				await viewModelService.SetFilterAsync(this, filterText);
 			}
