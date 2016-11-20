@@ -29,7 +29,11 @@ namespace GitMind.GitModel.Private
 			this.cacheService = cacheService;
 			this.commitsFiles = commitsFiles;
 			this.repositoryStructureService = repositoryStructureService;
+
+			statusService.StatusChanged += (s, e) => OnStatusChanged();
+			statusService.RepoChanged += (s, e) => OnRepoChanged();
 		}
+
 
 		public event EventHandler<StatusChangedEventArgs> StatusChanged
 		{
@@ -81,6 +85,18 @@ namespace GitMind.GitModel.Private
 			Repository = await GetRepositoryAsync(false, Repository.MRepository.WorkingFolder);
 
 			RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());
+		}
+
+
+		private async void OnRepoChanged()
+		{
+			await UpdateRepositoryAsync();
+		}
+
+
+		private async void OnStatusChanged()
+		{
+			await UpdateRepositoryAsync();
 		}
 
 
