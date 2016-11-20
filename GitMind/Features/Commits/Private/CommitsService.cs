@@ -113,7 +113,7 @@ namespace GitMind.Features.Commits.Private
 						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
 							dialog.CommitMessage, branchName, dialog.CommitFiles);
 
-						if (!gitCommit.HasValue)
+						if (!gitCommit.IsOk)
 						{
 							message.ShowWarning("Failed to commit");
 						}

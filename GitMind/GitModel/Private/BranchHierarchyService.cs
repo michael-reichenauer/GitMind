@@ -280,11 +280,9 @@ namespace GitMind.GitModel.Private
 					localTip = branch.Repository.Commits[branch.LocalTipCommitId].FirstParentId;
 				}
 
-				R<GitDivergence> div = gitBranchService.CheckAheadBehind(localTip, remoteTip);
-
-				if (div.HasValue)
+				if (gitBranchService.CheckAheadBehind(localTip, remoteTip).HasValue(out var div))
 				{
-					string commonTip = div.Value.CommonId;
+					string commonTip = div.CommonId;
 
 					MCommit commonCommit = repository.Commits[commonTip];
 					commonCommit.CommitAndFirstAncestors().ForEach(c => c.IsCommon = true);

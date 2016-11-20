@@ -85,12 +85,12 @@ namespace GitMind.Utils
 			}
 		}
 
-		public bool HasValue => !IsFaulted;
+		//public bool HasValue => ;
 
 
-		public bool Try(out T value)
+		public bool HasValue(out T value)
 		{
-			if (HasValue)
+			if (!IsFaulted)
 			{
 				value = storedValue;
 				return true;

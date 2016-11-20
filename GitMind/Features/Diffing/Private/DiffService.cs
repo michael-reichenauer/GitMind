@@ -38,22 +38,18 @@ namespace GitMind.Features.Diffing.Private
 
 		public async Task ShowDiffAsync(string commitId)
 		{
-			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffAsync(commitId);
-
-			if (commitDiff.HasValue)
+			if ((await gitDiffService.GetCommitDiffAsync(commitId)).HasValue(out var commitDiff))
 			{
-				await ShowDiffImplAsync(commitDiff.Value.LeftPath, commitDiff.Value.RightPath);
+				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 			}
 		}
 
 
 		public async Task ShowDiffRangeAsync(string id1, string id2)
 		{
-			R<CommitDiff> commitDiff = await gitDiffService.GetCommitDiffRangeAsync(id1, id2);
-
-			if (commitDiff.HasValue)
+			if ((await gitDiffService.GetCommitDiffRangeAsync(id1, id2)).HasValue(out var commitDiff))
 			{
-				await ShowDiffImplAsync(commitDiff.Value.LeftPath, commitDiff.Value.RightPath);
+				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 			}
 		}
 
@@ -240,11 +236,9 @@ namespace GitMind.Features.Diffing.Private
 
 		public async Task ShowFileDiffAsync(string commitId, string name)
 		{
-			R<CommitDiff> commitDiff = await gitDiffService.GetFileDiffAsync(commitId, name);
-
-			if (commitDiff.HasValue)
+			if ((await gitDiffService.GetFileDiffAsync(commitId, name)).HasValue(out var commitDiff))
 			{
-				await ShowDiffImplAsync(commitDiff.Value.LeftPath, commitDiff.Value.RightPath);
+				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 			}
 		}
 

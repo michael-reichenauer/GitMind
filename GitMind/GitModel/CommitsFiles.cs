@@ -42,11 +42,10 @@ namespace GitMind.GitModel
 					gitCommitsService.GetFilesForCommitAsync(commitId);
 
 				currentTask = commitsFilesForCommitTask;
-				var commitsFilesForCommit = await commitsFilesForCommitTask;
-
-				if (commitsFilesForCommit.HasValue)
+				
+				if ((await commitsFilesForCommitTask).HasValue(out var commitsFilesForCommit))
 				{
-					files = commitsFilesForCommit.Value.Files
+					files = commitsFilesForCommit.Files
 						.Select(f => new CommitFile(f)).ToList();
 					commitsFiles[commitId] = files;
 					return files;

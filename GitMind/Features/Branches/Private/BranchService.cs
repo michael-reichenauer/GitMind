@@ -202,7 +202,7 @@ namespace GitMind.Features.Branches.Private
 				R<BranchName> switchedNamed = await gitBranchService.SwitchToCommitAsync(
 					commit.CommitId, branchName);
 
-				if (switchedNamed.HasValue)
+				if (switchedNamed.IsOk)
 				{
 					repositoryCommands.ShowBranch(switchedNamed.Value);
 				}
