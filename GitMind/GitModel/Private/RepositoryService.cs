@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Features.Diffing;
+using GitMind.Features.StatusHandling;
+using GitMind.Features.StatusHandling.Private;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -11,6 +13,7 @@ namespace GitMind.GitModel.Private
 {
 	internal class RepositoryService : IRepositoryService
 	{
+		private readonly IStatusService statusService;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly ICacheService cacheService;
 		private readonly ICommitsService commitsService;
@@ -23,6 +26,7 @@ namespace GitMind.GitModel.Private
 
 
 		public RepositoryService(
+			IStatusService statusService,
 			IGitCommitsService gitCommitsService,
 			ICacheService cacheService,
 			ICommitsService commitsService,
@@ -33,6 +37,7 @@ namespace GitMind.GitModel.Private
 			ICommitsFiles commitsFiles,
 			IDiffService diffService)
 		{
+			this.statusService = statusService;
 			this.gitCommitsService = gitCommitsService;
 			this.cacheService = cacheService;
 			this.commitsService = commitsService;
@@ -42,6 +47,23 @@ namespace GitMind.GitModel.Private
 			this.tagService = tagService;
 			this.commitsFiles = commitsFiles;
 			this.diffService = diffService;
+		}
+
+		public event EventHandler<StatusChangedEventArgs> StatusChanged
+		{
+			add { statusService.StatusChanged += value; }
+			remove { statusService.StatusChanged -= value; }
+		}
+
+		public event EventHandler<RepoChangedEventArgs> RepoChanged
+		{
+			add { statusService.RepoChanged += value; }
+			remove { statusService.RepoChanged -= value; }
+		}
+
+		public void Monitor(string workingFolder)
+		{
+			statusService.Monitor(workingFolder);
 		}
 
 
