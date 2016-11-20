@@ -34,19 +34,6 @@ namespace GitMind.GitModel.Private
 			statusService.RepoChanged += (s, e) => OnRepoChanged();
 		}
 
-
-		public event EventHandler<StatusChangedEventArgs> StatusChanged
-		{
-			add { statusService.StatusChanged += value; }
-			remove { statusService.StatusChanged -= value; }
-		}
-
-		public event EventHandler<RepoChangedEventArgs> RepoChanged
-		{
-			add { statusService.RepoChanged += value; }
-			remove { statusService.RepoChanged -= value; }
-		}
-
 		public Repository Repository { get; private set; }
 
 		public event EventHandler<RepositoryUpdatedEventArgs> RepositoryUpdated;
@@ -105,19 +92,20 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			MRepository mRepository = null;
 			Repository repository = null;
+			bool usedCached = false;
 
 			if (useCache)
-			{ 
+			{
 				try
 				{
 					mRepository = await cacheService.TryGetRepositoryAsync(workingFolder);
-					 
+					usedCached = true;
 					t.Log("cacheService.TryGetRepositoryAsync");
 					if (mRepository != null)
 					{
 						repository = ToRepository(mRepository);
 						t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
-						 
+
 						return repository;
 					}
 				}
@@ -125,7 +113,7 @@ namespace GitMind.GitModel.Private
 				{
 					Log.Warn($"Failed to read cached repositrory {e}");
 					cacheService.TryDeleteCache(workingFolder);
-				}			
+				}
 			}
 
 			Log.Debug("No cached repository");
@@ -134,8 +122,17 @@ namespace GitMind.GitModel.Private
 
 			await repositoryStructureService.UpdateAsync(mRepository);
 			t.Log("Updated mRepository");
-			await cacheService.CacheAsync(mRepository);
-				
+			if (!usedCached && t.Elapsed > TimeSpan.FromMilliseconds(1000))
+			{
+				Log.Usage($"Caching repository ({t.Elapsed} ms)");
+				await cacheService.CacheAsync(mRepository);
+			}
+			else
+			{
+				Log.Usage($"No need for cached repository ({t.Elapsed} ms)");
+				cacheService.TryDeleteCache(workingFolder);
+			}
+							
 			repository = ToRepository(mRepository);
 			t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
 
