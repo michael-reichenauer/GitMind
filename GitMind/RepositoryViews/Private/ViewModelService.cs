@@ -17,6 +17,7 @@ namespace GitMind.RepositoryViews.Private
 	/// <summary>
 	/// ViewModelService
 	/// </summary>
+	[SingleInstance]
 	internal class ViewModelService : IViewModelService
 	{
 		private static readonly int CommitHeight = Converters.ToY(1);
@@ -27,6 +28,7 @@ namespace GitMind.RepositoryViews.Private
 		private readonly Func<BranchViewModel> branchViewModelProvider;
 		private readonly Command<Branch> deleteBranchCommand;
 
+		private bool isFirstTime = true;
 
 		public ViewModelService(
 			IBranchService branchService,
@@ -80,6 +82,16 @@ namespace GitMind.RepositoryViews.Private
 				Branch currentBranch = repositoryMgr.Repository.CurrentBranch;
 
 				specifiedBranches.Add(currentBranch);
+			}
+
+			if (isFirstTime)
+			{
+				Branch currentBranch = repositoryMgr.Repository.CurrentBranch;
+				isFirstTime = false;
+				if (!specifiedBranches.Any(b => b == currentBranch))
+				{
+					specifiedBranches.Add(currentBranch);
+				}
 			}
 
 			IReadOnlyList<Branch> branches = GetBranchesIncludingParents(specifiedBranches);
