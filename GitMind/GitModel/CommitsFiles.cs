@@ -28,8 +28,7 @@ namespace GitMind.GitModel
 
 		public async Task<IEnumerable<CommitFile>> GetAsync(string commitId)
 		{
-			IList<CommitFile> files;
-			if (commitId == Commit.UncommittedId || !commitsFiles.TryGetValue(commitId, out files))
+			if (commitId == Commit.UncommittedId || !commitsFiles.TryGetValue(commitId, out var files))
 			{
 				nextIdToGet = commitId;
 				await currentTask;

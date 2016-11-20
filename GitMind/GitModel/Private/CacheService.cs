@@ -32,6 +32,24 @@ namespace GitMind.GitModel.Private
 			return await TryReadRepositoryAsync(gitRepositoryPath);
 		}
 
+		public void TryDeleteCache(string workingFolder)
+		{
+			try
+			{
+				string cachePath = GetCachePath(workingFolder);
+				string tempPath = cachePath + ".tmp." + Guid.NewGuid();
+
+				// Just moving cache now, it will be deleted the next time the cache written
+				if (File.Exists(cachePath))
+				{
+					File.Move(cachePath, tempPath);
+				}
+			}
+			catch (Exception e) when(e.IsNotFatal())
+			{
+				Log.Warn($"Failed to delete cache {e}");
+			}
+		}
 
 		private async Task WriteRepositoryAsync(MRepository repository)
 		{
@@ -49,7 +67,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task<MRepository> TryReadRepositoryAsync(string gitRepositoryPath)
+		private async Task<MRepository> TryReadRepositoryAsync(string gitRepositoryPath)
 		{
 			using (await asyncLock.LockAsync())
 			{
