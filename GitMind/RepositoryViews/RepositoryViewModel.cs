@@ -332,7 +332,7 @@ namespace GitMind.RepositoryViews
 
 		private void OnRepositoryUpdated()
 		{
-			Log.Warn("Update reposiotry view model after updated Repository");
+			Log.Debug("Update reposiotry view model after updated Repository");
 			Timing t = new Timing();
 			using (progress.ShowBusy())
 			{
@@ -348,7 +348,6 @@ namespace GitMind.RepositoryViews
 			using (await refreshLock.LockAsync())
 			{
 				Log.Debug("Refreshing after command ...");
-
 				await FetchRemoteChangesAsync(true);
 
 				if (useFreshRepository)

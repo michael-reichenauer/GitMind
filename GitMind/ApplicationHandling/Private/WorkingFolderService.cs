@@ -132,8 +132,7 @@ namespace GitMind.ApplicationHandling.Private
 				return Error.From("No working folder");
 			}
 
-			return gitInfoService.GetCurrentRootPath(path)
-				.OnError(e => Log.Debug($"Not a working folder {path}, {e}"));
+			return gitInfoService.GetCurrentRootPath(path);
 		}
 	}
 }

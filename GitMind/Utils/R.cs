@@ -25,6 +25,8 @@ namespace GitMind.Utils
 		public static implicit operator R(Error error) => new R(error);
 		public static implicit operator R(Exception e) => new R(Error.From(e));
 
+		public static implicit operator bool(R r) => !r.IsFaulted;
+
 		public override string ToString()
 		{
 			if (IsFaulted)
@@ -39,14 +41,14 @@ namespace GitMind.Utils
 
 	public class R<T> : R
 	{
-		private readonly T value;
+		private readonly T storedValue;
 
 		public new static R<T> NoValue = new R<T>(Error.NoValue);
 
 		public R(T value)
 			: base(Error.None)
 		{
-			this.value = value;
+			this.storedValue = value;
 		}
 
 		public R(Error error)
@@ -55,22 +57,9 @@ namespace GitMind.Utils
 		}
 
 
-		public object Voe
-		{
-			get
-			{
-				if (IsFaulted)
-				{
-					return Error;
-				}
-
-				return Value;
-			}
-		}
-
-
 		public static implicit operator R<T>(Error error) => new R<T>(error);
 		public static implicit operator R<T>(Exception e) => new R<T>(Error.From(e));
+		public static implicit operator bool(R<T> r) => !r.IsFaulted;
 
 		public static implicit operator R<T>(T value)
 		{
@@ -89,7 +78,7 @@ namespace GitMind.Utils
 			{
 				if (!IsFaulted)
 				{
-					return value;
+					return storedValue;
 				}
 
 				throw Asserter.FailFast(Error);
@@ -99,26 +88,19 @@ namespace GitMind.Utils
 		public bool HasValue => !IsFaulted;
 
 
-		public R<T> OnError(Action<Error> errorAction)
+		public bool Try(out T value)
 		{
-			if (IsFaulted)
+			if (HasValue)
 			{
-				errorAction(Error);
+				value = storedValue;
+				return true;
 			}
-
-			return this;
-		}
-
-		public R<T> OnValue(Action<T> valueAction)
-		{
-			if (!IsFaulted)
+			else
 			{
-				valueAction(value);
+				value = default(T);
+				return false;
 			}
-
-			return this;
 		}
-
 
 		public T Or(T defaultValue)
 		{
@@ -138,7 +120,7 @@ namespace GitMind.Utils
 				return $"Error: {Error}";
 			}
 
-			return value?.ToString() ?? "";
+			return storedValue?.ToString() ?? "";
 		}
 	}
 }
