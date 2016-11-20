@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
-using GitMind.Utils.UI;
 
 
 namespace GitMind.Common.ProgressHandling

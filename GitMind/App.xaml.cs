@@ -11,7 +11,6 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Features.Diffing;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
-using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 

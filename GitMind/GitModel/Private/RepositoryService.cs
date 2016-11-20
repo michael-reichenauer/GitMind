@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
 using GitMind.Features.StatusHandling.Private;
 using GitMind.Git;
@@ -16,39 +14,21 @@ namespace GitMind.GitModel.Private
 	internal class RepositoryService : IRepositoryService, IRepositoryMgr
 	{
 		private readonly IStatusService statusService;
-		private readonly IGitCommitsService gitCommitsService;
 		private readonly ICacheService cacheService;
-		private readonly ICommitsService commitsService;
-		private readonly IBranchService branchService;
-		private readonly ICommitBranchNameService commitBranchNameService;
-		private readonly IBranchHierarchyService branchHierarchyService;
-		private readonly ITagService tagService;
 		private readonly ICommitsFiles commitsFiles;
-		private readonly IDiffService diffService;
+		private readonly IRepositoryStructureService repositoryStructureService;
 
 
 		public RepositoryService(
 			IStatusService statusService,
-			IGitCommitsService gitCommitsService,
 			ICacheService cacheService,
-			ICommitsService commitsService,
-			IBranchService branchService,
-			ICommitBranchNameService commitBranchNameService,
-			IBranchHierarchyService branchHierarchyService,
-			ITagService tagService,
 			ICommitsFiles commitsFiles,
-			IDiffService diffService)
+			IRepositoryStructureService repositoryStructureService)
 		{
 			this.statusService = statusService;
-			this.gitCommitsService = gitCommitsService;
 			this.cacheService = cacheService;
-			this.commitsService = commitsService;
-			this.branchService = branchService;
-			this.commitBranchNameService = commitBranchNameService;
-			this.branchHierarchyService = branchHierarchyService;
-			this.tagService = tagService;
 			this.commitsFiles = commitsFiles;
-			this.diffService = diffService;
+			this.repositoryStructureService = repositoryStructureService;
 		}
 
 		public event EventHandler<StatusChangedEventArgs> StatusChanged
@@ -120,7 +100,7 @@ namespace GitMind.GitModel.Private
 				mRepository = new MRepository();
 				mRepository.WorkingFolder = workingFolder;
 
-				await UpdateAsync(mRepository);
+				await repositoryStructureService.UpdateAsync(mRepository);
 				t.Log("Updated mRepository");
 				cacheService.CacheAsync(mRepository).RunInBackground();
 			}
@@ -140,7 +120,7 @@ namespace GitMind.GitModel.Private
 
 			Timing t = new Timing();
 
-			await UpdateAsync(mRepository);
+			await repositoryStructureService.UpdateAsync(mRepository);
 			t.Log("Updated mRepository");
 			cacheService.CacheAsync(mRepository).RunInBackground();
 
@@ -155,117 +135,6 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private Task<MRepository> UpdateAsync(MRepository mRepository)
-		{
-			return Task.Run(() => UpdateRepository(mRepository));
-		}
-
-
-		private MRepository UpdateRepository(MRepository repository)
-		{
-			string workingFolder = repository.WorkingFolder;
-
-			try
-			{
-				Update(repository);
-			}
-			catch (Exception e)
-			{
-				Log.Error($"Failed to update repository {e}");
-
-				Log.Debug("Retry from scratch using a new repository ...");
-
-				repository = new MRepository()
-				{
-					WorkingFolder = workingFolder
-				};
-
-				Update(repository);
-			}
-
-			return repository;
-		}
-
-
-		private void Update(MRepository repository)
-		{
-			Log.Debug("Updating repository");
-			Timing t = new Timing();
-			string gitRepositoryPath = repository.WorkingFolder;
-
-			// repository.Tips = GitRepository.GetRefsIds(gitRepositoryPath);
-			using (GitRepository gitRepository = GitRepository.Open(diffService, gitRepositoryPath))
-			{
-				GitStatus gitStatus = gitRepository.Status;
-				repository.Status = gitStatus;
-				t.Log("Got git status");
-
-				CleanRepositoryOfTempData(repository);
-
-				commitsService.AddBranchCommits(gitRepository, gitStatus, repository);
-				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
-
-				AnalyzeBranchStructure(repository, gitStatus, gitRepository);
-				t.Log("AnalyzeBranchStructure");
-			}
-
-			t.Log("Done");
-		}
-
-
-		private void AnalyzeBranchStructure(
-			MRepository repository,
-			GitStatus gitStatus,
-			GitRepository gitRepository)
-		{
-			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
-
-			MSubBranch mSubBranch = repository.SubBranches
-				.FirstOrDefault(b => b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
-			MCommit commit = mSubBranch.TipCommit.FirstAncestors().Last();
-
-			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitsService.GetSpecifiedNames(
-				commit.Id);
-
-			IReadOnlyList<CommitBranchName> commitBranches = gitCommitsService.GetCommitBranches(
-				commit.Id);
-
-			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
-			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);
-
-			commitBranchNameService.SetMasterBranchCommits(repository);
-
-			branchService.AddInactiveBranches(repository);
-
-			commitBranchNameService.SetBranchTipCommitsNames(repository);
-
-			commitBranchNameService.SetNeighborCommitNames(repository);
-
-			branchService.AddMissingInactiveBranches(repository);
-
-			branchService.AddMultiBranches(repository);
-
-			branchHierarchyService.SetBranchHierarchy(repository);
-
-			//aheadBehindService.SetAheadBehind(repository);
-
-			tagService.AddTags(gitRepository, repository);
-
-			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);
-			repository.CurrentBranchId = currentBranch.Id;
-
-			repository.CurrentCommitId = gitStatus.OK
-				? gitRepository.Head.TipId
-				: MCommit.UncommittedId;
-
-			if (currentBranch.TipCommit.IsVirtual
-					&& currentBranch.TipCommit.FirstParentId == repository.CurrentCommitId)
-			{
-				repository.CurrentCommitId = currentBranch.TipCommit.Id;
-			}
-
-			repository.SubBranches.Clear();
-		}
 
 
 		private Repository ToRepository(MRepository mRepository)
@@ -327,32 +196,6 @@ namespace GitMind.GitModel.Private
 			Status status = new Status(statusCount, conflictCount, message, isMerging);
 			t.Log("Got status");
 			return status;
-		}
-
-
-		private static void CleanRepositoryOfTempData(MRepository repository)
-		{
-			RemoveVirtualCommits(repository);
-
-			repository.Branches.Values.ForEach(b => b.TipCommit.BranchTips = null);
-
-			repository.Commits.Values.ForEach(c => c.BranchTipBranches.Clear());
-		}
-
-		private static void RemoveVirtualCommits(MRepository repository)
-		{
-			List<MCommit> virtualCommits = repository.Commits.Values.Where(c => c.IsVirtual).ToList();
-			foreach (MCommit virtualCommit in virtualCommits)
-			{
-				repository.ChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
-				repository.FirstChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
-				repository.Commits.Remove(virtualCommit.Id);
-				virtualCommit.Branch.CommitIds.Remove(virtualCommit.Id);
-				if (virtualCommit.Branch.TipCommitId == virtualCommit.Id)
-				{
-					virtualCommit.Branch.TipCommitId = virtualCommit.FirstParentId;
-				}
-			}
 		}
 	}
 }

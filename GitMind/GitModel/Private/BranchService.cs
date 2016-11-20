@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 using System.Linq;
 using GitMind.Git;
-using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private

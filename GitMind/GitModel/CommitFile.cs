@@ -1,5 +1,4 @@
 using GitMind.Git;
-using ProtoBuf;
 
 
 namespace GitMind.GitModel

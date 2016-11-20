@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using GitMind.Features.StatusHandling.Private;
 
 
 namespace GitMind.GitModel
