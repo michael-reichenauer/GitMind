@@ -62,7 +62,7 @@ namespace GitMind.RepositoryViews
 			new Dictionary<string, CommitViewModel>();
 
 		private DateTime fetchedTime = DateTime.MinValue;
-		private DateTime FreshRepositoryTime = DateTime.MinValue;
+		//private DateTime FreshRepositoryTime = DateTime.MinValue;
 
 		private static readonly TimeSpan ActivateRemoteCheckInterval = TimeSpan.FromSeconds(15);
 		private static readonly TimeSpan AutoRemoteCheckInterval = TimeSpan.FromMinutes(9);
@@ -114,8 +114,7 @@ namespace GitMind.RepositoryViews
 
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
 
-			repositoryService.StatusChanged += (s, e) => OnStatusChange(e.DateTime);
-			repositoryService.RepoChanged += (s, e) => OnRepoChange(e.DateTime);
+			repositoryService.RepositoryUpdated += (s, e) => OnRepositoryUpdated();
 		}	
 
 		public Branch MergingBranch { get; private set; }
@@ -272,15 +271,13 @@ namespace GitMind.RepositoryViews
 
 			using (await refreshLock.LockAsync())
 			{
-				repositoryService.Monitor(workingFolder);
-
 				Log.Debug("Loading repository ...");
 
 				using (progress.ShowDialog("Loading branch structure ..."))
 				{
-					await repositoryService.InitialCachedOrFreshRepositoryAsync(workingFolder);
+					await repositoryService.LoadRepositoryAsync(workingFolder);
 					t.Log("Read cached/fresh repositrory");
-					UpdateInitialViewModel();
+					LoadViewModel();
 					t.Log("Updated view model after cached/fresh");
 				}
 
@@ -293,7 +290,7 @@ namespace GitMind.RepositoryViews
 
 				using (progress.ShowBusy())
 				{
-					await GetLocalChangesAsync();
+					await repositoryService.UpdateRepositoryAsync();
 					t.Log("Read current local repository");
 					UpdateViewModel();
 					t.Log("Updated view model after local read");
@@ -305,19 +302,7 @@ namespace GitMind.RepositoryViews
 
 					await FetchRemoteChangesAsync(true);
 					t.Log("Checked remote");
-					await GetLocalChangesAsync();
-					t.Log("Read reposiotry with remote chenges");
-					UpdateViewModel();
-					t.Log("Updated view model after remote changes");
-					Log.Debug("Loaded repository done");
 				}
-
-				Log.Debug("Get fresh repository from scratch");
-				FreshRepositoryTime = DateTime.Now;
-				 await repositoryService.UpdateFreshRepositoryAsync();
-				t.Log("Read fresh reposiotry");
-				UpdateViewModel();
-				t.Log("Updated view model after fresh repositrory");
 			}
 		}
 
@@ -345,45 +330,16 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private void OnStatusChange(DateTime triggerTime)
+		private void OnRepositoryUpdated()
 		{
-			Log.Debug("Status change");
-			StatusChangeRefreshAsync(triggerTime, false).RunInBackground();
-		}
-
-
-		private void OnRepoChange(DateTime triggerTime)
-		{
-			Log.Debug("Repo change");
-			StatusChangeRefreshAsync(triggerTime, true).RunInBackground();
-		}
-
-
-		private async Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
-		{
-			using (await refreshLock.LockAsync())
+			Log.Warn("Update reposiotry view model after updated Repository");
+			Timing t = new Timing();
+			using (progress.ShowBusy())
 			{
-				Log.Debug("Refreshing after status/repo change ...");
-				Log.Usage("Refresh after status/repo change");
-
-				using (progress.ShowBusy())
-				{
-					if (isRepoChange && triggerTime - FreshRepositoryTime > FreshRepositoryInterval)
-					{
-						Log.Debug("Get fresh repository from scratch");
-						FreshRepositoryTime = DateTime.Now;
-						await repositoryService.UpdateFreshRepositoryAsync();
-						FreshRepositoryTime = DateTime.Now;
-					}
-					else
-					{
-						await GetLocalChangesAsync();
-					}
-
-					UpdateViewModel();
-					Log.Debug("Refreshed after status/repo change done");
-				}
+				UpdateViewModel();
 			}
+
+			t.Log("Updated view model");
 		}
 
 
@@ -402,11 +358,8 @@ namespace GitMind.RepositoryViews
 				}
 				else
 				{
-					await GetLocalChangesAsync();
+					await repositoryService.UpdateRepositoryAsync();
 				}
-
-				UpdateViewModel();
-				Log.Debug("Refreshed after command done");
 			}
 		}
 
@@ -429,10 +382,6 @@ namespace GitMind.RepositoryViews
 
 					Log.Debug("Get fresh repository from scratch");
 					await repositoryService.UpdateFreshRepositoryAsync();
-
-					FreshRepositoryTime = DateTime.Now;
-					UpdateViewModel();
-					Log.Debug("Refreshed after manual trigger done");
 				}
 			}
 		}
@@ -482,12 +431,6 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private Task GetLocalChangesAsync()
-		{
-			return repositoryService.UpdateRepositoryAsync();
-		}
-
-
 		private async Task FetchRemoteChangesAsync(bool isFetchNotes)
 		{
 			Log.Debug("Fetching");
@@ -523,7 +466,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private void UpdateInitialViewModel()
+		private void LoadViewModel()
 		{
 			Timing t = new Timing();
 			

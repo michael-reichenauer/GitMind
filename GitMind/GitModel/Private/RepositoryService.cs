@@ -65,6 +65,8 @@ namespace GitMind.GitModel.Private
 
 		public Repository Repository { get; private set; }
 
+		public event EventHandler<RepositoryUpdatedEventArgs> RepositoryUpdated;
+
 
 		public void Monitor(string workingFolder)
 		{
@@ -78,8 +80,10 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task InitialCachedOrFreshRepositoryAsync(string workingFolder)
+		public async Task LoadRepositoryAsync(string workingFolder)
 		{
+			Monitor(workingFolder);
+
 			Repository = await GetRepositoryAsync(true, workingFolder);
 		}
 
@@ -87,12 +91,16 @@ namespace GitMind.GitModel.Private
 		public async Task UpdateFreshRepositoryAsync()
 		{
 			Repository = await GetRepositoryAsync(false, Repository.MRepository.WorkingFolder);
+
+			RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());
 		}
 
 
 		public async Task UpdateRepositoryAsync()
 		{
 			Repository = await GetRepositoryAsync(false, Repository.MRepository.WorkingFolder);
+
+			RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());
 		}
 
 

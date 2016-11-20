@@ -9,15 +9,11 @@ namespace GitMind.GitModel
 	{
 		Repository Repository { get; }
 
-		void Monitor(string workingFolder);
-
-		event EventHandler<StatusChangedEventArgs> StatusChanged;
-
-		event EventHandler<RepoChangedEventArgs> RepoChanged;
+		event EventHandler<RepositoryUpdatedEventArgs> RepositoryUpdated;
 
 		bool IsRepositoryCached(string workingFolder);
 
-		Task InitialCachedOrFreshRepositoryAsync(string workingFolder);
+		Task LoadRepositoryAsync(string workingFolder);
 
 		Task UpdateFreshRepositoryAsync();
 
