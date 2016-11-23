@@ -27,7 +27,7 @@ namespace GitMind.GitModel.Private
 
 		public string WorkingFolder { get; set; }
 
-		public Status Status { get; set; }
+		public Status Status { get; set; } = Status.Default;
 
 		public IList<string> ChildIds(string commitId)
 		{
