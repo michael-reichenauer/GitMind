@@ -46,6 +46,7 @@ namespace GitMind.Features.StatusHandling.Private
 						b.Tip.Id.Sha +
 						b.IsCurrentRepositoryHead +
 						b.TrackedBranch?.CanonicalName)
+					.Concat(repo.Tags.Select(t => t.CanonicalName + t.Target.Id.Sha))
 					.ToReadOnlyList();
 			});
 		}
