@@ -98,7 +98,7 @@ namespace GitMind.Features.Commits.Private
 					commitFiles = await repositoryCommands.UnCommited.FilesTask;
 				}
 
-				string commitMessage = repository.Status.Message;
+				string commitMessage = repository.Status.MergeMessage;
 
 				CommitDialog dialog = commitDialogProvider(
 					branchName,

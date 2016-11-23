@@ -219,7 +219,7 @@ namespace GitMind.Features.Branches.Private
 		public bool CanExecuteSwitchToBranchCommit(Commit commit)
 		{
 			return
-				commit.Repository.Status.StatusCount == 0
+				commit.Repository.Status.ChangedCount == 0
 				&& !commit.Repository.Status.IsMerging
 				&& commit.Repository.Status.ConflictCount == 0;
 		}
@@ -327,7 +327,7 @@ namespace GitMind.Features.Branches.Private
 					return;
 				}
 
-				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.StatusCount > 0)
+				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.ChangedCount > 0)
 				{
 					message.ShowInfo("You must first commit uncommitted changes before merging.");
 					return;

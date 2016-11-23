@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -38,14 +39,14 @@ namespace GitMind.GitModel
 					return Enumerable.Empty<CommitFile>();
 				}
 
-				Task<R<GitCommitFiles>> commitsFilesForCommitTask =
+				Task<R<IReadOnlyList<StatusFile>>> commitsFilesForCommitTask =
 					gitCommitsService.GetFilesForCommitAsync(commitId);
 
 				currentTask = commitsFilesForCommitTask;
 				
 				if ((await commitsFilesForCommitTask).HasValue(out var commitsFilesForCommit))
 				{
-					files = commitsFilesForCommit.Files
+					files = commitsFilesForCommit
 						.Select(f => new CommitFile(f)).ToList();
 					commitsFiles[commitId] = files;
 					return files;

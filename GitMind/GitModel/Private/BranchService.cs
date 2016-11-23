@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using System.Linq;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 
 
@@ -28,8 +29,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddActiveBranches(
-			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
+		public void AddActiveBranches(GitRepository gitRepository, Status status, MRepository repository)
 		{
 			GitBranch currentBranch = gitRepository.Head;
 
@@ -44,7 +44,7 @@ namespace GitMind.GitModel.Private
 				MSubBranch subBranch = ToBranch(gitBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!gitStatus.OK && gitBranch.IsCurrent && !gitBranch.IsRemote)
+				if (!status.IsOK && gitBranch.IsCurrent && !gitBranch.IsRemote)
 				{
 					// Setting virtual uncommitted commit as tip of the current branch
 					subBranch.TipCommitId = MCommit.UncommittedId;
@@ -57,7 +57,7 @@ namespace GitMind.GitModel.Private
 				MSubBranch subBranch = ToBranch(currentBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!gitStatus.OK)
+				if (!status.IsOK)
 				{
 					// Setting virtual uncommitted commit as tip of the detached branch
 					subBranch.TipCommitId = MCommit.UncommittedId;

@@ -4,7 +4,7 @@ using GitMind.Utils;
 
 namespace GitMind.Features.StatusHandling
 {
-	internal class Status
+	public class Status
 	{
 		public static readonly Status Default =
 			new Status(new StatusFile[0], new StatusFile[0], false, false, "");

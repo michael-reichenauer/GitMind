@@ -156,7 +156,6 @@
     <Compile Include="Features\Commits\Private\CommitsService.cs" />
     <Compile Include="Features\Commits\ICommitsService.cs" />
     <Compile Include="Features\StatusHandling\Private\FolderMonitorService.cs" />
-    <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\BranchName.cs" />
     <Compile Include="Git\GitDivergence.cs" />
     <Compile Include="Git\INetworkService.cs" />
@@ -303,7 +302,6 @@
     <Compile Include="Git\GitBranch.cs" />
     <Compile Include="Git\GitTag.cs" />
     <Compile Include="Git\IGitCommitsService.cs" />
-    <Compile Include="Git\GitStatus.cs" />
     <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />

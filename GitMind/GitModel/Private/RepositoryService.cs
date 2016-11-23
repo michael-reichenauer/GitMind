@@ -183,7 +183,7 @@ namespace GitMind.GitModel.Private
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
 				commitsFiles,
-				ToStatus(mRepository),
+				mRepository.Status,
 				rootCommit.Id);
 
 			foreach (var mCommit in mRepository.Commits)
@@ -209,21 +209,6 @@ namespace GitMind.GitModel.Private
 
 			t.Log($"Created repositrory {repository.Commits.Count} commits");
 			return repository;
-		}
-
-
-		private static Status ToStatus(MRepository mRepository)
-		{
-			Timing t = new Timing();
-			int statusCount = mRepository.Status?.Count ?? 0;
-
-			int conflictCount = mRepository.Status?.ConflictCount ?? 0;
-			string message = mRepository.Status?.Message;
-			bool isMerging = mRepository.Status?.IsMerging ?? false;
-
-			Status status = new Status(statusCount, conflictCount, message, isMerging);
-			t.Log("Got status");
-			return status;
 		}
 	}
 }

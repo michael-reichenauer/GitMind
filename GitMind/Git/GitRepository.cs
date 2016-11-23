@@ -61,9 +61,6 @@ namespace GitMind.Git
 
 		public GitBranch Head => new GitBranch(repository.Head, repository);
 
-		public GitStatus Status => GetGitStatus();
-
-
 		public GitDiff Diff => new GitDiff(diffService, repository.Diff, repository);
 
 		public string UserName => repository.Config.GetValueOrDefault<string>("user.name");
@@ -72,16 +69,6 @@ namespace GitMind.Git
 		public void Dispose()
 		{
 			repository.Dispose();
-		}
-
-
-		private GitStatus GetGitStatus()
-		{
-			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
-			ConflictCollection conflicts = repository.Index.Conflicts;
-			bool isFullyMerged = repository.Index.IsFullyMerged;
-
-			return new GitStatus(diffService, repositoryStatus, conflicts, repository.Info, isFullyMerged);
 		}
 
 

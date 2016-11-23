@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 
 
@@ -26,7 +27,7 @@ namespace GitMind.GitModel.Private
 
 		public string WorkingFolder { get; set; }
 
-		public GitStatus Status { get; set; }
+		public Status Status { get; set; }
 
 		public IList<string> ChildIds(string commitId)
 		{

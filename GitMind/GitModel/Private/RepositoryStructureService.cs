@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Features.Diffing;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -12,6 +13,7 @@ namespace GitMind.GitModel.Private
 	internal class RepositoryStructureService : IRepositoryStructureService
 	{
 		private readonly IBranchService branchService;
+		private readonly IStatusService statusService;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly ICommitBranchNameService commitBranchNameService;
 		private readonly IBranchHierarchyService branchHierarchyService;
@@ -22,6 +24,7 @@ namespace GitMind.GitModel.Private
 
 		public RepositoryStructureService(
 			IBranchService branchService,
+			IStatusService statusService,
 			IGitCommitsService gitCommitsService,
 			ICommitBranchNameService commitBranchNameService,
 			IBranchHierarchyService branchHierarchyService,
@@ -30,6 +33,7 @@ namespace GitMind.GitModel.Private
 			IDiffService diffService)
 		{
 			this.branchService = branchService;
+			this.statusService = statusService;
 			this.gitCommitsService = gitCommitsService;
 			this.commitBranchNameService = commitBranchNameService;
 			this.branchHierarchyService = branchHierarchyService;
@@ -39,19 +43,20 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public Task<MRepository> UpdateAsync(MRepository mRepository)
+		public async Task<MRepository> UpdateAsync(MRepository mRepository)
 		{
-			return Task.Run(() => UpdateRepository(mRepository));
+			Status status = await statusService.GetStatusAsync();
+			return await Task.Run(() => UpdateRepository(mRepository, status));
 		}
 
 
-		private MRepository UpdateRepository(MRepository repository)
+		private MRepository UpdateRepository(MRepository repository, Status status)
 		{
 			string workingFolder = repository.WorkingFolder;
 
 			try
 			{
-				Update(repository);
+				Update(repository, status);
 			}
 			catch (Exception e)
 			{
@@ -64,32 +69,30 @@ namespace GitMind.GitModel.Private
 					WorkingFolder = workingFolder
 				};
 
-				Update(repository);
+				Update(repository, status);
 			}
 
 			return repository;
 		}
 
 
-		private void Update(MRepository repository)
+		private void Update(MRepository repository, Status status)
 		{
 			Log.Debug("Updating repository");
 			Timing t = new Timing();
 			string gitRepositoryPath = repository.WorkingFolder;
 
-			// repository.Tips = GitRepository.GetRefsIds(gitRepositoryPath);
 			using (GitRepository gitRepository = GitRepository.Open(diffService, gitRepositoryPath))
 			{
-				GitStatus gitStatus = gitRepository.Status;
-				repository.Status = gitStatus;
+				repository.Status = status;
 				t.Log("Got git status");
 
 				CleanRepositoryOfTempData(repository);
 
-				commitsService.AddBranchCommits(gitRepository, gitStatus, repository);
+				commitsService.AddBranchCommits(gitRepository, status, repository);
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
-				AnalyzeBranchStructure(repository, gitStatus, gitRepository);
+				AnalyzeBranchStructure(repository, status, gitRepository);
 				t.Log("AnalyzeBranchStructure");
 			}
 
@@ -100,10 +103,10 @@ namespace GitMind.GitModel.Private
 
 		private void AnalyzeBranchStructure(
 			MRepository repository,
-			GitStatus gitStatus,
+			Status status,
 			GitRepository gitRepository)
 		{
-			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
+			branchService.AddActiveBranches(gitRepository, status, repository);
 
 			MSubBranch mSubBranch = repository.SubBranches
 				.FirstOrDefault(b => b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
@@ -139,7 +142,7 @@ namespace GitMind.GitModel.Private
 			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);
 			repository.CurrentBranchId = currentBranch.Id;
 
-			repository.CurrentCommitId = gitStatus.OK
+			repository.CurrentCommitId = status.IsOK
 				? gitRepository.Head.TipId
 				: MCommit.UncommittedId;
 
