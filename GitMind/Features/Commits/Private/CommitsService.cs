@@ -199,10 +199,10 @@ namespace GitMind.Features.Commits.Private
 
 		public async Task CleanWorkingFolderAsync()
 		{
-			R<IReadOnlyList<string>> failedPaths = R.From(new string[0].AsReadOnlyList());
+			R<IReadOnlyList<string>> failedPaths;
 
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog("Cclean working folder  ..."))
+			using (progress.ShowDialog("Clean untracked/ignored files in working folder  ..."))
 			{
 				failedPaths = await gitCommitsService.CleanWorkingFolderAsync();
 			}
