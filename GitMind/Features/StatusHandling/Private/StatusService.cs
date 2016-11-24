@@ -25,7 +25,7 @@ namespace GitMind.Features.StatusHandling.Private
 		private bool isStatusChanged = false;
 		private bool isRepoChanged = false;
 
-		private Status oldStatus = Status.Default;
+		//private Status oldStatus = Status.Default;
 		private Task currentStatusTask = Task.CompletedTask;
 		private int currentStatusCheckCount = 0;
 
@@ -64,10 +64,9 @@ namespace GitMind.Features.StatusHandling.Private
 		}
 
 
-		public async Task<Status> GetStatusAsync()
+		public Task<Status> GetStatusAsync()
 		{
-			oldStatus = await GetFreshStatusAsync();
-			return oldStatus;
+			return GetFreshStatusAsync();
 		}
 
 
@@ -168,22 +167,12 @@ namespace GitMind.Features.StatusHandling.Private
 				return;
 			}
 
-			Log.Debug($"Old status is {oldStatus}, checking for new ...");
 			Task<Status> newStatusTask = GetFreshStatusAsync();
 			currentStatusTask = newStatusTask;
 
 			Status newStatus = await newStatusTask;
-			if (!newStatus.IsSame(oldStatus))
-			{
-				Log.Debug($"Changed status {oldStatus} => {newStatus}");
-				TriggerStatusChanged(fileEventArgs, newStatus, oldStatus);
-			}
-			else
-			{
-				Log.Debug($"Same status {oldStatus} == {newStatus}");
-			}
-
-			oldStatus = newStatus;
+		
+			TriggerStatusChanged(fileEventArgs, newStatus);
 		}
 
 
@@ -271,9 +260,8 @@ namespace GitMind.Features.StatusHandling.Private
 
 			if (status.IsFaulted)
 			{
-				Log.Warn($"Failed to read status, using old status, {status}");
-				return oldStatus;
-
+				Log.Warn($"Failed to read status");
+				return Status.Default;
 			}
 
 			return status.Value;
@@ -281,11 +269,9 @@ namespace GitMind.Features.StatusHandling.Private
 
 
 
-		private void TriggerStatusChanged(
-			FileEventArgs fileEventArgs, Status newStatus, Status old)
+		private void TriggerStatusChanged(FileEventArgs fileEventArgs, Status newStatus)
 		{
-			StatusChanged?.Invoke(this, new StatusChangedEventArgs(
-				newStatus, old, fileEventArgs.DateTime));
+			StatusChanged?.Invoke(this, new StatusChangedEventArgs(newStatus, fileEventArgs.DateTime));
 		}
 
 

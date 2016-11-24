@@ -30,7 +30,7 @@ namespace GitMind.GitModel.Private
 			this.commitsFiles = commitsFiles;
 			this.repositoryStructureService = repositoryStructureService;
 
-			statusService.StatusChanged += (s, e) => OnStatusChanged();
+			statusService.StatusChanged += (s, e) => OnStatusChanged(e.NewStatus);
 			statusService.RepoChanged += (s, e) => OnRepoChanged();
 		}
 
@@ -67,11 +67,9 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task UpdateRepositoryAsync()
+		public Task UpdateRepositoryAsync()
 		{
-			Repository = await GetRepositoryAsync(false, Repository.MRepository.WorkingFolder);
-
-			RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());
+			return UpdateRepositoryAsync(null);
 		}
 
 
@@ -81,9 +79,23 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async void OnStatusChanged()
+		private async void OnStatusChanged(Status status)
 		{
-			await UpdateRepositoryAsync();
+			if (Repository?.Status?.IsSame(status) ?? false)
+			{
+				Log.Debug("Same status");
+				return;
+			}
+
+			await UpdateRepositoryAsync(status);
+		}
+
+
+		private async Task UpdateRepositoryAsync(Status status)
+		{
+			Repository = await UpdateRepositoryAsync(Repository, status);
+
+			RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());
 		}
 
 
@@ -120,7 +132,7 @@ namespace GitMind.GitModel.Private
 			mRepository = new MRepository();
 			mRepository.WorkingFolder = workingFolder;
 
-			await repositoryStructureService.UpdateAsync(mRepository);
+			await repositoryStructureService.UpdateAsync(mRepository, null);
 			t.Log("Updated mRepository");
 			if (!usedCached && t.Elapsed > TimeSpan.FromMilliseconds(1000))
 			{
@@ -140,7 +152,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task<Repository> UpdateRepositoryAsync(Repository sourcerepository)
+		public async Task<Repository> UpdateRepositoryAsync(Repository sourcerepository, Status status)
 		{
 			Log.Debug($"Updating repository");
 
@@ -148,9 +160,9 @@ namespace GitMind.GitModel.Private
 
 			Timing t = new Timing();
 
-			await repositoryStructureService.UpdateAsync(mRepository);
+			await repositoryStructureService.UpdateAsync(mRepository, status);
 			t.Log("Updated mRepository");
-			cacheService.CacheAsync(mRepository).RunInBackground();
+			await cacheService.CacheAsync(mRepository);
 
 			Repository repository = ToRepository(mRepository);
 			int branchesCount = repository.Branches.Count;

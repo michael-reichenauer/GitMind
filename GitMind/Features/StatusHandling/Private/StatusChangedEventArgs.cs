@@ -7,15 +7,12 @@ namespace GitMind.Features.StatusHandling.Private
 	{
 		public Status NewStatus { get; }
 
-		public Status OldStatus { get; }
-
 		public DateTime DateTime { get; }
 
 
-		public StatusChangedEventArgs(Status newStatus, Status oldStatus, DateTime dateTime)
+		public StatusChangedEventArgs(Status newStatus, DateTime dateTime)
 		{
 			NewStatus = newStatus;
-			OldStatus = oldStatus;
 			DateTime = dateTime;
 		}
 	}

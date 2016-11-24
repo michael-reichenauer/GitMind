@@ -43,9 +43,9 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task<MRepository> UpdateAsync(MRepository mRepository)
+		public async Task<MRepository> UpdateAsync(MRepository mRepository, Status status)
 		{
-			Status status = await statusService.GetStatusAsync();
+			status = status ?? await statusService.GetStatusAsync();
 			return await Task.Run(() => UpdateRepository(mRepository, status));
 		}
 
