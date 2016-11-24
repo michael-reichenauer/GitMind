@@ -8,7 +8,7 @@ del version.txt >nul 2>&1
 call nuget restore GitMind.sln
 echo.
 
-"%ProgramFiles(x86)%\MSBuild\14.0\Bin\msbuild.exe" GitMind.sln /t:rebuild /v:m /nologo
+"%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBuild.exe" GitMind.sln /t:rebuild /v:m /nologo
 
 echo.
 copy GitMind\bin\Debug\GitMind.exe GitMindSetup.exe /Y 
