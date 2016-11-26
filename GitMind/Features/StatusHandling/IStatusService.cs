@@ -11,6 +11,7 @@ namespace GitMind.Features.StatusHandling
 		event EventHandler<StatusChangedEventArgs> StatusChanged;
 
 		event EventHandler<RepoChangedEventArgs> RepoChanged;
+		bool IsPaused { get; }
 
 		void Monitor(string workingFolder);
 		IDisposable PauseStatusNotifications(Refresh refresh = Refresh.None);

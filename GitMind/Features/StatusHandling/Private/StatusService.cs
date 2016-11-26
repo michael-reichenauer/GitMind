@@ -55,6 +55,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 		public event EventHandler<RepoChangedEventArgs> RepoChanged;
 
+		public bool IsPaused => isPaused;
 
 		public void Monitor(string workingFolder)
 		{

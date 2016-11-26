@@ -306,7 +306,7 @@ namespace GitMind.RepositoryViews
 
 		public async Task ActivateRefreshAsync()
 		{	
-			if (DateTime.Now - fetchedTime > ActivateRemoteCheckInterval)
+			if (!repositoryService.IsPaused &&  DateTime.Now - fetchedTime > ActivateRemoteCheckInterval)
 			{
 				Timing t = new Timing();
 				Log.Usage("Activate window");
@@ -322,7 +322,7 @@ namespace GitMind.RepositoryViews
 
 		public async Task AutoRemoteCheckAsync()
 		{	
-			if (DateTime.Now - fetchedTime > AutoRemoteCheckInterval)
+			if (!repositoryService.IsPaused && DateTime.Now - fetchedTime > AutoRemoteCheckInterval)
 			{
 				Timing t = new Timing();
 				Log.Usage("Automatic remote check");

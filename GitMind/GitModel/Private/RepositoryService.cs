@@ -38,6 +38,8 @@ namespace GitMind.GitModel.Private
 
 		public Repository Repository { get; private set; }
 
+		public bool IsPaused => statusService.IsPaused;
+
 		public event EventHandler<RepositoryUpdatedEventArgs> RepositoryUpdated;
 
 

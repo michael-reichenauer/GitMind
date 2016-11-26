@@ -8,6 +8,8 @@ namespace GitMind.GitModel
 	{
 		Repository Repository { get; }
 
+		bool IsPaused { get;}
+
 		event EventHandler<RepositoryUpdatedEventArgs> RepositoryUpdated;
 
 		bool IsRepositoryCached(string workingFolder);
