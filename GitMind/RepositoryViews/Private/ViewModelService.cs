@@ -566,7 +566,7 @@ namespace GitMind.RepositoryViews.Private
 				branch.X = branch.Branch.IsLocalPart && branch.Branch.MainbBranch.Commits.Any()
 					? Converters.ToX(branch.BranchColumn) - 10
 					: Converters.ToX(branch.BranchColumn);
-
+				
 				branch.Brush = brushService.GetBranchBrush(sourceBranch);
 				branch.HoverBrush = Brushes.Transparent;
 				branch.Dashes = sourceBranch.IsLocalPart ? "1" : "";
@@ -594,6 +594,15 @@ namespace GitMind.RepositoryViews.Private
 				branch.SetNormal();
 
 				branch.NotifyAll();
+
+				if (branch.IsMultiBranch)
+				{
+					Log.Warn($"Multibranch: {branch.Branch} in {branch.Branch.Repository.MRepository.WorkingFolder}, can be:");
+					foreach (BranchName name in branch.Branch.ChildBranchNames)
+					{
+						Log.Warn($"   Branch: {name}");
+					}
+				}
 			}
 
 			repositoryViewModel.GraphWidth = Converters.ToX(maxColumn + 1);
