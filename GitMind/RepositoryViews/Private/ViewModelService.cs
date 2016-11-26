@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Media;
 using GitMind.Common.Brushes;
 using GitMind.Features.Branches;
+using GitMind.Features.Commits;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -22,8 +23,11 @@ namespace GitMind.RepositoryViews.Private
 	{
 		private static readonly int CommitHeight = Converters.ToY(1);
 
+		private readonly IBranchService branchService;
+		private readonly ICommitsService commitsService;
 		private readonly IBrushService brushService;
 		private readonly IRepositoryMgr repositoryMgr;
+		private readonly IRepositoryCommands repositoryCommands;
 		private readonly Func<CommitViewModel> commitViewModelProvider;
 		private readonly Func<BranchViewModel> branchViewModelProvider;
 		private readonly Command<Branch> deleteBranchCommand;
@@ -32,13 +36,18 @@ namespace GitMind.RepositoryViews.Private
 
 		public ViewModelService(
 			IBranchService branchService,
+			ICommitsService commitsService,
 			IBrushService brushService,
 			IRepositoryMgr repositoryMgr,
+			IRepositoryCommands repositoryCommands,
 			Func<CommitViewModel> commitViewModelProvider,
 			Func<BranchViewModel> branchViewModelProvider)
 		{
+			this.branchService = branchService;
+			this.commitsService = commitsService;
 			this.brushService = brushService;
 			this.repositoryMgr = repositoryMgr;
+			this.repositoryCommands = repositoryCommands;
 			this.commitViewModelProvider = commitViewModelProvider;
 			this.branchViewModelProvider = branchViewModelProvider;
 
@@ -490,7 +499,10 @@ namespace GitMind.RepositoryViews.Private
 			List<CommitViewModel> commits = repositoryViewModel.Commits;
 			var commitsById = repositoryViewModel.CommitsById;
 
-			SetNumberOfItems(commits, sourceCommits.Count, i => commitViewModelProvider());
+			SetNumberOfItems(
+				commits, 
+				sourceCommits.Count,
+				i => new CommitViewModel(branchService, repositoryCommands, commitsService));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
