@@ -154,13 +154,13 @@ namespace GitMind.GitModel.Private
 				{
 					branch.CommitIds.AddRange(branch.TempCommitIds);
 					branch.TempCommitIds.Clear();
-
-					List<MCommit> commits = branch.Commits.OrderByDescending(b => b.CommitDate).ToList();
-					branch.TipCommitId = commits.Any() ? commits.First().Id : branch.ParentCommitId;
-
-					branch.FirstCommitId = commits.Any() ? commits.Last().Id : branch.ParentCommitId;
-					branch.CommitIds = commits.Select(c => c.Id).ToList();
 				}
+
+				List<MCommit> commits = branch.Commits.OrderByDescending(b => b.CommitDate).ToList();
+				branch.TipCommitId = commits.Any() ? commits.First().Id : branch.ParentCommitId;
+
+				branch.FirstCommitId = commits.Any() ? commits.Last().Id : branch.ParentCommitId;
+				branch.CommitIds = commits.Select(c => c.Id).ToList();
 
 				if (!branch.CommitIds.Any())
 				{
