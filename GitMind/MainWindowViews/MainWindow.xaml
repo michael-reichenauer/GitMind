@@ -179,8 +179,8 @@
 									Command="{Binding TryUpdateAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Grid Margin="0">
-											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Padding="2,0,0,0"/>
-											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0" Background="Transparent"/>
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Padding="2,0,0,0" Foreground="{StaticResource RemoteAheadBrush}"/>
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0" Background="Transparent" Foreground="{StaticResource RemoteAheadBrush}"/>
 										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -193,7 +193,7 @@
 									Command="{Binding PullCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}"/>
+											<TextBlock Text="&#xE258;" Style="{StaticResource MenuIconStyle}" Foreground="{StaticResource RemoteAheadBrush}"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -219,8 +219,8 @@
 									Command="{Binding TryPushAllBranchesCommand}">
 									<MenuItem.Icon>
 										<Grid Margin="0">
-											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Padding="2,0,0,0"/>
-											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0" Background="Transparent"/>
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Padding="2,0,0,0" Foreground="{StaticResource LocalAheadBrush}"/>
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Margin="4,0" Padding="0" Background="Transparent" Foreground="{StaticResource LocalAheadBrush}"/>
 										</Grid>
 									</MenuItem.Icon>
 								</MenuItem>
@@ -233,7 +233,7 @@
 									Command="{Binding PushCurrentBranchCommand}">
 									<MenuItem.Icon>
 										<Border>
-											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}"/>
+											<TextBlock Text="&#xE25A;" Style="{StaticResource MenuIconStyle}" Foreground="{StaticResource LocalAheadBrush}"/>
 										</Border>
 									</MenuItem.Icon>
 								</MenuItem>
