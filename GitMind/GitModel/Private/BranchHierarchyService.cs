@@ -35,14 +35,6 @@ namespace GitMind.GitModel.Private
 
 			SetLocalAndRemoteAhead(repository);
 
-			//repository.Branches.Values
-			//	.Where(b => b.CommitIds.Any())
-			//	.ForEach(b =>
-			//	{
-			//		b.TipCommitId = b.CommitIds.First();
-			//		b.FirstCommitId = b.CommitIds.Last();
-			//	});
-
 			SetBranchHierarchyImpl(repository);
 		}
 
@@ -266,11 +258,15 @@ namespace GitMind.GitModel.Private
 
 		private void SetLocalAndRemoteAhead(MRepository repository)
 		{
-			foreach (MBranch branch in repository.Branches.Values
-				.Where(b => b.IsActive
-				            && b.IsLocal
-				            && b.IsRemote
-				            && b.LocalTipCommitId != b.RemoteTipCommitId).ToList())
+			IEnumerable<MBranch> unsynkedBranches = repository.Branches.Values
+				.Where(b => 
+					b.IsActive &&
+					b.IsLocal && 
+					b.IsRemote && 
+					b.LocalTipCommitId != b.RemoteTipCommitId)
+					.ToList();
+
+			foreach (MBranch branch in unsynkedBranches)
 			{
 				string localTip = branch.LocalTipCommitId;
 				string remoteTip = branch.RemoteTipCommitId;
@@ -283,13 +279,13 @@ namespace GitMind.GitModel.Private
 				if (gitBranchService.CheckAheadBehind(localTip, remoteTip).HasValue(out var div))
 				{
 					string commonTip = div.CommonId;
-
 					MCommit commonCommit = repository.Commits[commonTip];
+
 					commonCommit.CommitAndFirstAncestors().ForEach(c => c.IsCommon = true);
 
 					if (commonTip != localTip || 
 						(branch.LocalTipCommitId == Commit.UncommittedId 
-						&& branch.FirstCommitId != Commit.UncommittedId))
+							&& branch.FirstCommitId != Commit.UncommittedId))
 					{
 						MakeLocalBranch(repository, branch, localTip, commonTip);
 					}
@@ -307,7 +303,9 @@ namespace GitMind.GitModel.Private
 							{
 								commit.IsLocalAhead = true;
 								localCount++;
-								commit.Parents.Where(p => p.Branch == branch).ForEach(p => commits.Push(p));
+								commit.Parents
+									.Where(p => p.Branch == branch)
+									.ForEach(p => commits.Push(p));
 							}
 						}
 
@@ -327,7 +325,9 @@ namespace GitMind.GitModel.Private
 							{
 								commit.IsRemoteAhead = true;
 								remoteCount++;
-								commit.Parents.Where(p => p.Branch == branch).ForEach(p => commits.Push(p));
+								commit.Parents
+									.Where(p => p.Branch == branch)
+									.ForEach(p => commits.Push(p));
 							}
 						}
 
@@ -394,7 +394,9 @@ namespace GitMind.GitModel.Private
 					localBranch.CommitIds.Add(commit.Id);
 					branch.CommitIds.Remove(commit.Id);
 					commit.BranchId = localBranch.Id;
-					commit.Parents.Where(p => p.Branch == branch).ForEach(p => commits.Push(p));
+					commit.Parents
+						.Where(p => p.Branch == branch)
+						.ForEach(p => commits.Push(p));
 				}
 			}
 
