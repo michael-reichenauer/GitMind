@@ -54,25 +54,33 @@ namespace GitMind.Features.StatusHandling.Private
 
 		public Task<R<Status>> GetCurrentStatusAsync()
 		{
-			return repoCaller.UseLibRepoAsync(repo =>
-			{
-				RepositoryStatus status = repo.RetrieveStatus(StatusOptions);
-				ConflictCollection conflicts = repo.Index.Conflicts;
-				RepositoryInformation info = repo.Info;
-				bool isFullyMerged = repo.Index.IsFullyMerged;
-				bool isMerging = info.CurrentOperation == CurrentOperation.Merge;
-				string mergeMessage = info.Message;
+			return repoCaller.UseLibRepoAsync(GetStatus);
+		}
 
-				IReadOnlyList<StatusFile> conflictFiles = GetConflictFiles(conflicts);
-				IReadOnlyList<StatusFile> changedFiles = GetChangedFiles(status, conflictFiles);
 
-				return new Status(
-					changedFiles,
-					conflictFiles,
-					isMerging,
-					isFullyMerged,
-					mergeMessage);
-			});
+		public R<Status> GetCurrentStatus()
+		{
+			return repoCaller.UseRepo(repo => GetStatus(repo));
+		}
+
+		private Status GetStatus(IRepository repo)
+		{
+			RepositoryStatus status = repo.RetrieveStatus(StatusOptions);
+			ConflictCollection conflicts = repo.Index.Conflicts;
+			RepositoryInformation info = repo.Info;
+			bool isFullyMerged = repo.Index.IsFullyMerged;
+			bool isMerging = info.CurrentOperation == CurrentOperation.Merge;
+			string mergeMessage = info.Message;
+
+			IReadOnlyList<StatusFile> conflictFiles = GetConflictFiles(conflicts);
+			IReadOnlyList<StatusFile> changedFiles = GetChangedFiles(status, conflictFiles);
+
+			return new Status(
+				changedFiles,
+				conflictFiles,
+				isMerging,
+				isFullyMerged,
+				mergeMessage);
 		}
 
 

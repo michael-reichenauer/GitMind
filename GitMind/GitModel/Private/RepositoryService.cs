@@ -55,15 +55,26 @@ namespace GitMind.GitModel.Private
 		{
 			Monitor(workingFolder);
 
-			Repository = await GetRepositoryAsync(true, workingFolder);
+			R<Repository> repository = await GetCachedRepositoryAsync(workingFolder);
+			if (!repository.IsOk)
+			{
+				repository = await GetFreshRepositoryAsync(workingFolder);
+			}
+
+			Repository = repository.Value;			
 		}
 
 
-		public async Task UpdateFreshRepositoryAsync()
+		public async Task GetFreshRepositoryAsync()
 		{
-			Repository = await GetRepositoryAsync(false, Repository.MRepository.WorkingFolder);
+			string workingFolder = Repository.MRepository.WorkingFolder;
+			R<Repository> repository = await GetFreshRepositoryAsync(workingFolder);
 
-			RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());
+			if (repository.IsOk)
+			{
+				Repository = repository.Value;
+				RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());
+			}
 		}
 
 
@@ -75,7 +86,8 @@ namespace GitMind.GitModel.Private
 
 		private async void OnRepoChanged()
 		{
-			await UpdateRepositoryAsync();
+			Status status = Repository.Status;
+			await UpdateRepositoryAsync(status);
 		}
 
 
@@ -99,42 +111,16 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder)
+		private async Task<R<Repository>> GetFreshRepositoryAsync(string workingFolder)
 		{
-			Timing t = new Timing();
-			MRepository mRepository = null;
-			Repository repository = null;
-			bool usedCached = false;
-
-			if (useCache)
-			{
-				try
-				{
-					mRepository = await cacheService.TryGetRepositoryAsync(workingFolder);
-					usedCached = true;
-					t.Log("cacheService.TryGetRepositoryAsync");
-					if (mRepository != null)
-					{
-						repository = ToRepository(mRepository);
-						t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
-
-						return repository;
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Warn($"Failed to read cached repositrory {e}");
-					cacheService.TryDeleteCache(workingFolder);
-				}
-			}
-
 			Log.Debug("No cached repository");
-			mRepository = new MRepository();
+			MRepository mRepository = new MRepository();
 			mRepository.WorkingFolder = workingFolder;
 
+			Timing t = new Timing();
 			await repositoryStructureService.UpdateAsync(mRepository, null);
 			t.Log("Updated mRepository");
-			if (!usedCached && t.Elapsed > TimeSpan.FromMilliseconds(1000))
+			if (t.Elapsed > TimeSpan.FromMilliseconds(1000))
 			{
 				Log.Usage($"Caching repository ({t.Elapsed} ms)");
 				await cacheService.CacheAsync(mRepository);
@@ -144,15 +130,43 @@ namespace GitMind.GitModel.Private
 				Log.Usage($"No need for cached repository ({t.Elapsed} ms)");
 				cacheService.TryDeleteCache(workingFolder);
 			}
-							
-			repository = ToRepository(mRepository);
+
+			Repository repository = ToRepository(mRepository);
 			t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
 
 			return repository;		
 		}
 
 
-		public async Task<Repository> UpdateRepositoryAsync(Repository sourcerepository, Status status)
+		private async Task<R<Repository>> GetCachedRepositoryAsync(string workingFolder)
+		{
+			try
+			{
+				Timing t = new Timing();
+				MRepository mRepository = await cacheService.TryGetRepositoryAsync(workingFolder);
+			
+				if (mRepository != null)
+				{
+					t.Log("Read from cache");
+					Repository repository = ToRepository(mRepository);
+					int branchesCount = repository.Branches.Count;
+					int commitsCount = repository.Commits.Count;
+					t.Log($"Repository {branchesCount} branches, {commitsCount} commits");	
+					return repository;			
+				}
+
+				return R<Repository>.NoValue;
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to read cached repository {e}");
+				cacheService.TryDeleteCache(workingFolder);
+				return e;
+			}
+		}
+
+
+		private async Task<Repository> UpdateRepositoryAsync(Repository sourcerepository, Status status)
 		{
 			Log.Debug($"Updating repository");
 
@@ -162,6 +176,7 @@ namespace GitMind.GitModel.Private
 
 			await repositoryStructureService.UpdateAsync(mRepository, status);
 			t.Log("Updated mRepository");
+
 			await cacheService.CacheAsync(mRepository);
 
 			Repository repository = ToRepository(mRepository);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -11,11 +12,17 @@ namespace GitMind.GitModel.Private
 	{
 		public void AddBranchCommits(GitRepository gitRepository, Status status, MRepository repository)
 		{
+			Timing t = new Timing();
 			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
+
 			if (gitRepository.Head.IsDetached)
 			{
 				rootCommits = rootCommits.Concat(new[] { gitRepository.Head.Tip });
 			}
+
+			rootCommits = rootCommits.ToList();
+			t.Log("Root commit ids");
+
 
 			Dictionary<string, object> added = new Dictionary<string, object>();
 

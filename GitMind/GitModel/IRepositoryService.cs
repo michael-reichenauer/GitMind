@@ -14,7 +14,7 @@ namespace GitMind.GitModel
 
 		Task LoadRepositoryAsync(string workingFolder);
 
-		Task UpdateFreshRepositoryAsync();
+		Task GetFreshRepositoryAsync();
 
 		Task UpdateRepositoryAsync();
 	}

@@ -69,6 +69,11 @@ namespace GitMind.Features.StatusHandling.Private
 			return GetFreshStatusAsync();
 		}
 
+		public Status GetStatus()
+		{
+			return GetFreshStatus();
+		}
+
 
 		public IDisposable PauseStatusNotifications(Refresh refresh = Refresh.None)
 		{
@@ -254,6 +259,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 		private async Task<Status> GetFreshStatusAsync()
 		{
+			Log.Debug("Getting status ...");
 			Timing t = new Timing();
 			R<Status> status = await gitStatusService.GetCurrentStatusAsync();
 			t.Log($"Got status {status}");
@@ -267,6 +273,22 @@ namespace GitMind.Features.StatusHandling.Private
 			return status.Value;
 		}
 
+
+		private Status GetFreshStatus()
+		{
+			Log.Debug("Getting status ...");
+			Timing t = new Timing();
+			R<Status> status =  gitStatusService.GetCurrentStatus();
+			t.Log($"Got status {status}");
+
+			if (status.IsFaulted)
+			{
+				Log.Warn($"Failed to read status");
+				return Status.Default;
+			}
+
+			return status.Value;
+		}
 
 
 		private void TriggerStatusChanged(FileEventArgs fileEventArgs, Status newStatus)

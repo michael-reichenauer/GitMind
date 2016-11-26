@@ -44,8 +44,7 @@ namespace GitMind.GitModel.Private
 
 
 		public async Task<MRepository> UpdateAsync(MRepository mRepository, Status status)
-		{
-			status = status ?? await statusService.GetStatusAsync();
+		{		
 			return await Task.Run(() => UpdateRepository(mRepository, status));
 		}
 
@@ -84,8 +83,9 @@ namespace GitMind.GitModel.Private
 
 			using (GitRepository gitRepository = GitRepository.Open(diffService, gitRepositoryPath))
 			{
+				status = status ?? statusService.GetStatus();
 				repository.Status = status;
-				t.Log("Got git status");
+				t.Log("Got status");
 
 				CleanRepositoryOfTempData(repository);
 

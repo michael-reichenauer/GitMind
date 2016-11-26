@@ -339,7 +339,7 @@ namespace GitMind.RepositoryViews
 				UpdateViewModel();
 			}
 
-			t.Log("Updated view model");
+			t.Log("Updated view model after updated repository");
 		}
 
 
@@ -353,7 +353,7 @@ namespace GitMind.RepositoryViews
 				if (useFreshRepository)
 				{
 					Log.Debug("Getting fresh repository");
-					await repositoryService.UpdateFreshRepositoryAsync();
+					await repositoryService.GetFreshRepositoryAsync();
 				}
 				else
 				{
@@ -377,10 +377,12 @@ namespace GitMind.RepositoryViews
 				{
 					Log.Debug("Refreshing after manual trigger ...");
 
+					Timing t = new Timing();
 					await FetchRemoteChangesAsync(true);
-
+					t.Log("Remote check");
 					Log.Debug("Get fresh repository from scratch");
-					await repositoryService.UpdateFreshRepositoryAsync();
+					await repositoryService.GetFreshRepositoryAsync();
+					t.Log("Got Fresh Repository");
 				}
 			}
 		}

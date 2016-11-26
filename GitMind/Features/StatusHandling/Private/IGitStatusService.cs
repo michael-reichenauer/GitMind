@@ -10,5 +10,6 @@ namespace GitMind.Features.StatusHandling.Private
 		Task<R<Status>> GetCurrentStatusAsync();
 
 		Task<R<IReadOnlyList<string>>> GetBrancheIdsAsync();
+		R<Status> GetCurrentStatus();
 	}
 }

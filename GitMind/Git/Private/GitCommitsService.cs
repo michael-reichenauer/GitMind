@@ -7,9 +7,9 @@ using GitMind.ApplicationHandling;
 using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
+using GitMind.RepositoryViews;
 using GitMind.Utils;
 using LibGit2Sharp;
-
 
 
 namespace GitMind.Git.Private
@@ -20,24 +20,25 @@ namespace GitMind.Git.Private
 		{ DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
 
 		private readonly WorkingFolder workingFolder;
+		private readonly Lazy<IRepositoryMgr> repositoryMgr;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 		private readonly IStatusService statusService;
 		private readonly IRepoCaller repoCaller;
-		private readonly IDiffService diffService;
+
 
 
 		public GitCommitsService(
 			WorkingFolder workingFolder,
+			Lazy<IRepositoryMgr> repositoryMgr,
 			IGitCommitBranchNameService gitCommitBranchNameService,
 			IStatusService statusService,
-			IRepoCaller repoCaller,
-			IDiffService diffService)
+			IRepoCaller repoCaller)
 		{
 			this.workingFolder = workingFolder;
+			this.repositoryMgr = repositoryMgr;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 			this.statusService = statusService;
 			this.repoCaller = repoCaller;
-			this.diffService = diffService;
 		}
 
 
@@ -45,7 +46,7 @@ namespace GitMind.Git.Private
 		{
 			if (commitId == GitCommit.UncommittedId)
 			{
-				Status status = await statusService.GetStatusAsync();
+				Status status = repositoryMgr.Value.Repository.Status;
 				return R.From(status.ChangedFiles);
 			}
 
