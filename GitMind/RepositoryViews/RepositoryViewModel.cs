@@ -62,7 +62,6 @@ namespace GitMind.RepositoryViews
 			new Dictionary<string, CommitViewModel>();
 
 		private DateTime fetchedTime = DateTime.MinValue;
-		//private DateTime FreshRepositoryTime = DateTime.MinValue;
 
 		private static readonly TimeSpan ActivateRemoteCheckInterval = TimeSpan.FromSeconds(15);
 		private static readonly TimeSpan AutoRemoteCheckInterval = TimeSpan.FromMinutes(9);
@@ -306,31 +305,30 @@ namespace GitMind.RepositoryViews
 
 
 		public async Task ActivateRefreshAsync()
-		{
-			Timing t = new Timing();
+		{	
 			if (DateTime.Now - fetchedTime > ActivateRemoteCheckInterval)
 			{
+				Timing t = new Timing();
 				Log.Usage("Activate window");
 				using (progress.ShowBusy())
 				{
 					await FetchRemoteChangesAsync(false);
 				}
-			}
 
-			t.Log("Activate refresh done");
+				t.Log("Activate refresh done");
+			}	
 		}
 
 
 		public async Task AutoRemoteCheckAsync()
-		{
-			Timing t = new Timing();
+		{	
 			if (DateTime.Now - fetchedTime > AutoRemoteCheckInterval)
 			{
+				Timing t = new Timing();
 				Log.Usage("Automatic remote check");
 				await FetchRemoteChangesAsync(false);
-			}
-
-			t.Log("Activate refresh done");
+				t.Log("Auto refresh done");
+			}			
 		}
 
 
