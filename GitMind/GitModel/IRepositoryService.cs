@@ -17,5 +17,7 @@ namespace GitMind.GitModel
 		Task GetFreshRepositoryAsync();
 
 		Task UpdateRepositoryAsync();
+
+		Task UpdateRepositoryAfterCommandAsync();
 	}
 }

@@ -43,19 +43,21 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task<MRepository> UpdateAsync(MRepository mRepository, Status status)
+		public async Task<MRepository> UpdateAsync(
+			MRepository mRepository, Status status, IReadOnlyList<string> repoIds)
 		{		
-			return await Task.Run(() => UpdateRepository(mRepository, status));
+			return await Task.Run(() => UpdateRepository(mRepository, status, repoIds));
 		}
 
 
-		private MRepository UpdateRepository(MRepository repository, Status status)
+		private MRepository UpdateRepository(
+			MRepository repository, Status status, IReadOnlyList<string> repoIds)
 		{
 			string workingFolder = repository.WorkingFolder;
 
 			try
 			{
-				Update(repository, status);
+				Update(repository, status, repoIds);
 			}
 			catch (Exception e)
 			{
@@ -68,14 +70,14 @@ namespace GitMind.GitModel.Private
 					WorkingFolder = workingFolder
 				};
 
-				Update(repository, status);
+				Update(repository, status, repoIds);
 			}
 
 			return repository;
 		}
 
 
-		private void Update(MRepository repository, Status status)
+		private void Update(MRepository repository, Status status, IReadOnlyList<string> repoIds)
 		{
 			Log.Debug("Updating repository");
 			Timing t = new Timing();
@@ -83,62 +85,65 @@ namespace GitMind.GitModel.Private
 
 			using (GitRepository gitRepository = GitRepository.Open(diffService, gitRepositoryPath))
 			{
-				status = status ?? statusService.GetStatus();
-				repository.Status = status;
+				repository.Status = status ?? statusService.GetStatus();
 				t.Log("Got status");
 
-				CleanRepositoryOfTempData(repository);
+				repository.RepositoryIds = repoIds ?? statusService.GetRepoIds();
+				t.Log("Got repo ids");
 
-				commitsService.AddBranchCommits(gitRepository, status, repository);
+				CleanRepositoryOfTempData(repository);
+				t.Log("CleanRepositoryOfTempData");
+
+				commitsService.AddBranchCommits(gitRepository, repository);
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
-				AnalyzeBranchStructure(repository, status, gitRepository);
-				t.Log("AnalyzeBranchStructure");
+				tagService.AddTags(gitRepository, repository);
+				t.Log("AddTags");
+
+				branchService.AddActiveBranches(gitRepository, repository);
+				t.Log("AddActiveBranches");
+
+				SetSpecifiedCommitBranchNames(repository);
+				t.Log("SetSpecifiedCommitBranchNames");
+
+				commitBranchNameService.SetMasterBranchCommits(repository);
+				t.Log("SetMasterBranchCommits");
+
+				branchService.AddInactiveBranches(repository);
+				t.Log("AddInactiveBranches");
+
+				commitBranchNameService.SetBranchTipCommitsNames(repository);
+				t.Log("SetBranchTipCommitsNames");
+
+				commitBranchNameService.SetNeighborCommitNames(repository);
+				t.Log("SetNeighborCommitNames");
+
+				branchService.AddMissingInactiveBranches(repository);
+				t.Log("AddMissingInactiveBranches");
+
+				branchService.AddMultiBranches(repository);
+				t.Log("AddMultiBranches");
+
+				branchHierarchyService.SetBranchHierarchy(repository);
+				t.Log("SetBranchHierarchy");
+
+			
+
+				SetCurrentBranchAndCommit(repository, gitRepository);
+				t.Log("SetCurrentBranchAndCommit");
+
+				repository.SubBranches.Clear();
+				t.Log("Clear sub branches");
 			}
 
 			t.Log("Done");
 		}
 
 
-
-		private void AnalyzeBranchStructure(
-			MRepository repository,
-			Status status,
-			GitRepository gitRepository)
+		private static void SetCurrentBranchAndCommit(
+			MRepository repository, GitRepository gitRepository)
 		{
-			branchService.AddActiveBranches(gitRepository, status, repository);
-
-			MSubBranch mSubBranch = repository.SubBranches
-				.FirstOrDefault(b => b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
-			MCommit commit = mSubBranch.TipCommit.FirstAncestors().Last();
-
-			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitsService.GetSpecifiedNames(
-				commit.Id);
-
-			IReadOnlyList<CommitBranchName> commitBranches = gitCommitsService.GetCommitBranches(
-				commit.Id);
-
-			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
-			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);
-
-			commitBranchNameService.SetMasterBranchCommits(repository);
-
-			branchService.AddInactiveBranches(repository);
-
-			commitBranchNameService.SetBranchTipCommitsNames(repository);
-
-			commitBranchNameService.SetNeighborCommitNames(repository);
-
-			branchService.AddMissingInactiveBranches(repository);
-
-			branchService.AddMultiBranches(repository);
-
-			branchHierarchyService.SetBranchHierarchy(repository);
-
-			//aheadBehindService.SetAheadBehind(repository);
-
-			tagService.AddTags(gitRepository, repository);
-
+			Status status = repository.Status;
 			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);
 			repository.CurrentBranchId = currentBranch.Id;
 
@@ -147,12 +152,34 @@ namespace GitMind.GitModel.Private
 				: MCommit.UncommittedId;
 
 			if (currentBranch.TipCommit.IsVirtual
-					&& currentBranch.TipCommit.FirstParentId == repository.CurrentCommitId)
+			    && currentBranch.TipCommit.FirstParentId == repository.CurrentCommitId)
 			{
 				repository.CurrentCommitId = currentBranch.TipCommit.Id;
 			}
+		}
 
-			repository.SubBranches.Clear();
+
+		private void SetSpecifiedCommitBranchNames(MRepository repository)
+		{
+			MCommit rootCommit = GetRootCommit(repository);
+
+			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitsService.GetSpecifiedNames(
+				rootCommit.Id);
+
+			IReadOnlyList<CommitBranchName> commitBranches = gitCommitsService.GetCommitBranches(
+				rootCommit.Id);
+
+			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
+			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);
+		}
+
+
+		private static MCommit GetRootCommit(MRepository repository)
+		{
+			MSubBranch mSubBranch = repository.SubBranches
+				.FirstOrDefault(b => b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
+			MCommit rootCommit = mSubBranch.TipCommit.FirstAncestors().Last();
+			return rootCommit;
 		}
 
 

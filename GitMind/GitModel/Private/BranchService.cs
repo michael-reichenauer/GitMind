@@ -29,8 +29,10 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddActiveBranches(GitRepository gitRepository, Status status, MRepository repository)
+		public void AddActiveBranches(GitRepository gitRepository, MRepository repository)
 		{
+			Status status = repository.Status;
+
 			GitBranch currentBranch = gitRepository.Head;
 
 			foreach (GitBranch gitBranch in gitRepository.Branches)

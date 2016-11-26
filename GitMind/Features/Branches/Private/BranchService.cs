@@ -65,7 +65,7 @@ namespace GitMind.Features.Branches.Private
 					BranchName branchName = dialog.BranchName;
 					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
 
-					using (progress.ShowDialog($"Create branch {dialog.BranchName} ..."))
+					using (progress.ShowDialog($"Creating branch {dialog.BranchName} ..."))
 					{
 						string commitId = commit.Id;
 						if (commitId == Commit.UncommittedId || commit.IsVirtual)
@@ -80,7 +80,7 @@ namespace GitMind.Features.Branches.Private
 
 							if (dialog.IsPublish)
 							{
-								progress.SetText($"Publish branch {dialog.BranchName}...");
+								progress.SetText($"Publishing branch {dialog.BranchName}...");
 
 								R publish = await gitNetworkService.PublishBranchAsync(branchName);
 								if (publish.IsFaulted)
@@ -104,7 +104,7 @@ namespace GitMind.Features.Branches.Private
 		public async Task PublishBranchAsync(Branch branch)
 		{
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog($"Publish branch {branch.Name} ..."))
+			using (progress.ShowDialog($"Publishing branch {branch.Name} ..."))
 			{
 				R publish = await gitNetworkService.PublishBranchAsync(branch.Name);
 
@@ -119,7 +119,7 @@ namespace GitMind.Features.Branches.Private
 		public async Task PushBranchAsync(Branch branch)
 		{
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog($"Push branch {branch.Name} ..."))
+			using (progress.ShowDialog($"Pushing branch {branch.Name} ..."))
 			{
 				R result = await gitNetworkService.PushBranchAsync(branch.Name);
 
@@ -134,7 +134,7 @@ namespace GitMind.Features.Branches.Private
 		public async Task UpdateBranchAsync(Branch branch)
 		{
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog($"Update branch {branch.Name} ..."))
+			using (progress.ShowDialog($"Updating branch {branch.Name} ..."))
 			{
 				R result;
 				if (branch == branch.Repository.CurrentBranch ||
@@ -164,7 +164,7 @@ namespace GitMind.Features.Branches.Private
 		public async Task SwitchBranchAsync(Branch branch)
 		{
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog($"Switch to branch {branch.Name} ..."))
+			using (progress.ShowDialog($"Switching to branch {branch.Name} ..."))
 			{
 				R result = await gitBranchService.SwitchToBranchAsync(branch.Name);
 				if (result.IsFaulted)
@@ -195,7 +195,7 @@ namespace GitMind.Features.Branches.Private
 
 
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog("Switch to commit ..."))
+			using (progress.ShowDialog("Switching to commit ..."))
 			{
 				BranchName branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
 
@@ -282,13 +282,13 @@ namespace GitMind.Features.Branches.Private
 			{
 				if (isLocal)
 				{
-					progress.SetText($"Delete local branch {branch.Name} ...");
+					progress.SetText($"Deleting local branch {branch.Name} ...");
 					await DeleteBranchImplAsync(branch, false);
 				}
 
 				if (isRemote)
 				{
-					progress.SetText($"Delete remote branch {branch.Name} ...");
+					progress.SetText($"Deleting remote branch {branch.Name} ...");
 					await DeleteBranchImplAsync(branch, true);
 				}
 			}
@@ -334,7 +334,7 @@ namespace GitMind.Features.Branches.Private
 				}
 
 				Branch currentBranch = branch.Repository.CurrentBranch;
-				using (progress.ShowDialog($"Merge branch {branch.Name} into {currentBranch.Name} ..."))
+				using (progress.ShowDialog($"Merging branch {branch.Name} into {currentBranch.Name} ..."))
 				{
 					await gitBranchService.MergeAsync(branch.Name);
 

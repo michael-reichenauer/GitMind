@@ -1,30 +1,42 @@
 using System;
 using GitMind.Git;
+using GitMind.Git.Private;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
 {
 	internal class TagService : ITagService
 	{
-		public void AddTags(GitRepository gitRepository, MRepository repository)
+		private readonly IRepoCaller repoCaller;
+
+
+		public TagService(IRepoCaller repoCaller)
 		{
-			foreach (GitTag tag in gitRepository.Tags)
+			this.repoCaller = repoCaller;
+		}
+
+		public void AddTags(GitRepository gitRepository, MRepository repository)
+		{	
+			repoCaller.UseLibRepo(repo =>
 			{
-				MCommit commit;
-				if (repository.Commits.TryGetValue(tag.CommitId, out commit))
+				foreach (var tag in repo.Tags)
 				{
-					string name = tag.TagName;
-					string tagText = $"[{name}] ";
-					if (commit.Tags != null && -1 == commit.Tags.IndexOf(name, StringComparison.Ordinal))
+					if (repository.Commits.TryGetValue(tag.Target.Sha, out MCommit commit))
 					{
-						commit.Tags += tagText;
-					}
-					else
-					{
-						commit.Tags = tagText;
+						string name = tag.FriendlyName;
+						string tagText = $"[{name}] ";
+						if (commit.Tags != null && -1 == commit.Tags.IndexOf(name, StringComparison.Ordinal))
+						{
+							commit.Tags += tagText;
+						}
+						else if (commit.Tags == null)
+						{
+							commit.Tags = tagText;
+						}
 					}
 				}
-			}
+			});
 		}
 	}
 }

@@ -16,7 +16,6 @@ namespace GitMind.Features.StatusHandling
 			bool isFullyMerged,
 			string mergeMessage)
 		{
-
 			ChangedFiles = changedFiles;
 			ConflictFiles = conflictFiles;
 			IsFullyMerged = isFullyMerged;

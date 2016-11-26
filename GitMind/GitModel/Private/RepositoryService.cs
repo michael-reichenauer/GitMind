@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Features.StatusHandling;
@@ -17,6 +18,7 @@ namespace GitMind.GitModel.Private
 		private readonly ICacheService cacheService;
 		private readonly ICommitsFiles commitsFiles;
 		private readonly IRepositoryStructureService repositoryStructureService;
+		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1000);
 
 
 		public RepositoryService(
@@ -31,7 +33,7 @@ namespace GitMind.GitModel.Private
 			this.repositoryStructureService = repositoryStructureService;
 
 			statusService.StatusChanged += (s, e) => OnStatusChanged(e.NewStatus);
-			statusService.RepoChanged += (s, e) => OnRepoChanged();
+			statusService.RepoChanged += (s, e) => OnRepoChanged(e.BranchIds);
 		}
 
 		public Repository Repository { get; private set; }
@@ -80,14 +82,40 @@ namespace GitMind.GitModel.Private
 
 		public Task UpdateRepositoryAsync()
 		{
-			return UpdateRepositoryAsync(null);
+			return UpdateRepositoryAsync(null, null);
 		}
 
 
-		private async void OnRepoChanged()
+		public async Task UpdateRepositoryAfterCommandAsync()
 		{
+			Task<Status> statusTask = statusService.GetStatusAsync();
+			Task<IReadOnlyList<string>> repoIdsTask = statusService.GetRepoIdsAsync();
+
+			Status status = await statusTask;
+			IReadOnlyList<string> repoIds = await repoIdsTask;
+
+			if (Repository.Status.IsSame(status)
+			    && Repository.MRepository.RepositoryIds.SequenceEqual(repoIds))
+			{
+				Log.Debug("Reposiotry has not changed after command");
+				return;
+			}
+
+			await UpdateRepositoryAsync(status, repoIds);
+		}
+
+
+		private async void OnRepoChanged(IReadOnlyList<string> repoIds)
+		{
+			if (Repository?.MRepository?.RepositoryIds.SequenceEqual(repoIds) ?? false) 
+			{
+				Log.Debug("Same repo");
+				return;
+			}
+
+			Log.Debug("Changed repo");
 			Status status = Repository.Status;
-			await UpdateRepositoryAsync(status);
+			await UpdateRepositoryAsync(status, repoIds);
 		}
 
 
@@ -99,13 +127,15 @@ namespace GitMind.GitModel.Private
 				return;
 			}
 
-			await UpdateRepositoryAsync(status);
+			Log.Debug("Changed status");
+			IReadOnlyList<string> repoIds = Repository.MRepository.RepositoryIds;
+			await UpdateRepositoryAsync(status, repoIds);
 		}
 
 
-		private async Task UpdateRepositoryAsync(Status status)
+		private async Task UpdateRepositoryAsync(Status status, IReadOnlyList<string> repoIds)
 		{
-			Repository = await UpdateRepositoryAsync(Repository, status);
+			Repository = await UpdateRepositoryAsync(Repository, status, repoIds);
 
 			RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());
 		}
@@ -118,9 +148,11 @@ namespace GitMind.GitModel.Private
 			mRepository.WorkingFolder = workingFolder;
 
 			Timing t = new Timing();
-			await repositoryStructureService.UpdateAsync(mRepository, null);
+			await repositoryStructureService.UpdateAsync(mRepository, null, null);
+			mRepository.TimeToCreateFresh = t.Elapsed;
 			t.Log("Updated mRepository");
-			if (t.Elapsed > TimeSpan.FromMilliseconds(1000))
+
+			if (mRepository.TimeToCreateFresh > MinCreateTimeBeforeCaching)
 			{
 				Log.Usage($"Caching repository ({t.Elapsed} ms)");
 				await cacheService.CacheAsync(mRepository);
@@ -166,7 +198,8 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async Task<Repository> UpdateRepositoryAsync(Repository sourcerepository, Status status)
+		private async Task<Repository> UpdateRepositoryAsync(
+			Repository sourcerepository, Status status, IReadOnlyList<string> branchIds)
 		{
 			Log.Debug($"Updating repository");
 
@@ -174,10 +207,13 @@ namespace GitMind.GitModel.Private
 
 			Timing t = new Timing();
 
-			await repositoryStructureService.UpdateAsync(mRepository, status);
+			await repositoryStructureService.UpdateAsync(mRepository, status, branchIds);
 			t.Log("Updated mRepository");
 
-			await cacheService.CacheAsync(mRepository);
+			if (mRepository.TimeToCreateFresh > MinCreateTimeBeforeCaching)
+			{
+				await cacheService.CacheAsync(mRepository);
+			}
 
 			Repository repository = ToRepository(mRepository);
 			int branchesCount = repository.Branches.Count;
@@ -188,8 +224,6 @@ namespace GitMind.GitModel.Private
 
 			return repository;
 		}
-
-
 
 
 		private Repository ToRepository(MRepository mRepository)
@@ -234,7 +268,7 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			t.Log($"Created repositrory {repository.Commits.Count} commits");
+			t.Log($"Created repository {repository.Commits.Count} commits");
 			return repository;
 		}
 	}

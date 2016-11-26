@@ -22,14 +22,12 @@ namespace GitMind.Features.StatusHandling.Private
 		private readonly IRepositoryCommands repositoryCommands;
 
 		private bool isPaused = false;
-		private bool isStatusChanged = false;
-		private bool isRepoChanged = false;
 
 		//private Status oldStatus = Status.Default;
 		private Task currentStatusTask = Task.CompletedTask;
 		private int currentStatusCheckCount = 0;
 
-		private IReadOnlyList<string> oldBranchIds = None;
+		//private IReadOnlyList<string> oldBranchIds = None;
 		private Task currentRepoTask = Task.CompletedTask;
 		private int currentRepoCheckCount = 0;
 
@@ -74,56 +72,40 @@ namespace GitMind.Features.StatusHandling.Private
 			return GetFreshStatus();
 		}
 
+		public Task<IReadOnlyList<string>> GetRepoIdsAsync()
+		{
+			return GetFreshBranchIdsAsync();
+		}
+
+
+		public IReadOnlyList<string> GetRepoIds()
+		{
+			return GetFreshRepoIds();
+		}
+
 
 		public IDisposable PauseStatusNotifications(Refresh refresh = Refresh.None)
 		{
 			Log.Debug("Pause status");
 			isPaused = true;
-			isStatusChanged = false;
-			isRepoChanged = false;
-
+	
 			return new Disposable(() =>
 			{
 				mainWindowService.SetMainWindowFocus();
-				ShowStatusProgressAsync(refresh, isStatusChanged, isRepoChanged).RunInBackground();
+				ShowStatusProgressAsync(refresh).RunInBackground();
 			});
 		}
 
 
-		private async Task ShowStatusProgressAsync(Refresh refresh, bool isStatus, bool isRepo)
+		private async Task ShowStatusProgressAsync(Refresh refresh)
 		{
 			try
 			{
-				isStatusChanged = false;
-				isRepoChanged = false;
-
-				if (refresh == Refresh.Repo || isRepo)
+				using (progress.ShowDialog("Updatinging view ... "))
 				{
-					using (progress.ShowDialog("Updating branch structure ... "))
-					{
-						await repositoryCommands.RefreshAfterCommandAsync(true);
-					}
-				}
-				else
-				{
-					IReadOnlyList<string> newBranchIds = await GetFreshBranchIdsAsync();
-					if (!oldBranchIds.SequenceEqual(newBranchIds))
-					{
-						oldBranchIds = newBranchIds;
-						using (progress.ShowDialog("Updating branch structure ... "))
-						{
-							await repositoryCommands.RefreshAfterCommandAsync(true);
-						}
-					}
-					else
-					{
-						oldBranchIds = newBranchIds;
-						using (progress.ShowDialog("Updating status ... "))
-						{
-							await repositoryCommands.RefreshAfterCommandAsync(false);
-						}
-					}
-				}
+					bool useFreshRepository = refresh == Refresh.Repo;
+					await repositoryCommands.RefreshAfterCommandAsync(useFreshRepository);
+				}		
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
@@ -144,7 +126,6 @@ namespace GitMind.Features.StatusHandling.Private
 			}
 			else
 			{
-				isStatusChanged = true;
 				Log.Debug("paused status");
 			}
 		}
@@ -157,7 +138,6 @@ namespace GitMind.Features.StatusHandling.Private
 			}
 			else
 			{
-				isRepoChanged = true;
 				Log.Debug("paused status");
 			}
 		}
@@ -195,17 +175,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 			IReadOnlyList<string> newBranchIds = await newRepoTask;
 
-			if (!oldBranchIds.SequenceEqual(newBranchIds))
-			{
-				Log.Debug("Changed repo");
-				TriggerRepoChanged(fileEventArgs);
-			}
-			else
-			{
-				Log.Debug("Same repo");
-			}
-
-			oldBranchIds = newBranchIds;
+			TriggerRepoChanged(fileEventArgs, newBranchIds);	
 		}
 
 
@@ -250,7 +220,7 @@ namespace GitMind.Features.StatusHandling.Private
 			if (branchIds.IsFaulted)
 			{
 				Log.Warn($"Failed to get branch ids {branchIds.Error}");
-				return oldBranchIds;
+				return new List<string>();
 			}
 
 			return branchIds.Value;
@@ -291,15 +261,33 @@ namespace GitMind.Features.StatusHandling.Private
 		}
 
 
+		private IReadOnlyList<string> GetFreshRepoIds()
+		{
+			Log.Debug("Getting repo ids ...");
+			Timing t = new Timing();
+			R<IReadOnlyList<string>> branchIds = gitStatusService.GetBrancheIds();
+			t.Log($"Got  {branchIds.Or(None).Count} branch ids");
+
+			if (branchIds.IsFaulted)
+			{
+				Log.Warn($"Failed to get branch ids {branchIds.Error}");
+				return new List<string>();
+			}
+
+			return branchIds.Value;
+		}
+
+
+
 		private void TriggerStatusChanged(FileEventArgs fileEventArgs, Status newStatus)
 		{
 			StatusChanged?.Invoke(this, new StatusChangedEventArgs(newStatus, fileEventArgs.DateTime));
 		}
 
 
-		private void TriggerRepoChanged(FileEventArgs fileEventArgs)
+		private void TriggerRepoChanged(FileEventArgs fileEventArgs, IReadOnlyList<string> newBranchIds)
 		{
-			RepoChanged?.Invoke(this, new RepoChangedEventArgs(fileEventArgs.DateTime));
+			RepoChanged?.Invoke(this, new RepoChangedEventArgs(fileEventArgs.DateTime, newBranchIds));
 		}
 	}
 }

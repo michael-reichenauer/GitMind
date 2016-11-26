@@ -85,7 +85,7 @@ namespace GitMind.Features.Remote.Private
 			Log.Debug("Try update all branches");
 
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog("Update all branches ..."))
+			using (progress.ShowDialog("Updating all branches ..."))
 			{
 				Branch currentBranch = Repository.CurrentBranch;
 
@@ -93,7 +93,7 @@ namespace GitMind.Features.Remote.Private
 
 				if (result.IsOk && currentBranch.CanBeUpdated)
 				{
-					progress.SetText($"Update current branch {currentBranch.Name} ...");
+					progress.SetText($"Updating current branch {currentBranch.Name} ...");
 					result = await gitBranchService.MergeCurrentBranchAsync();
 				}
 
@@ -109,12 +109,12 @@ namespace GitMind.Features.Remote.Private
 
 				foreach (Branch branch in updatableBranches)
 				{
-					progress.SetText($"Update branch {branch.Name} ...");
+					progress.SetText($"Updating branch {branch.Name} ...");
 
 					await gitNetworkService.FetchBranchAsync(branch.Name);
 				}
 
-				progress.SetText("Update all branches ...");
+				progress.SetText("Updating all branches ...");
 				await FetchAllNotesAsync();
 			}
 		}
@@ -125,7 +125,7 @@ namespace GitMind.Features.Remote.Private
 			using (statusService.PauseStatusNotifications())
 			{
 				BranchName branchName = Repository.CurrentBranch.Name;
-				using (progress.ShowDialog($"Update current branch {branchName} ..."))
+				using (progress.ShowDialog($"Updating current branch {branchName} ..."))
 				{
 					R result = await FetchAsync();
 					if (result.IsOk)
@@ -155,7 +155,7 @@ namespace GitMind.Features.Remote.Private
 			BranchName branchName = Repository.CurrentBranch.Name;
 
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog($"Push current branch {branchName} ..."))
+			using (progress.ShowDialog($"Pushing current branch {branchName} ..."))
 			{
 				await PushNotesAsync(Repository.RootId);
 
@@ -180,7 +180,7 @@ namespace GitMind.Features.Remote.Private
 		{
 			Log.Debug("Try push all branches");
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog("Push all branches ..."))
+			using (progress.ShowDialog("Pushing all branches ..."))
 			{
 				Branch currentBranch = Repository.CurrentBranch;
 
@@ -189,7 +189,7 @@ namespace GitMind.Features.Remote.Private
 				R result = R.Ok;
 				if (currentBranch.CanBePushed)
 				{
-					progress.SetText($"Push current branch {currentBranch.Name} ...");
+					progress.SetText($"Pushing current branch {currentBranch.Name} ...");
 					result = await gitNetworkService.PushCurrentBranchAsync();
 				}
 
@@ -205,7 +205,7 @@ namespace GitMind.Features.Remote.Private
 
 				foreach (Branch branch in pushableBranches)
 				{
-					progress.SetText($"Push branch {branch.Name} ...");
+					progress.SetText($"Pushing branch {branch.Name} ...");
 
 					await PushBranchAsync(branch.Name);
 				}

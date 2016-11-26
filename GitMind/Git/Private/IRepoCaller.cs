@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using GitMind.Utils;
+using LibGit2Sharp;
 
 
 namespace GitMind.Git.Private
@@ -50,7 +51,7 @@ namespace GitMind.Git.Private
 			Func<GitRepository, R> doFunction,
 			[CallerMemberName] string memberName = "");
 
-		R UseRepo(
+		R UseLibRepo(
 			Func<LibGit2Sharp.Repository, R> doFunction,
 			[CallerMemberName] string memberName = "");
 
@@ -80,6 +81,11 @@ namespace GitMind.Git.Private
 
 		Task<R<T>> UseRepoAsync<T>(
 			Func<GitRepository, Task<T>> doFunction,
+			[CallerMemberName] string memberName = "");
+
+
+		R UseLibRepo(
+			Action<Repository> doAction,
 			[CallerMemberName] string memberName = "");
 	}
 }

@@ -10,8 +10,10 @@ namespace GitMind.GitModel.Private
 {
 	internal class CommitsService : ICommitsService
 	{
-		public void AddBranchCommits(GitRepository gitRepository, Status status, MRepository repository)
+		public void AddBranchCommits(GitRepository gitRepository, MRepository repository)
 		{
+			Status status = repository.Status;
+
 			Timing t = new Timing();
 			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
 

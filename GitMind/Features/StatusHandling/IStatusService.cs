@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using GitMind.Features.StatusHandling.Private;
 
@@ -15,5 +16,7 @@ namespace GitMind.Features.StatusHandling
 		IDisposable PauseStatusNotifications(Refresh refresh = Refresh.None);
 		Task<Status> GetStatusAsync();
 		Status GetStatus();
+		IReadOnlyList<string> GetRepoIds();
+		Task<IReadOnlyList<string>> GetRepoIdsAsync();
 	}
 }

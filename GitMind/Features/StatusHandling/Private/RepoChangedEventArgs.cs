@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 
 namespace GitMind.Features.StatusHandling.Private
@@ -7,10 +8,12 @@ namespace GitMind.Features.StatusHandling.Private
 	{
 		public DateTime DateTime { get; }
 
+		public IReadOnlyList<string> BranchIds { get; }
 
-		public RepoChangedEventArgs(DateTime dateTime)
+		public RepoChangedEventArgs(DateTime dateTime, IReadOnlyList<string> newBranchIds)
 		{
 			DateTime = dateTime;
+			BranchIds = newBranchIds;
 		}
 	}
 }

@@ -39,16 +39,25 @@ namespace GitMind.Features.StatusHandling.Private
 
 		public Task<R<IReadOnlyList<string>>> GetBrancheIdsAsync()
 		{
-			return repoCaller.UseLibRepoAsync(repo =>
-			{
-				return repo.Branches.Select(b =>
-						b.CanonicalName +
-						b.Tip.Id.Sha +
-						b.IsCurrentRepositoryHead +
-						b.TrackedBranch?.CanonicalName)
-					.Concat(repo.Tags.Select(t => t.CanonicalName + t.Target.Id.Sha))
-					.ToReadOnlyList();
-			});
+			return repoCaller.UseLibRepoAsync(GetRepoIds);
+		}
+
+
+		public R<IReadOnlyList<string>> GetBrancheIds()
+		{
+			return repoCaller.UseRepo(GetRepoIds);
+		}
+
+
+		private static IReadOnlyList<string> GetRepoIds(Repository repo)
+		{
+			return repo.Branches.Select(b =>
+					b.CanonicalName +
+					b.Tip.Id.Sha +
+					b.IsCurrentRepositoryHead +
+					b.TrackedBranch?.CanonicalName)
+				.Concat(repo.Tags.Select(t => t.CanonicalName + t.Target.Id.Sha))
+				.ToReadOnlyList();
 		}
 
 

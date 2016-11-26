@@ -273,7 +273,7 @@ namespace GitMind.RepositoryViews
 			{
 				Log.Debug("Loading repository ...");
 
-				using (progress.ShowDialog("Loading branch structure ..."))
+				using (progress.ShowDialog("Loading branch view ..."))
 				{
 					await repositoryService.LoadRepositoryAsync(workingFolder);
 					t.Log("Read cached/fresh repositrory");
@@ -292,9 +292,7 @@ namespace GitMind.RepositoryViews
 				{
 					await repositoryService.UpdateRepositoryAsync();
 					t.Log("Read current local repository");
-					UpdateViewModel();
-					t.Log("Updated view model after local read");
-
+				
 					if (commandLine.IsCommit)
 					{
 						await commitsService.CommitChangesAsync();
@@ -309,6 +307,7 @@ namespace GitMind.RepositoryViews
 
 		public async Task ActivateRefreshAsync()
 		{
+			Timing t = new Timing();
 			if (DateTime.Now - fetchedTime > ActivateRemoteCheckInterval)
 			{
 				Log.Usage("Activate window");
@@ -317,16 +316,21 @@ namespace GitMind.RepositoryViews
 					await FetchRemoteChangesAsync(false);
 				}
 			}
+
+			t.Log("Activate refresh done");
 		}
 
 
 		public async Task AutoRemoteCheckAsync()
 		{
+			Timing t = new Timing();
 			if (DateTime.Now - fetchedTime > AutoRemoteCheckInterval)
 			{
 				Log.Usage("Automatic remote check");
 				await FetchRemoteChangesAsync(false);
 			}
+
+			t.Log("Activate refresh done");
 		}
 
 
@@ -357,7 +361,7 @@ namespace GitMind.RepositoryViews
 				}
 				else
 				{
-					await repositoryService.UpdateRepositoryAsync();
+					await repositoryService.UpdateRepositoryAfterCommandAsync();
 				}
 			}
 		}
@@ -371,7 +375,7 @@ namespace GitMind.RepositoryViews
 
 		public async Task ManualRefreshAsync()
 		{
-			using (progress.ShowDialog("Refresh branch structure ..."))
+			using (progress.ShowDialog("Refreshing view ..."))
 			{
 				using (await refreshLock.LockAsync())
 				{

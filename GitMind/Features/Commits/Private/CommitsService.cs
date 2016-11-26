@@ -108,7 +108,7 @@ namespace GitMind.Features.Commits.Private
 
 				if (dialog.ShowDialog() == true)
 				{
-					using (progress.ShowDialog($"Commit current branch {branchName} ..."))
+					using (progress.ShowDialog($"Committing current branch {branchName} ..."))
 					{
 						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
 							dialog.CommitMessage, branchName, dialog.CommitFiles);
@@ -131,7 +131,7 @@ namespace GitMind.Features.Commits.Private
 
 		public async Task UnCommitAsync(Commit commit)
 		{
-			using (progress.ShowDialog($"Uncommit in {commit} ..."))
+			using (progress.ShowDialog($"Uncommitting in {commit} ..."))
 			{
 				R result = await gitCommitsService.UnCommitAsync();
 
@@ -173,7 +173,7 @@ namespace GitMind.Features.Commits.Private
 
 					if (commit.SpecifiedBranchName != branchName)
 					{
-						using (progress.ShowDialog($"Set commit branch name {branchName} ..."))
+						using (progress.ShowDialog($"Setting commit branch name {branchName} ..."))
 						{
 							await SetSpecifiedCommitBranchAsync(commit.Id, commit.Repository.RootId, branchName);
 							if (branchName != null)
@@ -190,7 +190,7 @@ namespace GitMind.Features.Commits.Private
 		public async Task UndoUncommittedChangesAsync()
 		{
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog("Undo changes in working folder ..."))
+			using (progress.ShowDialog("Undoing changes in working folder ..."))
 			{
 				await gitCommitsService.UndoWorkingFolderAsync();
 			}
@@ -202,7 +202,7 @@ namespace GitMind.Features.Commits.Private
 			R<IReadOnlyList<string>> failedPaths;
 
 			using (statusService.PauseStatusNotifications())
-			using (progress.ShowDialog("Clean untracked/ignored files in working folder  ..."))
+			using (progress.ShowDialog("Cleaning untracked/ignored files in working folder  ..."))
 			{
 				failedPaths = await gitCommitsService.CleanWorkingFolderAsync();
 			}
@@ -243,7 +243,7 @@ namespace GitMind.Features.Commits.Private
 
 		public async Task UndoUncommittedFileAsync(string path)
 		{
-			using (progress.ShowDialog($"Undo file change in {path} ..."))
+			using (progress.ShowDialog($"Undoing file change in {path} ..."))
 			{
 				await gitCommitsService.UndoFileInWorkingFolderAsync(path);
 			}
