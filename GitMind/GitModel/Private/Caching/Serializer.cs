@@ -33,7 +33,8 @@ namespace GitMind.GitModel.Private.Caching
 				.Add(nameof(MRepository.CurrentCommitId))
 				.Add(nameof(MRepository.CurrentBranchId))
 				.Add(nameof(MRepository.Commits))
-				.Add(nameof(MRepository.Branches));
+				.Add(nameof(MRepository.Branches))
+				.Add(nameof(MRepository.TimeToCreateFresh));
 		}
 
 

@@ -22,7 +22,7 @@ namespace GitMind.GitModel.Private
 		public List<MCommit> Commits { get; set; } = new List<MCommit>();
 		
 		public Dictionary<string, MBranch> Branches { get; set; } = new Dictionary<string, MBranch>();
-
+		public TimeSpan TimeToCreateFresh { get; set; }
 
 		// Serialized Done ---------------------
 
@@ -44,7 +44,7 @@ namespace GitMind.GitModel.Private
 
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
-		public TimeSpan TimeToCreateFresh { get; set; }
+		
 
 
 		public MCommit Commit(int id)
