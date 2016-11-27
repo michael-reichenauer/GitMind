@@ -93,8 +93,6 @@ namespace GitMind.GitModel.Private
 			SubBranches.ForEach(b => b.Value.Repository = this);
 			Branches.ForEach(b => b.Value.Repository = this);
 
-			Log.Warn($"Commits: {Commits.Count}");
-
 			Commits.ForEach(c =>
 			{
 				c.Repository = this;
@@ -104,7 +102,6 @@ namespace GitMind.GitModel.Private
 				}
 				if (c.CommitId == MCommit.UncommittedId)
 				{
-					Log.Warn($"Commit: {c}");
 					Uncommitted = c;
 				}
 			});
