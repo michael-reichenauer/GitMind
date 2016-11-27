@@ -285,9 +285,12 @@ namespace GitMind.RepositoryViews
 
 				using (progress.ShowBusy())
 				{
-					await repositoryService.CheckLocalRepositoryAsync();
-					t.Log("Read current local repository");
-				
+					if (repositoryService.Repository.MRepository.IsCached)
+					{
+						await repositoryService.CheckLocalRepositoryAsync();
+						t.Log("Read current local repository");
+					}
+
 					if (commandLine.IsCommit)
 					{
 						await commitsService.CommitChangesAsync();

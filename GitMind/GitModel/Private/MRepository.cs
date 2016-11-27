@@ -28,6 +28,8 @@ namespace GitMind.GitModel.Private
 
 		public string WorkingFolder { get; set; }
 
+		public bool IsCached { get; set; }
+
 		public Status Status { get; set; } = Status.Default;
 
 		public IReadOnlyList<string> RepositoryIds { get; set; } = new List<string>();

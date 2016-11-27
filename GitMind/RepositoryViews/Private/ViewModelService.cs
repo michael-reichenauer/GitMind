@@ -93,7 +93,7 @@ namespace GitMind.RepositoryViews.Private
 				specifiedBranches.Add(currentBranch);
 			}
 
-			if (isFirstTime)
+			if (isFirstTime && !repositoryMgr.Repository.MRepository.IsCached)
 			{
 				Branch currentBranch = repositoryMgr.Repository.CurrentBranch;
 				isFirstTime = false;

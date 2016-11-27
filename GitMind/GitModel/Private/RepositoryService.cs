@@ -241,24 +241,28 @@ namespace GitMind.GitModel.Private
 			{
 				Timing t = new Timing();
 				MRepository mRepository = await cacheService.TryGetRepositoryAsync(workingFolder);
-			
+
 				if (mRepository != null)
 				{
 					t.Log("Read from cache");
+					mRepository.IsCached = true;
 					Repository repository = ToRepository(mRepository);
 					int branchesCount = repository.Branches.Count;
 					int commitsCount = repository.Commits.Count;
-					t.Log($"Repository {branchesCount} branches, {commitsCount} commits");	
-					return repository;			
+					t.Log($"Repository {branchesCount} branches, {commitsCount} commits");
+					return repository;
 				}
 
 				return R<Repository>.NoValue;
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to read cached repository {e}");
-				cacheService.TryDeleteCache(workingFolder);
+				Log.Warn($"Failed to read cached repository {e}");		
 				return e;
+			}
+			finally
+			{
+				cacheService.TryDeleteCache(workingFolder);
 			}
 		}
 
@@ -269,6 +273,7 @@ namespace GitMind.GitModel.Private
 			Log.Debug($"Updating repository");
 
 			MRepository mRepository = sourcerepository.MRepository;
+			mRepository.IsCached = false;
 
 			Timing t = new Timing();
 

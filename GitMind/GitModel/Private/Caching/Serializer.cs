@@ -1,12 +1,11 @@
 ﻿using System.IO;
 using GitMind.Git;
-using GitMind.GitModel.Private;
 using ProtoBuf;
 using ProtoBuf.Meta;
 using ProtoSerializer = ProtoBuf.Serializer;
 
 
-namespace GitMind.Utils
+namespace GitMind.GitModel.Private.Caching
 {
 	public static class Serializer
 	{
