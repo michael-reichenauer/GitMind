@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Features.Remote;
 using GitMind.Features.StatusHandling;
-using GitMind.Features.StatusHandling.Private;
 using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
