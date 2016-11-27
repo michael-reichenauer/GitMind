@@ -118,6 +118,7 @@ namespace GitMind.GitModel.Private
 		public async Task RefreshAfterCommandAsync(bool useFreshRepository)
 		{
 			Log.Debug("Refreshing after command ...");
+			fetchedTime = DateTime.MinValue;
 			await CheckRemoteChangesAsync(true);
 
 			if (useFreshRepository)

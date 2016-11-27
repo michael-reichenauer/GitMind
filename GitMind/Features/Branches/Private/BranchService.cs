@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Commits;
@@ -24,6 +25,7 @@ namespace GitMind.Features.Branches.Private
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
 		private readonly IRepositoryCommands repositoryCommands;
+		private readonly Lazy<IRepositoryService> repositoryService;
 		private readonly IStatusService statusService;
 
 
@@ -35,6 +37,7 @@ namespace GitMind.Features.Branches.Private
 			IMessage message,
 			WindowOwner owner,
 			IRepositoryCommands repositoryCommands,
+			Lazy<IRepositoryService> repositoryService,
 			IStatusService statusService)
 		{
 			this.gitBranchService = gitBranchService;
@@ -44,6 +47,7 @@ namespace GitMind.Features.Branches.Private
 			this.message = message;
 			this.owner = owner;
 			this.repositoryCommands = repositoryCommands;
+			this.repositoryService = repositoryService;
 			this.statusService = statusService;
 		}
 
@@ -341,7 +345,9 @@ namespace GitMind.Features.Branches.Private
 					repositoryCommands.SetCurrentMerging(branch);
 				}
 
-				StatusHandling.Status status = await statusService.GetStatusAsync();
+				await repositoryService.Value.CheckLocalRepositoryAsync();
+
+				Status status = repositoryService.Value.Repository.Status;
 				if (status.ConflictCount == 0)
 				{
 					await commitsService.CommitChangesAsync();
