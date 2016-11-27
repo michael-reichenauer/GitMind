@@ -7,5 +7,7 @@
 		void SetSearchFocus();
 
 		void SetRepositoryViewFocus();
+
+		void SetMainWindowFocus();
 	}
 }

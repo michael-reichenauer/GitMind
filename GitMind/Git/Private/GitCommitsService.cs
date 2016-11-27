@@ -5,10 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Features.Diffing;
+using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
+using GitMind.RepositoryViews;
 using GitMind.Utils;
 using LibGit2Sharp;
-
 
 
 namespace GitMind.Git.Private
@@ -19,35 +20,37 @@ namespace GitMind.Git.Private
 		{ DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
 
 		private readonly WorkingFolder workingFolder;
+		private readonly Lazy<IRepositoryMgr> repositoryMgr;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
+		private readonly IStatusService statusService;
 		private readonly IRepoCaller repoCaller;
-		private readonly IDiffService diffService;
+
 
 
 		public GitCommitsService(
 			WorkingFolder workingFolder,
+			Lazy<IRepositoryMgr> repositoryMgr,
 			IGitCommitBranchNameService gitCommitBranchNameService,
-			IRepoCaller repoCaller,
-			IDiffService diffService)
+			IStatusService statusService,
+			IRepoCaller repoCaller)
 		{
 			this.workingFolder = workingFolder;
+			this.repositoryMgr = repositoryMgr;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
+			this.statusService = statusService;
 			this.repoCaller = repoCaller;
-			this.diffService = diffService;
 		}
 
 
-		public Task<R<GitCommitFiles>> GetFilesForCommitAsync(string commitId)
+		public async Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(string commitId)
 		{
-			return repoCaller.UseRepoAsync(repo =>
+			if (commitId == GitCommit.UncommittedId)
 			{
-				if (commitId == GitCommit.UncommittedId)
-				{
-					return repo.Status.CommitFiles;
-				}
+				Status status = repositoryMgr.Value.Repository.Status;
+				return R.From(status.ChangedFiles);
+			}
 
-				return repo.Diff.GetFiles(commitId);
-			});
+			return await repoCaller.UseRepoAsync(repo => repo.Diff.GetFiles(workingFolder, commitId));
 		}
 
 
@@ -82,13 +85,11 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync()
+		public Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync()
 		{
 			return repoCaller.UseLibRepoAsync(repo =>
 			{
 				List<string> failedPaths = new List<string>();
-
-				repo.Reset(ResetMode.Hard);
 
 				RepositoryStatus repositoryStatus = repo.RetrieveStatus(StatusOptions);
 				foreach (StatusEntry statusEntry in repositoryStatus.Ignored.Concat(repositoryStatus.Untracked))
@@ -208,25 +209,24 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task UndoFileInWorkingFolderAsync(string path)
+		public async Task UndoFileInWorkingFolderAsync(string path)
 		{
 			Log.Debug($"Undo uncommitted file {path} ...");
 
-			return repoCaller.UseLibRepoAsync(repo =>
+			Status status = await statusService.GetStatusAsync();
+			await repoCaller.UseLibRepoAsync(repo =>
 			{
-				GitStatus gitStatus = GetGitStatus(repo);
+				StatusFile statusFile = status.ChangedFiles.FirstOrDefault(f => f.FilePath == path);
 
-				GitFile gitFile = gitStatus.CommitFiles.Files.FirstOrDefault(f => f.File == path);
-
-				if (gitFile != null)
+				if (statusFile != null)
 				{
-					if (gitFile.IsModified || gitFile.IsDeleted)
+					if (statusFile.IsModified || statusFile.IsDeleted)
 					{
 						CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
 						repo.CheckoutPaths("HEAD", new[] { path }, options);
 					}
 
-					if (gitFile.IsAdded || gitFile.IsRenamed)
+					if (statusFile.IsAdded || statusFile.IsRenamed)
 					{
 						string fullPath = Path.Combine(workingFolder, path);
 						if (File.Exists(fullPath))
@@ -235,25 +235,14 @@ namespace GitMind.Git.Private
 						}
 					}
 
-					if (gitFile.IsRenamed)
+					if (statusFile.IsRenamed)
 					{
 						CheckoutOptions options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
-						repo.CheckoutPaths("HEAD", new[] { gitFile.OldFile }, options);
+						repo.CheckoutPaths("HEAD", new[] { statusFile.OldFilePath }, options);
 					}
 				}
 			});
 		}
-
-
-		private GitStatus GetGitStatus(LibGit2Sharp.Repository repo)
-		{
-			RepositoryStatus repositoryStatus = repo.RetrieveStatus(StatusOptions);
-			ConflictCollection conflicts = repo.Index.Conflicts;
-			bool isFullyMerged = repo.Index.IsFullyMerged;
-
-			return new GitStatus(diffService, repositoryStatus, conflicts, repo.Info, isFullyMerged);
-		}
-
 
 		public R<string> GetFullMessage(string commitId)
 		{

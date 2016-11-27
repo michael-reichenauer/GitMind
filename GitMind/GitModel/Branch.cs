@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Git;
@@ -83,9 +82,9 @@ namespace GitMind.GitModel
 		public Branch MainbBranch => Repository.Branches[MainBranchId];
 		public bool IsCurrentBranch => Repository.CurrentBranch == this 
 			|| IsMainPart && LocalSubBranch.IsCurrentBranch;
-		public bool IsUncommited => IsCurrentBranch && !Repository.Status.isOk;
-		public bool IsCanBeMergeToOther => !IsCurrentBranch && Repository.Status.isOk;
-			public bool ICanBeMergeIntoThis => IsCurrentBranch && Repository.Status.isOk;
+		public bool IsUncommited => IsCurrentBranch && !Repository.Status.IsOK;
+		public bool IsCanBeMergeToOther => !IsCurrentBranch && Repository.Status.IsOK;
+			public bool ICanBeMergeIntoThis => IsCurrentBranch && Repository.Status.IsOK;
 		public bool IsDetached { get; }
 		public Repository Repository { get; }
 
@@ -93,7 +92,6 @@ namespace GitMind.GitModel
 
 		public bool CanBePushed =>
 			IsActive
-			&& !IsUncommited
 			&& ((IsLocal && IsRemote) || (IsLocalPart && MainbBranch.RemoteAheadCount == 0))
 			&& LocalAheadCount > 0
 			&& RemoteAheadCount == 0;

@@ -261,7 +261,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public R UseRepo(Func<Repository, R> doFunction, string memberName = "")
+		public R UseLibRepo(Func<Repository, R> doFunction, string memberName = "")
 		{
 			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
@@ -328,7 +328,7 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				return await Task.Run(() => UseRepo(doFunction, memberName), cts.Token)
+				return await Task.Run(() => UseLibRepo(doFunction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
 			catch (OperationCanceledException e)

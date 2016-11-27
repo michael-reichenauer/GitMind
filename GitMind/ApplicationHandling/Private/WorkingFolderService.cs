@@ -46,21 +46,22 @@ namespace GitMind.ApplicationHandling.Private
 
 		public bool TrySetPath(string path)
 		{
-			R<string> rootFolder = GetRootFolderPath(path);
-
-			if (rootFolder.HasValue)
+			if (GetRootFolderPath(path).HasValue(out string rootFolder))
 			{
-				IsValid = rootFolder.HasValue;
-
-				if (workingFolder != path)
+				if (workingFolder != rootFolder)
 				{
-					workingFolder = rootFolder.HasValue ? rootFolder.Value : commandLine.Folder;
+					workingFolder = rootFolder;
 					StoreLasteUsedFolder();
 					OnChange?.Invoke(this, EventArgs.Empty);
 				}
-			}
 
-			return rootFolder.HasValue;
+				IsValid = true;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 
@@ -89,12 +90,12 @@ namespace GitMind.ApplicationHandling.Private
 			{
 				// Call from e.g. Windows Explorer folder context menu
 				rootFolder = GetRootFolderPath(commandLine.Folder);
-				IsValid = rootFolder.HasValue;
-				return rootFolder.HasValue ? rootFolder.Value : commandLine.Folder;
+				IsValid = rootFolder.IsOk;
+				return rootFolder.IsOk ? rootFolder.Value : commandLine.Folder;
 			}
 
 			rootFolder = GetRootFolderPath(Environment.CurrentDirectory);
-			if (!rootFolder.HasValue)
+			if (!rootFolder.IsOk)
 			{
 				string lastUsedFolder = GetLastUsedWorkingFolder();
 				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
@@ -103,8 +104,8 @@ namespace GitMind.ApplicationHandling.Private
 				}
 			}
 
-			IsValid = rootFolder.HasValue;
-			if (rootFolder.HasValue)
+			IsValid = rootFolder.IsOk;
+			if (rootFolder.IsOk)
 			{
 				return rootFolder.Value;
 			}
@@ -132,8 +133,7 @@ namespace GitMind.ApplicationHandling.Private
 				return Error.From("No working folder");
 			}
 
-			return gitInfoService.GetCurrentRootPath(path)
-				.OnError(e => Log.Debug($"Not a working folder {path}, {e}"));
+			return gitInfoService.GetCurrentRootPath(path);
 		}
 	}
 }

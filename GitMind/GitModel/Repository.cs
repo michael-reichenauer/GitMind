@@ -1,4 +1,5 @@
 ﻿using System;
+using GitMind.Features.StatusHandling;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 

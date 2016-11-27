@@ -122,8 +122,8 @@ namespace GitMind.RepositoryViews
 		public Command UndoUncommittedChangesCommand => AsyncCommand(
 			() => commitsService.UndoUncommittedChangesAsync());
 
-		public Command UndoCleanWorkingFolderCommand => AsyncCommand(
-			commitsService.UndoCleanWorkingFolderAsync);
+		public Command CleanWorkingFolderCommand => AsyncCommand(
+			commitsService.CleanWorkingFolderAsync);
 
 		public Command UncommitCommand => AsyncCommand(
 		 () => commitsService.UnCommitAsync(Commit), () => commitsService.CanUnCommit(Commit));

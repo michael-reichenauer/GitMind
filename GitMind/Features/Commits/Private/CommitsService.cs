@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Diffing;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
@@ -28,9 +29,9 @@ namespace GitMind.Features.Commits.Private
 		private readonly Func<SetBranchPromptDialog> setBranchPromptDialogProvider;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
-		private readonly IRepositoryService repositoryService;
+		private readonly IRepositoryMgr repositoryMgr;
 		private readonly IProgressService progress;
-
+		private readonly IStatusService statusService;
 
 
 		public CommitsService(
@@ -39,8 +40,9 @@ namespace GitMind.Features.Commits.Private
 			Func<SetBranchPromptDialog> setBranchPromptDialogProvider,
 			IGitCommitsService gitCommitsService,
 			IDiffService diffService,
-			IRepositoryService repositoryService,
+			IRepositoryMgr repositoryMgr,
 			IProgressService progressService,
+			IStatusService statusService,
 			Func<
 				BranchName,
 				IEnumerable<CommitFile>,
@@ -54,16 +56,16 @@ namespace GitMind.Features.Commits.Private
 			this.setBranchPromptDialogProvider = setBranchPromptDialogProvider;
 			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;
-			this.repositoryService = repositoryService;
+			this.repositoryMgr = repositoryMgr;
 			this.progress = progressService;
+			this.statusService = statusService;
 		}
 
 
 		public async Task CommitChangesAsync()
 		{
-			Repository repository = repositoryCommands.Repository;
-			Commit uncommitted;
-			if (repository.Commits.TryGetValue(Commit.UncommittedId, out uncommitted))
+			Repository repository = repositoryMgr.Repository;
+			if (repository.Commits.TryGetValue(Commit.UncommittedId, out var uncommitted))
 			{
 				if (uncommitted.HasConflicts)
 				{
@@ -80,7 +82,7 @@ namespace GitMind.Features.Commits.Private
 
 			BranchName branchName = repository.CurrentBranch.Name;
 
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
 			{
 				if (repository.CurrentBranch.IsDetached)
 				{
@@ -96,7 +98,7 @@ namespace GitMind.Features.Commits.Private
 					commitFiles = await repositoryCommands.UnCommited.FilesTask;
 				}
 
-				string commitMessage = repository.Status.Message;
+				string commitMessage = repository.Status.MergeMessage;
 
 				CommitDialog dialog = commitDialogProvider(
 					branchName,
@@ -106,29 +108,18 @@ namespace GitMind.Features.Commits.Private
 
 				if (dialog.ShowDialog() == true)
 				{
-					using (progress.ShowDialog($"Commit current branch {branchName} ..."))
+					using (progress.ShowDialog($"Committing current branch {branchName} ..."))
 					{
 						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
 							dialog.CommitMessage, branchName, dialog.CommitFiles);
 
-						if (gitCommit.HasValue)
-						{
-							await repositoryCommands.RefreshAfterCommandAsync(false);
-						}
-						else
+						if (!gitCommit.IsOk)
 						{
 							message.ShowWarning("Failed to commit");
 						}
 					}
 
 					Log.Debug("After commit dialog, refresh done");
-				}
-				else if (dialog.IsChanged)
-				{
-					using (progress.ShowDialog("Updating status ..."))
-					{
-						await repositoryCommands.RefreshAfterCommandAsync(false);
-					}
 				}
 				else if (repository.Status.IsMerging && !commitFiles.Any())
 				{
@@ -140,17 +131,14 @@ namespace GitMind.Features.Commits.Private
 
 		public async Task UnCommitAsync(Commit commit)
 		{
-			using (progress.ShowDialog($"Uncommit in {commit} ..."))
+			using (progress.ShowDialog($"Uncommitting in {commit} ..."))
 			{
 				R result = await gitCommitsService.UnCommitAsync();
 
 				if (result.IsFaulted)
 				{
-					message.ShowWarning($"Failed to uncommit.\n{result.Error.Exception.Message}");
+					message.ShowWarning($"Failed to uncommit.\n{result.Message}");
 				}
-
-				progress.SetText("Update status after uncommit ...");
-				await repositoryCommands.RefreshAfterCommandAsync(true);
 			}
 		}
 
@@ -177,7 +165,7 @@ namespace GitMind.Features.Commits.Private
 				}
 			}
 
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
 			{
 				if (dialog.ShowDialog() == true)
 				{
@@ -185,16 +173,13 @@ namespace GitMind.Features.Commits.Private
 
 					if (commit.SpecifiedBranchName != branchName)
 					{
-						using (progress.ShowDialog($"Set commit branch name {branchName} ..."))
+						using (progress.ShowDialog($"Setting commit branch name {branchName} ..."))
 						{
-							await repositoryService.SetSpecifiedCommitBranchAsync(
-								commit.Id, commit.Repository.RootId, branchName);
+							await SetSpecifiedCommitBranchAsync(commit.Id, commit.Repository.RootId, branchName);
 							if (branchName != null)
 							{
 								repositoryCommands.ShowBranch(branchName);
 							}
-
-							await repositoryCommands.RefreshAfterCommandAsync(true);
 						}
 					}
 				}
@@ -204,57 +189,49 @@ namespace GitMind.Features.Commits.Private
 
 		public async Task UndoUncommittedChangesAsync()
 		{
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
+			using (progress.ShowDialog("Undoing changes in working folder ..."))
 			{
-				using (progress.ShowDialog($"Undo changes in working folder ..."))
-				{
-					await gitCommitsService.UndoWorkingFolderAsync();
-
-					await repositoryCommands.RefreshAfterCommandAsync(false);
-				}
+				await gitCommitsService.UndoWorkingFolderAsync();
 			}
 		}
 
 
-		public async Task UndoCleanWorkingFolderAsync()
+		public async Task CleanWorkingFolderAsync()
 		{
-			R<IReadOnlyList<string>> failedPaths = R.From(new string[0].AsReadOnlyList());
+			R<IReadOnlyList<string>> failedPaths;
 
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
+			using (progress.ShowDialog("Cleaning untracked/ignored files in working folder  ..."))
 			{
-				using (progress.ShowDialog($"Undo changes and clean working folder  ..."))
-				{
-					failedPaths = await gitCommitsService.UndoCleanWorkingFolderAsync();
+				failedPaths = await gitCommitsService.CleanWorkingFolderAsync();
+			}
 
-					await repositoryCommands.RefreshAfterCommandAsync(false);
+			if (failedPaths.IsFaulted)
+			{
+				message.ShowWarning(failedPaths.ToString());
+			}
+			else if (failedPaths.Value.Any())
+			{
+				int count = failedPaths.Value.Count;
+				string text = $"Failed to clean working folder.\n{count} items where locked:\n";
+				foreach (string path in failedPaths.Value.Take(10))
+				{
+					text += $"\n   {path}";
+				}
+				if (count > 10)
+				{
+					text += "   ...";
 				}
 
-				if (failedPaths.IsFaulted)
-				{
-					message.ShowWarning(failedPaths.ToString());
-				}
-				else if (failedPaths.Value.Any())
-				{
-					int count = failedPaths.Value.Count;
-					string text = $"Failed to undo and clean working folder.\n{count} items where locked:\n";
-					foreach (string path in failedPaths.Value.Take(10))
-					{
-						text += $"\n   {path}";
-					}
-					if (count > 10)
-					{
-						text += "   ...";
-					}
-
-					message.ShowWarning(text);
-				}
+				message.ShowWarning(text);
 			}
 		}
 
 
 		public async Task ShowUncommittedDiffAsync()
 		{
-			if (!repositoryCommands.Repository.Commits.Contains(Commit.UncommittedId))
+			if (!repositoryMgr.Repository.Commits.Contains(Commit.UncommittedId))
 			{
 				message.ShowInfo("There are no uncommitted changes");
 				return;
@@ -266,10 +243,17 @@ namespace GitMind.Features.Commits.Private
 
 		public async Task UndoUncommittedFileAsync(string path)
 		{
-			using (progress.ShowDialog($"Undo file change in {path} ..."))
+			using (progress.ShowDialog($"Undoing file change in {path} ..."))
 			{
 				await gitCommitsService.UndoFileInWorkingFolderAsync(path);
 			}
+		}
+
+
+
+		public Task SetSpecifiedCommitBranchAsync(string commitId, string rootId, BranchName branchName)
+		{
+			return gitCommitsService.EditCommitBranchAsync(commitId, rootId, branchName);
 		}
 	}
 }

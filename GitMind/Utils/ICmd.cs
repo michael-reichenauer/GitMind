@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-
-
-namespace GitMind.Utils
+﻿namespace GitMind.Utils
 {
 	public interface ICmd
 	{

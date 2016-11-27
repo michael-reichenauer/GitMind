@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 
 
@@ -26,7 +28,9 @@ namespace GitMind.GitModel.Private
 
 		public string WorkingFolder { get; set; }
 
-		public GitStatus Status { get; set; }
+		public Status Status { get; set; } = Status.Default;
+
+		public IReadOnlyList<string> RepositoryIds { get; set; } = new List<string>();
 
 		public IList<string> ChildIds(string commitId)
 		{
@@ -55,7 +59,7 @@ namespace GitMind.GitModel.Private
 
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
-		public IReadOnlyList<string> Tips { get; set; } = new List<string>();
+		public TimeSpan TimeToCreateFresh { get; set; }
 
 
 		public void CompleteDeserialization(string gitRepositoryPath)

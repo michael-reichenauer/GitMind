@@ -28,17 +28,20 @@ namespace GitMind.Utils
 
 			if (message != null && exception != errorException)
 			{
-				Message = $"{message},\n{exception.GetType().Name}: {exception.Message}";
+				Message = message;
+				Text = $"{Message},\n{exception.GetType().Name}: {exception.Message}";
 				this.exception = exception;
 			}
 			else if (message != null)
 			{
-				Message = $"{message}";
+				Message = message;
+				Text = message;
 				this.exception = exception;
 			}
 			else 
 			{
 				Message = exception.Message;
+				Text = $"{Message},\n{exception.GetType().Name}: {exception.Message}";
 				this.exception = exception;
 			}
 
@@ -50,6 +53,7 @@ namespace GitMind.Utils
 
 
 		public string Message { get; }
+		public string Text { get; }
 
 		public Exception Exception => exception;
 
@@ -86,6 +90,6 @@ namespace GitMind.Utils
 
 		protected override int GetHash() => 0;
 
-		public override string ToString() => Message;
+		public override string ToString() => Text;
 	}
 }

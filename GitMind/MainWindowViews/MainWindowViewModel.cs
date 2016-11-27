@@ -10,7 +10,6 @@ using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Features.Commits;
 using GitMind.Features.Remote;
-using GitMind.Features.StatusHandling.Private;
 using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
@@ -26,7 +25,7 @@ namespace GitMind.MainWindowViews
 		private readonly ILatestVersionService latestVersionService;
 		private readonly IMainWindowService mainWindowService;
 		private readonly MainWindowIpcService mainWindowIpcService;
-		private readonly FolderMonitorService folderMonitor;
+
 		private readonly JumpListService jumpListService = new JumpListService();
 
 		private IpcRemotingService ipcRemotingService = null;
@@ -48,7 +47,7 @@ namespace GitMind.MainWindowViews
 			ILatestVersionService latestVersionService,
 			IMainWindowService mainWindowService,
 			MainWindowIpcService mainWindowIpcService,
-			Func<BusyIndicator, RepositoryViewModel> RepositoryViewModelProvider)
+			RepositoryViewModel repositoryViewModel)
 		{
 			this.workingFolder = workingFolder;
 			this.owner = owner;
@@ -59,8 +58,7 @@ namespace GitMind.MainWindowViews
 			this.mainWindowService = mainWindowService;
 			this.mainWindowIpcService = mainWindowIpcService;
 
-			RepositoryViewModel = RepositoryViewModelProvider(Busy);
-			folderMonitor = new FolderMonitorService(OnStatusChange, OnRepoChange);
+			RepositoryViewModel = repositoryViewModel;
 
 			workingFolder.OnChange += (s, e) => Notify(nameof(WorkingFolder));
 			latestVersionService.OnNewVersionAvailable += (s, e) => IsNewVersionVisible = true;
@@ -145,7 +143,7 @@ namespace GitMind.MainWindowViews
 
 		public Command SelectWorkingFolderCommand => AsyncCommand(SelectWorkingFolderAsync);
 
-		public Command RunLatestVersionCommand => Command(RunLatestVersion);
+		public Command RunLatestVersionCommand => AsyncCommand(RunLatestVersionAsync);
 
 		public Command FeedbackCommand => Command(Feedback);
 
@@ -165,12 +163,12 @@ namespace GitMind.MainWindowViews
 
 		public Command ClearFilterCommand => Command(ClearFilter);
 
-		public Command SpecifyCommitBranchCommand => Command(SpecifyCommitBranch);
+		public Command SpecifyCommitBranchCommand => AsyncCommand(SpecifyCommitBranchAsync);
 
 		public Command SearchCommand => Command(Search);
 
-		public Command UndoCleanWorkingFolderCommand => AsyncCommand(
-			commitsService.UndoCleanWorkingFolderAsync);
+		public Command CleanWorkingFolderCommand => AsyncCommand(
+			commitsService.CleanWorkingFolderAsync);
 
 
 		public async Task FirstLoadAsync()
@@ -232,25 +230,11 @@ namespace GitMind.MainWindowViews
 			}
 
 			jumpListService.Add(workingFolder);
-			folderMonitor.Monitor(workingFolder);
+
 			Notify(nameof(Title));
 
-			await RepositoryViewModel.FirstLoadAsync();
+			await RepositoryViewModel.LoadAsync();
 			isLoaded = true;
-		}
-
-
-		private void OnStatusChange(DateTime triggerTime)
-		{
-			Log.Debug("Status change");
-			StatusChangeRefreshAsync(triggerTime, false).RunInBackground();
-		}
-
-
-		private void OnRepoChange(DateTime triggerTime)
-		{
-			Log.Debug("Repo change");
-			StatusChangeRefreshAsync(triggerTime, true).RunInBackground();
 		}
 
 
@@ -271,27 +255,12 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		public async Task StatusChangeRefreshAsync(DateTime triggerTime, bool isRepoChange)
-		{
-			if (!isLoaded)
-			{
-				return;
-			}
-
-			Timing t = new Timing();
-
-			await RepositoryViewModel.StatusChangeRefreshAsync(triggerTime, isRepoChange);
-			t.Log($"Status change is repo change: {isRepoChange}");
-		}
-
-
 		public Task ActivateRefreshAsync()
 		{
 			if (!isLoaded)
 			{
 				return Task.CompletedTask;
 			}
-
 
 			return RepositoryViewModel.ActivateRefreshAsync();
 		}
@@ -360,7 +329,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private async void RunLatestVersion()
+		private async Task RunLatestVersionAsync()
 		{
 			bool IsStarting = await latestVersionService.StartLatestInstalledVersionAsync();
 
@@ -432,10 +401,12 @@ namespace GitMind.MainWindowViews
 		{
 			while (true)
 			{
-				var dialog = new FolderBrowserDialog();
-				dialog.Description = "Select a working folder with a valid git repository.";
-				dialog.ShowNewFolderButton = false;
-				dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+				var dialog = new FolderBrowserDialog()
+				{
+					Description = "Select a working folder with a valid git repository.",
+					ShowNewFolderButton = false,
+					RootFolder = Environment.SpecialFolder.MyComputer
+				};
 
 				if (workingFolder.HasValue)
 				{
@@ -461,7 +432,7 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private async void SpecifyCommitBranch()
+		private async Task SpecifyCommitBranchAsync()
 		{
 			var commit = RepositoryViewModel.SelectedItem as CommitViewModel;
 			if (commit != null)

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using GitMind.ApplicationHandling;
+﻿using System.Threading.Tasks;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Commits;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
@@ -25,6 +24,7 @@ namespace GitMind.Features.Branches.Private
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
 		private readonly IRepositoryCommands repositoryCommands;
+		private readonly IStatusService statusService;
 
 
 		public BranchService(
@@ -34,7 +34,8 @@ namespace GitMind.Features.Branches.Private
 			IProgressService progressService,
 			IMessage message,
 			WindowOwner owner,
-			IRepositoryCommands repositoryCommands)
+			IRepositoryCommands repositoryCommands,
+			IStatusService statusService)
 		{
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
@@ -43,6 +44,7 @@ namespace GitMind.Features.Branches.Private
 			this.message = message;
 			this.owner = owner;
 			this.repositoryCommands = repositoryCommands;
+			this.statusService = statusService;
 		}
 
 
@@ -54,7 +56,7 @@ namespace GitMind.Features.Branches.Private
 
 		public async Task CreateBranchFromCommitAsync(Commit commit)
 		{
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
 			{
 				CrateBranchDialog dialog = new CrateBranchDialog(owner);
 
@@ -63,7 +65,7 @@ namespace GitMind.Features.Branches.Private
 					BranchName branchName = dialog.BranchName;
 					Log.Debug($"Create branch {dialog.BranchName}, from {commit.Branch} ...");
 
-					using (progress.ShowDialog($"Create branch {dialog.BranchName} ..."))
+					using (progress.ShowDialog($"Creating branch {dialog.BranchName} ..."))
 					{
 						string commitId = commit.Id;
 						if (commitId == Commit.UncommittedId || commit.IsVirtual)
@@ -78,7 +80,7 @@ namespace GitMind.Features.Branches.Private
 
 							if (dialog.IsPublish)
 							{
-								progress.SetText($"Publish branch {dialog.BranchName}...");
+								progress.SetText($"Publishing branch {dialog.BranchName}...");
 
 								R publish = await gitNetworkService.PublishBranchAsync(branchName);
 								if (publish.IsFaulted)
@@ -91,11 +93,8 @@ namespace GitMind.Features.Branches.Private
 						}
 						else
 						{
-							message.ShowWarning($"Failed to create branch {branchName}\n{result.Error.Exception.Message}");
+							message.ShowWarning($"Failed to create branch {branchName}\n{result.Message}");
 						}
-
-						progress.SetText($"Updating status after create branch {branchName} ...");
-						await repositoryCommands.RefreshAfterCommandAsync(true);
 					}
 				}
 			}
@@ -104,19 +103,14 @@ namespace GitMind.Features.Branches.Private
 
 		public async Task PublishBranchAsync(Branch branch)
 		{
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
+			using (progress.ShowDialog($"Publishing branch {branch.Name} ..."))
 			{
-				using (progress.ShowDialog($"Publish branch {branch.Name} ..."))
+				R publish = await gitNetworkService.PublishBranchAsync(branch.Name);
+
+				if (publish.IsFaulted)
 				{
-					R publish = await gitNetworkService.PublishBranchAsync(branch.Name);
-
-					if (publish.IsFaulted)
-					{
-						message.ShowWarning($"Failed to publish the branch {branch.Name}.\n{publish.Error.Exception.Message}");
-					}
-
-					progress.SetText($"Updating status after publish {branch.Name} ...");
-					await repositoryCommands.RefreshAfterCommandAsync(false);
+					message.ShowWarning($"Failed to publish the branch {branch.Name}.\n{publish.Message}");
 				}
 			}
 		}
@@ -124,19 +118,14 @@ namespace GitMind.Features.Branches.Private
 
 		public async Task PushBranchAsync(Branch branch)
 		{
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
+			using (progress.ShowDialog($"Pushing branch {branch.Name} ..."))
 			{
-				using (progress.ShowDialog($"Push branch {branch.Name} ..."))
+				R result = await gitNetworkService.PushBranchAsync(branch.Name);
+
+				if (result.IsFaulted)
 				{
-					R result = await gitNetworkService.PushBranchAsync(branch.Name);
-
-					if (result.IsFaulted)
-					{
-						message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Error.Exception.Message}");
-					}
-
-					progress.SetText($"Updating status after push {branch.Name} ...");
-					await repositoryCommands.RefreshAfterCommandAsync(true);
+					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Message}");
 				}
 			}
 		}
@@ -144,34 +133,29 @@ namespace GitMind.Features.Branches.Private
 
 		public async Task UpdateBranchAsync(Branch branch)
 		{
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
+			using (progress.ShowDialog($"Updating branch {branch.Name} ..."))
 			{
-				using (progress.ShowDialog($"Update branch {branch.Name} ..."))
+				R result;
+				if (branch == branch.Repository.CurrentBranch ||
+					branch.IsMainPart && branch.LocalSubBranch == branch.Repository.CurrentBranch)
 				{
-					R result;
-					if (branch == branch.Repository.CurrentBranch ||
-						branch.IsMainPart && branch.LocalSubBranch == branch.Repository.CurrentBranch)
+					Log.Debug("Update current branch");
+					result = await gitNetworkService.FetchAsync();
+					if (result.IsOk)
 					{
-						Log.Debug("Update current branch");
-						result = await gitNetworkService.FetchAsync();
-						if (result.IsOk)
-						{
-							result = await gitBranchService.MergeCurrentBranchAsync();
-						}
+						result = await gitBranchService.MergeCurrentBranchAsync();
 					}
-					else
-					{
-						Log.Debug($"Update branch {branch.Name}");
-						result = await gitNetworkService.FetchBranchAsync(branch.Name);
-					}
+				}
+				else
+				{
+					Log.Debug($"Update branch {branch.Name}");
+					result = await gitNetworkService.FetchBranchAsync(branch.Name);
+				}
 
-					if (result.IsFaulted)
-					{
-						message.ShowWarning($"Failed to update the branch {branch.Name}.\n{result.Error.Exception.Message}");
-					}
-
-					progress.SetText($"Updating status after update {branch.Name} ...");
-					await repositoryCommands.RefreshAfterCommandAsync(false);
+				if (result.IsFaulted)
+				{
+					message.ShowWarning($"Failed to update the branch {branch.Name}.\n{result.Message}");
 				}
 			}
 		}
@@ -179,18 +163,13 @@ namespace GitMind.Features.Branches.Private
 
 		public async Task SwitchBranchAsync(Branch branch)
 		{
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
+			using (progress.ShowDialog($"Switching to branch {branch.Name} ..."))
 			{
-				using (progress.ShowDialog($"Switch to branch {branch.Name} ..."))
+				R result = await gitBranchService.SwitchToBranchAsync(branch.Name);
+				if (result.IsFaulted)
 				{
-					R result = await gitBranchService.SwitchToBranchAsync(branch.Name);
-					if (result.IsFaulted)
-					{
-						message.ShowWarning($"Failed to switch,\n{result.Error.Exception.Message}");
-					}
-
-					progress.SetText($"Updating status after switch to {branch.Name} ...");
-					await repositoryCommands.RefreshAfterCommandAsync(true);
+					message.ShowWarning($"Failed to switch,\n{result.Message}");
 				}
 			}
 		}
@@ -215,28 +194,23 @@ namespace GitMind.Features.Branches.Private
 			}
 
 
-			using (repositoryCommands.DisableStatus())
-			{			
-				using (progress.ShowDialog("Switch to commit ..."))
+			using (statusService.PauseStatusNotifications())
+			using (progress.ShowDialog("Switching to commit ..."))
+			{
+				BranchName branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
+
+				R<BranchName> switchedNamed = await gitBranchService.SwitchToCommitAsync(
+					commit.CommitId, branchName);
+
+				if (switchedNamed.IsOk)
 				{
-					BranchName branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
-
-					R<BranchName> switchedNamed = await gitBranchService.SwitchToCommitAsync(
-						commit.CommitId, branchName);
-
-					if (switchedNamed.HasValue)
-					{
-						repositoryCommands.ShowBranch(switchedNamed.Value);
-					}
-					else
-					{
-						// Show current branch
-						message.ShowWarning($"Failed to switch to the branch {branchName}.\n{switchedNamed.Error.Exception.Message}");
-						repositoryCommands.ShowBranch((BranchName)null);
-					}
-
-					progress.SetText("Updating status after switch to commit ...");
-					await repositoryCommands.RefreshAfterCommandAsync(true);
+					repositoryCommands.ShowBranch(switchedNamed.Value);
+				}
+				else
+				{
+					// Show current branch
+					message.ShowWarning($"Failed to switch to the branch {branchName}.\n{switchedNamed.Message}");
+					repositoryCommands.ShowBranch((BranchName)null);
 				}
 			}
 		}
@@ -245,7 +219,7 @@ namespace GitMind.Features.Branches.Private
 		public bool CanExecuteSwitchToBranchCommit(Commit commit)
 		{
 			return
-				commit.Repository.Status.StatusCount == 0
+				commit.Repository.Status.ChangedCount == 0
 				&& !commit.Repository.Status.IsMerging
 				&& commit.Repository.Status.ConflictCount == 0;
 		}
@@ -253,7 +227,7 @@ namespace GitMind.Features.Branches.Private
 
 		public async Task DeleteBranchAsync(Branch branch)
 		{
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
 			{
 				if (branch.Name == BranchName.Master)
 				{
@@ -291,7 +265,7 @@ namespace GitMind.Features.Branches.Private
 				}
 			}
 		}
-			
+
 
 		public bool CanDeleteBranch(Branch branch)
 		{
@@ -308,22 +282,19 @@ namespace GitMind.Features.Branches.Private
 			{
 				if (isLocal)
 				{
-					progress.SetText($"Delete local branch {branch.Name} ...");
-					await DeleteBranchImpl(branch, false);
+					progress.SetText($"Deleting local branch {branch.Name} ...");
+					await DeleteBranchImplAsync(branch, false);
 				}
 
 				if (isRemote)
 				{
-					progress.SetText($"Delete remote branch {branch.Name} ...");
-					await DeleteBranchImpl(branch, true);
+					progress.SetText($"Deleting remote branch {branch.Name} ...");
+					await DeleteBranchImplAsync(branch, true);
 				}
-
-				progress.SetText($"Updating status after delete {branch.Name} ...");
-				await repositoryCommands.RefreshAfterCommandAsync(true);
 			}
 		}
 
-		private async Task DeleteBranchImpl(
+		private async Task DeleteBranchImplAsync(
 			Branch branch,
 			bool isRemote)
 		{
@@ -341,14 +312,14 @@ namespace GitMind.Features.Branches.Private
 
 			if (deleted.IsFaulted)
 			{
-				message.ShowWarning($"Failed to delete {text} branch '{branch.Name}'\n{deleted.Error.Exception.Message}");
+				message.ShowWarning($"Failed to delete {text} branch '{branch.Name}'\n{deleted.Message}");
 			}
 		}
 
 
 		public async Task MergeBranchAsync(Branch branch)
 		{
-			using (repositoryCommands.DisableStatus())
+			using (statusService.PauseStatusNotifications())
 			{
 				if (branch == branch.Repository.CurrentBranch)
 				{
@@ -356,34 +327,29 @@ namespace GitMind.Features.Branches.Private
 					return;
 				}
 
-				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.StatusCount > 0)
+				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.ChangedCount > 0)
 				{
 					message.ShowInfo("You must first commit uncommitted changes before merging.");
 					return;
 				}
 
 				Branch currentBranch = branch.Repository.CurrentBranch;
-				using (progress.ShowDialog($"Merge branch {branch.Name} into {currentBranch.Name} ..."))
+				using (progress.ShowDialog($"Merging branch {branch.Name} into {currentBranch.Name} ..."))
 				{
 					await gitBranchService.MergeAsync(branch.Name);
 
 					repositoryCommands.SetCurrentMerging(branch);
-					progress.SetText(
-						$"Updating status after merge {branch.Name} into {currentBranch.Name} ...");
-					await repositoryCommands.RefreshAfterCommandAsync(false);
 				}
 
-				if (repositoryCommands.Repository.Status.ConflictCount == 0)
+				StatusHandling.Status status = await statusService.GetStatusAsync();
+				if (status.ConflictCount == 0)
 				{
 					await commitsService.CommitChangesAsync();
 				}
-			}
-
-			Repository repository = repositoryCommands.Repository;
-
-			if (repository.Status.ConflictCount > 0)
-			{
-				repositoryCommands.ShowCommitDetails();
+				else
+				{
+					repositoryCommands.ShowCommitDetails();
+				}
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
 using GitMind.Utils;
 
@@ -9,7 +10,7 @@ namespace GitMind.Git
 {
 	internal interface IGitCommitsService
 	{
-		Task<R<GitCommitFiles>> GetFilesForCommitAsync(string commitId);
+		Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(string commitId);
 
 		Task EditCommitBranchAsync(string commitId, string rootId, BranchName branchName);
 	
@@ -22,7 +23,7 @@ namespace GitMind.Git
 		R<string> GetFullMessage(string commitId);
 
 
-		Task<R<IReadOnlyList<string>>> UndoCleanWorkingFolderAsync();
+		Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync();
 
 		Task UndoFileInWorkingFolderAsync(string path);
 

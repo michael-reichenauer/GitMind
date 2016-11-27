@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using GitMind.Git;
 using GitMind.GitModel;
-using GitMind.Utils.UI;
 
 
 namespace GitMind.RepositoryViews.Private
@@ -20,8 +19,6 @@ namespace GitMind.RepositoryViews.Private
 
 		private RepositoryViewModel viewModel => lazyRepositoryViewModel.Value;
 
-		public Repository Repository => viewModel.Repository;
-
 		public bool IsShowCommitDetails => viewModel.IsShowCommitDetails;
 		public void ShowCommitDetails() => viewModel.ShowCommitDetails();
 
@@ -35,13 +32,8 @@ namespace GitMind.RepositoryViews.Private
 		public Task ShowSelectedDiffAsync() => viewModel.ShowSelectedDiffAsync();
 
 		public Commit UnCommited => viewModel.UnCommited;
-	
-		public DisabledStatus DisableStatus() => viewModel.DisableStatus();
 
 		public void ShowBranch(BranchName branchName) => viewModel.ShowBranch(branchName);
-
-		public Task RefreshAfterCommandAsync(bool useFreshRepository)
-			=> viewModel.RefreshAfterCommandAsync(useFreshRepository);
 
 		public void SetCurrentMerging(Branch branch) => viewModel.SetCurrentMerging(branch);
 	}

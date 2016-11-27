@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace GitMind.GitModel.Private
 {
-	internal class Converter
+	internal class Converter 
 	{
 		public static Branch ToBranch(Repository repository, MBranch branch)
 		{

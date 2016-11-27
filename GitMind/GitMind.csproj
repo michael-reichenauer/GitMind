@@ -121,7 +121,21 @@
     <Compile Include="Features\Remote\IRemoteService.cs" />
     <Compile Include="Features\Remote\Private\RemoteService.cs" />
     <Compile Include="Features\StatusHandling\IStatusService.cs" />
+    <Compile Include="Features\StatusHandling\Private\FileEventArgs.cs" />
+    <Compile Include="Features\StatusHandling\Private\GitStatusService.cs" />
+    <Compile Include="Features\StatusHandling\Private\IFolderMonitorService.cs" />
+    <Compile Include="Features\StatusHandling\Private\IGitStatusService.cs" />
+    <Compile Include="Features\StatusHandling\Private\RepoChangedEventArgs.cs" />
+    <Compile Include="Features\StatusHandling\Private\StatusChangedEventArgs.cs" />
+    <Compile Include="Features\StatusHandling\Status.cs" />
+    <Compile Include="Features\StatusHandling\StatusFile.cs" />
+    <Compile Include="Features\StatusHandling\Private\StatusService.cs" />
+    <Compile Include="Features\StatusHandling\Refresh.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
+    <Compile Include="GitModel\Private\IRepositoryStructureService.cs" />
+    <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
+    <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />
+    <Compile Include="GitModel\RepositoryUpdatedEventArgs.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
     <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />
     <Compile Include="Utils\AsyncLock.cs" />
@@ -143,7 +157,6 @@
     <Compile Include="Features\Commits\Private\CommitsService.cs" />
     <Compile Include="Features\Commits\ICommitsService.cs" />
     <Compile Include="Features\StatusHandling\Private\FolderMonitorService.cs" />
-    <Compile Include="GitModel\Status.cs" />
     <Compile Include="Git\BranchName.cs" />
     <Compile Include="Git\GitDivergence.cs" />
     <Compile Include="Git\INetworkService.cs" />
@@ -174,7 +187,7 @@
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\Throttler.cs" />
     <Compile Include="Utils\UI\CredentialsDialog.cs" />
-    <Compile Include="RepositoryViews\DisabledStatus.cs" />
+    <Compile Include="Utils\Disposable.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
     <Compile Include="ApplicationHandling\SettingsHandling\Settings.cs" />
     <Compile Include="ApplicationHandling\SettingsHandling\Options.cs" />
@@ -290,7 +303,6 @@
     <Compile Include="Git\GitBranch.cs" />
     <Compile Include="Git\GitTag.cs" />
     <Compile Include="Git\IGitCommitsService.cs" />
-    <Compile Include="Git\GitStatus.cs" />
     <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />

@@ -1,21 +1,30 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
 {
 	internal class CommitsService : ICommitsService
 	{
-		public void AddBranchCommits(
-			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
+		public void AddBranchCommits(GitRepository gitRepository, MRepository repository)
 		{
+			Status status = repository.Status;
+
+			Timing t = new Timing();
 			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
+
 			if (gitRepository.Head.IsDetached)
 			{
 				rootCommits = rootCommits.Concat(new[] { gitRepository.Head.Tip });
 			}
+
+			rootCommits = rootCommits.ToList();
+			t.Log("Root commit ids");
+
 
 			Dictionary<string, object> added = new Dictionary<string, object>();
 
@@ -59,10 +68,10 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			if (!gitStatus.OK)
+			if (!status.IsOK)
 			{
 				// Adding a virtual "uncommitted" commit since current working folder status has some changes
-				AddVirtualUncommitted(gitRepository, gitStatus, repository);
+				AddVirtualUncommitted(gitRepository, status, repository);
 			}
 		}
 
@@ -80,14 +89,14 @@ namespace GitMind.GitModel.Private
 
 
 		private void AddVirtualUncommitted(
-			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
+			GitRepository gitRepository, Status status, MRepository repository)
 		{
 			MCommit commit = new MCommit();
 			commit.IsVirtual = true;
 			commit.Repository = repository;
 			commit.BranchName = gitRepository.Head.Name;
 
-			CopyToCommit(gitStatus, commit, gitRepository.Head.TipId);
+			CopyToCommit(status, commit, gitRepository.Head.TipId);
 			commit.Author = gitRepository.UserName ?? "";
 
 			SetChildOfParents(commit);
@@ -182,20 +191,25 @@ namespace GitMind.GitModel.Private
 			commit.ParentIds = gitCommit.Parents.Select(c => c.Id).ToList();
 		}
 
-		private static void CopyToCommit(GitStatus gitStatus, MCommit commit, string parentId)
+		private static void CopyToCommit(Status status, MCommit commit, string parentId)
 		{
+			int modifiedCount = status.ChangedCount;
+			int conflictCount = status.ConflictCount;
+
 			commit.Id = MCommit.UncommittedId;
 			commit.CommitId = MCommit.UncommittedId;
 			commit.ShortId = commit.Id.Substring(0, 6);
-			commit.Subject = $"{gitStatus.Count} uncommitted changes in working folder";
-			if (gitStatus.ConflictCount > 0)
+			commit.Subject = $"{modifiedCount} uncommitted changes in working folder";
+
+			if (conflictCount > 0)
 			{
-				commit.Subject = $"{gitStatus.ConflictCount} conflicts and " + commit.Subject;
-				commit.HasConflicts = true; ;
+				commit.Subject = 
+					$"{conflictCount} conflicts and {modifiedCount} changes, {ShortSubject(status)}";
+				commit.HasConflicts = true;
 			}
-			if (gitStatus.IsMerging)
+			else if (status.IsMerging)
 			{
-				commit.Subject = $"{ShortSubject(gitStatus)} ({commit.Subject})";
+				commit.Subject = $"{modifiedCount} changes, {ShortSubject(status)}";
 				commit.IsMerging = true;
 			}
 
@@ -207,10 +221,10 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static string ShortSubject(GitStatus gitStatus)
+		private static string ShortSubject(Status status)
 		{
-			string subject = gitStatus.Message?.Trim() ?? "";
-			string firstLine = subject.Split("\\n".ToCharArray())[0];
+			string subject = status.MergeMessage?.Trim() ?? "";
+			string firstLine = subject.Split("\n".ToCharArray())[0];
 			return firstLine;
 		}
 

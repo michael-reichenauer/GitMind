@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Features.Diffing;
+using GitMind.Features.StatusHandling;
 using LibGit2Sharp;
 
 
@@ -157,7 +158,7 @@ namespace GitMind.Git
 		}
 
 
-		public GitCommitFiles GetFiles(string commitId)
+		public IReadOnlyList<StatusFile> GetFiles(string workingFolder, string commitId)
 		{
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 
@@ -174,10 +175,49 @@ namespace GitMind.Git
 					commit.Tree,
 					DefultCompareOptions);
 
-				return new GitCommitFiles(diffService, commitId, treeChanges);
+				return GetChangedFiles(workingFolder, treeChanges);
 			}
 
-			return new GitCommitFiles(diffService, commitId, (TreeChanges)null);
+			return new List<StatusFile>();
+		}
+
+		private IReadOnlyList<StatusFile> GetChangedFiles(string workingFolder, TreeChanges treeChanges)
+		{
+			List<StatusFile> files = treeChanges
+					.Added.Select(t => new StatusFile(workingFolder, t.Path, null, null, GitFileStatus.Added))
+					.Concat(treeChanges.Deleted.Select(t => new StatusFile(workingFolder, t.Path, null, null, GitFileStatus.Deleted)))
+					.Concat(treeChanges.Modified.Select(t => new StatusFile(workingFolder, t.Path, null, null, GitFileStatus.Modified)))
+					.Concat(treeChanges.Renamed.Select(t => new StatusFile(workingFolder, t.Path, t.OldPath, null, GitFileStatus.Renamed)))
+					.ToList();
+
+			return GetUniqueFiles(workingFolder, files);
+		}
+
+
+		private static List<StatusFile> GetUniqueFiles(string workingFolder, List<StatusFile> files)
+		{
+			List<StatusFile> uniqueFiles = new List<StatusFile>();
+
+			foreach (StatusFile gitFile in files)
+			{
+				StatusFile file = uniqueFiles.FirstOrDefault(f => f.FilePath == gitFile.FilePath);
+				if (file == null)
+				{
+					uniqueFiles.Add(gitFile);
+				}
+				else
+				{
+					uniqueFiles.Remove(file);
+					uniqueFiles.Add(new StatusFile(
+						workingFolder,
+						file.FilePath,
+						gitFile.OldFilePath ?? file.OldFilePath,
+						gitFile.Conflict ?? file.Conflict,
+						gitFile.Status | file.Status));
+				}
+			}
+
+			return uniqueFiles;
 		}
 	}
 }

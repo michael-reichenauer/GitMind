@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -28,8 +29,7 @@ namespace GitMind.GitModel
 
 		public async Task<IEnumerable<CommitFile>> GetAsync(string commitId)
 		{
-			IList<CommitFile> files;
-			if (commitId == Commit.UncommittedId || !commitsFiles.TryGetValue(commitId, out files))
+			if (commitId == Commit.UncommittedId || !commitsFiles.TryGetValue(commitId, out var files))
 			{
 				nextIdToGet = commitId;
 				await currentTask;
@@ -39,15 +39,14 @@ namespace GitMind.GitModel
 					return Enumerable.Empty<CommitFile>();
 				}
 
-				Task<R<GitCommitFiles>> commitsFilesForCommitTask =
+				Task<R<IReadOnlyList<StatusFile>>> commitsFilesForCommitTask =
 					gitCommitsService.GetFilesForCommitAsync(commitId);
 
 				currentTask = commitsFilesForCommitTask;
-				var commitsFilesForCommit = await commitsFilesForCommitTask;
-
-				if (commitsFilesForCommit.HasValue)
+				
+				if ((await commitsFilesForCommitTask).HasValue(out var commitsFilesForCommit))
 				{
-					files = commitsFilesForCommit.Value.Files
+					files = commitsFilesForCommit
 						.Select(f => new CommitFile(f)).ToList();
 					commitsFiles[commitId] = files;
 					return files;
