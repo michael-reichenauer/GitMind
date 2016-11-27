@@ -48,6 +48,6 @@ namespace GitMind.GitModel
 		public ICommitsFiles CommitsFiles { get; }
 		public Status Status { get; }
 		public Commit RootCommit => commits.Value[rootId];
-		public Commit UnComitted => commits.Value[unComittedId];
+		public Commit UnComitted => unComittedId != -1 ? commits.Value[unComittedId] : null;
 	}
 }
