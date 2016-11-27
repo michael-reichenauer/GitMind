@@ -283,7 +283,10 @@ namespace GitMind.GitModel.Private
 					string commonTip = div.CommonId;
 					MCommit commonCommit = repository.CommitsById[commonTip];
 
-					commonCommit.CommitAndFirstAncestors().ForEach(c => c.IsCommon = true);
+					commonCommit
+						.CommitAndFirstAncestors()
+						.Where(c => c.BranchId == branch.Id)
+						.ForEach(c => c.IsCommon = true);
 
 					if (commonTip != localTipCommit.CommitId || 
 						(repository.Commits[branch.LocalTipCommitId].IsUncommitted 
@@ -294,6 +297,7 @@ namespace GitMind.GitModel.Private
 
 					if (branch.IsLocal)
 					{
+						HashSet<int> marked = new HashSet<int>();
 						int localCount = 0;
 						Stack<MCommit> commits = new Stack<MCommit>();
 						commits.Push(localTipCommit);
@@ -301,10 +305,11 @@ namespace GitMind.GitModel.Private
 						while (commits.Any())
 						{
 							MCommit commit = commits.Pop();
-							if (!commit.IsCommon && commit.Branch == branch)
+							if (!marked.Contains(commit.IndexId) && !commit.IsCommon && commit.Branch == branch)
 							{
 								commit.IsLocalAhead = true;
 								localCount++;
+								marked.Add(commit.IndexId);
 								commit.Parents
 									.Where(p => p.Branch == branch)
 									.ForEach(p => commits.Push(p));
@@ -316,6 +321,7 @@ namespace GitMind.GitModel.Private
 
 					if (branch.IsRemote)
 					{
+						HashSet<int> marked = new HashSet<int>();
 						int remoteCount = 0;
 						Stack<MCommit> commits = new Stack<MCommit>();
 						commits.Push(remoteTipCommit);
@@ -323,10 +329,13 @@ namespace GitMind.GitModel.Private
 						while (commits.Any())
 						{
 							MCommit commit = commits.Pop();
-							if (!commit.IsCommon && commit.Branch == branch)
+
+							if (!marked.Contains(commit.IndexId) && !commit.IsCommon && commit.Branch == branch)
 							{
 								commit.IsRemoteAhead = true;
 								remoteCount++;
+								marked.Add(commit.IndexId);
+							
 								commit.Parents
 									.Where(p => p.Branch == branch)
 									.ForEach(p => commits.Push(p));
