@@ -65,10 +65,13 @@ namespace GitMind.GitModel.Private
 
 		public MCommit AddNewCommit(string commitId)
 		{
-			MCommit commit = new MCommit();
-			commit.Repository = this;
-			commit.IndexId = Commits.Count;
-			commit.CommitId = commitId;
+			MCommit commit = new MCommit()
+			{
+				Repository = this,
+				IndexId = Commits.Count,
+				CommitId = commitId
+			};
+
 			Commits.Add(commit);
 
 			if (commitId != null)

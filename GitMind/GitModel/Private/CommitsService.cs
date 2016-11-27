@@ -34,6 +34,7 @@ namespace GitMind.GitModel.Private
 			Stack<GitCommit> commits = new Stack<GitCommit>();
 			rootCommits.ForEach(c => commits.Push(c));
 			rootCommits.ForEach(c => added[c.Id] = null);
+			t.Log("Pushed roots on stack");
 
 			while (commits.Any())
 			{
@@ -42,7 +43,7 @@ namespace GitMind.GitModel.Private
 				MCommit commit = repository.Commit(gitCommit.Id);
 				if (commit.Subject == null)
 				{
-					AddCommit(commit, gitCommit, repository);
+					AddCommit(commit, gitCommit);
 
 					if (IsMergeCommit(commit))
 					{
@@ -75,11 +76,10 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void AddCommit(MCommit commit, GitCommit gitCommit, MRepository repository)
+		private void AddCommit(MCommit commit, GitCommit gitCommit)
 		{
 			CopyToCommit(gitCommit, commit);
 			SetChildOfParents(commit);
-			repository.CommitsById[commit.CommitId] = commit;
 		}
 
 
@@ -175,15 +175,15 @@ namespace GitMind.GitModel.Private
 			string subject = gitCommit.Subject;
 			string tickets = GetTickets(subject);
 
-			// commit.Id = gitCommit.Id;
-			// commit.CommitId = gitCommit.Id;
 			commit.ShortId = gitCommit.ShortId;
 			commit.Subject = GetSubjectWithoutTickets(subject, tickets);
 			commit.Author = gitCommit.Author;
 			commit.AuthorDate = gitCommit.AuthorDate;
 			commit.CommitDate = gitCommit.CommitDate;
 			commit.Tickets = tickets;
-			commit.ParentIds = gitCommit.Parents.Select(c => commit.Repository.Commit(c.Id).IndexId).ToList();
+			commit.ParentIds = gitCommit.Parents
+				.Select(c => commit.Repository.Commit(c.Id).IndexId)
+				.ToList();
 		}
 
 		private static void CopyToUncommitedCommit(Status status, MCommit commit, int parentId)
