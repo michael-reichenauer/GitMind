@@ -1,6 +1,9 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
+using GitMind.Common.ProgressHandling;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.GitModel;
@@ -14,16 +17,22 @@ namespace GitMind.Features.Diffing.Private
 		private readonly WorkingFolder workingFolder;
 		private readonly IRepoCaller repoCaller;
 		private readonly IGitDiffParser gitDiffParser;
+		private readonly Lazy<IProgressService> progressService;
+		private readonly Lazy<IStatusService> statusService;
 
 
 		public GitDiffService(
 			WorkingFolder workingFolder,
 			IRepoCaller repoCaller,
-			IGitDiffParser gitDiffParser)
+			IGitDiffParser gitDiffParser,
+			Lazy<IProgressService> progressService,
+			Lazy<IStatusService> statusService)
 		{
 			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
 			this.gitDiffParser = gitDiffParser;
+			this.progressService = progressService;
+			this.statusService = statusService;
 		}
 		 
 
@@ -84,8 +93,12 @@ namespace GitMind.Features.Diffing.Private
 		public Task ResolveAsync(string path)
 		{
 			Log.Debug($"Resolve {path}  ...");
-			return repoCaller.UseRepoAsync(repo => repo.Resolve(path));
-		}
 
+			using (statusService.Value.PauseStatusNotifications())
+			using (progressService.Value.ShowDialog("Resolving ..."))
+			{
+				return repoCaller.UseRepoAsync(repo => repo.Resolve(path));
+			}
+		}
 	}
 }
