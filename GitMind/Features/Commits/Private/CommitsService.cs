@@ -65,7 +65,8 @@ namespace GitMind.Features.Commits.Private
 		public async Task CommitChangesAsync()
 		{
 			Repository repository = repositoryMgr.Repository;
-			if (repository.Commits.TryGetValue(Commit.UncommittedId, out var uncommitted))
+			var uncommitted = repository.UnComitted;
+			if (uncommitted != null)
 			{
 				if (uncommitted.HasConflicts)
 				{
@@ -146,7 +147,7 @@ namespace GitMind.Features.Commits.Private
 		public bool CanUnCommit(Commit commit)
 		{
 			return commit != null
-				&& commit.Id != Commit.UncommittedId
+				&& !commit.IsUncommitted
 				&& commit.IsCurrent
 				&& commit.IsLocalAhead;
 		}
@@ -175,7 +176,8 @@ namespace GitMind.Features.Commits.Private
 					{
 						using (progress.ShowDialog($"Setting commit branch name {branchName} ..."))
 						{
-							await SetSpecifiedCommitBranchAsync(commit.Id, commit.Repository.RootId, branchName);
+							await SetSpecifiedCommitBranchAsync(
+								commit.CommitId, commit.Repository.RootCommit.CommitId, branchName);
 							if (branchName != null)
 							{
 								repositoryCommands.ShowBranch(branchName);
@@ -231,7 +233,7 @@ namespace GitMind.Features.Commits.Private
 
 		public async Task ShowUncommittedDiffAsync()
 		{
-			if (!repositoryMgr.Repository.Commits.Contains(Commit.UncommittedId))
+			if (repositoryMgr.Repository.UnComitted == null)
 			{
 				message.ShowInfo("There are no uncommitted changes");
 				return;

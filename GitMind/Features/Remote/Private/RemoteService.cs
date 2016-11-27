@@ -157,7 +157,7 @@ namespace GitMind.Features.Remote.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Pushing current branch {branchName} ..."))
 			{
-				await PushNotesAsync(Repository.RootId);
+				await PushNotesAsync(Repository.RootCommit.CommitId);
 
 				R result = await gitNetworkService.PushCurrentBranchAsync();
 
@@ -184,7 +184,7 @@ namespace GitMind.Features.Remote.Private
 			{
 				Branch currentBranch = Repository.CurrentBranch;
 
-				await PushNotesAsync(Repository.RootId);
+				await PushNotesAsync(Repository.RootCommit.CommitId);
 
 				R result = R.Ok;
 				if (currentBranch.CanBePushed)

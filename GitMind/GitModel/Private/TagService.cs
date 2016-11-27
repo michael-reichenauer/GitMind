@@ -22,7 +22,7 @@ namespace GitMind.GitModel.Private
 			{
 				foreach (var tag in repo.Tags)
 				{
-					if (repository.Commits.TryGetValue(tag.Target.Sha, out MCommit commit))
+					if (repository.CommitsById.TryGetValue(tag.Target.Sha, out MCommit commit))
 					{
 						string name = tag.FriendlyName;
 						string tagText = $"[{name}] ";

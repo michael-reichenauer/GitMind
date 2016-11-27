@@ -101,7 +101,7 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		public string Id => CommitViewModel?.Id;
+		public string CommitId => CommitViewModel?.Commit.CommitId;
 		public string ShortId => CommitViewModel?.ShortId;
 		public string BranchName => CommitViewModel?.Commit?.Branch?.Name;
 		public FontStyle BranchNameStyle => !string.IsNullOrEmpty(SpecifiedBranchName)
@@ -121,7 +121,7 @@ namespace GitMind.RepositoryViews
 			path => commitsService.UndoUncommittedFileAsync(path));
 		public Command ShowCommitDiffCommand => CommitViewModel?.ShowCommitDiffCommand;
 
-		public override string ToString() => $"{Id} {Subject}";
+		public override string ToString() => $"{CommitId} {Subject}";
 
 		private async Task SetFilesAsync(Commit commit)
 		{

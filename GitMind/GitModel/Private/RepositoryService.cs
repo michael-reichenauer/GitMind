@@ -300,7 +300,7 @@ namespace GitMind.GitModel.Private
 		{
 			Timing t = new Timing();
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
-			KeyedList<string, Commit> rCommits = new KeyedList<string, Commit>(c => c.Id);
+			List<Commit> rCommits = new List<Commit>();
 			Branch currentBranch = null;
 			Commit currentCommit = null;
 			MCommit rootCommit = mRepository.Branches
@@ -310,18 +310,19 @@ namespace GitMind.GitModel.Private
 			Repository repository = new Repository(
 				mRepository,
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
-				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
+				new Lazy<IReadOnlyList<Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
 				commitsFiles,
 				mRepository.Status,
-				rootCommit.Id);
+				rootCommit.IndexId,
+				mRepository.Uncommitted?.IndexId ?? -1);
 
 			foreach (var mCommit in mRepository.Commits)
 			{
-				Commit commit = Converter.ToCommit(repository, mCommit.Value);
+				Commit commit = Converter.ToCommit(repository, mCommit);
 				rCommits.Add(commit);
-				if (mCommit.Value == mRepository.CurrentCommit)
+				if (mCommit == mRepository.CurrentCommit)
 				{
 					currentCommit = commit;
 				}

@@ -33,16 +33,14 @@ namespace GitMind.GitModel.Private.Caching
 				.Add(nameof(MRepository.CurrentCommitId))
 				.Add(nameof(MRepository.CurrentBranchId))
 				.Add(nameof(MRepository.Commits))
-				.Add(nameof(MRepository.Branches))
-				.Add(nameof(MRepository.ChildrenById))
-				.Add(nameof(MRepository.FirstChildrenById));
+				.Add(nameof(MRepository.Branches));
 		}
 
 
 		private static void RegisterMCommit()
 		{
 			RuntimeTypeModel.Default.Add(typeof(MCommit), false)
-				.Add(nameof(MCommit.Id))
+				.Add(nameof(MCommit.IndexId))
 				.Add(nameof(MCommit.BranchId))
 				.Add(nameof(MCommit.ShortId))
 				.Add(nameof(MCommit.Subject))
@@ -50,6 +48,8 @@ namespace GitMind.GitModel.Private.Caching
 				.Add(nameof(MCommit.AuthorDate))
 				.Add(nameof(MCommit.CommitDate))
 				.Add(nameof(MCommit.ParentIds))
+				.Add(nameof(MCommit.ChildIds))
+				.Add(nameof(MCommit.FirstChildIds))
 				.Add(nameof(MCommit.BranchName))
 				.Add(nameof(MCommit.SpecifiedBranchName))
 				.Add(nameof(MCommit.Tags))
