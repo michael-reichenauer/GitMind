@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Features.Remote;
 using GitMind.Features.StatusHandling;
 using GitMind.Features.StatusHandling.Private;
 using GitMind.Git;
@@ -14,22 +15,28 @@ namespace GitMind.GitModel.Private
 	[SingleInstance]
 	internal class RepositoryService : IRepositoryService, IRepositoryMgr
 	{
+		private static readonly TimeSpan RemoteRepositoryInterval = TimeSpan.FromSeconds(15);
+
 		private readonly IStatusService statusService;
 		private readonly ICacheService cacheService;
 		private readonly ICommitsFiles commitsFiles;
+		private readonly Lazy<IRemoteService> remoteService;
 		private readonly IRepositoryStructureService repositoryStructureService;
 		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1000);
 
+		private DateTime fetchedTime = DateTime.MinValue;
 
 		public RepositoryService(
 			IStatusService statusService,
 			ICacheService cacheService,
 			ICommitsFiles commitsFiles,
+			Lazy<IRemoteService> remoteService,
 			IRepositoryStructureService repositoryStructureService)
 		{
 			this.statusService = statusService;
 			this.cacheService = cacheService;
 			this.commitsFiles = commitsFiles;
+			this.remoteService = remoteService;
 			this.repositoryStructureService = repositoryStructureService;
 
 			statusService.StatusChanged += (s, e) => OnStatusChanged(e.NewStatus);
@@ -41,6 +48,8 @@ namespace GitMind.GitModel.Private
 		public bool IsPaused => statusService.IsPaused;
 
 		public event EventHandler<RepositoryUpdatedEventArgs> RepositoryUpdated;
+
+		public event EventHandler<RepositoryErrorEventArgs> RepositoryErrorChanged;
 
 
 		public void Monitor(string workingFolder)
@@ -82,7 +91,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public Task UpdateRepositoryAsync()
+		public Task CheckLocalRepositoryAsync()
 		{
 			return UpdateRepositoryAsync(null, null);
 		}
@@ -104,6 +113,60 @@ namespace GitMind.GitModel.Private
 			}
 
 			await UpdateRepositoryAsync(status, repoIds);
+		}
+
+
+		public async Task RefreshAfterCommandAsync(bool useFreshRepository)
+		{
+			Log.Debug("Refreshing after command ...");
+			await CheckRemoteChangesAsync(true);
+
+			if (useFreshRepository)
+			{
+				Log.Debug("Getting fresh repository");
+				await GetFreshRepositoryAsync();
+			}
+			else
+			{
+				await UpdateRepositoryAfterCommandAsync();
+			}
+		}
+
+
+		public async Task CheckRemoteChangesAsync(bool isFetchNotes)
+		{
+			if (DateTime.Now - fetchedTime < RemoteRepositoryInterval)
+			{
+				Log.Debug("No need the check remote yet");
+				return;
+			}
+
+			Log.Debug("Fetching");
+			R result = await remoteService.Value.FetchAsync();
+			RepositoryErrorChanged?.Invoke(this, new RepositoryErrorEventArgs(""));
+			if (result.IsFaulted)
+			{
+				string text = $"Fetch error: {result.Error.Exception.Message}";
+				Log.Warn(text);
+				RepositoryErrorChanged?.Invoke(this, new RepositoryErrorEventArgs(text));
+			}
+			else if (isFetchNotes)
+			{
+				await remoteService.Value.FetchAllNotesAsync();
+			}
+
+			fetchedTime = DateTime.Now;
+		}
+
+
+		public async Task GetRemoteAndFreshRepositoryAsync()
+		{
+			Timing t = new Timing();
+			fetchedTime = DateTime.MinValue;
+			await CheckRemoteChangesAsync(true);
+			t.Log("Remote check");
+			await GetFreshRepositoryAsync();
+			t.Log("Got Fresh Repository");
 		}
 
 

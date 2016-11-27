@@ -35,9 +35,6 @@ namespace GitMind.RepositoryViews.Private
 
 		public void ShowBranch(BranchName branchName) => viewModel.ShowBranch(branchName);
 
-		public Task RefreshAfterCommandAsync(bool useFreshRepository)
-			=> viewModel.RefreshAfterCommandAsync(useFreshRepository);
-
 		public void SetCurrentMerging(Branch branch) => viewModel.SetCurrentMerging(branch);
 	}
 }

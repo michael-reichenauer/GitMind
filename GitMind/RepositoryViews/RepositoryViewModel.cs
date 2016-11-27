@@ -38,7 +38,6 @@ namespace GitMind.RepositoryViews
 		private readonly IGitInfoService gitInfoService;
 
 		private readonly IBrushService brushService;
-		private readonly IRemoteService remoteService;
 		private readonly IMessage message;
 		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
@@ -61,7 +60,6 @@ namespace GitMind.RepositoryViews
 		public Dictionary<string, CommitViewModel> CommitsById { get; } =
 			new Dictionary<string, CommitViewModel>();
 
-		private DateTime fetchedTime = DateTime.MinValue;
 
 		private static readonly TimeSpan ActivateRemoteCheckInterval = TimeSpan.FromSeconds(15);
 		private static readonly TimeSpan AutoRemoteCheckInterval = TimeSpan.FromMinutes(9);
@@ -87,7 +85,6 @@ namespace GitMind.RepositoryViews
 			IRepositoryService repositoryService,
 			IGitInfoService gitInfoService,
 			IBrushService brushService,
-			IRemoteService remoteService,
 			IMessage message,
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
@@ -102,7 +99,6 @@ namespace GitMind.RepositoryViews
 			this.gitInfoService = gitInfoService;
 
 			this.brushService = brushService;
-			this.remoteService = remoteService;
 			this.message = message;
 			this.progress = progressService;
 
@@ -114,10 +110,10 @@ namespace GitMind.RepositoryViews
 			CommitDetailsViewModel = commitDetailsViewModelProvider();
 
 			repositoryService.RepositoryUpdated += (s, e) => OnRepositoryUpdated();
+			repositoryService.RepositoryErrorChanged += (s, e) => FetchErrorText = e.ErrorText;
 		}	
 
 		public Branch MergingBranch { get; private set; }
-
 
 
 		public void ShowCommitDetails()
@@ -289,7 +285,7 @@ namespace GitMind.RepositoryViews
 
 				using (progress.ShowBusy())
 				{
-					await repositoryService.UpdateRepositoryAsync();
+					await repositoryService.CheckLocalRepositoryAsync();
 					t.Log("Read current local repository");
 				
 					if (commandLine.IsCommit)
@@ -297,7 +293,7 @@ namespace GitMind.RepositoryViews
 						await commitsService.CommitChangesAsync();
 					}
 
-					await FetchRemoteChangesAsync(true);
+					await repositoryService.CheckRemoteChangesAsync(true);
 					t.Log("Checked remote");
 				}
 			}
@@ -306,13 +302,13 @@ namespace GitMind.RepositoryViews
 
 		public async Task ActivateRefreshAsync()
 		{	
-			if (!repositoryService.IsPaused &&  DateTime.Now - fetchedTime > ActivateRemoteCheckInterval)
+			if (!repositoryService.IsPaused)
 			{
 				Timing t = new Timing();
 				Log.Usage("Activate window");
 				using (progress.ShowBusy())
 				{
-					await FetchRemoteChangesAsync(false);
+					await repositoryService.CheckRemoteChangesAsync(false);
 				}
 
 				t.Log("Activate refresh done");
@@ -322,11 +318,11 @@ namespace GitMind.RepositoryViews
 
 		public async Task AutoRemoteCheckAsync()
 		{	
-			if (!repositoryService.IsPaused && DateTime.Now - fetchedTime > AutoRemoteCheckInterval)
+			if (!repositoryService.IsPaused)
 			{
 				Timing t = new Timing();
 				Log.Usage("Automatic remote check");
-				await FetchRemoteChangesAsync(false);
+				await repositoryService.CheckRemoteChangesAsync(false);
 				t.Log("Auto refresh done");
 			}			
 		}
@@ -345,26 +341,6 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public async Task RefreshAfterCommandAsync(bool useFreshRepository)
-		{
-			using (await refreshLock.LockAsync())
-			{
-				Log.Debug("Refreshing after command ...");
-				await FetchRemoteChangesAsync(true);
-
-				if (useFreshRepository)
-				{
-					Log.Debug("Getting fresh repository");
-					await repositoryService.GetFreshRepositoryAsync();
-				}
-				else
-				{
-					await repositoryService.UpdateRepositoryAfterCommandAsync();
-				}
-			}
-		}
-
-
 		public void SetCurrentMerging(Branch branch)
 		{
 			MergingBranch = branch;
@@ -379,12 +355,8 @@ namespace GitMind.RepositoryViews
 				{
 					Log.Debug("Refreshing after manual trigger ...");
 
-					Timing t = new Timing();
-					await FetchRemoteChangesAsync(true);
-					t.Log("Remote check");
 					Log.Debug("Get fresh repository from scratch");
-					await repositoryService.GetFreshRepositoryAsync();
-					t.Log("Got Fresh Repository");
+					await repositoryService.GetRemoteAndFreshRepositoryAsync();
 				}
 			}
 		}
@@ -434,31 +406,31 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private async Task FetchRemoteChangesAsync(bool isFetchNotes)
-		{
-			Log.Debug("Fetching");
-			R result = await remoteService.FetchAsync();
-			FetchErrorText = "";
-			if (result.IsFaulted)
-			{
-				string text = $"Fetch error: {result.Message}";
-				Log.Warn(text);
-				FetchErrorText = text;
-			}
-			else if (isFetchNotes)
-			{
-				await remoteService.FetchAllNotesAsync();
-			}
+		//private async Task CheckRemoteChangesAsync(bool isFetchNotes)
+		//{
+		//	Log.Debug("Fetching");
+		//	R result = await remoteService.FetchAsync();
+		//	FetchErrorText = "";
+		//	if (result.IsFaulted)
+		//	{
+		//		string text = $"Fetch error: {result.Message}";
+		//		Log.Warn(text);
+		//		FetchErrorText = text;
+		//	}
+		//	else if (isFetchNotes)
+		//	{
+		//		await remoteService.FetchAllNotesAsync();
+		//	}
 
-			fetchedTime = DateTime.Now;
-		}
+		//	fetchedTime = DateTime.Now;
+		//}
 
 
 		private void UpdateViewModel()
 		{
 			Timing t = new Timing();
 
-			if (string.IsNullOrEmpty(FilterText) && string.IsNullOrEmpty(settingFilterText))
+			if (!IsInFilterMode())
 			{
 				viewModelService.UpdateViewModel(this);
 
@@ -466,6 +438,12 @@ namespace GitMind.RepositoryViews
 
 				t.Log("Updated repository view model");
 			}
+		}
+
+
+		private bool IsInFilterMode()
+		{
+			return !string.IsNullOrEmpty(FilterText) || !string.IsNullOrEmpty(settingFilterText);
 		}
 
 
@@ -633,7 +611,8 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private void TrySetSelectedCommitPosition(CommitPosition commitPosition, bool ignoreTopIndex = false)
+		private void TrySetSelectedCommitPosition(
+			CommitPosition commitPosition, bool ignoreTopIndex = false)
 		{
 			if (commitPosition != null)
 			{
@@ -767,7 +746,6 @@ namespace GitMind.RepositoryViews
 				await diffService.ShowDiffAsync(commit.Commit.Id);
 			}
 		}
-
 
 
 		public void Clicked(Point position)

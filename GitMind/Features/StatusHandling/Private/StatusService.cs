@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Common.ProgressHandling;
+using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
@@ -19,7 +20,7 @@ namespace GitMind.Features.StatusHandling.Private
 		private readonly IMainWindowService mainWindowService;
 		private readonly IGitStatusService gitStatusService;
 		private readonly IProgressService progress;
-		private readonly IRepositoryCommands repositoryCommands;
+		private readonly Lazy<IRepositoryService> repositoryService;
 
 		private bool isPaused = false;
 
@@ -37,13 +38,13 @@ namespace GitMind.Features.StatusHandling.Private
 			IMainWindowService mainWindowService,
 			IGitStatusService gitStatusService,
 			IProgressService progress,
-			IRepositoryCommands repositoryCommands)
+			Lazy<IRepositoryService> repositoryService)
 		{
 			this.folderMonitorService = folderMonitorService;
 			this.mainWindowService = mainWindowService;
 			this.gitStatusService = gitStatusService;
 			this.progress = progress;
-			this.repositoryCommands = repositoryCommands;
+			this.repositoryService = repositoryService;
 
 
 			folderMonitorService.FileChanged += (s, e) => OnFileChanged(e);
@@ -105,7 +106,7 @@ namespace GitMind.Features.StatusHandling.Private
 				using (progress.ShowDialog("Updatinging view ... "))
 				{
 					bool useFreshRepository = refresh == Refresh.Repo;
-					await repositoryCommands.RefreshAfterCommandAsync(useFreshRepository);
+					await repositoryService.Value.RefreshAfterCommandAsync(useFreshRepository);
 				}		
 			}
 			catch (Exception e) when (e.IsNotFatal())

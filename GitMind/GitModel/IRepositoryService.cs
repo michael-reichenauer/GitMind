@@ -12,14 +12,21 @@ namespace GitMind.GitModel
 
 		event EventHandler<RepositoryUpdatedEventArgs> RepositoryUpdated;
 
+		event EventHandler<RepositoryErrorEventArgs> RepositoryErrorChanged;
+
 		bool IsRepositoryCached(string workingFolder);
 
 		Task LoadRepositoryAsync(string workingFolder);
 
 		Task GetFreshRepositoryAsync();
 
-		Task UpdateRepositoryAsync();
+		Task CheckLocalRepositoryAsync();
 
 		Task UpdateRepositoryAfterCommandAsync();
+
+		Task RefreshAfterCommandAsync(bool useFreshRepository);
+		Task CheckRemoteChangesAsync(bool b);
+
+		Task GetRemoteAndFreshRepositoryAsync();
 	}
 }

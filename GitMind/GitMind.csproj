@@ -134,6 +134,7 @@
     <Compile Include="GitModel\ICommitsFiles.cs" />
     <Compile Include="GitModel\Private\IRepositoryStructureService.cs" />
     <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
+    <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />
     <Compile Include="GitModel\RepositoryUpdatedEventArgs.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
     <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />

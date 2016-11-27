@@ -20,7 +20,7 @@ namespace GitMind.RepositoryViews
 		Commit UnCommited { get; }
 
 		void ShowBranch(BranchName branchName);
-		Task RefreshAfterCommandAsync(bool useFreshRepository);
+
 		void SetCurrentMerging(Branch branch);
 	}
 }
