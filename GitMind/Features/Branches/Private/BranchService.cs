@@ -343,9 +343,9 @@ namespace GitMind.Features.Branches.Private
 					await gitBranchService.MergeAsync(branch.Name);
 
 					repositoryCommands.SetCurrentMerging(branch);
+			
+					await repositoryService.Value.CheckLocalRepositoryAsync();
 				}
-
-				await repositoryService.Value.CheckLocalRepositoryAsync();
 
 				Status status = repositoryService.Value.Repository.Status;
 				if (status.ConflictCount == 0)
