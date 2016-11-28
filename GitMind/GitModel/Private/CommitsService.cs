@@ -87,7 +87,8 @@ namespace GitMind.GitModel.Private
 			GitRepository gitRepository, Status status, MRepository repository)
 		{
 			MCommit commit = repository.Commit(MCommit.UncommittedId);
-		
+			repository.Uncommitted = commit;
+			
 			commit.IsVirtual = true;
 			commit.BranchName = gitRepository.Head.Name;
 
@@ -95,7 +96,6 @@ namespace GitMind.GitModel.Private
 			commit.Author = gitRepository.UserName ?? "";
 
 			SetChildOfParents(commit);
-			repository.CommitsById[commit.CommitId] = commit;
 		}
 
 

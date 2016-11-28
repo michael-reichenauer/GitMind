@@ -199,7 +199,7 @@ namespace GitMind.GitModel.Private
 			{
 				virtualCommit.FirstParent.ChildIds.Remove(virtualCommit.IndexId);
 				virtualCommit.FirstParent.FirstChildIds.Remove(virtualCommit.IndexId);
-				repository.Commits.Remove(virtualCommit);
+				//repository.Commits.Remove(virtualCommit);
 				if (virtualCommit.CommitId != null)
 				{
 					repository.CommitsById.Remove(virtualCommit.CommitId);

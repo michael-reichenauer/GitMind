@@ -79,11 +79,6 @@ namespace GitMind.GitModel.Private
 				CommitsById[commitId] = commit;
 			}
 
-			if (commitId == MCommit.UncommittedId)
-			{
-				Uncommitted = commit;
-			}
-
 			return commit;
 		}
 
