@@ -210,6 +210,8 @@ namespace GitMind.GitModel.Private
 					virtualCommit.Branch.TipCommitId = virtualCommit.FirstParentId;
 				}
 			}
+
+			repository.Uncommitted = null;
 		}
 	}
 }
