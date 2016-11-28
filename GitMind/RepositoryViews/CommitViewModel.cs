@@ -32,7 +32,7 @@ namespace GitMind.RepositoryViews
 
 		public int ZIndex => 400;
 		public string Type => nameof(CommitViewModel);
-		public string Id => Commit.Id;
+		public string CommitId => Commit.CommitId;
 		public string ShortId => Commit.ShortId;
 		public string Author => Commit.Author;
 		public string Date => Commit.AuthorDateText;
@@ -44,7 +44,7 @@ namespace GitMind.RepositoryViews
 		public string SwitchToBranchText => $"Switch to branch: {Commit.Branch.Name}";
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
-		public bool IsUncommitted => Commit.Id == Commit.UncommittedId;
+		public bool IsUncommitted => Commit.IsUncommitted;
 		public bool CanUncommit => UncommitCommand.CanExecute();
 		public bool IsShown => BranchTips == null;
 		public string BranchToolTip { get; set; }

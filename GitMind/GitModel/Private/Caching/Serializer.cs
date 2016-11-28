@@ -1,12 +1,11 @@
 ﻿using System.IO;
 using GitMind.Git;
-using GitMind.GitModel.Private;
 using ProtoBuf;
 using ProtoBuf.Meta;
 using ProtoSerializer = ProtoBuf.Serializer;
 
 
-namespace GitMind.Utils
+namespace GitMind.GitModel.Private.Caching
 {
 	public static class Serializer
 	{
@@ -35,15 +34,14 @@ namespace GitMind.Utils
 				.Add(nameof(MRepository.CurrentBranchId))
 				.Add(nameof(MRepository.Commits))
 				.Add(nameof(MRepository.Branches))
-				.Add(nameof(MRepository.ChildrenById))
-				.Add(nameof(MRepository.FirstChildrenById));
+				.Add(nameof(MRepository.TimeToCreateFresh));
 		}
 
 
 		private static void RegisterMCommit()
 		{
 			RuntimeTypeModel.Default.Add(typeof(MCommit), false)
-				.Add(nameof(MCommit.Id))
+				.Add(nameof(MCommit.IndexId))
 				.Add(nameof(MCommit.BranchId))
 				.Add(nameof(MCommit.ShortId))
 				.Add(nameof(MCommit.Subject))
@@ -51,6 +49,8 @@ namespace GitMind.Utils
 				.Add(nameof(MCommit.AuthorDate))
 				.Add(nameof(MCommit.CommitDate))
 				.Add(nameof(MCommit.ParentIds))
+				.Add(nameof(MCommit.ChildIds))
+				.Add(nameof(MCommit.FirstChildIds))
 				.Add(nameof(MCommit.BranchName))
 				.Add(nameof(MCommit.SpecifiedBranchName))
 				.Add(nameof(MCommit.Tags))

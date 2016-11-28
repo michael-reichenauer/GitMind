@@ -59,7 +59,7 @@
 					<TextBox
 						Text="{Binding ShortId, Mode=OneWay}"
 						Style="{StaticResource LabelStyle}"
-						ToolTip="{Binding Id}"/>
+						ToolTip="{Binding CommitId}"/>
 					<Label
 						Content=""			
 						Style="{StaticResource HeaderLabelStyle}"/>

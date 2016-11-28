@@ -241,24 +241,28 @@ namespace GitMind.GitModel.Private
 			{
 				Timing t = new Timing();
 				MRepository mRepository = await cacheService.TryGetRepositoryAsync(workingFolder);
-			
+
 				if (mRepository != null)
 				{
 					t.Log("Read from cache");
+					mRepository.IsCached = true;
 					Repository repository = ToRepository(mRepository);
 					int branchesCount = repository.Branches.Count;
 					int commitsCount = repository.Commits.Count;
-					t.Log($"Repository {branchesCount} branches, {commitsCount} commits");	
-					return repository;			
+					t.Log($"Repository {branchesCount} branches, {commitsCount} commits");
+					return repository;
 				}
 
 				return R<Repository>.NoValue;
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to read cached repository {e}");
-				cacheService.TryDeleteCache(workingFolder);
+				Log.Warn($"Failed to read cached repository {e}");		
 				return e;
+			}
+			finally
+			{
+				cacheService.TryDeleteCache(workingFolder);
 			}
 		}
 
@@ -269,6 +273,7 @@ namespace GitMind.GitModel.Private
 			Log.Debug($"Updating repository");
 
 			MRepository mRepository = sourcerepository.MRepository;
+			mRepository.IsCached = false;
 
 			Timing t = new Timing();
 
@@ -295,7 +300,7 @@ namespace GitMind.GitModel.Private
 		{
 			Timing t = new Timing();
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
-			KeyedList<string, Commit> rCommits = new KeyedList<string, Commit>(c => c.Id);
+			List<Commit> rCommits = new List<Commit>();
 			Branch currentBranch = null;
 			Commit currentCommit = null;
 			MCommit rootCommit = mRepository.Branches
@@ -305,18 +310,19 @@ namespace GitMind.GitModel.Private
 			Repository repository = new Repository(
 				mRepository,
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
-				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
+				new Lazy<IReadOnlyList<Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
 				commitsFiles,
 				mRepository.Status,
-				rootCommit.Id);
+				rootCommit.IndexId,
+				mRepository.Uncommitted?.IndexId ?? -1);
 
 			foreach (var mCommit in mRepository.Commits)
 			{
-				Commit commit = Converter.ToCommit(repository, mCommit.Value);
+				Commit commit = Converter.ToCommit(repository, mCommit);
 				rCommits.Add(commit);
-				if (mCommit.Value == mRepository.CurrentCommit)
+				if (mCommit == mRepository.CurrentCommit)
 				{
 					currentCommit = commit;
 				}

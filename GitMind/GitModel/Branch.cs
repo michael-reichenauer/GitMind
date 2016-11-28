@@ -8,20 +8,20 @@ namespace GitMind.GitModel
 	// Some extra Branch
 	internal class Branch
 	{
-		private readonly string tipCommitId;
-		private readonly string firstCommitId;
-		private readonly string parentCommitId;
-		private readonly IReadOnlyList<string> commitIds;
+		private readonly int tipCommitId;
+		private readonly int firstCommitId;
+		private readonly int parentCommitId;
+		private readonly IReadOnlyList<int> commitIds;
 		private readonly string parentBranchId;
 
 		public Branch(
 			Repository repository,
 			string id,
 			BranchName name,
-			string tipCommitId,
-			string firstCommitId,
-			string parentCommitId,
-			IReadOnlyList<string> commitIds,
+			int tipCommitId,
+			int firstCommitId,
+			int parentCommitId,
+			IReadOnlyList<int> commitIds,
 			string parentBranchId,
 			IReadOnlyList<BranchName> childBranchNames,
 			string mainBranchId,

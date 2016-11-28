@@ -7,11 +7,13 @@ namespace GitMind.GitModel.Private
 {	
 	public class MBranch
 	{
+		// Serialized start -------------------
+
 		public string Id { get; set; }
 		public BranchName Name { get; set; }
-		public string TipCommitId { get; set; }
-		public string FirstCommitId { get; set; }	
-		public string ParentCommitId { get; set; }
+		public int TipCommitId { get; set; }
+		public int FirstCommitId { get; set; }	
+		public int ParentCommitId { get; set; }
 		public string ParentBranchId { get; set; }
 		public bool IsMultiBranch { get; set; }
 		public bool IsActive { get; set; }
@@ -23,16 +25,19 @@ namespace GitMind.GitModel.Private
 		public int RemoteAheadCount { get; set; }
 		public bool IsLocalAndRemote { get; set; }
 		public List<BranchName> ChildBranchNames { get; set; } = new List<BranchName>();
-		public List<string> CommitIds { get; set; } = new List<string>();
-	
-		public string LocalTipCommitId { get; set; }
-		public string RemoteTipCommitId { get; set; }
+		public List<int> CommitIds { get; set; } = new List<int>();
+
+		public int LocalTipCommitId { get; set; }
+		public int RemoteTipCommitId { get; set; }
 		public bool IsLocalPart { get; set; }
 		public bool IsMainPart { get; set; }
 		public string MainBranchId { get; set; }
 		public string LocalSubBranchId { get; set; }
 
-		public List<string> TempCommitIds { get; set; } = new List<string>();
+		// Serialized Done ---------------------
+
+
+		public List<int> TempCommitIds { get; set; } = new List<int>();
 
 		public MRepository Repository { get; set; }
 

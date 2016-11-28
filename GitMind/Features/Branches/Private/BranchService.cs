@@ -71,7 +71,7 @@ namespace GitMind.Features.Branches.Private
 
 					using (progress.ShowDialog($"Creating branch {dialog.BranchName} ..."))
 					{
-						string commitId = commit.Id;
+						string commitId = commit.CommitId;
 						if (commitId == Commit.UncommittedId || commit.IsVirtual)
 						{
 							commitId = commit.FirstParent.CommitId;

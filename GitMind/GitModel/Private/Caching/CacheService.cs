@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using GitMind.Utils;
 
 
-namespace GitMind.GitModel.Private
+namespace GitMind.GitModel.Private.Caching
 {
 	internal class CacheService : ICacheService
 	{

@@ -57,13 +57,8 @@ namespace GitMind.RepositoryViews
 		public List<CommitViewModel> Commits { get; } = new List<CommitViewModel>();
 
 
-		public Dictionary<string, CommitViewModel> CommitsById { get; } =
-			new Dictionary<string, CommitViewModel>();
-
-
-		private static readonly TimeSpan ActivateRemoteCheckInterval = TimeSpan.FromSeconds(15);
-		private static readonly TimeSpan AutoRemoteCheckInterval = TimeSpan.FromMinutes(9);
-		private static readonly TimeSpan FreshRepositoryInterval = TimeSpan.FromMinutes(10);
+		public Dictionary<int, CommitViewModel> CommitsById { get; } =
+			new Dictionary<int, CommitViewModel>();
 
 		private readonly AsyncLock refreshLock = new AsyncLock();
 
@@ -285,9 +280,12 @@ namespace GitMind.RepositoryViews
 
 				using (progress.ShowBusy())
 				{
-					await repositoryService.CheckLocalRepositoryAsync();
-					t.Log("Read current local repository");
-				
+					if (repositoryService.Repository.MRepository.IsCached)
+					{
+						await repositoryService.CheckLocalRepositoryAsync();
+						t.Log("Read current local repository");
+					}
+
 					if (commandLine.IsCommit)
 					{
 						await commitsService.CommitChangesAsync();
@@ -508,7 +506,7 @@ namespace GitMind.RepositoryViews
 
 			LocalAheadText = localAheadText;
 
-			repository.Commits.TryGetValue(Commit.UncommittedId, out Commit uncommitted);
+			Commit uncommitted = repository.UnComitted;
 			UnCommited = uncommitted;
 
 			ConflictsText = repository.Status.ConflictCount > 0
@@ -694,7 +692,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (ListBox.SelectedItems.Count < 2)
 			{
-				diffService.ShowDiffAsync(commit.Id).RunInBackground();
+				diffService.ShowDiffAsync(commit.CommitId).RunInBackground();
 			}
 			else
 			{
@@ -706,10 +704,10 @@ namespace GitMind.RepositoryViews
 				{
 					// Selection was made with ctrl-click. Lets take top and bottom commits as range
 					// even if there are more commits in the middle
-					string id1 = topCommit.Commit.Id;
+					string id1 = topCommit.Commit.CommitId;
 					string id2 = bottomCommit.Commit.HasFirstParent
-						? bottomCommit.Commit.FirstParent.Id
-						: bottomCommit.Commit.Id;
+						? bottomCommit.Commit.FirstParent.CommitId
+						: bottomCommit.Commit.CommitId;
 
 					diffService.ShowDiffRangeAsync(id1, id2).RunInBackground();
 				}
@@ -729,8 +727,8 @@ namespace GitMind.RepositoryViews
 						current = current.FirstParent;
 					}
 
-					string id1 = topCommit.Commit.Id;
-					string id2 = current.Id;
+					string id1 = topCommit.Commit.CommitId;
+					string id2 = current.CommitId;
 					diffService.ShowDiffRangeAsync(id1, id2).RunInBackground(); ;
 				}
 			}
@@ -743,7 +741,7 @@ namespace GitMind.RepositoryViews
 
 			if (commit != null)
 			{
-				await diffService.ShowDiffAsync(commit.Commit.Id);
+				await diffService.ShowDiffAsync(commit.Commit.CommitId);
 			}
 		}
 

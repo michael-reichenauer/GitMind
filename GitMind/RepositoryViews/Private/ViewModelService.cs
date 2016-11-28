@@ -93,7 +93,7 @@ namespace GitMind.RepositoryViews.Private
 				specifiedBranches.Add(currentBranch);
 			}
 
-			if (isFirstTime)
+			if (isFirstTime && !repositoryMgr.Repository.MRepository.IsCached)
 			{
 				Branch currentBranch = repositoryMgr.Repository.CurrentBranch;
 				isFirstTime = false;
@@ -368,7 +368,7 @@ namespace GitMind.RepositoryViews.Private
 			{
 				return commits
 					.Where(c =>
-						StartsWith(c.Id, filterText)
+						StartsWith(c.CommitId, filterText)
 						|| Contains(c.Subject, filterText)
 						|| Contains(c.Author, filterText)
 						|| Contains(c.AuthorDateText, filterText)
@@ -734,7 +734,7 @@ namespace GitMind.RepositoryViews.Private
 				&& branches.Any(b => b.Branch == repositoryMgr.Repository.CurrentBranch)
 				&& repositoryViewModel.MergingBranch != null
 				&& branches.Any(b => b.Branch.Id == repositoryViewModel.MergingBranch.Id)
-				&& repositoryMgr.Repository.Commits.Contains(Commit.UncommittedId);
+				&& repositoryMgr.Repository.UnComitted != null;
 
 			int mergeCount = mergePoints.Count + branchStarts.Count + (isMergeInProgress ? 1 : 0);
 
@@ -761,10 +761,10 @@ namespace GitMind.RepositoryViews.Private
 
 			if (isMergeInProgress)
 			{
-				string mergeSourceId = repositoryViewModel.MergingBranch.TipCommit.Id;
+				int mergeSourceId = repositoryViewModel.MergingBranch.TipCommit.Id;
 				CommitViewModel parentCommit = commitsById[mergeSourceId];
 				MergeViewModel merge = merges[index++];
-				SetMerge(merge, branches, commitsById[Commit.UncommittedId], parentCommit);
+				SetMerge(merge, branches, commitsById[parentCommit.Commit.Repository.UnComitted.Id], parentCommit);
 			}
 		}
 

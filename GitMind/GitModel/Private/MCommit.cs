@@ -10,7 +10,9 @@ namespace GitMind.GitModel.Private
 	{
 		public static readonly string UncommittedId = GitCommit.UncommittedId;
 
-		public string Id { get; set; }
+		// Serialized start -------------------
+
+		public int IndexId { get; set; }
 		public string BranchId { get; set; }
 		public string ShortId { get; set; }
 		public string Subject { get; set; }
@@ -18,12 +20,13 @@ namespace GitMind.GitModel.Private
 		public DateTime AuthorDate { get; set; }
 		public DateTime CommitDate { get; set; }
 
-		public List<string> ParentIds { get; set; } = new List<string>();
+		public List<int> ParentIds { get; set; } = new List<int>();
+		public List<int> ChildIds { get; set; } = new List<int>();
+		public List<int> FirstChildIds { get; set; } = new List<int>();
 
 		public BranchName BranchName { get; set; }
 		public BranchName SpecifiedBranchName { get; set; }
 
-	
 		public string Tags { get; set; }
 		public string Tickets { get; set; }
 		public bool IsVirtual { get; set; }
@@ -32,6 +35,8 @@ namespace GitMind.GitModel.Private
 		public bool IsLocalAhead { get; set; }
 		public bool IsRemoteAhead { get; set; }
 		public bool IsCommon { get; set; }
+
+		// Serialized Done ---------------------
 
 
 		public string SubBranchId { get; set; }
@@ -48,20 +53,19 @@ namespace GitMind.GitModel.Private
 
 		public MRepository Repository { get; set; }
 		public IEnumerable<MCommit> Parents => ParentIds.Select(id => Repository.Commits[id]);
-		public IEnumerable<MCommit> Children => Repository.ChildIds(Id).Select(id => Repository.Commits[id]);
-		private IList<string> FirstChildIds => Repository.FirstChildIds(Id);
-		public IEnumerable<MCommit> FirstChildren => Repository.FirstChildIds(Id).Select(id => Repository.Commits[id]);
+
+		public IEnumerable<MCommit> Children => ChildIds.Select(id => Repository.Commits[id]);
+		
+		public IEnumerable<MCommit> FirstChildren => FirstChildIds.Select(id => Repository.Commits[id]);
 		public MBranch Branch => Repository.Branches[BranchId];
 
 
-		public string FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : null;
+		public int FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : -1;
 		public MCommit FirstParent => ParentIds.Count > 0 ? Repository.Commits[ParentIds[0]] : null;
-		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
+		public int SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : -1;
 		public MCommit SecondParent => ParentIds.Count > 1 ? Repository.Commits[ParentIds[1]] : null;
-	
 
-
-		public bool IsUncommitted => Id == UncommittedId;
+		public bool IsUncommitted => CommitId == UncommittedId;
 		public BranchName CommitBranchName { get; set; }
 
 
