@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GitMind.Features.Diffing;
 using GitMind.Utils;
 using LibGit2Sharp;
 
@@ -13,6 +14,7 @@ namespace GitMind.Git
 	{
 		// string emptyTreeSha = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";;
 
+		private readonly IDiffService diffService;
 		private readonly string workingFolder;
 		private readonly Repository repository;
 
@@ -25,16 +27,20 @@ namespace GitMind.Git
 
 
 
-		public GitRepository(string workingFolder, Repository repository)
+		private GitRepository(
+			IDiffService diffService,
+			string workingFolder, 
+			Repository repository)
 		{
+			this.diffService = diffService;
 			this.workingFolder = workingFolder;
 			this.repository = repository;
 		}
 
 
-		public static GitRepository Open(string folder)
+		public static GitRepository Open(IDiffService diffService, string folder)
 		{
-			return new GitRepository(folder, new Repository(folder));
+			return new GitRepository(diffService, folder, new Repository(folder));
 		}
 
 
@@ -55,10 +61,7 @@ namespace GitMind.Git
 
 		public GitBranch Head => new GitBranch(repository.Head, repository);
 
-		public GitStatus Status => GetGitStatus();
-
-
-		public GitDiff Diff => new GitDiff(repository.Diff, repository);
+		public GitDiff Diff => new GitDiff(diffService, repository.Diff, repository);
 
 		public string UserName => repository.Config.GetValueOrDefault<string>("user.name");
 
@@ -66,16 +69,6 @@ namespace GitMind.Git
 		public void Dispose()
 		{
 			repository.Dispose();
-		}
-
-
-		private GitStatus GetGitStatus()
-		{
-			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
-			ConflictCollection conflicts = repository.Index.Conflicts;
-			bool isFullyMerged = repository.Index.IsFullyMerged;
-
-			return new GitStatus(repositoryStatus, conflicts, repository.Info, isFullyMerged);
 		}
 
 

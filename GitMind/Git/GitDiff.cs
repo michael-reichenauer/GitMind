@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Features.Diffing;
+using GitMind.Features.StatusHandling;
 using LibGit2Sharp;
 
 
@@ -7,6 +9,7 @@ namespace GitMind.Git
 {
 	internal class GitDiff
 	{
+		private readonly IDiffService diffService;
 		private readonly Diff diff;
 		private readonly Repository repository;
 		private static readonly SimilarityOptions DetectRenames =
@@ -20,8 +23,9 @@ namespace GitMind.Git
 		{ ContextLines = 10000, Similarity = DetectRenames };
 
 
-		public GitDiff(Diff diff, Repository repository)
+		public GitDiff(IDiffService diffService, Diff diff, Repository repository)
 		{
+			this.diffService = diffService;
 			this.diff = diff;
 			this.repository = repository;
 		}
@@ -154,7 +158,7 @@ namespace GitMind.Git
 		}
 
 
-		public GitCommitFiles GetFiles(string commitId)
+		public IReadOnlyList<StatusFile> GetFiles(string workingFolder, string commitId)
 		{
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
 
@@ -171,10 +175,49 @@ namespace GitMind.Git
 					commit.Tree,
 					DefultCompareOptions);
 
-				return new GitCommitFiles(commitId, treeChanges);
+				return GetChangedFiles(workingFolder, treeChanges);
 			}
 
-			return new GitCommitFiles(commitId, (TreeChanges)null);
+			return new List<StatusFile>();
+		}
+
+		private IReadOnlyList<StatusFile> GetChangedFiles(string workingFolder, TreeChanges treeChanges)
+		{
+			List<StatusFile> files = treeChanges
+					.Added.Select(t => new StatusFile(workingFolder, t.Path, null, null, GitFileStatus.Added))
+					.Concat(treeChanges.Deleted.Select(t => new StatusFile(workingFolder, t.Path, null, null, GitFileStatus.Deleted)))
+					.Concat(treeChanges.Modified.Select(t => new StatusFile(workingFolder, t.Path, null, null, GitFileStatus.Modified)))
+					.Concat(treeChanges.Renamed.Select(t => new StatusFile(workingFolder, t.Path, t.OldPath, null, GitFileStatus.Renamed)))
+					.ToList();
+
+			return GetUniqueFiles(workingFolder, files);
+		}
+
+
+		private static List<StatusFile> GetUniqueFiles(string workingFolder, List<StatusFile> files)
+		{
+			List<StatusFile> uniqueFiles = new List<StatusFile>();
+
+			foreach (StatusFile gitFile in files)
+			{
+				StatusFile file = uniqueFiles.FirstOrDefault(f => f.FilePath == gitFile.FilePath);
+				if (file == null)
+				{
+					uniqueFiles.Add(gitFile);
+				}
+				else
+				{
+					uniqueFiles.Remove(file);
+					uniqueFiles.Add(new StatusFile(
+						workingFolder,
+						file.FilePath,
+						gitFile.OldFilePath ?? file.OldFilePath,
+						gitFile.Conflict ?? file.Conflict,
+						gitFile.Status | file.Status));
+				}
+			}
+
+			return uniqueFiles;
 		}
 	}
 }

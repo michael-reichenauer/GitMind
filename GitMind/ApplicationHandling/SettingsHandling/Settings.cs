@@ -13,6 +13,20 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			Get<T>();
 		}
 
+		public static void Edit<T>(Action<T> editAction)
+		{
+			try
+			{
+				T settings = Get<T>();
+				editAction(settings);
+				Set(settings);
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Error editing the settings {e}");
+			}
+		}
+
 		public static T Get<T>()
 		{
 			string path = GetProgramSettingsPath<T>();
@@ -39,7 +53,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 		{
 			string path = GetWorkFolderSettingsPath(workingFolder);
 
-			if (Directory.Exists(Path.GetDirectoryName(path)))
+			if (ParentFolderExists(path))
 			{
 				WriteAs(path, settings);
 			}
@@ -76,14 +90,24 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			}
 
 			T defaultObject = Activator.CreateInstance<T>();
-			if (json == null)
+			if (ParentFolderExists(path))
 			{
-				// Initial use of this settings file, lets store default
-				json = Json.AsJson(defaultObject);
-				WriteFileText(path, json);
+				if (json == null)
+				{
+					// Initial use of this settings file, lets store default
+					json = Json.AsJson(defaultObject);
+					WriteFileText(path, json);
+				}
 			}
 
 			return defaultObject;
+		}
+
+
+		private static bool ParentFolderExists(string path)
+		{
+			string parentFolderPath = Path.GetDirectoryName(path);
+			return Directory.Exists(parentFolderPath);
 		}
 
 

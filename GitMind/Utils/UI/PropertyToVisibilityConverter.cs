@@ -3,7 +3,6 @@ using System.Collections;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Input;
 
 
 namespace GitMind.Utils.UI
@@ -29,6 +28,10 @@ namespace GitMind.Utils.UI
 				Nullable<bool> typedValue = (Nullable<bool>)value;
 				isVisible = typedValue ?? false;
 			}
+			else if (value is Command)
+			{
+				isVisible = ((Command)value).CanExecute();
+			}
 			else if (value is int)
 			{
 				isVisible = ((int)value) != 0;
@@ -37,7 +40,6 @@ namespace GitMind.Utils.UI
 			{
 				isVisible = !string.IsNullOrEmpty((string)value);
 			}
-
 			else if (value is IEnumerable)
 			{
 				isVisible = IsEmpty((IEnumerable)value);

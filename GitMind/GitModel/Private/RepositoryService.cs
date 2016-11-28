@@ -1,59 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Features.Remote;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
-using GitMind.Git.Private;
+using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
 {
-	internal class RepositoryService : IRepositoryService
+	[SingleInstance]
+	internal class RepositoryService : IRepositoryService, IRepositoryMgr
 	{
-		private readonly IGitCommitsService gitCommitsService;
+		private static readonly TimeSpan RemoteRepositoryInterval = TimeSpan.FromSeconds(15);
+
+		private readonly IStatusService statusService;
 		private readonly ICacheService cacheService;
-		private readonly ICommitsService commitsService;
-		private readonly IBranchService branchService;
-		private readonly ICommitBranchNameService commitBranchNameService;
-		private readonly IBranchHierarchyService branchHierarchyService;
-		//private readonly IAheadBehindService aheadBehindService;
-		private readonly ITagService tagService;
+		private readonly ICommitsFiles commitsFiles;
+		private readonly Lazy<IRemoteService> remoteService;
+		private readonly IRepositoryStructureService repositoryStructureService;
+		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1000);
 
-
-		public RepositoryService()
-			: this(
-					new GitCommitsService(),
-					new CacheService(),
-					new CommitsService(),
-					new BranchService(),
-					new CommitBranchNameService(),
-					new BranchHierarchyService(),
-					//new AheadBehindService(),
-					new TagService())
-		{
-		}
-
+		private DateTime fetchedTime = DateTime.MinValue;
 
 		public RepositoryService(
-			IGitCommitsService gitCommitsService,
+			IStatusService statusService,
 			ICacheService cacheService,
-			ICommitsService commitsService,
-			IBranchService branchService,
-			ICommitBranchNameService commitBranchNameService,
-			IBranchHierarchyService branchHierarchyService,
-			//IAheadBehindService aheadBehindService,
-			ITagService tagService)
+			ICommitsFiles commitsFiles,
+			Lazy<IRemoteService> remoteService,
+			IRepositoryStructureService repositoryStructureService)
 		{
-			this.gitCommitsService = gitCommitsService;
+			this.statusService = statusService;
 			this.cacheService = cacheService;
-			this.commitsService = commitsService;
-			this.branchService = branchService;
-			this.commitBranchNameService = commitBranchNameService;
-			this.branchHierarchyService = branchHierarchyService;
-			//this.aheadBehindService = aheadBehindService;
-			this.tagService = tagService;
+			this.commitsFiles = commitsFiles;
+			this.remoteService = remoteService;
+			this.repositoryStructureService = repositoryStructureService;
+
+			statusService.StatusChanged += (s, e) => OnStatusChanged(e.NewStatus);
+			statusService.RepoChanged += (s, e) => OnRepoChanged(e.BranchIds);
+		}
+
+		public Repository Repository { get; private set; }
+
+		public bool IsPaused => statusService.IsPaused;
+
+		public event EventHandler<RepositoryUpdatedEventArgs> RepositoryUpdated;
+
+		public event EventHandler<RepositoryErrorEventArgs> RepositoryErrorChanged;
+
+
+		public void Monitor(string workingFolder)
+		{
+			statusService.Monitor(workingFolder);
 		}
 
 
@@ -63,212 +63,244 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public Task<Repository> GetCachedOrFreshRepositoryAsync(string workingFolder)
+		public async Task LoadRepositoryAsync(string workingFolder)
 		{
-			return GetRepositoryAsync(true, workingFolder);
-		}
+			Monitor(workingFolder);
 
-
-		public Task<Repository> GetFreshRepositoryAsync(string workingFolder)
-		{
-			return GetRepositoryAsync(false, workingFolder);
-		}
-
-
-		public async Task<Repository> GetRepositoryAsync(bool useCache, string workingFolder)
-		{
-			Timing t = new Timing();
-			MRepository mRepository = null;
-			if (useCache)
+			R<Repository> repository = await GetCachedRepositoryAsync(workingFolder);
+			if (!repository.IsOk)
 			{
-				mRepository = await cacheService.TryGetRepositoryAsync(workingFolder);
-				t.Log("cacheService.TryGetRepositoryAsync");
+				repository = await GetFreshRepositoryAsync(workingFolder);
 			}
 
-			if (mRepository == null)
-			{
-				Log.Debug("No cached repository");
-				mRepository = new MRepository();
-				mRepository.WorkingFolder = workingFolder;
+			Repository = repository.Value;			
+		}
 
-				await UpdateAsync(mRepository);
-				t.Log("Updated mRepository");
-				cacheService.CacheAsync(mRepository).RunInBackground();
+
+		public async Task GetFreshRepositoryAsync()
+		{
+			string workingFolder = Repository.MRepository.WorkingFolder;
+			R<Repository> repository = await GetFreshRepositoryAsync(workingFolder);
+
+			if (repository.IsOk)
+			{
+				Repository = repository.Value;
+				RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());
+			}
+		}
+
+
+		public Task CheckLocalRepositoryAsync()
+		{
+			return UpdateRepositoryAsync(null, null);
+		}
+
+
+		public async Task UpdateRepositoryAfterCommandAsync()
+		{
+			Task<Status> statusTask = statusService.GetStatusAsync();
+			Task<IReadOnlyList<string>> repoIdsTask = statusService.GetRepoIdsAsync();
+
+			Status status = await statusTask;
+			IReadOnlyList<string> repoIds = await repoIdsTask;
+
+			if (Repository.Status.IsSame(status)
+			    && Repository.MRepository.RepositoryIds.SequenceEqual(repoIds))
+			{
+				Log.Debug("Reposiotry has not changed after command");
+				return;
+			}
+
+			await UpdateRepositoryAsync(status, repoIds);
+		}
+
+
+		public async Task RefreshAfterCommandAsync(bool useFreshRepository)
+		{
+			Log.Debug("Refreshing after command ...");
+			fetchedTime = DateTime.MinValue;
+			await CheckRemoteChangesAsync(true);
+
+			if (useFreshRepository)
+			{
+				Log.Debug("Getting fresh repository");
+				await GetFreshRepositoryAsync();
+			}
+			else
+			{
+				await UpdateRepositoryAfterCommandAsync();
+			}
+		}
+
+
+		public async Task CheckRemoteChangesAsync(bool isFetchNotes)
+		{
+			if (DateTime.Now - fetchedTime < RemoteRepositoryInterval)
+			{
+				Log.Debug("No need the check remote yet");
+				return;
+			}
+
+			Log.Debug("Fetching");
+			R result = await remoteService.Value.FetchAsync();
+			RepositoryErrorChanged?.Invoke(this, new RepositoryErrorEventArgs(""));
+			if (result.IsFaulted)
+			{
+				string text = $"Fetch error: {result.Error.Exception.Message}";
+				Log.Warn(text);
+				RepositoryErrorChanged?.Invoke(this, new RepositoryErrorEventArgs(text));
+			}
+			else if (isFetchNotes)
+			{
+				await remoteService.Value.FetchAllNotesAsync();
+			}
+
+			fetchedTime = DateTime.Now;
+		}
+
+
+		public async Task GetRemoteAndFreshRepositoryAsync()
+		{
+			Timing t = new Timing();
+			fetchedTime = DateTime.MinValue;
+			await CheckRemoteChangesAsync(true);
+			t.Log("Remote check");
+			await GetFreshRepositoryAsync();
+			t.Log("Got Fresh Repository");
+		}
+
+
+		private async void OnRepoChanged(IReadOnlyList<string> repoIds)
+		{
+			if (Repository?.MRepository?.RepositoryIds.SequenceEqual(repoIds) ?? false) 
+			{
+				Log.Debug("Same repo");
+				return;
+			}
+
+			Log.Debug("Changed repo");
+			Status status = Repository.Status;
+			await UpdateRepositoryAsync(status, repoIds);
+		}
+
+
+		private async void OnStatusChanged(Status status)
+		{
+			if (Repository?.Status?.IsSame(status) ?? false)
+			{
+				Log.Debug("Same status");
+				return;
+			}
+
+			Log.Debug("Changed status");
+			IReadOnlyList<string> repoIds = Repository.MRepository.RepositoryIds;
+			await UpdateRepositoryAsync(status, repoIds);
+		}
+
+
+		private async Task UpdateRepositoryAsync(Status status, IReadOnlyList<string> repoIds)
+		{
+			Repository = await UpdateRepositoryAsync(Repository, status, repoIds);
+
+			RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());
+		}
+
+
+		private async Task<R<Repository>> GetFreshRepositoryAsync(string workingFolder)
+		{
+			Log.Debug("No cached repository");
+			MRepository mRepository = new MRepository();
+			mRepository.WorkingFolder = workingFolder;
+
+			Timing t = new Timing();
+			await repositoryStructureService.UpdateAsync(mRepository, null, null);
+			mRepository.TimeToCreateFresh = t.Elapsed;
+			t.Log("Updated mRepository");
+
+			if (mRepository.TimeToCreateFresh > MinCreateTimeBeforeCaching)
+			{
+				Log.Usage($"Caching repository ({t.Elapsed} ms)");
+				await cacheService.CacheAsync(mRepository);
+			}
+			else
+			{
+				Log.Usage($"No need for cached repository ({t.Elapsed} ms)");
+				cacheService.TryDeleteCache(workingFolder);
 			}
 
 			Repository repository = ToRepository(mRepository);
 			t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
 
-			return repository;
+			return repository;		
 		}
 
 
-		public async Task<Repository> UpdateRepositoryAsync(Repository sourcerepository)
+		private async Task<R<Repository>> GetCachedRepositoryAsync(string workingFolder)
+		{
+			try
+			{
+				Timing t = new Timing();
+				MRepository mRepository = await cacheService.TryGetRepositoryAsync(workingFolder);
+
+				if (mRepository != null)
+				{
+					t.Log("Read from cache");
+					mRepository.IsCached = true;
+					Repository repository = ToRepository(mRepository);
+					int branchesCount = repository.Branches.Count;
+					int commitsCount = repository.Commits.Count;
+					t.Log($"Repository {branchesCount} branches, {commitsCount} commits");
+					return repository;
+				}
+
+				return R<Repository>.NoValue;
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to read cached repository {e}");		
+				return e;
+			}
+			finally
+			{
+				cacheService.TryDeleteCache(workingFolder);
+			}
+		}
+
+
+		private async Task<Repository> UpdateRepositoryAsync(
+			Repository sourcerepository, Status status, IReadOnlyList<string> branchIds)
 		{
 			Log.Debug($"Updating repository");
 
 			MRepository mRepository = sourcerepository.MRepository;
-			mRepository.CommitsFiles = sourcerepository.CommitsFiles;
+			mRepository.IsCached = false;
 
 			Timing t = new Timing();
 
-			await UpdateAsync(mRepository);
+			await repositoryStructureService.UpdateAsync(mRepository, status, branchIds);
 			t.Log("Updated mRepository");
-			cacheService.CacheAsync(mRepository).RunInBackground();
+
+			if (mRepository.TimeToCreateFresh > MinCreateTimeBeforeCaching)
+			{
+				await cacheService.CacheAsync(mRepository);
+			}
 
 			Repository repository = ToRepository(mRepository);
-			t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
+			int branchesCount = repository.Branches.Count;
+			int commitsCount = repository.Commits.Count;
+
+			t.Log($"Updated repository {branchesCount} branches, {commitsCount} commits");
 			Log.Debug("Updated to repository");
 
 			return repository;
 		}
 
 
-		public Task SetSpecifiedCommitBranchAsync(
-			string gitRepositoryPath, 
-			string commitId, 
-			string rootId,
-			BranchName branchName, 
-			ICredentialHandler credentialHandler)
+		private Repository ToRepository(MRepository mRepository)
 		{
-			return gitCommitsService.EditCommitBranchAsync(
-				gitRepositoryPath, commitId, rootId, branchName, credentialHandler);
-		}
-
-
-		//public Task<bool> IsRepositoryChangedAsync(Repository repository)
-		//{
-		//	return Task.Run(() =>
-		//	{
-		//		string workingFolder = repository.MRepository.WorkingFolder;
-		//		IReadOnlyList<string> currentTips = GitRepository.GetRefsIds(workingFolder);
-
-		//		IReadOnlyList<string> tips = repository.MRepository.Tips;
-		//		repository.MRepository.StatusText = $"";
-		//		Status status = repository.Status;
-		//		string statusText = $"{status.isOk},{status.ConflictCount},{status.IsMerging},{status.StatusCount}";
-
-		//		return !currentTips.SequenceEqual(tips) || statusText != repository.MRepository.StatusText;				
-		//	});
-		//}
-
-
-		private Task<MRepository> UpdateAsync(MRepository mRepository)
-		{
-			return Task.Run(() => UpdateRepository(mRepository));
-		}
-
-
-		private MRepository UpdateRepository(MRepository repository)
-		{
-			string workingFolder = repository.WorkingFolder;
-
-			try
-			{
-				Update(repository);
-			}
-			catch (Exception e)
-			{
-				Log.Error($"Failed to update repository {e}");
-				
-				Log.Debug("Retry from scratch using a new repository ...");
-				
-				repository = new MRepository();
-				repository.WorkingFolder = workingFolder;
-				Update(repository);
-			}
-
-			return repository;
-		}
-
-
-		private void Update(MRepository repository)
-		{
-			Log.Debug("Updating repository");
 			Timing t = new Timing();
-			string gitRepositoryPath = repository.WorkingFolder;
-
-			// repository.Tips = GitRepository.GetRefsIds(gitRepositoryPath);
-			using (GitRepository gitRepository = GitRepository.Open(gitRepositoryPath))
-			{
-				GitStatus gitStatus = gitRepository.Status;
-				repository.Status = gitStatus;
-				t.Log("Got git status");
-
-				CleanRepositoryOfTempData(repository);
-
-				commitsService.AddBranchCommits(gitRepository, gitStatus, repository);
-				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
-
-				AnalyzeBranchStructure(repository, gitStatus, gitRepository);
-				t.Log("AnalyzeBranchStructure");		
-			}
-
-			t.Log("Done");
-		}
-
-
-		private void AnalyzeBranchStructure(
-			MRepository repository, 
-			GitStatus gitStatus, 
-			GitRepository gitRepository)
-		{
-			string gitRepositoryPath = repository.WorkingFolder;		
-
-			branchService.AddActiveBranches(gitRepository, gitStatus, repository);
-
-			MSubBranch mSubBranch = repository.SubBranches
-				.FirstOrDefault(b => b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
-			MCommit commit = mSubBranch.TipCommit.FirstAncestors().Last();
-
-			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitsService.GetSpecifiedNames(
-				gitRepositoryPath, commit.Id);
-
-			IReadOnlyList<CommitBranchName> commitBranches = gitCommitsService.GetCommitBranches(
-				gitRepositoryPath, commit.Id);
-
-			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
-			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);
-
-			commitBranchNameService.SetMasterBranchCommits(repository);
-
-			branchService.AddInactiveBranches(repository);
-
-			commitBranchNameService.SetBranchTipCommitsNames(repository);
-
-			commitBranchNameService.SetNeighborCommitNames(repository);
-
-			branchService.AddMissingInactiveBranches(repository);
-
-			branchService.AddMultiBranches(repository);
-
-			branchHierarchyService.SetBranchHierarchy(repository);
-			
-			//aheadBehindService.SetAheadBehind(repository);
-
-			tagService.AddTags(gitRepository, repository);
-
-			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);	
-			repository.CurrentBranchId = currentBranch.Id;
-
-			repository.CurrentCommitId = gitStatus.OK
-				? gitRepository.Head.TipId
-				: MCommit.UncommittedId;
-
-			if (currentBranch.TipCommit.IsVirtual
-					&& currentBranch.TipCommit.FirstParentId == repository.CurrentCommitId)
-			{
-				repository.CurrentCommitId = currentBranch.TipCommit.Id;
-			}
-
-			repository.SubBranches.Clear();
-		}
-
-
-		private static Repository ToRepository(MRepository mRepository)
-		{
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
-			KeyedList<string, Commit> rCommits = new KeyedList<string, Commit>(c => c.Id);
+			List<Commit> rCommits = new List<Commit>();
 			Branch currentBranch = null;
 			Commit currentCommit = null;
 			MCommit rootCommit = mRepository.Branches
@@ -278,24 +310,23 @@ namespace GitMind.GitModel.Private
 			Repository repository = new Repository(
 				mRepository,
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
-				new Lazy<IReadOnlyKeyedList<string, Commit>>(() => rCommits),
+				new Lazy<IReadOnlyList<Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
-				mRepository.CommitsFiles,
-				ToStatus(mRepository),
-				rootCommit.Id);
+				commitsFiles,
+				mRepository.Status,
+				rootCommit.IndexId,
+				mRepository.Uncommitted?.IndexId ?? -1);
 
 			foreach (var mCommit in mRepository.Commits)
 			{
-				Commit commit = Converter.ToCommit(repository, mCommit.Value);
+				Commit commit = Converter.ToCommit(repository, mCommit);
 				rCommits.Add(commit);
-				if (mCommit.Value == mRepository.CurrentCommit)
+				if (mCommit == mRepository.CurrentCommit)
 				{
 					currentCommit = commit;
 				}
 			}
-
-			
 
 			foreach (var mBranch in mRepository.Branches)
 			{
@@ -308,59 +339,8 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
+			t.Log($"Created repository {repository.Commits.Count} commits");
 			return repository;
-		}
-
-
-		private static Status ToStatus(MRepository mRepository)
-		{
-			int statusCount = mRepository.Status?.Count ?? 0;
-
-			int conflictCount = mRepository.Status?.ConflictCount ?? 0;
-			string message = mRepository.Status?.Message;
-			bool isMerging = mRepository.Status?.IsMerging ?? false;
-
-			return new Status(statusCount, conflictCount, message, isMerging);
-		}
-
-
-		private static void CleanRepositoryOfTempData(MRepository repository)
-		{
-			RemoveVirtualCommits(repository);
-
-			repository.Branches.Values.ForEach(b => b.TipCommit.BranchTips = null);
-
-			repository.Commits.Values.ForEach(c => c.BranchTipBranches.Clear());
-		}
-
-		private static void RemoveVirtualCommits(MRepository repository)
-		{
-			//MCommit uncommitted;
-			//if (repository.Commits.TryGetValue(MCommit.UncommittedId, out uncommitted))
-			//{
-			//	repository.ChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
-			//	repository.FirstChildIds(uncommitted.FirstParentId).Remove(uncommitted.Id);
-			//	repository.Commits.Remove(uncommitted.Id);
-			//	uncommitted.Branch.CommitIds.Remove(uncommitted.Id);
-			//	if (uncommitted.Branch.TipCommitId == uncommitted.Id)
-			//	{
-			//		uncommitted.Branch.TipCommitId = uncommitted.FirstParentId;
-			//	}
-			//}
-
-
-			List<MCommit> virtualCommits = repository.Commits.Values.Where(c => c.IsVirtual).ToList();
-			foreach (MCommit virtualCommit in virtualCommits)
-			{
-				repository.ChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
-				repository.FirstChildIds(virtualCommit.FirstParentId).Remove(virtualCommit.Id);
-				repository.Commits.Remove(virtualCommit.Id);
-				virtualCommit.Branch.CommitIds.Remove(virtualCommit.Id);
-				if (virtualCommit.Branch.TipCommitId == virtualCommit.Id)
-				{
-					virtualCommit.Branch.TipCommitId = virtualCommit.FirstParentId;
-				}
-			}
 		}
 	}
 }

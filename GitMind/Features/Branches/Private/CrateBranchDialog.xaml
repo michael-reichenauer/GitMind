@@ -1,0 +1,158 @@
+﻿<Window x:Class="GitMind.Features.Branches.Private.CrateBranchDialog"
+				Name="BranchDialogWindow"
+				xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+				xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+				xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+				xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+				xmlns:local="clr-namespace:GitMind.Features.Branches"
+				xmlns:private="clr-namespace:GitMind.Features.Branches.Private"
+				mc:Ignorable="d"
+				Title="Branch" SizeToContent="WidthAndHeight" ResizeMode="NoResize" 
+				Background="{StaticResource BackgroundBrush}"
+				WindowStyle="None" AllowsTransparency="True"
+				BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
+				ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
+
+	<!-- Enable "normal" windows behavior with drag and resize,
+	this does require WindowChrome.IsHitTestVisibleInChrome="True" in controls below -->
+	<Window.Resources>
+		<Style TargetType="{x:Type private:CrateBranchDialog}">
+			<Setter Property="WindowChrome.WindowChrome">
+				<Setter.Value>
+					<WindowChrome />
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Window.Resources>
+
+	<Window.InputBindings>
+		<KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding ElementName=BranchDialogWindow}"/>
+	</Window.InputBindings>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<!-- Title and tool bar -->
+			<RowDefinition Height="Auto" />
+			<!-- Dialog contents -->
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		
+		<!-- Title and tool bar -->
+		<Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
+			<Grid>
+				<StackPanel 
+					HorizontalAlignment="Left"	
+					Orientation="Horizontal">
+
+					<TextBlock Text="Create Branch" 							
+						Foreground="{StaticResource TextBrush}"
+						Margin="10, 5"/>
+
+				</StackPanel>
+
+				<!-- Close Button -->
+				<Button HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True"
+					Style="{StaticResource IconButtonStyle}"
+					KeyboardNavigation.IsTabStop="False"
+					Content="&#xE14C;" 
+					FontSize="16"
+					Command="{Binding CancelCommand}"
+					CommandParameter="{Binding ElementName=BranchDialogWindow}"/>
+			</Grid>
+		</Border>
+
+
+		<!-- Dialog contents -->
+		<Grid Grid.Row="1">
+			<Grid.RowDefinitions>
+				<!-- Branch name -->
+				<RowDefinition Height="Auto" />
+				<!-- margin -->
+				<RowDefinition Height="*" />
+				<!-- OK and Cancel buttons -->
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+
+			<!-- Commit Message -->
+			<Grid Grid.Row="0" Margin="10,10">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+
+				<!--Branch name -->
+				<TextBlock  
+					Grid.Row="0" Grid.Column="0" 
+					Text="Name:" Foreground="{StaticResource TextBrush}" Margin="0, 5"/>
+				<TextBox Grid.Row="0" Grid.Column="1" Name="BranchNameText"
+					Text="{Binding BranchName, UpdateSourceTrigger=PropertyChanged}"
+					KeyboardNavigation.TabIndex="0"
+					Margin="10,5,0,5"
+					Width="200"
+					Background="Transparent"
+					BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+					Foreground="{StaticResource TextBrush}"
+					CaretBrush="{StaticResource TextBrush}">
+					<TextBox.InputBindings>
+						<KeyBinding 
+							Key="Enter" 
+							Command="{Binding OkCommand}"
+							CommandParameter="{Binding ElementName=BranchDialogWindow}"/>
+					</TextBox.InputBindings>
+				</TextBox>
+				
+				<!--Publish option -->
+				<CheckBox 
+					Grid.Row="1" Grid.Column="1" IsChecked="{Binding IsPublish}"
+					Content="Publish"
+					Style="{StaticResource CheckBoxStyle}"
+					KeyboardNavigation.TabIndex="3"
+					Margin="10,5,0,5"/>
+				
+			</Grid>
+
+		
+
+			<!-- OK and Cancel buttons -->
+			<StackPanel Grid.Row="3" Orientation="Horizontal" 
+				HorizontalAlignment="Center"
+				Margin="0,10">
+
+				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+					Margin="5">
+					<Button Content="OK" 
+						Style="{StaticResource BaseButtonStyle}"
+						KeyboardNavigation.TabIndex="1"
+						Width="60"
+						Margin="1"
+						Padding="3"
+						FontSize="12"
+						Foreground="{StaticResource TextBrush}"
+						Command="{Binding OkCommand}"
+						CommandParameter="{Binding ElementName=BranchDialogWindow}" />
+				</Border>
+
+				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+					Margin="5">
+					<Button Content="Cancel" 
+						Style="{StaticResource BaseButtonStyle}"
+						KeyboardNavigation.TabIndex="2"
+						Width="60"
+						Margin="1"
+						Padding="3"
+						FontSize="12"
+						Foreground="{StaticResource TextBrush}"
+						Command="{Binding CancelCommand}"
+						CommandParameter="{Binding ElementName=BranchDialogWindow}" />
+				</Border>
+
+			</StackPanel>
+		</Grid>
+
+	</Grid>
+</Window>

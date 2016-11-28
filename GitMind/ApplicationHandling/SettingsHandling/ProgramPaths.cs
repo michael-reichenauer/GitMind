@@ -2,8 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.Utils;
 
 
@@ -208,20 +206,6 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 				return new Version(0, 0, 0, 0);
 			}
 		}
-
-		public static R<string> GetWorkingFolderPath(string path)
-		{
-			if (path == null)
-			{
-				return Error.From("No working folder");
-			}
-
-			IGitInfoService gitInfoService = new GitInfoService();
-			
-			return gitInfoService.GetCurrentRootPath(path)
-				.OnError(e => Log.Debug($"Not a working folder {path}, {e}"));
-		}
-
 
 		public static string GetLogFilePath()
 		{

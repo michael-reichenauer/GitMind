@@ -1,23 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GitMind.RepositoryViews;
+using GitMind.Features.Diffing;
 using LibGit2Sharp;
 
 
 namespace GitMind.Git
 {
-	public class GitCommitFiles
+	internal class GitCommitFiles
 	{
-		private readonly IDiffService diffService = new DiffService();
+		private readonly IDiffService diffService;
 
 		public string Id { get; set; }
 
 		public IReadOnlyList<GitFile> Files { get; set; }
 
 
-		public GitCommitFiles(string commitId, TreeChanges treeChanges)
+		public GitCommitFiles(IDiffService diffService, string commitId, TreeChanges treeChanges)
 		{
+			this.diffService = diffService;
 			Id = commitId;
 			if (treeChanges == null)
 			{
@@ -36,8 +37,23 @@ namespace GitMind.Git
 			}
 		}
 
-		public GitCommitFiles(string commitId, RepositoryStatus status, ConflictCollection conflicts)
+
+
+		public GitCommitFiles(IDiffService diffService, string commitId, ConflictCollection conflicts)
 		{
+			this.diffService = diffService;
+			Id = commitId;
+
+			Files = conflicts
+				.Select(c => new GitFile(GetConflictPath(c), null, ToConflict(c), GitFileStatus.Conflict))
+				.ToList();
+		}
+
+
+
+		public GitCommitFiles(IDiffService diffService, string commitId, RepositoryStatus status, ConflictCollection conflicts)
+		{
+			this.diffService = diffService;
 			Id = commitId;
 			if (status == null)
 			{
@@ -50,7 +66,7 @@ namespace GitMind.Git
 					.Concat(GetUntracked(status, conflicts))
 					.Concat(status.Removed.Select(t => new GitFile(t.FilePath, null, null, GitFileStatus.Deleted)))
 					.Concat(status.Missing.Select(t => new GitFile(t.FilePath, null, null, GitFileStatus.Deleted)))
-					.Concat(status.Modified.Select(t => new GitFile(t.FilePath, null, null, GitFileStatus.Modified)))				
+					.Concat(status.Modified.Select(t => new GitFile(t.FilePath, null, null, GitFileStatus.Modified)))
 					.Concat(status.RenamedInWorkDir.Select(t => new GitFile(
 						t.FilePath, t.IndexToWorkDirRenameDetails.OldFilePath, null, GitFileStatus.Renamed)))
 					.Concat(status.RenamedInIndex.Select(t => new GitFile(
@@ -106,17 +122,6 @@ namespace GitMind.Git
 
 			return uniqueFiles;
 		}
-
-
-		public GitCommitFiles(string commitId, ConflictCollection conflicts)
-		{
-			Id = commitId;
-
-			Files = conflicts
-				.Select(c => new GitFile(GetConflictPath(c), null, ToConflict(c), GitFileStatus.Conflict))
-				.ToList();
-		}
-
 
 
 

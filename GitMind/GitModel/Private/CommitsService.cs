@@ -1,40 +1,49 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
 {
 	internal class CommitsService : ICommitsService
 	{
-		public void AddBranchCommits(
-			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
+		public void AddBranchCommits(GitRepository gitRepository, MRepository repository)
 		{
+			Status status = repository.Status;
+
+			Timing t = new Timing();
 			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
+
 			if (gitRepository.Head.IsDetached)
 			{
-				rootCommits = rootCommits.Concat(new[] {gitRepository.Head.Tip});
+				rootCommits = rootCommits.Concat(new[] { gitRepository.Head.Tip });
 			}
+
+			rootCommits = rootCommits.ToList();
+			t.Log("Root commit ids");
+
 
 			Dictionary<string, object> added = new Dictionary<string, object>();
 
-			Dictionary<string, BranchName> branchNameByCommitId = new Dictionary<string, BranchName>();
-			Dictionary<string, BranchName> subjectBranchNameByCommitId = new Dictionary<string, BranchName>();
+			Dictionary<int, BranchName> branchNameByCommitId = new Dictionary<int, BranchName>();
+			Dictionary<int, BranchName> subjectBranchNameByCommitId = new Dictionary<int, BranchName>();
 
 			Stack<GitCommit> commits = new Stack<GitCommit>();
 			rootCommits.ForEach(c => commits.Push(c));
 			rootCommits.ForEach(c => added[c.Id] = null);
+			t.Log("Pushed roots on stack");
 
 			while (commits.Any())
 			{
 				GitCommit gitCommit = commits.Pop();
 
-				MCommit commit;
-				string commitId = gitCommit.Id;
-				if (!repository.Commits.TryGetValue(commitId, out commit))
+				MCommit commit = repository.Commit(gitCommit.Id);
+				if (commit.Subject == null)
 				{
-					commit = AddCommit(commitId, gitCommit, repository);
+					AddCommit(commit, gitCommit);
 
 					if (IsMergeCommit(commit))
 					{
@@ -45,53 +54,48 @@ namespace GitMind.GitModel.Private
 				}
 
 				BranchName branchName;
-				if (branchNameByCommitId.TryGetValue(commit.Id, out branchName))
+				if (branchNameByCommitId.TryGetValue(commit.IndexId, out branchName))
 				{
 					// Branch name set by a child commit (pull merge commit)
 					commit.BranchName = branchName;
 				}
 
 				BranchName subjectBranchName;
-				if (subjectBranchNameByCommitId.TryGetValue(commit.Id, out subjectBranchName))
+				if (subjectBranchNameByCommitId.TryGetValue(commit.IndexId, out subjectBranchName))
 				{
 					// Subject branch name set by a child commit (merge commit)
 					commit.FromSubjectBranchName = subjectBranchName;
 				}
 			}
 
-			if (!gitStatus.OK)
+			if (!status.IsOK)
 			{
 				// Adding a virtual "uncommitted" commit since current working folder status has some changes
-				AddVirtualUncommitted(gitRepository, gitStatus, repository);
+				AddVirtualUncommitted(gitRepository, status, repository);
 			}
 		}
 
 
-		private MCommit AddCommit(string commitId, GitCommit gitCommit, MRepository repository)
+		private void AddCommit(MCommit commit, GitCommit gitCommit)
 		{
-			MCommit commit = new MCommit();
-			commit.Repository = repository;
-
 			CopyToCommit(gitCommit, commit);
 			SetChildOfParents(commit);
-			repository.Commits[commitId] = commit;
-			return commit;
 		}
 
 
 		private void AddVirtualUncommitted(
-			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
+			GitRepository gitRepository, Status status, MRepository repository)
 		{
-			MCommit commit = new MCommit();
+			MCommit commit = repository.Commit(MCommit.UncommittedId);
+		
 			commit.IsVirtual = true;
-			commit.Repository = repository;
 			commit.BranchName = gitRepository.Head.Name;
 
-			CopyToCommit(gitStatus, commit, gitRepository.Head.TipId);
+			CopyToUncommitedCommit(status, commit, repository.Commit(gitRepository.Head.TipId).IndexId);
 			commit.Author = gitRepository.UserName ?? "";
 
 			SetChildOfParents(commit);
-			repository.Commits[commit.Id] = commit;
+			repository.CommitsById[commit.CommitId] = commit;
 		}
 
 
@@ -113,8 +117,8 @@ namespace GitMind.GitModel.Private
 
 		private static void TrySetBranchNameFromSubject(
 			MCommit commit,
-			IDictionary<string, BranchName> branchNameByCommitId,
-			IDictionary<string, BranchName> subjectBranchNameByCommitId)
+			IDictionary<int, BranchName> branchNameByCommitId,
+			IDictionary<int, BranchName> subjectBranchNameByCommitId)
 		{
 			MergeBranchNames mergeNames = BranchNameParser.ParseBranchNamesFromSubject(commit.Subject);
 
@@ -145,21 +149,21 @@ namespace GitMind.GitModel.Private
 		private static void SetChildOfParents(MCommit commit)
 		{
 			bool isFirstParent = true;
-			foreach (string parentId in commit.ParentIds)
+			foreach (MCommit parent in commit.Parents)
 			{
-				IList<string> childIds = commit.Repository.ChildIds(parentId);
-				if (!childIds.Contains(commit.Id))
+				IList<int> childIds = parent.ChildIds;
+				if (!childIds.Contains(commit.IndexId))
 				{
-					childIds.Add(commit.Id);
+					childIds.Add(commit.IndexId);
 				}
 
 				if (isFirstParent)
 				{
 					isFirstParent = false;
-					IList<string> firstChildIds = commit.Repository.FirstChildIds(parentId);
-					if (!firstChildIds.Contains(commit.Id))
+					IList<int> firstChildIds = parent.FirstChildIds;
+					if (!firstChildIds.Contains(commit.IndexId))
 					{
-						firstChildIds.Add(commit.Id);
+						firstChildIds.Add(commit.IndexId);
 					}
 				}
 			}
@@ -171,31 +175,36 @@ namespace GitMind.GitModel.Private
 			string subject = gitCommit.Subject;
 			string tickets = GetTickets(subject);
 
-			commit.Id = gitCommit.Id;
-			commit.CommitId = gitCommit.Id;
 			commit.ShortId = gitCommit.ShortId;
 			commit.Subject = GetSubjectWithoutTickets(subject, tickets);
 			commit.Author = gitCommit.Author;
 			commit.AuthorDate = gitCommit.AuthorDate;
 			commit.CommitDate = gitCommit.CommitDate;
 			commit.Tickets = tickets;
-			commit.ParentIds = gitCommit.Parents.Select(c => c.Id).ToList();
+			commit.ParentIds = gitCommit.Parents
+				.Select(c => commit.Repository.Commit(c.Id).IndexId)
+				.ToList();
 		}
 
-		private static void CopyToCommit(GitStatus gitStatus, MCommit commit, string parentId)
+		private static void CopyToUncommitedCommit(Status status, MCommit commit, int parentId)
 		{
-			commit.Id = MCommit.UncommittedId;
-			commit.CommitId = MCommit.UncommittedId;
-			commit.ShortId = commit.Id.Substring(0, 6);
-			commit.Subject = $"{gitStatus.Count} uncommitted changes in working folder";
-			if (gitStatus.ConflictCount > 0)
+			int modifiedCount = status.ChangedCount;
+			int conflictCount = status.ConflictCount;
+
+			// commit.Id = MCommit.UncommittedId;
+			//commit.CommitId = MCommit.UncommittedId;
+			commit.ShortId = commit.CommitId.Substring(0, 6);
+			commit.Subject = $"{modifiedCount} uncommitted changes in working folder";
+
+			if (conflictCount > 0)
 			{
-				commit.Subject = $"{gitStatus.ConflictCount} conflicts and " + commit.Subject;
-				commit.HasConflicts = true;;
+				commit.Subject = 
+					$"{conflictCount} conflicts and {modifiedCount} changes, {ShortSubject(status)}";
+				commit.HasConflicts = true;
 			}
-			if (gitStatus.IsMerging)
+			else if (status.IsMerging)
 			{
-				commit.Subject = $"{gitStatus.Message?.Trim()} ({commit.Subject})";
+				commit.Subject = $"{modifiedCount} changes, {ShortSubject(status)}";
 				commit.IsMerging = true;
 			}
 
@@ -203,9 +212,16 @@ namespace GitMind.GitModel.Private
 			commit.AuthorDate = DateTime.Now;
 			commit.CommitDate = DateTime.Now;
 			commit.Tickets = "";
-			commit.ParentIds = new List<string> { parentId };
+			commit.ParentIds = new List<int> { parentId };
 		}
 
+
+		private static string ShortSubject(Status status)
+		{
+			string subject = status.MergeMessage?.Trim() ?? "";
+			string firstLine = subject.Split("\n".ToCharArray())[0];
+			return firstLine;
+		}
 
 
 		private static bool IsMergeCommit(MCommit commit)

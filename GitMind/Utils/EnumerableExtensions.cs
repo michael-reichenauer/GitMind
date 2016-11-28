@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 
 
@@ -18,6 +17,11 @@ namespace System.Linq
 		public static IReadOnlyList<TSource> AsReadOnlyList<TSource>(this IReadOnlyList<TSource> source)
 		{
 			return source;
+		}
+
+		public static IReadOnlyList<TSource> ToReadOnlyList<TSource>(this IEnumerable<TSource> enumeration)
+		{
+			return enumeration.ToList();
 		}
 
 		/// <summary>

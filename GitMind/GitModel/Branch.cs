@@ -8,20 +8,20 @@ namespace GitMind.GitModel
 	// Some extra Branch
 	internal class Branch
 	{
-		private readonly string tipCommitId;
-		private readonly string firstCommitId;
-		private readonly string parentCommitId;
-		private readonly IReadOnlyList<string> commitIds;
+		private readonly int tipCommitId;
+		private readonly int firstCommitId;
+		private readonly int parentCommitId;
+		private readonly IReadOnlyList<int> commitIds;
 		private readonly string parentBranchId;
 
 		public Branch(
 			Repository repository,
 			string id,
 			BranchName name,
-			string tipCommitId,
-			string firstCommitId,
-			string parentCommitId,
-			IReadOnlyList<string> commitIds,
+			int tipCommitId,
+			int firstCommitId,
+			int parentCommitId,
+			IReadOnlyList<int> commitIds,
 			string parentBranchId,
 			IReadOnlyList<BranchName> childBranchNames,
 			string mainBranchId,
@@ -82,25 +82,26 @@ namespace GitMind.GitModel
 		public Branch MainbBranch => Repository.Branches[MainBranchId];
 		public bool IsCurrentBranch => Repository.CurrentBranch == this 
 			|| IsMainPart && LocalSubBranch.IsCurrentBranch;
-		public bool IsUncommited => IsCurrentBranch && !Repository.Status.isOk;
-		public bool IsCanBeMergeToOther => !IsCurrentBranch && Repository.Status.isOk;
-			public bool ICanBeMergeIntoThis => IsCurrentBranch && Repository.Status.isOk;
+		public bool IsUncommited => IsCurrentBranch && !Repository.Status.IsOK;
+		public bool IsCanBeMergeToOther => !IsCurrentBranch && Repository.Status.IsOK;
+			public bool ICanBeMergeIntoThis => IsCurrentBranch && Repository.Status.IsOK;
 		public bool IsDetached { get; }
 		public Repository Repository { get; }
 
 		public bool CanBePublish => IsActive && IsLocal && !IsRemote && !IsLocalPart;
+
 		public bool CanBePushed =>
 			IsActive
 			&& ((IsLocal && IsRemote) || (IsLocalPart && MainbBranch.RemoteAheadCount == 0))
 			&& LocalAheadCount > 0
-			&& RemoteAheadCount == 0 
-			&& !IsUncommited;
+			&& RemoteAheadCount == 0;
 
 		public bool CanBeUpdated =>
 			IsActive
-			&& ((IsLocal && IsRemote) || (IsMainPart || IsLocalPart))
-			&& RemoteAheadCount > 0
-			&& !IsUncommited;
+			&& ((IsCurrentBranch && !IsUncommited && RemoteAheadCount > 0)
+			    || (IsCurrentBranch && !IsUncommited && IsLocalPart && MainbBranch.RemoteAheadCount > 0)
+					|| (!IsCurrentBranch && RemoteAheadCount > 0 && !IsMainPart)
+			    || (!IsCurrentBranch && IsLocalPart && MainbBranch.RemoteAheadCount > 0));
 
 
 

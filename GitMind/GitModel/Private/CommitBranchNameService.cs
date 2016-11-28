@@ -15,8 +15,7 @@ namespace GitMind.GitModel.Private
 		{
 			foreach (CommitBranchName specifiedName in specifiedNames)
 			{
-				MCommit commit;
-				if (repository.Commits.TryGetValue(specifiedName.CommitId, out commit))
+				if (repository.CommitsById.TryGetValue(specifiedName.CommitId, out var commit))
 				{
 					if (!string.IsNullOrEmpty(specifiedName.Name))
 					{
@@ -38,8 +37,7 @@ namespace GitMind.GitModel.Private
 		{
 			foreach (CommitBranchName commitBranch in commitBranches)
 			{
-				MCommit commit;
-				if (repository.Commits.TryGetValue(commitBranch.CommitId, out commit))
+				if (repository.CommitsById.TryGetValue(commitBranch.CommitId, out var commit))
 				{
 					// Set branch name unless there is a specified branch name which has higher priority
 					commit.CommitBranchName = commitBranch.Name;
@@ -106,13 +104,13 @@ namespace GitMind.GitModel.Private
 
 		public void SetBranchTipCommitsNames(MRepository repository)
 		{
-			repository.SubBranches.Values
-				.Where(b => !repository.Commits.ContainsKey(b.TipCommitId))
-				.ForEach(b =>
-				{
-					Log.Warn($"Branch with no tip {b.Name}");
-					Debugger.Break();
-				});
+			//repository.SubBranches.Values
+			//	.Where(b => !repository.Commits.ContainsKey(b.TipCommitId))
+			//	.ForEach(b =>
+			//	{
+			//		Log.Warn($"Branch with no tip {b.Name}");
+			//		Debugger.Break();
+			//	});
 
 			IEnumerable<MSubBranch> branches = repository.SubBranches.Values
 				.Where(b =>
@@ -135,15 +133,15 @@ namespace GitMind.GitModel.Private
 
 		private static void SetMasterBranchCommits(MRepository repository, MSubBranch subBranch)
 		{
-			string commitId = subBranch.TipCommitId;
-			while (commitId != null)
+			int commitId = subBranch.TipCommitId;
+			while (commitId != -1)
 			{
 				MCommit commit = repository.Commits[commitId];
 
 				if (commit.BranchName == subBranch.Name && commit.SubBranchId != null)
 				{
 					// Do not break if commit is the tip
-					if (!(commit.Id == subBranch.TipCommitId && commit.SubBranchId == subBranch.SubBranchId))
+					if (!(commit.IndexId == subBranch.TipCommitId && commit.SubBranchId == subBranch.SubBranchId))
 					{
 						break;
 					}
@@ -202,7 +200,7 @@ namespace GitMind.GitModel.Private
 			do
 			{
 				isFound = false;
-				IEnumerable<MCommit> commitsWithBranchName = repository.Commits.Values
+				IEnumerable<MCommit> commitsWithBranchName = repository.Commits
 					.Where(commit =>
 						commit.BranchId == null
 						&& commit.HasBranchName
@@ -275,7 +273,7 @@ namespace GitMind.GitModel.Private
 			do
 			{
 				found = false;
-				foreach (var commit in repository.Commits.Values)
+				foreach (var commit in repository.Commits)
 				{
 					if (commit.BranchId == null && !commit.HasBranchName && commit.HasFirstChild)
 					{

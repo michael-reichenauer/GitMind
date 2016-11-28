@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace GitMind.GitModel.Private
 {
-	internal class Converter
+	internal class Converter 
 	{
 		public static Branch ToBranch(Repository repository, MBranch branch)
 		{
@@ -14,7 +14,7 @@ namespace GitMind.GitModel.Private
 				branch.TipCommitId,
 				branch.FirstCommitId,
 				branch.ParentCommitId,
-				branch.Commits.Select(c => c.Id).ToList(),
+				branch.Commits.Select(c => c.IndexId).ToList(),
 				branch.ParentBranchId,
 				branch.ChildBranchNames.ToList(),
 				branch.MainBranchId,
@@ -34,7 +34,7 @@ namespace GitMind.GitModel.Private
 		{
 			return new Commit(
 				repository,
-				commit.Id,
+				commit.IndexId,
 				commit.CommitId,
 				commit.ShortId,
 				commit.Subject,
@@ -45,7 +45,7 @@ namespace GitMind.GitModel.Private
 				commit.Tickets,
 				commit.BranchTips,
 				commit.ParentIds.ToList(),
-				commit.Repository.ChildIds(commit.Id).ToList(),
+				commit.ChildIds.ToList(),
 				commit.BranchId,
 				commit.SpecifiedBranchName,
 				commit.CommitBranchName,

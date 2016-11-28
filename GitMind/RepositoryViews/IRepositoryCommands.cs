@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using System.Windows;
 using GitMind.Git;
 using GitMind.GitModel;
 
@@ -8,15 +7,20 @@ namespace GitMind.RepositoryViews
 {
 	internal interface IRepositoryCommands
 	{
-		string WorkingFolder { get; }
-		Window Owner { get; }
-		Repository Repository { get;  }
-		Commit UnCommited { get; }
-		CredentialHandler GetCredentialsHandler();
+		void ShowCommitDetails();
+		void ToggleCommitDetails();
+		void ShowUncommittedDetails();
 
-		DisabledStatus DisableStatus();
+		void ShowBranch(Branch branch);
+		void ShowCurrentBranch();
+		void ShowDiff(Commit commit);
+
+		Task ShowSelectedDiffAsync();
+
+		Commit UnCommited { get; }
+
 		void ShowBranch(BranchName branchName);
-		Task RefreshAfterCommandAsync(bool useFreshRepository);
+
 		void SetCurrentMerging(Branch branch);
 	}
 }

@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.Installation;
-using GitMind.Common;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
+using GitMind.Features.Diffing;
+using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
-using GitMind.Utils.UI;
 
 
 namespace GitMind
@@ -18,29 +21,29 @@ namespace GitMind
 	/// </summary>
 	public partial class App : Application
 	{
-		private ApplicationService applicationService;
-
-		public MainWindow Window;
-
-		public ICommandLine CommandLine { get; private set; }
-
-		public new static App Current => (App)Application.Current;
+		private readonly ICommandLine commandLine;
+		private readonly IDiffService diffService;
+		private readonly IInstaller installer;
+		private readonly Lazy<MainWindow> mainWindow;
+		private readonly WorkingFolder workingFolder;
 
 
+		// This mutex is used by the installer (and uninstaller) to determine if instances are running
+		private static Mutex applicationMutex;
 
-		[STAThread]
-		public static void Main()
+
+		internal App(
+			ICommandLine commandLine,
+			IDiffService diffService,
+			IInstaller installer,
+			Lazy<MainWindow> mainWindow,
+			WorkingFolder workingFolder)
 		{
-			Log.Debug(GetStartlineText());
-
-			// Make sure that when assemblies that GitMind depends on are extracted whenever requested 
-			AssemblyResolver.Activate();
-
-			App application = new App();
-			ExceptionHandling.Init();
-			WpfBindingTraceListener.Register();
-			application.InitializeComponent();
-			application.Run();
+			this.commandLine = commandLine;
+			this.diffService = diffService;
+			this.installer = installer;
+			this.mainWindow = mainWindow;
+			this.workingFolder = workingFolder;
 		}
 
 
@@ -55,18 +58,14 @@ namespace GitMind
 		{
 			base.OnStartup(e);
 
-			CommandLine = new CommandLine(Environment.GetCommandLineArgs());
-
 			if (IsInstallOrUninstall())
 			{
-				// A installation or uninstallation was triggered, lets end this instance
+				// An installation or uninstallation was triggered, lets end this instance
 				Application.Current.Shutdown(0);
 				return;
 			}
 
-			applicationService = new ApplicationService(CommandLine);
-
-			if (applicationService.IsCommands())
+			if (IsCommands())
 			{
 				// Command line contains some command like diff 
 				// which will be handled and then this instance can end.
@@ -75,7 +74,7 @@ namespace GitMind
 				return;
 			}
 
-			if (TriggerOtherRunningInstance())
+			if (IsActivatedOtherInstance())
 			{
 				// Another instance for this working folder is already running and it received the
 				// command line from this instance, lets exit this instance, while other instance continuous
@@ -88,21 +87,14 @@ namespace GitMind
 		}
 
 
-		private bool TriggerOtherRunningInstance()
-		{
-			return applicationService.IsActivatedOtherInstance(applicationService.WorkingFolder);
-		}
-
-
 		private bool IsInstallOrUninstall()
 		{
-			if (CommandLine.IsInstall || CommandLine.IsUninstall)
+			if (commandLine.IsInstall || commandLine.IsUninstall)
 			{
 				// Tis is an installation (Setup file or "/install" arg) or uninstallation (/uninstall arg)
 				// Need some temp main window when only message boxes will be shown for commands
 				MainWindow = CreateTempMainWindow();
 
-				IInstaller installer = new Installer(CommandLine);
 				installer.InstallOrUninstall();
 
 				return true;
@@ -118,39 +110,92 @@ namespace GitMind
 			MainWindow = CreateTempMainWindow();
 
 			// Commands like Install, Uninstall, Diff, can be handled immediately
-			applicationService.HandleCommands();
+			HandleCommands();
 		}
 
 
 		private void Start()
 		{
-			applicationService.SetIsStarted();
+			// This mutex is used by the installer (or uninstaller) to determine if instances are running
+			applicationMutex = new Mutex(true, Installer.ProductGuid);
 
-			ShowMainWindow();
-
-			applicationService.Start();
-		}
-
-
-		private void ShowMainWindow()
-		{
-			Window = new MainWindow();
-			MainWindow = Window;
-
-			Window.WorkingFolder = applicationService.WorkingFolder;
-			Window.SetBranchNames(CommandLine.BranchNames);
+			MainWindow = mainWindow.Value;
 			MainWindow.Show();
+
+			TryDeleteTempFiles();
 		}
 
 
-		private static string GetStartlineText()
+		private bool IsCommands()
 		{
-			string version = GetProgramVersion();
+			return commandLine.IsShowDiff;
+		}
 
-			string[] args = Environment.GetCommandLineArgs();
-			string argsText = string.Join("','", args);
 
-			return $"Start version: {version}, args: '{argsText}'";
+		private void HandleCommands()
+		{
+			if (commandLine.IsShowDiff)
+			{
+				diffService.ShowDiff(Commit.UncommittedId);
+			}
+		}
+
+		private bool IsActivatedOtherInstance()
+		{
+			try
+			{
+				string id = MainWindowIpcService.GetId(workingFolder);
+				using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
+				{
+					if (!ipcRemotingService.TryCreateServer(id))
+					{
+						// Another GitMind instance for that working folder is already running, activate that.
+						var args = Environment.GetCommandLineArgs();
+						ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(args));
+						return true;
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to activate other instance {e}");
+			}
+
+			return false;
+		}
+
+
+		private void TryDeleteTempFiles()
+		{
+			try
+			{
+				string tempFolderPath = ProgramPaths.GetTempFolderPath();
+				string searchPattern = $"{ProgramPaths.TempPrefix}*";
+				string[] tempFiles = Directory.GetFiles(tempFolderPath, searchPattern);
+				foreach (string tempFile in tempFiles)
+				{
+					try
+					{
+						Log.Debug($"Deleting temp file {tempFile}");
+						File.Delete(tempFile);
+					}
+					catch (Exception e)
+					{
+						Log.Debug($"Failed to delete temp file {tempFile}, {e.Message}. Deleting at reboot");
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to delete temp files {e}");
+			}
+		}
+
+
+		private static MessageDialog CreateTempMainWindow()
+		{
+			// Window used as a temp main window, when handling commands (i.e. no "real" main windows)
+			return new MessageDialog(null, "", "", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 
 
@@ -159,13 +204,6 @@ namespace GitMind
 			Assembly assembly = Assembly.GetExecutingAssembly();
 			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 			return fvi.FileVersion;
-		}
-
-
-		private static MessageDialog CreateTempMainWindow()
-		{
-			// Window used as a temp main window, when handling commands (i.e. no "real" main windows)
-			return new MessageDialog(null, "", "", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 	}
 }

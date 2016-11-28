@@ -12,13 +12,13 @@ namespace GitMind.GitModel
 	{
 		public static readonly string UncommittedId = MCommit.UncommittedId;
 
-		private readonly IReadOnlyList<string> parentIds;
-		private readonly IReadOnlyList<string> childIds;
+		private readonly IReadOnlyList<int> parentIds;
+		private readonly IReadOnlyList<int> childIds;
 		private readonly string branchId;
 
 		public Commit(
 			Repository repository, 
-			string id, 
+			int id, 
 			string commitId, 
 			string shortId, 
 			string subject,
@@ -28,8 +28,8 @@ namespace GitMind.GitModel
 			string tags, 
 			string tickets, 
 			string branchTips, 
-			IReadOnlyList<string> parentIds, 
-			IReadOnlyList<string> childIds, 
+			IReadOnlyList<int> parentIds, 
+			IReadOnlyList<int> childIds, 
 			string branchId,
 			BranchName specifiedBranchName,
 			BranchName commitBranchName,
@@ -70,7 +70,7 @@ namespace GitMind.GitModel
 		}
 
 
-		public string Id { get; }
+		public int Id { get; }
 		public string CommitId { get; }
 		public string ShortId { get; }
 		public string Subject { get; }
@@ -103,10 +103,7 @@ namespace GitMind.GitModel
 		public string WorkingFolder => Repository.MRepository.WorkingFolder;
 		public Repository Repository { get; }
 
-		//public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
-		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(WorkingFolder, CommitId);
-		
-
+		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(CommitId);
 
 		public override string ToString() => $"{ShortId} {Subject} {CommitDate}";
 	}

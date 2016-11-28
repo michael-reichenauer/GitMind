@@ -100,13 +100,13 @@
 						</Border>
 					</MenuItem.Icon>
 					<MenuItem 
-						Header="Undo changes and clean ignored files" 
-						Command="{Binding RepositoryViewModel.UndoCleanWorkingFolderCommand}">
+						Header="Clean untracked/ignored files" 
+						Command="{Binding CleanWorkingFolderCommand}">
 						<MenuItem.Icon>
 							<Border>
 								<TextBlock 
 									Style="{StaticResource MenuIconStyle}" 
-									Text="&#xE166;"
+									Text="&#xE92B;"
 									Foreground="{StaticResource UndoBrush}"/>
 							</Border>
 						</MenuItem.Icon>

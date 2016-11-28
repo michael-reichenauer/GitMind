@@ -3,8 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using GitMind.Features.Branching;
-using GitMind.Features.Branching.Private;
+using GitMind.Features.Branches;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -13,36 +12,20 @@ namespace GitMind.RepositoryViews
 {
 	internal class BranchViewModel : ViewModel
 	{
-		private readonly IBranchService branchService = new BranchService();
-		private readonly IRepositoryCommands repositoryCommands;
-		private readonly Command<Branch> showBranchCommand;
-		private readonly Command<Branch> deleteBranchCommand;
-		private readonly Command<Branch> publishBranchCommand;
-		private readonly Command<Branch> pushBranchCommand;
-		private readonly Command<Branch> updateBranchCommand;
+		private readonly IBranchService branchService;
 
-		private readonly ObservableCollection<BranchItem> childBranches 
+		private readonly Command<Branch> showBranchCommand;
+
+		private readonly ObservableCollection<BranchItem> childBranches
 			= new ObservableCollection<BranchItem>();
 
-		
+
 		public BranchViewModel(
-			IRepositoryCommands repositoryCommands,
-			Command<Branch> showBranchCommand,
-			Command<Branch> mergeBranchCommand,
-			Command<Branch> deleteBranchCommand,
-			Command<Branch> publishBranchCommand,
-			Command<Branch> pushBranchCommand,
-			Command<Branch> updateBranchCommand)
+			IBranchService branchService,
+			IRepositoryCommands repositoryCommands)
 		{
-			this.repositoryCommands = repositoryCommands;
-			this.showBranchCommand = showBranchCommand;
-			this.deleteBranchCommand = deleteBranchCommand;
-			this.publishBranchCommand = publishBranchCommand;
-			this.pushBranchCommand = pushBranchCommand;
-			this.updateBranchCommand = updateBranchCommand;
-
-
-			MergeBranchCommand = mergeBranchCommand.With(() => Branch);
+			this.branchService = branchService;
+			this.showBranchCommand = Command<Branch>(repositoryCommands.ShowBranch);
 		}
 
 		// UI properties
@@ -59,7 +42,7 @@ namespace GitMind.RepositoryViews
 		public double Height => Rect.Height;
 		public string Line { get; set; }
 		public string Dashes { get; set; }
-		
+
 		public int StrokeThickness { get; set; }
 		public Brush Brush { get; set; }
 		public Brush HoverBrush { get; set; }
@@ -94,18 +77,21 @@ namespace GitMind.RepositoryViews
 		}
 
 		public Command SwitchBranchCommand => Command(
-			() => branchService.SwitchBranchAsync(repositoryCommands, Branch),
+			() => branchService.SwitchBranchAsync(Branch),
 			() => branchService.CanExecuteSwitchBranch(Branch));
 
 		public Command CreateBranchCommand => Command(
-			() => branchService.CreateBranchAsync(repositoryCommands, Branch));
+			() => branchService.CreateBranchAsync(Branch));
 
-		public Command MergeBranchCommand { get; }
-		public Command DeleteBranchCommand => 
-			Command(() => deleteBranchCommand.Execute(Branch), () => Branch.IsActive);
-		public Command PublishBranchCommand => Command(() => publishBranchCommand.Execute(Branch));
-		public Command PushBranchCommand => Command(() => pushBranchCommand.Execute(Branch));
-		public Command UpdateBranchCommand => Command(() => updateBranchCommand.Execute(Branch));
+		public Command MergeBranchCommand => AsyncCommand(() => branchService.MergeBranchAsync(Branch));
+		public Command DeleteBranchCommand => AsyncCommand(
+			() => branchService.DeleteBranchAsync(Branch), () => branchService.CanDeleteBranch(Branch));
+
+		public Command PublishBranchCommand => Command(() => branchService.PublishBranchAsync(Branch));
+
+		public Command PushBranchCommand => Command(() => branchService.PushBranchAsync(Branch));
+
+		public Command UpdateBranchCommand => Command(() => branchService.UpdateBranchAsync(Branch));
 
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }
