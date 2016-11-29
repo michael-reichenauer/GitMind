@@ -162,7 +162,8 @@
 								Content="{Binding Name}" 
 								Grid.Column="0"
 								Foreground="{Binding FileNameBrush}"
-								Padding="0"/>
+								Padding="0"
+								ToolTip="{Binding Name}"/>
 
 							<Label
 								Content="{Binding Status}" 
