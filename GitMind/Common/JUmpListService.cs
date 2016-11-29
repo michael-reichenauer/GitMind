@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 using System.Windows.Shell;
 using GitMind.ApplicationHandling.SettingsHandling;
 
@@ -14,9 +15,11 @@ namespace GitMind.Common
 		{
 			JumpList jumpList = JumpList.GetJumpList(Application.Current) ?? new JumpList();
 
-			string title = workingFolder.Length < MaxTitleLength
-				? workingFolder
-				: "..." + workingFolder.Substring(workingFolder.Length - MaxTitleLength);
+			string folderName = Path.GetFileName(workingFolder) ?? workingFolder;
+
+			string title = folderName.Length < MaxTitleLength
+				? folderName
+				: folderName.Substring(0, MaxTitleLength) + "...";
 
 			JumpTask jumpTask = new JumpTask();
 			jumpTask.Title = title;
