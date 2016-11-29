@@ -9,7 +9,7 @@ namespace GitMind.Features.StatusHandling.Private
 	[SingleInstance]
 	internal class FolderMonitorService : IFolderMonitorService
 	{
-		private static readonly TimeSpan StatusDelayTriggerTime = TimeSpan.FromSeconds(1);
+		private static readonly TimeSpan StatusDelayTriggerTime = TimeSpan.FromSeconds(2);
 		private static readonly TimeSpan RepositoryDelayTriggerTime = TimeSpan.FromSeconds(1);
 
 		private const string GitFolder = ".git";
