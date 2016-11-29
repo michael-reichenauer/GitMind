@@ -28,7 +28,7 @@ namespace GitMind.RepositoryViews.Private
 		private readonly IBrushService brushService;
 		private readonly IRepositoryMgr repositoryMgr;
 		private readonly IRepositoryCommands repositoryCommands;
-		private readonly Func<CommitViewModel> commitViewModelProvider;
+
 		private readonly Func<BranchViewModel> branchViewModelProvider;
 		private readonly Command<Branch> deleteBranchCommand;
 
@@ -40,7 +40,6 @@ namespace GitMind.RepositoryViews.Private
 			IBrushService brushService,
 			IRepositoryMgr repositoryMgr,
 			IRepositoryCommands repositoryCommands,
-			Func<CommitViewModel> commitViewModelProvider,
 			Func<BranchViewModel> branchViewModelProvider)
 		{
 			this.branchService = branchService;
@@ -48,7 +47,6 @@ namespace GitMind.RepositoryViews.Private
 			this.brushService = brushService;
 			this.repositoryMgr = repositoryMgr;
 			this.repositoryCommands = repositoryCommands;
-			this.commitViewModelProvider = commitViewModelProvider;
 			this.branchViewModelProvider = branchViewModelProvider;
 
 			this.deleteBranchCommand = new Command<Branch>(
