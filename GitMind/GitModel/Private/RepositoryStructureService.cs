@@ -197,17 +197,22 @@ namespace GitMind.GitModel.Private
 			List<MCommit> virtualCommits = repository.Commits.Where(c => c.IsVirtual).ToList();
 			foreach (MCommit virtualCommit in virtualCommits)
 			{
-				virtualCommit.FirstParent.ChildIds.Remove(virtualCommit.IndexId);
-				virtualCommit.FirstParent.FirstChildIds.Remove(virtualCommit.IndexId);
-				//repository.Commits.Remove(virtualCommit);
-				if (virtualCommit.CommitId != null)
-				{
-					repository.CommitsById.Remove(virtualCommit.CommitId);
-				}
-				virtualCommit.Branch.CommitIds.Remove(virtualCommit.IndexId);
-				if (virtualCommit.Branch.TipCommitId == virtualCommit.IndexId)
-				{
-					virtualCommit.Branch.TipCommitId = virtualCommit.FirstParentId;
+				if (virtualCommit.ParentIds.Any())
+				{			
+					virtualCommit.FirstParent.ChildIds.Remove(virtualCommit.IndexId);
+					virtualCommit.FirstParent.FirstChildIds.Remove(virtualCommit.IndexId);
+
+					if (virtualCommit.CommitId != null)
+					{
+						repository.CommitsById.Remove(virtualCommit.CommitId);
+					}
+					virtualCommit.Branch.CommitIds.Remove(virtualCommit.IndexId);
+					if (virtualCommit.Branch.TipCommitId == virtualCommit.IndexId)
+					{
+						virtualCommit.Branch.TipCommitId = virtualCommit.FirstParentId;
+					}
+
+					virtualCommit.ParentIds.Clear();
 				}
 			}
 
