@@ -9,6 +9,9 @@ namespace GitMind.Features.StatusHandling.Private
 	[SingleInstance]
 	internal class FolderMonitorService : IFolderMonitorService
 	{
+		private static readonly TimeSpan StatusDelayTriggerTime = TimeSpan.FromSeconds(1);
+		private static readonly TimeSpan RepositoryDelayTriggerTime = TimeSpan.FromSeconds(1);
+
 		private const string GitFolder = ".git";
 		private const string GitRefsFolder = "refs";
 		private static readonly string GitHeadFile = Path.Combine(GitFolder, "HEAD");
@@ -16,29 +19,29 @@ namespace GitMind.Features.StatusHandling.Private
 			System.IO.NotifyFilters.LastWrite
 			| System.IO.NotifyFilters.FileName
 			| System.IO.NotifyFilters.DirectoryName;
-		private static readonly TimeSpan MinTriggerTimeout = TimeSpan.FromSeconds(1);
-		private static readonly TimeSpan MaxTriggerTimeout = TimeSpan.FromSeconds(3);
-		private static readonly TimeSpan EndTriggerTimeout = TimeSpan.FromSeconds(2);
 
 		private readonly FileSystemWatcher workFolderWatcher = new FileSystemWatcher();
 		private readonly FileSystemWatcher refsWatcher = new FileSystemWatcher();
 
-		private DateTime statusChangeTime;
-		private DateTime statusTriggerTime;
-		private readonly DispatcherTimer statusTimer;
-
-		private DateTime repoChangeTime;
-		private DateTime repoTriggerTime;
-		private readonly DispatcherTimer repoTimer;
-
 		private LibGit2Sharp.Repository repo = null;
+
+		private readonly object syncRoot = new object();
+
+		private readonly DispatcherTimer statusTimer;
+		private bool isStatus = false;
+		private DateTime statusChangeTime;
+
+		private readonly DispatcherTimer repoTimer;
+		private bool isRepo = false;
+		private DateTime repoChangeTime;
 
 
 		public FolderMonitorService()
 		{
 			statusTimer = new DispatcherTimer();
 			statusTimer.Tick += (s, e) => OnStatusTimer();
-			statusTimer.Interval = MinTriggerTimeout;
+			statusTimer.Interval = StatusDelayTriggerTime;
+
 			workFolderWatcher.Changed += (s, e) => WorkingFolderChange(e.FullPath, e.Name, e.ChangeType);
 			workFolderWatcher.Created += (s, e) => WorkingFolderChange(e.FullPath, e.Name, e.ChangeType);
 			workFolderWatcher.Deleted += (s, e) => WorkingFolderChange(e.FullPath, e.Name, e.ChangeType);
@@ -46,7 +49,8 @@ namespace GitMind.Features.StatusHandling.Private
 
 			repoTimer = new DispatcherTimer();
 			repoTimer.Tick += (s, e) => OnRepoTimer();
-			repoTimer.Interval = MinTriggerTimeout;
+			repoTimer.Interval = RepositoryDelayTriggerTime;
+
 			refsWatcher.Changed += (s, e) => RepoChange(e.FullPath, e.Name, e.ChangeType);
 			refsWatcher.Created += (s, e) => RepoChange(e.FullPath, e.Name, e.ChangeType);
 			refsWatcher.Deleted += (s, e) => RepoChange(e.FullPath, e.Name, e.ChangeType);
@@ -85,10 +89,9 @@ namespace GitMind.Features.StatusHandling.Private
 			refsWatcher.Filter = "*.*";
 			refsWatcher.IncludeSubdirectories = true;
 
-			statusChangeTime = DateTime.Now;
-			statusTriggerTime = DateTime.MinValue;
+			statusChangeTime = DateTime.Now;	
 			repoChangeTime = DateTime.Now;
-			repoTriggerTime = DateTime.MinValue;
+		
 			workFolderWatcher.EnableRaisingEvents = true;
 			refsWatcher.EnableRaisingEvents = true;
 		}
@@ -140,22 +143,21 @@ namespace GitMind.Features.StatusHandling.Private
 
 		private void StatusChange()
 		{
-			DateTime now = DateTime.Now;
-
-			if (now - statusChangeTime > MinTriggerTimeout)
+			lock (syncRoot)
 			{
-				statusChangeTime = now;
-				statusTimer.Start();
-			}
-			else
-			{
+				isStatus = true;
 				statusChangeTime = DateTime.Now;
+
+				if (!statusTimer.IsEnabled)
+				{
+					statusTimer.Start();
+				}
 			}
 		}
 
 
 		private void RepoChange(string fullPath, string path, WatcherChangeTypes changeType)
-		{
+		{	
 			if (Path.GetExtension(fullPath) == ".lock")
 			{
 				return;
@@ -167,82 +169,50 @@ namespace GitMind.Features.StatusHandling.Private
 
 			Log.Debug($"Repo change for '{fullPath}' {changeType}");
 
-			DateTime now = DateTime.Now;
-
-			if (now - repoChangeTime > MinTriggerTimeout)
+			lock (syncRoot)
 			{
-				repoChangeTime = now;
-				repoTimer.Start();
-			}
-			else
-			{
+				isRepo = true;
 				repoChangeTime = DateTime.Now;
+
+				if (!repoTimer.IsEnabled)
+				{
+					repoTimer.Start();
+				}
 			}
 		}
 
 
 		private void OnStatusTimer()
 		{
-			DateTime now = DateTime.Now;
-			DateTime triggerTime = statusChangeTime;
-
-			if (now - statusTriggerTime > MaxTriggerTimeout)
+			lock (syncRoot)
 			{
-				statusTriggerTime = now;
-				statusChangeTime = now;
-				FileChanged?.Invoke(this, new FileEventArgs(triggerTime));
-			}
-
-			if (now - statusChangeTime > EndTriggerTimeout)
-			{
-				statusTimer.Stop();
-
-				bool isEndTrigger = statusChangeTime > statusTriggerTime;
-
-				statusTriggerTime = DateTime.MinValue;
-				statusChangeTime = now;
-
-				if (isEndTrigger)
+				if (!isStatus)
 				{
-					FileChanged?.Invoke(this, new FileEventArgs(triggerTime));
+					statusTimer.Stop();
+					return;
 				}
+
+				isStatus = false;
 			}
+		
+			FileChanged?.Invoke(this, new FileEventArgs(statusChangeTime));
 		}
 
 
 		private void OnRepoTimer()
 		{
-			DateTime now = DateTime.Now;
-			DateTime triggerTime = repoChangeTime;
-
-			if (now - repoTriggerTime > MaxTriggerTimeout)
+			lock (syncRoot)
 			{
-				statusTriggerTime = now;
-				statusChangeTime = now;
-
-				repoTriggerTime = now;
-				repoChangeTime = now;
-				RepoChanged?.Invoke(this, new FileEventArgs(triggerTime));
-			}
-
-			if (now - repoChangeTime > EndTriggerTimeout)
-			{
-				repoTimer.Stop();
-				statusTimer.Stop();
-
-				bool isEndTrigger = repoChangeTime > repoTriggerTime;
-
-				statusTriggerTime = DateTime.MinValue;
-				statusChangeTime = now;
-
-				repoTriggerTime = DateTime.MinValue;
-				repoChangeTime = now;
-
-				if (isEndTrigger)
+				if (!isRepo)
 				{
-					RepoChanged?.Invoke(this, new FileEventArgs(triggerTime));
+					repoTimer.Stop();
+					return;
 				}
+
+				isRepo = false;
 			}
+
+			RepoChanged?.Invoke(this, new FileEventArgs(repoChangeTime));		
 		}
 	}
 }
