@@ -17,8 +17,8 @@ namespace GitMind.Features.StatusHandling.Private
 			| System.IO.NotifyFilters.FileName
 			| System.IO.NotifyFilters.DirectoryName;
 		private static readonly TimeSpan MinTriggerTimeout = TimeSpan.FromSeconds(1);
-		private static readonly TimeSpan MaxTriggerTimeout = TimeSpan.FromSeconds(10);
-		private static readonly TimeSpan EndTriggerTimeout = TimeSpan.FromSeconds(5);
+		private static readonly TimeSpan MaxTriggerTimeout = TimeSpan.FromSeconds(3);
+		private static readonly TimeSpan EndTriggerTimeout = TimeSpan.FromSeconds(2);
 
 		private readonly FileSystemWatcher workFolderWatcher = new FileSystemWatcher();
 		private readonly FileSystemWatcher refsWatcher = new FileSystemWatcher();
