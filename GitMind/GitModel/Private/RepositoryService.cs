@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Common.ProgressHandling;
 using GitMind.Features.Remote;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
@@ -21,6 +22,7 @@ namespace GitMind.GitModel.Private
 		private readonly ICommitsFiles commitsFiles;
 		private readonly Lazy<IRemoteService> remoteService;
 		private readonly IRepositoryStructureService repositoryStructureService;
+		private readonly IProgressService progressService;
 		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1000);
 
 		private DateTime fetchedTime = DateTime.MinValue;
@@ -30,13 +32,15 @@ namespace GitMind.GitModel.Private
 			ICacheService cacheService,
 			ICommitsFiles commitsFiles,
 			Lazy<IRemoteService> remoteService,
-			IRepositoryStructureService repositoryStructureService)
+			IRepositoryStructureService repositoryStructureService,
+			IProgressService progressService)
 		{
 			this.statusService = statusService;
 			this.cacheService = cacheService;
 			this.commitsFiles = commitsFiles;
 			this.remoteService = remoteService;
 			this.repositoryStructureService = repositoryStructureService;
+			this.progressService = progressService;
 
 			statusService.StatusChanged += (s, e) => OnStatusChanged(e.NewStatus);
 			statusService.RepoChanged += (s, e) => OnRepoChanged(e.BranchIds);
@@ -178,9 +182,12 @@ namespace GitMind.GitModel.Private
 				return;
 			}
 
-			Log.Debug("Changed repo");
-			Status status = Repository.Status;
-			await UpdateRepositoryAsync(status, repoIds);
+			using (progressService.ShowBusy())
+			{
+				Log.Debug("Changed repo");
+				Status status = Repository.Status;
+				await UpdateRepositoryAsync(status, repoIds);
+			}
 		}
 
 
@@ -192,9 +199,12 @@ namespace GitMind.GitModel.Private
 				return;
 			}
 
-			Log.Debug("Changed status");
-			IReadOnlyList<string> repoIds = Repository.MRepository.RepositoryIds;
-			await UpdateRepositoryAsync(status, repoIds);
+			using (progressService.ShowBusy())
+			{
+				Log.Debug("Changed status");
+				IReadOnlyList<string> repoIds = Repository.MRepository.RepositoryIds;
+				await UpdateRepositoryAsync(status, repoIds);
+			}
 		}
 
 
