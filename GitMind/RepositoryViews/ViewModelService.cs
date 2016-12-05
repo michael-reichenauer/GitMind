@@ -445,10 +445,42 @@ namespace GitMind.RepositoryViews
 		{
 			return branches
 				.SelectMany(branch => branch.Commits)
-				.OrderByDescending(commit => commit.CommitDate)
+				.OrderByDescending(commit => commit, Compare.With<Commit>(CompareCommits))
 				.ToList();
 		}
 
+
+		private static int CompareCommits(Commit c1, Commit c2)
+		{
+			if (c1 == c2)
+			{
+				return 0;
+			}
+
+			if (c1.CommitDate < c2.CommitDate)
+			{
+				return -1;
+			}
+			else if (c1.CommitDate > c2.CommitDate)
+			{
+				return 1;
+			}
+			else
+			{
+				Log.Warn($"Same date {c1} {c2}");
+				if (c2.Parents.Any(c => c.Id == c1.Id))
+				{
+					return -1;
+				}
+				else if (c1.Parents.Any(c => c.Id == c2.Id))
+				{
+					return 1;
+				}
+
+				Log.Warn($"Same date, but not related {c1} {c2}");
+				return 0;
+			}
+		}
 
 		private void UpdateCommits(
 			IReadOnlyList<Commit> sourceCommits,
