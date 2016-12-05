@@ -49,6 +49,7 @@ namespace GitMind.RepositoryViews
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string settingFilterText = "";
 		private bool isInternalDialog = false;
+		private bool isValidUri;
 
 		private int width = 0;
 		private int graphWidth = 0;
@@ -316,8 +317,9 @@ namespace GitMind.RepositoryViews
 					UpdateInitialViewModel(repository);
 				});
 
+				isValidUri = gitInfoService.IsSupportedRemoteUrl(WorkingFolder);
 
-				if (!gitInfoService.IsSupportedRemoteUrl(WorkingFolder))
+				if (!isValidUri)
 				{
 					Message.ShowWarning(Owner,
 						"SSH URL protocol is not yet supported for remote access.\n" +
@@ -527,6 +529,11 @@ namespace GitMind.RepositoryViews
 
 		private async Task FetchRemoteChangesAsync(Repository repository, bool isFetchNotes)
 		{
+			if (!isValidUri)
+			{
+				return;
+			}
+
 			Log.Debug("Fetching");
 			R result = await networkService.FetchAsync(repository.MRepository.WorkingFolder);
 			FetchErrorText = "";
