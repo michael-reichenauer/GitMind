@@ -476,7 +476,6 @@ namespace GitMind.RepositoryViews
 					return 1;
 				}
 
-				Log.Warn($"Same date, but not related {c1} {c2}");
 				return 0;
 			}
 		}
