@@ -467,7 +467,6 @@ namespace GitMind.RepositoryViews
 			}
 			else
 			{
-				Log.Warn($"Same date {c1} {c2}");
 				if (c2.Parents.Any(c => c.Id == c1.Id))
 				{
 					return -1;
