@@ -92,7 +92,8 @@ namespace GitMind.GitModel.Private
 			commit.IsVirtual = true;
 			commit.BranchName = gitRepository.Head.Name;
 
-			CopyToUncommitedCommit(status, commit, repository.Commit(gitRepository.Head.TipId).IndexId);
+			MCommit headCommit = repository.Commit(gitRepository.Head.TipId);
+			CopyToUncommitedCommit(status, commit, headCommit.IndexId);
 			commit.Author = gitRepository.UserName ?? "";
 
 			SetChildOfParents(commit);
@@ -213,6 +214,7 @@ namespace GitMind.GitModel.Private
 			commit.CommitDate = DateTime.Now;
 			commit.Tickets = "";
 			commit.ParentIds = new List<int> { parentId };
+			commit.BranchId = null;
 		}
 
 

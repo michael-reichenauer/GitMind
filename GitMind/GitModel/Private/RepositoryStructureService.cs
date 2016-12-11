@@ -175,8 +175,10 @@ namespace GitMind.GitModel.Private
 		private static MCommit GetRootCommit(MRepository repository)
 		{
 			MSubBranch mSubBranch = repository.SubBranches
-				.FirstOrDefault(b => b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
-			MCommit rootCommit = mSubBranch.TipCommit.FirstAncestors().Last();
+				.FirstOrDefault(b => b.Value.IsActive && b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
+			IEnumerable<MCommit> firstAncestors = mSubBranch.TipCommit.FirstAncestors();
+			int count = firstAncestors.Count();
+			MCommit rootCommit = firstAncestors.Last();
 			return rootCommit;
 		}
 
@@ -202,10 +204,10 @@ namespace GitMind.GitModel.Private
 					virtualCommit.FirstParent.ChildIds.Remove(virtualCommit.IndexId);
 					virtualCommit.FirstParent.FirstChildIds.Remove(virtualCommit.IndexId);
 
-					if (virtualCommit.CommitId != null)
-					{
-						repository.CommitsById.Remove(virtualCommit.CommitId);
-					}
+					//if (virtualCommit.CommitId != null && virtualCommit.CommitId == Commit.UncommittedId)
+					//{
+					//	repository.CommitsById.Remove(virtualCommit.CommitId);
+					//}
 					virtualCommit.Branch.CommitIds.Remove(virtualCommit.IndexId);
 					if (virtualCommit.Branch.TipCommitId == virtualCommit.IndexId)
 					{
