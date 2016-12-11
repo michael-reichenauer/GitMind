@@ -13,8 +13,8 @@ namespace GitMind.GitModel.Private.Caching
 
 		public async Task CacheAsync(MRepository repository)
 		{
-			//await Task.Yield();
-			await WriteRepositoryAsync(repository);
+			await Task.Yield();
+			// await WriteRepositoryAsync(repository);
 		}
 
 
@@ -27,9 +27,9 @@ namespace GitMind.GitModel.Private.Caching
 
 		public async Task<MRepository> TryGetRepositoryAsync(string gitRepositoryPath)
 		{
-			//await Task.Yield();
-			//return null;
-			return await TryReadRepositoryAsync(gitRepositoryPath);
+			await Task.Yield();
+			return null;
+			//return await TryReadRepositoryAsync(gitRepositoryPath);
 		}
 
 		public void TryDeleteCache(string workingFolder)
