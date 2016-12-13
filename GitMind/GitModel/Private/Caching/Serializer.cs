@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using GitMind.Common;
 using GitMind.Git;
 using ProtoBuf;
 using ProtoBuf.Meta;
@@ -22,7 +24,9 @@ namespace GitMind.GitModel.Private.Caching
 		{
 			RuntimeTypeModel.Default.Add(typeof(BranchName), false)
 				.SetSurrogate(typeof(BranchNameSurrogate));
-			RuntimeTypeModel.Default.Add(typeof(BranchNameSurrogate), true);
+			RuntimeTypeModel.Default.Add(typeof(CommitIntBySha), false)
+				.SetSurrogate(typeof(CommitIntByShaSurrogate));
+			RuntimeTypeModel.Default.Add(typeof(CommitIntByShaSurrogate), true);
 		}
 
 
@@ -41,7 +45,7 @@ namespace GitMind.GitModel.Private.Caching
 		private static void RegisterMCommit()
 		{
 			RuntimeTypeModel.Default.Add(typeof(MCommit), false)
-				.Add(nameof(MCommit.IndexId))
+				.Add(nameof(MCommit.Id))
 				.Add(nameof(MCommit.BranchId))
 				.Add(nameof(MCommit.ShortId))
 				.Add(nameof(MCommit.Subject))
@@ -57,7 +61,7 @@ namespace GitMind.GitModel.Private.Caching
 				.Add(nameof(MCommit.Tickets))
 				.Add(nameof(MCommit.IsVirtual))
 				.Add(nameof(MCommit.BranchTips))
-				.Add(nameof(MCommit.CommitId))
+				.Add(nameof(MCommit.ViewCommitId))
 				.Add(nameof(MCommit.IsLocalAhead))
 				.Add(nameof(MCommit.IsRemoteAhead))
 				.Add(nameof(MCommit.IsCommon));
@@ -122,5 +126,33 @@ namespace GitMind.GitModel.Private.Caching
 
 		public static implicit operator BranchName(BranchNameSurrogate branchName)=>
 			branchName != null ? new BranchName(branchName.Name) : null;
+	}
+
+	[ProtoContract]
+	internal class CommitIntByShaSurrogate
+	{
+		[ProtoMember(1)]
+		public Dictionary<string, int> CommitIdToInt { get; set; }
+
+		public CommitIntByShaSurrogate(Dictionary<string, int> commitIdToInt)
+		{
+			CommitIdToInt = commitIdToInt;
+		}
+
+		public static implicit operator CommitIntByShaSurrogate(CommitIntBySha commitIntBySha)
+		{
+			var intByShas = CommitIds.GetIntByShas();
+
+			return new CommitIntByShaSurrogate(intByShas);
+		}
+
+		public static implicit operator CommitIntBySha(CommitIntByShaSurrogate commitIntBySha)
+		{
+			foreach (var pair in commitIntBySha.CommitIdToInt)
+			{
+				CommitIds.Set(pair.Key, pair.Value);
+			}
+			return new CommitIntBySha();
+		}
 	}
 }

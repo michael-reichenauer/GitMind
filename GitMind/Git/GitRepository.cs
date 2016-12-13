@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GitMind.Common;
 using GitMind.Features.Diffing;
 using GitMind.Utils;
 using LibGit2Sharp;
@@ -72,9 +73,9 @@ namespace GitMind.Git
 		}
 
 
-		public IReadOnlyList<GitNote> GetCommitNotes(string commitId)
+		public IReadOnlyList<GitNote> GetCommitNotes(CommitId commitId)
 		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
 			if (commit != null)
 			{
 				return commit.Notes
@@ -90,11 +91,11 @@ namespace GitMind.Git
 		}
 
 
-		public void SetCommitNote(string commitId, GitNote gitNote)
+		public void SetCommitNote(CommitId commitId, GitNote gitNote)
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
 			if (commit != null)
 			{
 				repository.Notes.Add(commit.Id, gitNote.Message, committer, committer, gitNote.NameSpace);

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Common;
 using GitMind.Common.Brushes;
 using GitMind.Features.Branches;
 using GitMind.Features.Commits;
@@ -193,7 +194,8 @@ namespace GitMind.RepositoryViews.Private
 						stableCommit = commit.SecondParent;
 					}
 				}
-				else if (!commit.HasFirstChild || commit.Branch.IsMainPart && commit.Branch.TipCommit == commit)
+				else if (!commit.HasFirstChild || 
+					commit.Branch.TipCommit == commit)
 				{
 					// A branch tip, closing the clicked branch
 					otherBranch = clickedBranch;
@@ -351,14 +353,12 @@ namespace GitMind.RepositoryViews.Private
 
 		private Task<List<Commit>> GetFilteredCommitsAsync(string filterText)
 		{
-			IEnumerable<Commit> commits = null;
-
 			bool isSearchSpecifiedNames = filterText == "$gm:";
 			bool isSearchCommitNames = filterText == "$gm:c";
 
 			Repository repository = repositoryMgr.Repository;
 
-			commits = repository.Commits;
+			IEnumerable<Commit> commits = repository.Commits.Values;
 
 			Log.Debug($"Searching in {commits.Count()} commits");
 
@@ -366,7 +366,7 @@ namespace GitMind.RepositoryViews.Private
 			{
 				return commits
 					.Where(c =>
-						StartsWith(c.CommitId, filterText)
+						StartsWith(c.CommitId.Sha, filterText)
 						|| Contains(c.Subject, filterText)
 						|| Contains(c.Author, filterText)
 						|| Contains(c.AuthorDateText, filterText)
@@ -759,7 +759,7 @@ namespace GitMind.RepositoryViews.Private
 
 			if (isMergeInProgress)
 			{
-				int mergeSourceId = repositoryViewModel.MergingBranch.TipCommit.Id;
+				CommitId mergeSourceId = repositoryViewModel.MergingBranch.TipCommit.Id;
 				CommitViewModel parentCommit = commitsById[mergeSourceId];
 				MergeViewModel merge = merges[index++];
 				SetMerge(merge, branches, commitsById[parentCommit.Commit.Repository.UnComitted.Id], parentCommit);

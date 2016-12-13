@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling;
+using GitMind.Common;
 using GitMind.Common.Brushes;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
@@ -57,8 +58,8 @@ namespace GitMind.RepositoryViews
 		public List<CommitViewModel> Commits { get; } = new List<CommitViewModel>();
 
 
-		public Dictionary<int, CommitViewModel> CommitsById { get; } =
-			new Dictionary<int, CommitViewModel>();
+		public Dictionary<CommitId, CommitViewModel> CommitsById { get; } =
+			new Dictionary<CommitId, CommitViewModel>();
 
 		private readonly AsyncLock refreshLock = new AsyncLock();
 
@@ -704,8 +705,8 @@ namespace GitMind.RepositoryViews
 				{
 					// Selection was made with ctrl-click. Lets take top and bottom commits as range
 					// even if there are more commits in the middle
-					string id1 = topCommit.Commit.CommitId;
-					string id2 = bottomCommit.Commit.HasFirstParent
+					CommitId id1 = topCommit.Commit.CommitId;
+					CommitId id2 = bottomCommit.Commit.HasFirstParent
 						? bottomCommit.Commit.FirstParent.CommitId
 						: bottomCommit.Commit.CommitId;
 
@@ -727,8 +728,8 @@ namespace GitMind.RepositoryViews
 						current = current.FirstParent;
 					}
 
-					string id1 = topCommit.Commit.CommitId;
-					string id2 = current.CommitId;
+					CommitId id1 = topCommit.Commit.CommitId;
+					CommitId id2 = current.CommitId;
 					diffService.ShowDiffRangeAsync(id1, id2).RunInBackground(); ;
 				}
 			}

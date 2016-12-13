@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -9,7 +10,7 @@ namespace GitMind.Features.Remote
 	{
 		Task<R> FetchAsync();
 		Task<R> PushBranchAsync(BranchName branchName);
-		Task PushNotesAsync(string rootId);
+		Task PushNotesAsync(CommitId rootId);
 		Task<R> FetchAllNotesAsync();
 		bool CanExecuteTryUpdateAllBranches();
 		Task TryUpdateAllBranchesAsync();

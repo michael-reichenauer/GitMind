@@ -7,6 +7,7 @@ using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.Installation;
 using GitMind.ApplicationHandling.SettingsHandling;
+using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Features.Diffing;
 using GitMind.GitModel;
@@ -136,7 +137,7 @@ namespace GitMind
 		{
 			if (commandLine.IsShowDiff)
 			{
-				diffService.ShowDiff(Commit.UncommittedId);
+				diffService.ShowDiff(CommitId.Uncommitted);
 			}
 		}
 

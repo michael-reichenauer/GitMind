@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Commits;
@@ -71,10 +72,10 @@ namespace GitMind.Features.Branches.Private
 
 					using (progress.ShowDialog($"Creating branch {dialog.BranchName} ..."))
 					{
-						string commitId = commit.CommitId;
-						if (commitId == Commit.UncommittedId || commit.IsVirtual)
+						CommitId commitId = commit.Id;
+						if (commitId == CommitId.Uncommitted || commit.IsVirtual)
 						{
-							commitId = commit.FirstParent.CommitId;
+							commitId = commit.FirstParent.Id;
 						}
 
 						R result = await gitBranchService.CreateBranchAsync(branchName, commitId);

@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using GitMind.ApplicationHandling;
+using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Features.Diffing;
 using GitMind.Git;
@@ -156,7 +157,7 @@ namespace GitMind.Features.Commits.Private
 			return new CommitFileViewModel(diffService, file, UndoUncommittedFileCommand)
 			{
 				WorkingFolder = workingFolder,
-				Id = Commit.UncommittedId,
+				Id = CommitId.Uncommitted,
 				Name = file.Path,
 				Status = file.StatusText
 			};

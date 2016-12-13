@@ -1,3 +1,4 @@
+using GitMind.Common;
 using GitMind.Git;
 
 
@@ -8,9 +9,9 @@ namespace GitMind.GitModel.Private
 		public string SubBranchId { get; set; }
 		public string BranchId { get; set; }
 		public BranchName Name { get; set; }
-		public int TipCommitId { get; set; }
-		public int FirstCommitId { get; set; }
-		public int ParentCommitId { get; set; }
+		public CommitId TipCommitId { get; set; }
+		public CommitId FirstCommitId { get; set; }
+		public CommitId ParentCommitId { get; set; }
 		public bool IsMultiBranch { get; set; }
 		public bool IsActive { get; set; }
 		public bool IsCurrent { get; set; }

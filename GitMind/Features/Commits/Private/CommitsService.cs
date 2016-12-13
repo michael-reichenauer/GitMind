@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Diffing;
@@ -239,7 +240,7 @@ namespace GitMind.Features.Commits.Private
 				return;
 			}
 
-			await diffService.ShowDiffAsync(Commit.UncommittedId);
+			await diffService.ShowDiffAsync(CommitId.Uncommitted);
 		}
 
 
@@ -253,7 +254,7 @@ namespace GitMind.Features.Commits.Private
 
 
 
-		public Task SetSpecifiedCommitBranchAsync(string commitId, string rootId, BranchName branchName)
+		public Task SetSpecifiedCommitBranchAsync(CommitId commitId, CommitId rootId, BranchName branchName)
 		{
 			return gitCommitsService.EditCommitBranchAsync(commitId, rootId, branchName);
 		}

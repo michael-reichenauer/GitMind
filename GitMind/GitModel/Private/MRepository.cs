@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Utils;
@@ -16,17 +17,20 @@ namespace GitMind.GitModel.Private
 
 		public string Version { get; set; } = CurrentVersion;
 
-		public int CurrentCommitId { get; set; }
+		public CommitIntBySha CommitIntBySha { get; set; } = new CommitIntBySha();
+
+		public CommitId CurrentCommitId { get; set; }
 		public string CurrentBranchId { get; set; }
 
-		public List<MCommit> Commits { get; set; } = new List<MCommit>();
+
+		public Dictionary<CommitId, MCommit> Commits { get; set; } = new Dictionary<CommitId, MCommit>();
 		
 		public Dictionary<string, MBranch> Branches { get; set; } = new Dictionary<string, MBranch>();
 		public TimeSpan TimeToCreateFresh { get; set; }
 
 		// Serialized Done ---------------------
 
-		public Dictionary<string, MCommit> CommitsById { get; set; } = new Dictionary<string, MCommit>();
+		//public Dictionary<string, CommitId> CommitIdsBySha { get; set; } = new Dictionary<string, CommitId>();
 
 		public Dictionary<string, MSubBranch> SubBranches { get; set; }
 			= new Dictionary<string, MSubBranch>();
@@ -46,16 +50,11 @@ namespace GitMind.GitModel.Private
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
 		
 
-
-		public MCommit Commit(int id)
+		public MCommit Commit(string shaId)
 		{
-			return Commits[id];
-		}
-
-		public MCommit Commit(string commitId)
-		{
+			CommitId commitId = new CommitId(shaId);
 			MCommit commit;
-			if (!CommitsById.TryGetValue(commitId, out commit))
+			if (!Commits.TryGetValue(commitId, out commit))
 			{
 				commit = AddNewCommit(commitId);
 			}
@@ -63,24 +62,39 @@ namespace GitMind.GitModel.Private
 			return commit;
 		}
 
-		public MCommit AddNewCommit(string commitId)
+
+		public MCommit AddNewCommit(CommitId commitId)
 		{
 			MCommit commit = new MCommit()
 			{
 				Repository = this,
-				IndexId = Commits.Count,
-				CommitId = commitId
+				Id = commitId,
+				ViewCommitId = commitId
 			};
 
-			Commits.Add(commit);
-
-			if (commitId != null)
-			{
-				CommitsById[commitId] = commit;
-			}
+			Commits[commitId] = commit;
 
 			return commit;
 		}
+
+
+		public MCommit AddVirtualCommit(CommitId realCommitId)
+		{
+			string idText = (Guid.NewGuid() + Guid.NewGuid().ToString()).Replace("-", "")
+				.Substring(0, 40);
+			CommitId commitId = new CommitId(idText);
+			MCommit commit = new MCommit()
+			{
+				Repository = this,
+				Id = commitId,
+				ViewCommitId = realCommitId
+			};
+
+			Commits[commitId] = commit;
+
+			return commit;
+		}
+
 
 		public void CompleteDeserialization(string workingFolder)
 		{
@@ -88,17 +102,9 @@ namespace GitMind.GitModel.Private
 			SubBranches.ForEach(b => b.Value.Repository = this);
 			Branches.ForEach(b => b.Value.Repository = this);
 
-			Commits.ForEach(c =>
+			Commits.Values.ForEach(c =>
 			{
 				c.Repository = this;
-				if (c.CommitId != null)
-				{
-					CommitsById[c.CommitId] = c;
-				}
-				if (c.CommitId == MCommit.UncommittedId)
-				{
-					Uncommitted = c;
-				}
 			});
 		}
 	}

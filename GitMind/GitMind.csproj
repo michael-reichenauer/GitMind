@@ -134,6 +134,7 @@
     <Compile Include="Features\StatusHandling\Private\StatusService.cs" />
     <Compile Include="Features\StatusHandling\Refresh.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
+    <Compile Include="GitModel\Private\CommitIntBySha.cs" />
     <Compile Include="GitModel\Private\IRepositoryStructureService.cs" />
     <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
     <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />

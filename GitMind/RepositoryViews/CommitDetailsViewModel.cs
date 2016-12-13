@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Common;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
 using GitMind.Git;
@@ -23,7 +24,7 @@ namespace GitMind.RepositoryViews
 		private readonly ObservableCollection<CommitFileViewModel> files =
 			new ObservableCollection<CommitFileViewModel>();
 
-		private string filesCommitId = null;
+		private CommitId filesCommitId = null;
 		private CommitViewModel commitViewModel;
 
 
@@ -69,7 +70,7 @@ namespace GitMind.RepositoryViews
 			if (CommitViewModel != null)
 			{
 				if (filesCommitId != CommitViewModel.Commit.CommitId
-					|| filesCommitId == Commit.UncommittedId)
+					|| filesCommitId == Common.CommitId.Uncommitted)
 				{
 					files.Clear();
 					filesCommitId = CommitViewModel.Commit.CommitId;
@@ -91,8 +92,7 @@ namespace GitMind.RepositoryViews
 				string subject = CommitViewModel?.Subject;
 				if (CommitViewModel != null)
 				{
-					string workingFolder = CommitViewModel.Commit.WorkingFolder;
-					string commitId = CommitViewModel.Commit.CommitId;
+					CommitId commitId = CommitViewModel.Commit.CommitId;
 					subject = gitCommitsService.GetFullMessage(commitId)
 						.Or(CommitViewModel?.Subject);
 				}
@@ -101,7 +101,7 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		public string CommitId => CommitViewModel?.Commit.CommitId;
+		public string CommitId => CommitViewModel?.Commit.CommitId.Sha;
 		public string ShortId => CommitViewModel?.ShortId;
 		public string BranchName => CommitViewModel?.Commit?.Branch?.Name;
 		public FontStyle BranchNameStyle => !string.IsNullOrEmpty(SpecifiedBranchName)

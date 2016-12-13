@@ -26,6 +26,15 @@ namespace GitMind.Common
 			return commitId;
 		}
 
+
+		public static void Set(string sha, int id)
+		{
+			CommitId commitId = new CommitId(id, sha);
+			commitIdbySha[sha] = commitId;
+			commitIdByInt[id] = commitId;
+		}
+
+
 		public static int GetId(string commitIdSha)
 		{
 			CommitId commitId = Get(commitIdSha);
@@ -55,5 +64,20 @@ namespace GitMind.Common
 			return commitId.Sha;
 		}
 
+
+		public static Dictionary<string, int> GetIntByShas()
+		{
+			Dictionary<string, int> intByShas = new Dictionary<string, int>();
+
+			foreach (var pair in commitIdbySha)
+			{
+				intByShas[pair.Key] = pair.Value.Id;
+			}
+
+			return intByShas;
+		}
+
+
+	
 	}
 }
