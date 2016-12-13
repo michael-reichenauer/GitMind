@@ -454,6 +454,11 @@ namespace GitMind.RepositoryViews.Private
 
 		public static bool HasAncestor(Branch branch, Branch ancestor)
 		{
+			if (branch.IsLocalPart && branch.MainbBranch == ancestor)
+			{
+				return true;
+			}
+
 			Branch current = branch;
 
 			while (current.HasParentBranch)
