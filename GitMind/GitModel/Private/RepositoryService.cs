@@ -71,6 +71,7 @@ namespace GitMind.GitModel.Private
 		public async Task LoadRepositoryAsync(string workingFolder)
 		{
 			Monitor(workingFolder);
+			CommitIds.Clear();
 
 			R<Repository> repository = await GetCachedRepositoryAsync(workingFolder);
 			if (!repository.IsOk)

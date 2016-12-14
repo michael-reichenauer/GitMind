@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using GitMind.Common;
 using GitMind.Git;
 using ProtoBuf;
@@ -26,7 +27,7 @@ namespace GitMind.GitModel.Private.Caching
 			RuntimeTypeModel.Default.Add(typeof(BranchName), false)
 				.SetSurrogate(typeof(BranchNameSurrogate));
 
-			//RuntimeTypeModel.Default.Add(typeof(XCommitIntByShaSurrogate), true);
+			RuntimeTypeModel.Default.Add(typeof(XCommitIntByShaSurrogate), true);
 			RuntimeTypeModel.Default.Add(typeof(CommitIntBySha), false)
 				.SetSurrogate(typeof(XCommitIntByShaSurrogate));
 
@@ -162,6 +163,11 @@ namespace GitMind.GitModel.Private.Caching
 
 			var intByShas = CommitIds.GetIntByShas();
 
+			if (intByShas.Count <= 2)
+			{
+				return null;
+			}
+
 			return new XCommitIntByShaSurrogate { CommitIdToInt = intByShas };
 		}
 
@@ -176,7 +182,8 @@ namespace GitMind.GitModel.Private.Caching
 			{
 				CommitIds.Set(pair.Key, pair.Value);
 			}
-			return new CommitIntBySha(commitIntBySha.CommitIdToInt.Count);
+
+			return new CommitIntBySha();
 		}
 	}
 }

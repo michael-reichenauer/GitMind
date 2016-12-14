@@ -78,6 +78,11 @@ namespace GitMind.Common
 		}
 
 
-	
+		public static void Clear()
+		{
+			commitIdbySha.Clear();
+			Set(CommitId.Uncommitted.Sha, CommitId.Uncommitted.Id);
+			Set(CommitId.None.Sha, CommitId.None.Id);
+		}
 	}
 }

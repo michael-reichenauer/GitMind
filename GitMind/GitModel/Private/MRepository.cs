@@ -17,7 +17,7 @@ namespace GitMind.GitModel.Private
 
 		public string Version { get; set; } = CurrentVersion;
 
-		public CommitIntBySha CommitIntBySha { get; set; } = new CommitIntBySha(1);
+		public CommitIntBySha CommitIntBySha { get; set; } = new CommitIntBySha();
 
 		public CommitId CurrentCommitId { get; set; }
 

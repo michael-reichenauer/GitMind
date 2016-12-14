@@ -19,7 +19,7 @@ namespace GitMind.Common
 
 
 		public CommitId(string commitIdSha)
-		{		
+		{
 			Id = CommitIds.GetId(commitIdSha);
 			Sha = commitIdSha;
 			ShortSha = Sha.Substring(0, 6);
