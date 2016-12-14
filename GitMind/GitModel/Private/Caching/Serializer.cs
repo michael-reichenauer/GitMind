@@ -22,17 +22,17 @@ namespace GitMind.GitModel.Private.Caching
 
 		private static void RegisterBranchName()
 		{
+			RuntimeTypeModel.Default.Add(typeof(BranchNameSurrogate), true);
 			RuntimeTypeModel.Default.Add(typeof(BranchName), false)
 				.SetSurrogate(typeof(BranchNameSurrogate));
-			RuntimeTypeModel.Default.Add(typeof(BranchNameSurrogate), true);
 
+			//RuntimeTypeModel.Default.Add(typeof(XCommitIntByShaSurrogate), true);
 			RuntimeTypeModel.Default.Add(typeof(CommitIntBySha), false)
-				.SetSurrogate(typeof(CommitIntByShaSurrogate));
-			RuntimeTypeModel.Default.Add(typeof(CommitIntByShaSurrogate), true);
+				.SetSurrogate(typeof(XCommitIntByShaSurrogate));
 
+			RuntimeTypeModel.Default.Add(typeof(CommitIdSurrogate), true);
 			RuntimeTypeModel.Default.Add(typeof(CommitId), false)
 				.SetSurrogate(typeof(CommitIdSurrogate));
-			RuntimeTypeModel.Default.Add(typeof(CommitIdSurrogate), true);
 		}
 
 
@@ -141,32 +141,42 @@ namespace GitMind.GitModel.Private.Caching
 		public int Id { get; set; }
 
 		public static implicit operator CommitIdSurrogate(CommitId commitId) =>
-			new CommitIdSurrogate { Id = commitId.Id };
+			commitId != null ? new CommitIdSurrogate { Id = commitId.Id } : null;
 
 		public static implicit operator CommitId(CommitIdSurrogate commitId) =>
-			new CommitId(commitId.Id);
+			commitId  != null ? new CommitId(commitId.Id) : null;
 	}
 
 	[ProtoContract]
-	internal class CommitIntByShaSurrogate
+	internal class XCommitIntByShaSurrogate
 	{
 		[ProtoMember(1)]
 		public Dictionary<string, int> CommitIdToInt { get; set; }
 
-		public static implicit operator CommitIntByShaSurrogate(CommitIntBySha commitIntBySha)
+		public static implicit operator XCommitIntByShaSurrogate(CommitIntBySha commitIntBySha)
 		{
+			if (commitIntBySha == null)
+			{
+				return null;
+			}
+
 			var intByShas = CommitIds.GetIntByShas();
 
-			return new CommitIntByShaSurrogate{ CommitIdToInt = intByShas };
+			return new XCommitIntByShaSurrogate { CommitIdToInt = intByShas };
 		}
 
-		public static implicit operator CommitIntBySha(CommitIntByShaSurrogate commitIntBySha)
+		public static implicit operator CommitIntBySha(XCommitIntByShaSurrogate commitIntBySha)
 		{
+			if (commitIntBySha == null)
+			{
+				return null;
+			}
+
 			foreach (var pair in commitIntBySha.CommitIdToInt)
 			{
 				CommitIds.Set(pair.Key, pair.Value);
 			}
-			return new CommitIntBySha();
+			return new CommitIntBySha(commitIntBySha.CommitIdToInt.Count);
 		}
 	}
 }
