@@ -11,7 +11,7 @@ namespace GitMind.GitModel.Private
 {
 	public class MRepository
 	{
-		public static string CurrentVersion = "18";
+		public static string CurrentVersion = "19";
 
 		// Serialized start -------------------
 
@@ -20,8 +20,8 @@ namespace GitMind.GitModel.Private
 		public CommitIntBySha CommitIntBySha { get; set; } = new CommitIntBySha();
 
 		public CommitId CurrentCommitId { get; set; }
-		public string CurrentBranchId { get; set; }
 
+		public string CurrentBranchId { get; set; }
 
 		public Dictionary<CommitId, MCommit> Commits { get; set; } = new Dictionary<CommitId, MCommit>();
 		

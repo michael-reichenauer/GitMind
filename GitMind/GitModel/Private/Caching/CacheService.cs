@@ -13,8 +13,8 @@ namespace GitMind.GitModel.Private.Caching
 
 		public async Task CacheAsync(MRepository repository)
 		{
-			await Task.Yield();
-			// await WriteRepositoryAsync(repository);
+			// await Task.Yield();
+			await WriteRepositoryAsync(repository);
 		}
 
 
@@ -27,9 +27,9 @@ namespace GitMind.GitModel.Private.Caching
 
 		public async Task<MRepository> TryGetRepositoryAsync(string gitRepositoryPath)
 		{
-			await Task.Yield();
-			return null;
-			//return await TryReadRepositoryAsync(gitRepositoryPath);
+			//await Task.Yield();
+			//return null;
+			return await TryReadRepositoryAsync(gitRepositoryPath);
 		}
 
 		public void TryDeleteCache(string workingFolder)
@@ -197,7 +197,7 @@ namespace GitMind.GitModel.Private.Caching
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to read cache {e.Message}");
+				Log.Warn($"Failed to read cache {e}");
 				return default(T);
 			}
 		}

@@ -17,6 +17,7 @@ namespace GitMind.GitModel.Private
 	internal class RepositoryService : IRepositoryService, IRepositoryMgr
 	{
 		private static readonly TimeSpan RemoteRepositoryInterval = TimeSpan.FromSeconds(15);
+		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1);
 
 		private readonly IStatusService statusService;
 		private readonly ICacheService cacheService;
@@ -24,7 +25,6 @@ namespace GitMind.GitModel.Private
 		private readonly Lazy<IRemoteService> remoteService;
 		private readonly IRepositoryStructureService repositoryStructureService;
 		private readonly IProgressService progressService;
-		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1000);
 
 		private DateTime fetchedTime = DateTime.MinValue;
 
