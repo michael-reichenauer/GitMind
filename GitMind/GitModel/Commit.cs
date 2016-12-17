@@ -2,25 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Git;
-using GitMind.GitModel.Private;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel
 {
-	internal class Commit
+	internal class Commit : Equatable<Commit>
 	{
-		public static readonly string UncommittedId = MCommit.UncommittedId;
-
-		private readonly IReadOnlyList<int> parentIds;
-		private readonly IReadOnlyList<int> childIds;
+		private readonly IReadOnlyList<CommitId> parentIds;
+		private readonly IReadOnlyList<CommitId> childIds;
 		private readonly string branchId;
 
 		public Commit(
 			Repository repository, 
-			int id, 
-			string commitId, 
-			string shortId, 
+			CommitId id,
+			CommitId commitId, 
 			string subject,
 			string author, 
 			DateTime authorDate, 
@@ -28,8 +26,8 @@ namespace GitMind.GitModel
 			string tags, 
 			string tickets, 
 			string branchTips, 
-			IReadOnlyList<int> parentIds, 
-			IReadOnlyList<int> childIds, 
+			IReadOnlyList<CommitId> parentIds, 
+			IReadOnlyList<CommitId> childIds, 
 			string branchId,
 			BranchName specifiedBranchName,
 			BranchName commitBranchName,
@@ -48,7 +46,6 @@ namespace GitMind.GitModel
 			this.branchId = branchId;
 			Id = id;
 			CommitId = commitId;
-			ShortId = shortId;
 			Subject = subject;
 			Author = author;
 			AuthorDate = authorDate;			
@@ -70,9 +67,8 @@ namespace GitMind.GitModel
 		}
 
 
-		public int Id { get; }
-		public string CommitId { get; }
-		public string ShortId { get; }
+		public CommitId Id { get; }
+		public CommitId CommitId { get; }
 		public string Subject { get; }
 		public string Author { get; }
 		public DateTime AuthorDate { get; }
@@ -105,6 +101,10 @@ namespace GitMind.GitModel
 
 		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(CommitId);
 
-		public override string ToString() => $"{ShortId} {Subject} {CommitDate}";
+		public override string ToString() => $"{Id} {Subject} {CommitDate}";
+
+		protected override bool IsEqual(Commit other) => Id == other.Id;
+
+		protected override int GetHash() => Id.GetHashCode();
 	}
 }

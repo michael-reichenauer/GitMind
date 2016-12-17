@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.GitModel;
 
 
@@ -7,12 +8,12 @@ namespace GitMind.Features.Diffing
 {
 	internal interface IDiffService
 	{
-		Task ShowDiffAsync(string commitId);
+		Task ShowDiffAsync(CommitId commitId);
 
-		Task ShowFileDiffAsync(string commitId, string name);
-		Task ShowDiffRangeAsync(string id1, string id2);
+		Task ShowFileDiffAsync(CommitId commitId, string name);
+		Task ShowDiffRangeAsync(CommitId id1, CommitId id2);
 
-		Task MergeConflictsAsync(string id, CommitFile file);
+		Task MergeConflictsAsync(CommitId id, CommitFile file);
 		bool CanMergeConflict(CommitFile file);
 
 
@@ -27,6 +28,6 @@ namespace GitMind.Features.Diffing
 		Task ShowYourDiffAsync(CommitFile file);
 		Task ShowTheirDiffAsync(CommitFile file);
 		IReadOnlyList<string> GetAllTempNames();
-		void ShowDiff(string uncommittedId);
+		void ShowDiff(CommitId uncommittedId);
 	}
 }

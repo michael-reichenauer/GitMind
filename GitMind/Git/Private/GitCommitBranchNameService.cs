@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
+using GitMind.Common;
 using GitMind.Utils;
 
 
@@ -30,10 +31,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task EditCommitBranchNameAsync(
-			string commitId,
-			string rootId,
-			BranchName branchName)
+		public async Task EditCommitBranchNameAsync(CommitId commitId, CommitId rootId, BranchName branchName)
 		{
 			Log.Debug($"Set manual branch name {branchName} for commit {commitId} ...");
 			SetNoteBranches(ManualBranchNoteNameSpace, commitId, branchName);
@@ -42,7 +40,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task SetCommitBranchNameAsync(string commitId, BranchName branchName)
+		public Task SetCommitBranchNameAsync(CommitId commitId, BranchName branchName)
 		{
 			Log.Debug($"Set commit branch name {branchName} for commit {commitId} ...");
 			SetNoteBranches(CommitBranchNoteNameSpace, commitId, branchName);
@@ -51,20 +49,20 @@ namespace GitMind.Git.Private
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetEditedBranchNames(string rootId)
+		public IReadOnlyList<CommitBranchName> GetEditedBranchNames(CommitId rootId)
 		{
 			return GetNoteBranches(ManualBranchNoteNameSpace, rootId);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetCommitBrancheNames(string rootId)
+		public IReadOnlyList<CommitBranchName> GetCommitBrancheNames(CommitId rootId)
 		{
 			return GetNoteBranches(CommitBranchNoteNameSpace, rootId);
 		}
 
 
 
-		public async Task PushNotesAsync(string rootId)
+		public async Task PushNotesAsync(CommitId rootId)
 		{
 			await PushNotesAsync(CommitBranchNoteNameSpace, rootId);
 			await PushNotesAsync(ManualBranchNoteNameSpace, rootId);
@@ -72,7 +70,7 @@ namespace GitMind.Git.Private
 
 
 		private void SetNoteBranches(
-			string nameSpace, string commitId, BranchName branchName)
+			string nameSpace, CommitId commitId, BranchName branchName)
 		{
 			Log.Debug($"Set note {nameSpace} for commit {commitId} with branch {branchName} ...");
 
@@ -88,7 +86,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private async Task PushNotesAsync(string nameSpace, string rootId)
+		private async Task PushNotesAsync(string nameSpace, CommitId rootId)
 		{
 			Log.Debug($"Push notes {nameSpace} at root commit {rootId} ...");
 
@@ -174,7 +172,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		private IReadOnlyList<CommitBranchName> GetNoteBranches(string nameSpace, string rootId)
+		private IReadOnlyList<CommitBranchName> GetNoteBranches(string nameSpace, CommitId rootId)
 		{
 			Log.Debug($"Getting notes {nameSpace} from root commit {rootId} ...");
 
@@ -223,7 +221,7 @@ namespace GitMind.Git.Private
 					string[] parts = line.Split(" ".ToCharArray());
 					if (parts.Length == 2)
 					{
-						string commitId = parts[0];
+						CommitId commitId = new CommitId(parts[0]);
 						BranchName branchName = parts[1].Trim();
 						branchNames.Add(new CommitBranchName(commitId, branchName));
 					}

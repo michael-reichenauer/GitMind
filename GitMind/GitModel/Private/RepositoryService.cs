@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Remote;
 using GitMind.Features.StatusHandling;
@@ -16,6 +17,7 @@ namespace GitMind.GitModel.Private
 	internal class RepositoryService : IRepositoryService, IRepositoryMgr
 	{
 		private static readonly TimeSpan RemoteRepositoryInterval = TimeSpan.FromSeconds(15);
+		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1);
 
 		private readonly IStatusService statusService;
 		private readonly ICacheService cacheService;
@@ -23,7 +25,6 @@ namespace GitMind.GitModel.Private
 		private readonly Lazy<IRemoteService> remoteService;
 		private readonly IRepositoryStructureService repositoryStructureService;
 		private readonly IProgressService progressService;
-		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1000);
 
 		private DateTime fetchedTime = DateTime.MinValue;
 
@@ -70,6 +71,7 @@ namespace GitMind.GitModel.Private
 		public async Task LoadRepositoryAsync(string workingFolder)
 		{
 			Monitor(workingFolder);
+			CommitIds.Clear();
 
 			R<Repository> repository = await GetCachedRepositoryAsync(workingFolder);
 			if (!repository.IsOk)
@@ -310,7 +312,7 @@ namespace GitMind.GitModel.Private
 		{
 			Timing t = new Timing();
 			KeyedList<string, Branch> rBranches = new KeyedList<string, Branch>(b => b.Id);
-			List<Commit> rCommits = new List<Commit>();
+			Dictionary<CommitId, Commit> rCommits = new Dictionary<CommitId, Commit>();
 			Branch currentBranch = null;
 			Commit currentCommit = null;
 			MCommit rootCommit = mRepository.Branches
@@ -320,18 +322,18 @@ namespace GitMind.GitModel.Private
 			Repository repository = new Repository(
 				mRepository,
 				new Lazy<IReadOnlyKeyedList<string, Branch>>(() => rBranches),
-				new Lazy<IReadOnlyList<Commit>>(() => rCommits),
+				new Lazy<IReadOnlyDictionary<CommitId, Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
 				commitsFiles,
 				mRepository.Status,
-				rootCommit.IndexId,
-				mRepository.Uncommitted?.IndexId ?? -1);
+				rootCommit.Id,
+				mRepository.Uncommitted?.Id ?? CommitId.None);
 
-			foreach (var mCommit in mRepository.Commits)
+			foreach (var mCommit in mRepository.Commits.Values)
 			{
 				Commit commit = Converter.ToCommit(repository, mCommit);
-				rCommits.Add(commit);
+				rCommits[commit.Id] = commit;
 				if (mCommit == mRepository.CurrentCommit)
 				{
 					currentCommit = commit;

@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -7,11 +8,11 @@ namespace GitMind.Features.Diffing.Private
 {
 	internal interface IGitDiffService
 	{
-		Task<R<CommitDiff>> GetCommitDiffAsync(string commitId);
+		Task<R<CommitDiff>> GetCommitDiffAsync(CommitId commitId);
 
-		Task<R<CommitDiff>> GetCommitDiffRangeAsync(string id1, string id2);
+		Task<R<CommitDiff>> GetCommitDiffRangeAsync(CommitId id1, CommitId id2);
 
-		Task<R<CommitDiff>> GetFileDiffAsync(string commitId, string path);
+		Task<R<CommitDiff>> GetFileDiffAsync(CommitId commitId, string path);
 
 		void GetFile(string fileId, string filePath);
 

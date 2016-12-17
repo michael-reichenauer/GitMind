@@ -1,11 +1,14 @@
+using GitMind.Common;
+
+
 namespace GitMind.Git
 {
 	internal class GitDivergence
 	{
 		public GitDivergence(
-			string localId,
-			string remoteId,
-			string commonId,
+			CommitId localId,
+			CommitId remoteId,
+			CommitId commonId,
 			int aheadBy,
 			int behindBy)
 		{
@@ -16,9 +19,9 @@ namespace GitMind.Git
 			BehindBy = behindBy;
 		}
 
-		public string LocalId { get; }
-		public string RemoteId { get; }
-		public string CommonId { get; }
+		public CommitId LocalId { get; }
+		public CommitId RemoteId { get; }
+		public CommitId CommonId { get; }
 		public int AheadBy { get; }
 		public int BehindBy { get; }
 	}

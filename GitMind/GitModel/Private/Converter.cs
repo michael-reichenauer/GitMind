@@ -14,7 +14,7 @@ namespace GitMind.GitModel.Private
 				branch.TipCommitId,
 				branch.FirstCommitId,
 				branch.ParentCommitId,
-				branch.Commits.Select(c => c.IndexId).ToList(),
+				branch.Commits.Select(c => c.Id).ToList(),
 				branch.ParentBranchId,
 				branch.ChildBranchNames.ToList(),
 				branch.MainBranchId,
@@ -34,9 +34,8 @@ namespace GitMind.GitModel.Private
 		{
 			return new Commit(
 				repository,
-				commit.IndexId,
-				commit.CommitId,
-				commit.ShortId,
+				commit.Id,
+				commit.ViewCommitId,
 				commit.Subject,
 				commit.Author,
 				commit.AuthorDate,

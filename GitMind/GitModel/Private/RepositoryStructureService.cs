@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
@@ -146,13 +147,13 @@ namespace GitMind.GitModel.Private
 			repository.CurrentBranchId = currentBranch.Id;
 
 			repository.CurrentCommitId = status.IsOK
-				? repository.Commit(gitRepository.Head.TipId).IndexId
-				: repository.Uncommitted.IndexId;
+				? repository.Commit(gitRepository.Head.TipId).Id
+				: CommitId.Uncommitted;
 
 			if (currentBranch.TipCommit.IsVirtual
 			    && currentBranch.TipCommit.FirstParentId == repository.CurrentCommitId)
 			{
-				repository.CurrentCommitId = currentBranch.TipCommit.IndexId;
+				repository.CurrentCommitId = currentBranch.TipCommit.Id;
 			}
 		}
 
@@ -162,10 +163,10 @@ namespace GitMind.GitModel.Private
 			MCommit rootCommit = GetRootCommit(repository);
 
 			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitsService.GetSpecifiedNames(
-				rootCommit.CommitId);
+				rootCommit.Id);
 
 			IReadOnlyList<CommitBranchName> commitBranches = gitCommitsService.GetCommitBranches(
-				rootCommit.CommitId);
+				rootCommit.Id);
 
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);
@@ -189,27 +190,25 @@ namespace GitMind.GitModel.Private
 
 			repository.Branches.Values.ForEach(b => b.TipCommit.BranchTips = null);
 
-			repository.Commits.ForEach(c => c.BranchTipBranches.Clear());
+			repository.Commits.Values.ForEach(c => c.BranchTipBranches.Clear());
 		}
 
 
 
 		private static void RemoveVirtualCommits(MRepository repository)
 		{
-			List<MCommit> virtualCommits = repository.Commits.Where(c => c.IsVirtual).ToList();
+			List<MCommit> virtualCommits = repository.Commits.Values.Where(c => c.IsVirtual).ToList();
 			foreach (MCommit virtualCommit in virtualCommits)
 			{
 				if (virtualCommit.ParentIds.Any())
 				{			
-					virtualCommit.FirstParent.ChildIds.Remove(virtualCommit.IndexId);
-					virtualCommit.FirstParent.FirstChildIds.Remove(virtualCommit.IndexId);
+					virtualCommit.FirstParent.ChildIds.Remove(virtualCommit.Id);
+					virtualCommit.FirstParent.FirstChildIds.Remove(virtualCommit.Id);
 
-					//if (virtualCommit.CommitId != null && virtualCommit.CommitId == Commit.UncommittedId)
-					//{
-					//	repository.CommitsById.Remove(virtualCommit.CommitId);
-					//}
-					virtualCommit.Branch.CommitIds.Remove(virtualCommit.IndexId);
-					if (virtualCommit.Branch.TipCommitId == virtualCommit.IndexId)
+					repository.Commits.Remove(virtualCommit.Id);
+					
+					virtualCommit.Branch.CommitIds.Remove(virtualCommit.Id);
+					if (virtualCommit.Branch.TipCommitId == virtualCommit.Id)
 					{
 						virtualCommit.Branch.TipCommitId = virtualCommit.FirstParentId;
 					}

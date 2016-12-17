@@ -1,43 +1,41 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using GitMind.Common;
 using GitMind.Git;
 
 
 namespace GitMind.GitModel.Private
 {	
+	[DataContract]
 	public class MBranch
 	{
-		// Serialized start -------------------
+		[DataMember] public string Id { get; set; }
+		[DataMember] public BranchName Name { get; set; }
+		[DataMember] public CommitId TipCommitId { get; set; }
+		[DataMember] public CommitId FirstCommitId { get; set; }
+		[DataMember] public CommitId ParentCommitId { get; set; }
+		[DataMember] public string ParentBranchId { get; set; }
+		[DataMember] public bool IsMultiBranch { get; set; }
+		[DataMember] public bool IsActive { get; set; }
+		[DataMember] public bool IsCurrent { get; set; }
+		[DataMember] public bool IsDetached { get; set; }
+		[DataMember] public bool IsLocal { get; set; }
+		[DataMember] public bool IsRemote { get; set; }
+		[DataMember] public int LocalAheadCount { get; set; }
+		[DataMember] public int RemoteAheadCount { get; set; }
+		[DataMember] public bool IsLocalAndRemote { get; set; }
+		[DataMember] public List<BranchName> ChildBranchNames { get; set; } = new List<BranchName>();
+		[DataMember] public List<CommitId> CommitIds { get; set; } = new List<CommitId>();
 
-		public string Id { get; set; }
-		public BranchName Name { get; set; }
-		public int TipCommitId { get; set; }
-		public int FirstCommitId { get; set; }	
-		public int ParentCommitId { get; set; }
-		public string ParentBranchId { get; set; }
-		public bool IsMultiBranch { get; set; }
-		public bool IsActive { get; set; }
-		public bool IsCurrent { get; set; }		
-		public bool IsDetached { get; set; }
-		public bool IsLocal { get; set; }
-		public bool IsRemote { get; set; }
-		public int LocalAheadCount { get; set; }	
-		public int RemoteAheadCount { get; set; }
-		public bool IsLocalAndRemote { get; set; }
-		public List<BranchName> ChildBranchNames { get; set; } = new List<BranchName>();
-		public List<int> CommitIds { get; set; } = new List<int>();
+		[DataMember] public CommitId LocalTipCommitId { get; set; }
+		[DataMember] public CommitId RemoteTipCommitId { get; set; }
+		[DataMember] public bool IsLocalPart { get; set; }
+		[DataMember] public bool IsMainPart { get; set; }
+		[DataMember] public string MainBranchId { get; set; }
+		[DataMember] public string LocalSubBranchId { get; set; }
 
-		public int LocalTipCommitId { get; set; }
-		public int RemoteTipCommitId { get; set; }
-		public bool IsLocalPart { get; set; }
-		public bool IsMainPart { get; set; }
-		public string MainBranchId { get; set; }
-		public string LocalSubBranchId { get; set; }
-
-		// Serialized Done ---------------------
-
-
-		public List<int> TempCommitIds { get; set; } = new List<int>();
+		public List<CommitId> TempCommitIds { get; set; } = new List<CommitId>();
 
 		public MRepository Repository { get; set; }
 

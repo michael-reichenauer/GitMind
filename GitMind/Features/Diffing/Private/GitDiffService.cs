@@ -2,11 +2,11 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
+using GitMind.Common;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Git.Private;
-using GitMind.GitModel;
 using GitMind.Utils;
 
 
@@ -36,7 +36,7 @@ namespace GitMind.Features.Diffing.Private
 		}
 		 
 
-		public Task<R<CommitDiff>> GetFileDiffAsync(string commitId, string path)
+		public Task<R<CommitDiff>> GetFileDiffAsync(CommitId commitId, string path)
 		{
 			Log.Debug($"Get diff for file {path} for commit {commitId} ...");
 			return repoCaller.UseRepoAsync(async repo =>
@@ -45,7 +45,7 @@ namespace GitMind.Features.Diffing.Private
 
 				CommitDiff commitDiff = await gitDiffParser.ParseAsync(commitId, patch, false);
 
-				if (commitId == Commit.UncommittedId)
+				if (commitId == CommitId.Uncommitted)
 				{
 					string filePath = Path.Combine(workingFolder, path);
 					if (File.Exists(filePath))
@@ -59,7 +59,7 @@ namespace GitMind.Features.Diffing.Private
 		}
 
 
-		public Task<R<CommitDiff>> GetCommitDiffAsync(string commitId)
+		public Task<R<CommitDiff>> GetCommitDiffAsync(CommitId commitId)
 		{
 			Log.Debug($"Get diff for commit {commitId} ...");
 			return repoCaller.UseRepoAsync(async repo =>
@@ -71,7 +71,7 @@ namespace GitMind.Features.Diffing.Private
 		}
 
 
-		public Task<R<CommitDiff>> GetCommitDiffRangeAsync(string id1, string id2)
+		public Task<R<CommitDiff>> GetCommitDiffRangeAsync(CommitId id1, CommitId id2)
 		{
 			Log.Debug($"Get diff for commit range {id1}-{id2} ...");
 			return repoCaller.UseRepoAsync(async repo =>

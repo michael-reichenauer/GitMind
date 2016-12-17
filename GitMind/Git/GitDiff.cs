@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Common;
 using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
 using LibGit2Sharp;
@@ -31,9 +32,9 @@ namespace GitMind.Git
 		}
 
 
-		public string GetPatch(string commitId)
+		public string GetPatch(CommitId commitId)
 		{
-			if (commitId == GitCommit.UncommittedId)
+			if (commitId == CommitId.Uncommitted)
 			{
 				RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
 
@@ -59,7 +60,7 @@ namespace GitMind.Git
 				return compare;
 			}
 
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
 
 			if (commit != null)
 			{
@@ -104,10 +105,10 @@ namespace GitMind.Git
 		}
 
 
-		public string GetPatchRange(string id1, string id2)
+		public string GetPatchRange(CommitId id1, CommitId id2)
 		{
-			Commit commit1 = repository.Lookup<Commit>(new ObjectId(id1));
-			Commit commit2 = repository.Lookup<Commit>(new ObjectId(id2));
+			Commit commit1 = repository.Lookup<Commit>(new ObjectId(id1.Sha));
+			Commit commit2 = repository.Lookup<Commit>(new ObjectId(id2.Sha));
 
 			if (commit1 != null && commit2 != null)
 			{
@@ -121,9 +122,9 @@ namespace GitMind.Git
 		}
 
 
-		internal string GetFilePatch(string commitId, string filePath)
+		internal string GetFilePatch(CommitId commitId, string filePath)
 		{
-			if (commitId == GitCommit.UncommittedId)
+			if (commitId == CommitId.Uncommitted)
 			{
 				return diff.Compare<Patch>(
 					repository.Head.Tip.Tree,
@@ -136,7 +137,7 @@ namespace GitMind.Git
 				//return diff.Compare<Patch>(new[] { filePath }, true, null, DefultFileCompareOptions);
 			}
 
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
 
 			if (commit != null)
 			{
@@ -158,9 +159,9 @@ namespace GitMind.Git
 		}
 
 
-		public IReadOnlyList<StatusFile> GetFiles(string workingFolder, string commitId)
+		public IReadOnlyList<StatusFile> GetFiles(string workingFolder, CommitId commitId)
 		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
 
 			if (commit != null)
 			{

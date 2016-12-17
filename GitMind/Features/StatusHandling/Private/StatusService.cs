@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using GitMind.Common.ProgressHandling;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
-using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 

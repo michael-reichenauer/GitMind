@@ -1,4 +1,5 @@
 using System.Windows.Media;
+using GitMind.Common;
 using GitMind.Common.Brushes;
 using GitMind.Features.Diffing;
 using GitMind.Git;
@@ -25,7 +26,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public string Id { get; set; }
+		public CommitId Id { get; set; }
 
 		public string WorkingFolder { get; set; }
 
@@ -52,7 +53,7 @@ namespace GitMind.RepositoryViews
 		public Brush FileNameBrush => file.Status != GitFileStatus.Conflict
 			? BrushService.TextBrush : BrushService.ConflictBrush;
 
-		public bool IsUncommitted => HasNotConflicts && Id == Commit.UncommittedId;
+		public bool IsUncommitted => HasNotConflicts && Id == CommitId.Uncommitted;
 
 		public Command ShowDiffCommand => Command(
 			() => diffService.ShowFileDiffAsync(Id, Name));

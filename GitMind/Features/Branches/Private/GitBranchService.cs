@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
+using GitMind.Common;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.Utils;
@@ -73,13 +74,13 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		public Task<R> CreateBranchAsync(BranchName branchName, string commitId)
+		public Task<R> CreateBranchAsync(BranchName branchName, CommitId commitId)
 		{
 			Log.Debug($"Create branch {branchName} at commit {commitId} ...");
 
 			return repoCaller.UseLibRepoAsync(repository =>
 			{
-				Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+				Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
 				if (commit == null)
 				{
 					Log.Warn($"Unknown commit id {commitId}");
@@ -128,12 +129,12 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		public Task<R<BranchName>> SwitchToCommitAsync(string commitId, BranchName branchName)
+		public Task<R<BranchName>> SwitchToCommitAsync(CommitId commitId, BranchName branchName)
 		{
 			Log.Debug($"Switch to commit {commitId} with branch name '{branchName}' ...");
 			return repoCaller.UseLibRepoAsync(repository =>
 			{
-				Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+				Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
 				if (commit == null)
 				{
 					Log.Warn($"Unknown commit id {commitId}");
@@ -147,7 +148,7 @@ namespace GitMind.Features.Branches.Private
 						.FirstOrDefault(b =>
 							!b.IsRemote
 							&& branchName.IsEqual(b.FriendlyName)
-							&& b.Tip.Sha == commitId);
+							&& b.Tip.Sha == commitId.Sha);
 
 					if (branch != null)
 					{
@@ -204,22 +205,22 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		public R<GitDivergence> CheckAheadBehind(string localTip, string remoteTip)
+		public R<GitDivergence> CheckAheadBehind(CommitId localTip, CommitId remoteTip)
 		{
 			return repoCaller.UseRepo(
 				repo =>
 				{
-					Commit local = repo.Lookup<Commit>(new ObjectId(localTip));
-					Commit remote = repo.Lookup<Commit>(new ObjectId(remoteTip));
+					Commit local = repo.Lookup<Commit>(new ObjectId(localTip.Sha));
+					Commit remote = repo.Lookup<Commit>(new ObjectId(remoteTip.Sha));
 
 					if (local != null && remote != null)
 					{
 						HistoryDivergence div = repo.ObjectDatabase.CalculateHistoryDivergence(local, remote);
 
 						return new GitDivergence(
-							div.One.Sha,
-							div.Another.Sha,
-							div.CommonAncestor.Sha,
+							new CommitId(div.One.Sha),
+							new CommitId(div.Another.Sha),
+							new CommitId(div.CommonAncestor.Sha),
 							div.AheadBy ?? 0,
 							div.BehindBy ?? 0);
 					}

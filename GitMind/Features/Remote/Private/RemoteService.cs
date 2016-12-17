@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Branches.Private;
@@ -16,7 +17,6 @@ namespace GitMind.Features.Remote.Private
 {
 	internal class RemoteService : IRemoteService
 	{
-		private readonly IRepositoryCommands repositoryCommands;
 		private readonly IRepositoryMgr repositoryMgr;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
@@ -27,7 +27,6 @@ namespace GitMind.Features.Remote.Private
 
 
 		public RemoteService(
-			IRepositoryCommands repositoryCommands,
 			IRepositoryMgr repositoryMgr,
 			IProgressService progress,
 			IMessage message,
@@ -36,7 +35,6 @@ namespace GitMind.Features.Remote.Private
 			IGitNetworkService gitNetworkService,
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
-			this.repositoryCommands = repositoryCommands;
 			this.repositoryMgr = repositoryMgr;
 			this.progress = progress;
 			this.message = message;
@@ -62,7 +60,7 @@ namespace GitMind.Features.Remote.Private
 		}
 
 
-		public Task PushNotesAsync(string rootId)
+		public Task PushNotesAsync(CommitId rootId)
 		{
 			return gitCommitBranchNameService.PushNotesAsync(rootId);
 		}

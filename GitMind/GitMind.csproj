@@ -105,6 +105,8 @@
     <Compile Include="ApplicationHandling\IWorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\WorkingFolder.cs" />
+    <Compile Include="Common\CommitId.cs" />
+    <Compile Include="Common\CommitIds.cs" />
     <Compile Include="Common\JumpListService.cs" />
     <Compile Include="Common\MessageDialogs\Message.cs" />
     <Compile Include="Common\MessageDialogs\MessageDialog.xaml.cs">
@@ -132,6 +134,10 @@
     <Compile Include="Features\StatusHandling\Private\StatusService.cs" />
     <Compile Include="Features\StatusHandling\Refresh.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
+    <Compile Include="GitModel\Private\Caching\BranchNameSurrogate.cs" />
+    <Compile Include="GitModel\Private\Caching\CommitIdSurrogate.cs" />
+    <Compile Include="GitModel\Private\Caching\XCommitIntByShaSurrogate.cs" />
+    <Compile Include="GitModel\Private\CommitIntBySha.cs" />
     <Compile Include="GitModel\Private\IRepositoryStructureService.cs" />
     <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
     <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />

@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Common;
 using GitMind.Features.Branches.Private;
-using GitMind.Git;
-using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -44,7 +43,7 @@ namespace GitMind.GitModel.Private
 			foreach (MBranch branch in repository.Branches.Values.Where(b => b.IsMainPart).ToList())
 			{
 				MBranch localPart = repository.Branches[branch.LocalSubBranchId];
-				foreach (int id in localPart.CommitIds)
+				foreach (CommitId id in localPart.CommitIds)
 				{
 					branch.CommitIds.Add(id);
 					repository.Commits[id].BranchId = branch.Id;
@@ -72,7 +71,7 @@ namespace GitMind.GitModel.Private
 					else
 					{
 						// This is a branch with no commits
-						subBranch.ParentCommitId = tipCommit.IndexId;
+						subBranch.ParentCommitId = tipCommit.Id;
 					}
 				}
 				else
@@ -106,7 +105,7 @@ namespace GitMind.GitModel.Private
 						else
 						{
 							// Sub branch has no commits of its own, setting parent commit to same as branch tip
-							subBranch.ParentCommitId = tipCommit.IndexId;
+							subBranch.ParentCommitId = tipCommit.Id;
 						}
 					}
 				}
@@ -136,7 +135,7 @@ namespace GitMind.GitModel.Private
 
 		private static void MoveCommitsIntoBranches(MRepository repository)
 		{
-			foreach (MCommit commit in repository.Commits)
+			foreach (MCommit commit in repository.Commits.Values)
 			{
 				if (commit.BranchId == null)
 				{
@@ -144,7 +143,7 @@ namespace GitMind.GitModel.Private
 					string branchId = repository.SubBranches[subBranchId].BranchId;
 					commit.BranchId = branchId;
 					commit.SubBranchId = null;
-					repository.Branches[branchId].TempCommitIds.Add(commit.IndexId);
+					repository.Branches[branchId].TempCommitIds.Add(commit.Id);
 				}
 			}
 
@@ -157,14 +156,14 @@ namespace GitMind.GitModel.Private
 				}
 
 				List<MCommit> commits = branch.Commits.OrderByDescending(b => b.CommitDate).ToList();
-				branch.TipCommitId = commits.Any() ? commits.First().IndexId : branch.ParentCommitId;
+				branch.TipCommitId = commits.Any() ? commits.First().Id : branch.ParentCommitId;
 
-				branch.FirstCommitId = commits.Any() ? commits.Last().IndexId : branch.ParentCommitId;
-				branch.CommitIds = commits.Select(c => c.IndexId).ToList();
+				branch.FirstCommitId = commits.Any() ? commits.Last().Id : branch.ParentCommitId;
+				branch.CommitIds = commits.Select(c => c.Id).ToList();
 
 				if (!branch.CommitIds.Any())
 				{
-					if (branch.TipCommitId != -1)
+					if (branch.TipCommitId != CommitId.None)
 					{
 						// Active Branch has no commits of its own
 						branch.FirstCommitId = branch.TipCommitId;
@@ -181,7 +180,7 @@ namespace GitMind.GitModel.Private
 
 
 		private static void GroupSubBranchesIntoOneMainBranch(
-			IGrouping<int, KeyValuePair<string, MSubBranch>> groupByBranch)
+			IGrouping<CommitId, KeyValuePair<string, MSubBranch>> groupByBranch)
 		{
 			// All sub branches in the groupByBranch have same name and parent commit id, lets take
 			// the first sub branch and base the branch corresponding to the group on that sub branch
@@ -202,9 +201,9 @@ namespace GitMind.GitModel.Private
 			MSubBranch remoteSubBranch = activeSubBranches.FirstOrDefault(b => b.IsRemote);
 
 			branch.IsLocal = localSubBranch != null;
-			branch.LocalTipCommitId = localSubBranch?.TipCommitId ?? -1;
+			branch.LocalTipCommitId = localSubBranch?.TipCommitId ?? CommitId.None;
 			branch.IsRemote = remoteSubBranch != null;
-			branch.RemoteTipCommitId = remoteSubBranch?.TipCommitId ?? -1;
+			branch.RemoteTipCommitId = remoteSubBranch?.TipCommitId ?? CommitId.None;
 			branch.IsCurrent = activeSubBranches.Any(b => b.IsCurrent);
 			branch.IsDetached = activeSubBranches.Any(b => b.IsDetached);
 			branch.LocalAheadCount = 0;
@@ -238,7 +237,7 @@ namespace GitMind.GitModel.Private
 
 			foreach (MBranch branch in emptyBranches)
 			{
-				MCommit commit = repository.AddNewCommit(null);
+				MCommit commit = repository.AddVirtualCommit(branch.ParentCommit.ViewCommitId);
 
 				commit.IsVirtual = true;
 				commit.BranchId = branch.Id;
@@ -248,9 +247,9 @@ namespace GitMind.GitModel.Private
 
 				//repository.Commits[commit.Id] = commit;
 
-				branch.CommitIds.Add(commit.IndexId);
-				branch.TipCommitId = commit.IndexId;
-				branch.FirstCommitId = commit.IndexId;
+				branch.CommitIds.Add(commit.Id);
+				branch.TipCommitId = commit.Id;
+				branch.FirstCommitId = commit.Id;
 
 				branch.TipCommit.BranchTips = $"{branch.Name} branch tip";
 			}
@@ -272,32 +271,38 @@ namespace GitMind.GitModel.Private
 				MCommit localTipCommit = repository.Commits[branch.LocalTipCommitId];
 				MCommit remoteTipCommit = repository.Commits[branch.RemoteTipCommitId];
 
-				if (localTipCommit.CommitId == Commit.UncommittedId)
+				if (localTipCommit.Id == CommitId.Uncommitted)
 				{
 					localTipCommit = localTipCommit.FirstParent;
 				}
 
 				if (gitBranchService.CheckAheadBehind(
-					localTipCommit.CommitId, remoteTipCommit.CommitId).HasValue(out var div))
+					localTipCommit.Id, remoteTipCommit.Id).HasValue(out var div))
 				{
-					string commonTip = div.CommonId;
-					MCommit commonCommit = repository.CommitsById[commonTip];
+					CommitId commonTip = div.CommonId;
+					MCommit commonCommit = repository.Commits[commonTip];
 
 					commonCommit
 						.CommitAndFirstAncestors()
 						.Where(c => c.BranchId == branch.Id)
 						.ForEach(c => c.IsCommon = true);
 
-					if (commonTip != localTipCommit.CommitId || 
+					branch.Commits.ForEach(commit =>
+					{
+						commit.IsLocalAhead = false;
+						commit.IsRemoteAhead = false;
+					});
+
+					if (commonTip != localTipCommit.Id || 
 						(repository.Commits[branch.LocalTipCommitId].IsUncommitted 
 							&& !repository.Commits[branch.FirstCommitId].IsUncommitted))
 					{
-						MakeLocalBranch(repository, branch, localTipCommit.IndexId, commonCommit.IndexId);
+						MakeLocalBranch(repository, branch, localTipCommit.Id, commonCommit.Id);
 					}
 
 					if (branch.IsLocal)
 					{
-						HashSet<int> marked = new HashSet<int>();
+						HashSet<CommitId> marked = new HashSet<CommitId>();
 						int localCount = 0;
 						Stack<MCommit> commits = new Stack<MCommit>();
 						commits.Push(localTipCommit);
@@ -305,11 +310,11 @@ namespace GitMind.GitModel.Private
 						while (commits.Any())
 						{
 							MCommit commit = commits.Pop();
-							if (!marked.Contains(commit.IndexId) && !commit.IsCommon && commit.Branch == branch)
+							if (!marked.Contains(commit.Id) && !commit.IsCommon && commit.Branch == branch)
 							{
 								commit.IsLocalAhead = true;
 								localCount++;
-								marked.Add(commit.IndexId);
+								marked.Add(commit.Id);
 								commit.Parents
 									.Where(p => p.Branch == branch)
 									.ForEach(p => commits.Push(p));
@@ -321,7 +326,7 @@ namespace GitMind.GitModel.Private
 
 					if (branch.IsRemote)
 					{
-						HashSet<int> marked = new HashSet<int>();
+						HashSet<CommitId> marked = new HashSet<CommitId>();
 						int remoteCount = 0;
 						Stack<MCommit> commits = new Stack<MCommit>();
 						commits.Push(remoteTipCommit);
@@ -330,11 +335,11 @@ namespace GitMind.GitModel.Private
 						{
 							MCommit commit = commits.Pop();
 
-							if (!marked.Contains(commit.IndexId) && !commit.IsCommon && commit.Branch == branch)
+							if (!marked.Contains(commit.Id) && !commit.IsCommon && commit.Branch == branch)
 							{
 								commit.IsRemoteAhead = true;
 								remoteCount++;
-								marked.Add(commit.IndexId);
+								marked.Add(commit.Id);
 							
 								commit.Parents
 									.Where(p => p.Branch == branch)
@@ -365,8 +370,8 @@ namespace GitMind.GitModel.Private
 		private static void MakeLocalBranch(
 			MRepository repository, 
 			MBranch branch, 
-			int localTip,
-			int commonTip)
+			CommitId localTip,
+			CommitId commonTip)
 		{
 			string name = $"{branch.Name}";
 			string branchId = name + "(local)-" + commonTip;
@@ -402,8 +407,8 @@ namespace GitMind.GitModel.Private
 				if (!commit.IsCommon && commit.Branch == branch)
 				{
 					commit.IsLocalAhead = true;
-					localBranch.CommitIds.Add(commit.IndexId);
-					branch.CommitIds.Remove(commit.IndexId);
+					localBranch.CommitIds.Add(commit.Id);
+					branch.CommitIds.Remove(commit.Id);
 					commit.BranchId = localBranch.Id;
 					commit.Parents
 						.Where(p => p.Branch == branch)
@@ -414,18 +419,18 @@ namespace GitMind.GitModel.Private
 			localBranch.LocalAheadCount = localBranch.Commits.Count();
 			localBranch.RemoteAheadCount = 0;
 
-			if (repository.CommitsById.TryGetValue(Commit.UncommittedId, out MCommit uncommitted)
-				&& branch.TipCommitId == uncommitted.IndexId)
+			if (repository.Commits.TryGetValue(CommitId.Uncommitted, out MCommit uncommitted)
+				&& branch.TipCommitId == CommitId.Uncommitted)
 			{
-				localBranch.TipCommitId = uncommitted.IndexId;
-				localBranch.LocalTipCommitId = uncommitted.IndexId;
-				localBranch.CommitIds.Insert(0, uncommitted.IndexId);
-				branch.CommitIds.Remove(uncommitted.IndexId);
+				localBranch.TipCommitId = uncommitted.Id;
+				localBranch.LocalTipCommitId = uncommitted.Id;
+				localBranch.CommitIds.Insert(0, uncommitted.Id);
+				branch.CommitIds.Remove(uncommitted.Id);
 				branch.TipCommitId = uncommitted.FirstParentId;
 				uncommitted.BranchId = localBranch.Id;
 			}
 
-			localBranch.FirstCommitId = localBranch.Commits.Last().IndexId;
+			localBranch.FirstCommitId = localBranch.Commits.Last().Id;
 
 			branch.IsMainPart = true;
 			branch.LocalSubBranchId = localBranch.Id;
@@ -462,7 +467,7 @@ namespace GitMind.GitModel.Private
 		{
 			foreach (var branch in repository.Branches)
 			{
-				if (branch.Value.ParentCommitId != -1
+				if (branch.Value.ParentCommitId != CommitId.None
 					&& branch.Value.ParentCommit.BranchId != branch.Value.Id
 					&& branch.Value.ParentCommit.BranchId != null)
 				{
@@ -482,22 +487,13 @@ namespace GitMind.GitModel.Private
 		private static void CopyToCommit(MBranch branch, MCommit commit)
 		{
 			// commit.Id = GetId();
-			commit.CommitId = branch.ParentCommit.CommitId;
-			commit.ShortId = commit.CommitId.Substring(0, 6);
+			commit.ViewCommitId = branch.ParentCommit.ViewCommitId;
 			commit.Subject = branch.ParentCommit.Subject;
 			commit.Author = branch.ParentCommit.Author;
 			commit.AuthorDate = branch.ParentCommit.AuthorDate;
 			commit.CommitDate = branch.ParentCommit.CommitDate + TimeSpan.FromSeconds(1);
 			commit.Tickets = branch.ParentCommit.Tickets;
-			commit.ParentIds = new List<int> { branch.ParentCommitId };
-		}
-
-		private static string GetId()
-		{
-			string id =
-				Guid.NewGuid().ToString().Replace("-", "")
-				+ Guid.NewGuid().ToString().Replace("-", "");
-			return id.Substring(0, 40);
+			commit.ParentIds = new List<CommitId> { branch.ParentCommitId };
 		}
 
 
@@ -506,19 +502,19 @@ namespace GitMind.GitModel.Private
 			bool isFirstParent = true;
 			foreach (MCommit parent in commit.Parents)
 			{
-				IList<int> childIds = parent.ChildIds;
-				if (!childIds.Contains(commit.IndexId))
+				IList<CommitId> childIds = parent.ChildIds;
+				if (!childIds.Contains(commit.Id))
 				{
-					childIds.Add(commit.IndexId);
+					childIds.Add(commit.Id);
 				}
 
 				if (isFirstParent)
 				{
 					isFirstParent = false;
-					IList<int> firstChildIds = parent.FirstChildIds;
-					if (!firstChildIds.Contains(commit.IndexId))
+					IList<CommitId> firstChildIds = parent.FirstChildIds;
+					if (!firstChildIds.Contains(commit.Id))
 					{
-						firstChildIds.Add(commit.IndexId);
+						firstChildIds.Add(commit.Id);
 					}
 				}
 			}

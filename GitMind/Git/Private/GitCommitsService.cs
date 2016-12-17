@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
-using GitMind.Features.Diffing;
+using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
@@ -42,9 +42,9 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(string commitId)
+		public async Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(CommitId commitId)
 		{
-			if (commitId == GitCommit.UncommittedId)
+			if (commitId == CommitId.Uncommitted)
 			{
 				Status status = repositoryMgr.Value.Repository.Status;
 				return R.From(status.ChangedFiles);
@@ -54,19 +54,19 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task EditCommitBranchAsync(string commitId, string rootId, BranchName branchName)
+		public Task EditCommitBranchAsync(CommitId commitId, CommitId rootId, BranchName branchName)
 		{
 			return gitCommitBranchNameService.EditCommitBranchNameAsync(commitId, rootId, branchName);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(string rootId)
+		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitId rootId)
 		{
 			return gitCommitBranchNameService.GetEditedBranchNames(rootId);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetCommitBranches(string rootId)
+		public IReadOnlyList<CommitBranchName> GetCommitBranches(CommitId rootId)
 		{
 			return gitCommitBranchNameService.GetCommitBrancheNames(rootId);
 		}
@@ -166,7 +166,8 @@ namespace GitMind.Git.Private
 				{
 					AddPaths(repo, paths);
 					GitCommit gitCommit = Commit(repo, message);
-					gitCommitBranchNameService.SetCommitBranchNameAsync(gitCommit.Id, branchName);
+					CommitId commitId = new CommitId(gitCommit.Id);
+					gitCommitBranchNameService.SetCommitBranchNameAsync(commitId, branchName);
 					return gitCommit;
 				});
 		}
@@ -244,11 +245,11 @@ namespace GitMind.Git.Private
 			});
 		}
 
-		public R<string> GetFullMessage(string commitId)
+		public R<string> GetFullMessage(CommitId commitId)
 		{
 			return repoCaller.UseRepo(repo =>
 			{
-				LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(new ObjectId(commitId));
+				LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(new ObjectId(commitId.Sha));
 				if (commit != null)
 				{
 					return commit.Message;

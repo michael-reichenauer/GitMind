@@ -1,43 +1,38 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using GitMind.Common;
 using GitMind.Git;
 
 
 namespace GitMind.GitModel.Private
 {
+	[DataContract]
 	public class MCommit
 	{
-		public static readonly string UncommittedId = GitCommit.UncommittedId;
+		[DataMember] public CommitId Id { get; set; }
+		[DataMember] public string BranchId { get; set; }
+		[DataMember] public string Subject { get; set; }
+		[DataMember]public string Author { get; set; }
+		[DataMember] public DateTime AuthorDate { get; set; }
+		[DataMember] public DateTime CommitDate { get; set; }
+		[DataMember] public List<CommitId> ParentIds { get; set; } = new List<CommitId>();
 
-		// Serialized start -------------------
+		[DataMember] public List<CommitId> ChildIds { get; set; } = new List<CommitId>();
+		[DataMember] public List<CommitId> FirstChildIds { get; set; } = new List<CommitId>();
+		[DataMember] public BranchName BranchName { get; set; }
+		[DataMember] public BranchName SpecifiedBranchName { get; set; }
+		[DataMember] public string Tags { get; set; }
+		[DataMember] public string Tickets { get; set; }
+		[DataMember] public bool IsVirtual { get; set; }
+		[DataMember] public string BranchTips { get; set; }
+		[DataMember] public CommitId ViewCommitId { get; set; }
+		[DataMember] public bool IsLocalAhead { get; set; }
+		[DataMember] public bool IsRemoteAhead { get; set; }
+		[DataMember] public bool IsCommon { get; set; }
 
-		public int IndexId { get; set; }
-		public string BranchId { get; set; }
-		public string ShortId { get; set; }
-		public string Subject { get; set; }
-		public string Author { get; set; }
-		public DateTime AuthorDate { get; set; }
-		public DateTime CommitDate { get; set; }
-
-		public List<int> ParentIds { get; set; } = new List<int>();
-		public List<int> ChildIds { get; set; } = new List<int>();
-		public List<int> FirstChildIds { get; set; } = new List<int>();
-
-		public BranchName BranchName { get; set; }
-		public BranchName SpecifiedBranchName { get; set; }
-
-		public string Tags { get; set; }
-		public string Tickets { get; set; }
-		public bool IsVirtual { get; set; }
-		public string BranchTips { get; set; }
-		public string CommitId { get; set; }
-		public bool IsLocalAhead { get; set; }
-		public bool IsRemoteAhead { get; set; }
-		public bool IsCommon { get; set; }
-
-		// Serialized Done ---------------------
-
+		public string ShortId => ViewCommitId.ShortSha;
 
 		public string SubBranchId { get; set; }
 		public BranchName FromSubjectBranchName { get; set; }
@@ -60,12 +55,12 @@ namespace GitMind.GitModel.Private
 		public MBranch Branch => Repository.Branches[BranchId];
 
 
-		public int FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : -1;
+		public CommitId FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : CommitId.None;
 		public MCommit FirstParent => ParentIds.Count > 0 ? Repository.Commits[ParentIds[0]] : null;
-		public int SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : -1;
+		public CommitId SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : CommitId.None;
 		public MCommit SecondParent => ParentIds.Count > 1 ? Repository.Commits[ParentIds[1]] : null;
 
-		public bool IsUncommitted => CommitId == UncommittedId;
+		public bool IsUncommitted => Id == CommitId.Uncommitted;
 		public BranchName CommitBranchName { get; set; }
 
 

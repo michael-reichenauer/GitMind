@@ -1,4 +1,3 @@
-using GitMind.Features.StatusHandling;
 using GitMind.Git;
 
 

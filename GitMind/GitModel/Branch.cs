@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Common;
 using GitMind.Git;
 
 
@@ -8,20 +9,20 @@ namespace GitMind.GitModel
 	// Some extra Branch
 	internal class Branch
 	{
-		private readonly int tipCommitId;
-		private readonly int firstCommitId;
-		private readonly int parentCommitId;
-		private readonly IReadOnlyList<int> commitIds;
+		private readonly CommitId tipCommitId;
+		private readonly CommitId firstCommitId;
+		private readonly CommitId parentCommitId;
+		private readonly IReadOnlyList<CommitId> commitIds;
 		private readonly string parentBranchId;
 
 		public Branch(
 			Repository repository,
 			string id,
 			BranchName name,
-			int tipCommitId,
-			int firstCommitId,
-			int parentCommitId,
-			IReadOnlyList<int> commitIds,
+			CommitId tipCommitId,
+			CommitId firstCommitId,
+			CommitId parentCommitId,
+			IReadOnlyList<CommitId> commitIds,
 			string parentBranchId,
 			IReadOnlyList<BranchName> childBranchNames,
 			string mainBranchId,

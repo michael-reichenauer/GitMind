@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using GitMind.Common;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -15,7 +15,7 @@ namespace GitMind.GitModel.Private
 		{
 			foreach (CommitBranchName specifiedName in specifiedNames)
 			{
-				if (repository.CommitsById.TryGetValue(specifiedName.CommitId, out var commit))
+				if (repository.Commits.TryGetValue(specifiedName.CommitId, out var commit))
 				{
 					if (!string.IsNullOrEmpty(specifiedName.Name))
 					{
@@ -37,7 +37,7 @@ namespace GitMind.GitModel.Private
 		{
 			foreach (CommitBranchName commitBranch in commitBranches)
 			{
-				if (repository.CommitsById.TryGetValue(commitBranch.CommitId, out var commit))
+				if (repository.Commits.TryGetValue(commitBranch.CommitId, out var commit))
 				{
 					// Set branch name unless there is a specified branch name which has higher priority
 					commit.CommitBranchName = commitBranch.Name;
@@ -133,15 +133,15 @@ namespace GitMind.GitModel.Private
 
 		private static void SetMasterBranchCommits(MRepository repository, MSubBranch subBranch)
 		{
-			int commitId = subBranch.TipCommitId;
-			while (commitId != -1)
+			CommitId commitId = subBranch.TipCommitId;
+			while (commitId != CommitId.None)
 			{
 				MCommit commit = repository.Commits[commitId];
 
 				if (commit.BranchName == subBranch.Name && commit.SubBranchId != null)
 				{
 					// Do not break if commit is the tip
-					if (!(commit.IndexId == subBranch.TipCommitId && commit.SubBranchId == subBranch.SubBranchId))
+					if (!(commit.Id == subBranch.TipCommitId && commit.SubBranchId == subBranch.SubBranchId))
 					{
 						break;
 					}
@@ -200,7 +200,7 @@ namespace GitMind.GitModel.Private
 			do
 			{
 				isFound = false;
-				IEnumerable<MCommit> commitsWithBranchName = repository.Commits
+				IEnumerable<MCommit> commitsWithBranchName = repository.Commits.Values
 					.Where(commit =>
 						commit.BranchId == null
 						&& commit.HasBranchName
@@ -273,7 +273,7 @@ namespace GitMind.GitModel.Private
 			do
 			{
 				found = false;
-				foreach (var commit in repository.Commits)
+				foreach (var commit in repository.Commits.Values)
 				{
 					if (commit.BranchId == null && !commit.HasBranchName && commit.HasFirstChild)
 					{
