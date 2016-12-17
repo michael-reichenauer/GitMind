@@ -15,7 +15,7 @@ namespace GitMind.GitModel.Private
 
 		[DataMember] public string Version { get; set; } = CurrentVersion;
 
-		[DataMember] public CommitIntBySha CommitIntBySha { get; set; } = new CommitIntBySha();
+		// [DataMember] public CommitIntBySha CommitIntBySha { get; set; } = new CommitIntBySha();
 		[DataMember] public CommitId CurrentCommitId { get; set; }
 		[DataMember] public string CurrentBranchId { get; set; }
 		[DataMember] public Dictionary<CommitId, MCommit> Commits { get; set; } = 
