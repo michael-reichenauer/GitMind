@@ -289,6 +289,12 @@ namespace GitMind.GitModel.Private
 						.Where(c => c.BranchId == branch.Id)
 						.ForEach(c => c.IsCommon = true);
 
+					branch.Commits.ForEach(commit =>
+					{
+						commit.IsLocalAhead = false;
+						commit.IsRemoteAhead = false;
+					});
+
 					if (commonTip != localTipCommit.Id || 
 						(repository.Commits[branch.LocalTipCommitId].IsUncommitted 
 							&& !repository.Commits[branch.FirstCommitId].IsUncommitted))

@@ -85,7 +85,8 @@ namespace GitMind.GitModel.Private
 					commit.BranchId == null
 					&& commit.SubBranchId == null
 					&& !commit.HasFirstChild
-					&& !activeBranches.Contains(commit.Id));
+					&& !activeBranches.Contains(commit.Id))
+				.ToList();
 
 			foreach (MCommit commit in topCommits)
 			{
