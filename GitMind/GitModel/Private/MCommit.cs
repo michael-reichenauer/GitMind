@@ -1,43 +1,37 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using GitMind.Common;
 using GitMind.Git;
 
 
 namespace GitMind.GitModel.Private
 {
+	[DataContract]
 	public class MCommit
 	{
-		//public static readonly string UncommittedId = GitCommit.UncommittedId;
+		[DataMember] public CommitId Id { get; set; }
+		[DataMember] public string BranchId { get; set; }
+		[DataMember] public string Subject { get; set; }
+		[DataMember]public string Author { get; set; }
+		[DataMember] public DateTime AuthorDate { get; set; }
+		[DataMember] public DateTime CommitDate { get; set; }
+		[DataMember] public List<CommitId> ParentIds { get; set; } = new List<CommitId>();
 
-		// Serialized start -------------------
+		[DataMember] public List<CommitId> ChildIds { get; set; } = new List<CommitId>();
+		[DataMember] public List<CommitId> FirstChildIds { get; set; } = new List<CommitId>();
+		[DataMember] public BranchName BranchName { get; set; }
+		[DataMember] public BranchName SpecifiedBranchName { get; set; }
+		[DataMember] public string Tags { get; set; }
+		[DataMember] public string Tickets { get; set; }
+		[DataMember] public bool IsVirtual { get; set; }
+		[DataMember] public string BranchTips { get; set; }
+		[DataMember] public CommitId ViewCommitId { get; set; }
+		[DataMember] public bool IsLocalAhead { get; set; }
+		[DataMember] public bool IsRemoteAhead { get; set; }
+		[DataMember] public bool IsCommon { get; set; }
 
-		public CommitId Id { get; set; }
-		public string BranchId { get; set; }
-		
-		public string Subject { get; set; }
-		public string Author { get; set; }
-		public DateTime AuthorDate { get; set; }
-		public DateTime CommitDate { get; set; }
-
-		public List<CommitId> ParentIds { get; set; } = new List<CommitId>();
-		public List<CommitId> ChildIds { get; set; } = new List<CommitId>();
-		public List<CommitId> FirstChildIds { get; set; } = new List<CommitId>();
-
-		public BranchName BranchName { get; set; }
-		public BranchName SpecifiedBranchName { get; set; }
-
-		public string Tags { get; set; }
-		public string Tickets { get; set; }
-		public bool IsVirtual { get; set; }
-		public string BranchTips { get; set; }
-		public CommitId ViewCommitId { get; set; }
-		public bool IsLocalAhead { get; set; }
-		public bool IsRemoteAhead { get; set; }
-		public bool IsCommon { get; set; }
-
-		// Serialized Done ---------------------
 		public string ShortId => ViewCommitId.ShortSha;
 
 		public string SubBranchId { get; set; }

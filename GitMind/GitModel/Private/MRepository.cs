@@ -1,36 +1,35 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
+using GitMind.GitModel.Private.Caching;
 using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
 {
+	[DataContract]
 	public class MRepository
 	{
 		public static string CurrentVersion = "19";
 
-		// Serialized start -------------------
+		[DataMember] public string Version { get; set; } = CurrentVersion;
 
-		public string Version { get; set; } = CurrentVersion;
+		[DataMember] public CommitIntBySha CommitIntBySha { get; set; } = new CommitIntBySha();
+		[DataMember] public CommitId CurrentCommitId { get; set; }
+		[DataMember] public string CurrentBranchId { get; set; }
+		[DataMember] public Dictionary<CommitId, MCommit> Commits { get; set; } = 
+			new Dictionary<CommitId, MCommit>();
 
-		public CommitIntBySha CommitIntBySha { get; set; } = new CommitIntBySha();
+		[DataMember] public Dictionary<string, MBranch> Branches { get; set; } = 
+			new Dictionary<string, MBranch>();
 
-		public CommitId CurrentCommitId { get; set; }
+		[DataMember] public TimeSpan TimeToCreateFresh { get; set; }
 
-		public string CurrentBranchId { get; set; }
-
-		public Dictionary<CommitId, MCommit> Commits { get; set; } = new Dictionary<CommitId, MCommit>();
-		
-		public Dictionary<string, MBranch> Branches { get; set; } = new Dictionary<string, MBranch>();
-		public TimeSpan TimeToCreateFresh { get; set; }
-
-		// Serialized Done ---------------------
-
-		//public Dictionary<string, CommitId> CommitIdsBySha { get; set; } = new Dictionary<string, CommitId>();
 
 		public Dictionary<string, MSubBranch> SubBranches { get; set; }
 			= new Dictionary<string, MSubBranch>();
