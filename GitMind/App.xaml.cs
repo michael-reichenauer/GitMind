@@ -10,7 +10,6 @@ using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Features.Diffing;
-using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
 

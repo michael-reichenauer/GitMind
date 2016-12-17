@@ -13,7 +13,6 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
-using GitMind.Features.Remote;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.RepositoryViews.Private;

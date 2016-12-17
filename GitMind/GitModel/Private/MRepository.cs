@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using GitMind.Common;
 using GitMind.Features.StatusHandling;
-using GitMind.Git;
-using GitMind.GitModel.Private.Caching;
-using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -15,7 +11,7 @@ namespace GitMind.GitModel.Private
 	[DataContract]
 	public class MRepository
 	{
-		public static string CurrentVersion = "19";
+		public static string CurrentVersion = "20";
 
 		[DataMember] public string Version { get; set; } = CurrentVersion;
 

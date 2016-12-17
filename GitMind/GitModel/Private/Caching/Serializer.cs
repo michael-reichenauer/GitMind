@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
 using ProtoBuf;
 using ProtoBuf.Meta;
 using ProtoSerializer = ProtoBuf.Serializer;

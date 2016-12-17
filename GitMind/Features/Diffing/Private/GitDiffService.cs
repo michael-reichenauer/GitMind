@@ -7,7 +7,6 @@ using GitMind.Common.ProgressHandling;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Git.Private;
-using GitMind.GitModel;
 using GitMind.Utils;
 
 

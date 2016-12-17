@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
-using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
