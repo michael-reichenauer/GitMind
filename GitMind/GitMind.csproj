@@ -138,6 +138,7 @@
     <Compile Include="GitModel\Private\Caching\CommitIdSurrogate.cs" />
     <Compile Include="GitModel\Private\Caching\XCommitIntByShaSurrogate.cs" />
     <Compile Include="GitModel\Private\CommitIntBySha.cs" />
+    <Compile Include="GitModel\Private\GitCommit.cs" />
     <Compile Include="GitModel\Private\IRepositoryStructureService.cs" />
     <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
     <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />
@@ -328,7 +329,7 @@
     <Compile Include="Utils\ICmd.cs" />
     <Compile Include="Utils\Log.cs" />
     <Compile Include="Git\Private\GitCommitsService.cs" />
-    <Compile Include="Git\GitCommit.cs" />
+    <Compile Include="Git\GitLibCommit.cs" />
     <Compile Include="Utils\MicroDiContainer.cs" />
     <Compile Include="Utils\UI\VirtualCanvas\VirtualPanel.cs" />
     <Compile Include="Utils\UI\VirtualCanvas\ZoomableCanvas.cs" />

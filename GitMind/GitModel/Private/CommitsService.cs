@@ -16,7 +16,7 @@ namespace GitMind.GitModel.Private
 			Status status = repository.Status;
 
 			Timing t = new Timing();
-			IEnumerable<GitCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
+			IEnumerable<GitLibCommit> rootCommits = gitRepository.Branches.Select(b => b.Tip);
 
 			if (gitRepository.Head.IsDetached)
 			{
@@ -32,26 +32,38 @@ namespace GitMind.GitModel.Private
 			Dictionary<CommitId, BranchName> branchNameByCommitId = new Dictionary<CommitId, BranchName>();
 			Dictionary<CommitId, BranchName> subjectBranchNameByCommitId = new Dictionary<CommitId, BranchName>();
 
-			Stack<GitCommit> commits = new Stack<GitCommit>();
+			Stack<GitLibCommit> commits = new Stack<GitLibCommit>();
 			rootCommits.ForEach(c => commits.Push(c));
 			rootCommits.ForEach(c => added[c.Id] = null);
 			t.Log("Pushed roots on stack");
 
 			while (commits.Any())
 			{
-				GitCommit gitCommit = commits.Pop();
+				GitLibCommit gitLibCommit = commits.Pop();
 
-				MCommit commit = repository.Commit(gitCommit.Id);
-				if (commit.Subject == null)
+				MCommit commit = repository.Commit(gitLibCommit.Id);
+				CommitId commitId = new CommitId(gitLibCommit.Id);
+				if (!repository.GitCommits.TryGetValue(commitId, out GitCommit gitCommit))
 				{
-					AddCommit(commit, gitCommit);
+					List<CommitId> parentIdsIds = gitLibCommit.Parents.Select(p => new CommitId(p.Id)).ToList();
+
+					gitCommit = new GitCommit(
+						gitLibCommit.Id,
+						gitLibCommit.Subject,
+						gitLibCommit.Author,
+						gitLibCommit.AuthorDate,
+						gitLibCommit.CommitDate,
+						parentIdsIds);
+					repository.GitCommits[commitId] = gitCommit;
+
+					AddCommit(commit, gitLibCommit);
 
 					if (IsMergeCommit(commit))
 					{
-						TrySetBranchNameFromSubject(commit, branchNameByCommitId, subjectBranchNameByCommitId);
+						TrySetBranchNameFromSubject(gitCommit, commit, branchNameByCommitId, subjectBranchNameByCommitId);
 					}
 
-					AddParents(gitCommit.Parents, commits, added);
+					AddParents(gitLibCommit.Parents, commits, added);
 				}
 
 				BranchName branchName;
@@ -59,6 +71,7 @@ namespace GitMind.GitModel.Private
 				{
 					// Branch name set by a child commit (pull merge commit)
 					commit.BranchName = branchName;
+					gitCommit.SetBranchName(branchName);
 				}
 
 				BranchName subjectBranchName;
@@ -66,6 +79,7 @@ namespace GitMind.GitModel.Private
 				{
 					// Subject branch name set by a child commit (merge commit)
 					commit.FromSubjectBranchName = subjectBranchName;
+					gitCommit.SetBranchNameFromSubject(subjectBranchName);
 				}
 			}
 
@@ -77,7 +91,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void AddCommit(MCommit commit, GitCommit gitCommit)
+		private void AddCommit(MCommit commit, GitLibCommit gitCommit)
 		{
 			CopyToCommit(gitCommit, commit);
 			SetChildOfParents(commit);
@@ -102,8 +116,8 @@ namespace GitMind.GitModel.Private
 
 
 		private static void AddParents(
-			IEnumerable<GitCommit> parents,
-			Stack<GitCommit> commits,
+			IEnumerable<GitLibCommit> parents,
+			Stack<GitLibCommit> commits,
 			Dictionary<string, object> added)
 		{
 			parents.ForEach(parent =>
@@ -118,6 +132,7 @@ namespace GitMind.GitModel.Private
 
 
 		private static void TrySetBranchNameFromSubject(
+			GitCommit gitCommit,
 			MCommit commit,
 			IDictionary<CommitId, BranchName> branchNameByCommitId,
 			IDictionary<CommitId, BranchName> subjectBranchNameByCommitId)
@@ -130,6 +145,7 @@ namespace GitMind.GitModel.Private
 				// during a pull and thus more reliable. Lets set branch name on commit and second parent 
 				commit.BranchName = mergeNames.TargetBranchName;
 				branchNameByCommitId[commit.SecondParentId] = mergeNames.SourceBranchName;
+				gitCommit.SetBranchName(mergeNames.TargetBranchName);
 			}
 			else
 			{
@@ -138,10 +154,12 @@ namespace GitMind.GitModel.Private
 				if (mergeNames.TargetBranchName != null)
 				{
 					commit.FromSubjectBranchName = mergeNames.TargetBranchName;
+					gitCommit.SetBranchNameFromSubject(mergeNames.TargetBranchName);
 				}
 
 				if (mergeNames.SourceBranchName != null)
 				{
+					// Storing the branch name of the parent commit (retreived when handling that commit)
 					subjectBranchNameByCommitId[commit.SecondParentId] = mergeNames.SourceBranchName;
 				}
 			}
@@ -172,7 +190,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void CopyToCommit(GitCommit gitCommit, MCommit commit)
+		private void CopyToCommit(GitLibCommit gitCommit, MCommit commit)
 		{
 			string subject = gitCommit.Subject;
 			string tickets = GetTickets(subject);

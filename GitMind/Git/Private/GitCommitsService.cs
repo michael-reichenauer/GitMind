@@ -156,7 +156,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R<GitCommit>> CommitAsync(
+		public Task<R<GitLibCommit>> CommitAsync(
 			string message, string branchName, IReadOnlyList<CommitFile> paths)
 		{
 			Log.Debug($"Commit {paths.Count} files: {message} ...");
@@ -165,7 +165,7 @@ namespace GitMind.Git.Private
 				repo =>
 				{
 					AddPaths(repo, paths);
-					GitCommit gitCommit = Commit(repo, message);
+					GitLibCommit gitCommit = Commit(repo, message);
 					CommitId commitId = new CommitId(gitCommit.Id);
 					gitCommitBranchNameService.SetCommitBranchNameAsync(commitId, branchName);
 					return gitCommit;
@@ -198,7 +198,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public GitCommit Commit(LibGit2Sharp.Repository repo, string message)
+		public GitLibCommit Commit(LibGit2Sharp.Repository repo, string message)
 		{
 			Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
 
@@ -206,7 +206,7 @@ namespace GitMind.Git.Private
 
 			LibGit2Sharp.Commit commit = repo.Commit(message, signature, signature, commitOptions);
 
-			return commit != null ? new GitCommit(commit) : null;
+			return commit != null ? new GitLibCommit(commit) : null;
 		}
 
 

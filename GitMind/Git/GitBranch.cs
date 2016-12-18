@@ -27,7 +27,7 @@ namespace GitMind.Git
 		public bool IsCurrent => 0 ==  string.Compare(
 			branch.CanonicalName, repository.Head.CanonicalName, StringComparison.OrdinalIgnoreCase) ;
 
-		public GitCommit Tip => new GitCommit(branch.Tip);
+		public GitLibCommit Tip => new GitLibCommit(branch.Tip);
 
 		public override string ToString() => Name.ToString();
 	}

@@ -19,7 +19,7 @@ namespace GitMind.Git
 		IReadOnlyList<CommitBranchName> GetCommitBranches(CommitId rootId);
 
 	
-		Task<R<GitCommit>> CommitAsync(string message, string branchName, IReadOnlyList<CommitFile> paths);
+		Task<R<GitLibCommit>> CommitAsync(string message, string branchName, IReadOnlyList<CommitFile> paths);
 
 		R<string> GetFullMessage(CommitId commitId);
 
