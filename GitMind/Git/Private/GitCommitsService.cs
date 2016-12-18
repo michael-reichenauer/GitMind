@@ -7,6 +7,7 @@ using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using LibGit2Sharp;
@@ -156,7 +157,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R<GitLibCommit>> CommitAsync(
+		public Task<R<GitCommit>> CommitAsync(
 			string message, string branchName, IReadOnlyList<CommitFile> paths)
 		{
 			Log.Debug($"Commit {paths.Count} files: {message} ...");
@@ -165,7 +166,7 @@ namespace GitMind.Git.Private
 				repo =>
 				{
 					AddPaths(repo, paths);
-					GitLibCommit gitCommit = Commit(repo, message);
+					GitCommit gitCommit = Commit(repo, message);
 					CommitId commitId = new CommitId(gitCommit.Id);
 					gitCommitBranchNameService.SetCommitBranchNameAsync(commitId, branchName);
 					return gitCommit;
@@ -198,7 +199,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public GitLibCommit Commit(LibGit2Sharp.Repository repo, string message)
+		public GitCommit Commit(LibGit2Sharp.Repository repo, string message)
 		{
 			Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
 
@@ -206,7 +207,13 @@ namespace GitMind.Git.Private
 
 			LibGit2Sharp.Commit commit = repo.Commit(message, signature, signature, commitOptions);
 
-			return commit != null ? new GitLibCommit(commit) : null;
+			return commit != null ? new GitCommit(
+				commit.Sha,
+				commit.MessageShort,
+				commit.Author.Name,
+				commit.Author.When.LocalDateTime,
+				commit.Committer.When.LocalDateTime,
+				commit.Parents.Select(p => new CommitId(p.Sha)).ToList()) : null;
 		}
 
 

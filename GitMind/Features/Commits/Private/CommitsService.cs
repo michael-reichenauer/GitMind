@@ -9,6 +9,7 @@ using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 
@@ -112,7 +113,7 @@ namespace GitMind.Features.Commits.Private
 				{
 					using (progress.ShowDialog($"Committing current branch {branchName} ..."))
 					{
-						R<GitLibCommit> gitCommit = await gitCommitsService.CommitAsync(
+						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
 							dialog.CommitMessage, branchName, dialog.CommitFiles);
 
 						if (!gitCommit.IsOk)

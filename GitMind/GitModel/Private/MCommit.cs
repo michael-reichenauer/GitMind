@@ -11,13 +11,30 @@ namespace GitMind.GitModel.Private
 	[DataContract]
 	public class MCommit
 	{
+		private readonly Lazy<GitCommit> gitCommit;
+
+		public MCommit()
+		{
+			gitCommit = new Lazy<GitCommit>(() => Repository.GitCommits[Id]);
+		}
+
 		[DataMember] public CommitId Id { get; set; }
 		[DataMember] public string BranchId { get; set; }
-		[DataMember] public string Subject { get; set; }
-		[DataMember]public string Author { get; set; }
-		[DataMember] public DateTime AuthorDate { get; set; }
-		[DataMember] public DateTime CommitDate { get; set; }
-		[DataMember] public List<CommitId> ParentIds { get; set; } = new List<CommitId>();
+
+		//[DataMember] public string Subject { get; set; }
+		//[DataMember]public string Author { get; set; }
+		//[DataMember] public DateTime AuthorDate { get; set; }
+		//[DataMember] public DateTime CommitDate { get; set; }
+		//[DataMember] public List<CommitId> ParentIds { get; set; } = new List<CommitId>();
+
+
+		public string Subject => gitCommit.Value.Subject;
+		public string Author => gitCommit.Value.Author;
+		public DateTime AuthorDate => gitCommit.Value.AuthorDate;
+		public DateTime CommitDate => gitCommit.Value.CommitDate;
+		public List<CommitId> ParentIds => gitCommit.Value.ParentIds;
+		public BranchName FromSubjectBranchName => gitCommit.Value.BranchNameFromSubject;
+
 
 		[DataMember] public List<CommitId> ChildIds { get; set; } = new List<CommitId>();
 		[DataMember] public List<CommitId> FirstChildIds { get; set; } = new List<CommitId>();
@@ -32,10 +49,11 @@ namespace GitMind.GitModel.Private
 		[DataMember] public bool IsRemoteAhead { get; set; }
 		[DataMember] public bool IsCommon { get; set; }
 
+
 		public string ShortId => ViewCommitId.ShortSha;
 
 		public string SubBranchId { get; set; }
-		public BranchName FromSubjectBranchName { get; set; }
+		
 		public List<MSubBranch> BranchTipBranches { get; set; } = new List<MSubBranch>();
 		public bool IsMerging { get; set; }
 		public bool HasConflicts { get; set; }

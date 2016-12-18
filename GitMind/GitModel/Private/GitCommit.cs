@@ -19,22 +19,21 @@ namespace GitMind.GitModel.Private
 			string author,
 			DateTime authorDate,
 			DateTime commitDate,
-			List<CommitId> parents)
+			List<CommitId> parentIds)
 		{
 			Sha = sha;
 			Subject = subject;
 			Author = author;
 			AuthorDate = authorDate;
 			CommitDate = commitDate;
-			Parents = parents;
+			ParentIds = parentIds;
 		}
-
 		[DataMember] public string Sha { get; private set; }
 		[DataMember] public string Subject { get; private set; }
 		[DataMember] public string Author { get; private set; }
 		[DataMember] public DateTime AuthorDate { get; private set; }
 		[DataMember] public DateTime CommitDate { get; private set; }
-		[DataMember] public List<CommitId> Parents { get; private set; }
+		[DataMember] public List<CommitId> ParentIds { get; private set; }
 
 		[DataMember] public string BranchName { get; private set; }
 		[DataMember] public string BranchNameFromSubject { get; private set; }

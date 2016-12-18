@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 
 
@@ -19,7 +20,7 @@ namespace GitMind.Git
 		IReadOnlyList<CommitBranchName> GetCommitBranches(CommitId rootId);
 
 	
-		Task<R<GitLibCommit>> CommitAsync(string message, string branchName, IReadOnlyList<CommitFile> paths);
+		Task<R<GitCommit>> CommitAsync(string message, string branchName, IReadOnlyList<CommitFile> paths);
 
 		R<string> GetFullMessage(CommitId commitId);
 

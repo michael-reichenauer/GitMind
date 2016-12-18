@@ -48,51 +48,49 @@ namespace GitMind.GitModel.Private
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
 		
+		//public MCommit Commit(CommitId commitId)
+		//{
+		//	MCommit commit;
+		//	if (!Commits.TryGetValue(commitId, out commit))
+		//	{
+		//		commit = AddNewCommit(commitId);
+		//	}
 
-		public MCommit Commit(string shaId)
-		{
-			CommitId commitId = new CommitId(shaId);
-			MCommit commit;
-			if (!Commits.TryGetValue(commitId, out commit))
-			{
-				commit = AddNewCommit(commitId);
-			}
-
-			return commit;
-		}
+		//	return commit;
+		//}
 
 
-		public MCommit AddNewCommit(CommitId commitId)
-		{
-			MCommit commit = new MCommit()
-			{
-				Repository = this,
-				Id = commitId,
-				ViewCommitId = commitId
-			};
+		//public MCommit AddNewCommit(CommitId commitId)
+		//{
+		//	MCommit commit = new MCommit()
+		//	{
+		//		Repository = this,
+		//		Id = commitId,
+		//		ViewCommitId = commitId
+		//	};
 
-			Commits[commitId] = commit;
+		//	Commits[commitId] = commit;
 
-			return commit;
-		}
+		//	return commit;
+		//}
 
 
-		public MCommit AddVirtualCommit(CommitId realCommitId)
-		{
-			string idText = (Guid.NewGuid() + Guid.NewGuid().ToString()).Replace("-", "")
-				.Substring(0, 40);
-			CommitId commitId = new CommitId(idText);
-			MCommit commit = new MCommit()
-			{
-				Repository = this,
-				Id = commitId,
-				ViewCommitId = realCommitId
-			};
+		//public MCommit AddVirtualCommit(CommitId realCommitId)
+		//{
+		//	string idText = (Guid.NewGuid() + Guid.NewGuid().ToString()).Replace("-", "")
+		//		.Substring(0, 40);
+		//	CommitId commitId = new CommitId(idText);
+		//	MCommit commit = new MCommit()
+		//	{
+		//		Repository = this,
+		//		Id = commitId,
+		//		ViewCommitId = realCommitId
+		//	};
 
-			Commits[commitId] = commit;
+		//	Commits[commitId] = commit;
 
-			return commit;
-		}
+		//	return commit;
+		//}
 
 
 		public void CompleteDeserialization(string workingFolder)

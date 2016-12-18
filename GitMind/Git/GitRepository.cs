@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using GitMind.Common;
 using GitMind.Features.Diffing;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 using LibGit2Sharp;
 
@@ -138,6 +139,20 @@ namespace GitMind.Git
 			string tempPath = fullPath + ".tmp";
 			File.AppendAllText(tempPath, "tmp");
 			File.Delete(tempPath);
+		}
+
+
+		public GitCommit GetCommit(string commitSha)
+		{
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha));
+
+			return new GitCommit(
+				commit.Sha,
+				commit.MessageShort,
+				commit.Author.Name,
+				commit.Author.When.LocalDateTime,
+				commit.Committer.When.LocalDateTime,
+				commit.Parents.Select(p => new CommitId(p.Sha)).ToList());
 		}
 	}
 }
