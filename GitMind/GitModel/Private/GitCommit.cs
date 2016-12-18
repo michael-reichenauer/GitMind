@@ -33,12 +33,10 @@ namespace GitMind.GitModel.Private
 		[DataMember] public string Author { get; private set; }
 		[DataMember] public DateTime AuthorDate { get; private set; }
 		[DataMember] public DateTime CommitDate { get; private set; }
-		[DataMember] public List<CommitId> ParentIds { get; private set; }
+		[DataMember] public List<CommitId> ParentIds { get; private set; } = new List<CommitId>();
 
-		[DataMember] public string BranchName { get; private set; }
 		[DataMember] public string BranchNameFromSubject { get; private set; }
 
-		public void SetBranchName(string banchName) => BranchName = banchName;
 		public void SetBranchNameFromSubject(string banchName) => BranchNameFromSubject = banchName;
 
 		public override string ToString() => $"{Sha.Substring(0, 6)} {AuthorDate} {Subject}";

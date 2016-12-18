@@ -167,7 +167,7 @@ namespace GitMind.Git.Private
 				{
 					AddPaths(repo, paths);
 					GitCommit gitCommit = Commit(repo, message);
-					CommitId commitId = new CommitId(gitCommit.Id);
+					CommitId commitId = new CommitId(gitCommit.Sha);
 					gitCommitBranchNameService.SetCommitBranchNameAsync(commitId, branchName);
 					return gitCommit;
 				});

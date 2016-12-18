@@ -34,11 +34,12 @@ namespace GitMind.GitModel.Private
 		public DateTime CommitDate => gitCommit.Value.CommitDate;
 		public List<CommitId> ParentIds => gitCommit.Value.ParentIds;
 		public BranchName FromSubjectBranchName => gitCommit.Value.BranchNameFromSubject;
+		
 
-
+		[DataMember] public bool IsSet { get; set; }
 		[DataMember] public List<CommitId> ChildIds { get; set; } = new List<CommitId>();
 		[DataMember] public List<CommitId> FirstChildIds { get; set; } = new List<CommitId>();
-		[DataMember] public BranchName BranchName { get; set; }
+		[DataMember] public string BranchName { get; private set; }
 		[DataMember] public BranchName SpecifiedBranchName { get; set; }
 		[DataMember] public string Tags { get; set; }
 		[DataMember] public string Tickets { get; set; }
@@ -105,5 +106,11 @@ namespace GitMind.GitModel.Private
 		}
 
 		public override string ToString() => $"{ShortId} {AuthorDate} ({ParentIds.Count}) {Subject} ({CommitDate})";
+
+
+		public void SetBranchName(BranchName branchName)
+		{
+			BranchName = branchName;
+		}
 	}
 }

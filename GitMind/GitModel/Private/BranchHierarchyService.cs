@@ -239,10 +239,11 @@ namespace GitMind.GitModel.Private
 			{
 				MCommit commit = repository.AddVirtualCommit(branch.ParentCommit.ViewCommitId);
 
+
 				commit.IsVirtual = true;
 				commit.BranchId = branch.Id;
-				commit.BranchName = branch.Name;
-				CopyToCommit(branch, commit);
+				commit.SetBranchName(branch.Name);
+				CopyToCommit(repository, branch, commit);
 				SetChildOfParents(commit);
 
 				//repository.Commits[commit.Id] = commit;
@@ -484,16 +485,21 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static void CopyToCommit(MBranch branch, MCommit commit)
+		private static void CopyToCommit(MRepository repository, MBranch branch, MCommit commit)
 		{
+			CommitId commitId = new CommitId(commit.Id.Sha);
+			GitCommit gitCommit = new GitCommit(
+				commit.Id.Sha,
+				branch.ParentCommit.Subject,
+				branch.ParentCommit.Author,
+				branch.ParentCommit.AuthorDate,
+				branch.ParentCommit.CommitDate + TimeSpan.FromSeconds(1),
+				new List<CommitId> { branch.ParentCommitId });
+
+			repository.GitCommits[commitId] = gitCommit;
+
 			// commit.Id = GetId();
 			commit.ViewCommitId = branch.ParentCommit.ViewCommitId;
-			commit.Subject = branch.ParentCommit.Subject;
-			commit.Author = branch.ParentCommit.Author;
-			commit.AuthorDate = branch.ParentCommit.AuthorDate;
-			commit.CommitDate = branch.ParentCommit.CommitDate + TimeSpan.FromSeconds(1);
-			commit.Tickets = branch.ParentCommit.Tickets;
-			commit.ParentIds = new List<CommitId> { branch.ParentCommitId };
 		}
 
 

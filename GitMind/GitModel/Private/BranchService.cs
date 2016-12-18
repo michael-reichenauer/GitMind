@@ -139,7 +139,7 @@ namespace GitMind.GitModel.Private
 
 						repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-						commit.BranchName = subBranch.Name;
+						commit.SetBranchName(subBranch.Name);
 						commit.SubBranchId = subBranch.SubBranchId;
 
 						SetSubBranchCommits(subBranch);
@@ -190,7 +190,7 @@ namespace GitMind.GitModel.Private
 
 						repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-						commit.BranchName = branchName;
+						commit.SetBranchName(branchName);
 						commit.SubBranchId = subBranch.SubBranchId;
 						SetSubBranchCommits(subBranch);
 					}
@@ -210,7 +210,7 @@ namespace GitMind.GitModel.Private
 							|| commitBranchNameService.GetBranchName(c) == subBranch.Name)
 					&& !c.FirstChildren.Any(fc => fc.BranchName != subBranch.Name)))
 			{
-				commit.BranchName = subBranch.Name;
+				commit.SetBranchName(subBranch.Name);
 				commit.SubBranchId = subBranch.SubBranchId;
 			}
 		}
@@ -229,7 +229,7 @@ namespace GitMind.GitModel.Private
 				Repository = repository,
 				SubBranchId = Guid.NewGuid().ToString(),
 				Name = branchName,
-				TipCommitId = repository.Commit(gitBranch.TipId).Id,
+				TipCommitId = repository.Commit(new CommitId(gitBranch.TipId)).Id,
 				IsActive = true,
 				IsCurrent = gitBranch.IsCurrent,
 				IsDetached = gitBranch.IsDetached,
