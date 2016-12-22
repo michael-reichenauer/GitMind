@@ -76,7 +76,7 @@ namespace GitMind.GitModel.Private
 			R<Repository> repository = await GetCachedRepositoryAsync(workingFolder);
 			if (!repository.IsOk)
 			{
-				repository = await GetFreshRepositoryAsync(workingFolder);
+				repository = await GetFreshRepositoryAsync(workingFolder, null);
 			}
 
 			Repository = repository.Value;			
@@ -86,7 +86,7 @@ namespace GitMind.GitModel.Private
 		public async Task GetFreshRepositoryAsync()
 		{
 			string workingFolder = Repository.MRepository.WorkingFolder;
-			R<Repository> repository = await GetFreshRepositoryAsync(workingFolder);
+			R<Repository> repository = await GetFreshRepositoryAsync(workingFolder, Repository.MRepository.GitCommits);
 
 			if (repository.IsOk)
 			{
@@ -218,11 +218,14 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async Task<R<Repository>> GetFreshRepositoryAsync(string workingFolder)
+		private async Task<R<Repository>> GetFreshRepositoryAsync(
+			string workingFolder, Dictionary<CommitId, GitCommit> gitCommits)
 		{
 			Log.Debug("No cached repository");
 			MRepository mRepository = new MRepository();
 			mRepository.WorkingFolder = workingFolder;
+
+			mRepository.GitCommits = gitCommits ?? new Dictionary<CommitId, GitCommit>();
 
 			Timing t = new Timing();
 			await repositoryStructureService.UpdateAsync(mRepository, null, null);
