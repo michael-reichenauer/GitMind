@@ -242,7 +242,7 @@ namespace GitMind.GitModel.Private
 					.Substring(0, 40);
 				CommitSha virtualSha = new CommitSha(virtualShaText);
 				CommitId virtualId = new CommitId(virtualShaText);
-				CommitId realCommitId = branch.ParentCommit.ViewCommitId;
+				CommitId realCommitId = branch.ParentCommit.RealCommitId;
 
 				MCommit commit = AddVirtualCommit(repository, realCommitId, virtualId);
 

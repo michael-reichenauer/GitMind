@@ -18,8 +18,8 @@ namespace GitMind.GitModel
 		public Commit(
 			Repository repository, 
 			CommitId id,
-			CommitId commitId, 
-			CommitSha commitSha,
+			CommitId realCommitId, 
+			CommitSha realCommitSha,
 			string subject,
 			string author, 
 			DateTime authorDate, 
@@ -46,8 +46,8 @@ namespace GitMind.GitModel
 			this.childIds = childIds;
 			this.branchId = branchId;
 			Id = id;
-			CommitId = commitId;
-			CommitSha = commitSha;
+			RealCommitId = realCommitId;
+			RealCommitSha = realCommitSha;
 			Subject = subject;
 			Author = author;
 			AuthorDate = authorDate;			
@@ -70,8 +70,9 @@ namespace GitMind.GitModel
 
 
 		public CommitId Id { get; }
-		public CommitId CommitId { get; }
-		public CommitSha CommitSha { get; }
+
+		public CommitId RealCommitId { get; }
+		public CommitSha RealCommitSha { get; }
 		public string Subject { get; }
 		public string Author { get; }
 		public DateTime AuthorDate { get; }
@@ -102,7 +103,7 @@ namespace GitMind.GitModel
 		public string WorkingFolder => Repository.MRepository.WorkingFolder;
 		public Repository Repository { get; }
 
-		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(CommitSha);
+		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(RealCommitSha);
 
 		public override string ToString() => $"{Id} {Subject} {CommitDate}";
 

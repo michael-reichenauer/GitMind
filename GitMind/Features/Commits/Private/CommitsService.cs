@@ -179,7 +179,7 @@ namespace GitMind.Features.Commits.Private
 						using (progress.ShowDialog($"Setting commit branch name {branchName} ..."))
 						{
 							await SetSpecifiedCommitBranchAsync(
-								commit.CommitSha, commit.Repository.RootCommit.CommitSha, branchName);
+								commit.RealCommitSha, commit.Repository.RootCommit.RealCommitSha, branchName);
 							if (branchName != null)
 							{
 								repositoryCommands.ShowBranch(branchName);

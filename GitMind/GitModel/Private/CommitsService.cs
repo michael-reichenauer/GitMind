@@ -16,23 +16,23 @@ namespace GitMind.GitModel.Private
 			Status status = repository.Status;
 
 			Timing t = new Timing();
-			IEnumerable<string> rootCommits = gitRepository.Branches.Select(b => b.TipId);
+			IEnumerable<CommitSha> rootCommits = gitRepository.Branches.Select(b => new CommitSha(b.TipId));
 
 			if (gitRepository.Head.IsDetached)
 			{
-				rootCommits = rootCommits.Concat(new[] { gitRepository.Head.TipId });
+				rootCommits = rootCommits.Concat(new[] { new CommitSha(gitRepository.Head.TipId) });
 			}
 
 			rootCommits = rootCommits.ToList();
 			t.Log("Root commit ids");
 
 
-			Dictionary<string, object> added = new Dictionary<string, object>();
+			Dictionary<CommitSha, object> added = new Dictionary<CommitSha, object>();
 
 			Dictionary<CommitId, BranchName> branchNameByCommitId = new Dictionary<CommitId, BranchName>();
 			Dictionary<CommitId, BranchName> subjectBranchNameByCommitId = new Dictionary<CommitId, BranchName>();
 
-			Stack<string> commitShas = new Stack<string>();
+			Stack<CommitSha> commitShas = new Stack<CommitSha>();
 			rootCommits.ForEach(sha => commitShas.Push(sha));
 			rootCommits.ForEach(sha => added[sha] = null);
 			t.Log("Pushed roots on stack");
@@ -40,13 +40,26 @@ namespace GitMind.GitModel.Private
 			while (commitShas.Any())
 			{
 				//GitCommit gitCommit = commits.Pop();
-				string commitSha = commitShas.Pop();
-				CommitId commitId = new CommitId(commitSha);			
+				CommitSha commitSha = commitShas.Pop();
+				CommitId commitId = new CommitId(commitSha.Sha);
 
-				if (!repository.GitCommits.TryGetValue(commitId, out GitCommit gitCommit))
+				GitCommit gitCommit;
+				IEnumerable<CommitSha> parentIds = null;
+				if (!repository.GitCommits.TryGetValue(commitId, out gitCommit))
 				{
 					// This git commit id has not yet been seen before
-					gitCommit = gitRepository.GetCommit(commitSha);
+					var gitLibCommit = gitRepository.GetCommit(commitSha);
+
+					parentIds = gitLibCommit.ParentIds;
+
+					gitCommit = new GitCommit(
+						gitLibCommit.Sha,
+						gitLibCommit.Subject,
+						gitLibCommit.Author,
+						gitLibCommit.AuthorDate,
+						gitLibCommit.CommitDate,
+						gitLibCommit.ParentIds.Select(sha => new CommitId(sha.Sha)).ToList());
+
 					if (IsMergeCommit(gitCommit))
 					{
 						TrySetBranchNameFromSubject(commitId, gitCommit, branchNameByCommitId, subjectBranchNameByCommitId);
@@ -54,12 +67,18 @@ namespace GitMind.GitModel.Private
 
 					repository.GitCommits[commitId] = gitCommit;
 				}
+
 				MCommit commit = repository.Commit(commitId);
 				if (!commit.IsSet)
 				{
 					AddCommit(commit, gitCommit);
 
-					AddParents(gitCommit.ParentIds, commitShas, added);			
+					if (parentIds == null)
+					{
+						parentIds = gitCommit.ParentIds.Select(id => repository.GitCommits[id].Sha);
+					}
+
+					AddParents(parentIds, commitShas, added);			
 				}		
 
 				BranchName branchName;
@@ -107,7 +126,8 @@ namespace GitMind.GitModel.Private
 			
 			commit.IsVirtual = true;
 
-			MCommit headCommit = repository.Commit(new CommitId(gitRepository.Head.TipId));
+			CommitId headId = new CommitId(gitRepository.Head.TipId);
+			MCommit headCommit = repository.Commit(headId);
 			CopyToUncommitedCommit(gitRepository, repository, status, commit, headCommit.Id);
 
 			SetChildOfParents(commit);
@@ -115,16 +135,16 @@ namespace GitMind.GitModel.Private
 
 
 		private static void AddParents(
-			IEnumerable<CommitId> parents,
-			Stack<string> commitShas,
-			Dictionary<string, object> added)
+			IEnumerable<CommitSha> parents,
+			Stack<CommitSha> commitShas,
+			Dictionary<CommitSha, object> added)
 		{
 			parents.ForEach(parent =>
 			{
-				if (!added.ContainsKey(parent.Sha))
+				if (!added.ContainsKey(parent))
 				{
-					commitShas.Push(parent.Sha);
-					added[parent.Sha] = null;
+					commitShas.Push(parent);
+					added[parent] = null;
 				}
 			});
 		}

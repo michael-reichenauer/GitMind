@@ -1,31 +1,36 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Common;
 
 
 namespace GitMind.Git
 {
-//	public class GitLibCommit
-//	{
-//		private readonly LibGit2Sharp.Commit commit;
+	public class GitLibCommit
+	{
+		public GitLibCommit(
+			CommitSha sha,
+			string subject,
+			string author,
+			DateTime authorDate,
+			DateTime commitDate,
+			List<CommitSha> parentIds)
+		{
+			Sha = sha;
+			Subject = subject;
+			Author = author;
+			AuthorDate = authorDate;
+			CommitDate = commitDate;
+			ParentIds = parentIds;
+		}
 
+		public CommitSha Sha { get; }
+		public string Subject { get; }
+		public string Author { get; }
+		public DateTime AuthorDate { get; }
+		public DateTime CommitDate { get; }
+		public List<CommitSha> ParentIds { get; }
 
-//		public GitLibCommit(LibGit2Sharp.Commit commit)
-//		{
-//			this.commit = commit;
-//			ShortId = Id.Substring(0, 6);
-//		}
-
-
-//		public string Id => commit.Sha;
-//		public string ShortId { get; }
-//		public string Author => commit.Author.Name;
-
-//		public DateTime AuthorDate => commit.Author.When.LocalDateTime;
-//		public DateTime CommitDate => commit.Committer.When.LocalDateTime;
-//		public string Subject => commit.MessageShort;
-//		public IEnumerable<GitLibCommit> Parents => commit.Parents.Select(p => new GitLibCommit(p));
-
-//		public override string ToString() => $"{ShortId} {AuthorDate} {Subject}";
-//	}
+		public override string ToString() => $"{Sha.Sha.Substring(0, 6)} {AuthorDate} {Subject}";
+	}
 }

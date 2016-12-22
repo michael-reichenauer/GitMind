@@ -142,17 +142,17 @@ namespace GitMind.Git
 		}
 
 
-		public GitCommit GetCommit(string commitSha)
+		public GitLibCommit GetCommit(CommitSha commitSha)
 		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 
-			return new GitCommit(
+			return new GitLibCommit(
 				new CommitSha(commit.Sha),
 				commit.MessageShort,
 				commit.Author.Name,
 				commit.Author.When.LocalDateTime,
 				commit.Committer.When.LocalDateTime,
-				commit.Parents.Select(p => new CommitId(p.Sha)).ToList());
+				commit.Parents.Select(p => new CommitSha(p.Sha)).ToList());
 		}
 	}
 }

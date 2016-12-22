@@ -72,7 +72,7 @@ namespace GitMind.Features.Branches.Private
 
 					using (progress.ShowDialog($"Creating branch {dialog.BranchName} ..."))
 					{
-						R result = await gitBranchService.CreateBranchAsync(branchName, commit.CommitSha);
+						R result = await gitBranchService.CreateBranchAsync(branchName, commit.RealCommitSha);
 						if (result.IsOk)
 						{
 							Log.Debug($"Created branch {branchName}, from {commit.Branch}");
@@ -198,7 +198,7 @@ namespace GitMind.Features.Branches.Private
 			{
 				BranchName branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;
 
-				R<BranchName> switchedNamed = await gitBranchService.SwitchToCommitAsync(commit.CommitSha, branchName);
+				R<BranchName> switchedNamed = await gitBranchService.SwitchToCommitAsync(commit.RealCommitSha, branchName);
 
 				if (switchedNamed.IsOk)
 				{

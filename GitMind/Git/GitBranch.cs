@@ -31,13 +31,13 @@ namespace GitMind.Git
 			branch.CanonicalName, repository.Head.CanonicalName, StringComparison.OrdinalIgnoreCase) ;
 
 
-		public GitCommit Tip => new GitCommit(
+		public GitLibCommit Tip => new GitLibCommit(
 			new CommitSha(branch.Tip.Sha),
 			branch.Tip.MessageShort,
 			branch.Tip.Author.Name,
 			branch.Tip.Author.When.LocalDateTime,
 			branch.Tip.Committer.When.LocalDateTime,
-			branch.Tip.Parents.Select(p =>new CommitId(p.Sha)).ToList());
+			branch.Tip.Parents.Select(p =>new CommitSha(p.Sha)).ToList());
 
 		public override string ToString() => Name.ToString();
 	}
