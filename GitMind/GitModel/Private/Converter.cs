@@ -1,4 +1,5 @@
 using System.Linq;
+using GitMind.Common;
 
 
 namespace GitMind.GitModel.Private
@@ -36,6 +37,7 @@ namespace GitMind.GitModel.Private
 				repository,
 				commit.Id,
 				commit.ViewCommitId,
+				commit.ViewCommitSha,
 				commit.Subject,
 				commit.Author,
 				commit.AuthorDate,

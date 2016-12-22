@@ -32,7 +32,7 @@ namespace GitMind.Git
 
 
 		public GitCommit Tip => new GitCommit(
-			branch.Tip.Sha,
+			new CommitSha(branch.Tip.Sha),
 			branch.Tip.MessageShort,
 			branch.Tip.Author.Name,
 			branch.Tip.Author.When.LocalDateTime,

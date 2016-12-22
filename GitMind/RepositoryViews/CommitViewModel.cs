@@ -32,7 +32,7 @@ namespace GitMind.RepositoryViews
 
 		public int ZIndex => 400;
 		public string Type => nameof(CommitViewModel);
-		public string CommitId => Commit.CommitId.Sha;
+		public string CommitId => Commit.CommitSha.Sha;
 		public string ShortId => Commit.CommitId.ShortSha;
 		public string Author => Commit.Author;
 		public string Date => Commit.AuthorDateText;

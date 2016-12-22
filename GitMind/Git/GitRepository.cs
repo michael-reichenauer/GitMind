@@ -74,7 +74,7 @@ namespace GitMind.Git
 		}
 
 
-		public IReadOnlyList<GitNote> GetCommitNotes(CommitId commitId)
+		public IReadOnlyList<GitNote> GetCommitNotes(CommitSha commitId)
 		{
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
 			if (commit != null)
@@ -92,7 +92,7 @@ namespace GitMind.Git
 		}
 
 
-		public void SetCommitNote(CommitId commitId, GitNote gitNote)
+		public void SetCommitNote(CommitSha commitId, GitNote gitNote)
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 
@@ -147,7 +147,7 @@ namespace GitMind.Git
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha));
 
 			return new GitCommit(
-				commit.Sha,
+				new CommitSha(commit.Sha),
 				commit.MessageShort,
 				commit.Author.Name,
 				commit.Author.When.LocalDateTime,

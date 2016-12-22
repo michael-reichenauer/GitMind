@@ -22,7 +22,7 @@ namespace GitMind.Features.Diffing.Private
 		private static readonly char[] LineEnding = "\r".ToCharArray();
 
 
-		public Task<CommitDiff> ParseAsync(CommitId commitId, string patch, bool addPrefixes = true)
+		public Task<CommitDiff> ParseAsync(CommitSha commitId, string patch, bool addPrefixes = true)
 		{
 			string[] patchLines = patch.Split("\n".ToCharArray());
 

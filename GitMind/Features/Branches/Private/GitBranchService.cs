@@ -74,16 +74,16 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		public Task<R> CreateBranchAsync(BranchName branchName, CommitId commitId)
+		public Task<R> CreateBranchAsync(BranchName branchName, CommitSha commitSha)
 		{
-			Log.Debug($"Create branch {branchName} at commit {commitId} ...");
+			Log.Debug($"Create branch {branchName} at commit {commitSha} ...");
 
 			return repoCaller.UseLibRepoAsync(repository =>
 			{
-				Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
+				Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 				if (commit == null)
 				{
-					Log.Warn($"Unknown commit id {commitId}");
+					Log.Warn($"Unknown commit id {commitSha}");
 					return;
 				}
 
@@ -129,15 +129,15 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		public Task<R<BranchName>> SwitchToCommitAsync(CommitId commitId, BranchName branchName)
+		public Task<R<BranchName>> SwitchToCommitAsync(CommitSha commitSha, BranchName branchName)
 		{
-			Log.Debug($"Switch to commit {commitId} with branch name '{branchName}' ...");
+			Log.Debug($"Switch to commit {commitSha} with branch name '{branchName}' ...");
 			return repoCaller.UseLibRepoAsync(repository =>
 			{
-				Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
+				Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 				if (commit == null)
 				{
-					Log.Warn($"Unknown commit id {commitId}");
+					Log.Warn($"Unknown commit id {commitSha}");
 					return null;
 				}
 
@@ -148,7 +148,7 @@ namespace GitMind.Features.Branches.Private
 						.FirstOrDefault(b =>
 							!b.IsRemote
 							&& branchName.IsEqual(b.FriendlyName)
-							&& b.Tip.Sha == commitId.Sha);
+							&& b.Tip.Sha == commitSha.Sha);
 
 					if (branch != null)
 					{
@@ -205,7 +205,7 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		public R<GitDivergence> CheckAheadBehind(CommitId localTip, CommitId remoteTip)
+		public R<GitDivergence> CheckAheadBehind(CommitSha localTip, CommitSha remoteTip)
 		{
 			return repoCaller.UseRepo(
 				repo =>
@@ -218,9 +218,9 @@ namespace GitMind.Features.Branches.Private
 						HistoryDivergence div = repo.ObjectDatabase.CalculateHistoryDivergence(local, remote);
 
 						return new GitDivergence(
-							new CommitId(div.One.Sha),
-							new CommitId(div.Another.Sha),
-							new CommitId(div.CommonAncestor.Sha),
+							new CommitSha(div.One.Sha),
+							new CommitSha(div.Another.Sha),
+							new CommitSha(div.CommonAncestor.Sha),
 							div.AheadBy ?? 0,
 							div.BehindBy ?? 0);
 					}

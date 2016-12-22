@@ -15,11 +15,11 @@ namespace GitMind.GitModel
 	{
 		private readonly IGitCommitsService gitCommitsService;
 
-		private readonly ConcurrentDictionary<CommitId, IList<CommitFile>> commitsFiles =
-			new ConcurrentDictionary<CommitId, IList<CommitFile>>();
+		private readonly ConcurrentDictionary<CommitSha, IList<CommitFile>> commitsFiles =
+			new ConcurrentDictionary<CommitSha, IList<CommitFile>>();
 
 		private Task currentTask = Task.FromResult(true);
-		private CommitId nextIdToGet;
+		private CommitSha nextIdToGet;
 
 
 		public CommitsFiles(IGitCommitsService gitCommitsService)
@@ -28,9 +28,9 @@ namespace GitMind.GitModel
 		}
 
 
-		public async Task<IEnumerable<CommitFile>> GetAsync(CommitId commitId)
+		public async Task<IEnumerable<CommitFile>> GetAsync(CommitSha commitId)
 		{
-			if (commitId == CommitId.Uncommitted || !commitsFiles.TryGetValue(commitId, out var files))
+			if (commitId == CommitSha.Uncommitted || !commitsFiles.TryGetValue(commitId, out var files))
 			{
 				nextIdToGet = commitId;
 				await currentTask;

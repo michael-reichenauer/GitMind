@@ -157,7 +157,7 @@ namespace GitMind.Features.Commits.Private
 			return new CommitFileViewModel(diffService, file, UndoUncommittedFileCommand)
 			{
 				WorkingFolder = workingFolder,
-				Id = CommitId.Uncommitted,
+				Id = CommitSha.Uncommitted,
 				Name = file.Path,
 				Status = file.StatusText
 			};

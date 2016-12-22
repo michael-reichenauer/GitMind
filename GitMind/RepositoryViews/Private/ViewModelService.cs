@@ -366,7 +366,7 @@ namespace GitMind.RepositoryViews.Private
 			{
 				return commits
 					.Where(c =>
-						StartsWith(c.CommitId.Sha, filterText)
+						StartsWith(c.CommitSha.Sha, filterText)
 						|| Contains(c.Subject, filterText)
 						|| Contains(c.Author, filterText)
 						|| Contains(c.AuthorDateText, filterText)

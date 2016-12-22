@@ -7,6 +7,6 @@ namespace GitMind.GitModel
 {
 	internal interface ICommitsFiles
 	{
-		Task<IEnumerable<CommitFile>> GetAsync(CommitId commitId);
+		Task<IEnumerable<CommitFile>> GetAsync(CommitSha commitId);
 	}
 }

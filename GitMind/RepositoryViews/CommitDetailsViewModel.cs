@@ -92,7 +92,7 @@ namespace GitMind.RepositoryViews
 				string subject = CommitViewModel?.Subject;
 				if (CommitViewModel != null)
 				{
-					CommitId commitId = CommitViewModel.Commit.CommitId;
+					CommitSha commitId = CommitViewModel.Commit.CommitSha;
 					subject = gitCommitsService.GetFullMessage(commitId)
 						.Or(CommitViewModel?.Subject);
 				}
@@ -101,7 +101,7 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		public string CommitId => CommitViewModel?.Commit.CommitId.Sha;
+		public string CommitId => CommitViewModel?.Commit.CommitSha.Sha;
 		public string ShortId => CommitViewModel?.ShortId;
 		public string BranchName => CommitViewModel?.Commit?.Branch?.Name;
 		public FontStyle BranchNameStyle => !string.IsNullOrEmpty(SpecifiedBranchName)
@@ -135,7 +135,7 @@ namespace GitMind.RepositoryViews
 					.ForEach(f => files.Add(
 						new CommitFileViewModel(diffService, f, UndoUncommittedFileCommand)
 						{
-							Id = commit.CommitId,
+							Id = commit.CommitSha,
 							Name = f.Path,
 							Status = f.StatusText,
 							WorkingFolder = commit.WorkingFolder
