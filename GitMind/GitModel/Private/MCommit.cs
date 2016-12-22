@@ -27,7 +27,7 @@ namespace GitMind.GitModel.Private
 		//[DataMember] public DateTime CommitDate { get; set; }
 		//[DataMember] public List<CommitId> ParentIds { get; set; } = new List<CommitId>();
 
-
+		public CommitSha Sha => gitCommit.Value.Sha;
 		public string Subject => gitCommit.Value.Subject;
 		public string Author => gitCommit.Value.Author;
 		public DateTime AuthorDate => gitCommit.Value.AuthorDate;
@@ -45,11 +45,14 @@ namespace GitMind.GitModel.Private
 		[DataMember] public string Tickets { get; set; }
 		[DataMember] public bool IsVirtual { get; set; }
 		[DataMember] public string BranchTips { get; set; }
-		[DataMember] public CommitId ViewCommitId { get; set; }
+		
 		[DataMember] public bool IsLocalAhead { get; set; }
 		[DataMember] public bool IsRemoteAhead { get; set; }
 		[DataMember] public bool IsCommon { get; set; }
 
+
+		public CommitId ViewCommitId => IsVirtual ? FirstParent.Id : Id;
+		public CommitSha ViewCommitSha => IsVirtual ? FirstParent.Sha : Sha;
 
 		public string ShortId => ViewCommitId.ShortSha;
 

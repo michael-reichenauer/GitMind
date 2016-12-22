@@ -237,13 +237,20 @@ namespace GitMind.GitModel.Private
 
 			foreach (MBranch branch in emptyBranches)
 			{
-				MCommit commit = repository.AddVirtualCommit(branch.ParentCommit.ViewCommitId);
+
+				string virtualShaText = (Guid.NewGuid() + Guid.NewGuid().ToString()).Replace("-", "")
+					.Substring(0, 40);
+				CommitSha virtualSha = new CommitSha(virtualShaText);
+				CommitId virtualId = new CommitId(virtualShaText);
+				CommitId realCommitId = branch.ParentCommit.ViewCommitId;
+
+				MCommit commit = AddVirtualCommit(repository, realCommitId, virtualId);
 
 
 				commit.IsVirtual = true;
 				commit.BranchId = branch.Id;
 				commit.SetBranchName(branch.Name);
-				CopyToCommit(repository, branch, commit);
+				CopyToVirtualCommit(repository, branch, commit, virtualSha);
 				SetChildOfParents(commit);
 
 				//repository.Commits[commit.Id] = commit;
@@ -254,6 +261,22 @@ namespace GitMind.GitModel.Private
 
 				branch.TipCommit.BranchTips = $"{branch.Name} branch tip";
 			}
+		}
+
+		private static MCommit AddVirtualCommit(
+			MRepository repository, 
+			CommitId realCommitId,
+			CommitId virtualId)
+		{
+			MCommit commit = new MCommit()
+			{
+				Repository = repository,
+				Id = virtualId,
+			};
+
+			repository.Commits[virtualId] = commit;
+
+			return commit;
 		}
 
 
@@ -278,10 +301,10 @@ namespace GitMind.GitModel.Private
 				}
 
 				if (gitBranchService.CheckAheadBehind(
-					localTipCommit.Id, remoteTipCommit.Id).HasValue(out var div))
+					localTipCommit.Sha, remoteTipCommit.Sha).HasValue(out var div))
 				{
-					CommitId commonTip = div.CommonId;
-					MCommit commonCommit = repository.Commits[commonTip];
+					CommitSha commonTip = div.CommonId;
+					MCommit commonCommit = repository.Commits[new CommitId(commonTip.Sha)];
 
 					commonCommit
 						.CommitAndFirstAncestors()
@@ -294,7 +317,7 @@ namespace GitMind.GitModel.Private
 						commit.IsRemoteAhead = false;
 					});
 
-					if (commonTip != localTipCommit.Id || 
+					if (commonTip != localTipCommit.Sha || 
 						(repository.Commits[branch.LocalTipCommitId].IsUncommitted 
 							&& !repository.Commits[branch.FirstCommitId].IsUncommitted))
 					{
@@ -485,21 +508,20 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static void CopyToCommit(MRepository repository, MBranch branch, MCommit commit)
+		private static void CopyToVirtualCommit
+			(MRepository repository, MBranch branch, MCommit commit, CommitSha virtualSha)
 		{
-			CommitId commitId = new CommitId(commit.Id.Sha);
 			GitCommit gitCommit = new GitCommit(
-				commit.Id.Sha,
+				virtualSha,
 				branch.ParentCommit.Subject,
 				branch.ParentCommit.Author,
 				branch.ParentCommit.AuthorDate,
 				branch.ParentCommit.CommitDate + TimeSpan.FromSeconds(1),
 				new List<CommitId> { branch.ParentCommitId });
 
-			repository.GitCommits[commitId] = gitCommit;
+			repository.GitCommits[commit.Id] = gitCommit;
 
 			// commit.Id = GetId();
-			commit.ViewCommitId = branch.ParentCommit.ViewCommitId;
 		}
 
 

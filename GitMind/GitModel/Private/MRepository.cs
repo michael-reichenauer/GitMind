@@ -66,7 +66,6 @@ namespace GitMind.GitModel.Private
 			{
 				Repository = this,
 				Id = commitId,
-				ViewCommitId = commitId
 			};
 
 			Commits[commitId] = commit;
@@ -75,23 +74,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public MCommit AddVirtualCommit(CommitId realCommitId)
-		{
-			string idText = (Guid.NewGuid() + Guid.NewGuid().ToString()).Replace("-", "")
-				.Substring(0, 40);
-			CommitId commitId = new CommitId(idText);
-			MCommit commit = new MCommit()
-			{
-				Repository = this,
-				Id = commitId,
-				ViewCommitId = realCommitId
-			};
-
-			Commits[commitId] = commit;
-
-			return commit;
-		}
-
+	
 
 		public void CompleteDeserialization(string workingFolder)
 		{

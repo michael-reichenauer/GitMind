@@ -228,7 +228,7 @@ namespace GitMind.GitModel.Private
 			}
 
 			GitCommit gitCommit = new GitCommit(
-				CommitId.Uncommitted.Sha,
+				CommitSha.Uncommitted,
 				subject,
 				gitRepository.UserName ?? "",
 				DateTime.Now,

@@ -14,7 +14,7 @@ namespace GitMind.GitModel.Private
 		}
 
 		public GitCommit(
-			string sha,
+			CommitSha sha,
 			string subject,
 			string author,
 			DateTime authorDate,
@@ -28,7 +28,7 @@ namespace GitMind.GitModel.Private
 			CommitDate = commitDate;
 			ParentIds = parentIds;
 		}
-		[DataMember] public string Sha { get; private set; }
+		[DataMember] public CommitSha Sha { get; private set; }
 		[DataMember] public string Subject { get; private set; }
 		[DataMember] public string Author { get; private set; }
 		[DataMember] public DateTime AuthorDate { get; private set; }
@@ -39,6 +39,6 @@ namespace GitMind.GitModel.Private
 
 		public void SetBranchNameFromSubject(string banchName) => BranchNameFromSubject = banchName;
 
-		public override string ToString() => $"{Sha.Substring(0, 6)} {AuthorDate} {Subject}";
+		public override string ToString() => $"{Sha.Sha.Substring(0, 6)} {AuthorDate} {Subject}";
 	}
 }

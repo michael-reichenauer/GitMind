@@ -43,31 +43,31 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(CommitId commitId)
+		public async Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(CommitSha commitSha)
 		{
-			if (commitId == CommitId.Uncommitted)
+			if (commitSha == CommitSha.Uncommitted)
 			{
 				Status status = repositoryMgr.Value.Repository.Status;
 				return R.From(status.ChangedFiles);
 			}
 
-			return await repoCaller.UseRepoAsync(repo => repo.Diff.GetFiles(workingFolder, commitId));
+			return await repoCaller.UseRepoAsync(repo => repo.Diff.GetFiles(workingFolder, commitSha));
 		}
 
 
-		public Task EditCommitBranchAsync(CommitId commitId, CommitId rootId, BranchName branchName)
+		public Task EditCommitBranchAsync(CommitSha commitId, CommitSha rootId, BranchName branchName)
 		{
 			return gitCommitBranchNameService.EditCommitBranchNameAsync(commitId, rootId, branchName);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitId rootId)
+		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitSha rootId)
 		{
 			return gitCommitBranchNameService.GetEditedBranchNames(rootId);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetCommitBranches(CommitId rootId)
+		public IReadOnlyList<CommitBranchName> GetCommitBranches(CommitSha rootId)
 		{
 			return gitCommitBranchNameService.GetCommitBrancheNames(rootId);
 		}
@@ -167,7 +167,7 @@ namespace GitMind.Git.Private
 				{
 					AddPaths(repo, paths);
 					GitCommit gitCommit = Commit(repo, message);
-					CommitId commitId = new CommitId(gitCommit.Sha);
+					CommitSha commitId = gitCommit.Sha;
 					gitCommitBranchNameService.SetCommitBranchNameAsync(commitId, branchName);
 					return gitCommit;
 				});
@@ -208,7 +208,7 @@ namespace GitMind.Git.Private
 			LibGit2Sharp.Commit commit = repo.Commit(message, signature, signature, commitOptions);
 
 			return commit != null ? new GitCommit(
-				commit.Sha,
+				new CommitSha(commit.Sha),
 				commit.MessageShort,
 				commit.Author.Name,
 				commit.Author.When.LocalDateTime,
@@ -252,11 +252,11 @@ namespace GitMind.Git.Private
 			});
 		}
 
-		public R<string> GetFullMessage(CommitId commitId)
+		public R<string> GetFullMessage(CommitSha commitSha)
 		{
 			return repoCaller.UseRepo(repo =>
 			{
-				LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(new ObjectId(commitId.Sha));
+				LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(new ObjectId(commitSha.Sha));
 				if (commit != null)
 				{
 					return commit.Message;

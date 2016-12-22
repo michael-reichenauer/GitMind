@@ -163,10 +163,10 @@ namespace GitMind.GitModel.Private
 			MCommit rootCommit = GetRootCommit(repository);
 
 			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitsService.GetSpecifiedNames(
-				rootCommit.Id);
+				rootCommit.Sha);
 
 			IReadOnlyList<CommitBranchName> commitBranches = gitCommitsService.GetCommitBranches(
-				rootCommit.Id);
+				rootCommit.Sha);
 
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);
