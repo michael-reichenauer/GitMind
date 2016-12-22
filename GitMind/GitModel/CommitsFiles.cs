@@ -28,20 +28,20 @@ namespace GitMind.GitModel
 		}
 
 
-		public async Task<IEnumerable<CommitFile>> GetAsync(CommitSha commitId)
+		public async Task<IEnumerable<CommitFile>> GetAsync(CommitSha commitSha)
 		{
-			if (commitId == CommitSha.Uncommitted || !commitsFiles.TryGetValue(commitId, out var files))
+			if (commitSha == CommitSha.Uncommitted || !commitsFiles.TryGetValue(commitSha, out var files))
 			{
-				nextIdToGet = commitId;
+				nextIdToGet = commitSha;
 				await currentTask;
-				if (nextIdToGet != commitId)
+				if (nextIdToGet != commitSha)
 				{
 					// This commit id is no longer relevant 
 					return Enumerable.Empty<CommitFile>();
 				}
 
 				Task<R<IReadOnlyList<StatusFile>>> commitsFilesForCommitTask =
-					gitCommitsService.GetFilesForCommitAsync(commitId);
+					gitCommitsService.GetFilesForCommitAsync(commitSha);
 
 				currentTask = commitsFilesForCommitTask;
 				
@@ -49,11 +49,11 @@ namespace GitMind.GitModel
 				{
 					files = commitsFilesForCommit
 						.Select(f => new CommitFile(f)).ToList();
-					commitsFiles[commitId] = files;
+					commitsFiles[commitSha] = files;
 					return files;
 				}
 
-				Log.Warn($"Failed to get files for {commitId}");
+				Log.Warn($"Failed to get files for {commitSha}");
 				return Enumerable.Empty<CommitFile>();
 			}
 

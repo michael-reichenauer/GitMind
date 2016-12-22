@@ -36,16 +36,16 @@ namespace GitMind.Features.Diffing.Private
 		}
 		 
 
-		public Task<R<CommitDiff>> GetFileDiffAsync(CommitSha commitId, string path)
+		public Task<R<CommitDiff>> GetFileDiffAsync(CommitSha commitSha, string path)
 		{
-			Log.Debug($"Get diff for file {path} for commit {commitId} ...");
+			Log.Debug($"Get diff for file {path} for commit {commitSha} ...");
 			return repoCaller.UseRepoAsync(async repo =>
 			{
-				string patch = repo.Diff.GetFilePatch(commitId, path);
+				string patch = repo.Diff.GetFilePatch(commitSha, path);
 
-				CommitDiff commitDiff = await gitDiffParser.ParseAsync(commitId, patch, false);
+				CommitDiff commitDiff = await gitDiffParser.ParseAsync(commitSha, patch, false);
 
-				if (commitId == CommitSha.Uncommitted)
+				if (commitSha == CommitSha.Uncommitted)
 				{
 					string filePath = Path.Combine(workingFolder, path);
 					if (File.Exists(filePath))
@@ -59,24 +59,24 @@ namespace GitMind.Features.Diffing.Private
 		}
 
 
-		public Task<R<CommitDiff>> GetCommitDiffAsync(CommitSha commitId)
+		public Task<R<CommitDiff>> GetCommitDiffAsync(CommitSha commitSha)
 		{
-			Log.Debug($"Get diff for commit {commitId} ...");
+			Log.Debug($"Get diff for commit {commitSha} ...");
 			return repoCaller.UseRepoAsync(async repo =>
 			{
-				string patch = repo.Diff.GetPatch(commitId);
+				string patch = repo.Diff.GetPatch(commitSha);
 
-				return await gitDiffParser.ParseAsync(commitId, patch);
+				return await gitDiffParser.ParseAsync(commitSha, patch);
 			});
 		}
 
 
-		public Task<R<CommitDiff>> GetCommitDiffRangeAsync(CommitSha id1, CommitSha id2)
+		public Task<R<CommitDiff>> GetCommitDiffRangeAsync(CommitSha commitSha1, CommitSha commitSha2)
 		{
-			Log.Debug($"Get diff for commit range {id1}-{id2} ...");
+			Log.Debug($"Get diff for commit range {commitSha1}-{commitSha2} ...");
 			return repoCaller.UseRepoAsync(async repo =>
 			{
-				string patch = repo.Diff.GetPatchRange(id1, id2);
+				string patch = repo.Diff.GetPatchRange(commitSha1, commitSha2);
 
 				return await gitDiffParser.ParseAsync(null, patch);
 			});

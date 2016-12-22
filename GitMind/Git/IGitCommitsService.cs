@@ -14,10 +14,10 @@ namespace GitMind.Git
 	{
 		Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(CommitSha commitSha);
 
-		Task EditCommitBranchAsync(CommitSha commitId, CommitSha rootId, BranchName branchName);
+		Task EditCommitBranchAsync(CommitSha commitSha, CommitSha rootSha, BranchName branchName);
 	
-		IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitSha rootId);
-		IReadOnlyList<CommitBranchName> GetCommitBranches(CommitSha rootId);
+		IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitSha rootSha);
+		IReadOnlyList<CommitBranchName> GetCommitBranches(CommitSha rootSha);
 
 	
 		Task<R<GitCommit>> CommitAsync(string message, string branchName, IReadOnlyList<CommitFile> paths);

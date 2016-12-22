@@ -74,9 +74,9 @@ namespace GitMind.Git
 		}
 
 
-		public IReadOnlyList<GitNote> GetCommitNotes(CommitSha commitId)
+		public IReadOnlyList<GitNote> GetCommitNotes(CommitSha commitSha)
 		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 			if (commit != null)
 			{
 				return commit.Notes
@@ -85,7 +85,7 @@ namespace GitMind.Git
 			}
 			else
 			{
-				Log.Warn($"Could not find commit {commitId}");
+				Log.Warn($"Could not find commit {commitSha}");
 			}
 
 			return new GitNote[0];

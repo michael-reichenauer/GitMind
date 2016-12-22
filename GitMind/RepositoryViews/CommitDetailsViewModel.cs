@@ -92,8 +92,8 @@ namespace GitMind.RepositoryViews
 				string subject = CommitViewModel?.Subject;
 				if (CommitViewModel != null)
 				{
-					CommitSha commitId = CommitViewModel.Commit.RealCommitSha;
-					subject = gitCommitsService.GetFullMessage(commitId)
+					CommitSha commitSha = CommitViewModel.Commit.RealCommitSha;
+					subject = gitCommitsService.GetFullMessage(commitSha)
 						.Or(CommitViewModel?.Subject);
 				}
 

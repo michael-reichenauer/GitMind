@@ -8,12 +8,12 @@ namespace GitMind.Features.Diffing
 {
 	internal interface IDiffService
 	{
-		Task ShowDiffAsync(CommitSha commitId);
+		Task ShowDiffAsync(CommitSha commitSha);
 
-		Task ShowFileDiffAsync(CommitSha commitId, string name);
-		Task ShowDiffRangeAsync(CommitSha id1, CommitSha id2);
+		Task ShowFileDiffAsync(CommitSha commitSha, string name);
+		Task ShowDiffRangeAsync(CommitSha commitSha1, CommitSha commitSha2);
 
-		Task MergeConflictsAsync(CommitSha id, CommitFile file);
+		Task MergeConflictsAsync(CommitSha commitSha, CommitFile file);
 		bool CanMergeConflict(CommitFile file);
 
 

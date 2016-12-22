@@ -55,21 +55,21 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task EditCommitBranchAsync(CommitSha commitId, CommitSha rootId, BranchName branchName)
+		public Task EditCommitBranchAsync(CommitSha commitSha, CommitSha rootSha, BranchName branchName)
 		{
-			return gitCommitBranchNameService.EditCommitBranchNameAsync(commitId, rootId, branchName);
+			return gitCommitBranchNameService.EditCommitBranchNameAsync(commitSha, rootSha, branchName);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitSha rootId)
+		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitSha rootSha)
 		{
-			return gitCommitBranchNameService.GetEditedBranchNames(rootId);
+			return gitCommitBranchNameService.GetEditedBranchNames(rootSha);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetCommitBranches(CommitSha rootId)
+		public IReadOnlyList<CommitBranchName> GetCommitBranches(CommitSha rootSha)
 		{
-			return gitCommitBranchNameService.GetCommitBrancheNames(rootId);
+			return gitCommitBranchNameService.GetCommitBrancheNames(rootSha);
 		}
 
 
@@ -167,8 +167,8 @@ namespace GitMind.Git.Private
 				{
 					AddPaths(repo, paths);
 					GitCommit gitCommit = Commit(repo, message);
-					CommitSha commitId = gitCommit.Sha;
-					gitCommitBranchNameService.SetCommitBranchNameAsync(commitId, branchName);
+					CommitSha commitSha = gitCommit.Sha;
+					gitCommitBranchNameService.SetCommitBranchNameAsync(commitSha, branchName);
 					return gitCommit;
 				});
 		}

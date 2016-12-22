@@ -255,9 +255,10 @@ namespace GitMind.Features.Commits.Private
 
 
 
-		public Task SetSpecifiedCommitBranchAsync(CommitSha commitId, CommitSha rootId, BranchName branchName)
+		public Task SetSpecifiedCommitBranchAsync(
+			CommitSha commitSha, CommitSha rootSha, BranchName branchName)
 		{
-			return gitCommitsService.EditCommitBranchAsync(commitId, rootId, branchName);
+			return gitCommitsService.EditCommitBranchAsync(commitSha, rootSha, branchName);
 		}
 	}
 }
