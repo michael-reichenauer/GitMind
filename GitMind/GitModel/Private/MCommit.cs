@@ -54,7 +54,7 @@ namespace GitMind.GitModel.Private
 		public CommitId RealCommitId => IsVirtual && Id != CommitId.Uncommitted ? FirstParent.Id : Id;
 		public CommitSha RealCommitSha => IsVirtual && Id != CommitId.Uncommitted ? FirstParent.Sha : Sha;
 
-		public string ShortId => RealCommitId.ShortSha;
+		public string ShortId => RealCommitSha.ShortSha;
 
 		public string SubBranchId { get; set; }
 		
