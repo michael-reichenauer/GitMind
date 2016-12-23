@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -17,8 +18,8 @@ namespace GitMind.Utils
 		private static readonly int MaxLogFileSize = 2000000;
 
 		private static readonly UdpClient UdpClient = new UdpClient();
-		private static readonly IPEndPoint LocalLogEndPoint = new IPEndPoint(IPAddress.Loopback, 40000);
-	
+		private static readonly BlockingCollection<string> logTexts = new BlockingCollection<string>();
+
 		private static readonly IPEndPoint usageLogEndPoint =
 			new IPEndPoint(IPAddress.Parse("10.85.12.4"), 41110);
 
@@ -30,6 +31,26 @@ namespace GitMind.Utils
 		private static readonly string LevelInfo = "INFO ";
 		private static readonly string LevelWarn = "WARN ";
 		private static readonly string LevelError = "ERROR";
+
+
+		static Log()
+		{		
+			Task.Factory.StartNew(SendBufferedLogRows, TaskCreationOptions.LongRunning)
+				.RunInBackground();
+		}
+
+
+		private static void SendBufferedLogRows()
+		{
+			while (!logTexts.IsCompleted)
+			{
+				string logText = logTexts.Take();
+
+				Native.OutputDebugString(logText);
+
+				//Debugger.Log(0, Debugger.DefaultCategory, logText);
+			}
+		}
 
 
 		public static void Usage(
@@ -96,7 +117,7 @@ namespace GitMind.Utils
 			{
 				//byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
 				//UdpClient.Send(bytes, bytes.Length, LocalLogEndPoint);
-				Native.OutputDebugString(text);
+				SendLog(text);
 				WriteToFile(text);
 
 				if (level == LevelUsage || level == LevelWarn || level == LevelError)
@@ -107,7 +128,7 @@ namespace GitMind.Utils
 			catch (Exception e) when (e.IsNotFatal())
 			{
 				//Debugger.Log(0, Debugger.DefaultCategory, "ERROR Failed to log to udp " + e);
-				Native.OutputDebugString("ERROR Failed to log to udp " + e);
+				SendLog("ERROR Failed to log to udp " + e);
 			}
 		}
 
@@ -159,7 +180,7 @@ namespace GitMind.Utils
 				}
 			}
 
-			Native.OutputDebugString("ERROR Failed to log to file: " + error);
+			SendLog("ERROR Failed to log to file: " + error);
 		}
 
 
@@ -184,16 +205,23 @@ namespace GitMind.Utils
 					}
 					catch (Exception e)
 					{
-						Native.OutputDebugString("ERROR Failed to move temp to second log file: " + e);
+						SendLog("ERROR Failed to move temp to second log file: " + e);
 					}
 					
 				}).RunInBackground();
 			}
 			catch (Exception e)
 			{
-				Native.OutputDebugString("ERROR Failed to move large log file: " + e);
+				SendLog("ERROR Failed to move large log file: " + e);
 			}	
 		}
+
+
+		private static void SendLog(string text)
+		{
+			logTexts.Add(text);
+		}
+
 
 		private static class Native
 		{
