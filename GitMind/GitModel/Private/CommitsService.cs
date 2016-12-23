@@ -39,7 +39,6 @@ namespace GitMind.GitModel.Private
 
 			while (commitShas.Any())
 			{
-				//GitCommit gitCommit = commits.Pop();
 				CommitSha commitSha = commitShas.Pop();
 				CommitId commitId = new CommitId(commitSha.Sha);
 
@@ -52,13 +51,7 @@ namespace GitMind.GitModel.Private
 
 					parentIds = gitLibCommit.ParentIds;
 
-					gitCommit = new GitCommit(
-						gitLibCommit.Sha,
-						gitLibCommit.Subject,
-						gitLibCommit.Author,
-						gitLibCommit.AuthorDate,
-						gitLibCommit.CommitDate,
-						gitLibCommit.ParentIds.Select(sha => new CommitId(sha.Sha)).ToList());
+					gitCommit = ToGitCommit(gitLibCommit);
 
 					if (IsMergeCommit(gitCommit))
 					{
@@ -98,9 +91,25 @@ namespace GitMind.GitModel.Private
 
 			if (!status.IsOK)
 			{
-				// Adding a virtual "uncommitted" commit since current working folder status has some changes
+				// Adding a virtual "uncommitted" commit since current working folder status has changes
 				AddVirtualUncommitted(gitRepository, status, repository);
 			}
+		}
+
+
+		private static GitCommit ToGitCommit(GitLibCommit gitLibCommit)
+		{
+			List<CommitId> parentIds = gitLibCommit.ParentIds
+				.Select(sha => new CommitId(sha.Sha))
+				.ToList();
+
+			return new GitCommit(
+				gitLibCommit.Sha,
+				gitLibCommit.Subject,
+				gitLibCommit.Author,
+				gitLibCommit.AuthorDate,
+				gitLibCommit.CommitDate,
+				parentIds);
 		}
 
 
@@ -231,8 +240,6 @@ namespace GitMind.GitModel.Private
 			int modifiedCount = status.ChangedCount;
 			int conflictCount = status.ConflictCount;
 
-			// commit.Id = MCommit.UncommittedId;
-			//commit.CommitId = MCommit.UncommittedId;
 			string subject = $"{modifiedCount} uncommitted changes in working folder";
 
 			if (conflictCount > 0)

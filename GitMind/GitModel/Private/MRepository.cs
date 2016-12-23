@@ -11,27 +11,18 @@ namespace GitMind.GitModel.Private
 	[DataContract]
 	public class MRepository
 	{
-		public MRepository()
-		{
-			
-		}
 		public static string CurrentVersion = "20";
 
 		[DataMember] public string Version { get; set; } = CurrentVersion;
 
-		[DataMember]
-		public Dictionary<CommitId, GitCommit> GitCommits { get; set; } =
+		[DataMember] public Dictionary<CommitId, GitCommit> GitCommits { get; set; } =
 			new Dictionary<CommitId, GitCommit>();
-
-		// [DataMember] public CommitIntBySha CommitIntBySha { get; set; } = new CommitIntBySha();
-		[DataMember] public CommitId CurrentCommitId { get; set; }
-		[DataMember] public string CurrentBranchId { get; set; }
 		[DataMember] public Dictionary<CommitId, MCommit> Commits { get; set; } = 
 			new Dictionary<CommitId, MCommit>();
-
+		[DataMember] public CommitId CurrentCommitId { get; set; }
+		[DataMember] public string CurrentBranchId { get; set; }
 		[DataMember] public Dictionary<string, MBranch> Branches { get; set; } = 
 			new Dictionary<string, MBranch>();
-
 		[DataMember] public TimeSpan TimeToCreateFresh { get; set; }
 
 

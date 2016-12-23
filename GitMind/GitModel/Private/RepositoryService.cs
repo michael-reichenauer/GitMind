@@ -17,7 +17,7 @@ namespace GitMind.GitModel.Private
 	internal class RepositoryService : IRepositoryService, IRepositoryMgr
 	{
 		private static readonly TimeSpan RemoteRepositoryInterval = TimeSpan.FromSeconds(15);
-		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1);
+		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(500);
 
 		private readonly IStatusService statusService;
 		private readonly ICacheService cacheService;
@@ -71,7 +71,6 @@ namespace GitMind.GitModel.Private
 		public async Task LoadRepositoryAsync(string workingFolder)
 		{
 			Monitor(workingFolder);
-			//CommitIds.Clear();
 
 			R<Repository> repository = await GetCachedRepositoryAsync(workingFolder);
 			if (!repository.IsOk)
