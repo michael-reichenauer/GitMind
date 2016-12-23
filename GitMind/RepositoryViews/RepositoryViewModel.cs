@@ -692,7 +692,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (ListBox.SelectedItems.Count < 2)
 			{
-				diffService.ShowDiffAsync(commit.CommitId).RunInBackground();
+				diffService.ShowDiffAsync(commit.RealCommitSha).RunInBackground();
 			}
 			else
 			{
@@ -704,10 +704,10 @@ namespace GitMind.RepositoryViews
 				{
 					// Selection was made with ctrl-click. Lets take top and bottom commits as range
 					// even if there are more commits in the middle
-					CommitId id1 = topCommit.Commit.CommitId;
-					CommitId id2 = bottomCommit.Commit.HasFirstParent
-						? bottomCommit.Commit.FirstParent.CommitId
-						: bottomCommit.Commit.CommitId;
+					CommitSha id1 = topCommit.Commit.RealCommitSha;
+					CommitSha id2 = bottomCommit.Commit.HasFirstParent
+						? bottomCommit.Commit.FirstParent.RealCommitSha
+						: bottomCommit.Commit.RealCommitSha;
 
 					diffService.ShowDiffRangeAsync(id1, id2).RunInBackground();
 				}
@@ -727,8 +727,8 @@ namespace GitMind.RepositoryViews
 						current = current.FirstParent;
 					}
 
-					CommitId id1 = topCommit.Commit.CommitId;
-					CommitId id2 = current.CommitId;
+					CommitSha id1 = topCommit.Commit.RealCommitSha;
+					CommitSha id2 = current.RealCommitSha;
 					diffService.ShowDiffRangeAsync(id1, id2).RunInBackground(); ;
 				}
 			}
@@ -741,7 +741,7 @@ namespace GitMind.RepositoryViews
 
 			if (commit != null)
 			{
-				await diffService.ShowDiffAsync(commit.Commit.CommitId);
+				await diffService.ShowDiffAsync(commit.Commit.RealCommitSha);
 			}
 		}
 

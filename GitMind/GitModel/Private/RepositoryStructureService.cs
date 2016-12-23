@@ -147,7 +147,7 @@ namespace GitMind.GitModel.Private
 			repository.CurrentBranchId = currentBranch.Id;
 
 			repository.CurrentCommitId = status.IsOK
-				? repository.Commit(gitRepository.Head.TipId).Id
+				? repository.Commit(new CommitId(gitRepository.Head.TipId)).Id
 				: CommitId.Uncommitted;
 
 			if (currentBranch.TipCommit.IsVirtual
@@ -163,10 +163,10 @@ namespace GitMind.GitModel.Private
 			MCommit rootCommit = GetRootCommit(repository);
 
 			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitsService.GetSpecifiedNames(
-				rootCommit.Id);
+				rootCommit.Sha);
 
 			IReadOnlyList<CommitBranchName> commitBranches = gitCommitsService.GetCommitBranches(
-				rootCommit.Id);
+				rootCommit.Sha);
 
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
 			commitBranchNameService.SetCommitBranchNames(commitBranches, repository);
@@ -194,7 +194,6 @@ namespace GitMind.GitModel.Private
 		}
 
 
-
 		private static void RemoveVirtualCommits(MRepository repository)
 		{
 			List<MCommit> virtualCommits = repository.Commits.Values.Where(c => c.IsVirtual).ToList();
@@ -205,8 +204,6 @@ namespace GitMind.GitModel.Private
 					virtualCommit.FirstParent.ChildIds.Remove(virtualCommit.Id);
 					virtualCommit.FirstParent.FirstChildIds.Remove(virtualCommit.Id);
 
-					repository.Commits.Remove(virtualCommit.Id);
-					
 					virtualCommit.Branch.CommitIds.Remove(virtualCommit.Id);
 					if (virtualCommit.Branch.TipCommitId == virtualCommit.Id)
 					{
@@ -214,6 +211,9 @@ namespace GitMind.GitModel.Private
 					}
 
 					virtualCommit.ParentIds.Clear();
+
+					repository.Commits.Remove(virtualCommit.Id);
+					repository.GitCommits.Remove(virtualCommit.Id);
 				}
 			}
 

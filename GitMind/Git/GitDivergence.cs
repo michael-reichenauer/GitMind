@@ -6,9 +6,9 @@ namespace GitMind.Git
 	internal class GitDivergence
 	{
 		public GitDivergence(
-			CommitId localId,
-			CommitId remoteId,
-			CommitId commonId,
+			CommitSha localId,
+			CommitSha remoteId,
+			CommitSha commonId,
 			int aheadBy,
 			int behindBy)
 		{
@@ -19,9 +19,9 @@ namespace GitMind.Git
 			BehindBy = behindBy;
 		}
 
-		public CommitId LocalId { get; }
-		public CommitId RemoteId { get; }
-		public CommitId CommonId { get; }
+		public CommitSha LocalId { get; }
+		public CommitSha RemoteId { get; }
+		public CommitSha CommonId { get; }
 		public int AheadBy { get; }
 		public int BehindBy { get; }
 	}

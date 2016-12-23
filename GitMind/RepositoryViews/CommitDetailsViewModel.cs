@@ -69,11 +69,11 @@ namespace GitMind.RepositoryViews
 		{
 			if (CommitViewModel != null)
 			{
-				if (filesCommitId != CommitViewModel.Commit.CommitId
+				if (filesCommitId != CommitViewModel.Commit.RealCommitId
 					|| filesCommitId == Common.CommitId.Uncommitted)
 				{
 					files.Clear();
-					filesCommitId = CommitViewModel.Commit.CommitId;
+					filesCommitId = CommitViewModel.Commit.RealCommitId;
 					SetFilesAsync(commitViewModel.Commit).RunInBackground();
 				}
 			}
@@ -92,8 +92,8 @@ namespace GitMind.RepositoryViews
 				string subject = CommitViewModel?.Subject;
 				if (CommitViewModel != null)
 				{
-					CommitId commitId = CommitViewModel.Commit.CommitId;
-					subject = gitCommitsService.GetFullMessage(commitId)
+					CommitSha commitSha = CommitViewModel.Commit.RealCommitSha;
+					subject = gitCommitsService.GetFullMessage(commitSha)
 						.Or(CommitViewModel?.Subject);
 				}
 
@@ -101,7 +101,7 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		public string CommitId => CommitViewModel?.Commit.CommitId.Sha;
+		public string CommitId => CommitViewModel?.Commit.RealCommitSha.Sha;
 		public string ShortId => CommitViewModel?.ShortId;
 		public string BranchName => CommitViewModel?.Commit?.Branch?.Name;
 		public FontStyle BranchNameStyle => !string.IsNullOrEmpty(SpecifiedBranchName)
@@ -126,7 +126,7 @@ namespace GitMind.RepositoryViews
 		private async Task SetFilesAsync(Commit commit)
 		{
 			IEnumerable<CommitFile> commitFiles = await commit.FilesTask;
-			if (filesCommitId == commit.CommitId)
+			if (filesCommitId == commit.RealCommitId)
 			{
 				files.Clear();
 				commitFiles
@@ -135,7 +135,7 @@ namespace GitMind.RepositoryViews
 					.ForEach(f => files.Add(
 						new CommitFileViewModel(diffService, f, UndoUncommittedFileCommand)
 						{
-							Id = commit.CommitId,
+							Id = commit.RealCommitSha,
 							Name = f.Path,
 							Status = f.StatusText,
 							WorkingFolder = commit.WorkingFolder

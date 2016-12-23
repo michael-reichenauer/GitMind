@@ -9,6 +9,7 @@ using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 
@@ -178,7 +179,7 @@ namespace GitMind.Features.Commits.Private
 						using (progress.ShowDialog($"Setting commit branch name {branchName} ..."))
 						{
 							await SetSpecifiedCommitBranchAsync(
-								commit.CommitId, commit.Repository.RootCommit.CommitId, branchName);
+								commit.RealCommitSha, commit.Repository.RootCommit.RealCommitSha, branchName);
 							if (branchName != null)
 							{
 								repositoryCommands.ShowBranch(branchName);
@@ -240,7 +241,7 @@ namespace GitMind.Features.Commits.Private
 				return;
 			}
 
-			await diffService.ShowDiffAsync(CommitId.Uncommitted);
+			await diffService.ShowDiffAsync(CommitSha.Uncommitted);
 		}
 
 
@@ -254,9 +255,10 @@ namespace GitMind.Features.Commits.Private
 
 
 
-		public Task SetSpecifiedCommitBranchAsync(CommitId commitId, CommitId rootId, BranchName branchName)
+		public Task SetSpecifiedCommitBranchAsync(
+			CommitSha commitSha, CommitSha rootSha, BranchName branchName)
 		{
-			return gitCommitsService.EditCommitBranchAsync(commitId, rootId, branchName);
+			return gitCommitsService.EditCommitBranchAsync(commitSha, rootSha, branchName);
 		}
 	}
 }

@@ -20,7 +20,7 @@ namespace GitMind.GitModel.Private
 					if (!string.IsNullOrEmpty(specifiedName.Name))
 					{
 						commit.SpecifiedBranchName = specifiedName.Name;
-						commit.BranchName = specifiedName.Name;
+						commit.SetBranchName(specifiedName.Name);
 					}
 					else
 					{
@@ -44,7 +44,7 @@ namespace GitMind.GitModel.Private
 
 					if (string.IsNullOrEmpty(commit.SpecifiedBranchName))
 					{
-						commit.BranchName = commitBranch.Name;
+						commit.SetBranchName(commitBranch.Name);
 					}
 				}
 			}
@@ -124,7 +124,7 @@ namespace GitMind.GitModel.Private
 				if (!branchTip.HasFirstChild 
 					&& !branches.Any(b => b.Name != branch.Name && b.TipCommitId == branch.TipCommitId))
 				{
-					branchTip.BranchName = branch.Name;
+					branchTip.SetBranchName(branch.Name);
 					branchTip.SubBranchId = branch.SubBranchId;
 				}
 			}
@@ -153,7 +153,7 @@ namespace GitMind.GitModel.Private
 					break;
 				}
 
-				commit.BranchName = subBranch.Name;
+				commit.SetBranchName(subBranch.Name);
 				commit.SubBranchId = subBranch.SubBranchId;
 				commitId = commit.FirstParentId;
 			}
@@ -181,7 +181,7 @@ namespace GitMind.GitModel.Private
 
 				foreach (MCommit current in branchTip.CommitAndFirstAncestors())
 				{
-					current.BranchName = branch.Name;
+					current.SetBranchName(branch.Name);
 					current.SubBranchId = branch.SubBranchId;
 
 					if (current == last)
@@ -219,7 +219,7 @@ namespace GitMind.GitModel.Private
 						isFound = true;
 						foreach (MCommit current in commit.FirstAncestors())
 						{
-							current.BranchName = branchName;
+							current.SetBranchName(branchName);
 							current.SubBranchId = subBranchId;
 
 							if (current == last)
@@ -282,7 +282,7 @@ namespace GitMind.GitModel.Private
 						{
 							if (commit.FirstChildren.All(c => c.BranchName == firstChild.BranchName))
 							{
-								commit.BranchName = firstChild.BranchName;
+								commit.SetBranchName(firstChild.BranchName);
 								commit.SubBranchId = firstChild.SubBranchId;
 								found = true;
 							}

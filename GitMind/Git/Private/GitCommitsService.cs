@@ -7,6 +7,7 @@ using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using LibGit2Sharp;
@@ -42,33 +43,33 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(CommitId commitId)
+		public async Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(CommitSha commitSha)
 		{
-			if (commitId == CommitId.Uncommitted)
+			if (commitSha == CommitSha.Uncommitted)
 			{
 				Status status = repositoryMgr.Value.Repository.Status;
 				return R.From(status.ChangedFiles);
 			}
 
-			return await repoCaller.UseRepoAsync(repo => repo.Diff.GetFiles(workingFolder, commitId));
+			return await repoCaller.UseRepoAsync(repo => repo.Diff.GetFiles(workingFolder, commitSha));
 		}
 
 
-		public Task EditCommitBranchAsync(CommitId commitId, CommitId rootId, BranchName branchName)
+		public Task EditCommitBranchAsync(CommitSha commitSha, CommitSha rootSha, BranchName branchName)
 		{
-			return gitCommitBranchNameService.EditCommitBranchNameAsync(commitId, rootId, branchName);
+			return gitCommitBranchNameService.EditCommitBranchNameAsync(commitSha, rootSha, branchName);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitId rootId)
+		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitSha rootSha)
 		{
-			return gitCommitBranchNameService.GetEditedBranchNames(rootId);
+			return gitCommitBranchNameService.GetEditedBranchNames(rootSha);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetCommitBranches(CommitId rootId)
+		public IReadOnlyList<CommitBranchName> GetCommitBranches(CommitSha rootSha)
 		{
-			return gitCommitBranchNameService.GetCommitBrancheNames(rootId);
+			return gitCommitBranchNameService.GetCommitBrancheNames(rootSha);
 		}
 
 
@@ -166,8 +167,8 @@ namespace GitMind.Git.Private
 				{
 					AddPaths(repo, paths);
 					GitCommit gitCommit = Commit(repo, message);
-					CommitId commitId = new CommitId(gitCommit.Id);
-					gitCommitBranchNameService.SetCommitBranchNameAsync(commitId, branchName);
+					CommitSha commitSha = gitCommit.Sha;
+					gitCommitBranchNameService.SetCommitBranchNameAsync(commitSha, branchName);
 					return gitCommit;
 				});
 		}
@@ -206,7 +207,13 @@ namespace GitMind.Git.Private
 
 			LibGit2Sharp.Commit commit = repo.Commit(message, signature, signature, commitOptions);
 
-			return commit != null ? new GitCommit(commit) : null;
+			return commit != null ? new GitCommit(
+				new CommitSha(commit.Sha),
+				commit.MessageShort,
+				commit.Author.Name,
+				commit.Author.When.LocalDateTime,
+				commit.Committer.When.LocalDateTime,
+				commit.Parents.Select(p => new CommitId(p.Sha)).ToList()) : null;
 		}
 
 
@@ -245,11 +252,11 @@ namespace GitMind.Git.Private
 			});
 		}
 
-		public R<string> GetFullMessage(CommitId commitId)
+		public R<string> GetFullMessage(CommitSha commitSha)
 		{
 			return repoCaller.UseRepo(repo =>
 			{
-				LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(new ObjectId(commitId.Sha));
+				LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(new ObjectId(commitSha.Sha));
 				if (commit != null)
 				{
 					return commit.Message;

@@ -8,12 +8,12 @@ namespace GitMind.Git.Private
 {
 	internal interface IGitCommitBranchNameService
 	{
-		Task EditCommitBranchNameAsync(CommitId commitId, CommitId rootId, BranchName branchName);
-		Task SetCommitBranchNameAsync(CommitId commitId, BranchName branchName);
-		IReadOnlyList<CommitBranchName> GetEditedBranchNames(CommitId rootId);
-		IReadOnlyList<CommitBranchName> GetCommitBrancheNames(CommitId rootId);
+		Task EditCommitBranchNameAsync(CommitSha commitSha, CommitSha rootSha, BranchName branchName);
+		Task SetCommitBranchNameAsync(CommitSha commitSha, BranchName branchName);
+		IReadOnlyList<CommitBranchName> GetEditedBranchNames(CommitSha rootSha);
+		IReadOnlyList<CommitBranchName> GetCommitBrancheNames(CommitSha rootId);
 
-		Task PushNotesAsync(CommitId rootId);
+		Task PushNotesAsync(CommitSha rootId);
 
 		Task<R> FetchAllNotesAsync();
 	}

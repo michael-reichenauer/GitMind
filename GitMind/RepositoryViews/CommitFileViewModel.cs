@@ -26,7 +26,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public CommitId Id { get; set; }
+		public CommitSha Id { get; set; }
 
 		public string WorkingFolder { get; set; }
 
@@ -53,7 +53,7 @@ namespace GitMind.RepositoryViews
 		public Brush FileNameBrush => file.Status != GitFileStatus.Conflict
 			? BrushService.TextBrush : BrushService.ConflictBrush;
 
-		public bool IsUncommitted => HasNotConflicts && Id == CommitId.Uncommitted;
+		public bool IsUncommitted => HasNotConflicts && Id == CommitSha.Uncommitted;
 
 		public Command ShowDiffCommand => Command(
 			() => diffService.ShowFileDiffAsync(Id, Name));

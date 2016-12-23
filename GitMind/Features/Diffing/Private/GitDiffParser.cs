@@ -22,7 +22,7 @@ namespace GitMind.Features.Diffing.Private
 		private static readonly char[] LineEnding = "\r".ToCharArray();
 
 
-		public Task<CommitDiff> ParseAsync(CommitId commitId, string patch, bool addPrefixes = true)
+		public Task<CommitDiff> ParseAsync(CommitSha commitSha, string patch, bool addPrefixes = true)
 		{
 			string[] patchLines = patch.Split("\n".ToCharArray());
 
@@ -81,7 +81,7 @@ namespace GitMind.Features.Diffing.Private
 					Directory.CreateDirectory(tempPath);
 				}
 
-				string shortId = commitId?.ShortSha ?? "";
+				string shortId = commitSha?.ShortSha ?? "";
 				string leftName = $"Commit {shortId}-before";
 				string rightName = $"Commit {shortId}-after";
 				string leftPath = Path.Combine(tempPath, leftName);

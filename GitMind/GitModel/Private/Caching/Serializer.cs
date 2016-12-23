@@ -55,13 +55,14 @@ namespace GitMind.GitModel.Private.Caching
 			// Disable default handling of that type
 			MetaType metaType = RuntimeTypeModel.Default.Add(dataContractType, false);
 
-			// Get proprties with [DataMembe] attribute
-			var properties = dataContractType
-				.GetProperties()
-				.Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null);
+			// Get members with [DataMember] attribute
+			var names = dataContractType
+				.GetMembers()
+				.Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null)
+				.Select(property => property.Name);
 
-			// Add these properties to serialization,
-			properties.ForEach(property => metaType.Add(property.Name));
+			// Add these member names to serialization,
+			names.ForEach(name => metaType.Add(name));
 		}
 
 

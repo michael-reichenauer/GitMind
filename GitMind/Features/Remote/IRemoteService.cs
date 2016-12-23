@@ -10,7 +10,7 @@ namespace GitMind.Features.Remote
 	{
 		Task<R> FetchAsync();
 		Task<R> PushBranchAsync(BranchName branchName);
-		Task PushNotesAsync(CommitId rootId);
+		Task PushNotesAsync(CommitSha rootId);
 		Task<R> FetchAllNotesAsync();
 		bool CanExecuteTryUpdateAllBranches();
 		Task TryUpdateAllBranchesAsync();

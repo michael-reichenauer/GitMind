@@ -8,11 +8,11 @@ namespace GitMind.Features.Branches.Private
 {
 	internal interface IGitBranchService
 	{
-		Task<R> CreateBranchAsync(BranchName branchName, CommitId commitId);
+		Task<R> CreateBranchAsync(BranchName branchName, CommitSha commitSha);
 
 		Task<R> SwitchToBranchAsync(BranchName branchName);
 
-		Task<R<BranchName>> SwitchToCommitAsync(CommitId commitId, BranchName branchName);
+		Task<R<BranchName>> SwitchToCommitAsync(CommitSha commitSha, BranchName branchName);
 
 		Task<R> MergeCurrentBranchFastForwardOnlyAsync();
 
@@ -20,7 +20,7 @@ namespace GitMind.Features.Branches.Private
 
 		Task<R> MergeAsync(BranchName branchName);
 
-		R<GitDivergence> CheckAheadBehind(CommitId localTip, CommitId remoteTip);
+		R<GitDivergence> CheckAheadBehind(CommitSha localTip, CommitSha remoteTip);
 
 		Task<R> DeleteLocalBranchAsync(BranchName branchName);
 	}

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 
 
@@ -11,17 +12,17 @@ namespace GitMind.Git
 {
 	internal interface IGitCommitsService
 	{
-		Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(CommitId commitId);
+		Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(CommitSha commitSha);
 
-		Task EditCommitBranchAsync(CommitId commitId, CommitId rootId, BranchName branchName);
+		Task EditCommitBranchAsync(CommitSha commitSha, CommitSha rootSha, BranchName branchName);
 	
-		IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitId rootId);
-		IReadOnlyList<CommitBranchName> GetCommitBranches(CommitId rootId);
+		IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitSha rootSha);
+		IReadOnlyList<CommitBranchName> GetCommitBranches(CommitSha rootSha);
 
 	
 		Task<R<GitCommit>> CommitAsync(string message, string branchName, IReadOnlyList<CommitFile> paths);
 
-		R<string> GetFullMessage(CommitId commitId);
+		R<string> GetFullMessage(CommitSha commitSha);
 
 
 		Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync();

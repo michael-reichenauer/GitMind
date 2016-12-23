@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using GitMind.Common;
 using GitMind.Features.Diffing;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 using LibGit2Sharp;
 
@@ -73,9 +74,9 @@ namespace GitMind.Git
 		}
 
 
-		public IReadOnlyList<GitNote> GetCommitNotes(CommitId commitId)
+		public IReadOnlyList<GitNote> GetCommitNotes(CommitSha commitSha)
 		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 			if (commit != null)
 			{
 				return commit.Notes
@@ -84,14 +85,14 @@ namespace GitMind.Git
 			}
 			else
 			{
-				Log.Warn($"Could not find commit {commitId}");
+				Log.Warn($"Could not find commit {commitSha}");
 			}
 
 			return new GitNote[0];
 		}
 
 
-		public void SetCommitNote(CommitId commitId, GitNote gitNote)
+		public void SetCommitNote(CommitSha commitId, GitNote gitNote)
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 
@@ -138,6 +139,20 @@ namespace GitMind.Git
 			string tempPath = fullPath + ".tmp";
 			File.AppendAllText(tempPath, "tmp");
 			File.Delete(tempPath);
+		}
+
+
+		public GitLibCommit GetCommit(CommitSha commitSha)
+		{
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
+
+			return new GitLibCommit(
+				new CommitSha(commit.Sha),
+				commit.MessageShort,
+				commit.Author.Name,
+				commit.Author.When.LocalDateTime,
+				commit.Committer.When.LocalDateTime,
+				commit.Parents.Select(p => new CommitSha(p.Sha)).ToList());
 		}
 	}
 }

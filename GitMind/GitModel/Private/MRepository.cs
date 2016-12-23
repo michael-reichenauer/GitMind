@@ -15,15 +15,14 @@ namespace GitMind.GitModel.Private
 
 		[DataMember] public string Version { get; set; } = CurrentVersion;
 
-		[DataMember] public CommitIntBySha CommitIntBySha { get; set; } = new CommitIntBySha();
-		[DataMember] public CommitId CurrentCommitId { get; set; }
-		[DataMember] public string CurrentBranchId { get; set; }
+		[DataMember] public Dictionary<CommitId, GitCommit> GitCommits { get; set; } =
+			new Dictionary<CommitId, GitCommit>();
 		[DataMember] public Dictionary<CommitId, MCommit> Commits { get; set; } = 
 			new Dictionary<CommitId, MCommit>();
-
+		[DataMember] public CommitId CurrentCommitId { get; set; }
+		[DataMember] public string CurrentBranchId { get; set; }
 		[DataMember] public Dictionary<string, MBranch> Branches { get; set; } = 
 			new Dictionary<string, MBranch>();
-
 		[DataMember] public TimeSpan TimeToCreateFresh { get; set; }
 
 
@@ -43,11 +42,9 @@ namespace GitMind.GitModel.Private
 
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
-		
 
-		public MCommit Commit(string shaId)
+		public MCommit Commit(CommitId commitId)
 		{
-			CommitId commitId = new CommitId(shaId);
 			MCommit commit;
 			if (!Commits.TryGetValue(commitId, out commit))
 			{
@@ -58,13 +55,12 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public MCommit AddNewCommit(CommitId commitId)
+		private MCommit AddNewCommit(CommitId commitId)
 		{
 			MCommit commit = new MCommit()
 			{
 				Repository = this,
 				Id = commitId,
-				ViewCommitId = commitId
 			};
 
 			Commits[commitId] = commit;
@@ -73,23 +69,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public MCommit AddVirtualCommit(CommitId realCommitId)
-		{
-			string idText = (Guid.NewGuid() + Guid.NewGuid().ToString()).Replace("-", "")
-				.Substring(0, 40);
-			CommitId commitId = new CommitId(idText);
-			MCommit commit = new MCommit()
-			{
-				Repository = this,
-				Id = commitId,
-				ViewCommitId = realCommitId
-			};
-
-			Commits[commitId] = commit;
-
-			return commit;
-		}
-
+	
 
 		public void CompleteDeserialization(string workingFolder)
 		{

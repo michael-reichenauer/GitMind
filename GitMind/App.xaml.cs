@@ -136,7 +136,7 @@ namespace GitMind
 		{
 			if (commandLine.IsShowDiff)
 			{
-				diffService.ShowDiff(CommitId.Uncommitted);
+				diffService.ShowDiff(CommitSha.Uncommitted);
 			}
 		}
 

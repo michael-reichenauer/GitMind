@@ -32,9 +32,9 @@ namespace GitMind.Git
 		}
 
 
-		public string GetPatch(CommitId commitId)
+		public string GetPatch(CommitSha commitSha)
 		{
-			if (commitId == CommitId.Uncommitted)
+			if (commitSha == CommitSha.Uncommitted)
 			{
 				RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
 
@@ -60,7 +60,7 @@ namespace GitMind.Git
 				return compare;
 			}
 
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 
 			if (commit != null)
 			{
@@ -105,7 +105,7 @@ namespace GitMind.Git
 		}
 
 
-		public string GetPatchRange(CommitId id1, CommitId id2)
+		public string GetPatchRange(CommitSha id1, CommitSha id2)
 		{
 			Commit commit1 = repository.Lookup<Commit>(new ObjectId(id1.Sha));
 			Commit commit2 = repository.Lookup<Commit>(new ObjectId(id2.Sha));
@@ -122,9 +122,9 @@ namespace GitMind.Git
 		}
 
 
-		internal string GetFilePatch(CommitId commitId, string filePath)
+		internal string GetFilePatch(CommitSha commitSha, string filePath)
 		{
-			if (commitId == CommitId.Uncommitted)
+			if (commitSha == CommitSha.Uncommitted)
 			{
 				return diff.Compare<Patch>(
 					repository.Head.Tip.Tree,
@@ -137,7 +137,7 @@ namespace GitMind.Git
 				//return diff.Compare<Patch>(new[] { filePath }, true, null, DefultFileCompareOptions);
 			}
 
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 
 			if (commit != null)
 			{
@@ -159,9 +159,9 @@ namespace GitMind.Git
 		}
 
 
-		public IReadOnlyList<StatusFile> GetFiles(string workingFolder, CommitId commitId)
+		public IReadOnlyList<StatusFile> GetFiles(string workingFolder, CommitSha commitSha)
 		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 
 			if (commit != null)
 			{

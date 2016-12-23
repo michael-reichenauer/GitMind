@@ -1,4 +1,5 @@
 using System.Linq;
+using GitMind.Common;
 
 
 namespace GitMind.GitModel.Private
@@ -35,7 +36,8 @@ namespace GitMind.GitModel.Private
 			return new Commit(
 				repository,
 				commit.Id,
-				commit.ViewCommitId,
+				commit.RealCommitId,
+				commit.RealCommitSha,
 				commit.Subject,
 				commit.Author,
 				commit.AuthorDate,

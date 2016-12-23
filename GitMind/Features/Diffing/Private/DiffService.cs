@@ -37,25 +37,25 @@ namespace GitMind.Features.Diffing.Private
 		}
 
 
-		public async Task ShowDiffAsync(CommitId commitId)
+		public async Task ShowDiffAsync(CommitSha commitSha)
 		{
-			if ((await gitDiffService.GetCommitDiffAsync(commitId)).HasValue(out var commitDiff))
+			if ((await gitDiffService.GetCommitDiffAsync(commitSha)).HasValue(out var commitDiff))
 			{
 				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 			}
 		}
 
 
-		public async Task ShowDiffRangeAsync(CommitId id1, CommitId id2)
+		public async Task ShowDiffRangeAsync(CommitSha commitSha1, CommitSha commitSha2)
 		{
-			if ((await gitDiffService.GetCommitDiffRangeAsync(id1, id2)).HasValue(out var commitDiff))
+			if ((await gitDiffService.GetCommitDiffRangeAsync(commitSha1, commitSha2)).HasValue(out var commitDiff))
 			{
 				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 			}
 		}
 
 
-		public async Task MergeConflictsAsync(CommitId id, CommitFile file)
+		public async Task MergeConflictsAsync(CommitSha commitSha, CommitFile file)
 		{
 			CleanTempPaths(file);
 
@@ -212,9 +212,9 @@ namespace GitMind.Features.Diffing.Private
 		}
 
 
-		public void ShowDiff(CommitId uncommittedId)
+		public void ShowDiff(CommitSha uncommittedId)
 		{
-			Task.Run(() => ShowDiffAsync(CommitId.Uncommitted).Wait())
+			Task.Run(() => ShowDiffAsync(CommitSha.Uncommitted).Wait())
 				.Wait();
 		}
 
@@ -235,9 +235,9 @@ namespace GitMind.Features.Diffing.Private
 		}
 
 
-		public async Task ShowFileDiffAsync(CommitId commitId, string name)
+		public async Task ShowFileDiffAsync(CommitSha commitSha, string name)
 		{
-			if ((await gitDiffService.GetFileDiffAsync(commitId, name)).HasValue(out var commitDiff))
+			if ((await gitDiffService.GetFileDiffAsync(commitSha, name)).HasValue(out var commitDiff))
 			{
 				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 			}

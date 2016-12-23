@@ -1,4 +1,7 @@
 using System;
+using System.Linq;
+using GitMind.Common;
+using GitMind.GitModel.Private;
 
 
 namespace GitMind.Git
@@ -27,7 +30,14 @@ namespace GitMind.Git
 		public bool IsCurrent => 0 ==  string.Compare(
 			branch.CanonicalName, repository.Head.CanonicalName, StringComparison.OrdinalIgnoreCase) ;
 
-		public GitCommit Tip => new GitCommit(branch.Tip);
+
+		public GitLibCommit Tip => new GitLibCommit(
+			new CommitSha(branch.Tip.Sha),
+			branch.Tip.MessageShort,
+			branch.Tip.Author.Name,
+			branch.Tip.Author.When.LocalDateTime,
+			branch.Tip.Committer.When.LocalDateTime,
+			branch.Tip.Parents.Select(p =>new CommitSha(p.Sha)).ToList());
 
 		public override string ToString() => Name.ToString();
 	}
