@@ -278,6 +278,18 @@
 
 														<Separator Background="{StaticResource BorderBrush}" />
 
+														<MenuItem
+															Header="Change color"
+															Command="{Binding ChangeColorCommand}">
+															<MenuItem.Icon>
+																<Border>
+																	<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE891;" />
+																</Border>
+															</MenuItem.Icon>
+														</MenuItem>
+
+														<Separator Background="{StaticResource BorderBrush}" />
+
 														<!-- Delete branch -->
 														<MenuItem
 															Header="Delete branch ..."

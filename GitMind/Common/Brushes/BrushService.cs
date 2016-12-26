@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Media;
+using GitMind.ApplicationHandling;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Git;
 using GitMind.GitModel;
+using GitMind.Utils;
 
 
 namespace GitMind.Common.Brushes
 {
+	[SingleInstance]
 	internal class BrushService : IBrushService
 	{
 		private static readonly SolidColorBrush MasterBranchBrush = BrushFromHex("#E540FF");
@@ -38,22 +43,48 @@ namespace GitMind.Common.Brushes
 
 		public static readonly SolidColorBrush HoverBrushColor = BrushFromHex("#996495ED");
 
-		public BrushService()
+		private readonly WorkingFolder workingFolder;
+		private readonly Dictionary<string, Brush> customBranchBrushes = new Dictionary<string, Brush>();
+
+		public BrushService(WorkingFolder workingFolder)
 		{
+			this.workingFolder = workingFolder;
 			InitBrushes();
+			LoadBranchColors();
+
+			workingFolder.OnChange += (s, e) => LoadBranchColors();
+		}
+
+
+		private void LoadBranchColors()
+		{
+			customBranchBrushes.Clear();
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
+
+			foreach (var pair in settings.BranchColors)
+			{
+				// "#F25B54"
+				Brush br = brushes.First(b => HexFromBrush(b) == pair.Value);
+				customBranchBrushes[pair.Key] = br;
+			}
 		}
 
 
 		public Brush GetBranchBrush(Branch branch)
 		{
+			if (branch.IsMultiBranch)
+			{
+				return MultiBranchBrush;
+			}
+
 			if (branch.Name == BranchName.Master)
 			{
 				return MasterBranchBrush;
 			}
 
-			if (branch.IsMultiBranch)
+			if (customBranchBrushes.TryGetValue(branch.Id, out Brush branchBrush))
 			{
-				return MultiBranchBrush;
+				return branchBrush;
 			}
 
 			return GetBrush(branch.Name);
@@ -81,6 +112,38 @@ namespace GitMind.Common.Brushes
 
 			return lighterLighterBrushes[index];
 		}
+
+
+		public Brush ChangeBranchBrush(Branch branch)
+		{
+			Brush currentBrush = GetBranchBrush(branch);
+			string currentBrushHex = HexFromBrush(currentBrush);
+
+			string brushHex = currentBrushHex;
+			Brush brush = currentBrush;
+
+			for (int i = 0; i < 10; i++)
+			{
+				string randomName = Guid.NewGuid().ToString();
+
+				brush = GetBrush(randomName);
+				brushHex = HexFromBrush(brush);
+
+				if (brushHex != currentBrushHex)
+				{
+					break;
+				}
+			}
+			
+			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
+			settings.BranchColors[branch.Id] = brushHex;
+			Settings.SetWorkFolderSetting(workingFolder, settings);
+
+			LoadBranchColors();
+
+			return brush;
+		}
+
 
 		private Brush GetBrush(BranchName name)
 		{
@@ -181,6 +244,12 @@ namespace GitMind.Common.Brushes
 		private static SolidColorBrush BrushFromHex(string hexText)
 		{
 			return (SolidColorBrush)new BrushConverter().ConvertFrom(hexText);
+		}
+
+
+		private static string HexFromBrush(Brush brush)
+		{
+			return (string)new BrushConverter().ConvertTo(brush, typeof(string));
 		}
 
 

@@ -16,5 +16,7 @@ namespace GitMind.Common.Brushes
 
 		Brush GetBranchBrush(Branch branch);
 		Brush GetLighterLighterBrush(Brush brush);
+
+		Brush ChangeBranchBrush(Branch branch);
 	}
 }

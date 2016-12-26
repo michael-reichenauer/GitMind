@@ -582,7 +582,7 @@ namespace GitMind.RepositoryViews.Private
 					? Converters.ToX(branch.BranchColumn) - 10
 					: Converters.ToX(branch.BranchColumn);
 				
-				branch.Brush = brushService.GetBranchBrush(sourceBranch);
+			
 				branch.HoverBrush = Brushes.Transparent;
 				branch.Dashes = sourceBranch.IsLocalPart ? "1" : "";
 
@@ -600,9 +600,9 @@ namespace GitMind.RepositoryViews.Private
 					branch.Line = "";
 				}
 
-				branch.HoverBrushNormal = branch.Brush;
-				branch.HoverBrushHighlight = brushService.GetLighterBrush(branch.Brush);
-				branch.DimBrushHighlight = brushService.GetLighterLighterBrush(branch.Brush);
+				branch.SetColor(brushService.GetBranchBrush(sourceBranch));
+			
+
 				branch.BranchToolTip = GetBranchToolTip(sourceBranch);
 				branch.CurrentBranchName = repositoryMgr.Repository.CurrentBranch.Name;
 

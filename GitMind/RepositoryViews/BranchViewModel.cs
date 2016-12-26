@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Common.Brushes;
 using GitMind.Features.Branches;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
@@ -13,6 +14,8 @@ namespace GitMind.RepositoryViews
 	internal class BranchViewModel : ViewModel
 	{
 		private readonly IBranchService branchService;
+		private readonly IBrushService brushService;
+		private readonly IRepositoryCommands repositoryCommands;
 
 		private readonly Command<Branch> showBranchCommand;
 
@@ -22,9 +25,12 @@ namespace GitMind.RepositoryViews
 
 		public BranchViewModel(
 			IBranchService branchService,
+			IBrushService brushService,
 			IRepositoryCommands repositoryCommands)
 		{
 			this.branchService = branchService;
+			this.brushService = brushService;
+			this.repositoryCommands = repositoryCommands;
 			this.showBranchCommand = Command<Branch>(repositoryCommands.ShowBranch);
 		}
 
@@ -93,6 +99,12 @@ namespace GitMind.RepositoryViews
 
 		public Command UpdateBranchCommand => Command(() => branchService.UpdateBranchAsync(Branch));
 
+		public Command ChangeColorCommand => Command(() =>
+		{
+			brushService.ChangeBranchBrush(Branch);
+			repositoryCommands.RefreshView();
+		});
+
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }
 		public int X { get; set; }
@@ -130,6 +142,15 @@ namespace GitMind.RepositoryViews
 					.Take(50)
 					.ToList(),
 				showBranchCommand);
+		}
+
+
+		public void SetColor(Brush brush)
+		{
+			Brush = brush;
+			HoverBrushNormal = Brush;
+			HoverBrushHighlight = brushService.GetLighterBrush(Brush);
+			DimBrushHighlight = brushService.GetLighterLighterBrush(Brush);
 		}
 	}
 }

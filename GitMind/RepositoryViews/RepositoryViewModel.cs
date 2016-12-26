@@ -255,6 +255,12 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		public void RefreshView()
+		{
+			UpdateViewModel();
+		}
+
+
 		public async Task LoadAsync()
 		{
 			Timing t = new Timing();
