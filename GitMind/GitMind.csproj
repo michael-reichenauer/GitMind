@@ -135,11 +135,13 @@
     <Compile Include="Features\StatusHandling\Private\StatusService.cs" />
     <Compile Include="Features\StatusHandling\Refresh.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
+    <Compile Include="GitModel\Private\BranchTipMonitorService.cs" />
     <Compile Include="GitModel\Private\Caching\BranchNameSurrogate.cs" />
     <Compile Include="GitModel\Private\Caching\CommitIdSurrogate.cs" />
     <Compile Include="GitModel\Private\Caching\XCommitIntByShaSurrogate.cs" />
     <Compile Include="GitModel\Private\CommitIntBySha.cs" />
     <Compile Include="GitModel\Private\GitCommit.cs" />
+    <Compile Include="GitModel\Private\IBranchTipMonitorService.cs" />
     <Compile Include="GitModel\Private\IRepositoryStructureService.cs" />
     <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
     <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />

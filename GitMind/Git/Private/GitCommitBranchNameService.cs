@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
@@ -62,7 +63,6 @@ namespace GitMind.Git.Private
 		}
 
 
-
 		public async Task PushNotesAsync(CommitSha rootId)
 		{
 			await PushNotesAsync(CommitBranchNoteNameSpace, rootId);
@@ -114,10 +114,6 @@ namespace GitMind.Git.Private
 				Log.Debug("Notes is empty, no need to push notes");
 				return;
 			}
-			else
-			{
-				Log.Debug($"Adding notes:\n{addedNotesText}");
-			}
 
 			await FetchNotesAsync(nameSpace);
 
@@ -130,7 +126,14 @@ namespace GitMind.Git.Private
 			})
 			.Or("");
 
-			string notesText = originNotesText + addedNotesText;
+			string notesText = MergeNotes(originNotesText, addedNotesText);
+
+			if (notesText == originNotesText)
+			{
+				Log.Debug($"Notes {nameSpace} have not changed");
+				return;
+			}
+
 
 			repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 
@@ -144,6 +147,46 @@ namespace GitMind.Git.Private
 					File.Delete(file);
 				}
 			}
+		}
+
+
+		private string MergeNotes(string originNotesText, string addedNotesText)
+		{
+			List<CommitBranchName> branchNames = ParseBranchNames(originNotesText + addedNotesText);
+
+			Dictionary<CommitId, BranchName> nameById = new Dictionary<CommitId, BranchName>();
+
+			List<CommitBranchName> mergedNames = new List<CommitBranchName>();
+			foreach (CommitBranchName commitBranchName in branchNames)
+			{
+				if (nameById.TryGetValue(commitBranchName.CommitId, out BranchName branchName))
+				{
+					if (commitBranchName.Name == branchName)
+					{
+						// Ignore Duplicate
+						continue;
+					}
+					else
+					{
+						// Later entry indicate a change, remove old entry
+						var existing = mergedNames.Find(n => n.CommitId == commitBranchName.CommitId);
+						mergedNames.Remove(existing);
+						Log.Debug($"Changed {existing}");
+						Log.Debug($"  to {commitBranchName}");
+					}
+				}
+
+				// Normal copy of entry
+				nameById[commitBranchName.CommitId] = commitBranchName.Name;
+				mergedNames.Add(commitBranchName);			
+			}
+
+			Log.Debug($"Number of merged entries: {mergedNames.Count}");
+
+			StringBuilder sb = new StringBuilder();			
+			mergedNames.ForEach(n => sb.Append($"{n.CommitId} {n.Name}\n"));
+
+			return sb.ToString();
 		}
 
 

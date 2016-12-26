@@ -104,14 +104,6 @@ namespace GitMind.GitModel.Private
 
 		public void SetBranchTipCommitsNames(MRepository repository)
 		{
-			//repository.SubBranches.Values
-			//	.Where(b => !repository.Commits.ContainsKey(b.TipCommitId))
-			//	.ForEach(b =>
-			//	{
-			//		Log.Warn($"Branch with no tip {b.Name}");
-			//		Debugger.Break();
-			//	});
-
 			IEnumerable<MSubBranch> branches = repository.SubBranches.Values
 				.Where(b =>
 					b.TipCommit.BranchId == null

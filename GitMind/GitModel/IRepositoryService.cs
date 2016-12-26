@@ -22,6 +22,8 @@ namespace GitMind.GitModel
 
 		Task CheckLocalRepositoryAsync();
 
+		Task CheckBranchTipCommitsAsync();
+
 		Task UpdateRepositoryAfterCommandAsync();
 
 		Task RefreshAfterCommandAsync(bool useFreshRepository);
