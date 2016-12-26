@@ -82,7 +82,7 @@ namespace GitMind.Common.Brushes
 				return MasterBranchBrush;
 			}
 
-			if (customBranchBrushes.TryGetValue(branch.Id, out Brush branchBrush))
+			if (customBranchBrushes.TryGetValue(branch.Name, out Brush branchBrush))
 			{
 				return branchBrush;
 			}
@@ -126,7 +126,7 @@ namespace GitMind.Common.Brushes
 			string brushHex = HexFromBrush(brush);
 
 			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
-			settings.BranchColors[branch.Id] = brushHex;
+			settings.BranchColors[branch.Name] = brushHex;
 			Settings.SetWorkFolderSetting(workingFolder, settings);
 
 			LoadBranchColors();
