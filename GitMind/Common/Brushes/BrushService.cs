@@ -117,24 +117,14 @@ namespace GitMind.Common.Brushes
 		public Brush ChangeBranchBrush(Branch branch)
 		{
 			Brush currentBrush = GetBranchBrush(branch);
-			string currentBrushHex = HexFromBrush(currentBrush);
+			int index = brushes.IndexOf(currentBrush);
+	
+			// Select next brush
+			int newIndex = (index + 1) % (brushes.Count - 2);
 
-			string brushHex = currentBrushHex;
-			Brush brush = currentBrush;
+			Brush brush = brushes[newIndex];		
+			string brushHex = HexFromBrush(brush);
 
-			for (int i = 0; i < 10; i++)
-			{
-				string randomName = Guid.NewGuid().ToString();
-
-				brush = GetBrush(randomName);
-				brushHex = HexFromBrush(brush);
-
-				if (brushHex != currentBrushHex)
-				{
-					break;
-				}
-			}
-			
 			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
 			settings.BranchColors[branch.Id] = brushHex;
 			Settings.SetWorkFolderSetting(workingFolder, settings);
