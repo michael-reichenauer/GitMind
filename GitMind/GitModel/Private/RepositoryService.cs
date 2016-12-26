@@ -25,6 +25,7 @@ namespace GitMind.GitModel.Private
 		private readonly Lazy<IRemoteService> remoteService;
 		private readonly IRepositoryStructureService repositoryStructureService;
 		private readonly IProgressService progressService;
+		private readonly IBranchTipMonitorService branchTipMonitorService;
 
 		private DateTime fetchedTime = DateTime.MinValue;
 
@@ -34,7 +35,8 @@ namespace GitMind.GitModel.Private
 			ICommitsFiles commitsFiles,
 			Lazy<IRemoteService> remoteService,
 			IRepositoryStructureService repositoryStructureService,
-			IProgressService progressService)
+			IProgressService progressService,
+			IBranchTipMonitorService branchTipMonitorService)
 		{
 			this.statusService = statusService;
 			this.cacheService = cacheService;
@@ -42,6 +44,7 @@ namespace GitMind.GitModel.Private
 			this.remoteService = remoteService;
 			this.repositoryStructureService = repositoryStructureService;
 			this.progressService = progressService;
+			this.branchTipMonitorService = branchTipMonitorService;
 
 			statusService.StatusChanged += (s, e) => OnStatusChanged(e.NewStatus);
 			statusService.RepoChanged += (s, e) => OnRepoChanged(e.BranchIds);
@@ -101,6 +104,14 @@ namespace GitMind.GitModel.Private
 		}
 
 
+		public async Task CheckBranchTipCommitsAsync()
+		{
+			Timing t = new Timing();
+			await branchTipMonitorService.CheckAsync(Repository);
+			t.Log("branchTipMonitorService.Check");
+		}
+
+
 		public async Task UpdateRepositoryAfterCommandAsync()
 		{
 			Task<Status> statusTask = statusService.GetStatusAsync();
@@ -112,7 +123,7 @@ namespace GitMind.GitModel.Private
 			if (Repository.Status.IsSame(status)
 			    && Repository.MRepository.RepositoryIds.SequenceEqual(repoIds))
 			{
-				Log.Debug("Reposiotry has not changed after command");
+				Log.Debug("Repository has not changed after command");
 				return;
 			}
 

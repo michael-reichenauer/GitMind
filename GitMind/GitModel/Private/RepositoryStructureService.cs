@@ -23,6 +23,7 @@ namespace GitMind.GitModel.Private
 		private readonly IDiffService diffService;
 
 
+
 		public RepositoryStructureService(
 			IBranchService branchService,
 			IStatusService statusService,

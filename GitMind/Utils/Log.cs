@@ -113,17 +113,17 @@ namespace GitMind.Utils
 			filePath = filePath.Substring(prefixLength);
 			string text = $"{level} [{ProcessID}] {filePath}({lineNumber}) {memberName} - {msg}";
 
+			if (level == LevelUsage || level == LevelWarn || level == LevelError)
+			{
+				SendUsage(text);
+			}
+
 			try
 			{
 				//byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
 				//UdpClient.Send(bytes, bytes.Length, LocalLogEndPoint);
 				SendLog(text);
-				WriteToFile(text);
-
-				if (level == LevelUsage || level == LevelWarn || level == LevelError)
-				{
-					SendUsage(text);
-				}
+				WriteToFile(text);			
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
@@ -131,6 +131,13 @@ namespace GitMind.Utils
 				SendLog("ERROR Failed to log to udp " + e);
 			}
 		}
+
+		
+		private static void SendLog(string text)
+		{
+			logTexts.Add(text);
+		}
+
 
 
 		private static void SendUsage(string text)
@@ -175,7 +182,7 @@ namespace GitMind.Utils
 				}
 				catch (Exception e)
 				{
-					Thread.Sleep(10);
+					Thread.Sleep(30);
 					error = e;
 				}
 			}
@@ -215,13 +222,6 @@ namespace GitMind.Utils
 				SendLog("ERROR Failed to move large log file: " + e);
 			}	
 		}
-
-
-		private static void SendLog(string text)
-		{
-			logTexts.Add(text);
-		}
-
 
 		private static class Native
 		{

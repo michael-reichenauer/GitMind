@@ -266,7 +266,7 @@ namespace GitMind.RepositoryViews
 				using (progress.ShowDialog("Loading branch view ..."))
 				{
 					await repositoryService.LoadRepositoryAsync(workingFolder);
-					t.Log("Read cached/fresh repositrory");
+					t.Log("Read cached/fresh repository");
 					LoadViewModel();
 					t.Log("Updated view model after cached/fresh");
 				}
@@ -294,6 +294,8 @@ namespace GitMind.RepositoryViews
 					await repositoryService.CheckRemoteChangesAsync(true);
 					t.Log("Checked remote");
 				}
+
+				await repositoryService.CheckBranchTipCommitsAsync();
 			}
 		}
 
@@ -322,13 +324,15 @@ namespace GitMind.RepositoryViews
 				Log.Usage("Automatic remote check");
 				await repositoryService.CheckRemoteChangesAsync(false);
 				t.Log("Auto refresh done");
-			}			
+			}
+
+			await repositoryService.CheckBranchTipCommitsAsync();
 		}
 
 
 		private void OnRepositoryUpdated()
 		{
-			Log.Debug("Update reposiotry view model after updated Repository");
+			Log.Debug("Update repository view model after updated Repository");
 			Timing t = new Timing();
 			using (progress.ShowBusy())
 			{
