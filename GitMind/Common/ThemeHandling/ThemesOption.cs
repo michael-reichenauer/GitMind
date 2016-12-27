@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GitMind.Common.ThemeHandling
 {
-	public class Themes
+	public class ThemesOption
 	{
 		public string comment0 => "Theme options. You can edit and add custom themes in the list.";
 		public string comment1 => "Specify CurrentTheme name.";
@@ -11,53 +11,30 @@ namespace GitMind.Common.ThemeHandling
 
 		public string CurrentTheme = "Default";
 
-		public DefaultTheme DefaultTheme => new DefaultTheme();
+		public ThemeOption DefaultTheme => new ThemeOption { Name = "Default" };
 
-		public Theme[] CustomThemes { get; set; } = { new CustomTheme() };
+		public ThemeOption[] CustomThemes { get; set; } = { new ThemeOption() };
 	}
 
-	public class Theme
+	public class ThemeOption
 	{
 		public virtual string comment => "Theme settings";
 
-		public virtual string Name { get; set; } = "<name>";
+		public virtual string Name { get; set; } = "Custom_1";
 
-		public virtual BranchColors BranchColors { get; set; } = new BranchColors();
+		public virtual string BackgroundColor { get; set; } = "#FF000000";
+
+		public virtual string ForegroundColor { get; set; } = "#FFFFFFFF";
+
+		public virtual BranchColorsOption BranchColors { get; set; } = new BranchColorsOption();
 	}
 
-	public class BranchColors
+	public class BranchColorsOption
 	{
-		public virtual string comment => "Branch colors";
-
-		public virtual List<string> Colors { get; set; } = new List<string>();
-	}
-
-	public class CustomTheme : Theme
-	{
-		public override string comment => "Custom examble theme, edit or copy to add more";
-
-		public override string Name { get; set; } = "Custom_1";
-
-		public override BranchColors BranchColors { get; set; } = new DefaultBranchColors();
-	}
-
-
-	public class DefaultTheme : Theme
-	{
-		public override string comment => "Default theme (read-only)";
-
-		public override string Name { get; set; } = "Default";
-
-		public override BranchColors BranchColors => new DefaultBranchColors();
-	}
-
-
-	public class DefaultBranchColors : BranchColors
-	{
-		public override string comment => 
+		public string comment =>
 			"Branch colors. First color is master branch, second multi branch and rest normal branch colors.";
 
-		public override List<string> Colors => new List<string>
+		public List<string> Colors { get; set; } = new List<string>
 		{
 			"#FFE540FF", // master branch (violet)
 			"#FFFFFFFF", // multi- branch (white)

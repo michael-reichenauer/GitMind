@@ -505,7 +505,7 @@ namespace GitMind.RepositoryViews.Private
 			SetNumberOfItems(
 				commits, 
 				sourceCommits.Count,
-				i => new CommitViewModel(branchService, repositoryCommands, commitsService));
+				i => new CommitViewModel(branchService, themeService, repositoryCommands, commitsService));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;
@@ -542,7 +542,7 @@ namespace GitMind.RepositoryViews.Private
 					&& !commit.HasSecondParent
 					&& (commit == commit.Branch.TipCommit || commit == commit.Branch.FirstCommit))
 				{
-					commitViewModel.BrushInner = themeService.GetDarkerBrush(commitViewModel.Brush);
+					commitViewModel.BrushInner = themeService.Theme.GetDarkerBrush(commitViewModel.Brush);
 				}
 
 				commitViewModel.NotifyAll();
@@ -786,7 +786,7 @@ namespace GitMind.RepositoryViews.Private
 
 			if (isMerge)
 			{
-				childCommit.BrushInner = themeService.GetDarkerBrush(childCommit.Brush);
+				childCommit.BrushInner = themeService.Theme.GetDarkerBrush(childCommit.Brush);
 			}
 
 			int childRow = childCommit.RowIndex;
@@ -864,23 +864,23 @@ namespace GitMind.RepositoryViews.Private
 			Brush subjectBrush;
 			if (commit.HasConflicts)
 			{
-				subjectBrush = ThemeService.ConflictBrush;
+				subjectBrush = themeService.Theme.ConflictBrush;
 			}
 			else if (commit.IsMerging)
 			{
-				subjectBrush = ThemeService.MergeBrush;
+				subjectBrush = themeService.Theme.MergeBrush;
 			}
 			else if (commit.IsUncommitted)
 			{
-				subjectBrush = themeService.UnCommittedBrush;
+				subjectBrush = themeService.Theme.UnCommittedBrush;
 			}
 			else if (commit.IsLocalAhead && commit.Branch.LocalAheadCount > 0)
 			{
-				subjectBrush = themeService.LocalAheadBrush;
+				subjectBrush = themeService.Theme.LocalAheadBrush;
 			}
 			else if (commit.IsRemoteAhead && commit.Branch.RemoteAheadCount > 0)
 			{
-				subjectBrush = themeService.RemoteAheadBrush;
+				subjectBrush = themeService.Theme.RemoteAheadBrush;
 			}
 			//else if (commit.CommitBranchName != null)
 			//{
@@ -892,7 +892,7 @@ namespace GitMind.RepositoryViews.Private
 			//}
 			else
 			{
-				subjectBrush = themeService.SubjectBrush;
+				subjectBrush = themeService.Theme.SubjectBrush;
 			}
 
 			return subjectBrush;

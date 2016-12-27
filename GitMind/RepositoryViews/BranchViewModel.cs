@@ -149,8 +149,8 @@ namespace GitMind.RepositoryViews
 		{
 			Brush = brush;
 			HoverBrushNormal = Brush;
-			HoverBrushHighlight = themeService.GetLighterBrush(Brush);
-			DimBrushHighlight = themeService.GetLighterLighterBrush(Brush);
+			HoverBrushHighlight = themeService.Theme.GetLighterBrush(Brush);
+			DimBrushHighlight = themeService.Theme.GetLighterLighterBrush(Brush);
 		}
 	}
 }

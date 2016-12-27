@@ -13,6 +13,7 @@ namespace GitMind.RepositoryViews
 	internal class CommitViewModel : ViewModel
 	{
 		private readonly IBranchService branchService;
+		private readonly IThemeService themeService;
 		private readonly IRepositoryCommands repositoryCommands;
 		private readonly ICommitsService commitsService;
 
@@ -21,10 +22,12 @@ namespace GitMind.RepositoryViews
 
 		public CommitViewModel(
 			IBranchService branchService,
+			IThemeService themeService,
 			IRepositoryCommands repositoryCommands,
 			ICommitsService commitsService)
 		{
 			this.branchService = branchService;
+			this.themeService = themeService;
 			this.repositoryCommands = repositoryCommands;
 			this.commitsService = commitsService;
 		}
@@ -65,7 +68,7 @@ namespace GitMind.RepositoryViews
 		public string ToolTip { get; set; }
 		public Brush Brush { get; set; }
 		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
-		public Brush HoverBrush => ThemeService.HoverBrushColor;
+		public Brush HoverBrush => themeService.Theme.HoverBrush;
 
 
 		public double Width
@@ -155,10 +158,10 @@ namespace GitMind.RepositoryViews
 
 		public void SetDim()
 		{
-			SubjectBrush = ThemeService.DimBrush;
-			TagBrush = ThemeService.DimBrush;
-			TicketBrush = ThemeService.DimBrush;
-			BranchTipBrush = ThemeService.DimBrush;
+			SubjectBrush = themeService.Theme.DimBrush;
+			TagBrush = themeService.Theme.DimBrush;
+			TicketBrush = themeService.Theme.DimBrush;
+			BranchTipBrush = themeService.Theme.DimBrush;
 
 			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
 		}
@@ -167,9 +170,9 @@ namespace GitMind.RepositoryViews
 		public void SetNormal(Brush subjectBrush)
 		{
 			SubjectBrush = subjectBrush;
-			TagBrush = ThemeService.TagBrush;
-			TicketBrush = ThemeService.TicketBrush;
-			BranchTipBrush = ThemeService.BranchTipBrush;
+			TagBrush = themeService.Theme.TagBrush;
+			TicketBrush = themeService.Theme.TicketBrush;
+			BranchTipBrush = themeService.Theme.BranchTipBrush;
 
 			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
 		}

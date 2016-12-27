@@ -12,15 +12,18 @@ namespace GitMind.RepositoryViews
 	internal class CommitFileViewModel : ViewModel
 	{
 		private readonly IDiffService diffService;
+		private readonly IThemeService themeService;
 
 		private readonly CommitFile file;
 
 		public CommitFileViewModel(
 			IDiffService diffService,
+			IThemeService themeService,
 			CommitFile file,
 			Command<string> undoUncommittedFileCommand)
 		{
 			this.diffService = diffService;
+			this.themeService = themeService;
 			this.file = file;
 			UndoUncommittedFileCommand = undoUncommittedFileCommand.With(() => Name);
 		}
@@ -51,7 +54,7 @@ namespace GitMind.RepositoryViews
 		//public bool IsUseTheirs => diffService.IsUseTheirs(WorkingFolder, file);
 
 		public Brush FileNameBrush => file.Status != GitFileStatus.Conflict
-			? ThemeService.TextBrush : ThemeService.ConflictBrush;
+			? themeService.Theme.TextBrush : themeService.Theme.ConflictBrush;
 
 		public bool IsUncommitted => HasNotConflicts && Id == CommitSha.Uncommitted;
 

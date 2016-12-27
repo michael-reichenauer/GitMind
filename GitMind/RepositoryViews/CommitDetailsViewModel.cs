@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Common;
+using GitMind.Common.ThemeHandling;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
 using GitMind.Git;
@@ -18,6 +19,7 @@ namespace GitMind.RepositoryViews
 	internal class CommitDetailsViewModel : ViewModel
 	{
 		private readonly IDiffService diffService;
+		private readonly IThemeService themeService;
 		private readonly ICommitsService commitsService;
 		private readonly IGitCommitsService gitCommitsService;
 
@@ -30,10 +32,12 @@ namespace GitMind.RepositoryViews
 
 		public CommitDetailsViewModel(
 			IDiffService diffService,
+			IThemeService themeService,
 			ICommitsService commitsService,
 			IGitCommitsService gitCommitsService)
 		{
 			this.diffService = diffService;
+			this.themeService = themeService;
 			this.commitsService = commitsService;
 			this.gitCommitsService = gitCommitsService;
 		}
@@ -133,7 +137,7 @@ namespace GitMind.RepositoryViews
 					.OrderBy(f => f.Status, Comparer<GitFileStatus>.Create(Compare))
 					.ThenBy(f => f.Path)
 					.ForEach(f => files.Add(
-						new CommitFileViewModel(diffService, f, UndoUncommittedFileCommand)
+						new CommitFileViewModel(diffService, themeService, f, UndoUncommittedFileCommand)
 						{
 							Id = commit.RealCommitSha,
 							Name = f.Path,

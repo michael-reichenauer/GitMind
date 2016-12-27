@@ -13,7 +13,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 
 		public MergeTool MergeTool { get; set; } = new MergeTool();
 
-		public Themes Themes { get; set; } = new Themes();
+		public ThemesOption Themes { get; set; } = new ThemesOption();
 	}
 
 
