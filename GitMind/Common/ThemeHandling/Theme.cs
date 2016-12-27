@@ -21,7 +21,7 @@ namespace GitMind.Common.ThemeHandling
 		public Brush ConflictBrush { get; }
 		public Brush MergeBrush { get; } 
 		public Brush UnCommittedBrush { get; }
-		public Brush BranchTipBrush { get; }
+		public Brush BranchTipsBrush { get; }
 		public Brush DimBrush { get; }
 
 		public Brush TagBrush { get; }
@@ -30,6 +30,16 @@ namespace GitMind.Common.ThemeHandling
 
 		public Brush HoverBrush { get; }
 		public Brush ErrorBrush { get; }
+		public Brush BorderBrush { get; }
+		public Brush TextLowBrush { get; }
+		public Brush UndoBrush { get; }
+		public Brush CurrentCommitIndicatorBrush { get; }
+		public Brush BusyBrush { get; }
+		public Brush ScrollbarBrush { get; }
+		public Brush ItemBackgroundBrush { get; }
+		public Brush SelectedItemBorderBrush { get; }
+		public Brush SelectedItemBackgroundBrush { get; }
+		public Brush HoverItemBrush { get; }
 
 
 		public readonly List<Brush> brushes = new List<Brush>();
@@ -42,21 +52,32 @@ namespace GitMind.Common.ThemeHandling
 		{
 			BackgroundBrush = FromHex(option.BackgroundColor);
 			ForegroundBrush = FromHex(option.ForegroundColor);
+			BorderBrush = FromHex(option.BorderColor);
 			TextBrush = FromHex(option.TextColor);
+			TextLowBrush = FromHex(option.TextLowColor);
 			HoverBrush = FromHex(option.HoverColor);
 			ErrorBrush = FromHex(option.ErrorColor);
-
+			UndoBrush = FromHex(option.UndoColor);
 			SubjectBrush = FromHex(option.SubjectColors.SubjectColor);
 			LocalAheadBrush = FromHex(option.SubjectColors.LocalAheadColor);
 			RemoteAheadBrush = FromHex(option.SubjectColors.RemoteAheadColor);
 			ConflictBrush = FromHex(option.SubjectColors.ConflictColor);
 			MergeBrush = FromHex(option.SubjectColors.MergeColor);
 			UnCommittedBrush = FromHex(option.SubjectColors.UnCommittedColor);
-			BranchTipBrush = FromHex(option.SubjectColors.BranchTipColor);
+			BranchTipsBrush = FromHex(option.SubjectColors.BranchTipColor);
 			DimBrush = FromHex(option.SubjectColors.DimColor);
+			CurrentCommitIndicatorBrush = FromHex(option.SubjectColors.CurrentCommitIndicatorBrush);
 
 			TagBrush = FromHex(option.SubjectColors.TagColor);
-			TicketBrush = FromHex(option.SubjectColors.TicketColor);		
+			TicketBrush = FromHex(option.SubjectColors.TicketColor);
+
+			BusyBrush = FromHex(option.BusyColor);
+			ScrollbarBrush = FromHex(option.ScrollbarColor);
+
+			ItemBackgroundBrush = FromHex(option.ItemBackgroundColor);
+			SelectedItemBorderBrush = FromHex(option.SelectedItemBorderColor);
+			SelectedItemBackgroundBrush = FromHex(option.SelectedItemBackgroundColor);
+			HoverItemBrush = FromHex(option.HoverItemColor);
 
 			LoadThemeBranchColors(option);
 		}

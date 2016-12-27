@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Media;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
@@ -75,6 +76,33 @@ namespace GitMind.Common.ThemeHandling
 
 			return brush;
 		}
+
+
+		public void SetThemeWpfColors(ResourceDictionary colors)
+		{
+			colors["BackgroundBrush"] = Theme.BackgroundBrush;
+			colors["BorderBrush"] = Theme.BorderBrush;
+			colors["TextBrush"] = Theme.TextBrush;
+			colors["TextLowBrush"] = Theme.TextLowBrush;
+			colors["TicketBrush"] = Theme.TicketBrush;
+			colors["UndoBrush"] = Theme.UndoBrush;
+			colors["TagBrush"] = Theme.TagBrush;
+			colors["BranchTipsBrush"] = Theme.BranchTipsBrush;
+			colors["CurrentCommitIndicatorBrush"] = Theme.CurrentCommitIndicatorBrush;
+			colors["RemoteAheadBrush"] = Theme.RemoteAheadBrush;
+			colors["LocalAheadBrush"] = Theme.LocalAheadBrush;
+			colors["BusyBrush"] = Theme.BusyBrush;
+			colors["ScrollbarBrush"] = Theme.ScrollbarBrush;
+			colors["ConflictBrush"] = Theme.ConflictBrush;
+			colors["UncomittedBrush"] = Theme.UnCommittedBrush;
+
+			colors["ItemBrush"] = Theme.ItemBackgroundBrush;
+			colors["SelectedItemBorderBrush"] = Theme.SelectedItemBorderBrush;
+			colors["SelectedItemBackgroundBrush"] = Theme.SelectedItemBackgroundBrush;
+			colors["HoverItemBrush"] = Theme.HoverItemBrush;
+
+		}
+
 
 		private void LoadTheme()
 		{

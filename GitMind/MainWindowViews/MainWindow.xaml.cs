@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -37,7 +38,7 @@ namespace GitMind.MainWindowViews
 			this.commandLine = commandLine;
 
 			InitializeComponent();
-				
+	
 			SetShowToolTipLonger();
 
 			// Make sure maximize window does not cover the task bar

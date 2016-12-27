@@ -172,7 +172,7 @@ namespace GitMind.RepositoryViews
 			SubjectBrush = subjectBrush;
 			TagBrush = themeService.Theme.TagBrush;
 			TicketBrush = themeService.Theme.TicketBrush;
-			BranchTipBrush = themeService.Theme.BranchTipBrush;
+			BranchTipBrush = themeService.Theme.BranchTipsBrush;
 
 			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
 		}
