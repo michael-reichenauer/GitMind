@@ -1,6 +1,6 @@
 using System.Windows.Media;
 using GitMind.Common;
-using GitMind.Common.Brushes;
+using GitMind.Common.ThemeHandling;
 using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.GitModel;
@@ -51,7 +51,7 @@ namespace GitMind.RepositoryViews
 		//public bool IsUseTheirs => diffService.IsUseTheirs(WorkingFolder, file);
 
 		public Brush FileNameBrush => file.Status != GitFileStatus.Conflict
-			? BrushService.TextBrush : BrushService.ConflictBrush;
+			? ThemeService.TextBrush : ThemeService.ConflictBrush;
 
 		public bool IsUncommitted => HasNotConflicts && Id == CommitSha.Uncommitted;
 

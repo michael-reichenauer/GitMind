@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Common;
-using GitMind.Common.Brushes;
+using GitMind.Common.ThemeHandling;
 using GitMind.Features.Branches;
 using GitMind.Features.Commits;
 using GitMind.Git;
@@ -26,7 +26,7 @@ namespace GitMind.RepositoryViews.Private
 
 		private readonly IBranchService branchService;
 		private readonly ICommitsService commitsService;
-		private readonly IBrushService brushService;
+		private readonly IThemeService themeService;
 		private readonly IRepositoryMgr repositoryMgr;
 		private readonly IRepositoryCommands repositoryCommands;
 
@@ -38,14 +38,14 @@ namespace GitMind.RepositoryViews.Private
 		public ViewModelService(
 			IBranchService branchService,
 			ICommitsService commitsService,
-			IBrushService brushService,
+			IThemeService themeService,
 			IRepositoryMgr repositoryMgr,
 			IRepositoryCommands repositoryCommands,
 			Func<BranchViewModel> branchViewModelProvider)
 		{
 			this.branchService = branchService;
 			this.commitsService = commitsService;
-			this.brushService = brushService;
+			this.themeService = themeService;
 			this.repositoryMgr = repositoryMgr;
 			this.repositoryCommands = repositoryCommands;
 			this.branchViewModelProvider = branchViewModelProvider;
@@ -533,7 +533,7 @@ namespace GitMind.RepositoryViews.Private
 
 				commitViewModel.Rect = new Rect(0, y, commitViewModel.Width, CommitHeight);
 
-				commitViewModel.Brush = brushService.GetBranchBrush(commit.Branch);
+				commitViewModel.Brush = themeService.GetBranchBrush(commit.Branch);
 				commitViewModel.BrushInner = commitViewModel.Brush;
 				commitViewModel.SetNormal(GetSubjectBrush(commit));
 				commitViewModel.BranchToolTip = GetBranchToolTip(commit.Branch);
@@ -542,7 +542,7 @@ namespace GitMind.RepositoryViews.Private
 					&& !commit.HasSecondParent
 					&& (commit == commit.Branch.TipCommit || commit == commit.Branch.FirstCommit))
 				{
-					commitViewModel.BrushInner = brushService.GetDarkerBrush(commitViewModel.Brush);
+					commitViewModel.BrushInner = themeService.GetDarkerBrush(commitViewModel.Brush);
 				}
 
 				commitViewModel.NotifyAll();
@@ -600,7 +600,7 @@ namespace GitMind.RepositoryViews.Private
 					branch.Line = "";
 				}
 
-				branch.SetColor(brushService.GetBranchBrush(sourceBranch));
+				branch.SetColor(themeService.GetBranchBrush(sourceBranch));
 			
 
 				branch.BranchToolTip = GetBranchToolTip(sourceBranch);
@@ -786,7 +786,7 @@ namespace GitMind.RepositoryViews.Private
 
 			if (isMerge)
 			{
-				childCommit.BrushInner = brushService.GetDarkerBrush(childCommit.Brush);
+				childCommit.BrushInner = themeService.GetDarkerBrush(childCommit.Brush);
 			}
 
 			int childRow = childCommit.RowIndex;
@@ -864,23 +864,23 @@ namespace GitMind.RepositoryViews.Private
 			Brush subjectBrush;
 			if (commit.HasConflicts)
 			{
-				subjectBrush = BrushService.ConflictBrush;
+				subjectBrush = ThemeService.ConflictBrush;
 			}
 			else if (commit.IsMerging)
 			{
-				subjectBrush = BrushService.MergeBrush;
+				subjectBrush = ThemeService.MergeBrush;
 			}
 			else if (commit.IsUncommitted)
 			{
-				subjectBrush = brushService.UnCommittedBrush;
+				subjectBrush = themeService.UnCommittedBrush;
 			}
 			else if (commit.IsLocalAhead && commit.Branch.LocalAheadCount > 0)
 			{
-				subjectBrush = brushService.LocalAheadBrush;
+				subjectBrush = themeService.LocalAheadBrush;
 			}
 			else if (commit.IsRemoteAhead && commit.Branch.RemoteAheadCount > 0)
 			{
-				subjectBrush = brushService.RemoteAheadBrush;
+				subjectBrush = themeService.RemoteAheadBrush;
 			}
 			//else if (commit.CommitBranchName != null)
 			//{
@@ -892,7 +892,7 @@ namespace GitMind.RepositoryViews.Private
 			//}
 			else
 			{
-				subjectBrush = brushService.SubjectBrush;
+				subjectBrush = themeService.SubjectBrush;
 			}
 
 			return subjectBrush;

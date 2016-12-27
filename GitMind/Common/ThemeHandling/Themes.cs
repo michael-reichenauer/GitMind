@@ -1,17 +1,19 @@
 using System.Collections.Generic;
 
 
-namespace GitMind.Common.Brushes
+namespace GitMind.Common.ThemeHandling
 {
 	public class Themes
 	{
-		public string comment => "Theme  options";
+		public string comment0 => "Theme options. You can edit and add custom themes in the list.";
+		public string comment1 => "Specify CurrentTheme name.";
+		public string comment2 => "Default theme is read-only.";
 
 		public string CurrentTheme = "Default";
 
 		public DefaultTheme DefaultTheme => new DefaultTheme();
 
-		public Theme[] CustomThemes { get; set; } = new[] { new CustomTheme() };
+		public Theme[] CustomThemes { get; set; } = { new CustomTheme() };
 	}
 
 	public class Theme

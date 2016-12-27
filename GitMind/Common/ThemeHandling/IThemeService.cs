@@ -2,9 +2,9 @@ using System.Windows.Media;
 using GitMind.GitModel;
 
 
-namespace GitMind.Common.Brushes
+namespace GitMind.Common.ThemeHandling
 {
-	internal interface IBrushService
+	internal interface IThemeService
 	{
 		SolidColorBrush SubjectBrush { get; }
 		SolidColorBrush LocalAheadBrush { get; }

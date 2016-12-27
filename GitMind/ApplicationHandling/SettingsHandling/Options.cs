@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using System.Windows;
-using GitMind.Common.Brushes;
+using GitMind.Common.ThemeHandling;
 
 
 namespace GitMind.ApplicationHandling.SettingsHandling
 {
 	public class Options
 	{
+		public string comment => "Program options. Please restart GitMind after editing this file.";
+
 		public DiffTool DiffTool { get; set; } = new DiffTool();
 
 		public MergeTool MergeTool { get; set; } = new MergeTool();

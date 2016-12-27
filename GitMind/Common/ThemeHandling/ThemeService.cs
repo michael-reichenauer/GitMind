@@ -9,10 +9,10 @@ using GitMind.GitModel;
 using GitMind.Utils;
 
 
-namespace GitMind.Common.Brushes
+namespace GitMind.Common.ThemeHandling
 {
 	[SingleInstance]
-	internal class BrushService : IBrushService
+	internal class ThemeService : IThemeService
 	{
 		private static readonly int MasterBranchBrushIndex = 0;
 		private static readonly int MultiBranchBrushIndex =1;
@@ -47,7 +47,7 @@ namespace GitMind.Common.Brushes
 		private readonly WorkingFolder workingFolder;
 		private readonly Dictionary<string, Brush> customBranchBrushes = new Dictionary<string, Brush>();
 
-		public BrushService(WorkingFolder workingFolder)
+		public ThemeService(WorkingFolder workingFolder)
 		{
 			this.workingFolder = workingFolder;
 
