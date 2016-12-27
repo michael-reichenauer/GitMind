@@ -105,6 +105,7 @@
     <Compile Include="ApplicationHandling\IWorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\WorkingFolder.cs" />
+    <Compile Include="Common\Brushes\Themes.cs" />
     <Compile Include="Common\CommitId.cs" />
     <Compile Include="Common\CommitIds.cs" />
     <Compile Include="Common\CommitSha.cs" />

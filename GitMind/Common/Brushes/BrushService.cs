@@ -14,8 +14,9 @@ namespace GitMind.Common.Brushes
 	[SingleInstance]
 	internal class BrushService : IBrushService
 	{
-		private static readonly SolidColorBrush MasterBranchBrush = BrushFromHex("#E540FF");
-		private static readonly SolidColorBrush MultiBranchBrush = System.Windows.Media.Brushes.White;
+		private static readonly int MasterBranchBrushIndex = 0;
+		private static readonly int MultiBranchBrushIndex =1;
+
 		private static readonly SolidColorBrush LighterBaseBrush = BrushFromHex("#FFFFFFFF");
 
 		private readonly List<Brush> brushes = new List<Brush>();
@@ -49,23 +50,27 @@ namespace GitMind.Common.Brushes
 		public BrushService(WorkingFolder workingFolder)
 		{
 			this.workingFolder = workingFolder;
-			InitBrushes();
-			LoadBranchColors();
 
-			workingFolder.OnChange += (s, e) => LoadBranchColors();
+			InitBrushes();
+
+			LoadCustomBranchColors();
+
+			workingFolder.OnChange += (s, e) => LoadCustomBranchColors();
 		}
 
 
-		private void LoadBranchColors()
+		private void LoadCustomBranchColors()
 		{
 			customBranchBrushes.Clear();
 			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
 
 			foreach (var pair in settings.BranchColors)
 			{
-				// "#F25B54"
-				Brush br = brushes.First(b => HexFromBrush(b) == pair.Value);
-				customBranchBrushes[pair.Key] = br;
+				Brush brush = brushes.FirstOrDefault(b => HexFromBrush(b) == pair.Value);
+				if (brush != null)
+				{
+					customBranchBrushes[pair.Key] = brush;
+				}
 			}
 		}
 
@@ -74,12 +79,12 @@ namespace GitMind.Common.Brushes
 		{
 			if (branch.IsMultiBranch)
 			{
-				return MultiBranchBrush;
+				return brushes[MultiBranchBrushIndex];
 			}
 
 			if (branch.Name == BranchName.Master)
 			{
-				return MasterBranchBrush;
+				return brushes[MasterBranchBrushIndex];
 			}
 
 			if (customBranchBrushes.TryGetValue(branch.Name, out Brush branchBrush))
@@ -120,7 +125,7 @@ namespace GitMind.Common.Brushes
 			int index = brushes.IndexOf(currentBrush);
 	
 			// Select next brush
-			int newIndex = (index + 1) % (brushes.Count - 2);
+			int newIndex = ((index + 1) % (brushes.Count - 2)) + 2;
 
 			Brush brush = brushes[newIndex];		
 			string brushHex = HexFromBrush(brush);
@@ -129,7 +134,7 @@ namespace GitMind.Common.Brushes
 			settings.BranchColors[branch.Name] = brushHex;
 			Settings.SetWorkFolderSetting(workingFolder, settings);
 
-			LoadBranchColors();
+			LoadCustomBranchColors();
 
 			return brush;
 		}
@@ -137,30 +142,19 @@ namespace GitMind.Common.Brushes
 
 		private Brush GetBrush(BranchName name)
 		{
-			int branchBrushId = Math.Abs(name.GetHashCode()) % (brushes.Count - 2);
+			int branchBrushId = (Math.Abs(name.GetHashCode()) % (brushes.Count - 2)) + 2;
 			return brushes[branchBrushId];
 		}
 
 
 		private void InitBrushes()
 		{
-			//for (int i = 0; i < 100; i += 4)
-			//{
-			//	Color colorFromHsl = ColorFromHSL((double)i / 100, 0.85, 0.57);
-			//	SolidColorBrush brush = new SolidColorBrush(colorFromHsl);
+			Options options = Settings.Get<Options>();
+			Theme theme = options.Themes.DefaultTheme;
 
-			//	SolidColorBrush darkerBrush = DarkBrush(brush);
-			//	SolidColorBrush lighterBrush = LightBrush(brush);
-
-			//	brushes.Add(brush);
-			//	darkBrushes.Add(darkerBrush);
-			//	lighterBrushes.Add(lighterBrush);
-			//}
-
-
-			foreach (Color color in _kellysMaxContrastSet)
+			foreach (string hexColor in theme.BranchColors.Colors)
 			{
-				SolidColorBrush brush = new SolidColorBrush(color);
+				SolidColorBrush brush = BrushFromHex(hexColor);
 
 				SolidColorBrush darkerBrush = DarkBrush(brush);
 				SolidColorBrush lighterBrush = LightBrush(brush);
@@ -171,25 +165,6 @@ namespace GitMind.Common.Brushes
 				lighterBrushes.Add(lighterBrush);
 				lighterLighterBrushes.Add(lighterLighterBrush);
 			}
-
-
-			SolidColorBrush darker = DarkBrush(MasterBranchBrush);
-			SolidColorBrush lighter = LightBrush(MasterBranchBrush);
-			SolidColorBrush lighterLighter = LightBrush(lighter);
-
-			brushes.Add(MasterBranchBrush);
-			darkBrushes.Add(darker);
-			lighterBrushes.Add(lighter);
-			lighterLighterBrushes.Add(lighterLighter);
-
-			darker = DarkBrush(MultiBranchBrush);
-			lighter = LightBrush(MultiBranchBrush);
-			lighterLighter = LightBrush(lighter);
-
-			brushes.Add(MultiBranchBrush);
-			darkBrushes.Add(darker);
-			lighterBrushes.Add(lighter);
-			lighterLighterBrushes.Add(lighterLighter);
 		}
 
 
@@ -287,39 +262,44 @@ namespace GitMind.Common.Brushes
 				return temp1;
 		}
 
-		private static readonly IReadOnlyList<Color> _kellysMaxContrastSet = new List<Color>
-		{
-			UIntToColor(0xFFFFB300), //Vivid Yellow
-			UIntToColor(0xFFA12B8E), //Strong Purple
-			UIntToColor(0xFFFF6800), //Vivid Orange
-			UIntToColor(0xFF6892C0), //Very Light Blue
-			UIntToColor(0xFFDF334E), //Vivid Red
-			UIntToColor(0xFFCEA262), //Grayish Yellow
-			UIntToColor(0xFFAD7E62), //Medium Gray
+		//private static readonly IReadOnlyList<Color> _kellysMaxContrastSet = new List<Color>
+		//{
+		//	UIntToColor(0xFFFFB300), //Vivid Yellow
+		//	UIntToColor(0xFFA12B8E), //Strong Purple
+		//	UIntToColor(0xFFFF6800), //Vivid Orange
+		//	UIntToColor(0xFF6892C0), //Very Light Blue
+		//	UIntToColor(0xFFDF334E), //Vivid Red
+		//	UIntToColor(0xFFCEA262), //Grayish Yellow
+		//	UIntToColor(0xFFAD7E62), //Medium Gray
 
-			//The following will not be good for people with defective color vision
-			UIntToColor(0xFF0FA94E), //Vivid Green
-			UIntToColor(0xFFF6768E), //Strong Purplish Pink
-			UIntToColor(0xFF085E95), //Strong Blue
-			UIntToColor(0xFFFF7A5C), //Strong Yellowish Pink
-			UIntToColor(0xFF6D568D), //Strong Violet
-			UIntToColor(0xFFFF8E00), //Vivid Orange Yellow
-			UIntToColor(0xFFB04B6A), //Strong Purplish Red
-			UIntToColor(0xFFF4C800), //Vivid Greenish Yellow
-			UIntToColor(0xFFA5574F), //Strong Reddish Brown
-			UIntToColor(0xFF93AA00), //Vivid Yellowish Green
-			UIntToColor(0xFF9C5E2C), //Deep Yellowish Brown
-			UIntToColor(0xFFF13A13), //Vivid Reddish Orange
-			UIntToColor(0xFF86A854), //Dark Olive Green
-		};
+		//	//The following will not be good for people with defective color vision
+		//	UIntToColor(0xFF0FA94E), //Vivid Green
+		//	UIntToColor(0xFFF6768E), //Strong Purplish Pink
+		//	UIntToColor(0xFF085E95), //Strong Blue
+		//	UIntToColor(0xFFFF7A5C), //Strong Yellowish Pink
+		//	UIntToColor(0xFF6D568D), //Strong Violet
+		//	UIntToColor(0xFFFF8E00), //Vivid Orange Yellow
+		//	UIntToColor(0xFFB04B6A), //Strong Purplish Red
+		//	UIntToColor(0xFFF4C800), //Vivid Greenish Yellow
+		//	UIntToColor(0xFFA5574F), //Strong Reddish Brown
+		//	UIntToColor(0xFF93AA00), //Vivid Yellowish Green
+		//	UIntToColor(0xFF9C5E2C), //Deep Yellowish Brown
+		//	UIntToColor(0xFFF13A13), //Vivid Reddish Orange
+		//	UIntToColor(0xFF86A854), //Dark Olive Green
+		//};
 
-		private static Color UIntToColor(uint color)
-		{
-			var a = (byte)(color >> 24);
-			var r = (byte)(color >> 16);
-			var g = (byte)(color >> 8);
-			var b = (byte)(color >> 0);
-			return Color.FromArgb(a, r, g, b);
-		}
+
+		
+		//private static Color UIntToColor(uint color)
+		//{
+		//	var a = (byte)(color >> 24);
+		//	var r = (byte)(color >> 16);
+		//	var g = (byte)(color >> 8);
+		//	var b = (byte)(color >> 0);
+		//	return Color.FromArgb(a, r, g, b);
+		//}
 	}
+
+
+	
 }

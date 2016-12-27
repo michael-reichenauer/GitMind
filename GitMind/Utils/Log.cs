@@ -23,6 +23,7 @@ namespace GitMind.Utils
 		private static readonly IPEndPoint usageLogEndPoint =
 			new IPEndPoint(IPAddress.Parse("10.85.12.4"), 41110);
 
+		private static readonly object syncRoot = new object();
 
 		private static readonly string LogPath = ProgramPaths.GetLogFilePath();
 		private static readonly int ProcessID = Process.GetCurrentProcess().Id;
@@ -158,36 +159,39 @@ namespace GitMind.Utils
 
 		private static void WriteToFile(string text)
 		{
-			Exception error = null;
-			for (int i = 0; i < 10; i++)
+			lock (syncRoot)
 			{
-				try
+				Exception error = null;
+				for (int i = 0; i < 10; i++)
 				{
-					File.AppendAllText(
-						LogPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}{Environment.NewLine}");
-
-					long length = new FileInfo(LogPath).Length;
-
-					if (length > MaxLogFileSize)
+					try
 					{
-						MoveLargeLogFile();
+						File.AppendAllText(
+							LogPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}{Environment.NewLine}");
+
+						long length = new FileInfo(LogPath).Length;
+
+						if (length > MaxLogFileSize)
+						{
+							MoveLargeLogFile();
+						}
+
+						return;
 					}
+					catch (DirectoryNotFoundException)
+					{
+						// Ignore error since folder has been deleted during uninstallation
+						return;
+					}
+					catch (Exception e)
+					{
+						Thread.Sleep(30);
+						error = e;
+					}
+				}
 
-					return;
-				}
-				catch (DirectoryNotFoundException)
-				{
-					// Ignore error since folder has been deleted during uninstallation
-					return;
-				}
-				catch (Exception e)
-				{
-					Thread.Sleep(30);
-					error = e;
-				}
-			}
-
-			SendLog("ERROR Failed to log to file: " + error);
+				SendLog("ERROR Failed to log to file: " + error);
+			}		
 		}
 
 
