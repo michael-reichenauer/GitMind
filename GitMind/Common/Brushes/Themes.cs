@@ -11,7 +11,7 @@ namespace GitMind.Common.Brushes
 
 		public DefaultTheme DefaultTheme => new DefaultTheme();
 
-		public Theme[] CustomThemes { get; set; } = new Theme[0];
+		public Theme[] CustomThemes { get; set; } = new[] { new CustomTheme() };
 	}
 
 	public class Theme
@@ -20,7 +20,7 @@ namespace GitMind.Common.Brushes
 
 		public virtual string Name { get; set; } = "<name>";
 
-		public virtual BranchColors BranchColors => new BranchColors();
+		public virtual BranchColors BranchColors { get; set; } = new BranchColors();
 	}
 
 	public class BranchColors
@@ -28,6 +28,15 @@ namespace GitMind.Common.Brushes
 		public virtual string comment => "Branch colors";
 
 		public virtual List<string> Colors { get; set; } = new List<string>();
+	}
+
+	public class CustomTheme : Theme
+	{
+		public override string comment => "Custom examble theme, edit or copy to add more";
+
+		public override string Name { get; set; } = "Custom_1";
+
+		public override BranchColors BranchColors { get; set; } = new DefaultBranchColors();
 	}
 
 
@@ -43,7 +52,8 @@ namespace GitMind.Common.Brushes
 
 	public class DefaultBranchColors : BranchColors
 	{
-		public override string comment => "Branch colors";
+		public override string comment => 
+			"Branch colors. First color is master branch, second multi branch and rest normal branch colors.";
 
 		public override List<string> Colors => new List<string>
 		{

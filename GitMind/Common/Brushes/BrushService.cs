@@ -150,7 +150,14 @@ namespace GitMind.Common.Brushes
 		private void InitBrushes()
 		{
 			Options options = Settings.Get<Options>();
-			Theme theme = options.Themes.DefaultTheme;
+
+			Theme theme = options.Themes.CustomThemes
+				.FirstOrDefault(t => t.Name == options.Themes.CurrentTheme);
+
+			if (theme == null)
+			{
+				theme = options.Themes.DefaultTheme;
+			}
 
 			foreach (string hexColor in theme.BranchColors.Colors)
 			{
