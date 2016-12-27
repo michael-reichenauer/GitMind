@@ -13,13 +13,11 @@ namespace GitMind.Common.ThemeHandling
 {
 	[SingleInstance]
 	internal class ThemeService : IThemeService
-	{
-	
+	{	
 		private readonly WorkingFolder workingFolder;
 		private readonly Dictionary<string, Brush> customBranchBrushes = new Dictionary<string, Brush>();
 
-		private Theme theme;
-
+		private Theme currentTheme;
 
 		public ThemeService(WorkingFolder workingFolder)
 		{
@@ -33,18 +31,18 @@ namespace GitMind.Common.ThemeHandling
 		}
 
 
-		public Theme Theme => theme;
+		public Theme Theme => currentTheme;
 
 		public Brush GetBranchBrush(Branch branch)
 		{
 			if (branch.IsMultiBranch)
 			{
-				return theme.GetMultiBranchBrush();
+				return currentTheme.GetMultiBranchBrush();
 			}
 
 			if (branch.Name == BranchName.Master)
 			{
-				return theme.GetMasterBranchBrush();
+				return currentTheme.GetMasterBranchBrush();
 			}
 
 			if (customBranchBrushes.TryGetValue(branch.Name, out Brush branchBrush))
@@ -52,7 +50,7 @@ namespace GitMind.Common.ThemeHandling
 				return branchBrush;
 			}
 
-			return theme.GetBrush(branch.Name);
+			return currentTheme.GetBrush(branch.Name);
 		}
 
 
@@ -61,12 +59,12 @@ namespace GitMind.Common.ThemeHandling
 		public Brush ChangeBranchBrush(Branch branch)
 		{
 			Brush currentBrush = GetBranchBrush(branch);
-			int index = theme.brushes.IndexOf(currentBrush);
+			int index = currentTheme.brushes.IndexOf(currentBrush);
 	
 			// Select next brush
-			int newIndex = ((index + 1) % (theme.brushes.Count - 2)) + 2;
+			int newIndex = ((index + 1) % (currentTheme.brushes.Count - 2)) + 2;
 
-			Brush brush = theme.brushes[newIndex];		
+			Brush brush = currentTheme.brushes[newIndex];		
 			string brushHex = Converter.HexFromBrush(brush);
 
 			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
@@ -78,20 +76,20 @@ namespace GitMind.Common.ThemeHandling
 			return brush;
 		}
 
-
-
-
 		private void LoadTheme()
 		{
 			ThemeOption themeOption = GetCurrentThemeOption();
 
-			theme = new Theme(themeOption);
+			currentTheme = new Theme(themeOption);
 		}
 
 		
 		private static ThemeOption GetCurrentThemeOption()
 		{
 			Options options = Settings.Get<Options>();
+
+			// Setting options to ensure that readonly options like DefaultTheme is written correctly
+			Settings.Set(options);
 
 			ThemeOption theme = options.Themes.CustomThemes
 				.FirstOrDefault(t => t.Name == options.Themes.CurrentTheme)
@@ -108,7 +106,7 @@ namespace GitMind.Common.ThemeHandling
 
 			foreach (var pair in settings.BranchColors)
 			{
-				Brush brush = theme.brushes.FirstOrDefault(b => Converter.HexFromBrush(b) == pair.Value);
+				Brush brush = currentTheme.brushes.FirstOrDefault(b => Converter.HexFromBrush(b) == pair.Value);
 				if (brush != null)
 				{
 					customBranchBrushes[pair.Key] = brush;

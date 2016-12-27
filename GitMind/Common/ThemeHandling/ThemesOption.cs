@@ -16,18 +16,6 @@ namespace GitMind.Common.ThemeHandling
 		public ThemeOption[] CustomThemes { get; set; } = { new ThemeOption() };
 	}
 
-	public class ThemeOption
-	{
-		public virtual string comment => "Theme settings";
-
-		public virtual string Name { get; set; } = "Custom_1";
-
-		public virtual string BackgroundColor { get; set; } = "#FF000000";
-
-		public virtual string ForegroundColor { get; set; } = "#FFFFFFFF";
-
-		public virtual BranchColorsOption BranchColors { get; set; } = new BranchColorsOption();
-	}
 
 	public class BranchColorsOption
 	{

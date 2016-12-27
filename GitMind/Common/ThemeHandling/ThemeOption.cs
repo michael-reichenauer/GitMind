@@ -1,0 +1,33 @@
+namespace GitMind.Common.ThemeHandling
+{
+	public class ThemeOption
+	{
+		public string comment => "Theme settings";
+
+		public string Name { get; set; } = "Custom_1";
+
+		public string BackgroundColor { get; set; } = "#FF000000";
+		public string ForegroundColor { get; set; } = "#FFFFFFFF";
+		public string TextColor { get; set; } = "#FFD4D4D4";
+		public string HoverColor { get; set; } = "#996495ED";
+		public string ErrorColor { get; set; } = "#FFFCB9B6";
+
+		public SubjectColorsOption SubjectColors { get; set; } = new SubjectColorsOption();
+		public class SubjectColorsOption
+		{
+			public string SubjectColor { get; set; } = "#FFD4D4D4";
+			public string LocalAheadColor { get; set; } = "#FF8FE78F";
+			public string RemoteAheadColor { get; set; } = "#FFBBBBFB";
+			public string ConflictColor { get; set; } = "#FFFCB9B6";
+			public string MergeColor { get; set; } = "#FFFFD700";
+			public string UnCommittedColor { get; set; } = "#FFDEB887";
+			public string BranchTipColor { get; set; } = "#FF00FFFF";
+			public string DimColor { get; set; } = "#FF696969";
+			public string TagColor { get; set; } = "#FF42C650";
+			public string TicketColor { get; set; } = "#FFF25B54";
+		}
+	
+
+		public BranchColorsOption BranchColors { get; set; } = new BranchColorsOption();
+	}
+}

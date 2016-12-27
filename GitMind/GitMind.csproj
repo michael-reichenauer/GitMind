@@ -107,6 +107,7 @@
     <Compile Include="ApplicationHandling\WorkingFolder.cs" />
     <Compile Include="Common\ThemeHandling\Converter.cs" />
     <Compile Include="Common\ThemeHandling\Theme.cs" />
+    <Compile Include="Common\ThemeHandling\ThemeOption.cs" />
     <Compile Include="Common\ThemeHandling\ThemesOption.cs" />
     <Compile Include="Common\CommitId.cs" />
     <Compile Include="Common\CommitIds.cs" />

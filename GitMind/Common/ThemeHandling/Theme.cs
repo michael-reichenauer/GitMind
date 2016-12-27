@@ -12,28 +12,24 @@ namespace GitMind.Common.ThemeHandling
 		private static readonly int MasterBranchBrushIndex = 0;
 		private static readonly int MultiBranchBrushIndex = 1;
 
-
 		public SolidColorBrush BackgroundBrush { get; }
 		public SolidColorBrush ForegroundBrush { get; }
 
+		public Brush SubjectBrush { get; }
+		public Brush LocalAheadBrush { get; } 
+		public Brush RemoteAheadBrush { get; } 
+		public Brush ConflictBrush { get; }
+		public Brush MergeBrush { get; } 
+		public Brush UnCommittedBrush { get; }
+		public Brush BranchTipBrush { get; }
+		public Brush DimBrush { get; }
 
-		public Brush SubjectBrush { get; } = Converter.BrushFromHex("#D4D4D4");
-		public Brush LocalAheadBrush { get; } = Converter.BrushFromHex("#8FE78F"); // Brushes.LightGreen;
-		public Brush RemoteAheadBrush { get; } = Converter.BrushFromHex("#BBBBFB");
+		public Brush TagBrush { get; }
+		public Brush TextBrush { get; }
+		public Brush TicketBrush { get; }
 
-		public Brush ConflictBrush { get; } = Converter.BrushFromHex("#FCB9B6");
-		public Brush MergeBrush { get; } = System.Windows.Media.Brushes.Gold;
-
-		public Brush UnCommittedBrush { get; } = System.Windows.Media.Brushes.BurlyWood;
-		public Brush BranchTipBrush { get; } = System.Windows.Media.Brushes.Aqua;
-
-		public Brush TagBrush { get; } = Converter.BrushFromHex("#42C650");
-		public Brush TextBrush { get; } = Converter.BrushFromHex("#D4D4D4");
-		public Brush TicketBrush { get; } = Converter.BrushFromHex("#F25B54");
-		public Brush DimBrush { get; } = System.Windows.Media.Brushes.DimGray;
-		public Brush HoverBrush { get; } = Converter.BrushFromHex("#996495ED");
-
-		public Brush ErrorBrush { get; } = Converter.BrushFromHex("#FCB9B6");
+		public Brush HoverBrush { get; }
+		public Brush ErrorBrush { get; }
 
 
 		public readonly List<Brush> brushes = new List<Brush>();
@@ -42,12 +38,33 @@ namespace GitMind.Common.ThemeHandling
 		public readonly List<Brush> lighterLighterBrushes = new List<Brush>();
 
 
-		public Theme(ThemeOption themeOption)
+		public Theme(ThemeOption option)
 		{
-			BackgroundBrush = Converter.BrushFromHex(themeOption.BackgroundColor);
-			ForegroundBrush = Converter.BrushFromHex(themeOption.ForegroundColor);
+			BackgroundBrush = FromHex(option.BackgroundColor);
+			ForegroundBrush = FromHex(option.ForegroundColor);
+			TextBrush = FromHex(option.TextColor);
+			HoverBrush = FromHex(option.HoverColor);
+			ErrorBrush = FromHex(option.ErrorColor);
 
-			LoadThemeBranchColors(themeOption);
+			SubjectBrush = FromHex(option.SubjectColors.SubjectColor);
+			LocalAheadBrush = FromHex(option.SubjectColors.LocalAheadColor);
+			RemoteAheadBrush = FromHex(option.SubjectColors.RemoteAheadColor);
+			ConflictBrush = FromHex(option.SubjectColors.ConflictColor);
+			MergeBrush = FromHex(option.SubjectColors.MergeColor);
+			UnCommittedBrush = FromHex(option.SubjectColors.UnCommittedColor);
+			BranchTipBrush = FromHex(option.SubjectColors.BranchTipColor);
+			DimBrush = FromHex(option.SubjectColors.DimColor);
+
+			TagBrush = FromHex(option.SubjectColors.TagColor);
+			TicketBrush = FromHex(option.SubjectColors.TicketColor);		
+
+			LoadThemeBranchColors(option);
+		}
+
+
+		private static SolidColorBrush FromHex(string hex)
+		{
+			return Converter.BrushFromHex(hex);
 		}
 
 
