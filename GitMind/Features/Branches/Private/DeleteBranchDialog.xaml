@@ -8,9 +8,9 @@
 				xmlns:private="clr-namespace:GitMind.Features.Branches.Private"
 				mc:Ignorable="d"
 				Title="Delete Branch" SizeToContent="WidthAndHeight" ResizeMode="NoResize" 
-				Background="{StaticResource BackgroundBrush}"
+				Background="{DynamicResource BackgroundBrush}"
 				WindowStyle="None" AllowsTransparency="True"
-				BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
+				BorderBrush="{DynamicResource BorderBrush}" BorderThickness="3"
 				ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
 
 	<!-- Enable "normal" windows behavior with drag and resize,
@@ -38,14 +38,14 @@
 		</Grid.RowDefinitions>
 
 		<!-- Title and tool bar -->
-		<Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
+		<Border Grid.Row="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2">
 			<Grid>
 				<StackPanel 
 					HorizontalAlignment="Left"	
 					Orientation="Horizontal">
 
 					<TextBlock Text="Delete Branch" 							
-						Foreground="{StaticResource TextBrush}"
+						Foreground="{DynamicResource TextBrush}"
 						Margin="10, 5"
 						Width="250"/>
 
@@ -53,7 +53,7 @@
 
 				<!-- Close Button -->
 				<Button HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True"
-					Style="{StaticResource IconButtonStyle}"
+					Style="{DynamicResource IconButtonStyle}"
 					KeyboardNavigation.IsTabStop="False"
 					Content="&#xE14C;" 
 					FontSize="16"
@@ -78,15 +78,15 @@
 			<StackPanel>
 				<StackPanel Orientation="Horizontal">
 					<TextBlock  
-						Text="Name:" Foreground="{StaticResource TextBrush}" Margin="12, 10"/>
+						Text="Name:" Foreground="{DynamicResource TextBrush}" Margin="12, 10"/>
 					<TextBlock  
-						Text="{Binding BranchName}" Foreground="{StaticResource TextBrush}" Margin="0, 10"/>
+						Text="{Binding BranchName}" Foreground="{DynamicResource TextBrush}" Margin="0, 10"/>
 				</StackPanel>
 				<CheckBox 				
 					IsChecked="{Binding IsLocal}"
 					IsEnabled="{Binding CanLocal}"
 					Content="Local"
-					Style="{StaticResource CheckBoxStyle}"
+					Style="{DynamicResource CheckBoxStyle}"
 					KeyboardNavigation.TabIndex="3"
 					Margin="12,0,0,5"/>
 				
@@ -94,7 +94,7 @@
 					IsChecked="{Binding IsRemote}"
 					IsEnabled="{Binding CanRemote}"
 					Content="Remote"
-					Style="{StaticResource CheckBoxStyle}"
+					Style="{DynamicResource CheckBoxStyle}"
 					KeyboardNavigation.TabIndex="3"
 					Margin="12,5,0,5"/>
 			</StackPanel>
@@ -105,30 +105,30 @@
 				HorizontalAlignment="Center"
 				Margin="0,10">
 
-				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+				<Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
 					Margin="5">
 					<Button Content="OK" 
-						Style="{StaticResource BaseButtonStyle}"
+						Style="{DynamicResource BaseButtonStyle}"
 						KeyboardNavigation.TabIndex="1"
 						Width="60"
 						Margin="1"
 						Padding="3"
 						FontSize="12"
-						Foreground="{StaticResource TextBrush}"
+						Foreground="{DynamicResource TextBrush}"
 						Command="{Binding OkCommand}"
 						CommandParameter="{Binding ElementName=DeleteBranchDialogWindow}" />
 				</Border>
 
-				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+				<Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
 					Margin="5">
 					<Button Content="Cancel" 
-						Style="{StaticResource BaseButtonStyle}"
+						Style="{DynamicResource BaseButtonStyle}"
 						KeyboardNavigation.TabIndex="2"
 						Width="60"
 						Margin="1"
 						Padding="3"
 						FontSize="12"
-						Foreground="{StaticResource TextBrush}"
+						Foreground="{DynamicResource TextBrush}"
 						Command="{Binding CancelCommand}"
 						CommandParameter="{Binding ElementName=DeleteBranchDialogWindow}" />
 				</Border>

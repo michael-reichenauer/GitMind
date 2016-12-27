@@ -10,9 +10,9 @@
 	xmlns:private="clr-namespace:GitMind.Features.Commits.Private"
 	mc:Ignorable="d"
 	Title="Commit" 
-	Width="500" Height="380" Background="{StaticResource BackgroundBrush}"
+	Width="500" Height="380" Background="{DynamicResource BackgroundBrush}"
 	WindowStyle="None" AllowsTransparency="True"
-	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"		
+	BorderBrush="{DynamicResource BorderBrush}" BorderThickness="3"		
 	WindowStartupLocation="CenterOwner">
 
 	<!-- Enable "normal" windows behavior with drag and resize,
@@ -34,7 +34,7 @@
 	</Window.InputBindings>
 
 
-	<Grid Background="{StaticResource BackgroundBrush}">
+	<Grid Background="{DynamicResource BackgroundBrush}">
 		<Grid.RowDefinitions>
 			<!-- Title and tool bar -->
 			<RowDefinition Height="Auto" />
@@ -43,14 +43,14 @@
 		</Grid.RowDefinitions>
 
 		<!-- Title and tool bar -->
-		<Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
+		<Border Grid.Row="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2">
 			<Grid>
 				<StackPanel 
 					HorizontalAlignment="Left"	
 					Orientation="Horizontal">
 
 					<TextBlock Text="{Binding BranchText}" 							
-						Foreground="{StaticResource TextBrush}"
+						Foreground="{DynamicResource TextBrush}"
 						Margin="10, 5"/>
 					
 					<!-- diff button -->
@@ -58,7 +58,7 @@
 						Content="&#xE915;"
 						KeyboardNavigation.IsTabStop="False"
 						HorizontalAlignment="Left"	
-						Style="{StaticResource IconButtonStyle}"						
+						Style="{DynamicResource IconButtonStyle}"						
 						Command="{Binding ShowUncommittedDiffCommand}"
 						ToolTip="Show diff of uncommitted changes ... (Ctrl-Enter)" 
 						WindowChrome.IsHitTestVisibleInChrome="True"/>
@@ -67,7 +67,7 @@
 				
 				<!-- Close Button -->
 				<Button HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True"
-						Style="{StaticResource IconButtonStyle}"
+						Style="{DynamicResource IconButtonStyle}"
 						KeyboardNavigation.IsTabStop="False"
 						Content="&#xE14C;" 
 						FontSize="16"
@@ -101,7 +101,7 @@
 					<RowDefinition Height="*" />
 				</Grid.RowDefinitions>
 
-				<TextBlock Grid.Row="0" Text="Message:" Foreground="{StaticResource TextBrush}" Margin="0,0,0,5"/>
+				<TextBlock Grid.Row="0" Text="Message:" Foreground="{DynamicResource TextBrush}" Margin="0,0,0,5"/>
 
 				<TextBox Grid.Row="1" Name="SubjectText"
 					Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
@@ -110,9 +110,9 @@
 					Width="330"
 					HorizontalAlignment="Left"	
 					Background="Transparent"
-					BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-					Foreground="{StaticResource TextBrush}"
-					CaretBrush="{StaticResource TextBrush}">
+					BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+					Foreground="{DynamicResource TextBrush}"
+					CaretBrush="{DynamicResource TextBrush}">
 					<TextBox.InputBindings>
 						<KeyBinding 
 							Key="Enter" 
@@ -127,9 +127,9 @@
 					VerticalAlignment="Stretch"
 					Margin="0,8,0,5"
 					Background="Transparent"
-					BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-					Foreground="{StaticResource TextBrush}"
-					CaretBrush="{StaticResource TextBrush}"
+					BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+					Foreground="{DynamicResource TextBrush}"
+					CaretBrush="{DynamicResource TextBrush}"
 					VerticalScrollBarVisibility="Auto"
 					TextWrapping="Wrap" 
 					AcceptsReturn="True">
@@ -156,13 +156,13 @@
 						<RowDefinition Height="Auto" />
 						<RowDefinition Height="*" />
 					</Grid.RowDefinitions>
-				
-					<TextBlock Grid.Row="0" Text="Files:" Foreground="{StaticResource TextBrush}" Margin="0,0,0,5"/>
+
+				<TextBlock Grid.Row="0" Text="Files:" Foreground="{DynamicResource TextBrush}" Margin="0,0,0,5"/>
 
 				<Border	Grid.Row="1"
 					CornerRadius="0" 
 					BorderThickness="1" 
-					BorderBrush="{StaticResource BorderBrush}">
+					BorderBrush="{DynamicResource BorderBrush}">
 
 					<ListBox 
 						Background="Transparent"
@@ -182,7 +182,7 @@
 									<Label
 										Content="{Binding Name}" 
 										Grid.Column="0"
-										Foreground="{StaticResource TextBrush}"
+										Foreground="{DynamicResource TextBrush}"
 										Padding="0"/>
 
 									<Label
@@ -197,20 +197,20 @@
 											<MenuItem Header="Show Diff ..." Command="{Binding ShowDiffCommand}">
 												<MenuItem.Icon>
 													<Border>
-														<TextBlock Style="{StaticResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
+														<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE915;" FontSize="14"/>
 													</Border>
 												</MenuItem.Icon>
 											</MenuItem>
 
-											<Separator Background="{StaticResource BorderBrush}"/>
+											<Separator Background="{DynamicResource BorderBrush}"/>
 											
 											<MenuItem Header="Undo file change" Command="{Binding UndoUncommittedFileCommand}">	
 												<MenuItem.Icon>
 													<Border>
 														<TextBlock 
-															Style="{StaticResource MenuIconStyle}"
+															Style="{DynamicResource MenuIconStyle}"
 															Text="&#xE166;"
-															Foreground="{StaticResource UndoBrush}"/>
+															Foreground="{DynamicResource UndoBrush}"/>
 													</Border>
 												</MenuItem.Icon>
 											</MenuItem>
@@ -234,30 +234,30 @@
 				HorizontalAlignment="Center"
 				Margin="0,10">
 
-				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+				<Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
 					Margin="5">
 					<Button Content="OK" 
-						Style="{StaticResource BaseButtonStyle}"
+						Style="{DynamicResource BaseButtonStyle}"
 						KeyboardNavigation.TabIndex="1"
 						Width="60"
 						Margin="1"
 						Padding="3"
 						FontSize="12"
-						Foreground="{StaticResource TextBrush}"
+						Foreground="{DynamicResource TextBrush}"
 						Command="{Binding OkCommand}"
 						CommandParameter="{Binding ElementName=CommitDialogWindow}" />
 				</Border>
 
-				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+				<Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
 					Margin="5">
 					<Button Content="Cancel" 
-						Style="{StaticResource BaseButtonStyle}"
+						Style="{DynamicResource BaseButtonStyle}"
 						KeyboardNavigation.TabIndex="2"
 						Width="60"
 						Margin="1"
 						Padding="3"
 						FontSize="12"
-						Foreground="{StaticResource TextBrush}"
+						Foreground="{DynamicResource TextBrush}"
 						Command="{Binding CancelCommand}"
 						CommandParameter="{Binding ElementName=CommitDialogWindow}" />
 				</Border>

@@ -11,8 +11,8 @@
 	Title="Set Branch"
 	Width="350" Height="280" ResizeMode="NoResize"
 	WindowStyle="None" AllowsTransparency="True"
-	BorderBrush="{StaticResource BorderBrush}" BorderThickness="3"
-	Background="{StaticResource BackgroundBrush}"
+	BorderBrush="{DynamicResource BorderBrush}" BorderThickness="3"
+	Background="{DynamicResource BackgroundBrush}"
 	WindowStartupLocation="CenterOwner">
 
 	<!-- Enable "normal" windows behavior with drag and resize,
@@ -28,7 +28,7 @@
 	</Window.Resources>
 
 
-	<Grid Background="{StaticResource BackgroundBrush}">
+	<Grid Background="{DynamicResource BackgroundBrush}">
 		<Grid.RowDefinitions>
 			<!-- Title and tool bar -->
 			<RowDefinition Height="Auto" />
@@ -37,16 +37,16 @@
 		</Grid.RowDefinitions>
 
 		<!-- Title and tool bar -->
-		<Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
+		<Border Grid.Row="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2">
 			<Grid>
 				<TextBlock Text="Set Branch" 
 					HorizontalAlignment="Left"					
-					Foreground="{StaticResource TextBrush}"
+					Foreground="{DynamicResource TextBrush}"
 					Margin="5"/>
 		
 				<!-- Close Button -->
 				<Button HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True"
-						Style="{StaticResource IconButtonStyle}" 
+						Style="{DynamicResource IconButtonStyle}" 
 						Content="&#xE14C;" 
 						FontSize="16"
 						Click="CancelButton_Click"/>
@@ -73,19 +73,19 @@
 					Content="Automatically"				
 					IsChecked="True"
 					Margin="4"
-					Style="{StaticResource RadioButtonStyle}"/>
+					Style="{DynamicResource RadioButtonStyle}"/>
 
 				<RadioButton GroupName="Options"
 					x:Name="OptionManual" 
 					HorizontalAlignment="Stretch" 
 					HorizontalContentAlignment="Stretch"
 					Margin="4"
-					Style="{StaticResource RadioButtonStyle}">
+					Style="{DynamicResource RadioButtonStyle}">
 					<DockPanel LastChildFill="True">
 						<TextBlock						
 							Text="Manually"
 							Margin="0,4"
-							Foreground="{StaticResource TextBrush}"/>
+							Foreground="{DynamicResource TextBrush}"/>
 
 						<ComboBox x:Name="BranchName"
 							IsEditable="True" 
@@ -99,7 +99,7 @@
 				
 				<TextBlock
 					Text="You can let GitMind determine the branch for this commit automatically (recommended), or specify a branch manually. Read more in:"
-					Foreground="{StaticResource TextBrush}"
+					Foreground="{DynamicResource TextBrush}"
 					TextWrapping="Wrap"
 					Margin="4,25,4,2"/>
 				<TextBlock
@@ -124,27 +124,27 @@
 				HorizontalAlignment="Center"
 				Margin="0,10">
 
-				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+				<Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
 					Margin="5">
 					<Button Content="OK" 
-						Style="{StaticResource BaseButtonStyle}"
+						Style="{DynamicResource BaseButtonStyle}"
 						Width="60"
 						Margin="1"
 						Padding="3"
 						FontSize="12"
-						Foreground="{StaticResource TextBrush}"
+						Foreground="{DynamicResource TextBrush}"
 						Click="OKButton_Click" />
 				</Border>
-				
-				<Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+
+				<Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
 					Margin="5">
 					<Button Content="Cancel" 
-						Style="{StaticResource BaseButtonStyle}"
+						Style="{DynamicResource BaseButtonStyle}"
 						Width="60"
 						Margin="1"
 						Padding="3"
 						FontSize="12"
-						Foreground="{StaticResource TextBrush}"
+						Foreground="{DynamicResource TextBrush}"
 						Click="CancelButton_Click" />
 				</Border>
 

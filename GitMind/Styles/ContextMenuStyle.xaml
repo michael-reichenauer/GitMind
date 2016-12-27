@@ -7,11 +7,11 @@
 	<!-- Separator -->
 	<Style TargetType="{x:Type Separator}">
 		<Setter Property="Height" Value="1" />
-		<Setter Property="Background" Value="{StaticResource BorderBrush}" />
+		<Setter Property="Background" Value="{DynamicResource BorderBrush}" />
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type Separator}">
-					<Rectangle Height="{TemplateBinding Height}" Fill="{StaticResource BorderBrush}" />
+					<Rectangle Height="{TemplateBinding Height}" Fill="{DynamicResource BorderBrush}" />
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
@@ -22,8 +22,8 @@
 	<Style x:Key="MenuIconStyle" TargetType="{x:Type TextBlock}">
 		<Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Material Icons"/>
 		<Setter Property="FontSize" Value="18"/>
-		<Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-		<Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+		<Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+		<Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
 		<Setter Property="Padding" Value="0"/>
 		<Setter Property="Margin" Value="6,0,6,0"/>
@@ -32,14 +32,14 @@
 
 	<!-- Outer menu items -->
 	<Style TargetType="{x:Type MenuItem}">
-		<Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-		<Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+		<Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+		<Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
 		<Setter Property="FontFamily" Value="Segoe UI"/>
 		<Setter Property="FontSize" Value="12"/>
 		<Setter Property="Margin" Value="5,0"/>
 		<Style.Triggers>
 			<Trigger Property="IsHighlighted" Value="True">
-				<Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+				<Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="False">
 				<Setter Property="Foreground" Value="Gray"/>
@@ -57,14 +57,14 @@
 				<ControlTemplate TargetType="{x:Type ContextMenu}">
 
 					<!-- Here is where you change the border thickness to zero on the menu-->
-					<Border BorderThickness="2" x:Name="Border" BorderBrush="{StaticResource BorderBrush}" Background="{StaticResource BackgroundBrush}">
+					<Border BorderThickness="2" x:Name="Border" BorderBrush="{DynamicResource BorderBrush}" Background="{StaticResource BackgroundBrush}">
 						<StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True" />
 					</Border>
 					
 					<!-- main background when not selected -->
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsMouseOver" Value="true">
-							<Setter TargetName="Border" Property="Background" Value="{StaticResource BackgroundBrush}" />
+							<Setter TargetName="Border" Property="Background" Value="{DynamicResource BackgroundBrush}" />
 						</Trigger>
 					</ControlTemplate.Triggers>
 				</ControlTemplate>
@@ -77,7 +77,7 @@
 	
 		<!-- MR order for highlight --> 
 		<Border Name="Border" BorderThickness="1">
-			<Grid Background="{StaticResource BackgroundBrush}">
+			<Grid Background="{DynamicResource BackgroundBrush}">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" SharedSizeGroup="Icon" />
 					<ColumnDefinition Width="*" />
@@ -95,7 +95,7 @@
 					Height="13"
 					Visibility="Collapsed"
 					Margin="6,0,6,0"
-					Background="{StaticResource BackgroundBrush}"
+					Background="{DynamicResource BackgroundBrush}"
 					BorderThickness="1"
 					BorderBrush="Transparent">
 					<Path
@@ -104,7 +104,7 @@
 						Height="14"
 						Visibility="Hidden"
 						SnapsToDevicePixels="False"
-						Stroke="{StaticResource TextBrush}"
+						Stroke="{DynamicResource TextBrush}"
 						StrokeThickness="2"
 						Data="M 2 5 L 5 10 11 2" />
 				</Border>
@@ -119,7 +119,7 @@
 					Text="{TemplateBinding InputGestureText}"
 					Margin="30,0,0,0"
 					HorizontalAlignment="Left"
-					Background="{StaticResource BackgroundBrush}"
+					Background="{DynamicResource BackgroundBrush}"
 					TextAlignment="Left"
 					DockPanel.Dock="Left" />
 			</Grid>
@@ -141,7 +141,7 @@
 				<Setter TargetName="Border" Property="BorderBrush" Value="#996495ED" />
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="false">
-				<Setter Property="Foreground" Value="{StaticResource BackgroundBrush}" />
+				<Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}" />
 			</Trigger>
 		</ControlTemplate.Triggers>
 	</ControlTemplate>
@@ -171,7 +171,7 @@
 					HorizontalAlignment="Center"
 					VerticalAlignment="Center"
 					Data="M 0 0 L 0 7 L 4 3.5 Z"
-					Fill="{StaticResource TextBrush}" />
+					Fill="{DynamicResource TextBrush}" />
 				<Popup 
 					Name="Popup"
 					Placement="Right"
@@ -185,8 +185,8 @@
 					<Border 
 						Name="SubmenuBorder"
 						SnapsToDevicePixels="True"
-						Background="{StaticResource BackgroundBrush}"
-						BorderBrush="{StaticResource BorderBrush}"
+						Background="{DynamicResource BackgroundBrush}"
+						BorderBrush="{DynamicResource BorderBrush}"
 						BorderThickness="2">
 						<StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
 					</Border>
@@ -199,7 +199,7 @@
 				<Setter TargetName="Icon" Property="Visibility" Value="Collapsed" />
 			</Trigger>
 			<Trigger Property="IsHighlighted" Value="true">
-				<Setter TargetName="Border" Property="Background" Value="{StaticResource BackgroundBrush}" />
+				<Setter TargetName="Border" Property="Background" Value="{DynamicResource BackgroundBrush}" />
 			</Trigger>
 			<Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="True">
 				<Setter TargetName="SubmenuBorder" Property="Padding" Value="0,3,0,3" />

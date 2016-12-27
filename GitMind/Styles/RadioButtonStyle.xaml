@@ -14,13 +14,13 @@
 								<!--The two borders-->
 								<Ellipse
 									Name="RadioOuter" 
-									Stroke="{StaticResource BorderBrush}"
+									Stroke="{DynamicResource BorderBrush}"
 									StrokeThickness="2"/>
 		
 								<Ellipse
 									Name="RadioMark" 
 									Stroke="Transparent"
-									Fill="{StaticResource BorderBrush}"
+									Fill="{DynamicResource BorderBrush}"
 									StrokeThickness="9"
 									Visibility="Hidden"/>
 
@@ -30,7 +30,7 @@
 						<!--Text element-->
 						<TextBlock 
 							Margin="5,0,1,0" 
-							Foreground="{StaticResource TextBrush}">
+							Foreground="{DynamicResource TextBrush}">
               <ContentPresenter />
 						</TextBlock>
 					</BulletDecorator>
@@ -40,7 +40,7 @@
 						<Trigger Property="IsChecked" Value="true">
 							<!--If item is checked, trigger the visibility of the mark and change the color of the selected bullet into a darker gray for better highlighting-->
 							<Setter TargetName="RadioMark" Property="Visibility" Value="Visible"/>
-							<!--<Setter TargetName="RadioOuter" Property="Stroke" Value="{StaticResource SelectedItemBorderBrush}" />-->
+							<!--<Setter TargetName="RadioOuter" Property="Stroke" Value="{DynamicResource SelectedItemBorderBrush}" />-->
 						</Trigger>
 					</ControlTemplate.Triggers>
 				</ControlTemplate>
