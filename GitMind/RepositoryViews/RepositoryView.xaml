@@ -548,6 +548,7 @@
 														<TextBlock
 															Text="{Binding Tags}"
 															Foreground="{Binding TagBrush}"
+															Background="{Binding TagBackgroundBrush}"
 															HorizontalAlignment="Left"
 															VerticalAlignment="Center" />
 
@@ -555,6 +556,7 @@
 														<TextBlock
 															Text="{Binding Tickets}"
 															Foreground="{Binding TicketBrush}"
+															Background="{Binding TicketBackgroundBrush}"
 															HorizontalAlignment="Left"
 															VerticalAlignment="Center" />
 

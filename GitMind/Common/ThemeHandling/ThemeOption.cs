@@ -36,7 +36,9 @@ namespace GitMind.Common.ThemeHandling
 			public string BranchTipColor { get; set; } = "#FF00FFFF";
 			public string DimColor { get; set; } = "#FF696969";
 			public string TagColor { get; set; } = "#FF42C650";
+			public string TagBackgroundColor { get; set; } = "#00FFFFFF";
 			public string TicketColor { get; set; } = "#FFF25B54";
+			public string TicketBackgroundColor { get; set; } = "#00FFFFFF";
 			public string CurrentCommitIndicatorBrush { get; set; } = "#FFB0C4DE";
 		}
 	

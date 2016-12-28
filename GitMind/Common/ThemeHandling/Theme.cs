@@ -14,6 +14,7 @@ namespace GitMind.Common.ThemeHandling
 
 		public SolidColorBrush BackgroundBrush { get; }
 		public SolidColorBrush ForegroundBrush { get; }
+		public Brush TextBrush { get; }
 
 		public Brush SubjectBrush { get; }
 		public Brush LocalAheadBrush { get; } 
@@ -23,10 +24,10 @@ namespace GitMind.Common.ThemeHandling
 		public Brush UnCommittedBrush { get; }
 		public Brush BranchTipsBrush { get; }
 		public Brush DimBrush { get; }
-
 		public Brush TagBrush { get; }
-		public Brush TextBrush { get; }
+		public Brush TagBackgroundBrush { get; }
 		public Brush TicketBrush { get; }
+		public Brush TicketBackgroundBrush { get;  }
 
 		public Brush HoverBrush { get; }
 		public Brush ErrorBrush { get; }
@@ -41,6 +42,7 @@ namespace GitMind.Common.ThemeHandling
 		public Brush SelectedItemBackgroundBrush { get; }
 		public Brush HoverItemBrush { get; }
 		public int NeonEffect { get; }
+	
 
 
 		public readonly List<SolidColorBrush> brushes = new List<SolidColorBrush>();
@@ -70,7 +72,9 @@ namespace GitMind.Common.ThemeHandling
 			CurrentCommitIndicatorBrush = FromHex(option.SubjectColors.CurrentCommitIndicatorBrush);
 
 			TagBrush = FromHex(option.SubjectColors.TagColor);
+			TagBackgroundBrush = FromHex(option.SubjectColors.TagBackgroundColor);
 			TicketBrush = FromHex(option.SubjectColors.TicketColor);
+			TicketBackgroundBrush = FromHex(option.SubjectColors.TicketBackgroundColor);
 
 			BusyBrush = FromHex(option.BusyColor);
 			ScrollbarBrush = FromHex(option.ScrollbarColor);

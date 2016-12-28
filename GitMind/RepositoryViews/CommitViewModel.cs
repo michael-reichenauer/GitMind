@@ -61,7 +61,9 @@ namespace GitMind.RepositoryViews
 		public double Height => Rect.Height;
 		public Brush SubjectBrush { get; set; }
 		public Brush TagBrush { get; set; }
+		public Brush TagBackgroundBrush { get; set; }
 		public Brush TicketBrush { get; set; }
+		public Brush TicketBackgroundBrush { get; set; }
 		public Brush BranchTipBrush { get; set; }
 		//public FontWeight SubjectWeight => Commit.CommitBranchName != null ? FontWeights.Bold : FontWeights.Normal;
 
@@ -160,7 +162,9 @@ namespace GitMind.RepositoryViews
 		{
 			SubjectBrush = themeService.Theme.DimBrush;
 			TagBrush = themeService.Theme.DimBrush;
+			TicketBackgroundBrush = themeService.Theme.BackgroundBrush;
 			TicketBrush = themeService.Theme.DimBrush;
+			TicketBackgroundBrush = themeService.Theme.BackgroundBrush;
 			BranchTipBrush = themeService.Theme.DimBrush;
 
 			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
@@ -171,7 +175,9 @@ namespace GitMind.RepositoryViews
 		{
 			SubjectBrush = subjectBrush;
 			TagBrush = themeService.Theme.TagBrush;
+			TagBackgroundBrush = themeService.Theme.TagBackgroundBrush;
 			TicketBrush = themeService.Theme.TicketBrush;
+			TicketBackgroundBrush = themeService.Theme.TicketBackgroundBrush;
 			BranchTipBrush = themeService.Theme.BranchTipsBrush;
 
 			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
