@@ -7,7 +7,13 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 {
 	public class Options
 	{
-		public string comment => "Program options. Please restart GitMind after editing this file.";
+		public string comment => "Program options. You may need to restart GitMind after editing this file.";
+
+		public bool DisableAutoUpdate { get; set; } = false;
+
+		public bool DisableErrorAndUsageReporting { get; set; } = false;
+
+		public int AutoRemoteCheckIntervalMin { get; set; } = 10;
 
 		public DiffTool DiffTool { get; set; } = new DiffTool();
 

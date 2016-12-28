@@ -22,8 +22,7 @@ namespace GitMind.MainWindowViews
 	{
 		private readonly WorkingFolder workingFolder;
 		private readonly ICommandLine commandLine;
-		private static readonly TimeSpan remoteCheckInterval = TimeSpan.FromMinutes(10);
-
+	
 		private readonly DispatcherTimer remoteCheckTimer = new DispatcherTimer();
 
 		private readonly MainWindowViewModel viewModel;
@@ -96,8 +95,18 @@ namespace GitMind.MainWindowViews
 
 		private void StartRemoteCheck()
 		{
+			int interval = Settings.Get<Options>().AutoRemoteCheckIntervalMin;
+
+			if (interval == 0)
+			{
+				Log.Debug("AutoRemoteCheckIntervalMin is disabled");
+				return;
+			}
+
+			Log.Debug($"AutoRemoteCheckIntervalMin is interval {interval}");
+
 			remoteCheckTimer.Tick += RemoteCheck;
-			remoteCheckTimer.Interval = remoteCheckInterval;
+			remoteCheckTimer.Interval = TimeSpan.FromMinutes(interval);
 			remoteCheckTimer.Start();
 		}
 

@@ -32,10 +32,12 @@ namespace GitMind.Utils
 		private static readonly string LevelInfo = "INFO ";
 		private static readonly string LevelWarn = "WARN ";
 		private static readonly string LevelError = "ERROR";
-
+		private static readonly bool DisableErrorAndUsageReporting = false;
 
 		static Log()
-		{		
+		{
+			DisableErrorAndUsageReporting = Settings.Get<Options>().DisableErrorAndUsageReporting;
+			
 			Task.Factory.StartNew(SendBufferedLogRows, TaskCreationOptions.LongRunning)
 				.RunInBackground();
 		}
@@ -143,6 +145,11 @@ namespace GitMind.Utils
 
 		private static void SendUsage(string text)
 		{
+			if (DisableErrorAndUsageReporting)
+			{
+				return;
+			}
+
 			try
 			{
 				string logRow = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}";
