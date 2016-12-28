@@ -1,6 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
-using GitMind.Common.Brushes;
+using GitMind.Common.ThemeHandling;
 using GitMind.Features.Branches;
 using GitMind.Features.Commits;
 using GitMind.Git;
@@ -13,6 +13,7 @@ namespace GitMind.RepositoryViews
 	internal class CommitViewModel : ViewModel
 	{
 		private readonly IBranchService branchService;
+		private readonly IThemeService themeService;
 		private readonly IRepositoryCommands repositoryCommands;
 		private readonly ICommitsService commitsService;
 
@@ -21,10 +22,12 @@ namespace GitMind.RepositoryViews
 
 		public CommitViewModel(
 			IBranchService branchService,
+			IThemeService themeService,
 			IRepositoryCommands repositoryCommands,
 			ICommitsService commitsService)
 		{
 			this.branchService = branchService;
+			this.themeService = themeService;
 			this.repositoryCommands = repositoryCommands;
 			this.commitsService = commitsService;
 		}
@@ -58,14 +61,16 @@ namespace GitMind.RepositoryViews
 		public double Height => Rect.Height;
 		public Brush SubjectBrush { get; set; }
 		public Brush TagBrush { get; set; }
+		public Brush TagBackgroundBrush { get; set; }
 		public Brush TicketBrush { get; set; }
+		public Brush TicketBackgroundBrush { get; set; }
 		public Brush BranchTipBrush { get; set; }
 		//public FontWeight SubjectWeight => Commit.CommitBranchName != null ? FontWeights.Bold : FontWeights.Normal;
 
 		public string ToolTip { get; set; }
 		public Brush Brush { get; set; }
 		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
-		public Brush HoverBrush => BrushService.HoverBrushColor;
+		public Brush HoverBrush => themeService.Theme.HoverBrush;
 
 
 		public double Width
@@ -155,10 +160,12 @@ namespace GitMind.RepositoryViews
 
 		public void SetDim()
 		{
-			SubjectBrush = BrushService.DimBrush;
-			TagBrush = BrushService.DimBrush;
-			TicketBrush = BrushService.DimBrush;
-			BranchTipBrush = BrushService.DimBrush;
+			SubjectBrush = themeService.Theme.DimBrush;
+			TagBrush = themeService.Theme.DimBrush;
+			TicketBackgroundBrush = themeService.Theme.BackgroundBrush;
+			TicketBrush = themeService.Theme.DimBrush;
+			TicketBackgroundBrush = themeService.Theme.BackgroundBrush;
+			BranchTipBrush = themeService.Theme.DimBrush;
 
 			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
 		}
@@ -167,9 +174,11 @@ namespace GitMind.RepositoryViews
 		public void SetNormal(Brush subjectBrush)
 		{
 			SubjectBrush = subjectBrush;
-			TagBrush = BrushService.TagBrush;
-			TicketBrush = BrushService.TicketBrush;
-			BranchTipBrush = BrushService.BranchTipBrush;
+			TagBrush = themeService.Theme.TagBrush;
+			TagBackgroundBrush = themeService.Theme.TagBackgroundBrush;
+			TicketBrush = themeService.Theme.TicketBrush;
+			TicketBackgroundBrush = themeService.Theme.TicketBackgroundBrush;
+			BranchTipBrush = themeService.Theme.BranchTipsBrush;
 
 			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
 		}

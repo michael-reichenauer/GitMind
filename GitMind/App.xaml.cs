@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows;
@@ -9,6 +11,7 @@ using GitMind.ApplicationHandling.Installation;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
+using GitMind.Common.ThemeHandling;
 using GitMind.Features.Diffing;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
@@ -23,6 +26,7 @@ namespace GitMind
 	{
 		private readonly ICommandLine commandLine;
 		private readonly IDiffService diffService;
+		private readonly IThemeService themeService;
 		private readonly IInstaller installer;
 		private readonly Lazy<MainWindow> mainWindow;
 		private readonly WorkingFolder workingFolder;
@@ -35,12 +39,14 @@ namespace GitMind
 		internal App(
 			ICommandLine commandLine,
 			IDiffService diffService,
+			IThemeService themeService,
 			IInstaller installer,
 			Lazy<MainWindow> mainWindow,
 			WorkingFolder workingFolder)
 		{
 			this.commandLine = commandLine;
 			this.diffService = diffService;
+			this.themeService = themeService;
 			this.installer = installer;
 			this.mainWindow = mainWindow;
 			this.workingFolder = workingFolder;
@@ -120,6 +126,10 @@ namespace GitMind
 			applicationMutex = new Mutex(true, Installer.ProductGuid);
 
 			MainWindow = mainWindow.Value;
+			
+			themeService.SetThemeWpfColors();
+	
+
 			MainWindow.Show();
 
 			TryDeleteTempFiles();

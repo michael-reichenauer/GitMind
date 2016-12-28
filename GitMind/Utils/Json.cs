@@ -8,6 +8,7 @@ namespace GitMind.Utils
 		private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
 		{
 			Formatting = Formatting.Indented,
+			ObjectCreationHandling = ObjectCreationHandling.Replace
 		};
 
 		public static string AsJson<T>(T obj) => JsonConvert.SerializeObject(obj, typeof(T), Settings);

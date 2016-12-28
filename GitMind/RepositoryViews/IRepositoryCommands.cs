@@ -22,5 +22,6 @@ namespace GitMind.RepositoryViews
 		void ShowBranch(BranchName branchName);
 
 		void SetCurrentMerging(Branch branch);
+		void RefreshView();
 	}
 }

@@ -105,6 +105,11 @@
     <Compile Include="ApplicationHandling\IWorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\WorkingFolder.cs" />
+    <Compile Include="Common\ThemeHandling\BranchColorsOption.cs" />
+    <Compile Include="Common\ThemeHandling\Converter.cs" />
+    <Compile Include="Common\ThemeHandling\Theme.cs" />
+    <Compile Include="Common\ThemeHandling\ThemeOption.cs" />
+    <Compile Include="Common\ThemeHandling\ThemesOption.cs" />
     <Compile Include="Common\CommitId.cs" />
     <Compile Include="Common\CommitIds.cs" />
     <Compile Include="Common\CommitSha.cs" />
@@ -213,7 +218,7 @@
     <Compile Include="RepositoryViews\BranchItem.cs" />
     <Compile Include="RepositoryViews\BranchNameItem.cs" />
     <Compile Include="RepositoryViews\BranchViewModel.cs" />
-    <Compile Include="Common\Brushes\BrushService.cs" />
+    <Compile Include="Common\ThemeHandling\ThemeService.cs" />
     <Compile Include="RepositoryViews\CommitDetailsView.xaml.cs">
       <DependentUpon>CommitDetailsView.xaml</DependentUpon>
     </Compile>
@@ -241,7 +246,7 @@
     <Compile Include="RepositoryViews\CommitViewModel.cs" />
     <Compile Include="RepositoryViews\Converters.cs" />
     <Compile Include="Features\Diffing\Private\DiffService.cs" />
-    <Compile Include="Common\Brushes\IBrushService.cs" />
+    <Compile Include="Common\ThemeHandling\IThemeService.cs" />
     <Compile Include="Features\Diffing\IDiffService.cs" />
     <Compile Include="RepositoryViews\IViewModelService.cs" />
     <Compile Include="RepositoryViews\MergeViewModel.cs" />

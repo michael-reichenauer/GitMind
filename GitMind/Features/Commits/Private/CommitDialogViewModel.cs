@@ -5,6 +5,7 @@ using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
+using GitMind.Common.ThemeHandling;
 using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.GitModel;
@@ -19,6 +20,7 @@ namespace GitMind.Features.Commits.Private
 	{
 		private readonly ICommitsService commitsService;
 		private readonly IDiffService diffService;
+		private readonly IThemeService themeService;
 		private readonly IMessage message;
 		private readonly bool isMerging;
 
@@ -33,6 +35,7 @@ namespace GitMind.Features.Commits.Private
 			ICommitsService commitsService,
 			WorkingFolder workingFolder,
 			IDiffService diffService, 
+			IThemeService themeService,
 			IMessage message,
 			BranchName branchName,
 			IEnumerable<CommitFile> files,
@@ -43,6 +46,7 @@ namespace GitMind.Features.Commits.Private
 
 			this.commitsService = commitsService;
 			this.diffService = diffService;
+			this.themeService = themeService;
 			this.message = message;
 			this.isMerging = isMerging;
 
@@ -154,7 +158,7 @@ namespace GitMind.Features.Commits.Private
 
 		private CommitFileViewModel ToCommitFileViewModel(string workingFolder, CommitFile file)
 		{
-			return new CommitFileViewModel(diffService, file, UndoUncommittedFileCommand)
+			return new CommitFileViewModel(diffService, themeService, file, UndoUncommittedFileCommand)
 			{
 				WorkingFolder = workingFolder,
 				Id = CommitSha.Uncommitted,

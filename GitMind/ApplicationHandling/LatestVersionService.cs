@@ -68,6 +68,12 @@ namespace GitMind.ApplicationHandling
 		{
 			checkTimer.Interval = CheckInterval;
 
+			if (Settings.Get<Options>().DisableAutoUpdate)
+			{
+				Log.Info("DisableAutoUpdate = true");
+				return;
+			}
+
 			if (await IsNewRemoteVersionAvailableAsync())
 			{
 				await InstallLatestVersionAsync();

@@ -19,6 +19,8 @@ namespace GitMind.RepositoryViews.Private
 
 		private RepositoryViewModel viewModel => lazyRepositoryViewModel.Value;
 
+		public void RefreshView() => viewModel.RefreshView();
+
 		public bool IsShowCommitDetails => viewModel.IsShowCommitDetails;
 		public void ShowCommitDetails() => viewModel.ShowCommitDetails();
 

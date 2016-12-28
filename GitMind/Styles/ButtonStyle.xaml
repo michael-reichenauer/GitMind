@@ -7,7 +7,7 @@
 		<Setter Property="Background" Value="Transparent"/>
 		<Setter Property="BorderBrush" Value="Transparent"/>
 		<Setter Property="BorderThickness" Value="1"/>
-		<Setter Property="Foreground" Value="{StaticResource TextLowBrush}"/>
+		<Setter Property="Foreground" Value="{DynamicResource TextLowBrush}"/>
 		<Setter Property="FontSize" Value="18"/>
 		<Setter Property="HorizontalContentAlignment" Value="Center"/>
 		<Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -31,27 +31,27 @@
 					</Border>
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsEnabled" Value="false">
-							<Setter Property="Foreground" Value="#333333" />
+							<Setter Property="Foreground" Value="{DynamicResource TextLowBrush}" />
 						</Trigger>
 						<Trigger Property="IsMouseOver" Value="True">
-							<Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+							<Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
 							<Setter Property="BorderThickness" Value="1" />
-							<Setter Property="BorderBrush" Value="#996495ED" />
-							<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+							<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+							<Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
 						</Trigger>
 						
 						<Trigger Property="IsFocused" Value="True">
-							<Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+							<Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
 							<Setter Property="BorderThickness" Value="1" />
-							<Setter Property="BorderBrush" Value="#996495ED" />
-							<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+							<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+							<Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
 						</Trigger>
 
 						<Trigger Property="IsPressed" Value="True">
-							<Setter Property="Background" Value="#000025" />
+							<Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
 							<Setter Property="BorderThickness" Value="1" />
-							<Setter Property="BorderBrush" Value="#FF6495ED"/>
-							<Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+							<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+							<Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
 						</Trigger>
 						<!--<Trigger Property="IsFocused" Value="true">
 							<Setter TargetName="Chrome" Property="BorderBrush" Value="Transparent" />

@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using GitMind.Common.ThemeHandling;
 using GitMind.Features.Branches;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
@@ -13,6 +14,8 @@ namespace GitMind.RepositoryViews
 	internal class BranchViewModel : ViewModel
 	{
 		private readonly IBranchService branchService;
+		private readonly IThemeService themeService;
+		private readonly IRepositoryCommands repositoryCommands;
 
 		private readonly Command<Branch> showBranchCommand;
 
@@ -22,9 +25,12 @@ namespace GitMind.RepositoryViews
 
 		public BranchViewModel(
 			IBranchService branchService,
+			IThemeService themeService,
 			IRepositoryCommands repositoryCommands)
 		{
 			this.branchService = branchService;
+			this.themeService = themeService;
+			this.repositoryCommands = repositoryCommands;
 			this.showBranchCommand = Command<Branch>(repositoryCommands.ShowBranch);
 		}
 
@@ -42,6 +48,8 @@ namespace GitMind.RepositoryViews
 		public double Height => Rect.Height;
 		public string Line { get; set; }
 		public string Dashes { get; set; }
+
+		public int NeonEffect { get; set; }
 
 		public int StrokeThickness { get; set; }
 		public Brush Brush { get; set; }
@@ -93,6 +101,12 @@ namespace GitMind.RepositoryViews
 
 		public Command UpdateBranchCommand => Command(() => branchService.UpdateBranchAsync(Branch));
 
+		public Command ChangeColorCommand => Command(() =>
+		{
+			themeService.ChangeBranchBrush(Branch);
+			repositoryCommands.RefreshView();
+		});
+
 		// Some values used by Merge items and to determine if item is visible
 		public int BranchColumn { get; set; }
 		public int X { get; set; }
@@ -103,6 +117,7 @@ namespace GitMind.RepositoryViews
 
 		public void SetNormal()
 		{
+			NeonEffect = themeService.Theme.NeonEffect;
 			StrokeThickness = 2;
 			Brush = HoverBrushNormal;
 			DimColor = ((SolidColorBrush)HoverBrushHighlight).Color;
@@ -130,6 +145,15 @@ namespace GitMind.RepositoryViews
 					.Take(50)
 					.ToList(),
 				showBranchCommand);
+		}
+
+
+		public void SetColor(Brush brush)
+		{
+			Brush = brush;
+			HoverBrushNormal = Brush;
+			HoverBrushHighlight = themeService.Theme.GetLighterBrush(Brush);
+			DimBrushHighlight = themeService.Theme.GetLighterLighterBrush(Brush);
 		}
 	}
 }

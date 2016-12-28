@@ -8,7 +8,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
-using GitMind.Common.Brushes;
+using GitMind.Common.ThemeHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Commits;
@@ -37,7 +37,7 @@ namespace GitMind.RepositoryViews
 
 		private readonly IGitInfoService gitInfoService;
 
-		private readonly IBrushService brushService;
+		private readonly IThemeService themeService;
 		private readonly IMessage message;
 		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
@@ -79,7 +79,7 @@ namespace GitMind.RepositoryViews
 			ICommitsService commitsService,
 			IRepositoryService repositoryService,
 			IGitInfoService gitInfoService,
-			IBrushService brushService,
+			IThemeService themeService,
 			IMessage message,
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
@@ -93,7 +93,7 @@ namespace GitMind.RepositoryViews
 
 			this.gitInfoService = gitInfoService;
 
-			this.brushService = brushService;
+			this.themeService = themeService;
 			this.message = message;
 			this.progress = progressService;
 
@@ -255,6 +255,12 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		public void RefreshView()
+		{
+			UpdateViewModel();
+		}
+
+
 		public async Task LoadAsync()
 		{
 			Timing t = new Timing();
@@ -304,8 +310,12 @@ namespace GitMind.RepositoryViews
 		{	
 			if (!repositoryService.IsPaused)
 			{
-				Timing t = new Timing();
 				Log.Usage("Activate window");
+
+				Timing t = new Timing();
+				themeService.SetThemeWpfColors();
+				t.Log("SetThemeWpfColors");
+
 				using (progress.ShowBusy())
 				{
 					await repositoryService.CheckRemoteChangesAsync(false);
@@ -484,7 +494,7 @@ namespace GitMind.RepositoryViews
 			Repository repository = repositoryService.Repository;
 
 			CurrentBranchName = repository.CurrentBranch.Name;
-			CurrentBranchBrush = brushService.GetBranchBrush(repository.CurrentBranch);
+			CurrentBranchBrush = themeService.GetBranchBrush(repository.CurrentBranch);
 
 			IEnumerable<Branch> remoteAheadBranches = repository.Branches
 				.Where(b => b.RemoteAheadCount > 0).ToList();

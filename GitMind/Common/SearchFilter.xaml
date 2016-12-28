@@ -11,21 +11,21 @@
 		<!-- Search and filter box  -->
 		<Border 
 			BorderThickness="1" 
-			BorderBrush="{StaticResource BorderBrush}" 
+			BorderBrush="{DynamicResource BorderBrush}" 
 			Margin="2">
 			<StackPanel Orientation="Horizontal">
 
 				<!-- Search icon -->
 				<Button 
 					Content="&#xE8B6;"					
-					Style="{StaticResource IconButtonStyle}"
+					Style="{DynamicResource IconButtonStyle}"
 					FontSize="14"					
 					Padding="2,0,0,0"
 					Command="{Binding SearchCommand}"
 					ToolTip="Type words to search for (Ctrl-F)"/>
 			<!--<TextBlock 
-					FontFamily="{StaticResource IconFont}"
-					Foreground="{StaticResource TextLowBrush}"
+					FontFamily="{DynamicResource IconFont}"
+					Foreground="{DynamicResource TextLowBrush}"
 					FontSize="14"
 					Text="&#xE8B6;"
 					Padding="2,3,0,0"/>-->
@@ -37,9 +37,9 @@
 					Height="20"
 					Margin="3,0"
 					Padding="0"
-					Background="{StaticResource BackgroundBrush}"
+					Background="{DynamicResource BackgroundBrush}"
 					Text="{Binding SearchBox, UpdateSourceTrigger=PropertyChanged}"
-					Foreground="{StaticResource TextBrush}"
+					Foreground="{DynamicResource TextBrush}"
 					HorizontalAlignment="Right"
 					VerticalAlignment="Center"
 					ToolTip="Type words to search for (Ctrl-F)"/>
@@ -47,7 +47,7 @@
 				<!-- Clear filter button -->
 				<Button 
 					Content="&#xE15E;"					
-					Style="{StaticResource IconButtonStyle}"
+					Style="{DynamicResource IconButtonStyle}"
 					FontSize="14"					
 					Padding="2,1,2,3"
 					IsEnabled="{Binding IsInFilterMode}"

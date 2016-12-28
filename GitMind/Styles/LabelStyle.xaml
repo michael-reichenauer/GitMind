@@ -8,12 +8,12 @@
 	
 	<!-- A Style used to make a text box look like a label, but support selection and copy -->
 	<Style x:Key="LabelStyle" TargetType="{x:Type TextBox}">
-		<Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+		<Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
 		<Setter Property="Background" Value="Transparent"/>
 		<Setter Property="Padding" Value="3,1" />
 		<Setter Property="BorderThickness" Value="0"/>
 		<Setter Property="IsTabStop" Value="False"/>
-		<Setter Property="ContextMenu" Value="{StaticResource NoContextMenu}"/>
+		<Setter Property="ContextMenu" Value="{DynamicResource NoContextMenu}"/>
 	</Style>
 
 </ResourceDictionary>
