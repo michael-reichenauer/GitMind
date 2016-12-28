@@ -105,6 +105,7 @@
     <Compile Include="ApplicationHandling\IWorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\WorkingFolder.cs" />
+    <Compile Include="Common\ThemeHandling\BranchColorsOption.cs" />
     <Compile Include="Common\ThemeHandling\Converter.cs" />
     <Compile Include="Common\ThemeHandling\Theme.cs" />
     <Compile Include="Common\ThemeHandling\ThemeOption.cs" />

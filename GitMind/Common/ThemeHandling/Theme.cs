@@ -42,7 +42,7 @@ namespace GitMind.Common.ThemeHandling
 		public Brush HoverItemBrush { get; }
 
 
-		public readonly List<Brush> brushes = new List<Brush>();
+		public readonly List<SolidColorBrush> brushes = new List<SolidColorBrush>();
 		public readonly List<Brush> darkBrushes = new List<Brush>();
 		public readonly List<Brush> lighterBrushes = new List<Brush>();
 		public readonly List<Brush> lighterLighterBrushes = new List<Brush>();
@@ -101,7 +101,7 @@ namespace GitMind.Common.ThemeHandling
 
 		public Brush GetDarkerBrush(Brush brush)
 		{
-			int index = brushes.IndexOf(brush);
+			int index = GetBrushIndex(brush);
 
 			return darkBrushes[index];
 		}
@@ -116,16 +116,27 @@ namespace GitMind.Common.ThemeHandling
 
 		public Brush GetLighterBrush(Brush brush)
 		{
-			int index = brushes.IndexOf(brush);
+			int index = GetBrushIndex(brush);
 
 			return lighterBrushes[index];
 		}
 
+
 		public Brush GetLighterLighterBrush(Brush brush)
 		{
-			int index = brushes.IndexOf(brush);
+			int index = GetBrushIndex(brush);
 
 			return lighterLighterBrushes[index];
+		}
+
+
+		public int GetBrushIndex(Brush brush)
+		{
+			SolidColorBrush colorBrush = brush as SolidColorBrush;
+			Color color = colorBrush.Color;
+
+			int index = brushes.FindIndex(b => b.Color == color);
+			return index;
 		}
 
 

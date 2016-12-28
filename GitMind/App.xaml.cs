@@ -126,13 +126,9 @@ namespace GitMind
 			applicationMutex = new Mutex(true, Installer.ProductGuid);
 
 			MainWindow = mainWindow.Value;
-			Collection<ResourceDictionary> dictionaries = Application.Current.Resources.MergedDictionaries;
-
-			ResourceDictionary colors = dictionaries.FirstOrDefault(r => r.Source.ToString() == "Styles/ColorStyle.xaml");
-
-			themeService.SetThemeWpfColors(colors);
-
-		
+			
+			themeService.SetThemeWpfColors();
+	
 
 			MainWindow.Show();
 

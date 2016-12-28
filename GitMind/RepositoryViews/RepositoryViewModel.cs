@@ -310,8 +310,12 @@ namespace GitMind.RepositoryViews
 		{	
 			if (!repositoryService.IsPaused)
 			{
-				Timing t = new Timing();
 				Log.Usage("Activate window");
+
+				Timing t = new Timing();
+				themeService.SetThemeWpfColors();
+				t.Log("SetThemeWpfColors");
+
 				using (progress.ShowBusy())
 				{
 					await repositoryService.CheckRemoteChangesAsync(false);

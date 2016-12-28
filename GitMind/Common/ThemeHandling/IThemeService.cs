@@ -13,6 +13,6 @@ namespace GitMind.Common.ThemeHandling
 	
 		Brush ChangeBranchBrush(Branch branch);
 
-		void SetThemeWpfColors(ResourceDictionary colors);
+		void SetThemeWpfColors();
 	}
 }

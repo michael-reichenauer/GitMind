@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -55,12 +56,10 @@ namespace GitMind.Common.ThemeHandling
 		}
 
 
-
-
 		public Brush ChangeBranchBrush(Branch branch)
 		{
 			Brush currentBrush = GetBranchBrush(branch);
-			int index = currentTheme.brushes.IndexOf(currentBrush);
+			int index = currentTheme.GetBrushIndex(currentBrush);
 	
 			// Select next brush
 			int newIndex = ((index + 1) % (currentTheme.brushes.Count - 2)) + 2;
@@ -78,8 +77,16 @@ namespace GitMind.Common.ThemeHandling
 		}
 
 
-		public void SetThemeWpfColors(ResourceDictionary colors)
+		public void SetThemeWpfColors()
 		{
+			LoadTheme();
+
+			Collection<ResourceDictionary> dictionaries = 
+				Application.Current.Resources.MergedDictionaries;
+
+			ResourceDictionary colors = dictionaries
+				.First(r => r.Source.ToString() == "Styles/ColorStyle.xaml");
+
 			colors["BackgroundBrush"] = Theme.BackgroundBrush;
 			colors["BorderBrush"] = Theme.BorderBrush;
 			colors["TextBrush"] = Theme.TextBrush;
