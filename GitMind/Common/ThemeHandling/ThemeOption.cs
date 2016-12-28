@@ -22,6 +22,8 @@ namespace GitMind.Common.ThemeHandling
 		public string SelectedItemBackgroundColor { get; set; } = "#000025";
 		public string HoverItemColor { get; set; } = "#996495ED";
 
+		public int NeonEffect { get; set; } = 15;
+
 		public SubjectColorsOption SubjectColors { get; set; } = new SubjectColorsOption();
 		public class SubjectColorsOption
 		{
@@ -40,6 +42,5 @@ namespace GitMind.Common.ThemeHandling
 	
 
 		public BranchColorsOption BranchColors { get; set; } = new BranchColorsOption();
-		
 	}
 }

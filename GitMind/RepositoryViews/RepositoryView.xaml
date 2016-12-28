@@ -158,7 +158,7 @@
 															Color="{Binding DimColor}"
 															ShadowDepth="0"
 															Direction="0"
-															BlurRadius="15" />
+															BlurRadius="{Binding NeonEffect}" />
 													</Path.Effect>
 												</Path>
 

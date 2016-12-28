@@ -40,6 +40,7 @@ namespace GitMind.Common.ThemeHandling
 		public Brush SelectedItemBorderBrush { get; }
 		public Brush SelectedItemBackgroundBrush { get; }
 		public Brush HoverItemBrush { get; }
+		public int NeonEffect { get; }
 
 
 		public readonly List<SolidColorBrush> brushes = new List<SolidColorBrush>();
@@ -78,6 +79,8 @@ namespace GitMind.Common.ThemeHandling
 			SelectedItemBorderBrush = FromHex(option.SelectedItemBorderColor);
 			SelectedItemBackgroundBrush = FromHex(option.SelectedItemBackgroundColor);
 			HoverItemBrush = FromHex(option.HoverItemColor);
+
+			NeonEffect = option.NeonEffect;
 
 			LoadThemeBranchColors(option);
 		}

@@ -49,6 +49,8 @@ namespace GitMind.RepositoryViews
 		public string Line { get; set; }
 		public string Dashes { get; set; }
 
+		public int NeonEffect { get; set; }
+
 		public int StrokeThickness { get; set; }
 		public Brush Brush { get; set; }
 		public Brush HoverBrush { get; set; }
@@ -115,6 +117,7 @@ namespace GitMind.RepositoryViews
 
 		public void SetNormal()
 		{
+			NeonEffect = themeService.Theme.NeonEffect;
 			StrokeThickness = 2;
 			Brush = HoverBrushNormal;
 			DimColor = ((SolidColorBrush)HoverBrushHighlight).Color;
