@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling;
@@ -211,14 +213,36 @@ namespace GitMind.MainWindowViews
 		private void RestoreWindowSettings(string workingFolder)
 		{
 			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
-			Top = settings.Top;
-			Left = settings.Left;
-			Height = settings.Height;
-			Width = settings.Width;
+
+			Rectangle rect = new Rectangle(
+				(int)settings.Left, (int)settings.Top, (int)settings.Width, (int)settings.Height);
+
+			// check if the saved bounds are nonzero and visible on any screen
+			if (rect != Rectangle.Empty && IsVisibleOnAnyScreen(rect))
+			{
+				Top = settings.Top;
+				Left = settings.Left;
+				Height = settings.Height;
+				Width = settings.Width;
+			}
 
 			WindowState = settings.IsMaximized ? WindowState.Maximized : WindowState.Normal;
 
 			viewModel.RepositoryViewModel.IsShowCommitDetails = settings.IsShowCommitDetails;
+		}
+
+
+		private bool IsVisibleOnAnyScreen(Rectangle rect)
+		{
+			foreach (Screen screen in Screen.AllScreens)
+			{
+				if (screen.WorkingArea.IntersectsWith(rect) && screen.WorkingArea.Top < rect.Top)
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 
