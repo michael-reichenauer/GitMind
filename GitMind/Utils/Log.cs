@@ -32,12 +32,13 @@ namespace GitMind.Utils
 		private static readonly string LevelInfo = "INFO ";
 		private static readonly string LevelWarn = "WARN ";
 		private static readonly string LevelError = "ERROR";
-		private static readonly bool DisableErrorAndUsageReporting = false;
+		private static readonly Lazy<bool> DisableErrorAndUsageReporting;
 
 		static Log()
 		{
-			DisableErrorAndUsageReporting = Settings.Get<Options>().DisableErrorAndUsageReporting;
-			
+			DisableErrorAndUsageReporting = new Lazy<bool>(() =>
+				Settings.Get<Options>().DisableErrorAndUsageReporting);
+		
 			Task.Factory.StartNew(SendBufferedLogRows, TaskCreationOptions.LongRunning)
 				.RunInBackground();
 		}
@@ -145,7 +146,7 @@ namespace GitMind.Utils
 
 		private static void SendUsage(string text)
 		{
-			if (DisableErrorAndUsageReporting)
+			if (DisableErrorAndUsageReporting.Value)
 			{
 				return;
 			}
