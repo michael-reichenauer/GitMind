@@ -14,6 +14,7 @@ namespace GitMind.Common.ThemeHandling
 
 		public SolidColorBrush BackgroundBrush { get; }
 		public SolidColorBrush ForegroundBrush { get; }
+		public SolidColorBrush TitlebarBackgroundBrush { get; }
 		public Brush TextBrush { get; }
 
 		public Brush SubjectBrush { get; }
@@ -55,6 +56,8 @@ namespace GitMind.Common.ThemeHandling
 		{
 			BackgroundBrush = FromHex(option.BackgroundColor);
 			ForegroundBrush = FromHex(option.ForegroundColor);
+			TitlebarBackgroundBrush = FromHex(option.TitlebarBackgroundColor);
+
 			BorderBrush = FromHex(option.BorderColor);
 			TextBrush = FromHex(option.TextColor);
 			TextLowBrush = FromHex(option.TextLowColor);

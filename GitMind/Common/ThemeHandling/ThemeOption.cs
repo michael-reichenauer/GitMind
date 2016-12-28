@@ -8,6 +8,8 @@ namespace GitMind.Common.ThemeHandling
 
 		public string BackgroundColor { get; set; } = "#FF0E0E0E";
 		public string ForegroundColor { get; set; } = "#FFFFFFFF";
+		public string TitlebarBackgroundColor { get; set; } = "#FF0E0E0E";
+
 		public string BorderColor { get; set; } = "#FF5240B7";
 		public string TextColor { get; set; } = "#FFD4D4D4";
 		public string TextLowColor { get; set; } = "#FFB0C4DE";

@@ -88,6 +88,7 @@ namespace GitMind.Common.ThemeHandling
 				.First(r => r.Source.ToString() == "Styles/ColorStyle.xaml");
 
 			colors["BackgroundBrush"] = Theme.BackgroundBrush;
+			colors["TitlebarBackgroundBrush"] = Theme.TitlebarBackgroundBrush;
 			colors["BorderBrush"] = Theme.BorderBrush;
 			colors["TextBrush"] = Theme.TextBrush;
 			colors["TextLowBrush"] = Theme.TextLowBrush;

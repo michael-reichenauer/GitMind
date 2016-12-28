@@ -43,7 +43,9 @@
 		</Grid.RowDefinitions>
 
 		<!-- Title and tool bar -->
-		<Border Grid.Row="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2">
+		<Border Grid.Row="0" 
+						BorderBrush="{DynamicResource BorderBrush}" 
+						BorderThickness="2" Background="{DynamicResource TitlebarBackgroundBrush}">
 			<Grid>
 				<StackPanel 
 					HorizontalAlignment="Left"	

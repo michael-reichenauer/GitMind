@@ -56,8 +56,8 @@
 		</Grid.RowDefinitions>
 
 		<!--Title and tool bar -->
-		<Border	Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}">
-
+		<Border	Grid.Row="0" BorderThickness="1" 
+						BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource TitlebarBackgroundBrush}">
 			<Grid >
 				<Grid.ColumnDefinitions>
 					<!-- Left part, with icon, working folder, status indicators -->

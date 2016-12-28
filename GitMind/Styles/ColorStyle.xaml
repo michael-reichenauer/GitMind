@@ -4,6 +4,7 @@
 
 	<SolidColorBrush x:Key="BackgroundBrush" Color="#FF0E0E0E" />
 	<SolidColorBrush x:Key="BorderBrush" Color="#FF5240B7" />
+	<SolidColorBrush x:Key="TitlebarBackgroundBrush" Color="#FF0E0E0E" />
 
 	<SolidColorBrush x:Key="TextBrush" Color="#FFD4D4D4" />
 	<SolidColorBrush x:Key="TextLowBrush" Color="#FFB0C4DE" />
