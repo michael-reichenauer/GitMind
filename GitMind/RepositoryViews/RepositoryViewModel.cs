@@ -278,7 +278,7 @@ namespace GitMind.RepositoryViews
 					t.Log("Updated view model after cached/fresh");
 				}
 
-				isValidUri = gitInfoService.IsSupportedRemoteUrl(WorkingFolder);
+				isValidUri = gitInfoService.IsSupportedRemoteUrl(workingFolder);
 
 				if (!isValidUri)
 				{
