@@ -8,6 +8,7 @@ namespace GitMind.Common
 	[DataContract]
 	public class CommitId : Equatable<CommitId>
 	{
+		private static readonly int ShortSize = 12;
 		public static readonly CommitId Uncommitted = new CommitId(CommitSha.Uncommitted);
 		public static readonly CommitId None = new CommitId(CommitSha.None);
 
@@ -20,7 +21,7 @@ namespace GitMind.Common
 		public CommitId(string commitSha)
 			: this()
 		{
-			Id = commitSha.Substring(0, 6);
+			Id = commitSha.Substring(0, ShortSize);
 		}
 
 		public CommitId(CommitSha commitSha)
@@ -37,5 +38,18 @@ namespace GitMind.Common
 		protected override int GetHash() => Id.GetHashCode();
 
 		public override string ToString() => Id;
+
+		public static bool TryParse(string id, out CommitId commitId)
+		{
+			int length = id?.Length ?? 0;
+			if (length < ShortSize)
+			{
+				commitId = null;
+				return false;
+			}
+
+			commitId = new CommitId(id);
+			return true;			
+		}
 	}
 }

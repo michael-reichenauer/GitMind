@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
+using GitMind.GitModel.Private;
+using GitMind.RepositoryViews;
 using GitMind.Utils;
 
 
@@ -18,16 +20,19 @@ namespace GitMind.Git.Private
 
 		private readonly WorkingFolder workingFolder;
 		private readonly IRepoCaller repoCaller;
+		private readonly Lazy<IRepositoryMgr> repositoryMgr;
 		private readonly IGitNetworkService gitNetworkService;
 
 
 		public GitCommitBranchNameService(
 			WorkingFolder workingFolder,
 			IRepoCaller repoCaller,
+			Lazy<IRepositoryMgr> repositoryMgr,
 			IGitNetworkService gitNetworkService)
 		{
 			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
+			this.repositoryMgr = repositoryMgr;
 			this.gitNetworkService = gitNetworkService;
 		}
 
@@ -134,6 +139,7 @@ namespace GitMind.Git.Private
 				return;
 			}
 
+			Log.Warn($"Would Push Notes:\n{notesText}");
 
 			repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 
@@ -154,12 +160,12 @@ namespace GitMind.Git.Private
 		{
 			List<CommitBranchName> branchNames = ParseBranchNames(originNotesText + addedNotesText);
 
-			Dictionary<CommitId, BranchName> nameById = new Dictionary<CommitId, BranchName>();
+			Dictionary<string, BranchName> nameById = new Dictionary<string, BranchName>();
 
 			List<CommitBranchName> mergedNames = new List<CommitBranchName>();
 			foreach (CommitBranchName commitBranchName in branchNames)
 			{
-				if (nameById.TryGetValue(commitBranchName.CommitId, out BranchName branchName))
+				if (nameById.TryGetValue(commitBranchName.Id, out BranchName branchName))
 				{
 					if (commitBranchName.Name == branchName)
 					{
@@ -169,7 +175,7 @@ namespace GitMind.Git.Private
 					else
 					{
 						// Later entry indicate a change, remove old entry
-						var existing = mergedNames.Find(n => n.CommitId == commitBranchName.CommitId);
+						var existing = mergedNames.Find(n => n.Id == commitBranchName.Id);
 						mergedNames.Remove(existing);
 						Log.Debug($"Changed {existing}");
 						Log.Debug($"  to {commitBranchName}");
@@ -177,14 +183,14 @@ namespace GitMind.Git.Private
 				}
 
 				// Normal copy of entry
-				nameById[commitBranchName.CommitId] = commitBranchName.Name;
+				nameById[commitBranchName.Id] = commitBranchName.Name;
 				mergedNames.Add(commitBranchName);			
 			}
 
 			Log.Debug($"Number of merged entries: {mergedNames.Count}");
 
 			StringBuilder sb = new StringBuilder();			
-			mergedNames.ForEach(n => sb.Append($"{n.CommitId} {n.Name}\n"));
+			mergedNames.ForEach(n => sb.Append($"{n.Id} {n.Name}\n"));
 
 			return sb.ToString();
 		}
@@ -265,9 +271,12 @@ namespace GitMind.Git.Private
 					string[] parts = line.Split(" ".ToCharArray());
 					if (parts.Length == 2)
 					{
-						CommitId commitId = new CommitId(parts[0]);
+						string id = parts[0];
+
+						id = TryGetCommitId(id);
+
 						BranchName branchName = parts[1].Trim();
-						branchNames.Add(new CommitBranchName(commitId, branchName));
+						branchNames.Add(new CommitBranchName(id, branchName));
 					}
 				}
 			}
@@ -277,6 +286,34 @@ namespace GitMind.Git.Private
 			}
 
 			return branchNames;
+		}
+
+
+		private string TryGetCommitId(string id)
+		{
+			if (CommitId.TryParse(id, out CommitId commitId))
+			{
+				return id;
+			}
+			else
+			{
+				var gitCommits = repositoryMgr.Value.Repository?.MRepository?.GitCommits;
+				if (gitCommits == null)
+				{
+					return id;
+				}
+
+				foreach (var pair in gitCommits)
+				{
+					if (pair.Value.Sha.Sha.StartsWith(id, StringComparison.OrdinalIgnoreCase))
+					{
+						commitId = new CommitId(pair.Value.Sha);
+						return commitId.Id;
+					}
+				}
+			}
+
+			return id;
 		}
 	}
 }

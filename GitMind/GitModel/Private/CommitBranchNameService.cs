@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Common;
@@ -15,7 +16,7 @@ namespace GitMind.GitModel.Private
 		{
 			foreach (CommitBranchName specifiedName in specifiedNames)
 			{
-				if (repository.Commits.TryGetValue(specifiedName.CommitId, out var commit))
+				if (TryGetCommit(repository, specifiedName.Id, out MCommit commit))
 				{
 					if (!string.IsNullOrEmpty(specifiedName.Name))
 					{
@@ -37,7 +38,7 @@ namespace GitMind.GitModel.Private
 		{
 			foreach (CommitBranchName commitBranch in commitBranches)
 			{
-				if (repository.Commits.TryGetValue(commitBranch.CommitId, out var commit))
+				if (TryGetCommit(repository, commitBranch.Id, out MCommit commit))
 				{
 					// Set branch name unless there is a specified branch name which has higher priority
 					commit.CommitBranchName = commitBranch.Name;
@@ -81,8 +82,6 @@ namespace GitMind.GitModel.Private
 		}
 
 
-
-
 		public BranchName GetBranchName(MCommit commit)
 		{
 			if (commit.BranchName != null)
@@ -120,6 +119,32 @@ namespace GitMind.GitModel.Private
 					branchTip.SubBranchId = branch.SubBranchId;
 				}
 			}
+		}
+
+
+		private static bool TryGetCommit(
+			MRepository repository, 
+			string id,
+			out MCommit commit)
+		{
+			if (CommitId.TryParse(id, out CommitId commitId))
+			{
+				return repository.Commits.TryGetValue(commitId, out commit);
+			}
+			else
+			{
+				foreach (var pair in repository.GitCommits)
+				{
+					if (pair.Value.Sha.Sha.StartsWith(id, StringComparison.OrdinalIgnoreCase))
+					{
+						commitId = new CommitId(pair.Value.Sha);
+						return repository.Commits.TryGetValue(commitId, out commit);
+					}
+				}				
+			}
+
+			commit = null;
+			return false;
 		}
 
 
