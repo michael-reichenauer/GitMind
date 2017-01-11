@@ -80,7 +80,8 @@ namespace GitMind.Git.Private
 			try
 			{
 				string file = Path.Combine(workingFolder, ".git", nameSpace);
-				File.AppendAllText(file, $"{commitSha} {branchName}\n");
+				CommitId id = new CommitId(commitSha);
+				File.AppendAllText(file, $"{id} {branchName}\n");
 			}
 			catch (Exception e)
 			{
