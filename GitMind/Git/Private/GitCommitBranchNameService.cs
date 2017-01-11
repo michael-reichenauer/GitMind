@@ -49,7 +49,6 @@ namespace GitMind.Git.Private
 
 		public Task SetCommitBranchNameAsync(CommitSha commitSha, BranchName branchName)
 		{
-			Log.Debug($"Set commit branch name {branchName} for commit {commitSha} ...");
 			SetNoteBranches(CommitBranchNoteNameSpace, commitSha, branchName);
 
 			return Task.CompletedTask;
@@ -78,8 +77,6 @@ namespace GitMind.Git.Private
 		private void SetNoteBranches(
 			string nameSpace, CommitSha commitSha, BranchName branchName)
 		{
-			Log.Debug($"Set note {nameSpace} for commit {commitSha} with branch {branchName} ...");
-
 			try
 			{
 				string file = Path.Combine(workingFolder, ".git", nameSpace);
@@ -138,8 +135,6 @@ namespace GitMind.Git.Private
 				Log.Debug($"Notes {nameSpace} have not changed");
 				return;
 			}
-
-			Log.Warn($"Would Push Notes:\n{notesText}");
 
 			repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 

@@ -33,7 +33,6 @@ namespace GitMind.GitModel.Private
 			{
 				IReadOnlyDictionary<CommitSha, string> commitIds = GetSingleBranchTipCommits(repository, repo);
 
-				Log.Debug($"CommitIds {commitIds.Count} ------------");
 				foreach (var pair in commitIds)
 				{
 					BranchName branchName = pair.Value;
@@ -42,7 +41,6 @@ namespace GitMind.GitModel.Private
 						branchName = branchName.Substring(Origin.Length);
 					}
 
-					Log.Debug($"   Set {pair.Key}, {branchName}");
 					gitCommitBranchNameService.SetCommitBranchNameAsync(pair.Key, branchName);
 				}
 
