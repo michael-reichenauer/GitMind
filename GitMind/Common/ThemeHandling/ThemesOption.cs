@@ -8,11 +8,11 @@ namespace GitMind.Common.ThemeHandling
 
 		public string CurrentTheme = "Dark";
 
-		public ThemeOption[] CustomThemes { get; set; } = 
-			{
-				new ThemeOption{ Name = "Dark" },
-				new ThemeOption{ Name = "Light" },
-			};
+		public ThemeOption[] CustomThemes { get; set; } =
+		{
+			new ThemeOption { Name = "Dark" },
+			LightThemeOption.Create()	
+		};
 
 		public ThemeOption DefaultTheme => new ThemeOption { Name = "Default Dark (read-only)" };		
 	}
