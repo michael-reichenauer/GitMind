@@ -7,6 +7,9 @@ using GitMind.Features.Branches.Private;
 
 namespace GitMind.GitModel.Private
 {
+	/// <summary>
+	/// Handles branch names
+	/// </summary>
 	internal class BranchHierarchyService : IBranchHierarchyService
 	{
 		private readonly IGitBranchService gitBranchService;
