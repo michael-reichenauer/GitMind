@@ -124,9 +124,6 @@ namespace GitMind.Common.ThemeHandling
 		{
 			Options options = Settings.Get<Options>();
 
-			// Setting options to ensure that readonly options like DefaultTheme is written correctly
-			Settings.Set(options);
-
 			ThemeOption theme = options.Themes.CustomThemes
 				.FirstOrDefault(t => t.Name == options.Themes.CurrentTheme)
 				?? options.Themes.DefaultTheme;
