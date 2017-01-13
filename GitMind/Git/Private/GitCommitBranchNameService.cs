@@ -299,7 +299,8 @@ namespace GitMind.Git.Private
 					return id;
 				}
 
-				foreach (var pair in gitCommits)
+				var commits = gitCommits.ToList();
+				foreach (var pair in commits)
 				{
 					if (pair.Value.Sha.Sha.StartsWith(id, StringComparison.OrdinalIgnoreCase))
 					{

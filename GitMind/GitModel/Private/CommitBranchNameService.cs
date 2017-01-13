@@ -133,7 +133,7 @@ namespace GitMind.GitModel.Private
 			}
 			else
 			{
-				foreach (var pair in repository.GitCommits)
+				foreach (var pair in repository.GitCommits.ToList())
 				{
 					if (pair.Value.Sha.Sha.StartsWith(id, StringComparison.OrdinalIgnoreCase))
 					{
