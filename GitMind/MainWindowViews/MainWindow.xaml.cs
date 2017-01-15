@@ -217,13 +217,23 @@ namespace GitMind.MainWindowViews
 			Rectangle rect = new Rectangle(
 				(int)settings.Left, (int)settings.Top, (int)settings.Width, (int)settings.Height);
 
+			if (rect.Width < 600)
+			{
+				rect = new Rectangle(rect.Left, rect.Right, 600, rect.Height);
+			}
+
+			if (rect.Height < 400)
+			{
+				rect = new Rectangle(rect.Left, rect.Right, rect.Width, 400);
+			}
+
 			// check if the saved bounds are nonzero and visible on any screen
 			if (rect != Rectangle.Empty && IsVisibleOnAnyScreen(rect))
 			{
 				Top = settings.Top;
 				Left = settings.Left;
-				Height = settings.Height;
-				Width = settings.Width;
+				Width = rect.Width;
+				Height = rect.Height;
 			}
 
 			WindowState = settings.IsMaximized ? WindowState.Maximized : WindowState.Normal;

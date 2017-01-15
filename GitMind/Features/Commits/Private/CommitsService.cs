@@ -168,7 +168,7 @@ namespace GitMind.Features.Commits.Private
 				}
 			}
 
-			using (statusService.PauseStatusNotifications())
+			using (statusService.PauseStatusNotifications(Refresh.Repo))
 			{
 				if (dialog.ShowDialog() == true)
 				{
