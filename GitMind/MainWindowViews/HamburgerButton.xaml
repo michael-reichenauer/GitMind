@@ -90,12 +90,12 @@
 				</MenuItem>
 
 				<!-- Undo -->
-				<MenuItem Header="Undo">
+				<MenuItem Header="Clean">
 					<MenuItem.Icon>
 						<Border>
 							<TextBlock 
 								Style="{DynamicResource MenuIconStyle}" 
-								Text="&#xE166;" 
+								Text="&#xE92B;" 
 								Foreground="{DynamicResource UndoBrush}"/>
 						</Border>
 					</MenuItem.Icon>
