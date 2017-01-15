@@ -310,8 +310,7 @@ namespace GitMind.GitModel.Private
 					MCommit commonCommit = repository.Commits[new CommitId(commonTip.Sha)];
 
 					commonCommit
-						.CommitAndFirstAncestors()
-						.Where(c => c.BranchId == branch.Id)
+						.CommitAndAncestors(c => c.BranchId == branch.Id)
 						.ForEach(c => c.IsCommon = true);
 
 					branch.Commits.ForEach(commit =>

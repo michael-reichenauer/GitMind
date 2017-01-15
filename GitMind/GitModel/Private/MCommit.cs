@@ -96,6 +96,39 @@ namespace GitMind.GitModel.Private
 			}
 		}
 
+		public IEnumerable<MCommit> CommitAndAncestors(Func<MCommit, bool> predicate)
+		{
+			if (!predicate(this))
+			{
+				yield break;
+			}
+
+			yield return this;
+
+			foreach (MCommit ancestor in Ancestors(predicate))
+			{
+				yield return ancestor;
+			}
+		}
+
+		public IEnumerable<MCommit> Ancestors(Func<MCommit, bool> predicate)
+		{
+			Stack<MCommit> commits = new Stack<MCommit>();
+			Children
+				.Where(predicate)
+				.ForEach(child => commits.Push(child));
+
+			while (commits.Any())
+			{
+				MCommit commit = commits.Pop();
+				yield return commit;
+
+				commit.Children
+					.Where(predicate)
+					.ForEach(child => commits.Push(child));
+			}
+		}
+
 		public IEnumerable<MCommit> CommitAndFirstAncestors()
 		{
 			yield return this;
