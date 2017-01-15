@@ -1,9 +1,10 @@
 using System.Linq;
+using GitMind.Common;
 
 
 namespace GitMind.GitModel.Private
 {
-	internal class Converter
+	internal class Converter 
 	{
 		public static Branch ToBranch(Repository repository, MBranch branch)
 		{
@@ -35,8 +36,8 @@ namespace GitMind.GitModel.Private
 			return new Commit(
 				repository,
 				commit.Id,
-				commit.CommitId,
-				commit.ShortId,
+				commit.RealCommitId,
+				commit.RealCommitSha,
 				commit.Subject,
 				commit.Author,
 				commit.AuthorDate,
@@ -45,7 +46,7 @@ namespace GitMind.GitModel.Private
 				commit.Tickets,
 				commit.BranchTips,
 				commit.ParentIds.ToList(),
-				commit.Repository.ChildIds(commit.Id).ToList(),
+				commit.ChildIds.ToList(),
 				commit.BranchId,
 				commit.SpecifiedBranchName,
 				commit.CommitBranchName,

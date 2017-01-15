@@ -1,41 +1,63 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using GitMind.Common;
 using GitMind.Git;
 
 
 namespace GitMind.GitModel.Private
 {
+	[DataContract]
 	public class MCommit
 	{
-		public static readonly string UncommittedId = GitCommit.UncommittedId;
+		private readonly Lazy<GitCommit> gitCommit;
 
-		public string Id { get; set; }
-		public string BranchId { get; set; }
-		public string ShortId { get; set; }
-		public string Subject { get; set; }
-		public string Author { get; set; }
-		public DateTime AuthorDate { get; set; }
-		public DateTime CommitDate { get; set; }
+		public MCommit()
+		{
+			gitCommit = new Lazy<GitCommit>(() => Repository.GitCommits[Id]);
+		}
 
-		public List<string> ParentIds { get; set; } = new List<string>();
+		[DataMember] public CommitId Id { get; set; }
+		[DataMember] public string BranchId { get; set; }
 
-		public BranchName BranchName { get; set; }
-		public BranchName SpecifiedBranchName { get; set; }
+		//[DataMember] public string Subject { get; set; }
+		//[DataMember]public string Author { get; set; }
+		//[DataMember] public DateTime AuthorDate { get; set; }
+		//[DataMember] public DateTime CommitDate { get; set; }
+		//[DataMember] public List<CommitId> ParentIds { get; set; } = new List<CommitId>();
 
-	
-		public string Tags { get; set; }
-		public string Tickets { get; set; }
-		public bool IsVirtual { get; set; }
-		public string BranchTips { get; set; }
-		public string CommitId { get; set; }
-		public bool IsLocalAhead { get; set; }
-		public bool IsRemoteAhead { get; set; }
-		public bool IsCommon { get; set; }
+		public CommitSha Sha => gitCommit.Value.Sha;
+		public string Subject => gitCommit.Value.Subject;
+		public string Author => gitCommit.Value.Author;
+		public DateTime AuthorDate => gitCommit.Value.AuthorDate;
+		public DateTime CommitDate => gitCommit.Value.CommitDate;
+		public List<CommitId> ParentIds => gitCommit.Value.ParentIds;
+		public BranchName FromSubjectBranchName => gitCommit.Value.BranchNameFromSubject;
+		
 
+		[DataMember] public bool IsSet { get; set; }
+		[DataMember] public List<CommitId> ChildIds { get; set; } = new List<CommitId>();
+		[DataMember] public List<CommitId> FirstChildIds { get; set; } = new List<CommitId>();
+		[DataMember] public string BranchName { get; private set; }
+		[DataMember] public BranchName SpecifiedBranchName { get; set; }
+		[DataMember] public string Tags { get; set; }
+		[DataMember] public string Tickets { get; set; }
+		[DataMember] public bool IsVirtual { get; set; }
+		[DataMember] public string BranchTips { get; set; }
+		
+		[DataMember] public bool IsLocalAhead { get; set; }
+		[DataMember] public bool IsRemoteAhead { get; set; }
+		[DataMember] public bool IsCommon { get; set; }
+
+
+		public CommitId RealCommitId => IsVirtual && Id != CommitId.Uncommitted ? FirstParent.Id : Id;
+		public CommitSha RealCommitSha => IsVirtual && Id != CommitId.Uncommitted ? FirstParent.Sha : Sha;
+
+		public string ShortId => RealCommitSha.ShortSha;
 
 		public string SubBranchId { get; set; }
-		public BranchName FromSubjectBranchName { get; set; }
+		
 		public List<MSubBranch> BranchTipBranches { get; set; } = new List<MSubBranch>();
 		public bool IsMerging { get; set; }
 		public bool HasConflicts { get; set; }
@@ -48,20 +70,19 @@ namespace GitMind.GitModel.Private
 
 		public MRepository Repository { get; set; }
 		public IEnumerable<MCommit> Parents => ParentIds.Select(id => Repository.Commits[id]);
-		public IEnumerable<MCommit> Children => Repository.ChildIds(Id).Select(id => Repository.Commits[id]);
-		private IList<string> FirstChildIds => Repository.FirstChildIds(Id);
-		public IEnumerable<MCommit> FirstChildren => Repository.FirstChildIds(Id).Select(id => Repository.Commits[id]);
+
+		public IEnumerable<MCommit> Children => ChildIds.Select(id => Repository.Commits[id]);
+		
+		public IEnumerable<MCommit> FirstChildren => FirstChildIds.Select(id => Repository.Commits[id]);
 		public MBranch Branch => Repository.Branches[BranchId];
 
 
-		public string FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : null;
+		public CommitId FirstParentId => ParentIds.Count > 0 ? ParentIds[0] : CommitId.None;
 		public MCommit FirstParent => ParentIds.Count > 0 ? Repository.Commits[ParentIds[0]] : null;
-		public string SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : null;
+		public CommitId SecondParentId => ParentIds.Count > 1 ? ParentIds[1] : CommitId.None;
 		public MCommit SecondParent => ParentIds.Count > 1 ? Repository.Commits[ParentIds[1]] : null;
-	
 
-
-		public bool IsUncommitted => Id == UncommittedId;
+		public bool IsUncommitted => Id == CommitId.Uncommitted;
 		public BranchName CommitBranchName { get; set; }
 
 
@@ -72,6 +93,39 @@ namespace GitMind.GitModel.Private
 			{
 				yield return current;
 				current = current.FirstParent;
+			}
+		}
+
+		public IEnumerable<MCommit> CommitAndAncestors(Func<MCommit, bool> predicate)
+		{
+			if (!predicate(this))
+			{
+				yield break;
+			}
+
+			yield return this;
+
+			foreach (MCommit ancestor in Ancestors(predicate))
+			{
+				yield return ancestor;
+			}
+		}
+
+		public IEnumerable<MCommit> Ancestors(Func<MCommit, bool> predicate)
+		{
+			Stack<MCommit> commits = new Stack<MCommit>();
+			Children
+				.Where(predicate)
+				.ForEach(child => commits.Push(child));
+
+			while (commits.Any())
+			{
+				MCommit commit = commits.Pop();
+				yield return commit;
+
+				commit.Children
+					.Where(predicate)
+					.ForEach(child => commits.Push(child));
 			}
 		}
 
@@ -88,5 +142,11 @@ namespace GitMind.GitModel.Private
 		}
 
 		public override string ToString() => $"{ShortId} {AuthorDate} ({ParentIds.Count}) {Subject} ({CommitDate})";
+
+
+		public void SetBranchName(BranchName branchName)
+		{
+			BranchName = branchName;
+		}
 	}
 }

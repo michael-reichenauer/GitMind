@@ -1,24 +1,29 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using GitMind.Git;
+using System.Runtime.Serialization;
+using GitMind.Common;
+using GitMind.Features.StatusHandling;
 
 
 namespace GitMind.GitModel.Private
 {
+	[DataContract]
 	public class MRepository
 	{
-		public static string CurrentVersion = "17";
+		public static string CurrentVersion = "21";
 
-		public string Version { get; set; } = CurrentVersion;
+		[DataMember] public string Version { get; set; } = CurrentVersion;
 
-		public string CurrentCommitId { get; set; }
-		public string CurrentBranchId { get; set; }
-		public Dictionary<string, MCommit> Commits { get; set; } = new Dictionary<string, MCommit>();
-		public Dictionary<string, MBranch> Branches { get; set; } = new Dictionary<string, MBranch>();
-		public readonly Dictionary<string, IList<string>> ChildrenById =
-			new Dictionary<string, IList<string>>();
-		public readonly Dictionary<string, IList<string>> FirstChildrenById =
-			new Dictionary<string, IList<string>>();
+		[DataMember] public Dictionary<CommitId, GitCommit> GitCommits { get; set; } =
+			new Dictionary<CommitId, GitCommit>();
+		[DataMember] public Dictionary<CommitId, MCommit> Commits { get; set; } = 
+			new Dictionary<CommitId, MCommit>();
+		[DataMember] public CommitId CurrentCommitId { get; set; }
+		[DataMember] public string CurrentBranchId { get; set; }
+		[DataMember] public Dictionary<string, MBranch> Branches { get; set; } = 
+			new Dictionary<string, MBranch>();
+		[DataMember] public TimeSpan TimeToCreateFresh { get; set; }
 
 
 		public Dictionary<string, MSubBranch> SubBranches { get; set; }
@@ -26,46 +31,56 @@ namespace GitMind.GitModel.Private
 
 		public string WorkingFolder { get; set; }
 
-		public GitStatus Status { get; set; }
+		public bool IsCached { get; set; }
 
-		public IList<string> ChildIds(string commitId)
-		{
-			IList<string> children;
-			if (!ChildrenById.TryGetValue(commitId, out children) || children == null)
-			{
-				children = new List<string>();
-				ChildrenById[commitId] = children;
-			}
+		public Status Status { get; set; } = Status.Default;
 
-			return children;
-		}
+		public MCommit Uncommitted { get; set; }
+
+		public IReadOnlyList<string> RepositoryIds { get; set; } = new List<string>();
 
 
-		public IList<string> FirstChildIds(string commitId)
-		{
-			IList<string> children;
-			if (!FirstChildrenById.TryGetValue(commitId, out children) || children == null)
-			{
-				children = new List<string>();
-				FirstChildrenById[commitId] = children;
-			}
-
-			return children;
-		}
-
-
-		internal CommitsFiles CommitsFiles { get; set; } = new CommitsFiles();
 		public MCommit CurrentCommit => Commits[CurrentCommitId];
 		public MBranch CurrentBranch => Branches[CurrentBranchId];
-		public IReadOnlyList<string> Tips { get; set; } = new List<string>();
 
-
-		public void CompleteDeserialization(string gitRepositoryPath)
+		public MCommit Commit(CommitId commitId)
 		{
-			WorkingFolder = gitRepositoryPath;
-			Commits.ForEach(c => c.Value.Repository = this);
+			MCommit commit;
+			if (!Commits.TryGetValue(commitId, out commit))
+			{
+				commit = AddNewCommit(commitId);
+			}
+
+			return commit;
+		}
+
+
+		private MCommit AddNewCommit(CommitId commitId)
+		{
+			MCommit commit = new MCommit()
+			{
+				Repository = this,
+				Id = commitId,
+			};
+
+			Commits[commitId] = commit;
+
+			return commit;
+		}
+
+
+	
+
+		public void CompleteDeserialization(string workingFolder)
+		{
+			WorkingFolder = workingFolder;
 			SubBranches.ForEach(b => b.Value.Repository = this);
 			Branches.ForEach(b => b.Value.Repository = this);
+
+			Commits.Values.ForEach(c =>
+			{
+				c.Repository = this;
+			});
 		}
 	}
 }

@@ -14,7 +14,7 @@
 		<!-- Minimize button-->
 		<Button
 			Margin="5,0,0,0"
-			Style="{StaticResource IconButtonStyle}" 
+			Style="{DynamicResource IconButtonStyle}" 
 			Content="&#xE15B;" 
 			Padding="4,4,4,0" 
 			ToolTip="Minimize (Escape)"
@@ -22,14 +22,14 @@
 
 		<!-- Maximize button-->
 		<Button 
-			Style="{StaticResource IconButtonStyle}" 
+			Style="{DynamicResource IconButtonStyle}" 
 			FontSize="14" Content="&#xE3C1;" 
 			ToolTip="Maximize"
 			Command="{Binding ToggleMaximizeCommand}"/>
 
 		<!-- Close Button -->
 		<Button 
-			Style="{StaticResource IconButtonStyle}" 
+			Style="{DynamicResource IconButtonStyle}" 
 			Content="&#xE14C;" 
 			ToolTip="Close (Ctrl-Q)"
 			Command="{Binding CloseCommand}"/>

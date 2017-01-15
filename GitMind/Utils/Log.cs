@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -17,11 +18,12 @@ namespace GitMind.Utils
 		private static readonly int MaxLogFileSize = 2000000;
 
 		private static readonly UdpClient UdpClient = new UdpClient();
-		private static readonly IPEndPoint LocalLogEndPoint = new IPEndPoint(IPAddress.Loopback, 40000);
-	
+		private static readonly BlockingCollection<string> logTexts = new BlockingCollection<string>();
+
 		private static readonly IPEndPoint usageLogEndPoint =
 			new IPEndPoint(IPAddress.Parse("10.85.12.4"), 41110);
 
+		private static readonly object syncRoot = new object();
 
 		private static readonly string LogPath = ProgramPaths.GetLogFilePath();
 		private static readonly int ProcessID = Process.GetCurrentProcess().Id;
@@ -30,6 +32,29 @@ namespace GitMind.Utils
 		private static readonly string LevelInfo = "INFO ";
 		private static readonly string LevelWarn = "WARN ";
 		private static readonly string LevelError = "ERROR";
+		private static readonly Lazy<bool> DisableErrorAndUsageReporting;
+
+		static Log()
+		{
+			DisableErrorAndUsageReporting = new Lazy<bool>(() =>
+				Settings.Get<Options>().DisableErrorAndUsageReporting);
+		
+			Task.Factory.StartNew(SendBufferedLogRows, TaskCreationOptions.LongRunning)
+				.RunInBackground();
+		}
+
+
+		private static void SendBufferedLogRows()
+		{
+			while (!logTexts.IsCompleted)
+			{
+				string logText = logTexts.Take();
+
+				Native.OutputDebugString(logText);
+
+				//Debugger.Log(0, Debugger.DefaultCategory, logText);
+			}
+		}
 
 
 		public static void Usage(
@@ -92,28 +117,40 @@ namespace GitMind.Utils
 			filePath = filePath.Substring(prefixLength);
 			string text = $"{level} [{ProcessID}] {filePath}({lineNumber}) {memberName} - {msg}";
 
+			if (level == LevelUsage || level == LevelWarn || level == LevelError)
+			{
+				SendUsage(text);
+			}
+
 			try
 			{
 				//byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
 				//UdpClient.Send(bytes, bytes.Length, LocalLogEndPoint);
-				Native.OutputDebugString(text);
-				WriteToFile(text);
-
-				if (level == LevelUsage || level == LevelWarn || level == LevelError)
-				{
-					SendUsage(text);
-				}
+				SendLog(text);
+				WriteToFile(text);			
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
 				//Debugger.Log(0, Debugger.DefaultCategory, "ERROR Failed to log to udp " + e);
-				Native.OutputDebugString("ERROR Failed to log to udp " + e);
+				SendLog("ERROR Failed to log to udp " + e);
 			}
 		}
+
+		
+		private static void SendLog(string text)
+		{
+			logTexts.Add(text);
+		}
+
 
 
 		private static void SendUsage(string text)
 		{
+			if (DisableErrorAndUsageReporting.Value)
+			{
+				return;
+			}
+
 			try
 			{
 				string logRow = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}";
@@ -130,36 +167,39 @@ namespace GitMind.Utils
 
 		private static void WriteToFile(string text)
 		{
-			Exception error = null;
-			for (int i = 0; i < 10; i++)
+			lock (syncRoot)
 			{
-				try
+				Exception error = null;
+				for (int i = 0; i < 10; i++)
 				{
-					File.AppendAllText(
-						LogPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}{Environment.NewLine}");
-
-					long length = new FileInfo(LogPath).Length;
-
-					if (length > MaxLogFileSize)
+					try
 					{
-						MoveLargeLogFile();
+						File.AppendAllText(
+							LogPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}{Environment.NewLine}");
+
+						long length = new FileInfo(LogPath).Length;
+
+						if (length > MaxLogFileSize)
+						{
+							MoveLargeLogFile();
+						}
+
+						return;
 					}
+					catch (DirectoryNotFoundException)
+					{
+						// Ignore error since folder has been deleted during uninstallation
+						return;
+					}
+					catch (Exception e)
+					{
+						Thread.Sleep(30);
+						error = e;
+					}
+				}
 
-					return;
-				}
-				catch (DirectoryNotFoundException)
-				{
-					// Ignore error since folder has been deleted during uninstallation
-					return;
-				}
-				catch (Exception e)
-				{
-					Thread.Sleep(10);
-					error = e;
-				}
-			}
-
-			Native.OutputDebugString("ERROR Failed to log to file: " + error);
+				SendLog("ERROR Failed to log to file: " + error);
+			}		
 		}
 
 
@@ -184,14 +224,14 @@ namespace GitMind.Utils
 					}
 					catch (Exception e)
 					{
-						Native.OutputDebugString("ERROR Failed to move temp to second log file: " + e);
+						SendLog("ERROR Failed to move temp to second log file: " + e);
 					}
 					
 				}).RunInBackground();
 			}
 			catch (Exception e)
 			{
-				Native.OutputDebugString("ERROR Failed to move large log file: " + e);
+				SendLog("ERROR Failed to move large log file: " + e);
 			}	
 		}
 

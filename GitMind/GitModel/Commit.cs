@@ -2,25 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Git;
-using GitMind.GitModel.Private;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel
 {
-	internal class Commit
+	internal class Commit : Equatable<Commit>
 	{
-		public static readonly string UncommittedId = MCommit.UncommittedId;
-
-		private readonly IReadOnlyList<string> parentIds;
-		private readonly IReadOnlyList<string> childIds;
+		private readonly IReadOnlyList<CommitId> parentIds;
+		private readonly IReadOnlyList<CommitId> childIds;
 		private readonly string branchId;
 
 		public Commit(
 			Repository repository, 
-			string id, 
-			string commitId, 
-			string shortId, 
+			CommitId id,
+			CommitId realCommitId, 
+			CommitSha realCommitSha,
 			string subject,
 			string author, 
 			DateTime authorDate, 
@@ -28,8 +27,8 @@ namespace GitMind.GitModel
 			string tags, 
 			string tickets, 
 			string branchTips, 
-			IReadOnlyList<string> parentIds, 
-			IReadOnlyList<string> childIds, 
+			IReadOnlyList<CommitId> parentIds, 
+			IReadOnlyList<CommitId> childIds, 
 			string branchId,
 			BranchName specifiedBranchName,
 			BranchName commitBranchName,
@@ -47,8 +46,8 @@ namespace GitMind.GitModel
 			this.childIds = childIds;
 			this.branchId = branchId;
 			Id = id;
-			CommitId = commitId;
-			ShortId = shortId;
+			RealCommitId = realCommitId;
+			RealCommitSha = realCommitSha;
 			Subject = subject;
 			Author = author;
 			AuthorDate = authorDate;			
@@ -70,9 +69,10 @@ namespace GitMind.GitModel
 		}
 
 
-		public string Id { get; }
-		public string CommitId { get; }
-		public string ShortId { get; }
+		public CommitId Id { get; }
+
+		public CommitId RealCommitId { get; }
+		public CommitSha RealCommitSha { get; }
 		public string Subject { get; }
 		public string Author { get; }
 		public DateTime AuthorDate { get; }
@@ -104,11 +104,12 @@ namespace GitMind.GitModel
 		public string WorkingFolder => Repository.MRepository.WorkingFolder;
 		public Repository Repository { get; }
 
-		//public IEnumerable<CommitFile> Files => repository.CommitsFiles[Id];
-		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(WorkingFolder, CommitId);
-		
+		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(RealCommitSha);
 
+		public override string ToString() => $"{Id} {Subject} {CommitDate}";
 
-		public override string ToString() => $"{ShortId} {Subject} {CommitDate}";
+		protected override bool IsEqual(Commit other) => Id == other.Id;
+
+		protected override int GetHash() => Id.GetHashCode();
 	}
 }

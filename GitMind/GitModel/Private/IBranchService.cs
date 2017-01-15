@@ -5,7 +5,7 @@ namespace GitMind.GitModel.Private
 {
 	internal interface IBranchService
 	{
-		void AddActiveBranches(GitRepository gitRepository, GitStatus gitStatus, MRepository repository);
+		void AddActiveBranches(GitRepository gitRepository, MRepository repository);
 
 		void AddInactiveBranches(MRepository repository);
 

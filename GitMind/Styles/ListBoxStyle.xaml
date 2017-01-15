@@ -12,10 +12,10 @@
 					<Border 
 						Name="ItemBorder"
 						CornerRadius="0" 
-						BorderBrush="{StaticResource BackgroundBrush}"
+						BorderBrush="{DynamicResource BackgroundBrush}"
 						BorderThickness="1" 
 						Margin="2,1"
-						Background="{StaticResource ItemBrush}">
+						Background="{DynamicResource ItemBrush}">
 						<ContentPresenter />
 					</Border>
 					<ControlTemplate.Triggers>
@@ -23,11 +23,11 @@
 							<Setter 
 								TargetName="ItemBorder" 
 								Property="BorderBrush" 
-								Value="{StaticResource SelectedItemBorderBrush}" />
+								Value="{DynamicResource SelectedItemBorderBrush}" />
 							<Setter 
 								TargetName="ItemBorder" 
 								Property="Background" 
-								Value="{StaticResource SelectedItemBackgroundBrush}" />
+								Value="{DynamicResource SelectedItemBackgroundBrush}" />
 						</Trigger>
 						<MultiTrigger>
 							<MultiTrigger.Conditions>
@@ -37,7 +37,7 @@
 							<Setter 
 								TargetName="ItemBorder" 
 								Property="BorderBrush" 
-								Value="{StaticResource HoverItemBrush}" />
+								Value="{DynamicResource HoverItemBrush}" />
 						</MultiTrigger>
 					</ControlTemplate.Triggers>
 				</ControlTemplate>
@@ -52,10 +52,10 @@
 					<Border 
 						Name="ItemBorder"
 						CornerRadius="0" 
-						BorderBrush="{StaticResource BackgroundBrush}"
+						BorderBrush="{DynamicResource BackgroundBrush}"
 						BorderThickness="1" 
 						Margin="2,1"
-						Background="{StaticResource ItemBrush}">
+						Background="{DynamicResource ItemBrush}">
 						<ContentPresenter />
 					</Border>
 				</ControlTemplate>

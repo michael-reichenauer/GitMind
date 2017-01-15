@@ -1,31 +1,33 @@
 ﻿<ResourceDictionary 
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-	
-	<SolidColorBrush x:Key="ItemBrush" Color="Transparent" />
+
+	<SolidColorBrush x:Key="BackgroundBrush" Color="#FF0E0E0E" />
+	<SolidColorBrush x:Key="BorderBrush" Color="#FF5240B7" />
+	<SolidColorBrush x:Key="TitlebarBackgroundBrush" Color="#FF0E0E0E" />
+
+	<SolidColorBrush x:Key="TextBrush" Color="#FFD4D4D4" />
+	<SolidColorBrush x:Key="TextLowBrush" Color="#FFB0C4DE" />
+
+	<SolidColorBrush x:Key="ItemBrush" Color="#00FFFFFF" />
 	<SolidColorBrush x:Key="SelectedItemBorderBrush" Color="#FF6495ED"/>
 	<SolidColorBrush x:Key="SelectedItemBackgroundBrush" Color="#000025" />
 	<SolidColorBrush x:Key="HoverItemBrush" Color="#996495ED" />
-	<SolidColorBrush x:Key="BackgroundBrush" Color="#FF0E0E0E" />
-	<SolidColorBrush x:Key="TextBrush" Color="#FFD4D4D4" />
-	<SolidColorBrush x:Key="TextLowBrush" Color="LightSteelBlue" />
-
-	<SolidColorBrush x:Key="BorderBrush" Color="#FF5240B7" />
+	
 	<SolidColorBrush x:Key="TicketBrush" Color="#F25B54" />
 	<SolidColorBrush x:Key="UndoBrush" Color="#F75B54" />
 	<SolidColorBrush x:Key="TagBrush" Color="#42C650" />
 	<SolidColorBrush x:Key="BranchTipsBrush" Color="Aqua" />
-	<SolidColorBrush x:Key="CurrentCommitIndicatorBrush" Color="LightSteelBlue" />
+	<SolidColorBrush x:Key="CurrentCommitIndicatorBrush" Color="#FFB0C4DE" />
 		
 	<SolidColorBrush x:Key="RemoteAheadBrush" Color="#BBBBFB" />
+	<SolidColorBrush x:Key="LocalAheadBrush" Color="#FF8FE78F"/>
 	<SolidColorBrush x:Key="BusyBrush" Color="#FFE540FF" />
-	<SolidColorBrush x:Key="ScrollbarBrush" Color="DarkOrchid" />
-	
-	<SolidColorBrush x:Key="LocalAheadBrush" Color="LightGreen" />
-	<SolidColorBrush x:Key="ConflictBrush" Color="#F25B54" />
-	<SolidColorBrush x:Key="ResolvedBrush" Color="LightGreen" />
+	<SolidColorBrush x:Key="ScrollbarBrush" Color="#FF9932CC" />
 
-	<SolidColorBrush x:Key="UncomittedBrush" Color="BurlyWood" />
+	<SolidColorBrush x:Key="ConflictBrush" Color="#FFF25B54" />
+
+	<SolidColorBrush x:Key="UncomittedBrush" Color="#FFDEB887" />
 
 	<FontFamily x:Key="IconFont">pack://application:,,,/Fonts/#Material Icons</FontFamily>
 	

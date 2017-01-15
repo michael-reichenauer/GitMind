@@ -7,29 +7,34 @@ namespace GitMind.Utils.UI
 {
 	public class Command : ICommand
 	{
-		private readonly Command<object> command;
+		private Command<object> command;
 
 
 		public Command(Action executeMethod, string memberName)
 		{
-			command = new Command<object>(_ => executeMethod(), memberName);
+			SetCommand(executeMethod, memberName);
 		}
 
 		public Command(Action executeMethod, Func<bool> canExecuteMethod, string memberName)
 		{
-			command = new Command<object>((object _) => executeMethod(), _ => canExecuteMethod(), memberName);
+			SetCommand(executeMethod, canExecuteMethod, memberName);
 		}
 
 		public Command(Func<Task> executeMethodAsync, string memberName)
 		{
-			command = new Command<object>(_ => executeMethodAsync(), memberName);
+			SetCommand(executeMethodAsync,  memberName);
 		}
 
 		public Command(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod, string memberName)
 		{
-			command = new Command<object>(_ => executeMethodAsync(), _ => canExecuteMethod(), memberName);
-
+			SetCommand(executeMethodAsync, canExecuteMethod, memberName);
 		}
+
+		protected Command()
+		{
+			SetCommand(RunAsync, CanRun, GetType().FullName);
+		}
+
 
 		public event EventHandler CanExecuteChanged
 		{
@@ -71,16 +76,73 @@ namespace GitMind.Utils.UI
 		{
 			command.RaiseCanExecuteChanaged();
 		}
+
+
+		private void SetCommand(Action executeMethod, string memberName)
+		{
+			command = new Command<object>(_ => executeMethod(), memberName);
+		}
+
+		private void SetCommand(Action executeMethod, Func<bool> canExecuteMethod, string memberName)
+		{
+			command = new Command<object>((object _) => executeMethod(), _ => canExecuteMethod(), memberName);
+		}
+
+		private void SetCommand(Func<Task> executeMethodAsync, string memberName)
+		{
+			command = new Command<object>(_ => executeMethodAsync(), memberName);
+		}
+
+		private void SetCommand(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod, string memberName)
+		{
+			command = new Command<object>(_ => executeMethodAsync(), _ => canExecuteMethod(), memberName);
+		}
+
+
+		protected virtual Task RunAsync()
+		{
+			return Task.CompletedTask;
+		}
+
+		protected virtual bool CanRun()
+		{
+			return true;
+		}
 	}
 
 
 	public class Command<T> : ICommand
 	{
 		private readonly Action<T> executeMethod;
-		private readonly string memberName;
-		private readonly Func<T, Task> executeMethodAsync;
-		private readonly Func<T, bool> canExecuteMethod;
+		private string memberName;
+		private Func<T, Task> executeMethodAsync;
+		private Func<T, bool> canExecuteMethod;
 		private bool canExecute = true;
+
+
+		protected Command()
+		{
+			SetCommand(RunAsync, CanRun, GetType().FullName);
+		}
+
+
+		private void SetCommand(Func<T, Task> methodAsync, Func<T, bool> canRun, string name)
+		{
+			Asserter.NotNull(methodAsync);
+			Asserter.NotNull(canExecute);
+
+			executeMethodAsync = methodAsync;
+			canExecuteMethod = canRun;
+			memberName = name;
+		}
+
+		private void SetCommand(Func<T, Task> methodAsync, string name)
+		{
+			Asserter.NotNull(methodAsync);
+
+			executeMethodAsync = methodAsync;
+			memberName = name;
+		}
 
 		public Command(Action<T> executeMethod, string memberName)
 		{
@@ -103,10 +165,7 @@ namespace GitMind.Utils.UI
 
 		public Command(Func<T, Task> executeMethodAsync, string memberName)
 		{
-			Asserter.NotNull(executeMethodAsync);
-
-			this.executeMethodAsync = executeMethodAsync;
-			this.memberName = memberName;
+			SetCommand(executeMethodAsync, memberName);
 		}
 
 
@@ -209,6 +268,17 @@ namespace GitMind.Utils.UI
 				canExecute = true;
 				RaiseCanExecuteChanaged();
 			}
+		}
+
+
+		protected virtual Task RunAsync(T parameter)
+		{
+			return Task.CompletedTask;
+		}
+
+		protected virtual bool CanRun(T parameter)
+		{
+			return true;
 		}
 	}
 }

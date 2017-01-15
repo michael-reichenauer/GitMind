@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 
 
 namespace GitMind.Common.ProgressHandling
@@ -8,13 +9,14 @@ namespace GitMind.Common.ProgressHandling
 	/// </summary>
 	public partial class ProgressDialog : Window
 	{
-		private readonly IProgressWorker progressWorker;
+		private readonly Task closeTask;
 		private readonly ProgressDialogViewModel viewModel;
-		
-		internal ProgressDialog(
-			Window owner, string text, IProgressWorker progressWorker)
+
+
+		internal ProgressDialog(Window owner, string text, Task closeTask)
 		{
-			this.progressWorker = progressWorker;
+			this.closeTask = closeTask;
+
 			Owner = owner;
 			InitializeComponent();
 
@@ -27,14 +29,16 @@ namespace GitMind.Common.ProgressHandling
 		private async void ProgressDialog_OnLoaded(object sender, RoutedEventArgs e)
 		{
 			viewModel.Start();
-			await progressWorker.DoAsync(SetText);
-		
+
+			// This dialog was shown async in "using" statement, await the close/dispose before closing
+			await closeTask;
+
 			viewModel.Stop();
 			DialogResult = true;
 		}
 
 
-		private void SetText(string text)
+		public void SetText(string text)
 		{
 			viewModel.Text = text;
 		}

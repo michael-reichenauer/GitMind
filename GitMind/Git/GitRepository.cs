@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GitMind.Common;
+using GitMind.Features.Diffing;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 using LibGit2Sharp;
 
@@ -13,6 +16,7 @@ namespace GitMind.Git
 	{
 		// string emptyTreeSha = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";;
 
+		private readonly IDiffService diffService;
 		private readonly string workingFolder;
 		private readonly Repository repository;
 
@@ -25,16 +29,20 @@ namespace GitMind.Git
 
 
 
-		public GitRepository(string workingFolder, Repository repository)
+		private GitRepository(
+			IDiffService diffService,
+			string workingFolder, 
+			Repository repository)
 		{
+			this.diffService = diffService;
 			this.workingFolder = workingFolder;
 			this.repository = repository;
 		}
 
 
-		public static GitRepository Open(string folder)
+		public static GitRepository Open(IDiffService diffService, string folder)
 		{
-			return new GitRepository(folder, new Repository(folder));
+			return new GitRepository(diffService, folder, new Repository(folder));
 		}
 
 
@@ -55,10 +63,7 @@ namespace GitMind.Git
 
 		public GitBranch Head => new GitBranch(repository.Head, repository);
 
-		public GitStatus Status => GetGitStatus();
-
-
-		public GitDiff Diff => new GitDiff(repository.Diff, repository);
+		public GitDiff Diff => new GitDiff(diffService, repository.Diff, repository);
 
 		public string UserName => repository.Config.GetValueOrDefault<string>("user.name");
 
@@ -69,19 +74,9 @@ namespace GitMind.Git
 		}
 
 
-		private GitStatus GetGitStatus()
+		public IReadOnlyList<GitNote> GetCommitNotes(CommitSha commitSha)
 		{
-			RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
-			ConflictCollection conflicts = repository.Index.Conflicts;
-			bool isFullyMerged = repository.Index.IsFullyMerged;
-
-			return new GitStatus(repositoryStatus, conflicts, repository.Info, isFullyMerged);
-		}
-
-
-		public IReadOnlyList<GitNote> GetCommitNotes(string commitId)
-		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 			if (commit != null)
 			{
 				return commit.Notes
@@ -90,18 +85,18 @@ namespace GitMind.Git
 			}
 			else
 			{
-				Log.Warn($"Could not find commit {commitId}");
+				Log.Warn($"Could not find commit {commitSha}");
 			}
 
 			return new GitNote[0];
 		}
 
 
-		public void SetCommitNote(string commitId, GitNote gitNote)
+		public void SetCommitNote(CommitSha commitId, GitNote gitNote)
 		{
 			Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now);
 
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId.Sha));
 			if (commit != null)
 			{
 				repository.Notes.Add(commit.Id, gitNote.Message, committer, committer, gitNote.NameSpace);
@@ -144,6 +139,20 @@ namespace GitMind.Git
 			string tempPath = fullPath + ".tmp";
 			File.AppendAllText(tempPath, "tmp");
 			File.Delete(tempPath);
+		}
+
+
+		public GitLibCommit GetCommit(CommitSha commitSha)
+		{
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
+
+			return new GitLibCommit(
+				new CommitSha(commit.Sha),
+				commit.MessageShort,
+				commit.Author.Name,
+				commit.Author.When.LocalDateTime,
+				commit.Committer.When.LocalDateTime,
+				commit.Parents.Select(p => new CommitSha(p.Sha)).ToList());
 		}
 	}
 }

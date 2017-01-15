@@ -1,13 +1,7 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-
-namespace System.Threading.Tasks
+﻿namespace System.Threading.Tasks
 {
 	public static class TaskExtensions
 	{
-
 		/// <summary>
 		/// Provides a workaround for async functions that have no built-in cancellation support.
 		/// This functions should only be used as a last resort. It does not cancel the original, call

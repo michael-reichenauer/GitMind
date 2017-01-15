@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using GitMind.Features.Committing;
+using GitMind.Common;
+using GitMind.Common.ThemeHandling;
+using GitMind.Features.Commits;
+using GitMind.Features.Diffing;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -16,19 +18,28 @@ namespace GitMind.RepositoryViews
 {
 	internal class CommitDetailsViewModel : ViewModel
 	{
-		private readonly ICommitService commitService = new CommitService();
-		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
-		private readonly IRepositoryCommands repositoryCommands;
+		private readonly IDiffService diffService;
+		private readonly IThemeService themeService;
+		private readonly ICommitsService commitsService;
+		private readonly IGitCommitsService gitCommitsService;
 
 		private readonly ObservableCollection<CommitFileViewModel> files =
 			new ObservableCollection<CommitFileViewModel>();
-		private string filesCommitId = null;
+
+		private CommitId filesCommitId = null;
 		private CommitViewModel commitViewModel;
 
 
-		public CommitDetailsViewModel(IRepositoryCommands repositoryCommands)
+		public CommitDetailsViewModel(
+			IDiffService diffService,
+			IThemeService themeService,
+			ICommitsService commitsService,
+			IGitCommitsService gitCommitsService)
 		{
-			this.repositoryCommands = repositoryCommands;
+			this.diffService = diffService;
+			this.themeService = themeService;
+			this.commitsService = commitsService;
+			this.gitCommitsService = gitCommitsService;
 		}
 
 
@@ -62,11 +73,11 @@ namespace GitMind.RepositoryViews
 		{
 			if (CommitViewModel != null)
 			{
-				if (filesCommitId != CommitViewModel.Commit.CommitId 
-					|| filesCommitId == Commit.UncommittedId)
+				if (filesCommitId != CommitViewModel.Commit.RealCommitId
+					|| filesCommitId == Common.CommitId.Uncommitted)
 				{
 					files.Clear();
-					filesCommitId = CommitViewModel.Commit.CommitId;
+					filesCommitId = CommitViewModel.Commit.RealCommitId;
 					SetFilesAsync(commitViewModel.Commit).RunInBackground();
 				}
 			}
@@ -85,9 +96,8 @@ namespace GitMind.RepositoryViews
 				string subject = CommitViewModel?.Subject;
 				if (CommitViewModel != null)
 				{
-					string workingFolder = CommitViewModel.Commit.WorkingFolder;
-					string commitId = CommitViewModel.Commit.CommitId;
-					subject = gitCommitsService.GetFullMessage(workingFolder, commitId)
+					CommitSha commitSha = CommitViewModel.Commit.RealCommitSha;
+					subject = gitCommitsService.GetFullMessage(commitSha)
 						.Or(CommitViewModel?.Subject);
 				}
 
@@ -95,7 +105,7 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
-		public string Id => CommitViewModel?.Id;
+		public string CommitId => CommitViewModel?.Commit.RealCommitSha.Sha;
 		public string ShortId => CommitViewModel?.ShortId;
 		public string BranchName => CommitViewModel?.Commit?.Branch?.Name;
 		public FontStyle BranchNameStyle => !string.IsNullOrEmpty(SpecifiedBranchName)
@@ -112,24 +122,24 @@ namespace GitMind.RepositoryViews
 
 		public Command EditBranchCommand => CommitViewModel.SetCommitBranchCommand;
 		public Command<string> UndoUncommittedFileCommand => Command<string>(
-			path => commitService.UndoUncommittedFileAsync(repositoryCommands, path));
+			path => commitsService.UndoUncommittedFileAsync(path));
 		public Command ShowCommitDiffCommand => CommitViewModel?.ShowCommitDiffCommand;
 
-		public override string ToString() => $"{Id} {Subject}";
+		public override string ToString() => $"{CommitId} {Subject}";
 
 		private async Task SetFilesAsync(Commit commit)
 		{
 			IEnumerable<CommitFile> commitFiles = await commit.FilesTask;
-			if (filesCommitId == commit.CommitId)
+			if (filesCommitId == commit.RealCommitId)
 			{
 				files.Clear();
 				commitFiles
 					.OrderBy(f => f.Status, Comparer<GitFileStatus>.Create(Compare))
 					.ThenBy(f => f.Path)
 					.ForEach(f => files.Add(
-						new CommitFileViewModel(f, UndoUncommittedFileCommand)
+						new CommitFileViewModel(diffService, themeService, f, UndoUncommittedFileCommand)
 						{
-							Id = commit.CommitId,
+							Id = commit.RealCommitSha,
 							Name = f.Path,
 							Status = f.StatusText,
 							WorkingFolder = commit.WorkingFolder
@@ -151,7 +161,7 @@ namespace GitMind.RepositoryViews
 			else
 			{
 				return 0;
-			}			
+			}
 		}
 	}
 }

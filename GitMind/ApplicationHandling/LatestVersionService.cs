@@ -12,6 +12,7 @@ using GitMind.Utils;
 
 namespace GitMind.ApplicationHandling
 {
+	[SingleInstance]
 	internal class LatestVersionService : ILatestVersionService
 	{
 		private static readonly TimeSpan FirstCheckTime = TimeSpan.FromSeconds(1);
@@ -21,10 +22,18 @@ namespace GitMind.ApplicationHandling
 			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
 		private static readonly string UserAgent = "GitMind";
 
-		private readonly ICmd cmd = new Cmd();
+		private readonly ICmd cmd;
 
 		private DispatcherTimer checkTimer;
 
+
+		public LatestVersionService(ICmd cmd)
+		{
+			this.cmd = cmd;
+		}
+
+
+		public event EventHandler OnNewVersionAvailable;
 
 		public void StartCheckForLatestVersion()
 		{
@@ -59,6 +68,12 @@ namespace GitMind.ApplicationHandling
 		{
 			checkTimer.Interval = CheckInterval;
 
+			if (Settings.Get<Options>().DisableAutoUpdate)
+			{
+				Log.Info("DisableAutoUpdate = true");
+				return;
+			}
+
 			if (await IsNewRemoteVersionAvailableAsync())
 			{
 				await InstallLatestVersionAsync();
@@ -67,7 +82,7 @@ namespace GitMind.ApplicationHandling
 				await Task.Delay(TimeSpan.FromSeconds(5));
 			}
 
-			NotifyNewVersionIsAvailable();
+			NotifyIfNewVersionIsAvailable();
 		}
 
 
@@ -181,7 +196,7 @@ namespace GitMind.ApplicationHandling
 
 					HttpResponseMessage response = await httpClient.GetAsync(latestUri);
 
-					if (response.StatusCode == HttpStatusCode.NotModified)
+					if (response.StatusCode == HttpStatusCode.NotModified || response.Content == null)
 					{
 						Log.Debug("Remote latest version info same as cached info");						
 						return GetCachedLatestVersionInfo();
@@ -242,9 +257,12 @@ namespace GitMind.ApplicationHandling
 		}
 
 
-		private static void NotifyNewVersionIsAvailable()
+		private void NotifyIfNewVersionIsAvailable()
 		{
-			App.Current.Window.IsNewVersionAvailable = IsNewVersionInstalled();
+			if (IsNewVersionInstalled())
+			{
+				OnNewVersionAvailable?.Invoke(this, EventArgs.Empty);
+			}
 		}
 
 

@@ -1,21 +1,21 @@
-using System.Threading.Tasks;
-using GitMind.Utils;
+//using System.Threading.Tasks;
+//using GitMind.Utils;
 
 
-namespace GitMind.Git
-{
-	internal interface INetworkService
-	{
-		Task<R> FetchAsync(string workingFolder);
+//namespace GitMind.Git
+//{
+//	internal interface INetworkService
+//	{
+//		Task<R> FetchAsync();
 
-		Task<R> FetchBranchAsync(string workingFolder, BranchName branchName);
+//		Task<R> FetchBranchAsync(BranchName branchName);
 
-		Task<R> PushCurrentBranchAsync(string workingFolder, ICredentialHandler credentialHandler);
+//		Task<R> PushCurrentBranchAsync();
 
-		Task<R> PushBranchAsync(string workingFolder, BranchName branchName, ICredentialHandler credentialHandler);
+//		Task<R> PushBranchAsync(BranchName branchName);
 
-		Task PushNotesAsync(string workingFolder, string rootId, ICredentialHandler credentialHandler);
+//		Task PushNotesAsync(string rootId);
 
-		Task<R> FetchAllNotesAsync(string workingFolder);
-	}
-}
+//		Task<R> FetchAllNotesAsync();
+//	}
+//}

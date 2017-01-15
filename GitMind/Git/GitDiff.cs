@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using GitMind.Common;
+using GitMind.Features.Diffing;
+using GitMind.Features.StatusHandling;
 using LibGit2Sharp;
 
 
@@ -7,6 +10,7 @@ namespace GitMind.Git
 {
 	internal class GitDiff
 	{
+		private readonly IDiffService diffService;
 		private readonly Diff diff;
 		private readonly Repository repository;
 		private static readonly SimilarityOptions DetectRenames =
@@ -20,16 +24,17 @@ namespace GitMind.Git
 		{ ContextLines = 10000, Similarity = DetectRenames };
 
 
-		public GitDiff(Diff diff, Repository repository)
+		public GitDiff(IDiffService diffService, Diff diff, Repository repository)
 		{
+			this.diffService = diffService;
 			this.diff = diff;
 			this.repository = repository;
 		}
 
 
-		public string GetPatch(string commitId)
+		public string GetPatch(CommitSha commitSha)
 		{
-			if (commitId == GitCommit.UncommittedId)
+			if (commitSha == CommitSha.Uncommitted)
 			{
 				RepositoryStatus repositoryStatus = repository.RetrieveStatus(StatusOptions);
 
@@ -55,7 +60,7 @@ namespace GitMind.Git
 				return compare;
 			}
 
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 
 			if (commit != null)
 			{
@@ -100,10 +105,10 @@ namespace GitMind.Git
 		}
 
 
-		public string GetPatchRange(string id1, string id2)
+		public string GetPatchRange(CommitSha id1, CommitSha id2)
 		{
-			Commit commit1 = repository.Lookup<Commit>(new ObjectId(id1));
-			Commit commit2 = repository.Lookup<Commit>(new ObjectId(id2));
+			Commit commit1 = repository.Lookup<Commit>(new ObjectId(id1.Sha));
+			Commit commit2 = repository.Lookup<Commit>(new ObjectId(id2.Sha));
 
 			if (commit1 != null && commit2 != null)
 			{
@@ -117,9 +122,9 @@ namespace GitMind.Git
 		}
 
 
-		internal string GetFilePatch(string commitId, string filePath)
+		internal string GetFilePatch(CommitSha commitSha, string filePath)
 		{
-			if (commitId == GitCommit.UncommittedId)
+			if (commitSha == CommitSha.Uncommitted)
 			{
 				return diff.Compare<Patch>(
 					repository.Head.Tip.Tree,
@@ -132,7 +137,7 @@ namespace GitMind.Git
 				//return diff.Compare<Patch>(new[] { filePath }, true, null, DefultFileCompareOptions);
 			}
 
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 
 			if (commit != null)
 			{
@@ -154,9 +159,9 @@ namespace GitMind.Git
 		}
 
 
-		public GitCommitFiles GetFiles(string commitId)
+		public IReadOnlyList<StatusFile> GetFiles(string workingFolder, CommitSha commitSha)
 		{
-			Commit commit = repository.Lookup<Commit>(new ObjectId(commitId));
+			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 
 			if (commit != null)
 			{
@@ -171,10 +176,49 @@ namespace GitMind.Git
 					commit.Tree,
 					DefultCompareOptions);
 
-				return new GitCommitFiles(commitId, treeChanges);
+				return GetChangedFiles(workingFolder, treeChanges);
 			}
 
-			return new GitCommitFiles(commitId, (TreeChanges)null);
+			return new List<StatusFile>();
+		}
+
+		private IReadOnlyList<StatusFile> GetChangedFiles(string workingFolder, TreeChanges treeChanges)
+		{
+			List<StatusFile> files = treeChanges
+					.Added.Select(t => new StatusFile(workingFolder, t.Path, null, null, GitFileStatus.Added))
+					.Concat(treeChanges.Deleted.Select(t => new StatusFile(workingFolder, t.Path, null, null, GitFileStatus.Deleted)))
+					.Concat(treeChanges.Modified.Select(t => new StatusFile(workingFolder, t.Path, null, null, GitFileStatus.Modified)))
+					.Concat(treeChanges.Renamed.Select(t => new StatusFile(workingFolder, t.Path, t.OldPath, null, GitFileStatus.Renamed)))
+					.ToList();
+
+			return GetUniqueFiles(workingFolder, files);
+		}
+
+
+		private static List<StatusFile> GetUniqueFiles(string workingFolder, List<StatusFile> files)
+		{
+			List<StatusFile> uniqueFiles = new List<StatusFile>();
+
+			foreach (StatusFile gitFile in files)
+			{
+				StatusFile file = uniqueFiles.FirstOrDefault(f => f.FilePath == gitFile.FilePath);
+				if (file == null)
+				{
+					uniqueFiles.Add(gitFile);
+				}
+				else
+				{
+					uniqueFiles.Remove(file);
+					uniqueFiles.Add(new StatusFile(
+						workingFolder,
+						file.FilePath,
+						gitFile.OldFilePath ?? file.OldFilePath,
+						gitFile.Conflict ?? file.Conflict,
+						gitFile.Status | file.Status));
+				}
+			}
+
+			return uniqueFiles;
 		}
 	}
 }

@@ -55,8 +55,8 @@
 
 
 	<Style TargetType="{x:Type ComboBox}">
-		<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-		<Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+		<Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
 		<Setter Property="Background" Value="Transparent" />
 		<Setter Property="SnapsToDevicePixels" Value="true"/>
 		<Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -76,7 +76,7 @@
 						BorderBrush="{TemplateBinding BorderBrush}"
 						Background="{TemplateBinding Background}"
 						Foreground="{TemplateBinding Foreground}"
-						Style="{StaticResource ComboBoxToggleButton}"
+						Style="{DynamicResource ComboBoxToggleButton}"
 						Grid.Column="2"
 						Focusable="false"
 						IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
@@ -93,9 +93,9 @@
 							HorizontalAlignment="Center"/>
 						<TextBox x:Name="PART_EditableTextBox"
 							Style="{x:Null}"
-							Template="{StaticResource ComboBoxTextBox}"
-							Foreground="{StaticResource TextBrush}"
-							CaretBrush="{StaticResource TextBrush}"
+							Template="{DynamicResource ComboBoxTextBox}"
+							Foreground="{DynamicResource TextBrush}"
+							CaretBrush="{DynamicResource TextBrush}"
 							FontSize="12"
 							HorizontalAlignment="Left"
 							VerticalAlignment="Center"
@@ -117,9 +117,9 @@
 								MaxHeight="{TemplateBinding MaxDropDownHeight}">
 								<Border
 									x:Name="DropDownBorder"
-									Background="{StaticResource BackgroundBrush}"
+									Background="{DynamicResource BackgroundBrush}"
 									BorderThickness="2"
-									BorderBrush="{StaticResource BorderBrush}"/>
+									BorderBrush="{DynamicResource BorderBrush}"/>
 								<ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
 									<StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
 								</ScrollViewer>
@@ -156,7 +156,7 @@
 		<Setter Property="HorizontalAlignment" Value="Stretch" />
 		<Setter Property="VerticalAlignment" Value="Stretch" />
 		<Setter Property="FontSize" Value="12" />
-		<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+		<Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
 		<!--<Setter Property="FontWeight" Value="Bold" />-->
 		<Setter Property="OverridesDefaultStyle" Value="true"/>
 		<Setter Property="Template">
@@ -178,7 +178,7 @@
 					</Border>
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsHighlighted" Value="true">
-							<Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource HoverItemBrush}"/>
+							<Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource HoverItemBrush}"/>
 							<Setter TargetName="Border" Property="Background" Value="Transparent"/>
 						</Trigger>
 					</ControlTemplate.Triggers>

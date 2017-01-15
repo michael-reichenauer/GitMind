@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using GitMind.Common;
+using GitMind.Features.StatusHandling;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 
@@ -8,38 +11,44 @@ namespace GitMind.GitModel
 	internal class Repository
 	{
 		private readonly Lazy<IReadOnlyKeyedList<string, Branch>> branches;
-		private readonly Lazy<IReadOnlyKeyedList<string, Commit>> commits;
+		private readonly Lazy<IReadOnlyDictionary<CommitId, Commit>> commits;
 		private readonly Lazy<Branch> currentBranch;
 		private readonly Lazy<Commit> currentCommit;
+		private readonly CommitId rootId;
+		private readonly CommitId unComittedId;
 
 
 		public Repository(
 			MRepository mRepository,
 			Lazy<IReadOnlyKeyedList<string, Branch>> branches,
-			Lazy<IReadOnlyKeyedList<string, Commit>> commits,
+			Lazy<IReadOnlyDictionary<CommitId, Commit>> commits,
 			Lazy<Branch> currentBranch,
 			Lazy<Commit> currentCommit,
-			CommitsFiles commitsFiles,
+			ICommitsFiles commitsFiles,
 			Status status,
-			string rootId)
+			CommitId rootId,
+			CommitId unComittedId)
 		{
 			MRepository = mRepository;
 			CommitsFiles = commitsFiles;
 			Status = status;
-			RootId = rootId;
+
 			this.branches = branches;
 			this.commits = commits;
 			this.currentBranch = currentBranch;
 			this.currentCommit = currentCommit;
+			this.rootId = rootId;
+			this.unComittedId = unComittedId;
 		}
 
 		public IReadOnlyKeyedList<string, Branch> Branches => branches.Value;
-		public IReadOnlyKeyedList<string, Commit> Commits => commits.Value;
+		public IReadOnlyDictionary<CommitId, Commit> Commits => commits.Value;
 		public Branch CurrentBranch => currentBranch.Value;
 		public Commit CurrentCommit => currentCommit.Value;
 		public MRepository MRepository { get; }
-		public CommitsFiles CommitsFiles { get; }
+		public ICommitsFiles CommitsFiles { get; }
 		public Status Status { get; }
-		public string RootId { get; set; }
+		public Commit RootCommit => commits.Value[rootId];
+		public Commit UnComitted => unComittedId == CommitId.Uncommitted ? commits.Value[unComittedId] : null;
 	}
 }

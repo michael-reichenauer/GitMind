@@ -2,90 +2,62 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Common;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.Utils;
 
 
 namespace GitMind.GitModel
 {
-	internal class CommitsFiles
+	[SingleInstance]
+	internal class CommitsFiles : ICommitsFiles
 	{
-		private readonly IGitCommitsService gitCommitsService = new GitCommitsService();
-		private readonly ConcurrentDictionary<string, IList<CommitFile>> commitsFiles =
-			new ConcurrentDictionary<string, IList<CommitFile>>();
+		private readonly IGitCommitsService gitCommitsService;
+
+		private readonly ConcurrentDictionary<CommitSha, IList<CommitFile>> commitsFiles =
+			new ConcurrentDictionary<CommitSha, IList<CommitFile>>();
+
 		private Task currentTask = Task.FromResult(true);
-		private string nextIdToGet;
+		private CommitSha nextIdToGet;
 
 
-		private static readonly List<CommitFile> EmptyFileList = Enumerable.Empty<CommitFile>().ToList();
-
-		public int Count => commitsFiles.Count;
-
-		public bool Add(CommitFiles commitFiles)
+		public CommitsFiles(IGitCommitsService gitCommitsService)
 		{
-			if (commitsFiles.ContainsKey(commitFiles.Id))
-			{
-				return false;
-			}
-
-			commitsFiles[commitFiles.Id] = commitFiles.Files ?? EmptyFileList;
-			return true;
+			this.gitCommitsService = gitCommitsService;
 		}
 
 
-
-		public IEnumerable<CommitFile> this[string commitId]
+		public async Task<IEnumerable<CommitFile>> GetAsync(CommitSha commitSha)
 		{
-			get
+			if (commitSha == CommitSha.Uncommitted || !commitsFiles.TryGetValue(commitSha, out var files))
 			{
-				IList<CommitFile> files;
-				if (!commitsFiles.TryGetValue(commitId, out files))
-				{
-					Log.Warn($"Commit {commitId} not cached");
-
-					return Enumerable.Empty<CommitFile>();
-				}
-
-				return files;
-			}
-		}
-
-
-		public async Task<IEnumerable<CommitFile>> GetAsync(
-			string gitRepositoryPath, string commitId)
-		{
-			IList<CommitFile> files;
-			if (commitId == Commit.UncommittedId || !commitsFiles.TryGetValue(commitId, out files))
-			{
-				nextIdToGet = commitId;
+				nextIdToGet = commitSha;
 				await currentTask;
-				if (nextIdToGet != commitId)
+				if (nextIdToGet != commitSha)
 				{
 					// This commit id is no longer relevant 
 					return Enumerable.Empty<CommitFile>();
 				}
 
-				Task<R<GitCommitFiles>> commitsFilesForCommitTask =
-					gitCommitsService.GetFilesForCommitAsync(gitRepositoryPath, commitId);
-				currentTask = commitsFilesForCommitTask;
-				var commitsFilesForCommit = await commitsFilesForCommitTask;
+				Task<R<IReadOnlyList<StatusFile>>> commitsFilesForCommitTask =
+					gitCommitsService.GetFilesForCommitAsync(commitSha);
 
-				if (commitsFilesForCommit.HasValue)
+				currentTask = commitsFilesForCommitTask;
+				
+				if ((await commitsFilesForCommitTask).HasValue(out var commitsFilesForCommit))
 				{
-					files = commitsFilesForCommit.Value.Files
+					files = commitsFilesForCommit
 						.Select(f => new CommitFile(f)).ToList();
-					commitsFiles[commitId] = files;
+					commitsFiles[commitSha] = files;
 					return files;
 				}
 
-				Log.Warn($"Failed to get files for {commitId}");
+				Log.Warn($"Failed to get files for {commitSha}");
 				return Enumerable.Empty<CommitFile>();
 			}
 
 			return files;
 		}
-
-
 	}
 }

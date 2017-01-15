@@ -72,8 +72,8 @@ namespace GitMind.Utils
 			Utils.Log.Debug($"At {count}: {this}", memberName, sourceFilePath, sourceLineNumber);		
 		}
 
-
-		public override string ToString() => $"{DiffMs}ms ({ElapsedMs}ms)";
+		
+		public override string ToString() => $"Timing: {DiffMs}ms ({ElapsedMs}ms)";
 
 		public struct StopParameter
 		{

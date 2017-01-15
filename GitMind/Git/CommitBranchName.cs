@@ -1,16 +1,19 @@
-﻿namespace GitMind.Git
+﻿using GitMind.Common;
+
+
+namespace GitMind.Git
 {
 	internal class CommitBranchName
 	{
-		public CommitBranchName(string commitId, BranchName name)
+		public CommitBranchName(string id, BranchName name)
 		{
-			CommitId = commitId;
+			Id = id;
 			Name = name;
 		}
 
-		public string CommitId { get; }
+		public string Id { get; }
 		public BranchName Name { get;}
 
-		public override string ToString() => $"{CommitId} -> {Name}";
+		public override string ToString() => $"{Id} -> {Name}";
 	}
 }

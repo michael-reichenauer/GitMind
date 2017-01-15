@@ -2,6 +2,8 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling;
+using GitMind.Features.Diffing;
 using GitMind.Utils;
 using LibGit2Sharp;
 
@@ -10,15 +12,29 @@ namespace GitMind.Git.Private
 {
 	internal class RepoCaller : IRepoCaller
 	{
+		private readonly Lazy<WorkingFolder> lazyWorkingFolder;
+		private readonly Lazy<IDiffService> diffService;
+
+
+		public RepoCaller(
+			Lazy<WorkingFolder> lazyWorkingFolder,
+			Lazy<IDiffService> diffService)
+		{
+			this.lazyWorkingFolder = lazyWorkingFolder;
+			this.diffService = diffService;
+		}
+
+
+		private WorkingFolder workingFolder => lazyWorkingFolder.Value;
+
 		public R UseRepo(
-			string workingFolder,
 			Action<GitRepository> doAction,
 			[CallerMemberName] string memberName = "")
 		{
 			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
 			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(diffService.Value, workingFolder))
 				{
 					doAction(gitRepository);
 
@@ -35,7 +51,6 @@ namespace GitMind.Git.Private
 		}
 
 		public R UseRepo(
-			string workingFolder,
 			Action<Repository> doAction,
 			[CallerMemberName] string memberName = "")
 		{
@@ -59,7 +74,6 @@ namespace GitMind.Git.Private
 		}
 
 		public R UseLibRepo(
-			string workingFolder,
 			Action<Repository> doAction,
 			[CallerMemberName] string memberName = "")
 		{
@@ -84,28 +98,26 @@ namespace GitMind.Git.Private
 
 
 		public Task<R> UseRepoAsync(
-			string workingFolder,
 			Action<GitRepository> doAction,
 			[CallerMemberName] string memberName = "")
 		{
-			return Task.Run(() => UseRepo(workingFolder, doAction, memberName));
+			return Task.Run(() => UseRepo(doAction, memberName));
 		}
 
 
-		public Task<R> UseRepoAsync(string workingFolder, Action<Repository> doAction, string memberName = "")
+		public Task<R> UseRepoAsync(Action<Repository> doAction, string memberName = "")
 		{
-			return Task.Run(() => UseRepo(workingFolder, doAction, memberName));
+			return Task.Run(() => UseRepo(doAction, memberName));
 		}
 
 
-		public Task<R> UseLibRepoAsync(string workingFolder, Action<Repository> doAction, string memberName = "")
+		public Task<R> UseLibRepoAsync( Action<Repository> doAction, string memberName = "")
 		{
-			return Task.Run(() => UseLibRepo(workingFolder, doAction, memberName));
+			return Task.Run(() => UseLibRepo(doAction, memberName));
 		}
 
 
 		public async Task<R> UseRepoAsync(
-			string workingFolder,
 			TimeSpan timeout,
 			Action<GitRepository> doAction,
 			[CallerMemberName] string memberName = "")
@@ -114,7 +126,7 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				return await Task.Run(() => UseRepo(workingFolder, doAction, memberName), cts.Token)
+				return await Task.Run(() => UseRepo(doAction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
 			catch (OperationCanceledException e)
@@ -127,7 +139,6 @@ namespace GitMind.Git.Private
 
 
 		public async Task<R> UseRepoAsync(
-			string workingFolder, 
 			TimeSpan timeout, 
 			Action<Repository> doAction, 
 			string memberName = "")
@@ -136,7 +147,7 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				return await Task.Run(() => UseRepo(workingFolder, doAction, memberName), cts.Token)
+				return await Task.Run(() => UseRepo(doAction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
 			catch (OperationCanceledException e)
@@ -149,14 +160,13 @@ namespace GitMind.Git.Private
 
 
 		public R<T> UseRepo<T>(
-			string workingFolder,
 			Func<GitRepository, T> doFunction,
 			[CallerMemberName] string memberName = "")
 		{
 			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
 			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(diffService.Value, workingFolder))
 				{
 					T functionResult = doFunction(gitRepository);
 
@@ -176,7 +186,6 @@ namespace GitMind.Git.Private
 
 
 		public R<T> UseRepo<T>(
-			string workingFolder, 
 			Func<Repository, T> doFunction, 
 			string memberName = "")
 		{
@@ -203,7 +212,6 @@ namespace GitMind.Git.Private
 
 
 		public R<T> UseLibRepo<T>(
-			string workingFolder,
 			Func<Repository, T> doFunction,
 			[CallerMemberName] string memberName = "")
 		{
@@ -230,14 +238,13 @@ namespace GitMind.Git.Private
 
 
 		public R UseRepo(
-			string workingFolder,
 			Func<GitRepository, R> doFunction,
 			[CallerMemberName] string memberName = "")
 		{
 			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
 			{
-				using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+				using (GitRepository gitRepository = GitRepository.Open(diffService.Value, workingFolder))
 				{
 					R result = doFunction(gitRepository);
 
@@ -254,7 +261,7 @@ namespace GitMind.Git.Private
 		}
 
 
-		public R UseRepo(string workingFolder, Func<Repository, R> doFunction, string memberName = "")
+		public R UseLibRepo(Func<Repository, R> doFunction, string memberName = "")
 		{
 			Log.Debug($"Start {memberName} in {workingFolder} ...");
 			try
@@ -285,15 +292,13 @@ namespace GitMind.Git.Private
 		//}
 
 		public Task<R> UseRepoAsync(
-			string workingFolder,
 			Func<GitRepository, R> doFunction,
 			[CallerMemberName] string memberName = "")
 		{
-			return Task.Run(() => UseRepo(workingFolder, doFunction, memberName));
+			return Task.Run(() => UseRepo(doFunction, memberName));
 		}
 
 		public async Task<R> UseRepoAsync(
-			string workingFolder,
 			TimeSpan timeout,
 			Func<GitRepository, R> doFunction,
 			[CallerMemberName] string memberName = "")
@@ -302,7 +307,7 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				return await Task.Run(() => UseRepo(workingFolder, doFunction, memberName), cts.Token)
+				return await Task.Run(() => UseRepo(doFunction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
 			catch (OperationCanceledException e)
@@ -315,7 +320,6 @@ namespace GitMind.Git.Private
 
 
 		public async Task<R> UseRepoAsync(
-			string workingFolder, 
 			TimeSpan timeout, 
 			Func<Repository, R> doFunction, 
 			string memberName = "")
@@ -324,7 +328,7 @@ namespace GitMind.Git.Private
 
 			try
 			{
-				return await Task.Run(() => UseRepo(workingFolder, doFunction, memberName), cts.Token)
+				return await Task.Run(() => UseLibRepo(doFunction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
 			catch (OperationCanceledException e)
@@ -337,25 +341,22 @@ namespace GitMind.Git.Private
 
 
 		public Task<R<T>> UseRepoAsync<T>(
-			string workingFolder,
 			Func<GitRepository, T> doFunction,
 			[CallerMemberName] string memberName = "")
 		{
-			return Task.Run(() => UseRepo(workingFolder, doFunction, memberName));
+			return Task.Run(() => UseRepo(doFunction, memberName));
 		}
 
 
 		public Task<R<T>> UseLibRepoAsync<T>(
-			string workingFolder, 
 			Func<Repository, T> doFunction, 
 			string memberName = "")
 		{
-			return Task.Run(() => UseLibRepo(workingFolder, doFunction, memberName));
+			return Task.Run(() => UseLibRepo(doFunction, memberName));
 		}
 
 
 		public Task<R<T>> UseRepoAsync<T>(
-			string workingFolder,
 			Func<GitRepository, Task<T>> doFunction,
 			[CallerMemberName] string memberName = "")
 		{
@@ -364,7 +365,7 @@ namespace GitMind.Git.Private
 				Log.Debug($"{memberName} in {workingFolder} ...");
 				try
 				{
-					using (GitRepository gitRepository = GitRepository.Open(workingFolder))
+					using (GitRepository gitRepository = GitRepository.Open(diffService.Value, workingFolder))
 					{
 						T functionResult = await doFunction(gitRepository);
 

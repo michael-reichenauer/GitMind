@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-
 using System.Linq;
+using GitMind.Common;
+using GitMind.Features.StatusHandling;
 using GitMind.Git;
-using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -29,9 +29,10 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddActiveBranches(
-			GitRepository gitRepository, GitStatus gitStatus, MRepository repository)
+		public void AddActiveBranches(GitRepository gitRepository, MRepository repository)
 		{
+			Status status = repository.Status;
+
 			GitBranch currentBranch = gitRepository.Head;
 
 			foreach (GitBranch gitBranch in gitRepository.Branches)
@@ -45,10 +46,10 @@ namespace GitMind.GitModel.Private
 				MSubBranch subBranch = ToBranch(gitBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!gitStatus.OK && gitBranch.IsCurrent && !gitBranch.IsRemote)
+				if (!status.IsOK && gitBranch.IsCurrent && !gitBranch.IsRemote)
 				{
 					// Setting virtual uncommitted commit as tip of the current branch
-					subBranch.TipCommitId = MCommit.UncommittedId;
+					subBranch.TipCommitId = repository.Uncommitted.Id;
 					subBranch.TipCommit.SubBranchId = subBranch.SubBranchId;
 				}
 			}
@@ -58,10 +59,10 @@ namespace GitMind.GitModel.Private
 				MSubBranch subBranch = ToBranch(currentBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!gitStatus.OK)
+				if (!status.IsOK)
 				{
 					// Setting virtual uncommitted commit as tip of the detached branch
-					subBranch.TipCommitId = MCommit.UncommittedId;
+					subBranch.TipCommitId = repository.Uncommitted.Id;
 					subBranch.TipCommit.SubBranchId = subBranch.SubBranchId;
 				}
 			}
@@ -71,8 +72,9 @@ namespace GitMind.GitModel.Private
 		public void AddInactiveBranches(MRepository repository)
 		{
 			// Get the list of active branch tips
-			List<string> activeBranches = repository.SubBranches
-				.Where(b => b.Value.IsActive).Select(b => b.Value.TipCommitId)
+			List<CommitId> activeBranches = repository.SubBranches
+				.Where(b => b.Value.IsActive)
+				.Select(b => b.Value.TipCommitId)
 				.ToList();
 
 			// Commits which has no child, which has this commit as a first parent, i.e. it is the 
@@ -82,7 +84,8 @@ namespace GitMind.GitModel.Private
 					commit.BranchId == null
 					&& commit.SubBranchId == null
 					&& !commit.HasFirstChild
-					&& !activeBranches.Contains(commit.Id));
+					&& !activeBranches.Contains(commit.Id))
+				.ToList();
 
 			foreach (MCommit commit in topCommits)
 			{
@@ -135,7 +138,7 @@ namespace GitMind.GitModel.Private
 
 						repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-						commit.BranchName = subBranch.Name;
+						commit.SetBranchName(subBranch.Name);
 						commit.SubBranchId = subBranch.SubBranchId;
 
 						SetSubBranchCommits(subBranch);
@@ -186,7 +189,7 @@ namespace GitMind.GitModel.Private
 
 						repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-						commit.BranchName = branchName;
+						commit.SetBranchName(branchName);
 						commit.SubBranchId = subBranch.SubBranchId;
 						SetSubBranchCommits(subBranch);
 					}
@@ -206,7 +209,7 @@ namespace GitMind.GitModel.Private
 							|| commitBranchNameService.GetBranchName(c) == subBranch.Name)
 					&& !c.FirstChildren.Any(fc => fc.BranchName != subBranch.Name)))
 			{
-				commit.BranchName = subBranch.Name;
+				commit.SetBranchName(subBranch.Name);
 				commit.SubBranchId = subBranch.SubBranchId;
 			}
 		}
@@ -225,7 +228,7 @@ namespace GitMind.GitModel.Private
 				Repository = repository,
 				SubBranchId = Guid.NewGuid().ToString(),
 				Name = branchName,
-				TipCommitId = gitBranch.TipId,
+				TipCommitId = repository.Commit(new CommitId(gitBranch.TipId)).Id,
 				IsActive = true,
 				IsCurrent = gitBranch.IsCurrent,
 				IsDetached = gitBranch.IsDetached,

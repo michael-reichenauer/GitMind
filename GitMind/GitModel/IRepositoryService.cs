@@ -1,21 +1,34 @@
+using System;
 using System.Threading.Tasks;
-using GitMind.Git;
 
 
 namespace GitMind.GitModel
 {
 	internal interface IRepositoryService
 	{
+		Repository Repository { get; }
+
+		bool IsPaused { get;}
+
+		event EventHandler<RepositoryUpdatedEventArgs> RepositoryUpdated;
+
+		event EventHandler<RepositoryErrorEventArgs> RepositoryErrorChanged;
+
 		bool IsRepositoryCached(string workingFolder);
 
-		Task<Repository> GetCachedOrFreshRepositoryAsync(string workingFolder);
+		Task LoadRepositoryAsync(string workingFolder);
 
-		Task<Repository> GetFreshRepositoryAsync(string workingFolder);
+		Task GetFreshRepositoryAsync();
 
-		Task<Repository> UpdateRepositoryAsync(Repository repository);
+		Task CheckLocalRepositoryAsync();
 
-		Task SetSpecifiedCommitBranchAsync(string gitRepositoryPath, string commitId, string rootId, BranchName branchName, ICredentialHandler credentialHandler);
+		Task CheckBranchTipCommitsAsync();
 
-		// Task<bool> IsRepositoryChangedAsync(Repository repository);
+		Task UpdateRepositoryAfterCommandAsync();
+
+		Task RefreshAfterCommandAsync(bool useFreshRepository);
+		Task CheckRemoteChangesAsync(bool b);
+
+		Task GetRemoteAndFreshRepositoryAsync();
 	}
 }

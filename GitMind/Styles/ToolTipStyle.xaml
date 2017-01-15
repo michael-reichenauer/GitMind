@@ -6,9 +6,9 @@
 	<!-- Tool tip style -->
 	<Style x:Key="{x:Type ToolTip}" TargetType="ToolTip">
 
-		<Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
-		<Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-		<Setter Property="BorderBrush" Value="#FF6495ED" />
+		<Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
+		<Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
 		<Setter Property="BorderThickness" Value="1" />
 		<Setter Property="HasDropShadow" Value="True" />
 		<Setter Property="Placement" Value="Bottom" />
