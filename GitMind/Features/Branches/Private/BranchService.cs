@@ -348,7 +348,7 @@ namespace GitMind.Features.Branches.Private
 				}
 				else
 				{
-					repositoryCommands.ShowCommitDetails();
+					repositoryCommands.ShowUncommittedDetails();
 				}
 			}
 		}
