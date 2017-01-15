@@ -327,10 +327,6 @@ namespace GitMind.GitModel.Private
 						MakeLocalBranch(repository, branch, localTipCommit.Id, commonCommit.Id);
 					}
 
-					commonCommit
-						.CommitAndAncestors(c => c.BranchId == branch.Id)
-						.ForEach(c => c.IsCommon = true);
-
 					if (branch.IsLocal)
 					{
 						HashSet<CommitId> marked = new HashSet<CommitId>();
