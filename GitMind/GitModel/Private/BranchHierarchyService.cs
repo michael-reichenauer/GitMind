@@ -310,7 +310,8 @@ namespace GitMind.GitModel.Private
 					MCommit commonCommit = repository.Commits[new CommitId(commonTip.Sha)];
 
 					commonCommit
-						.CommitAndAncestors(c => c.BranchId == branch.Id)
+						.CommitAndFirstAncestors()
+						.Where(c => c.BranchId == branch.Id)
 						.ForEach(c => c.IsCommon = true);
 
 					branch.Commits.ForEach(commit =>
@@ -325,6 +326,10 @@ namespace GitMind.GitModel.Private
 					{
 						MakeLocalBranch(repository, branch, localTipCommit.Id, commonCommit.Id);
 					}
+
+					commonCommit
+						.CommitAndAncestors(c => c.BranchId == branch.Id)
+						.ForEach(c => c.IsCommon = true);
 
 					if (branch.IsLocal)
 					{
