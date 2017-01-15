@@ -134,6 +134,7 @@ namespace GitMind.Git.Private
 			if (notesText == originNotesText)
 			{
 				Log.Debug($"Notes {nameSpace} have not changed");
+				RemoveNotesFile(nameSpace);
 				return;
 			}
 
@@ -143,12 +144,25 @@ namespace GitMind.Git.Private
 			R result = await gitNetworkService.PushRefsAsync(refs);
 			if (result.IsOk)
 			{
+				RemoveNotesFile(nameSpace);
+			}
+		}
+
+
+		private void RemoveNotesFile(string nameSpace)
+		{
+			try
+			{
 				string file = Path.Combine(workingFolder, ".git", nameSpace);
 				if (File.Exists(file))
 				{
 					File.Delete(file);
 				}
 			}
+			catch (Exception e) when(e.IsNotFatal())
+			{
+				Log.Warn($"Failed to delete notes file {e}");
+			}			
 		}
 
 
