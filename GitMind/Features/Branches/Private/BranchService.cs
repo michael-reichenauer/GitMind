@@ -225,7 +225,7 @@ namespace GitMind.Features.Branches.Private
 
 		public async Task DeleteBranchAsync(Branch branch)
 		{
-			using (statusService.PauseStatusNotifications())
+			using (statusService.PauseStatusNotifications(Refresh.Repo))
 			{
 				if (branch.Name == BranchName.Master)
 				{
