@@ -177,7 +177,7 @@ namespace GitMind.GitModel.Private
 		private static MCommit GetRootCommit(MRepository repository)
 		{
 			MSubBranch mSubBranch = repository.SubBranches
-				.FirstOrDefault(b => b.Value.IsActive && b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
+				.FirstOrDefault(b => b.Value.IsActive && b.Value.Name == BranchName.Master).Value;
 			if (mSubBranch == null)
 			{
 				Asserter.FailFast($"Repository {repository.WorkingFolder} does not have a master branch");
