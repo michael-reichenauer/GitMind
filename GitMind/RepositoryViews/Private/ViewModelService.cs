@@ -327,8 +327,9 @@ namespace GitMind.RepositoryViews.Private
 		{
 			if (string.IsNullOrEmpty(filterText))
 			{
-				List<Branch> preFilterBranches = repositoryViewModel.PreFilterBranches.ToList();
-				CommitViewModel preFilterSelectedItem = repositoryViewModel.PreFilterSelectedItem;
+				List<Branch> preFilterBranches =
+					repositoryViewModel.PreFilterBranches?.ToList() ?? new List<Branch>();
+				 CommitViewModel preFilterSelectedItem = repositoryViewModel.PreFilterSelectedItem;
 				repositoryViewModel.PreFilterBranches = null;
 				repositoryViewModel.PreFilterSelectedItem = null;
 

@@ -205,18 +205,25 @@ namespace GitMind.GitModel.Private
 
 		private async void OnStatusChanged(Status status)
 		{
-			if (Repository?.Status?.IsSame(status) ?? false)
+			try
 			{
-				Log.Debug("Same status");
-				return;
-			}
+				if (Repository?.Status?.IsSame(status) ?? false)
+				{
+					Log.Debug("Same status");
+					return;
+				}
 
-			using (progressService.ShowBusy())
-			{
-				Log.Debug("Changed status");
-				IReadOnlyList<string> repoIds = Repository.MRepository.RepositoryIds;
-				await UpdateRepositoryAsync(status, repoIds);
+				using (progressService.ShowBusy())
+				{
+					Log.Debug("Changed status");
+					IReadOnlyList<string> repoIds = Repository.MRepository.RepositoryIds;
+					await UpdateRepositoryAsync(status, repoIds);
+				}
 			}
+			catch (Exception e)
+			{
+				Log.Error($"Error handling status change {e}");
+			}			
 		}
 
 
