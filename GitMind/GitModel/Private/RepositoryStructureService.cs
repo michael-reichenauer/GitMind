@@ -178,8 +178,12 @@ namespace GitMind.GitModel.Private
 		{
 			MSubBranch mSubBranch = repository.SubBranches
 				.FirstOrDefault(b => b.Value.IsActive && b.Value.Name == BranchName.Master && !b.Value.IsRemote).Value;
+			if (mSubBranch == null)
+			{
+				Asserter.FailFast($"Repository {repository.WorkingFolder} does not have a master branch");
+			}
+
 			IEnumerable<MCommit> firstAncestors = mSubBranch.TipCommit.FirstAncestors();
-			int count = firstAncestors.Count();
 			MCommit rootCommit = firstAncestors.Last();
 			return rootCommit;
 		}
