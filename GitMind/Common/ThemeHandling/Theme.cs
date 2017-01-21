@@ -128,6 +128,11 @@ namespace GitMind.Common.ThemeHandling
 		{
 			int index = GetBrushIndex(brush);
 
+			if (index == -1 || index > lighterBrushes.Count - 1)
+			{
+				return brush;
+			}
+
 			return lighterBrushes[index];
 		}
 
@@ -135,6 +140,11 @@ namespace GitMind.Common.ThemeHandling
 		public Brush GetLighterLighterBrush(Brush brush)
 		{
 			int index = GetBrushIndex(brush);
+
+			if (index == -1 || index > lighterBrushes.Count - 1)
+			{
+				return brush;
+			}
 
 			return lighterLighterBrushes[index];
 		}
