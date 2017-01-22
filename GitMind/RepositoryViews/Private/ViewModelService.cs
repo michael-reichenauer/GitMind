@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Common;
+using GitMind.Common.MessageDialogs;
 using GitMind.Common.ThemeHandling;
 using GitMind.Features.Branches;
 using GitMind.Features.Commits;
@@ -27,6 +28,7 @@ namespace GitMind.RepositoryViews.Private
 		private readonly IBranchService branchService;
 		private readonly ICommitsService commitsService;
 		private readonly IThemeService themeService;
+		private readonly IMessage message;
 		private readonly IRepositoryMgr repositoryMgr;
 		private readonly IRepositoryCommands repositoryCommands;
 
@@ -39,6 +41,7 @@ namespace GitMind.RepositoryViews.Private
 			IBranchService branchService,
 			ICommitsService commitsService,
 			IThemeService themeService,
+			IMessage message,
 			IRepositoryMgr repositoryMgr,
 			IRepositoryCommands repositoryCommands,
 			Func<BranchViewModel> branchViewModelProvider)
@@ -46,6 +49,7 @@ namespace GitMind.RepositoryViews.Private
 			this.branchService = branchService;
 			this.commitsService = commitsService;
 			this.themeService = themeService;
+			this.message = message;
 			this.repositoryMgr = repositoryMgr;
 			this.repositoryCommands = repositoryCommands;
 			this.branchViewModelProvider = branchViewModelProvider;
@@ -253,32 +257,41 @@ namespace GitMind.RepositoryViews.Private
 
 		public void ShowBranch(RepositoryViewModel repositoryViewModel, Branch branch)
 		{
-			List<Branch> currentlyShownBranches = repositoryViewModel.SpecifiedBranches.ToList();
-
-			bool isShowing = currentlyShownBranches.Contains(branch);
-
-			if (!isShowing)
+			try
 			{
-				// Showing the specified branch
-				currentlyShownBranches.Add(branch);
-				if (branch.IsMainPart)
+				List<Branch> currentlyShownBranches = repositoryViewModel.SpecifiedBranches?.ToList()
+					?? new List<Branch>();
+
+				bool isShowing = currentlyShownBranches.Contains(branch);
+
+				if (!isShowing)
 				{
-					currentlyShownBranches.Add(branch.LocalSubBranch);
+					// Showing the specified branch
+					currentlyShownBranches.Add(branch);
+					if (branch.IsMainPart)
+					{
+						currentlyShownBranches.Add(branch.LocalSubBranch);
+					}
+
+					repositoryViewModel.SpecifiedBranches = currentlyShownBranches;
+					UpdateViewModel(repositoryViewModel);
 				}
 
-				repositoryViewModel.SpecifiedBranches = currentlyShownBranches;
-				UpdateViewModel(repositoryViewModel);
-			}
+				var x = repositoryViewModel.Branches.FirstOrDefault(b => b.Branch == branch);
+				if (x != null)
+				{
+					var y = x.TipRowIndex;
+					repositoryViewModel.ScrollRows(repositoryViewModel.Commits.Count);
+					repositoryViewModel.ScrollRows(-(y - 10));
+				}
 
-			var x = repositoryViewModel.Branches.FirstOrDefault(b => b.Branch == branch);
-			if (x != null)
+				repositoryViewModel.VirtualItemsSource.DataChanged(repositoryViewModel.Width);
+			}
+			catch (Exception e)
 			{
-				var y = x.TipRowIndex;
-				repositoryViewModel.ScrollRows(repositoryViewModel.Commits.Count);
-				repositoryViewModel.ScrollRows(-(y - 10));
-			}
-
-			repositoryViewModel.VirtualItemsSource.DataChanged(repositoryViewModel.Width);
+				message.ShowError($"Failed to show branch {branch}");
+				Log.Error($"Failed to show branch {branch}, {e}");
+			}		
 		}
 
 		public void HideBranch(RepositoryViewModel repositoryViewModel, Branch branch)
@@ -314,8 +327,9 @@ namespace GitMind.RepositoryViews.Private
 		{
 			if (string.IsNullOrEmpty(filterText))
 			{
-				List<Branch> preFilterBranches = repositoryViewModel.PreFilterBranches.ToList();
-				CommitViewModel preFilterSelectedItem = repositoryViewModel.PreFilterSelectedItem;
+				List<Branch> preFilterBranches =
+					repositoryViewModel.PreFilterBranches?.ToList() ?? new List<Branch>();
+				 CommitViewModel preFilterSelectedItem = repositoryViewModel.PreFilterSelectedItem;
 				repositoryViewModel.PreFilterBranches = null;
 				repositoryViewModel.PreFilterSelectedItem = null;
 

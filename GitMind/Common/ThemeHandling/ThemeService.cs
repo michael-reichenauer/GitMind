@@ -17,7 +17,8 @@ namespace GitMind.Common.ThemeHandling
 	internal class ThemeService : IThemeService
 	{	
 		private readonly WorkingFolder workingFolder;
-		private readonly Dictionary<string, Brush> customBranchBrushes = new Dictionary<string, Brush>();
+		private Lazy<IDictionary<string, Brush>> customBranchBrushes;
+
 
 		private Theme currentTheme;
 
@@ -27,9 +28,10 @@ namespace GitMind.Common.ThemeHandling
 
 			LoadTheme();
 
-			LoadCustomBranchColors();
+			customBranchBrushes = new Lazy<IDictionary<string, Brush>>(GetCustomBranchColors);
 
-			workingFolder.OnChange += (s, e) => LoadCustomBranchColors();
+			workingFolder.OnChange += (s, e) =>
+				customBranchBrushes = new Lazy<IDictionary<string, Brush>>(GetCustomBranchColors);
 		}
 
 
@@ -47,7 +49,7 @@ namespace GitMind.Common.ThemeHandling
 				return currentTheme.GetMasterBranchBrush();
 			}
 
-			if (customBranchBrushes.TryGetValue(branch.Name, out Brush branchBrush))
+			if (customBranchBrushes.Value.TryGetValue(branch.Name, out Brush branchBrush))
 			{
 				return branchBrush;
 			}
@@ -71,7 +73,7 @@ namespace GitMind.Common.ThemeHandling
 			settings.BranchColors[branch.Name] = brushHex;
 			Settings.SetWorkFolderSetting(workingFolder, settings);
 
-			LoadCustomBranchColors();
+			customBranchBrushes = new Lazy<IDictionary<string, Brush>>(GetCustomBranchColors);
 
 			return brush;
 		}
@@ -132,9 +134,10 @@ namespace GitMind.Common.ThemeHandling
 		}
 
 
-		private void LoadCustomBranchColors()
+		private IDictionary<string, Brush> GetCustomBranchColors()
 		{
-			customBranchBrushes.Clear();
+			Dictionary<string, Brush> brushes = new Dictionary<string, Brush>();
+
 			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
 
 			foreach (var pair in settings.BranchColors)
@@ -142,9 +145,11 @@ namespace GitMind.Common.ThemeHandling
 				Brush brush = currentTheme.brushes.FirstOrDefault(b => Converter.HexFromBrush(b) == pair.Value);
 				if (brush != null)
 				{
-					customBranchBrushes[pair.Key] = brush;
+					brushes[pair.Key] = brush;
 				}
 			}
+
+			return brushes;
 		}
 	}
 }

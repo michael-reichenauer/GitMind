@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
+using GitMind.Common.MessageDialogs;
 using GitMind.Features.Commits;
 using GitMind.Features.Remote;
 using GitMind.Git;
@@ -15,6 +16,7 @@ using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
+using Message = System.Windows.Forms.Message;
 
 
 namespace GitMind.MainWindowViews
@@ -23,6 +25,7 @@ namespace GitMind.MainWindowViews
 	internal class MainWindowViewModel : ViewModel
 	{
 		private readonly ILatestVersionService latestVersionService;
+		private readonly IMessage message;
 		private readonly IMainWindowService mainWindowService;
 		private readonly MainWindowIpcService mainWindowIpcService;
 
@@ -45,6 +48,7 @@ namespace GitMind.MainWindowViews
 			IRemoteService remoteService,
 			ICommitsService commitsService,
 			ILatestVersionService latestVersionService,
+			IMessage message,
 			IMainWindowService mainWindowService,
 			MainWindowIpcService mainWindowIpcService,
 			RepositoryViewModel repositoryViewModel)
@@ -55,6 +59,7 @@ namespace GitMind.MainWindowViews
 			this.remoteService = remoteService;
 			this.commitsService = commitsService;
 			this.latestVersionService = latestVersionService;
+			this.message = message;
 			this.mainWindowService = mainWindowService;
 			this.mainWindowIpcService = mainWindowIpcService;
 
@@ -222,8 +227,20 @@ namespace GitMind.MainWindowViews
 			}
 			else
 			{
-				// Another GitMind instance for that working folder is already running, activate that.
-				ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(null));
+				try
+				{
+					// Another GitMind instance for that working folder is already running, activate that.
+					ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(null));
+				}
+				catch (Exception e)
+				{
+					Log.Error($"Failed to atcivate other instance, {e}");
+
+					message.ShowError(
+						"Failed to activate other instance. If this problem appears again\n" +
+						"You may have to use Task Manager to kill other GitMind process or restart computer");
+				}
+			
 				Application.Current.Shutdown(0);
 				ipcRemotingService.Dispose();
 				return;
