@@ -28,6 +28,7 @@ namespace GitMind.GitModel.Private
 		private readonly IBranchTipMonitorService branchTipMonitorService;
 
 		private DateTime fetchedTime = DateTime.MinValue;
+		private AsyncLock syncRootAsync = new AsyncLock();
 
 		public RepositoryService(
 			IStatusService statusService,
@@ -238,32 +239,67 @@ namespace GitMind.GitModel.Private
 		private async Task<R<Repository>> GetFreshRepositoryAsync(
 			string workingFolder, Dictionary<CommitId, GitCommit> gitCommits)
 		{
-			Log.Debug("No cached repository");
-			MRepository mRepository = new MRepository();
-			mRepository.WorkingFolder = workingFolder;
-
-			mRepository.GitCommits = gitCommits ?? new Dictionary<CommitId, GitCommit>();
-
-			Timing t = new Timing();
-			await repositoryStructureService.UpdateAsync(mRepository, null, null);
-			mRepository.TimeToCreateFresh = t.Elapsed;
-			t.Log("Updated mRepository");
-
-			if (mRepository.TimeToCreateFresh > MinCreateTimeBeforeCaching)
+			using (await syncRootAsync.LockAsync())
 			{
-				Log.Usage($"Caching repository ({t.Elapsed} ms)");
-				await cacheService.CacheAsync(mRepository);
+				Log.Debug("No cached repository");
+				MRepository mRepository = new MRepository();
+				mRepository.WorkingFolder = workingFolder;
+
+				mRepository.GitCommits = gitCommits ?? new Dictionary<CommitId, GitCommit>();
+
+				Timing t = new Timing();
+				await repositoryStructureService.UpdateAsync(mRepository, null, null);
+				mRepository.TimeToCreateFresh = t.Elapsed;
+				t.Log("Updated mRepository");
+
+				if (mRepository.TimeToCreateFresh > MinCreateTimeBeforeCaching)
+				{
+					Log.Usage($"Caching repository ({t.Elapsed} ms)");
+					await cacheService.CacheAsync(mRepository);
+				}
+				else
+				{
+					Log.Usage($"No need for cached repository ({t.Elapsed} ms)");
+					cacheService.TryDeleteCache(workingFolder);
+				}
+
+				Repository repository = ToRepository(mRepository);
+				t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
+
+				return repository;
 			}
-			else
+		}
+
+
+		private async Task<Repository> UpdateRepositoryAsync(
+			Repository sourcerepository, Status status, IReadOnlyList<string> branchIds)
+		{
+			using (await syncRootAsync.LockAsync())
 			{
-				Log.Usage($"No need for cached repository ({t.Elapsed} ms)");
-				cacheService.TryDeleteCache(workingFolder);
+				Log.Debug($"Updating repository");
+
+				MRepository mRepository = sourcerepository.MRepository;
+				mRepository.IsCached = false;
+
+				Timing t = new Timing();
+
+				await repositoryStructureService.UpdateAsync(mRepository, status, branchIds);
+				t.Log("Updated mRepository");
+
+				if (mRepository.TimeToCreateFresh > MinCreateTimeBeforeCaching)
+				{
+					await cacheService.CacheAsync(mRepository);
+				}
+
+				Repository repository = ToRepository(mRepository);
+				int branchesCount = repository.Branches.Count;
+				int commitsCount = repository.Commits.Count;
+
+				t.Log($"Updated repository {branchesCount} branches, {commitsCount} commits");
+				Log.Debug("Updated to repository");
+
+				return repository;
 			}
-
-			Repository repository = ToRepository(mRepository);
-			t.Log($"Repository {repository.Branches.Count} branches, {repository.Commits.Count} commits");
-
-			return repository;		
 		}
 
 
@@ -296,35 +332,6 @@ namespace GitMind.GitModel.Private
 			{
 				cacheService.TryDeleteCache(workingFolder);
 			}
-		}
-
-
-		private async Task<Repository> UpdateRepositoryAsync(
-			Repository sourcerepository, Status status, IReadOnlyList<string> branchIds)
-		{
-			Log.Debug($"Updating repository");
-
-			MRepository mRepository = sourcerepository.MRepository;
-			mRepository.IsCached = false;
-
-			Timing t = new Timing();
-
-			await repositoryStructureService.UpdateAsync(mRepository, status, branchIds);
-			t.Log("Updated mRepository");
-
-			if (mRepository.TimeToCreateFresh > MinCreateTimeBeforeCaching)
-			{
-				await cacheService.CacheAsync(mRepository);
-			}
-
-			Repository repository = ToRepository(mRepository);
-			int branchesCount = repository.Branches.Count;
-			int commitsCount = repository.Commits.Count;
-
-			t.Log($"Updated repository {branchesCount} branches, {commitsCount} commits");
-			Log.Debug("Updated to repository");
-
-			return repository;
 		}
 
 
