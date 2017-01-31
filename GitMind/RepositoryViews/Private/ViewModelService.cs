@@ -655,10 +655,10 @@ namespace GitMind.RepositoryViews.Private
 
 				if (branch.IsMultiBranch)
 				{
-					Log.Warn($"Multibranch: {branch.Branch} in {branch.Branch.Repository.MRepository.WorkingFolder}, can be:");
+					Log.Usage($"Multibranch: {branch.Branch} in {branch.Branch.Repository.MRepository.WorkingFolder}, can be:");
 					foreach (BranchName name in branch.Branch.ChildBranchNames)
 					{
-						Log.Warn($"   Branch: {name}");
+						Log.Usage($"   Branch: {name}");
 					}
 				}
 			}
