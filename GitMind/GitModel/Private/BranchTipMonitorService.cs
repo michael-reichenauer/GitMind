@@ -85,7 +85,7 @@ namespace GitMind.GitModel.Private
 							{
 								// Multiple branches point to same commit, set to null to disable this commit id
 								branchByTip[commitSha] = null;
-								Log.Warn($"Multiple branches {commit}, {branch.FriendlyName} != {existingBranch.FriendlyName}");
+								Log.Debug($"Multiple branches {commit}, {branch.FriendlyName} != {existingBranch.FriendlyName}");
 							}
 						}
 						else
