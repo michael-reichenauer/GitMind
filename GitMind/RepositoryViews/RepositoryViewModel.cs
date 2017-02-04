@@ -280,13 +280,6 @@ namespace GitMind.RepositoryViews
 
 				isValidUri = gitInfoService.IsSupportedRemoteUrl(workingFolder);
 
-				if (!isValidUri)
-				{
-					message.ShowWarning(
-						"SSH URL protocol is not yet supported for remote access.\n" +
-						"Use git:// or https:// instead.");
-				}
-
 				using (progress.ShowBusy())
 				{
 					if (repositoryService.Repository.MRepository.IsCached)
@@ -316,12 +309,22 @@ namespace GitMind.RepositoryViews
 				Log.Usage("Activate window");
 
 				Timing t = new Timing();
-				themeService.SetThemeWpfColors();
+				if (!themeService.SetThemeWpfColors())
+				{
+					message.ShowError("Failed to load theme options.\nPlease edit or delete options file.");
+				}
 				t.Log("SetThemeWpfColors");
 
 				using (progress.ShowBusy())
 				{
 					await repositoryService.CheckRemoteChangesAsync(false);
+				}
+
+				if (!isValidUri)
+				{
+					FetchErrorText =
+						"SSH URL protocol is not yet supported for remote access.\n" +
+						"Use git:// or https:// instead.";
 				}
 
 				t.Log("Activate refresh done");

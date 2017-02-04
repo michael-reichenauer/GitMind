@@ -246,7 +246,7 @@ namespace GitMind.MainWindowViews
 		{
 			foreach (Screen screen in Screen.AllScreens)
 			{
-				if (screen.WorkingArea.IntersectsWith(rect) && screen.WorkingArea.Top < rect.Top)
+				if (screen.WorkingArea.IntersectsWith(rect) && screen.WorkingArea.Top <= rect.Top)
 				{
 					return true;
 				}

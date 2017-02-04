@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Media;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
+using GitMind.Common.MessageDialogs;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -22,7 +23,8 @@ namespace GitMind.Common.ThemeHandling
 
 		private Theme currentTheme;
 
-		public ThemeService(WorkingFolder workingFolder)
+		public ThemeService(
+			WorkingFolder workingFolder)
 		{
 			this.workingFolder = workingFolder;
 
@@ -79,9 +81,12 @@ namespace GitMind.Common.ThemeHandling
 		}
 
 
-		public void SetThemeWpfColors()
+		public bool SetThemeWpfColors()
 		{
-			LoadTheme();
+			if (!LoadTheme())
+			{
+				return false;
+			}
 
 			Collection<ResourceDictionary> dictionaries = 
 				Application.Current.Resources.MergedDictionaries;
@@ -111,14 +116,25 @@ namespace GitMind.Common.ThemeHandling
 			colors["SelectedItemBackgroundBrush"] = Theme.SelectedItemBackgroundBrush;
 			colors["HoverItemBrush"] = Theme.HoverItemBrush;
 
+			return true;
 		}
 
 
-		private void LoadTheme()
+		private bool LoadTheme()
 		{
-			ThemeOption themeOption = GetCurrentThemeOption();
+			try
+			{
+				ThemeOption themeOption = GetCurrentThemeOption();
 
-			currentTheme = new Theme(themeOption);
+				currentTheme = new Theme(themeOption);
+				return true;
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Error in theme option, {e}");
+				currentTheme = new Theme(new ThemeOption());
+				return false;
+			}			
 		}
 
 		
