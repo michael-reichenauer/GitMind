@@ -316,7 +316,10 @@ namespace GitMind.RepositoryViews
 				Log.Usage("Activate window");
 
 				Timing t = new Timing();
-				themeService.SetThemeWpfColors();
+				if (!themeService.SetThemeWpfColors())
+				{
+					message.ShowError("Failed to load theme options.\nPlease edit or delete options file.");
+				}
 				t.Log("SetThemeWpfColors");
 
 				using (progress.ShowBusy())
