@@ -13,9 +13,7 @@ namespace GitMind.Git.Private
 	internal class GitNetworkService : IGitNetworkService
 	{
 		private static readonly string Origin = "origin";
-		private static readonly  FetchOptions fetchAllOptions = new FetchOptions
-			{ Prune = true, TagFetchMode = TagFetchMode.All };
-
+	
 		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
 		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
@@ -37,8 +35,29 @@ namespace GitMind.Git.Private
 
 		public Task<R> FetchAsync()
 		{
+			FetchOptions fetchOptions = GetFetchOptions(
+				new FetchOptions { Prune = true, TagFetchMode = TagFetchMode.All });
+
 			Log.Debug("Fetch all ...");
-			return repoCaller.UseRepoAsync(FetchTimeout, repo => repo.Fetch(Origin, fetchAllOptions));
+			return repoCaller.UseRepoAsync(FetchTimeout, repo =>
+			{
+				try
+				{
+					repo.Fetch(Origin, fetchOptions);
+					credentialHandler.SetConfirm(true);
+				}
+				catch (NoCredentialException)
+				{
+					Log.Debug("Canceled enter credentials");
+					credentialHandler.SetConfirm(false);
+				}
+				catch (Exception e)
+				{
+					Log.Error($"Error {e}");
+					credentialHandler.SetConfirm(false);
+					throw;
+				}
+			});
 		}
 
 
@@ -54,14 +73,29 @@ namespace GitMind.Git.Private
 
 		public Task<R> FetchRefsAsync(IEnumerable<string> refspecs)
 		{
+			FetchOptions fetchOptions = GetFetchOptions(new FetchOptions());
 			string refsText = string.Join(",", refspecs);
 			Log.Debug($"Fetch refs {refsText} ...");
 
 			return repoCaller.UseRepoAsync(repo =>
+			{
+				try
 				{
 					Remote remote = Remote(repo);		
-					repo.Network.Fetch(remote, refspecs);
-				});
+					repo.Network.Fetch(remote, refspecs, fetchOptions);
+					}
+					catch (NoCredentialException)
+					{
+						Log.Debug("Canceled enter credentials");
+						credentialHandler.SetConfirm(false);
+					}
+					catch (Exception e)
+					{
+						Log.Error($"Error {e}");
+						credentialHandler.SetConfirm(false);
+						throw;
+					}
+			});
 		}
 
 
@@ -204,6 +238,29 @@ namespace GitMind.Git.Private
 
 			return pushOptions;
 		}
+
+
+		private FetchOptions GetFetchOptions(FetchOptions fetchOptions)
+		{
+			fetchOptions.CredentialsProvider = (url, usernameFromUrl, types) =>
+			{
+				NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
+
+				if (credential == null)
+				{
+					throw new NoCredentialException();
+				}
+
+				return new UsernamePasswordCredentials
+				{
+					Username = credential?.UserName,
+					Password = credential?.Password
+				};
+			};
+
+			return fetchOptions;
+		}
+
 
 
 		private static Remote Remote(IRepository repo)
