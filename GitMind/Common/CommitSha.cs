@@ -10,6 +10,7 @@ namespace GitMind.Common
 	{
 		public static readonly CommitSha Uncommitted = new CommitSha(new string('0', 40));
 		public static readonly CommitSha None = new CommitSha(new string('1', 40));
+		public static readonly CommitSha NoCommits = new CommitSha(new string('2', 40));
 
 		private readonly Lazy<string> shortSha;
 

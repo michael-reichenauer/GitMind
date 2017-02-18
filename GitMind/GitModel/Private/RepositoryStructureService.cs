@@ -99,6 +99,12 @@ namespace GitMind.GitModel.Private
 				commitsService.AddBranchCommits(gitRepository, repository);
 				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
+				//if (!repository.Commits.Any())
+				//{
+				//	Log.Debug("No branches, no commits");
+				//	return;
+				//}
+
 				tagService.AddTags(gitRepository, repository);
 				t.Log("AddTags");
 
@@ -148,7 +154,9 @@ namespace GitMind.GitModel.Private
 			repository.CurrentBranchId = currentBranch.Id;
 
 			repository.CurrentCommitId = status.IsOK
-				? repository.Commit(new CommitId(gitRepository.Head.TipId)).Id
+				? gitRepository.Head.HasCommits 
+					? repository.Commit(new CommitId(gitRepository.Head.TipId)).Id
+					: CommitId.NoCommits
 				: CommitId.Uncommitted;
 
 			if (currentBranch.TipCommit.IsVirtual

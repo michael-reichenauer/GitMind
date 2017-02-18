@@ -11,6 +11,7 @@ namespace GitMind.Common
 		private static readonly int ShortSize = 12;
 		public static readonly CommitId Uncommitted = new CommitId(CommitSha.Uncommitted);
 		public static readonly CommitId None = new CommitId(CommitSha.None);
+		public static readonly CommitId NoCommits = new CommitId(CommitSha.NoCommits);
 
 
 		public CommitId()
