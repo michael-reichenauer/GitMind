@@ -96,6 +96,17 @@ namespace GitMind.GitModel.Private
 			}
 		}
 
+		public IEnumerable<MCommit> FirstAncestorsAnSelf()
+		{ 
+			yield return this;
+
+			foreach (MCommit ancestor in FirstAncestors())
+			{				
+				yield return ancestor;				
+			}
+		}
+
+
 		public IEnumerable<MCommit> CommitAndAncestors(Func<MCommit, bool> predicate)
 		{
 			if (!predicate(this))

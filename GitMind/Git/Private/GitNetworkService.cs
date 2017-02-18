@@ -43,6 +43,12 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
+					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Log.Debug("No 'origin' remote, skipping fetch");
+						return;
+					};
+
 					repo.Fetch(Origin, fetchOptions);
 					credentialHandler.SetConfirm(true);
 				}
@@ -81,6 +87,12 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
+					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Log.Debug("No 'origin' remote, skipping fetch");
+						return;
+					};
+
 					Remote remote = Remote(repo);		
 					repo.Network.Fetch(remote, refspecs, fetchOptions);
 					}
@@ -157,12 +169,15 @@ namespace GitMind.Git.Private
 				else
 				{
 					// Remote branch does not yet exists
-					Remote remote = Remote(repo);
+					if (repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Remote remote = Remote(repo);
 
-					repo.Branches.Update(
-						localBranch,
-						b => b.Remote = remote.Name,
-						b => b.UpstreamBranch = localBranch.CanonicalName);
+						repo.Branches.Update(
+							localBranch,
+							b => b.Remote = remote.Name,
+							b => b.UpstreamBranch = localBranch.CanonicalName);
+					}
 				}
 
 				repo.Network.Push(localBranch, pushOptions);
@@ -176,6 +191,12 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 			{
+				if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+				{
+					Log.Debug("No 'origin' remote, skipping delete remote branch");
+					return;
+				};
+
 				repo.Branches.Remove(branchName, true);
 
 				PushOptions pushOptions = GetPushOptions();
@@ -194,6 +215,12 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
+				if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+				{
+					Log.Debug("No 'origin' remote, skipping delete remote branch");
+					return;
+				};
+
 				PushOptions pushOptions = GetPushOptions();
 
 				Remote remote = Remote(repo);

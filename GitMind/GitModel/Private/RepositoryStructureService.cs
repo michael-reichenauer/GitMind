@@ -183,7 +183,7 @@ namespace GitMind.GitModel.Private
 				Asserter.FailFast($"Repository {repository.WorkingFolder} does not have a master branch");
 			}
 
-			IEnumerable<MCommit> firstAncestors = mSubBranch.TipCommit.FirstAncestors();
+			IEnumerable<MCommit> firstAncestors = mSubBranch.TipCommit.FirstAncestorsAnSelf();
 			MCommit rootCommit = firstAncestors.Last();
 			return rootCommit;
 		}
