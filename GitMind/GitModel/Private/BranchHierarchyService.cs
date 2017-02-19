@@ -245,9 +245,8 @@ namespace GitMind.GitModel.Private
 					.Substring(0, 40);
 				CommitSha virtualSha = new CommitSha(virtualShaText);
 				CommitId virtualId = new CommitId(virtualShaText);
-				CommitId realCommitId = branch.ParentCommit.RealCommitId;
 
-				MCommit commit = AddVirtualCommit(repository, realCommitId, virtualId);
+				MCommit commit = AddVirtualCommit(repository, virtualId);
 
 
 				commit.IsVirtual = true;
@@ -268,7 +267,6 @@ namespace GitMind.GitModel.Private
 
 		private static MCommit AddVirtualCommit(
 			MRepository repository, 
-			CommitId realCommitId,
 			CommitId virtualId)
 		{
 			MCommit commit = new MCommit()

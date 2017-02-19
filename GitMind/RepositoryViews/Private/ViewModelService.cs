@@ -676,7 +676,7 @@ namespace GitMind.RepositoryViews.Private
 				toolTip += "    (local part)";
 			}
 
-			if (branch.LocalAheadCount > 0)
+			if (branch.LocalAheadCount > 0 && branch.IsLocalPart)
 			{
 				toolTip += $"\nLocal branch ahead: {branch.LocalAheadCount}";
 			}
@@ -692,10 +692,6 @@ namespace GitMind.RepositoryViews.Private
 			else if (branch.IsRemote || branch.IsLocalPart)
 			{
 				toolTip += "\nRemote branch";
-			}
-			else if (!branch.IsRemote && !branch.IsLocalPart)
-			{
-				toolTip += "\n(Deleted branch)";
 			}
 
 			if (branch.ChildBranchNames.Count > 1)
@@ -917,7 +913,7 @@ namespace GitMind.RepositoryViews.Private
 			{
 				subjectBrush = themeService.Theme.UnCommittedBrush;
 			}
-			else if (commit.IsLocalAhead && commit.Branch.LocalAheadCount > 0)
+			else if (commit.IsLocalAhead && commit.Branch.LocalAheadCount > 0 && commit.Branch.IsLocalPart)
 			{
 				subjectBrush = themeService.Theme.LocalAheadBrush;
 			}

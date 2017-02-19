@@ -13,9 +13,7 @@ namespace GitMind.Git.Private
 	internal class GitNetworkService : IGitNetworkService
 	{
 		private static readonly string Origin = "origin";
-		private static readonly  FetchOptions fetchAllOptions = new FetchOptions
-			{ Prune = true, TagFetchMode = TagFetchMode.All };
-
+	
 		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
 		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
@@ -37,8 +35,35 @@ namespace GitMind.Git.Private
 
 		public Task<R> FetchAsync()
 		{
+			FetchOptions fetchOptions = GetFetchOptions(
+				new FetchOptions { Prune = true, TagFetchMode = TagFetchMode.All });
+
 			Log.Debug("Fetch all ...");
-			return repoCaller.UseRepoAsync(FetchTimeout, repo => repo.Fetch(Origin, fetchAllOptions));
+			return repoCaller.UseRepoAsync(FetchTimeout, repo =>
+			{
+				try
+				{
+					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Log.Debug("No 'origin' remote, skipping fetch");
+						return;
+					};
+
+					repo.Fetch(Origin, fetchOptions);
+					credentialHandler.SetConfirm(true);
+				}
+				catch (NoCredentialException)
+				{
+					Log.Debug("Canceled enter credentials");
+					credentialHandler.SetConfirm(false);
+				}
+				catch (Exception e)
+				{
+					Log.Error($"Error {e}");
+					credentialHandler.SetConfirm(false);
+					throw;
+				}
+			});
 		}
 
 
@@ -54,14 +79,35 @@ namespace GitMind.Git.Private
 
 		public Task<R> FetchRefsAsync(IEnumerable<string> refspecs)
 		{
+			FetchOptions fetchOptions = GetFetchOptions(new FetchOptions());
 			string refsText = string.Join(",", refspecs);
 			Log.Debug($"Fetch refs {refsText} ...");
 
 			return repoCaller.UseRepoAsync(repo =>
+			{
+				try
 				{
+					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Log.Debug("No 'origin' remote, skipping fetch");
+						return;
+					};
+
 					Remote remote = Remote(repo);		
-					repo.Network.Fetch(remote, refspecs);
-				});
+					repo.Network.Fetch(remote, refspecs, fetchOptions);
+					}
+					catch (NoCredentialException)
+					{
+						Log.Debug("Canceled enter credentials");
+						credentialHandler.SetConfirm(false);
+					}
+					catch (Exception e)
+					{
+						Log.Error($"Error {e}");
+						credentialHandler.SetConfirm(false);
+						throw;
+					}
+			});
 		}
 
 
@@ -123,12 +169,15 @@ namespace GitMind.Git.Private
 				else
 				{
 					// Remote branch does not yet exists
-					Remote remote = Remote(repo);
+					if (repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Remote remote = Remote(repo);
 
-					repo.Branches.Update(
-						localBranch,
-						b => b.Remote = remote.Name,
-						b => b.UpstreamBranch = localBranch.CanonicalName);
+						repo.Branches.Update(
+							localBranch,
+							b => b.Remote = remote.Name,
+							b => b.UpstreamBranch = localBranch.CanonicalName);
+					}
 				}
 
 				repo.Network.Push(localBranch, pushOptions);
@@ -142,6 +191,12 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 			{
+				if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+				{
+					Log.Debug("No 'origin' remote, skipping delete remote branch");
+					return;
+				};
+
 				repo.Branches.Remove(branchName, true);
 
 				PushOptions pushOptions = GetPushOptions();
@@ -160,6 +215,12 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
+				if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+				{
+					Log.Debug("No 'origin' remote, skipping delete remote branch");
+					return;
+				};
+
 				PushOptions pushOptions = GetPushOptions();
 
 				Remote remote = Remote(repo);
@@ -204,6 +265,29 @@ namespace GitMind.Git.Private
 
 			return pushOptions;
 		}
+
+
+		private FetchOptions GetFetchOptions(FetchOptions fetchOptions)
+		{
+			fetchOptions.CredentialsProvider = (url, usernameFromUrl, types) =>
+			{
+				NetworkCredential credential = credentialHandler.GetCredential(url, usernameFromUrl);
+
+				if (credential == null)
+				{
+					throw new NoCredentialException();
+				}
+
+				return new UsernamePasswordCredentials
+				{
+					Username = credential?.UserName,
+					Password = credential?.Password
+				};
+			};
+
+			return fetchOptions;
+		}
+
 
 
 		private static Remote Remote(IRepository repo)

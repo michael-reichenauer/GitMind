@@ -29,7 +29,7 @@ namespace GitMind.Git
 		public bool IsRemote => branch.IsRemote;
 		public bool IsCurrent => 0 ==  string.Compare(
 			branch.CanonicalName, repository.Head.CanonicalName, StringComparison.OrdinalIgnoreCase) ;
-
+		public bool HasCommits => branch.Commits.Any();
 
 		public GitLibCommit Tip => new GitLibCommit(
 			new CommitSha(branch.Tip.Sha),

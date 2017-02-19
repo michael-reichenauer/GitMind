@@ -10,7 +10,7 @@ using GitMind.Utils;
 namespace GitMind.GitModel.Private
 {
 	internal class CommitsService : ICommitsService
-	{ 
+	{
 		public void AddBranchCommits(GitRepository gitRepository, MRepository repository)
 		{
 			Status status = repository.Status;
@@ -21,6 +21,12 @@ namespace GitMind.GitModel.Private
 			if (gitRepository.Head.IsDetached)
 			{
 				rootCommits = rootCommits.Concat(new[] { new CommitSha(gitRepository.Head.TipId) });
+			}
+
+			if (!rootCommits.Any())
+			{
+				AddVirtualEmptyCommit(repository);
+				rootCommits = new[] { CommitSha.NoCommits };
 			}
 
 			rootCommits = rootCommits.ToList();
@@ -64,6 +70,12 @@ namespace GitMind.GitModel.Private
 				MCommit commit = repository.Commit(commitId);
 				if (!commit.IsSet)
 				{
+					if (commit.Id == CommitId.NoCommits)
+					{
+						commit.IsVirtual = true;
+						commit.SetBranchName("master");
+					}
+
 					AddCommit(commit, gitCommit);
 
 					if (parentIds == null)
@@ -71,8 +83,8 @@ namespace GitMind.GitModel.Private
 						parentIds = gitCommit.ParentIds.Select(id => repository.GitCommits[id].Sha);
 					}
 
-					AddParents(parentIds, commitShas, added);			
-				}		
+					AddParents(parentIds, commitShas, added);
+				}
 
 				BranchName branchName;
 				if (branchNameByCommitId.TryGetValue(commitId, out branchName))
@@ -121,7 +133,7 @@ namespace GitMind.GitModel.Private
 
 			// Pre-create all parents
 			commit.ParentIds.ForEach(pid => commit.Repository.Commit(pid));
-		
+
 			SetChildOfParents(commit);
 			commit.IsSet = true;
 		}
@@ -132,14 +144,48 @@ namespace GitMind.GitModel.Private
 		{
 			MCommit commit = repository.Commit(CommitId.Uncommitted);
 			repository.Uncommitted = commit;
-			
+
 			commit.IsVirtual = true;
 
-			CommitId headId = new CommitId(gitRepository.Head.TipId);
-			MCommit headCommit = repository.Commit(headId);
-			CopyToUncommitedCommit(gitRepository, repository, status, commit, headCommit.Id);
+			CommitId headCommitId = CommitId.NoCommits;
+
+			if (gitRepository.Head.HasCommits)
+			{
+				CommitId headId = new CommitId(gitRepository.Head.TipId);
+				MCommit headCommit = repository.Commit(headId);
+				headCommitId = headCommit.Id;
+			}
+
+			CopyToUncommitedCommit(gitRepository, repository, status, commit, headCommitId);
 
 			SetChildOfParents(commit);
+		}
+
+
+		private void AddVirtualEmptyCommit(MRepository repository)
+		{
+			CommitSha virtualSha = CommitSha.NoCommits;
+			CommitId virtualId = new CommitId(virtualSha);
+
+			//MCommit commit = new MCommit()
+			//{
+			//	Repository = repository,
+			//	Id = virtualId,
+			//};
+
+			//repository.Commits[virtualId] = commit;
+
+			//commit.IsVirtual = true;
+
+			GitCommit gitCommit = new GitCommit(
+				virtualSha,
+				"<Repository with no committs yet ...>",
+				"",
+				DateTime.Now,
+				DateTime.Now,
+				new List<CommitId>());
+
+			repository.GitCommits[virtualId] = gitCommit;
 		}
 
 
@@ -233,7 +279,7 @@ namespace GitMind.GitModel.Private
 		private static void CopyToUncommitedCommit(
 			GitRepository gitRepository,
 			MRepository repository,
-			Status status, 
+			Status status,
 			MCommit commit,
 			CommitId parentId)
 		{
@@ -244,7 +290,7 @@ namespace GitMind.GitModel.Private
 
 			if (conflictCount > 0)
 			{
-				subject = 
+				subject =
 					$"{conflictCount} conflicts and {modifiedCount} changes, {ShortSubject(status)}";
 				commit.HasConflicts = true;
 			}

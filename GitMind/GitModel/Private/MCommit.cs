@@ -51,8 +51,8 @@ namespace GitMind.GitModel.Private
 		[DataMember] public bool IsCommon { get; set; }
 
 
-		public CommitId RealCommitId => IsVirtual && Id != CommitId.Uncommitted ? FirstParent.Id : Id;
-		public CommitSha RealCommitSha => IsVirtual && Id != CommitId.Uncommitted ? FirstParent.Sha : Sha;
+		public CommitId RealCommitId => IsVirtual && Id != CommitId.Uncommitted && Id != CommitId.NoCommits ? FirstParent.Id : Id;
+		public CommitSha RealCommitSha => IsVirtual && Id != CommitId.Uncommitted && Id != CommitId.NoCommits ? FirstParent.Sha : Sha;
 
 		public string ShortId => RealCommitSha.ShortSha;
 
@@ -95,6 +95,17 @@ namespace GitMind.GitModel.Private
 				current = current.FirstParent;
 			}
 		}
+
+		public IEnumerable<MCommit> FirstAncestorsAnSelf()
+		{ 
+			yield return this;
+
+			foreach (MCommit ancestor in FirstAncestors())
+			{				
+				yield return ancestor;				
+			}
+		}
+
 
 		public IEnumerable<MCommit> CommitAndAncestors(Func<MCommit, bool> predicate)
 		{

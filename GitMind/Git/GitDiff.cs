@@ -47,15 +47,22 @@ namespace GitMind.Git
 				string compare = "";
 				if (files.Any())
 				{
-					compare = diff.Compare<Patch>(
+					if (repository.Head.Commits.Any())
+					{
+						compare = diff.Compare<Patch>(
 						repository.Head.Tip.Tree,
 						DiffTargets.WorkingDirectory,
 						files,
 						null,
 						DefultCompareOptions);
+					}
+					else
+					{
+						compare = diff.Compare<Patch>(null, true, null, DefultCompareOptions);
+					}
 				}
 
-				//compare = diff.Compare<Patch>(null, true, null, DefultCompareOptions);
+				
 
 				return compare;
 			}
@@ -126,15 +133,20 @@ namespace GitMind.Git
 		{
 			if (commitSha == CommitSha.Uncommitted)
 			{
-				return diff.Compare<Patch>(
-					repository.Head.Tip.Tree,
-					DiffTargets.WorkingDirectory | DiffTargets.WorkingDirectory,
-					new[] { filePath },
-					null,
-					DefultFileCompareOptions);
-
-				//Current working folder uncommitted changes
-				//return diff.Compare<Patch>(new[] { filePath }, true, null, DefultFileCompareOptions);
+				if (repository.Head.Commits.Any())
+				{
+					return diff.Compare<Patch>(
+						repository.Head.Tip.Tree,
+						DiffTargets.WorkingDirectory | DiffTargets.WorkingDirectory,
+						new[] {filePath},
+						null,
+						DefultFileCompareOptions);
+				}
+				else
+				{
+					// Current working folder uncommitted changes
+					return diff.Compare<Patch>(new[] { filePath }, true, null, DefultFileCompareOptions);
+				}
 			}
 
 			Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
