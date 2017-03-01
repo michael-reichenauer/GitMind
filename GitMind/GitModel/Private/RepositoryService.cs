@@ -198,8 +198,7 @@ namespace GitMind.GitModel.Private
 			using (progressService.ShowBusy())
 			{
 				Log.Debug("Changed repo");
-				Status status = Repository.Status;
-				await UpdateRepositoryAsync(status, repoIds);
+				await UpdateRepositoryAsync(null, repoIds);
 			}
 		}
 
