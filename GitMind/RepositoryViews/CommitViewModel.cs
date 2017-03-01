@@ -49,6 +49,7 @@ namespace GitMind.RepositoryViews
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.IsUncommitted;
 		public bool CanUncommit => UncommitCommand.CanExecute();
+		public bool CanUndo => !Commit.IsUncommitted;
 		public bool IsShown => BranchTips == null;
 		public string BranchToolTip { get; set; }
 

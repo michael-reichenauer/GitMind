@@ -450,7 +450,7 @@
 
 															</MenuItem>
 
-															<MenuItem Header="Undo" >
+															<MenuItem Header="Undo" Visibility="{Binding CanUndo, Converter={StaticResource VC}}">
 																<MenuItem.Icon>
 																	<Border>
 																		<TextBlock
