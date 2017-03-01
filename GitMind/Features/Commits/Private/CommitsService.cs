@@ -165,7 +165,8 @@ namespace GitMind.Features.Commits.Private
 			return commit != null
 				&& !commit.IsUncommitted
 				&& commit.IsCurrent
-				&& commit.IsLocalAhead;
+				&& commit.IsLocalAhead
+				&& commit.Branch.LocalAheadCount > 0;
 		}
 
 
