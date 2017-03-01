@@ -145,6 +145,20 @@ namespace GitMind.Features.Commits.Private
 			}
 		}
 
+		public async Task UndoCommitAsync(Commit commit)
+		{
+			using (progress.ShowDialog($"Undo commit {commit} ..."))
+			{
+				R result = await gitCommitsService.UndoCommitAsync(commit.RealCommitSha);
+
+				if (result.IsFaulted)
+				{
+					message.ShowWarning($"Failed to undo.\n{result.Message}");
+				}
+			}
+		}
+
+
 
 		public bool CanUnCommit(Commit commit)
 		{
@@ -154,6 +168,12 @@ namespace GitMind.Features.Commits.Private
 				&& commit.IsLocalAhead;
 		}
 
+
+		public bool CanUndoCommit(Commit commit)
+		{
+			return commit != null && !commit.IsUncommitted;
+		}
+	
 
 		public async Task EditCommitBranchAsync(Commit commit)
 		{

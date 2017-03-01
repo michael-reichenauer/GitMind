@@ -11,11 +11,13 @@ namespace GitMind.Features.Commits
 		Task CommitChangesAsync();
 		Task UnCommitAsync(Commit commit);
 		bool CanUnCommit(Commit commit);
+		bool CanUndoCommit(Commit commit);
 
 		Task EditCommitBranchAsync(Commit commit);
 
 		Task UndoUncommittedChangesAsync();
 
 		Task CleanWorkingFolderAsync();
+		Task UndoCommitAsync(Commit commit);
 	}
 }

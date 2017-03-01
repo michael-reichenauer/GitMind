@@ -133,6 +133,8 @@ namespace GitMind.RepositoryViews
 		public Command UncommitCommand => AsyncCommand(
 		 () => commitsService.UnCommitAsync(Commit), () => commitsService.CanUnCommit(Commit));
 
+		public Command UndoCommitCommand => AsyncCommand(
+			() => commitsService.UndoCommitAsync(Commit), () => commitsService.CanUndoCommit(Commit));
 
 
 
