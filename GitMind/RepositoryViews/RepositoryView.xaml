@@ -450,7 +450,7 @@
 
 															</MenuItem>
 
-															<MenuItem Header="Undo" Visibility="{Binding CanUncommit, Converter={StaticResource VC}}">
+															<MenuItem Header="Undo" Visibility="{Binding CanUndo, Converter={StaticResource VC}}">
 																<MenuItem.Icon>
 																	<Border>
 																		<TextBlock
@@ -461,6 +461,19 @@
 																</MenuItem.Icon>
 
 																<MenuItem
+																	Header="Undo commit"
+																	Command="{Binding UndoCommitCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock
+																				Style="{DynamicResource MenuIconStyle}"
+																				Text="&#xE166;"
+																				Foreground="{DynamicResource UndoBrush}" />
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
+
+																<MenuItem Visibility="{Binding CanUncommit, Converter={StaticResource VC}}"
 																	Header="Uncommit"
 																	Command="{Binding UncommitCommand}">
 																	<MenuItem.Icon>
