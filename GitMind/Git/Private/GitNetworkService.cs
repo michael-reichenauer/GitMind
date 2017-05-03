@@ -43,6 +43,11 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
+					if (IsInvalidProtocol(repo))
+					{		
+						return;
+					}
+
 					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
 					{
 						Log.Debug("No 'origin' remote, skipping fetch");
@@ -87,6 +92,11 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
+					if (IsInvalidProtocol(repo))
+					{
+						return;
+					}
+
 					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
 					{
 						Log.Debug("No 'origin' remote, skipping fetch");
@@ -126,6 +136,11 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 				{
+					if (IsInvalidProtocol(repo))
+					{
+						return;
+					}
+
 					Branch currentBranch = repo.Head;
 					string[] refspecs = {$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"};
 					PushRefs(refspecs, repo);
@@ -138,7 +153,14 @@ namespace GitMind.Git.Private
 			string refsText = string.Join(",", refspecs);
 			Log.Debug($"Push refs {refsText} ...");
 
-			return repoCaller.UseRepoAsync(PushTimeout, repo => PushRefs(refspecs, repo));
+			return repoCaller.UseRepoAsync(PushTimeout, repo =>
+			{
+				if (IsInvalidProtocol(repo))
+				{
+					return;
+				}
+				PushRefs(refspecs, repo);
+			});
 		}
 
 
@@ -148,6 +170,11 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseLibRepoAsync(repo =>
 			{
+				if (IsInvalidProtocol(repo))
+				{
+					return;
+				}
+
 				Branch localBranch = repo.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
 				if (localBranch == null)
 				{
@@ -191,6 +218,11 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 			{
+				if (IsInvalidProtocol(repo))
+				{
+					return;
+				}
+
 				if (!repo.Network.Remotes.Any(r => r.Name == Origin))
 				{
 					Log.Debug("No 'origin' remote, skipping delete remote branch");
@@ -215,6 +247,11 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
+				if (IsInvalidProtocol(repo))
+				{
+					return;
+				}
+
 				if (!repo.Network.Remotes.Any(r => r.Name == Origin))
 				{
 					Log.Debug("No 'origin' remote, skipping delete remote branch");
@@ -293,6 +330,19 @@ namespace GitMind.Git.Private
 		private static Remote Remote(IRepository repo)
 		{
 			return repo.Network.Remotes[Origin];
+		}
+
+
+		private static bool IsInvalidProtocol(Repository repo)
+		{
+			if (repo.Network.Remotes
+				.Any(remote => remote.Url.StartsWith("ssh:", StringComparison.OrdinalIgnoreCase)))
+			{
+				Log.Debug("Invalid protocol");
+				return true;
+			}
+
+			return false;
 		}
 
 
