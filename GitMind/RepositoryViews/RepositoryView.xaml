@@ -473,7 +473,7 @@
 																	</MenuItem.Icon>
 																</MenuItem>
 
-																<MenuItem Visibility="{Binding CanUncommit, Converter={StaticResource VC}}"
+																<!--<MenuItem Visibility="{Binding CanUncommit, Converter={StaticResource VC}}"
 																	Header="Uncommit"
 																	Command="{Binding UncommitCommand}">
 																	<MenuItem.Icon>
@@ -484,7 +484,7 @@
 																				Foreground="{DynamicResource UndoBrush}" />
 																		</Border>
 																	</MenuItem.Icon>
-																</MenuItem>
+																</MenuItem>-->
 															</MenuItem>
 
 															<MenuItem Header="Switch">
