@@ -31,12 +31,12 @@ namespace GitMind.Common.MessageDialogs
 
 			if (button == MessageBoxButton.OK)
 			{
-				viewModel.OkText = "Ok";
+				viewModel.OkText = "OK";
 				viewModel.IsCancelVisible = false;
 			}
 			else if (button == MessageBoxButton.OKCancel)
 			{
-				viewModel.OkText = "Ok";
+				viewModel.OkText = "OK";
 				viewModel.CancelText = "Cancel";
 				viewModel.IsCancelVisible = true;
 			}
