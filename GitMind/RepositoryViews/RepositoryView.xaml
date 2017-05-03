@@ -256,12 +256,12 @@
 
 														<!-- Show child branch meu item -->
 														<MenuItem
-															Header="Show child branch"
+															Header="Show branch"
 															IsEnabled="{Binding HasChildren}"
 															ItemsSource="{Binding ChildBranches}">
 															<MenuItem.Icon>
 																<Border>
-																	<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE3CD;" />
+																	<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE1B8;" />
 																</Border>
 															</MenuItem.Icon>
 															<MenuItem.Resources>
