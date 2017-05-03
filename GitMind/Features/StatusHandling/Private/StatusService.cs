@@ -102,7 +102,7 @@ namespace GitMind.Features.StatusHandling.Private
 		{
 			try
 			{
-				using (progress.ShowDialog("Updatinging view ... "))
+				using (progress.ShowDialog("Updating view ... "))
 				{
 					bool useFreshRepository = refresh == Refresh.Repo;
 					await repositoryService.Value.RefreshAfterCommandAsync(useFreshRepository);
