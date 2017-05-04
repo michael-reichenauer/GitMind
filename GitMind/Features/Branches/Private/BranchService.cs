@@ -193,7 +193,7 @@ namespace GitMind.Features.Branches.Private
 			}
 
 
-			using (statusService.PauseStatusNotifications())
+			using (statusService.PauseStatusNotifications(Refresh.Repo))
 			using (progress.ShowDialog("Switching to commit ..."))
 			{
 				BranchName branchName = commit == commit.Branch.TipCommit ? commit.Branch.Name : null;

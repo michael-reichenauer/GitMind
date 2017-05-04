@@ -256,12 +256,12 @@
 
 														<!-- Show child branch meu item -->
 														<MenuItem
-															Header="Show child branch"
+															Header="Show branch"
 															IsEnabled="{Binding HasChildren}"
 															ItemsSource="{Binding ChildBranches}">
 															<MenuItem.Icon>
 																<Border>
-																	<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE3CD;" />
+																	<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE1B8;" />
 																</Border>
 															</MenuItem.Icon>
 															<MenuItem.Resources>
@@ -473,7 +473,7 @@
 																	</MenuItem.Icon>
 																</MenuItem>
 
-																<MenuItem Visibility="{Binding CanUncommit, Converter={StaticResource VC}}"
+																<!--<MenuItem Visibility="{Binding CanUncommit, Converter={StaticResource VC}}"
 																	Header="Uncommit"
 																	Command="{Binding UncommitCommand}">
 																	<MenuItem.Icon>
@@ -484,7 +484,7 @@
 																				Foreground="{DynamicResource UndoBrush}" />
 																		</Border>
 																	</MenuItem.Icon>
-																</MenuItem>
+																</MenuItem>-->
 															</MenuItem>
 
 															<MenuItem Header="Switch">

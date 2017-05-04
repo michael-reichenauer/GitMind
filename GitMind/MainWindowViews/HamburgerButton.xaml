@@ -25,7 +25,7 @@
 						ItemsSource="{Binding RepositoryViewModel.ShowableBranches}">
 					<MenuItem.Icon>
 						<Border>
-							<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE3CD;"/>
+							<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE1B8;"/>
 						</Border>
 					</MenuItem.Icon>
 					<MenuItem.Resources>
