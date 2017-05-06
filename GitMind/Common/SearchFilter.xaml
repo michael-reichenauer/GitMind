@@ -37,6 +37,7 @@
 					Height="20"
 					Margin="3,0"
 					Padding="0"
+				  CaretBrush="{DynamicResource TextLowBrush}"
 					Background="{DynamicResource ItemBrush}"
 					Text="{Binding SearchBox, UpdateSourceTrigger=PropertyChanged}"
 					Foreground="{DynamicResource TextBrush}"
