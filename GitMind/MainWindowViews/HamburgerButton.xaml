@@ -71,10 +71,8 @@
 						<Border>
 							<TextBlock 
 								Style="{DynamicResource MenuIconStyle}" 
-								FontSize="14"
-								Margin="9,0,7,0"
 								Foreground="{DynamicResource UndoBrush}"
-								Text="&#xE14E;"/>
+								Text="&#xE92B;"/>
 						</Border>
 					</MenuItem.Icon>
 					<MenuItem.Resources>
