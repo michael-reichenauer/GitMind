@@ -8,7 +8,7 @@ namespace GitMind.Features.Commits
 	{
 		Task ShowUncommittedDiffAsync();
 		Task UndoUncommittedFileAsync(string path);
-		Task CommitChangesAsync();
+		Task CommitChangesAsync(string mergeCommitMessage = null);
 		Task UnCommitAsync(Commit commit);
 		bool CanUnCommit(Commit commit);
 		bool CanUndoCommit(Commit commit);

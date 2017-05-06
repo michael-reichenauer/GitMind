@@ -382,7 +382,7 @@ namespace GitMind.Features.Branches.Private
 				Status status = repositoryService.Value.Repository.Status;
 				if (status.ConflictCount == 0)
 				{
-					await commitsService.CommitChangesAsync();
+					await commitsService.CommitChangesAsync($"Merge branch '{commit.Branch.Name}'");
 				}
 				else
 				{
