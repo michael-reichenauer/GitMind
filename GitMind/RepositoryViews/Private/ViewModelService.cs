@@ -64,6 +64,8 @@ namespace GitMind.RepositoryViews.Private
 
 			List<Branch> specifiedBranches = repositoryViewModel.SpecifiedBranches.ToList();
 
+			Branch currentBranch = repositoryMgr.Repository.CurrentBranch;
+
 			foreach (BranchName name in repositoryViewModel.SpecifiedBranchNames)
 			{
 				Branch branch;
@@ -91,14 +93,11 @@ namespace GitMind.RepositoryViews.Private
 
 			if (!specifiedBranches.Any())
 			{
-				Branch currentBranch = repositoryMgr.Repository.CurrentBranch;
-
 				specifiedBranches.Add(currentBranch);
 			}
 
 			if (isFirstTime && !repositoryMgr.Repository.MRepository.IsCached)
 			{
-				Branch currentBranch = repositoryMgr.Repository.CurrentBranch;
 				isFirstTime = false;
 				if (!specifiedBranches.Any(b => b == currentBranch))
 				{
@@ -124,19 +123,23 @@ namespace GitMind.RepositoryViews.Private
 					new BranchItem(b, repositoryViewModel.ShowBranchCommand, null)));
 
 			repositoryViewModel.ShowableBranches.Clear();
+
+			repositoryViewModel.ShowableBranches.Add(new BranchItem(
+				currentBranch, $"Current branch: {currentBranch.Name}",
+				repositoryViewModel.ShowBranchCommand));
 			IEnumerable<Branch> showableBranches = repositoryMgr.Repository.Branches
 				.Where(b => b.IsActive);
-			IReadOnlyList<BranchItem> showableBrancheItems = BranchItem.GetBranches(
+			IReadOnlyList<BranchItem> showableBranchItems = BranchItem.GetBranches(
 				showableBranches,
 				repositoryViewModel.ShowBranchCommand);
-			showableBrancheItems.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
+			showableBranchItems.ForEach(b => repositoryViewModel.ShowableBranches.Add(b));
 
 			repositoryViewModel.DeletableBranches.Clear();
 			IEnumerable<Branch> deletableBranches = repositoryMgr.Repository.Branches
 				.Where(b => b.IsActive && b.Name != BranchName.Master);
-			IReadOnlyList<BranchItem> deletableBrancheItems = BranchItem.GetBranches(
+			IReadOnlyList<BranchItem> deletableBranchItems = BranchItem.GetBranches(
 				deletableBranches, deleteBranchCommand);
-			deletableBrancheItems.ForEach(b => repositoryViewModel.DeletableBranches.Add(b));
+			deletableBranchItems.ForEach(b => repositoryViewModel.DeletableBranches.Add(b));
 
 			UpdateViewModel(repositoryViewModel, branches, commits);
 
