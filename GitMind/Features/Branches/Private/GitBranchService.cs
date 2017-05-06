@@ -73,6 +73,19 @@ namespace GitMind.Features.Branches.Private
 			});
 		}
 
+		public Task<R> MergeAsync(CommitSha commitSha)
+		{
+			Log.Debug($"Merge branch from commit{commitSha} into current branch ...");
+
+			return repoCaller.UseLibRepoAsync(repository =>
+			{
+				Signature signature = GetSignature(repository);
+				Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
+
+				repository.Merge(commit, signature, MergeNoFFNoCommit);
+			});
+		}
+
 
 		public Task<R> CreateBranchAsync(BranchName branchName, CommitSha commitSha)
 		{

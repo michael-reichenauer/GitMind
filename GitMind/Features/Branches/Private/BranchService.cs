@@ -352,5 +352,43 @@ namespace GitMind.Features.Branches.Private
 				}
 			}
 		}
+
+		public async Task MergeBranchCommitAsync(Commit commit)
+		{
+			using (statusService.PauseStatusNotifications())
+			{
+				if (commit.Branch == commit.Repository.CurrentBranch)
+				{
+					message.ShowWarning("You cannot merge current branch into it self.");
+					return;
+				}
+
+				if (commit.Repository.Status.ConflictCount > 0 || commit.Repository.Status.ChangedCount > 0)
+				{
+					message.ShowInfo("You must first commit uncommitted changes before merging.");
+					return;
+				}
+
+				Branch currentBranch = commit.Repository.CurrentBranch;
+				using (progress.ShowDialog($"Merging branch commit {commit.RealCommitSha.ShortSha} into {currentBranch.Name} ..."))
+				{
+					await gitBranchService.MergeAsync(commit.RealCommitSha);
+
+					repositoryCommands.SetCurrentMerging(commit.Branch);
+
+					await repositoryService.Value.CheckLocalRepositoryAsync();
+				}
+
+				Status status = repositoryService.Value.Repository.Status;
+				if (status.ConflictCount == 0)
+				{
+					await commitsService.CommitChangesAsync();
+				}
+				else
+				{
+					repositoryCommands.ShowUncommittedDetails();
+				}
+			}
+		}
 	}
 }

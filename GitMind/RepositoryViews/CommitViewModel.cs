@@ -45,6 +45,7 @@ namespace GitMind.RepositoryViews
 		public string BranchTips => Commit.BranchTips;
 		public string CommitBranchText => $"Hide branch: {Commit.Branch.Name}";
 		public string SwitchToBranchText => $"Switch to branch: {Commit.Branch.Name}";
+		public string MergeBranchCommitText => $"Merge from this commit to branch: {Commit.Repository.CurrentBranch.Name}";
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.IsUncommitted;
@@ -52,6 +53,7 @@ namespace GitMind.RepositoryViews
 		public bool CanUndo => !Commit.IsUncommitted;
 		public bool IsShown => BranchTips == null;
 		public string BranchToolTip { get; set; }
+		public bool CanMerge => Commit.Branch.IsCanBeMergeToOther;
 
 		public int XPoint { get; set; }
 		public int YPoint => IsEndPoint ? 4 : IsMergePoint ? 2 : 4;
@@ -138,7 +140,7 @@ namespace GitMind.RepositoryViews
 		public Command UndoCommitCommand => AsyncCommand(
 			() => commitsService.UndoCommitAsync(Commit), () => commitsService.CanUndoCommit(Commit));
 
-
+		public Command MergeBranchCommitCommand => AsyncCommand(() => branchService.MergeBranchCommitAsync(Commit));
 
 		// Values used by other properties
 		public Commit Commit { get; set; }

@@ -19,5 +19,6 @@ namespace GitMind.Features.Branches
 		Task PublishBranchAsync(Branch branch);
 		Task PushBranchAsync(Branch branch);
 		Task UpdateBranchAsync(Branch branch);
+		Task MergeBranchCommitAsync(Commit commit);
 	}
 }
