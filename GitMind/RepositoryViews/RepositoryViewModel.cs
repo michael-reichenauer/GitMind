@@ -110,6 +110,8 @@ namespace GitMind.RepositoryViews
 		}	
 
 		public Branch MergingBranch { get; private set; }
+		public CommitSha MergingCommitSha { get; private set; }
+		
 
 
 		public void ShowCommitDetails()
@@ -359,9 +361,10 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public void SetCurrentMerging(Branch branch)
+		public void SetCurrentMerging(Branch branch, CommitSha commitSha)
 		{
 			MergingBranch = branch;
+			MergingCommitSha = commitSha;
 		}
 
 

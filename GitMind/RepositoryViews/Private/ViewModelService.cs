@@ -806,7 +806,7 @@ namespace GitMind.RepositoryViews.Private
 
 			if (isMergeInProgress)
 			{
-				CommitId mergeSourceId = repositoryViewModel.MergingBranch.TipCommit.Id;
+				CommitId mergeSourceId = new CommitId(repositoryViewModel.MergingCommitSha);
 				CommitViewModel parentCommit = commitsById[mergeSourceId];
 				MergeViewModel merge = merges[index++];
 				SetMerge(merge, branches, commitsById[parentCommit.Commit.Repository.UnComitted.Id], parentCommit);

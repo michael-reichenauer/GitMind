@@ -336,7 +336,7 @@ namespace GitMind.Features.Branches.Private
 				{
 					await gitBranchService.MergeAsync(branch.Name);
 
-					repositoryCommands.SetCurrentMerging(branch);
+					repositoryCommands.SetCurrentMerging(branch, branch.TipCommit.RealCommitSha);
 			
 					await repositoryService.Value.CheckLocalRepositoryAsync();
 				}
@@ -374,7 +374,7 @@ namespace GitMind.Features.Branches.Private
 				{
 					await gitBranchService.MergeAsync(commit.RealCommitSha);
 
-					repositoryCommands.SetCurrentMerging(commit.Branch);
+					repositoryCommands.SetCurrentMerging(commit.Branch, commit.RealCommitSha);
 
 					await repositoryService.Value.CheckLocalRepositoryAsync();
 				}
