@@ -106,6 +106,7 @@ namespace GitMind.RepositoryViews
 			}
 		}
 
+		public Command CommitCommand => AsyncCommand(commitsService.CommitChangesAsync);
 
 		public Command ToggleDetailsCommand => Command(repositoryCommands.ToggleCommitDetails);
 		public Command ShowCommitDiffCommand => Command(

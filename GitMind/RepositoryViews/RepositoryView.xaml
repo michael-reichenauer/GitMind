@@ -389,6 +389,22 @@
 
 													<Grid.ContextMenu>
 														<ContextMenu>
+
+															<!-- Commit command -->
+															<MenuItem Visibility="{Binding IsUncommitted, Converter={StaticResource VC}}"
+																Header="Commit"
+																InputGestureText="Ctrl-Shift-Enter"
+																Command="{Binding CommitCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock
+																			Style="{DynamicResource MenuIconStyle}"
+																			Text="&#xE430;"
+																			Foreground="{DynamicResource UncomittedBrush}" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+															
 															<MenuItem
 																Header="Toggle commit details"
 																InputGestureText="Enter"
