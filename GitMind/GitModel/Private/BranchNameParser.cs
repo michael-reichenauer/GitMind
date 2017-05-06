@@ -3,6 +3,7 @@ namespace GitMind.GitModel.Private
 	internal static class BranchNameParser
 	{
 		private static readonly string MergeBranchSubject = "Merge branch ";
+		private static readonly string MergeCommitSubject = "Merge commit ";
 		private static readonly string MergeBranchSubject2 = "Merge ";
 		//private static readonly string OldMergedBranchSubject = "[MERGED] from ";
 		//private static readonly string OldMergedBranchSubject2 = "MERGED from ";
@@ -23,7 +24,11 @@ namespace GitMind.GitModel.Private
 			int sourceBranchNameStart = -1;
 			int sourceBranchNameEnd = -1;
 
-			if (subject.StartsWith(MergeBranchSubject)
+			if (subject.StartsWith(MergeCommitSubject))
+			{
+				// Ignoring "Merge commit " messages, since they specify commit id source and not branch 
+			}
+			else if (subject.StartsWith(MergeBranchSubject)
 				&& subject.Length > MergeBranchSubject.Length + 1)
 			{
 				// Found a "Merge branch "
