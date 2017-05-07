@@ -23,5 +23,6 @@ namespace GitMind.Features.Branches.Private
 		R<GitDivergence> CheckAheadBehind(CommitSha localTip, CommitSha remoteTip);
 
 		Task<R> DeleteLocalBranchAsync(BranchName branchName);
+		Task<R> MergeAsync(CommitSha commitSha);
 	}
 }

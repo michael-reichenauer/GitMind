@@ -64,7 +64,7 @@ namespace GitMind.Features.Commits.Private
 		}
 
 
-		public async Task CommitChangesAsync()
+		public async Task CommitChangesAsync(string mergeCommitMessage = null)
 		{
 			Repository repository = repositoryMgr.Repository;
 			var uncommitted = repository.UnComitted;
@@ -101,7 +101,7 @@ namespace GitMind.Features.Commits.Private
 					commitFiles = await repositoryCommands.UnCommited.FilesTask;
 				}
 
-				string commitMessage = repository.Status.MergeMessage;
+				string commitMessage = mergeCommitMessage ?? repository.Status.MergeMessage;
 
 				CommitDialog dialog = commitDialogProvider(
 					branchName,

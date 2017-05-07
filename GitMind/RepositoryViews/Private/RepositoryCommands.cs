@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Git;
 using GitMind.GitModel;
 
@@ -37,6 +38,6 @@ namespace GitMind.RepositoryViews.Private
 
 		public void ShowBranch(BranchName branchName) => viewModel.ShowBranch(branchName);
 
-		public void SetCurrentMerging(Branch branch) => viewModel.SetCurrentMerging(branch);
+		public void SetCurrentMerging(Branch branch, CommitSha commitSha) => viewModel.SetCurrentMerging(branch, commitSha);
 	}
 }

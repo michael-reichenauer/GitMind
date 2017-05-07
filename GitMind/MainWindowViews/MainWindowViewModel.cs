@@ -142,7 +142,7 @@ namespace GitMind.MainWindowViews
 
 		public Command ShowUncommittedDiffCommand => AsyncCommand(commitsService.ShowUncommittedDiffAsync);
 
-		public Command CommitCommand => AsyncCommand(commitsService.CommitChangesAsync);
+		public Command CommitCommand => AsyncCommand(() => commitsService.CommitChangesAsync());
 
 		public Command RefreshCommand => AsyncCommand(ManualRefreshAsync);
 

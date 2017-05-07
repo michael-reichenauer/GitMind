@@ -33,7 +33,14 @@ namespace GitMind.RepositoryViews
 			subItems = NoSubItems;
 		}
 
-
+		public BranchItem(
+			Branch branch,
+			string menuItemText,
+			Command<Branch> branchCommand)
+			: this(branch, branchCommand, null)
+		{
+			Text = menuItemText;
+		}
 
 		private BranchItem(
 			string prefix,

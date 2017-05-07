@@ -450,20 +450,6 @@
 																	</MenuItem.Icon>
 																</MenuItem>
 
-
-																<MenuItem
-																	Header="Clean untracked/ignored files"
-																	Command="{Binding CleanWorkingFolderCommand}">
-																	<MenuItem.Icon>
-																		<Border>
-																			<TextBlock
-																				Style="{DynamicResource MenuIconStyle}"
-																				Text="&#xE92B;"
-																				Foreground="{DynamicResource UndoBrush}" />
-																		</Border>
-																	</MenuItem.Icon>
-																</MenuItem>
-
 															</MenuItem>
 
 															<MenuItem Header="Undo" Visibility="{Binding CanUndo, Converter={StaticResource VC}}">
@@ -547,6 +533,24 @@
 																	</MenuItem.Icon>
 																</MenuItem>
 															</MenuItem>
+
+															<MenuItem Header="Merge" IsEnabled="{Binding CanMerge}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE0B3;" />
+																	</Border>
+																</MenuItem.Icon>
+																<MenuItem
+																	Header="{Binding MergeBranchCommitText}"
+																	Command="{Binding MergeBranchCommitCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE0B3;" />
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
+															</MenuItem>
+
 
 														</ContextMenu>
 													</Grid.ContextMenu>
