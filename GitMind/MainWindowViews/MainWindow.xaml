@@ -123,8 +123,8 @@
 
 					<!-- Commit status button -->
 					<Button 
-						Content="&#xE430;"
 						Style="{DynamicResource IconButtonStyle}"
+						Padding="4,0,0,0"
 						Visibility="{Binding RepositoryViewModel.IsUncommitted, Converter={StaticResource VC}}"				
 						Foreground="{DynamicResource UncomittedBrush}"					
 						Click="Uncommitted_OnClick"
@@ -158,12 +158,17 @@
 							</ContextMenu>
 
 						</Button.ContextMenu>
-					</Button>
+						
+							<Grid Margin="0">
+								<TextBlock Text="&#xE430;" Style="{DynamicResource MenuIconStyle}" Margin="0,0" Padding="0,0" Foreground="{DynamicResource UncomittedBrush}"/>
+								<TextBlock Text="&#xE5C5;" Style="{DynamicResource MenuIconStyle}" Margin="18,0,0,0" Padding="0,0" Background="Transparent" Foreground="{DynamicResource TextLowBrush}"/>
+							</Grid>
+						</Button>
 
 
-					<!-- Remote ahead status "-->
+						<!-- Remote ahead status "-->
 					<Button
-						Content="&#xE258;"
+						Padding="4,0,0,0"
 						Visibility="{Binding RepositoryViewModel.RemoteAheadText, Converter={StaticResource VC}}"					
 						Style="{DynamicResource IconButtonStyle}"
 						Foreground="{DynamicResource RemoteAheadBrush}"
@@ -199,11 +204,16 @@
 								</MenuItem>
 							</ContextMenu>
 						</Button.ContextMenu>
+						
+						<Grid Margin="0">
+							<TextBlock Text="&#xE258;" Style="{DynamicResource MenuIconStyle}" Margin="0,0" Padding="0,0" Foreground="{DynamicResource RemoteAheadBrush}"/>
+							<TextBlock Text="&#xE5C5;" Style="{DynamicResource MenuIconStyle}" Margin="18,0,0,0" Padding="0,0" Background="Transparent" Foreground="{DynamicResource TextLowBrush}"/>
+						</Grid>
 					</Button>
 
 					<!-- Local ahead status -->
 					<Button
-						Content="&#xE25A;"
+						Padding="4,0,0,0"
 						Visibility="{Binding RepositoryViewModel.LocalAheadText, Converter={StaticResource VC}}"					
 						Style="{DynamicResource IconButtonStyle}"
 						Foreground="{DynamicResource LocalAheadBrush}"
@@ -239,8 +249,13 @@
 								</MenuItem>
 							</ContextMenu>
 						</Button.ContextMenu>
+						
+						<Grid Margin="0">
+							<TextBlock Text="&#xE25A;" Style="{DynamicResource MenuIconStyle}" Margin="0,0" Padding="0,0" Foreground="{DynamicResource LocalAheadBrush}"/>
+							<TextBlock Text="&#xE5C5;" Style="{DynamicResource MenuIconStyle}" Margin="18,0,0,0" Padding="0,0" Background="Transparent" Foreground="{DynamicResource TextLowBrush}"/>
+						</Grid>
 					</Button>
-					
+
 					<!-- Busy Indicator  -->
 					<StackPanel Orientation="Horizontal">
 						<Label Content="{Binding Busy.ProgressText}" Foreground="{DynamicResource TextBrush}" Margin="10,0,0,0" FontSize="12"/>

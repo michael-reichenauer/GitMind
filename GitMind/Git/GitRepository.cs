@@ -57,6 +57,7 @@ namespace GitMind.Git
 
 
 		public IEnumerable<GitBranch> Branches => repository.Branches
+			.Where(b => b.Tip != null)
 			.Select(b => new GitBranch(b, repository));
 
 		public IEnumerable<GitTag> Tags => repository.Tags.Select(t => new GitTag(t));

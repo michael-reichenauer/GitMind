@@ -107,11 +107,11 @@ namespace GitMind.RepositoryViews
 
 			repositoryService.RepositoryUpdated += (s, e) => OnRepositoryUpdated();
 			repositoryService.RepositoryErrorChanged += (s, e) => FetchErrorText = e.ErrorText;
-		}	
+		}
 
 		public Branch MergingBranch { get; private set; }
 		public CommitSha MergingCommitSha { get; private set; }
-		
+
 
 
 		public void ShowCommitDetails()
@@ -281,7 +281,7 @@ namespace GitMind.RepositoryViews
 				}
 
 				isValidUri = gitInfoService.IsSupportedRemoteUrl(workingFolder);
-
+				
 				using (progress.ShowBusy())
 				{
 					if (repositoryService.Repository.MRepository.IsCached)
@@ -305,7 +305,7 @@ namespace GitMind.RepositoryViews
 
 
 		public async Task ActivateRefreshAsync()
-		{	
+		{
 			if (!repositoryService.IsPaused)
 			{
 				Log.Usage("Activate window");
@@ -322,20 +322,20 @@ namespace GitMind.RepositoryViews
 					await repositoryService.CheckRemoteChangesAsync(false);
 				}
 
-				if (!isValidUri)
+				if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
 				{
 					FetchErrorText =
-						"SSH URL protocol is not yet supported for remote access.\n" +
-						"Use git:// or https:// instead.";
+						"SSH protocol is not yet supported for remote access.\n" +
+						"Use git:// or https:// instead if yopu want remote status, updates and push support.";
 				}
 
 				t.Log("Activate refresh done");
-			}	
+			}
 		}
 
 
 		public async Task AutoRemoteCheckAsync()
-		{	
+		{
 			if (!repositoryService.IsPaused)
 			{
 				Timing t = new Timing();
@@ -345,6 +345,13 @@ namespace GitMind.RepositoryViews
 			}
 
 			await repositoryService.CheckBranchTipCommitsAsync();
+
+			if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
+			{
+				FetchErrorText =
+					"SSH protocol is not yet supported for remote access.\n" +
+					"Use git:// or https:// instead if yopu want remote status, updates and push support.";
+			}
 		}
 
 
@@ -469,7 +476,7 @@ namespace GitMind.RepositoryViews
 		private void LoadViewModel()
 		{
 			Timing t = new Timing();
-			
+
 			viewModelService.UpdateViewModel(this);
 
 			UpdateViewModelImpl();
