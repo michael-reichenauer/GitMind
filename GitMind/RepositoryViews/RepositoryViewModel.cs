@@ -322,7 +322,7 @@ namespace GitMind.RepositoryViews
 					await repositoryService.CheckRemoteChangesAsync(false);
 				}
 
-				if (isValidUri && string.IsNullOrEmpty(FetchErrorText))
+				if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
 				{
 					FetchErrorText =
 						"SSH protocol is not yet supported for remote access.\n" +
@@ -346,7 +346,7 @@ namespace GitMind.RepositoryViews
 
 			await repositoryService.CheckBranchTipCommitsAsync();
 
-			if (isValidUri && string.IsNullOrEmpty(FetchErrorText))
+			if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
 			{
 				FetchErrorText =
 					"SSH protocol is not yet supported for remote access.\n" +
