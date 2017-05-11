@@ -161,7 +161,7 @@
 						
 							<Grid Margin="0">
 								<TextBlock Text="&#xE430;" Style="{DynamicResource MenuIconStyle}" Margin="0,0" Padding="0,0" Foreground="{DynamicResource UncomittedBrush}"/>
-								<TextBlock Text="&#xE5C5;" Style="{DynamicResource MenuIconStyle}" Margin="18,0,0,0" Padding="0,0" Background="Transparent" Foreground="{DynamicResource TextLowBrush}"/>
+							<TextBlock FontSize="15" Text="&#xE5C5;" Style="{DynamicResource MenuIconStyle}" Margin="17,0,0,0" Padding="0,0" Background="Transparent" Foreground="{DynamicResource TextLowBrush}"/>
 							</Grid>
 						</Button>
 
@@ -207,7 +207,7 @@
 						
 						<Grid Margin="0">
 							<TextBlock Text="&#xE258;" Style="{DynamicResource MenuIconStyle}" Margin="0,0" Padding="0,0" Foreground="{DynamicResource RemoteAheadBrush}"/>
-							<TextBlock Text="&#xE5C5;" Style="{DynamicResource MenuIconStyle}" Margin="18,0,0,0" Padding="0,0" Background="Transparent" Foreground="{DynamicResource TextLowBrush}"/>
+							<TextBlock FontSize="15" Text="&#xE5C5;" Style="{DynamicResource MenuIconStyle}" Margin="16,0,0,0" Padding="0,0" Background="Transparent" Foreground="{DynamicResource TextLowBrush}"/>
 						</Grid>
 					</Button>
 
@@ -252,7 +252,7 @@
 						
 						<Grid Margin="0">
 							<TextBlock Text="&#xE25A;" Style="{DynamicResource MenuIconStyle}" Margin="0,0" Padding="0,0" Foreground="{DynamicResource LocalAheadBrush}"/>
-							<TextBlock Text="&#xE5C5;" Style="{DynamicResource MenuIconStyle}" Margin="18,0,0,0" Padding="0,0" Background="Transparent" Foreground="{DynamicResource TextLowBrush}"/>
+							<TextBlock FontSize="15" Text="&#xE5C5;" Style="{DynamicResource MenuIconStyle}" Margin="16,0,0,0" Padding="0,0" Background="Transparent" Foreground="{DynamicResource TextLowBrush}"/>
 						</Grid>
 					</Button>
 
