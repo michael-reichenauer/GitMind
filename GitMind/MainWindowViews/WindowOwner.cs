@@ -28,6 +28,7 @@ namespace GitMind.MainWindowViews
 					return mainWindow.Value;
 				}
 
+				Log.Warn("Main Window is null");
 				return null;
 			}
 		}
