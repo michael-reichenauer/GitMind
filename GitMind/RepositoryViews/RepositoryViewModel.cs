@@ -390,9 +390,22 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public void MouseEnterBranch(BranchViewModel branch)
+		public void MouseEnterBranch(BranchViewModel branch, Point viewPoint)
 		{
 			branch.SetHighlighted();
+			CommitViewModel commitViewModel = TryGetCommitAt(viewPoint);
+			if (commitViewModel != null)
+			{
+				int index = Commits.IndexOf(commitViewModel);
+				for (int i = index; i > -1; i--)
+				{
+					if (Commits[i].Commit.Branch.Name == branch.Branch.Name)
+					{
+						branch.MouseOnCommit(Commits[i].Commit);
+						break;
+					}
+				}				
+			}
 
 			if (branch.Branch.IsLocalPart)
 			{
@@ -776,18 +789,15 @@ namespace GitMind.RepositoryViews
 
 		public void Clicked(Point position)
 		{
-			double clickX = position.X - 9;
-			double clickY = position.Y - 5;
+			CommitViewModel commitViewModel = TryGetCommitAt(position);
 
-			int row = Converters.ToRow(clickY);
-
-			if (row < 0 || row >= Commits.Count - 1 || clickX < 0 || clickX >= graphWidth)
+			if (commitViewModel == null)
 			{
-				// Click is not within supported area.
 				return;
 			}
 
-			CommitViewModel commitViewModel = Commits[row];
+			double clickX = position.X - 9;
+			double clickY = position.Y - 5;
 			int xDotCenter = commitViewModel.X;
 			int yDotCenter = commitViewModel.Y;
 
@@ -799,6 +809,24 @@ namespace GitMind.RepositoryViews
 				Clicked(commitViewModel);
 			}
 		}
+
+
+		private CommitViewModel TryGetCommitAt(Point position)
+		{
+			double clickX = position.X - 9;
+			double clickY = position.Y - 5;
+
+			int row = Converters.ToRow(clickY);
+
+			if (row < 0 || row >= Commits.Count - 1 || clickX < 0 || clickX >= graphWidth)
+			{
+				// Click is not within supported area.
+				return null;
+			}
+
+			return Commits[row];
+		}
+
 
 		private void Clicked(CommitViewModel commitViewModel)
 		{
