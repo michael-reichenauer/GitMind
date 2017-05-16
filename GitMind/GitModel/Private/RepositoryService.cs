@@ -287,6 +287,7 @@ namespace GitMind.GitModel.Private
 
 				if (mRepository.TimeToCreateFresh > MinCreateTimeBeforeCaching)
 				{
+					Log.Usage($"Caching repository ({t.Elapsed} ms)");
 					await cacheService.CacheAsync(mRepository);
 				}
 
