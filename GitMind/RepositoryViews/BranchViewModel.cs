@@ -151,8 +151,6 @@ namespace GitMind.RepositoryViews
 			else
 			{
 				branches = new List<Branch>();
-				List<Branch> branchesBefore = new List<Branch>();
-				List<Branch> branchesAfter = new List<Branch>();
 				int total = 15;
 				var commits = Branch.Commits.ToList();
 				int index = commits.FindIndex(c => c == mouseOnCommit);
@@ -160,18 +158,17 @@ namespace GitMind.RepositoryViews
 				{
 					int i1 = index;
 					int i2 = index + 1;
-					while (branchesBefore.Count + branchesAfter.Count < total && (i1 > -1 || i2 < commits.Count))
+					while (branches.Count < total && (i1 > -1 || i2 < commits.Count))
 					{
 						if (i1 > -1)
 						{
 							Commit commit = commits[i1];
-							foreach (Commit child in commit.Children.Concat(commit.Parents).Where(c => c.Branch.Name != Branch.Name))
+							foreach (Commit child in commit.Children.Concat(commit.Parents)
+								.Where(c => c.Branch.Name != Branch.Name && c.Branch.Name != "master"))
 							{
-								if (!branchesBefore.Any(b => b == child.Branch)
-									&& !branchesAfter.Any(b => b == child.Branch
-									&& branchesBefore.Count + branchesAfter.Count < total))
+								if (!branches.Any(b => b == child.Branch) && branches.Count < total)
 								{
-									branchesBefore.Add(child.Branch);
+									branches.Add(child.Branch);
 								}
 							}
 						}
@@ -179,13 +176,12 @@ namespace GitMind.RepositoryViews
 						if (i2 < commits.Count)
 						{
 							Commit commit = commits[i2];
-							foreach (Commit child in commit.Children.Concat(commit.Parents).Where(c => c.Branch.Name != Branch.Name))
+							foreach (Commit child in commit.Children.Concat(commit.Parents)
+								.Where(c => c.Branch.Name != Branch.Name && c.Branch.Name != "master"))
 							{
-								if (!branchesBefore.Any(b => b == child.Branch) 
-									&& !branchesAfter.Any(b => b == child.Branch
-									&& branchesBefore.Count + branchesAfter.Count < total))
+								if (!branches.Any(b => b == child.Branch) && branches.Count  < total)
 								{
-									branchesAfter.Add(child.Branch);
+									branches.Add(child.Branch);
 								}
 							}
 						}
@@ -194,8 +190,7 @@ namespace GitMind.RepositoryViews
 						i2++;
 					}
 
-					branchesBefore.AsEnumerable().Reverse().ForEach(b => branches.Add(b));
-					branchesAfter.ForEach(b => branches.Add(b));
+					branches.Sort(Comparer<Branch>.Create((b1, b2) => string.Compare(b1.Name, b2.Name)));
 				}
 			}
 
