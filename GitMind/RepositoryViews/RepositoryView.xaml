@@ -256,7 +256,7 @@
 
 														<!-- Show child branch meu item -->
 														<MenuItem
-															Header="Show nearby branch"
+															Header="Show related nearby branch"
 															IsEnabled="{Binding HasChildren}"
 															ItemsSource="{Binding ChildBranches}">
 															<MenuItem.Icon>
