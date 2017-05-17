@@ -67,7 +67,12 @@ namespace GitMind.GitModel.Private
 				return subject;
 			}
 
-			return subject?.Substring(tickets?.Length ?? 0);
+			if (subject != null && tickets != null && subject.StartsWith(tickets))
+			{
+				return subject?.Substring(tickets?.Length ?? 0);
+			}
+
+			return subject;
 		}
 	}
 }

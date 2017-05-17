@@ -1,5 +1,7 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Common.ThemeHandling;
@@ -44,7 +46,7 @@ namespace GitMind.RepositoryViews
 		public string Date => Commit.AuthorDateText;
 		public string Subject => Commit.Subject;
 		public string Tags => Commit.Tags;
-		public string Tickets => Commit.Tickets;
+		//public string Tickets => Commit.Tickets;
 		public string BranchTips => Commit.BranchTips;
 		public string CommitBranchText => $"Hide branch: {Commit.Branch.Name}";
 		public string SwitchToBranchText => $"Switch to branch: {Commit.Branch.Name}";
@@ -77,6 +79,16 @@ namespace GitMind.RepositoryViews
 		public Brush Brush { get; set; }
 		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
 		public Brush HoverBrush => themeService.Theme.HoverBrush;
+
+		public ObservableCollection<TicketItem> Tickets
+		{
+			get
+			{
+				return GetTickets();
+
+			}
+		}
+
 
 
 		public double Width
@@ -145,7 +157,6 @@ namespace GitMind.RepositoryViews
 
 		public Command MergeBranchCommitCommand => AsyncCommand(() => branchService.MergeBranchCommitAsync(Commit));
 
-		public Command GotoTicketCommand => Command(GotoTicket);
 
 
 
@@ -196,34 +207,81 @@ namespace GitMind.RepositoryViews
 			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
 		}
 
+
+		private static Regex rgx = new Regex(@"(?<n1>[\,; ]*#(\d\d*)[\,; ]*)|(?<n2>[\,; ]*#CST(\d\d*)[\,; ]*)");
+		private static Regex rgx1 = new Regex(@"#(\d\d*)");
+		private static Regex rgx2 = new Regex(@"#CST(\d\d*)");
+
+
+		private ObservableCollection<TicketItem> GetTickets()
+		{
+			ObservableCollection<TicketItem> items = new ObservableCollection<TicketItem>();
+
+			foreach (Match match in rgx.Matches(Commit.Tickets))
+			{
+				string g1 = match.Groups["n1"].Value;
+				string g2 = match.Groups["n2"].Value;
+				if (!string.IsNullOrEmpty(g1))
+				{
+					var m1 = rgx1.Match(g1);
+					string t1 = m1.Groups[0].Value;
+					string v1 = m1.Groups[1].Value;
+					items.Add(
+						new TicketItem()
+						{
+							Value = t1,
+							TicketBrush = TicketBrush,
+							TicketBackgroundBrush = TicketBackgroundBrush,
+							Uri = $"https://trouble.se.axis.com/ticket/{v1}"
+						});
+				}
+				if (!string.IsNullOrEmpty(g2))
+				{
+					var m2 = rgx2.Match(g2);
+					string t2 = m2.Groups[0].Value;
+					string v2 = m2.Groups[1].Value;
+					items.Add(
+						new TicketItem()
+						{ Value = t2,
+							TicketBrush = TicketBrush,
+							TicketBackgroundBrush = TicketBackgroundBrush,
+							Uri = $"https://cst.axis.com/case.cgi?id={v2}"				
+						});
+				}
+
+			}
+
+			return items;
+		}
+
+
+		
+
+		public override string ToString() => $"{ShortId} {Subject} {Date}";
+	}
+
+
+	internal class TicketItem : ViewModel
+	{
+		public string Value { get; set; }
+		public Brush TicketBrush { get; set; }
+		public Brush TicketBackgroundBrush { get; set; }
+		public Command GotoTicketCommand => Command(GotoTicket);
+		public string Uri { get; set; }
+
 		private void GotoTicket()
 		{
 			try
 			{
-				if (Tickets != null)
-				{
-					string uri;
-					string number = Tickets.Trim("#,; ".ToCharArray());
-					if (number.StartsWith("CST", StringComparison.OrdinalIgnoreCase))
-					{
-						uri = $"https://cst.axis.com/case.cgi?id={number.Substring(3)}";
-					}
-					else
-					{
-						uri = $"https://trouble.se.axis.com/ticket/{number}";
-					}
+				Process process = new Process();
+				process.StartInfo.FileName = Uri;
+				process.Start();
 
-					Process process = new Process();
-					process.StartInfo.FileName = uri;
-					process.Start();
-				}
 			}
 			catch (Exception ex) when (ex.IsNotFatal())
 			{
 				Log.Error($"Failed to open help link {ex}");
 			}
 		}
-
-		public override string ToString() => $"{ShortId} {Subject} {Date}";
 	}
 }
