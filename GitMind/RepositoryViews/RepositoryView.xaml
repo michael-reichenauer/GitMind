@@ -586,12 +586,21 @@
 															VerticalAlignment="Center" />
 
 														<!-- Tickets -->
-														<TextBlock
-															Text="{Binding Tickets}"
-															Foreground="{Binding TicketBrush}"
-															Background="{Binding TicketBackgroundBrush}"
-															HorizontalAlignment="Left"
-															VerticalAlignment="Center" />
+														<Button		
+															Style="{DynamicResource BaseButtonStyle}"
+															FontSize="12"
+															Padding="0"
+															Margin="0"
+															Command="{Binding GotoTicketCommand}"
+															ToolTip="Click to go to ticket"
+															Cursor="Hand">
+															<TextBlock
+																Text="{Binding Tickets}"
+																Foreground="{Binding TicketBrush}"
+																Background="{Binding TicketBackgroundBrush}"
+																HorizontalAlignment="Left"
+																VerticalAlignment="Center" />
+														</Button>
 
 														<!-- Subject -->
 														<TextBlock

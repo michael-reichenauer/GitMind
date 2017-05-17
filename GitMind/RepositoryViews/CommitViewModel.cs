@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Common.ThemeHandling;
@@ -6,6 +8,7 @@ using GitMind.Features.Commits;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
+using Log = GitMind.Utils.Log;
 
 
 namespace GitMind.RepositoryViews
@@ -142,6 +145,10 @@ namespace GitMind.RepositoryViews
 
 		public Command MergeBranchCommitCommand => AsyncCommand(() => branchService.MergeBranchCommitAsync(Commit));
 
+		public Command GotoTicketCommand => Command(GotoTicket);
+
+		
+
 		// Values used by other properties
 		public Commit Commit { get; set; }
 
@@ -189,6 +196,19 @@ namespace GitMind.RepositoryViews
 			Notify(nameof(SubjectBrush), nameof(TicketBrush), nameof(TagBrush), nameof(BranchTipBrush));
 		}
 
+		private void GotoTicket()
+		{
+			try
+			{
+				Process proc = new Process();
+				proc.StartInfo.FileName = "https://github.com/michael-reichenauer/GitMind/wiki/Help#set-branch";
+				proc.Start();
+			}
+			catch (Exception ex) when (ex.IsNotFatal())
+			{
+				Log.Error($"Failed to open help link {ex}");
+			}
+		}
 
 		public override string ToString() => $"{ShortId} {Subject} {Date}";
 	}
