@@ -147,7 +147,7 @@ namespace GitMind.RepositoryViews
 
 		public Command GotoTicketCommand => Command(GotoTicket);
 
-		
+
 
 		// Values used by other properties
 		public Commit Commit { get; set; }
@@ -213,10 +213,10 @@ namespace GitMind.RepositoryViews
 						uri = $"https://trouble.se.axis.com/ticket/{number}";
 					}
 
-					Process proc = new Process();
-					proc.StartInfo.FileName = uri;
-					proc.Start();
-				}		
+					Process process = new Process();
+					process.StartInfo.FileName = uri;
+					process.Start();
+				}
 			}
 			catch (Exception ex) when (ex.IsNotFatal())
 			{
