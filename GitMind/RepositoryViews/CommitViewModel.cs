@@ -200,9 +200,23 @@ namespace GitMind.RepositoryViews
 		{
 			try
 			{
-				Process proc = new Process();
-				proc.StartInfo.FileName = "https://github.com/michael-reichenauer/GitMind/wiki/Help#set-branch";
-				proc.Start();
+				if (Tickets != null)
+				{
+					string uri;
+					string number = Tickets.Trim("#,; ".ToCharArray());
+					if (number.StartsWith("CST", StringComparison.OrdinalIgnoreCase))
+					{
+						uri = $"https://cst.axis.com/case.cgi?id={number.Substring(3)}";
+					}
+					else
+					{
+						uri = $"https://trouble.se.axis.com/ticket/{number}";
+					}
+
+					Process proc = new Process();
+					proc.StartInfo.FileName = uri;
+					proc.Start();
+				}		
 			}
 			catch (Exception ex) when (ex.IsNotFatal())
 			{
