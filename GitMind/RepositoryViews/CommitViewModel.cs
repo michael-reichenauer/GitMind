@@ -268,6 +268,7 @@ namespace GitMind.RepositoryViews
 		public Brush TicketBackgroundBrush { get; set; }
 		public Command GotoTicketCommand => Command(GotoTicket);
 		public string Uri { get; set; }
+		public string ToolTip => "Click to go to " + Uri;
 
 		private void GotoTicket()
 		{
