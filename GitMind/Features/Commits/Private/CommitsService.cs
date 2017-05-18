@@ -282,4 +282,4 @@ namespace GitMind.Features.Commits.Private
 			return gitCommitsService.EditCommitBranchAsync(commitSha, rootSha, branchName);
 		}
 	}
-}
+} 
