@@ -1,0 +1,4 @@
+ticket: https://trouble.se.axis.com/ticket/{nbr} #(?<nbr>\d\d*)
+ticket: https://cst.axis.com/case.cgi?id={nbr} #CST(?<nbr>\d\d*)
+tag: https://trouble.se.axis.com/ticket/{nbr} #(?<nbr>\d\d*)
+tag: https://cst.axis.com/case.cgi?id={nbr} #(?<nbr>\d\d*)
