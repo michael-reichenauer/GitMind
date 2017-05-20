@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
@@ -21,6 +22,9 @@ namespace GitMind.RepositoryViews
 		private readonly IThemeService themeService;
 		private readonly IRepositoryCommands repositoryCommands;
 		private readonly ICommitsService commitsService;
+
+
+		private Commit commit;
 
 		private int windowWidth;
 
@@ -44,7 +48,7 @@ namespace GitMind.RepositoryViews
 		public string ShortId => Commit.RealCommitSha.ShortSha;
 		public string Author => Commit.Author;
 		public string Date => Commit.AuthorDateText;
-		public string Subject => Commit.Subject;
+		public string Subject { get; private set; }
 		public string Tags => Commit.Tags;
 		//public string Tickets => Commit.Tickets;
 		public string BranchTips => Commit.BranchTips;
@@ -80,14 +84,8 @@ namespace GitMind.RepositoryViews
 		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
 		public Brush HoverBrush => themeService.Theme.HoverBrush;
 
-		public ObservableCollection<TicketItem> Tickets
-		{
-			get
-			{
-				return GetTickets();
+		public ObservableCollection<TicketItem> Tickets { get; private set; }
 
-			}
-		}
 
 
 
@@ -159,9 +157,16 @@ namespace GitMind.RepositoryViews
 
 
 
-
 		// Values used by other properties
-		public Commit Commit { get; set; }
+		public Commit Commit
+		{
+			get => commit;
+			set
+			{
+				commit = value;
+				SetCommitValues();
+			}
+		}
 
 		// If second parent is other branch (i.e. no a pull merge)
 		// If commit is first commit in a branch (first parent is other branch)
@@ -208,67 +213,56 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		private static Regex rgx = new Regex(@"(?<n1>[\,; ]*#(\d\d*)[\,; ]*)|(?<n2>[\,; ]*#CST(\d\d*)[\,; ]*)");
-		private static Regex rgx1 = new Regex(@"#(\d\d*)");
-		private static Regex rgx2 = new Regex(@"#CST(\d\d*)");
-
-
-		private ObservableCollection<TicketItem> GetTickets()
+		private void SetCommitValues()
 		{
+			Links links = commitsService.GetLinks(Commit);
+
 			ObservableCollection<TicketItem> items = new ObservableCollection<TicketItem>();
+			links.AllLinks.ForEach(link => items.Add(new TicketItem(this, link.Text, link.Uri)));
+			Tickets = items;
 
-			foreach (Match match in rgx.Matches(Commit.Tickets))
-			{
-				string g1 = match.Groups["n1"].Value;
-				string g2 = match.Groups["n2"].Value;
-				if (!string.IsNullOrEmpty(g1))
-				{
-					var m1 = rgx1.Match(g1);
-					string t1 = m1.Groups[0].Value;
-					string v1 = m1.Groups[1].Value;
-					items.Add(
-						new TicketItem()
-						{
-							Value = t1,
-							TicketBrush = TicketBrush,
-							TicketBackgroundBrush = TicketBackgroundBrush,
-							Uri = $"https://trouble.se.axis.com/ticket/{v1}"
-						});
-				}
-				if (!string.IsNullOrEmpty(g2))
-				{
-					var m2 = rgx2.Match(g2);
-					string t2 = m2.Groups[0].Value;
-					string v2 = m2.Groups[1].Value;
-					items.Add(
-						new TicketItem()
-						{ Value = t2,
-							TicketBrush = TicketBrush,
-							TicketBackgroundBrush = TicketBackgroundBrush,
-							Uri = $"https://cst.axis.com/case.cgi?id={v2}"				
-						});
-				}
-
-			}
-
-			return items;
+			Subject = GetSubjectWithoutTickets(Commit.Subject, links.TotalText);
 		}
-
-
 		
 
 		public override string ToString() => $"{ShortId} {Subject} {Date}";
+
+		private static string GetSubjectWithoutTickets(string subject, string tickets)
+		{
+			if ((subject?.Length ?? 0) < (tickets?.Length ?? 0))
+			{
+				return subject;
+			}
+
+			if (subject != null && tickets != null && subject.StartsWith(tickets))
+			{
+				return subject?.Substring(tickets?.Length ?? 0);
+			}
+
+			return subject;
+		}
 	}
 
 
 	internal class TicketItem : ViewModel
 	{
-		public string Value { get; set; }
-		public Brush TicketBrush { get; set; }
-		public Brush TicketBackgroundBrush { get; set; }
+		private readonly CommitViewModel viewModel;
+
+
+		public TicketItem(CommitViewModel viewModel, string text, string uri)
+		{
+			this.viewModel = viewModel;
+			Value = text;
+			Uri = uri;
+		}
+
+		public string Value { get; }
+		public string Uri { get; }
+		public string ToolTip => Uri;
+		public Brush TicketBrush => viewModel.TicketBrush;
+		public Brush TicketBackgroundBrush => viewModel.TicketBackgroundBrush;
 		public Command GotoTicketCommand => Command(GotoTicket);
-		public string Uri { get; set; }
-		public string ToolTip => "Click to go to " + Uri;
+
 
 		private void GotoTicket()
 		{

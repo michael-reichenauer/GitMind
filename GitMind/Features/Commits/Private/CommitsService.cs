@@ -31,6 +31,7 @@ namespace GitMind.Features.Commits.Private
 		private readonly Func<SetBranchPromptDialog> setBranchPromptDialogProvider;
 		private readonly IGitCommitsService gitCommitsService;
 		private readonly IDiffService diffService;
+		private readonly ILinkService linkService;
 		private readonly IRepositoryMgr repositoryMgr;
 		private readonly IProgressService progress;
 		private readonly IStatusService statusService;
@@ -42,6 +43,7 @@ namespace GitMind.Features.Commits.Private
 			Func<SetBranchPromptDialog> setBranchPromptDialogProvider,
 			IGitCommitsService gitCommitsService,
 			IDiffService diffService,
+			ILinkService linkService,
 			IRepositoryMgr repositoryMgr,
 			IProgressService progressService,
 			IStatusService statusService,
@@ -58,6 +60,7 @@ namespace GitMind.Features.Commits.Private
 			this.setBranchPromptDialogProvider = setBranchPromptDialogProvider;
 			this.gitCommitsService = gitCommitsService;
 			this.diffService = diffService;
+			this.linkService = linkService;
 			this.repositoryMgr = repositoryMgr;
 			this.progress = progressService;
 			this.statusService = statusService;
@@ -158,6 +161,8 @@ namespace GitMind.Features.Commits.Private
 			}
 		}
 
+
+		public Links GetLinks(Commit commit) => linkService.Parse(commit.Subject);
 
 
 		public bool CanUnCommit(Commit commit)

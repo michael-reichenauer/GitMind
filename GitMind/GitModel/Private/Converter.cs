@@ -38,7 +38,7 @@ namespace GitMind.GitModel.Private
 				commit.Id,
 				commit.RealCommitId,
 				commit.RealCommitSha,
-				GetSubjectWithoutTickets(commit.Subject, commit.Tickets),
+				commit.Subject,
 				commit.Author,
 				commit.AuthorDate,
 				commit.CommitDate,
@@ -58,21 +58,6 @@ namespace GitMind.GitModel.Private
 				commit.HasConflicts,
 				commit.IsMerging,
 				commit.HasFirstChild);
-		}
-
-		private static string GetSubjectWithoutTickets(string subject, string tickets)
-		{
-			if ((subject?.Length ?? 0) < (tickets?.Length ?? 0))
-			{
-				return subject;
-			}
-
-			if (subject != null && tickets != null && subject.StartsWith(tickets))
-			{
-				return subject?.Substring(tickets?.Length ?? 0);
-			}
-
-			return subject;
 		}
 	}
 }
