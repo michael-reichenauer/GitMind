@@ -117,7 +117,8 @@ namespace GitMind.RepositoryViews
 		public Brush SubjectBrush => CommitViewModel?.SubjectBrush;
 		public FontStyle SubjectStyle => FontStyles.Normal;
 		public string Tags => CommitViewModel?.Tags;
-		public string Tickets => "";
+		public ObservableCollection<TicketItem> Tickets => CommitViewModel.Tickets;
+		public bool HasTickets => CommitViewModel.Tickets.Any();
 		public string BranchTips => CommitViewModel?.BranchTips;
 
 		public Command EditBranchCommand => CommitViewModel.SetCommitBranchCommand;
