@@ -1,4 +1,4 @@
-ticket: https://trouble.se.axis.com/ticket/{nbr} #(?<nbr>\d\d*)
-ticket: https://cst.axis.com/case.cgi?id={nbr} #CST(?<nbr>\d\d*)
-tag: https://trouble.se.axis.com/ticket/{nbr} #(?<nbr>\d\d*)
-tag: https://cst.axis.com/case.cgi?id={nbr} #(?<nbr>\d\d*)
+issue: https://github.com/michael-reichenauer/GitMind/issues/{0} #(\d\d*)
+issue: https://cst.axis.com/case.cgi?id={0} #CST(\d\d*)
+tag:https://github.com/michael-reichenauer/GitMind/releases/tag/{0} (v\d\d*\.\d\d*\.\d\d*\.\d\d*)
+

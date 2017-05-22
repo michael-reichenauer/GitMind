@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Common.ThemeHandling;
@@ -49,7 +48,7 @@ namespace GitMind.RepositoryViews
 		public string Author => Commit.Author;
 		public string Date => Commit.AuthorDateText;
 		public string Subject { get; private set; }
-		public string Tags => Commit.Tags;
+		//public string Tags { get; private set; }
 		//public string Tickets => Commit.Tickets;
 		public string BranchTips => Commit.BranchTips;
 		public string CommitBranchText => $"Hide branch: {Commit.Branch.Name}";
@@ -85,6 +84,8 @@ namespace GitMind.RepositoryViews
 		public Brush HoverBrush => themeService.Theme.HoverBrush;
 
 		public ObservableCollection<TicketItem> Tickets { get; private set; }
+		public ObservableCollection<TicketItem> Tags { get; private set; }
+
 
 
 
@@ -215,31 +216,60 @@ namespace GitMind.RepositoryViews
 
 		private void SetCommitValues()
 		{
-			Links links = commitsService.GetLinks(Commit);
+			ObservableCollection<TicketItem> issueItems = new ObservableCollection<TicketItem>();
+			ObservableCollection<TicketItem> tagItems = new ObservableCollection<TicketItem>();
 
-			ObservableCollection<TicketItem> items = new ObservableCollection<TicketItem>();
-			links.AllLinks.ForEach(link => items.Add(new TicketItem(this, link.Text, link.Uri)));
-			Tickets = items;
+			Links subjectIssueLinks = commitsService.GetIssueLinks(Commit.Subject);
 
-			Subject = GetSubjectWithoutTickets(Commit.Subject, links.TotalText);
+			if (!string.IsNullOrEmpty(Commit.Tags))
+			{
+				var tags = Commit.Tags.Split(":".ToCharArray()).Where(n => !string.IsNullOrEmpty(n)).ToList();
+
+				foreach (string tag in tags)
+				{
+					Links tagIssueLinks = commitsService.GetIssueLinks(tag);
+					Links tagTagLinks = commitsService.GetTagLinks(tag);
+					if (tagIssueLinks.TotalText == tag)
+					{
+						tagIssueLinks.AllLinks.ForEach(link => issueItems.Add(new TicketItem(this, $"[{link.Text}]", link.Uri, link.LinkType)));
+					}
+					else if (tagTagLinks.TotalText == tag)
+					{
+						tagTagLinks.AllLinks.ForEach(link => tagItems.Add(new TicketItem(this, $"[{link.Text}]", link.Uri, link.LinkType)));
+					}
+					else
+					{
+						tagItems.Add(new TicketItem(this, $"[{tag}]", null, LinkType.tag));
+					}
+				}			
+			}
+
+			Tags = tagItems;
+
+
+			Subject = GetTextWithoutStart(Commit.Subject, subjectIssueLinks.TotalText);
+
+			subjectIssueLinks.AllLinks.ForEach(link => issueItems.Add(new TicketItem(this, link.Text, link.Uri, link.LinkType)));
+	
+			Tickets = issueItems;
 		}
-		
+
 
 		public override string ToString() => $"{ShortId} {Subject} {Date}";
 
-		private static string GetSubjectWithoutTickets(string subject, string tickets)
+		private static string GetTextWithoutStart(string text, string startText)
 		{
-			if ((subject?.Length ?? 0) < (tickets?.Length ?? 0))
+			if ((text?.Length ?? 0) < (startText?.Length ?? 0))
 			{
-				return subject;
+				return text;
 			}
 
-			if (subject != null && tickets != null && subject.StartsWith(tickets))
+			if (text != null && startText != null && text.StartsWith(startText))
 			{
-				return subject?.Substring(tickets?.Length ?? 0);
+				return text?.Substring(startText?.Length ?? 0);
 			}
 
-			return subject;
+			return text;
 		}
 	}
 
@@ -247,20 +277,23 @@ namespace GitMind.RepositoryViews
 	internal class TicketItem : ViewModel
 	{
 		private readonly CommitViewModel viewModel;
+		private readonly LinkType linkType;
 
 
-		public TicketItem(CommitViewModel viewModel, string text, string uri)
+		public TicketItem(CommitViewModel viewModel, string text, string uri, LinkType linkType)
 		{
 			this.viewModel = viewModel;
+			this.linkType = linkType;
 			Value = text;
 			Uri = uri;
 		}
 
 		public string Value { get; }
+		public bool IsLink => !string.IsNullOrEmpty(Uri);
 		public string Uri { get; }
 		public string ToolTip => Uri;
-		public Brush TicketBrush => viewModel.TicketBrush;
-		public Brush TicketBackgroundBrush => viewModel.TicketBackgroundBrush;
+		public Brush TicketBrush => linkType == LinkType.issue ? viewModel.TicketBrush : viewModel.TagBrush;
+		public Brush TicketBackgroundBrush => linkType == LinkType.issue ? viewModel.TicketBackgroundBrush : viewModel.TagBackgroundBrush;
 		public Command GotoTicketCommand => Command(GotoTicket);
 
 

@@ -140,6 +140,7 @@
     <Compile Include="Features\StatusHandling\Private\StatusService.cs" />
     <Compile Include="Features\StatusHandling\Refresh.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
+    <Compile Include="GitModel\Link.cs" />
     <Compile Include="GitModel\Private\LinkService.cs" />
     <Compile Include="GitModel\Private\BranchTipMonitorService.cs" />
     <Compile Include="GitModel\Private\Caching\BranchNameSurrogate.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="GitModel\Private\IBranchTipMonitorService.cs" />
     <Compile Include="GitModel\ILinkService.cs" />
     <Compile Include="GitModel\Private\IRepositoryStructureService.cs" />
+    <Compile Include="GitModel\Private\Pattern.cs" />
     <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
     <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />
     <Compile Include="GitModel\RepositoryUpdatedEventArgs.cs" />

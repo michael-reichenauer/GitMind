@@ -9,19 +9,6 @@ namespace GitMind.GitModel
 		issue
 	}
 
-	internal class Link
-	{
-		public Link(string text, string uri, LinkType linkType)
-		{
-			Text = text;
-			Uri = uri;
-		}
-
-
-		public string Text { get; }
-
-		public string Uri { get; }
-	}
 
 	internal class Links
 	{
@@ -40,6 +27,7 @@ namespace GitMind.GitModel
 
 	internal interface ILinkService
 	{
-		Links Parse(string text);
+		Links ParseIssues(string text);
+		Links ParseTags(string text);
 	}
 }

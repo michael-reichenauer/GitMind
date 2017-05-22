@@ -20,6 +20,7 @@ namespace GitMind.Features.Commits
 		Task CleanWorkingFolderAsync();
 		Task UndoCommitAsync(Commit commit);
 
-		Links GetLinks(Commit commit);
+		Links GetIssueLinks(string text);
+		Links GetTagLinks(string text);
 	}
 }

@@ -116,9 +116,10 @@ namespace GitMind.RepositoryViews
 		public Brush BranchBrush => CommitViewModel?.Brush;
 		public Brush SubjectBrush => CommitViewModel?.SubjectBrush;
 		public FontStyle SubjectStyle => FontStyles.Normal;
-		public string Tags => CommitViewModel?.Tags;
-		public ObservableCollection<TicketItem> Tickets => CommitViewModel.Tickets;
-		public bool HasTickets => CommitViewModel.Tickets.Any();
+		public ObservableCollection<TicketItem> Tags => CommitViewModel?.Tags;
+		public ObservableCollection<TicketItem> Tickets => CommitViewModel?.Tickets;
+		public bool HasTickets => CommitViewModel?.Tickets?.Any() ?? false;
+		public bool HasTags => CommitViewModel?.Tags?.Any() ?? false;
 		public string BranchTips => CommitViewModel?.BranchTips;
 
 		public Command EditBranchCommand => CommitViewModel.SetCommitBranchCommand;

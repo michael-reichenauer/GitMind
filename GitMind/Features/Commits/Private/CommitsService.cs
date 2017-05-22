@@ -162,7 +162,8 @@ namespace GitMind.Features.Commits.Private
 		}
 
 
-		public Links GetLinks(Commit commit) => linkService.Parse(commit.Subject);
+		public Links GetIssueLinks(string text) => linkService.ParseIssues(text);
+		public Links GetTagLinks(string text) => linkService.ParseTags(text);
 
 
 		public bool CanUnCommit(Commit commit)
