@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Threading;
 using GitMind.ApplicationHandling;
+using GitMind.Common.MessageDialogs;
 using GitMind.Utils;
 
 
@@ -14,30 +17,44 @@ namespace GitMind.GitModel.Private
 		private static readonly string splitChars = @"[\,; :]";
 
 		private readonly WorkingFolder workingFolder;
+		private readonly IMessageService messageService;
 
 		private List<Pattern> issuePatterns;
 		private List<Pattern> tagPatterns;
 		private Regex issuesRgx;
 		private Regex tagsRgx;
+		private bool initialised = false;
 
 
-		public LinkService(WorkingFolder workingFolder)
+		public LinkService(
+			WorkingFolder workingFolder,
+			IMessageService messageService)
 		{
 			this.workingFolder = workingFolder;
+			this.messageService = messageService;
 
-			OnChangedWorkingFolder();
-			workingFolder.OnChange += (s, e) => OnChangedWorkingFolder();
+			workingFolder.OnChange += (s, e) => initialised = false;
 		}
 
 
 		public Links ParseIssues(string text)
 		{
+			if (!initialised)
+			{
+				OnChangedWorkingFolder();
+			}
+
 			return Parse(text, issuesRgx, issuePatterns);
 		}
 
 
 		public Links ParseTags(string text)
 		{
+			if (!initialised)
+			{
+				OnChangedWorkingFolder();
+			}
+
 			return Parse(text, tagsRgx, tagPatterns);
 		}
 
@@ -46,28 +63,49 @@ namespace GitMind.GitModel.Private
 		{
 			issuePatterns = new List<Pattern>();
 			tagPatterns = new List<Pattern>();
-			string filePath = Path.Combine(workingFolder, ".gitmind");
-			string[] fileLines = File.ReadAllLines(filePath);
-			foreach (string line in fileLines)
-			{
-				if (line.StartsWith("issue:", StringComparison.OrdinalIgnoreCase))
-				{
-					int patternIndex = line.IndexOf(" ", 8);
-					string linkPattern = line.Substring(6, patternIndex - 6).Trim();
-					string regexp = line.Substring(patternIndex).Trim();
-					issuePatterns.Add(new Pattern(linkPattern, regexp, LinkType.issue));
-				}
-				else if(line.StartsWith("tag:", StringComparison.OrdinalIgnoreCase))
-				{
-					int patternIndex = line.IndexOf(" ", 6);
-					string linkPattern = line.Substring(4, patternIndex - 4).Trim();
-					string regexp = line.Substring(patternIndex).Trim();
-					tagPatterns.Add(new Pattern(linkPattern, regexp, LinkType.tag));
-				}
-			}
+
+			ParseFile();
 
 			issuesRgx = GetPatternsRegExp(issuePatterns);
 			tagsRgx = GetPatternsRegExp(tagPatterns);
+			initialised = true;
+		}
+
+
+		private void ParseFile()
+		{
+			string filePath = Path.Combine(workingFolder, ".gitmind");
+			try
+			{
+				string[] fileLines = File.ReadAllLines(filePath);
+				foreach (string line in fileLines)
+				{
+					if (line.StartsWith("issue:", StringComparison.OrdinalIgnoreCase))
+					{
+						int patternIndex = line.IndexOf(" ", 8);
+						string linkPattern = line.Substring(6, patternIndex - 6).Trim();
+						string regexp = line.Substring(patternIndex).Trim();
+						issuePatterns.Add(new Pattern(linkPattern, regexp, LinkType.issue));
+					}
+					else if (line.StartsWith("tag:", StringComparison.OrdinalIgnoreCase))
+					{
+						int patternIndex = line.IndexOf(" ", 6);
+						string linkPattern = line.Substring(4, patternIndex - 4).Trim();
+						string regexp = line.Substring(patternIndex).Trim();
+						tagPatterns.Add(new Pattern(linkPattern, regexp, LinkType.tag));
+					}
+				}
+			}
+			catch (ArgumentException e)
+			{
+				Log.Warn($"Failed to parse {filePath} {e}");
+				messageService.ShowError($"Failed to parse {filePath}\n{e.Message}");
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to parse {filePath} {e}");
+				messageService.ShowError($"Failed to parse {filePath}\n{e.Message}");
+			}			
 		}
 
 
@@ -91,7 +129,7 @@ namespace GitMind.GitModel.Private
 
 
 
-		private static Links Parse(string text, Regex rgx, List<Pattern> patterns)
+		private Links Parse(string text, Regex rgx, List<Pattern> patterns)
 		{
 			string totalText = "";
 			List<Link> links = new List<Link>();
