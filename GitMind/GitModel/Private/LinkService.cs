@@ -81,6 +81,10 @@ namespace GitMind.GitModel.Private
 						"https://github.com/michael-reichenauer/GitMind/wiki/Help#links",
 						@"#(\d+)", 
 						LinkType.issue));
+					tagPatterns.Add(new Pattern(
+						"https://github.com/michael-reichenauer/GitMind/wiki/Help#links",
+						@"(.+)",
+						LinkType.tag));
 					return;
 				}
 
