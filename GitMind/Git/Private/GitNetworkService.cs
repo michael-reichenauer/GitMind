@@ -342,7 +342,7 @@ namespace GitMind.Git.Private
 
 		private static bool IsInvalidProtocol(Exception e)
 		{
-			if (-1 != e.Message.IndexOf("Unsupported URL protocol", StringComparison.OrdinalIgnoreCase))
+			if (-1 != e.Message.IndexOfOic("Unsupported URL protocol"))
 			{
 				Log.Debug("Invalid protocol");
 				return true;

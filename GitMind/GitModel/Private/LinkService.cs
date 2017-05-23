@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Windows;
-using System.Windows.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Utils;
@@ -23,7 +21,7 @@ namespace GitMind.GitModel.Private
 		private List<Pattern> tagPatterns;
 		private Regex issuesRgx;
 		private Regex tagsRgx;
-		private bool initialised = false;
+		private bool initialized = false;
 
 
 		public LinkService(
@@ -33,15 +31,15 @@ namespace GitMind.GitModel.Private
 			this.workingFolder = workingFolder;
 			this.messageService = messageService;
 
-			workingFolder.OnChange += (s, e) => initialised = false;
+			workingFolder.OnChange += (s, e) => initialized = false;
 		}
 
 
 		public Links ParseIssues(string text)
 		{
-			if (!initialised)
+			if (!initialized)
 			{
-				OnChangedWorkingFolder();
+				ParsePatternsForWorkingFolder();
 			}
 
 			return Parse(text, issuesRgx, issuePatterns);
@@ -50,16 +48,16 @@ namespace GitMind.GitModel.Private
 
 		public Links ParseTags(string text)
 		{
-			if (!initialised)
+			if (!initialized)
 			{
-				OnChangedWorkingFolder();
+				ParsePatternsForWorkingFolder();
 			}
 
 			return Parse(text, tagsRgx, tagPatterns);
 		}
 
 
-		private void OnChangedWorkingFolder()
+		private void ParsePatternsForWorkingFolder()
 		{
 			issuePatterns = new List<Pattern>();
 			tagPatterns = new List<Pattern>();
@@ -68,7 +66,7 @@ namespace GitMind.GitModel.Private
 
 			issuesRgx = GetPatternsRegExp(issuePatterns);
 			tagsRgx = GetPatternsRegExp(tagPatterns);
-			initialised = true;
+			initialized = true;
 		}
 
 
@@ -77,21 +75,31 @@ namespace GitMind.GitModel.Private
 			string filePath = Path.Combine(workingFolder, ".gitmind");
 			try
 			{
+				if (!File.Exists(filePath))
+				{
+					issuePatterns.Add(new Pattern(
+						"https://github.com/michael-reichenauer/GitMind/wiki/Help#links",
+						@"#(\d+)", 
+						LinkType.issue));
+					return;
+				}
+
 				string[] fileLines = File.ReadAllLines(filePath);
 				foreach (string line in fileLines)
 				{
-					if (line.StartsWith("issue:", StringComparison.OrdinalIgnoreCase))
+					if (line.StartsWithOic("issue:"))
 					{
-						int patternIndex = line.IndexOf(" ", 8);
+						int patternIndex = line.IndexOfOic(" ", 8);
 						string linkPattern = line.Substring(6, patternIndex - 6).Trim();
 						string regexp = line.Substring(patternIndex).Trim();
 						issuePatterns.Add(new Pattern(linkPattern, regexp, LinkType.issue));
 					}
-					else if (line.StartsWith("tag:", StringComparison.OrdinalIgnoreCase))
+					else if (line.StartsWithOic("tag:"))
 					{
-						int patternIndex = line.IndexOf(" ", 6);
+						int patternIndex = line.IndexOfOic(" ", 6);
 						string linkPattern = line.Substring(4, patternIndex - 4).Trim();
 						string regexp = line.Substring(patternIndex).Trim();
+
 						tagPatterns.Add(new Pattern(linkPattern, regexp, LinkType.tag));
 					}
 				}
@@ -129,7 +137,7 @@ namespace GitMind.GitModel.Private
 
 
 
-		private Links Parse(string text, Regex rgx, List<Pattern> patterns)
+		private static Links Parse(string text, Regex rgx, IReadOnlyList<Pattern> patterns)
 		{
 			string totalText = "";
 			List<Link> links = new List<Link>();
@@ -139,16 +147,19 @@ namespace GitMind.GitModel.Private
 
 				for (int i = 0; i < patterns.Count; i++)
 				{
-					string g1 = match.Groups["n" + i].Value;
-					if (!string.IsNullOrEmpty(g1))
-					{
-						var m1 = patterns[i].Rgx.Match(g1);
-						string matchText = m1.Groups[0].Value;
-						string value = m1.Groups[1].Value;
-						string uri = string.Format(patterns[i].LinkPattern, value);
+					string patternMatch = match.Groups["n" + i].Value;
 
-						Link item = new Link(matchText, uri, patterns[i].LinkType);
-						links.Add(item);
+					if (!string.IsNullOrEmpty(patternMatch))
+					{
+						var groupMatch = patterns[i].Rgx.Match(patternMatch);
+
+						string matchText = groupMatch.Groups[0].Value;
+						string matchValue = groupMatch.Groups[1].Value;
+
+						string uri = string.Format(patterns[i].LinkPattern, matchValue);
+
+						Link link = new Link(matchText, uri, patterns[i].LinkType);
+						links.Add(link);
 						break;
 					}
 				}			

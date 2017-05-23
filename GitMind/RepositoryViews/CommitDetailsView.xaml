@@ -119,7 +119,7 @@
 								ToolTip="{Binding ToolTip}"
 								Cursor="Hand">
 								<TextBlock
-									Text="{Binding Path=Value}"
+									Text="{Binding Path=Text}"
 									Foreground="{Binding TicketBrush}"
 									Background="{Binding TicketBackgroundBrush}"
 									HorizontalAlignment="Left"
@@ -154,7 +154,7 @@
 								ToolTip="{Binding ToolTip}"
 								Cursor="Hand">
 								<TextBlock
-									Text="{Binding Path=Value}"
+									Text="{Binding Path=Text}"
 									Foreground="{Binding TicketBrush}"
 									Background="{Binding TicketBackgroundBrush}"
 									HorizontalAlignment="Left"

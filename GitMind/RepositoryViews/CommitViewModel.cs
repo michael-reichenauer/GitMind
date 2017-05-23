@@ -83,8 +83,8 @@ namespace GitMind.RepositoryViews
 		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
 		public Brush HoverBrush => themeService.Theme.HoverBrush;
 
-		public ObservableCollection<TicketItem> Tickets { get; private set; }
-		public ObservableCollection<TicketItem> Tags { get; private set; }
+		public ObservableCollection<LinkItem> Tickets { get; private set; }
+		public ObservableCollection<LinkItem> Tags { get; private set; }
 
 
 
@@ -216,8 +216,8 @@ namespace GitMind.RepositoryViews
 
 		private void SetCommitValues()
 		{
-			ObservableCollection<TicketItem> issueItems = new ObservableCollection<TicketItem>();
-			ObservableCollection<TicketItem> tagItems = new ObservableCollection<TicketItem>();
+			ObservableCollection<LinkItem> issueItems = new ObservableCollection<LinkItem>();
+			ObservableCollection<LinkItem> tagItems = new ObservableCollection<LinkItem>();
 
 			Links subjectIssueLinks = commitsService.GetIssueLinks(Commit.Subject);
 
@@ -231,15 +231,15 @@ namespace GitMind.RepositoryViews
 					Links tagTagLinks = commitsService.GetTagLinks(tag);
 					if (tagIssueLinks.TotalText == tag)
 					{
-						tagIssueLinks.AllLinks.ForEach(link => issueItems.Add(new TicketItem(this, $"[{link.Text}]", link.Uri, link.LinkType)));
+						tagIssueLinks.AllLinks.ForEach(link => issueItems.Add(new LinkItem(this, $"[{link.Text}]", link.Uri, link.LinkType)));
 					}
 					else if (tagTagLinks.TotalText == tag)
 					{
-						tagTagLinks.AllLinks.ForEach(link => tagItems.Add(new TicketItem(this, $"[{link.Text}]", link.Uri, link.LinkType)));
+						tagTagLinks.AllLinks.ForEach(link => tagItems.Add(new LinkItem(this, $"[{link.Text}]", link.Uri, link.LinkType)));
 					}
 					else
 					{
-						tagItems.Add(new TicketItem(this, $"[{tag}]", null, LinkType.tag));
+						tagItems.Add(new LinkItem(this, $"[{tag}]", null, LinkType.tag));
 					}
 				}			
 			}
@@ -249,7 +249,7 @@ namespace GitMind.RepositoryViews
 
 			Subject = GetTextWithoutStart(Commit.Subject, subjectIssueLinks.TotalText);
 
-			subjectIssueLinks.AllLinks.ForEach(link => issueItems.Add(new TicketItem(this, link.Text, link.Uri, link.LinkType)));
+			subjectIssueLinks.AllLinks.ForEach(link => issueItems.Add(new LinkItem(this, link.Text, link.Uri, link.LinkType)));
 	
 			Tickets = issueItems;
 		}
@@ -274,24 +274,24 @@ namespace GitMind.RepositoryViews
 	}
 
 
-	internal class TicketItem : ViewModel
+	internal class LinkItem : ViewModel
 	{
 		private readonly CommitViewModel viewModel;
 		private readonly LinkType linkType;
 
 
-		public TicketItem(CommitViewModel viewModel, string text, string uri, LinkType linkType)
+		public LinkItem(CommitViewModel viewModel, string text, string uri, LinkType linkType)
 		{
 			this.viewModel = viewModel;
 			this.linkType = linkType;
-			Value = text;
+			Text = text;
 			Uri = uri;
 		}
 
-		public string Value { get; }
+		public string Text { get; }
 		public bool IsLink => !string.IsNullOrEmpty(Uri);
 		public string Uri { get; }
-		public string ToolTip => Uri;
+		public string ToolTip => "Show " + Uri;
 		public Brush TicketBrush => linkType == LinkType.issue ? viewModel.TicketBrush : viewModel.TagBrush;
 		public Brush TicketBackgroundBrush => linkType == LinkType.issue ? viewModel.TicketBackgroundBrush : viewModel.TagBackgroundBrush;
 		public Command GotoTicketCommand => Command(GotoTicket);

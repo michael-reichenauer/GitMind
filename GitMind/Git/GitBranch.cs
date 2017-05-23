@@ -27,8 +27,7 @@ namespace GitMind.Git
 		public bool IsDetached => branch.FriendlyName == DetachedBranchName;
 
 		public bool IsRemote => branch.IsRemote;
-		public bool IsCurrent => 0 ==  string.Compare(
-			branch.CanonicalName, repository.Head.CanonicalName, StringComparison.OrdinalIgnoreCase) ;
+		public bool IsCurrent => 0 ==  Txt.CompareOic(branch.CanonicalName, repository.Head.CanonicalName);
 		public bool HasCommits => branch.Commits.Any();
 
 		public GitLibCommit Tip => new GitLibCommit(
