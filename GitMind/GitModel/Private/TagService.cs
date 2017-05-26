@@ -25,8 +25,8 @@ namespace GitMind.GitModel.Private
 					if (repository.Commits.TryGetValue(new CommitId(tag.Target.Sha), out MCommit commit))
 					{
 						string name = tag.FriendlyName;
-						string tagText = $"[{name}] ";
-						if (commit.Tags != null && -1 == commit.Tags.IndexOf(name, StringComparison.Ordinal))
+						string tagText = $":{name}:";
+						if (commit.Tags != null && -1 == commit.Tags.IndexOf(tagText, StringComparison.Ordinal))
 						{
 							commit.Tags += tagText;
 						}

@@ -405,7 +405,7 @@ namespace GitMind.RepositoryViews.Private
 				return false;
 			}
 
-			return text.IndexOf(subText, StringComparison.OrdinalIgnoreCase) != -1;
+			return text.IndexOfOic(subText) != -1;
 		}
 
 		private static bool StartsWith(string text, string subText)
@@ -415,7 +415,7 @@ namespace GitMind.RepositoryViews.Private
 				return false;
 			}
 
-			return text.StartsWith(subText, StringComparison.OrdinalIgnoreCase);
+			return text.StartsWithOic(subText);
 		}
 
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
@@ -127,8 +128,8 @@ namespace GitMind.GitModel.Private
 
 		private void AddCommit(MCommit commit, GitCommit gitCommit)
 		{
-			string subject = gitCommit.Subject;
-			string tickets = GetTickets(subject);
+			//string subject = gitCommit.Subject;
+			string tickets = ""; // GetTickets(subject);
 			commit.Tickets = tickets;
 
 			// Pre-create all parents
@@ -345,23 +346,21 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private string GetTickets(string subject)
-		{
-			if (subject.StartsWith("#"))
-			{
-				int index = subject.IndexOf(" ");
-				if (index > 1)
-				{
-					return subject.Substring(0, index) + " ";
-				}
-				if (index > 0)
-				{
-					index = subject.IndexOf(" ", index + 1);
-					return subject.Substring(0, index) + " ";
-				}
-			}
+		//private static Regex rgx1 = new Regex(@"([\,; ]*#(\d\d*)[\,; ]*)|([\,; ]*#CST(\d\d*)[\,; ]*)");
+		//private static Regex rgx2 = new Regex(@"[\,; ]*#(CST\d\d*)[\,; ]*");
 
-			return "";
-		}
+		//private static Regex rgx1 = new Regex(@"#(\d\d*)");
+
+		//private string GetTickets(string subject)
+		//{
+		//	string tickets = "";
+		//	foreach (Match match in rgx1.Matches(subject))
+		//	{
+		//		tickets += match.Value;
+		//	}
+
+		
+		//	return tickets;
+		//}
 	}
 }
