@@ -17,7 +17,7 @@ namespace GitMind.GitModel.Private
 	internal class RepositoryService : IRepositoryService, IRepositoryMgr
 	{
 		private static readonly TimeSpan RemoteRepositoryInterval = TimeSpan.FromSeconds(15);
-		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(500);
+		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1000);
 
 		private readonly IStatusService statusService;
 		private readonly ICacheService cacheService;
@@ -287,6 +287,7 @@ namespace GitMind.GitModel.Private
 
 				if (mRepository.TimeToCreateFresh > MinCreateTimeBeforeCaching)
 				{
+					Log.Usage($"Caching repository ({t.Elapsed} ms)");
 					await cacheService.CacheAsync(mRepository);
 				}
 

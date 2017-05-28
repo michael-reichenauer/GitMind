@@ -1,3 +1,7 @@
+using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Common.ThemeHandling;
@@ -6,6 +10,7 @@ using GitMind.Features.Commits;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
+using Log = GitMind.Utils.Log;
 
 
 namespace GitMind.RepositoryViews
@@ -16,6 +21,9 @@ namespace GitMind.RepositoryViews
 		private readonly IThemeService themeService;
 		private readonly IRepositoryCommands repositoryCommands;
 		private readonly ICommitsService commitsService;
+
+
+		private Commit commit;
 
 		private int windowWidth;
 
@@ -39,9 +47,9 @@ namespace GitMind.RepositoryViews
 		public string ShortId => Commit.RealCommitSha.ShortSha;
 		public string Author => Commit.Author;
 		public string Date => Commit.AuthorDateText;
-		public string Subject => Commit.Subject;
-		public string Tags => Commit.Tags;
-		public string Tickets => Commit.Tickets;
+		public string Subject { get; private set; }
+		//public string Tags { get; private set; }
+		//public string Tickets => Commit.Tickets;
 		public string BranchTips => Commit.BranchTips;
 		public string CommitBranchText => $"Hide branch: {Commit.Branch.Name}";
 		public string SwitchToBranchText => $"Switch to branch: {Commit.Branch.Name}";
@@ -74,6 +82,12 @@ namespace GitMind.RepositoryViews
 		public Brush Brush { get; set; }
 		public FontStyle SubjectStyle => Commit.IsVirtual ? FontStyles.Italic : FontStyles.Normal;
 		public Brush HoverBrush => themeService.Theme.HoverBrush;
+
+		public ObservableCollection<LinkItem> Tickets { get; private set; }
+		public ObservableCollection<LinkItem> Tags { get; private set; }
+
+
+
 
 
 		public double Width
@@ -142,8 +156,18 @@ namespace GitMind.RepositoryViews
 
 		public Command MergeBranchCommitCommand => AsyncCommand(() => branchService.MergeBranchCommitAsync(Commit));
 
+
+
 		// Values used by other properties
-		public Commit Commit { get; set; }
+		public Commit Commit
+		{
+			get => commit;
+			set
+			{
+				commit = value;
+				SetCommitValues();
+			}
+		}
 
 		// If second parent is other branch (i.e. no a pull merge)
 		// If commit is first commit in a branch (first parent is other branch)
@@ -190,6 +214,102 @@ namespace GitMind.RepositoryViews
 		}
 
 
+		private void SetCommitValues()
+		{
+			ObservableCollection<LinkItem> issueItems = new ObservableCollection<LinkItem>();
+			ObservableCollection<LinkItem> tagItems = new ObservableCollection<LinkItem>();
+
+			Links subjectIssueLinks = commitsService.GetIssueLinks(Commit.Subject);
+
+			if (!string.IsNullOrEmpty(Commit.Tags))
+			{
+				var tags = Commit.Tags.Split(":".ToCharArray()).Where(n => !string.IsNullOrEmpty(n)).ToList();
+
+				foreach (string tag in tags)
+				{
+					Links tagIssueLinks = commitsService.GetIssueLinks(tag);
+					Links tagTagLinks = commitsService.GetTagLinks(tag);
+					if (tagIssueLinks.TotalText == tag)
+					{
+						tagIssueLinks.AllLinks.ForEach(link => issueItems.Add(new LinkItem(this, $"[{link.Text}]", link.Uri, link.LinkType)));
+					}
+					else if (tagTagLinks.TotalText == tag)
+					{
+						tagTagLinks.AllLinks.ForEach(link => tagItems.Add(new LinkItem(this, $"[{link.Text}]", link.Uri, link.LinkType)));
+					}
+					else
+					{
+						tagItems.Add(new LinkItem(this, $"[{tag}]", null, LinkType.tag));
+					}
+				}			
+			}
+
+			Tags = tagItems;
+
+
+			Subject = GetTextWithoutStart(Commit.Subject, subjectIssueLinks.TotalText);
+
+			subjectIssueLinks.AllLinks.ForEach(link => issueItems.Add(new LinkItem(this, link.Text, link.Uri, link.LinkType)));
+	
+			Tickets = issueItems;
+		}
+
+
 		public override string ToString() => $"{ShortId} {Subject} {Date}";
+
+		private static string GetTextWithoutStart(string text, string startText)
+		{
+			if ((text?.Length ?? 0) < (startText?.Length ?? 0))
+			{
+				return text;
+			}
+
+			if (text != null && startText != null && text.StartsWith(startText))
+			{
+				return text?.Substring(startText?.Length ?? 0);
+			}
+
+			return text;
+		}
+	}
+
+
+	internal class LinkItem : ViewModel
+	{
+		private readonly CommitViewModel viewModel;
+		private readonly LinkType linkType;
+
+
+		public LinkItem(CommitViewModel viewModel, string text, string uri, LinkType linkType)
+		{
+			this.viewModel = viewModel;
+			this.linkType = linkType;
+			Text = text;
+			Uri = uri;
+		}
+
+		public string Text { get; }
+		public bool IsLink => !string.IsNullOrEmpty(Uri);
+		public string Uri { get; }
+		public string ToolTip => "Show " + Uri;
+		public Brush TicketBrush => linkType == LinkType.issue ? viewModel.TicketBrush : viewModel.TagBrush;
+		public Brush TicketBackgroundBrush => linkType == LinkType.issue ? viewModel.TicketBackgroundBrush : viewModel.TagBackgroundBrush;
+		public Command GotoTicketCommand => Command(GotoTicket);
+
+
+		private void GotoTicket()
+		{
+			try
+			{
+				Process process = new Process();
+				process.StartInfo.FileName = Uri;
+				process.Start();
+
+			}
+			catch (Exception ex) when (ex.IsNotFatal())
+			{
+				Log.Error($"Failed to open help link {ex}");
+			}
+		}
 	}
 }

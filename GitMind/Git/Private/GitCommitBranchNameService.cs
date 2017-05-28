@@ -316,7 +316,7 @@ namespace GitMind.Git.Private
 				var commits = gitCommits.ToList();
 				foreach (var pair in commits)
 				{
-					if (pair.Value.Sha.Sha.StartsWith(id, StringComparison.OrdinalIgnoreCase))
+					if (pair.Value.Sha.Sha.StartsWithOic(id))
 					{
 						commitId = new CommitId(pair.Value.Sha);
 						return commitId.Id;

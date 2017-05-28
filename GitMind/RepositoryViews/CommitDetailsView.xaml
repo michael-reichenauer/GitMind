@@ -97,26 +97,72 @@
 				<Label
 					Content="Tags:"
 					Grid.Column="0" Grid.Row="3"
-					Visibility="{Binding Tags, Converter={StaticResource VC}}"
+					Visibility="{Binding HasTags, Converter={StaticResource VC}}"
 					Style="{DynamicResource HeaderLabelStyle}"/>
-				<TextBox
-					Text="{Binding Tags, Mode=OneWay}"
-					Grid.Column="1" Grid.Row="3"
-					Visibility="{Binding Tags, Converter={StaticResource VC}}"
-					Style="{DynamicResource LabelStyle}" 
-					Foreground="{DynamicResource TagBrush}"/>
+				<ItemsControl 
+					Grid.Column="1" Grid.Row="3" 
+					Margin="5,0,0,0"
+					ItemsSource="{Binding Tags}">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Orientation="Horizontal"/>
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<Button		
+								Style="{DynamicResource BaseButtonStyle}"
+								FontSize="12"
+								Padding="0"
+								Margin="0,0,5,0"
+								Command="{Binding GotoTicketCommand}"
+								ToolTip="{Binding ToolTip}"
+								Cursor="Hand">
+								<TextBlock
+									Text="{Binding Path=Text}"
+									Foreground="{Binding TicketBrush}"
+									Background="{Binding TicketBackgroundBrush}"
+									HorizontalAlignment="Left"
+									VerticalAlignment="Center" />
+							</Button>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
 				
 				<Label
-					Content="Tickets:"
+					Content="Issues:"
 					Grid.Column="0" Grid.Row="4"
-					Visibility="{Binding Tickets, Converter={StaticResource VC}}"
+					Visibility="{Binding HasTickets, Converter={StaticResource VC}}"
 					Style="{DynamicResource HeaderLabelStyle}"/>
-				<TextBox 
-					Text="{Binding Tickets, Mode=OneWay}"
-					Grid.Column="1" Grid.Row="4"
-					Visibility="{Binding Tickets, Converter={StaticResource VC}}"
-					Style="{DynamicResource LabelStyle}" 
-					Foreground="{DynamicResource TicketBrush}"/>
+				<ItemsControl 
+					Grid.Column="1" Grid.Row="4" 
+					Margin="5,0,0,0"
+					ItemsSource="{Binding Tickets}">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Orientation="Horizontal"/>
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<Button		
+								Style="{DynamicResource BaseButtonStyle}"
+								FontSize="12"
+								Padding="0"
+								Margin="0,0,5,0"
+								Command="{Binding GotoTicketCommand}"
+								ToolTip="{Binding ToolTip}"
+								Cursor="Hand">
+								<TextBlock
+									Text="{Binding Path=Text}"
+									Foreground="{Binding TicketBrush}"
+									Background="{Binding TicketBackgroundBrush}"
+									HorizontalAlignment="Left"
+									VerticalAlignment="Center" />
+							</Button>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
 
 				<ScrollViewer Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" 
 					VerticalScrollBarVisibility="Auto">

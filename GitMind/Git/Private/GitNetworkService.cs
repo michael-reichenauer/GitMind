@@ -43,11 +43,6 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					if (IsInvalidProtocol(repo))
-					{		
-						return;
-					}
-
 					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
 					{
 						Log.Debug("No 'origin' remote, skipping fetch");
@@ -64,6 +59,10 @@ namespace GitMind.Git.Private
 				}
 				catch (Exception e)
 				{
+					if (IsInvalidProtocol(e))
+					{
+						return;
+					}
 					Log.Error($"Error {e}");
 					credentialHandler.SetConfirm(false);
 					throw;
@@ -92,11 +91,6 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					if (IsInvalidProtocol(repo))
-					{
-						return;
-					}
-
 					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
 					{
 						Log.Debug("No 'origin' remote, skipping fetch");
@@ -113,6 +107,11 @@ namespace GitMind.Git.Private
 					}
 					catch (Exception e)
 					{
+						if (IsInvalidProtocol(e))
+						{
+							return;
+						}
+
 						Log.Error($"Error {e}");
 						credentialHandler.SetConfirm(false);
 						throw;
@@ -136,11 +135,6 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 				{
-					if (IsInvalidProtocol(repo))
-					{
-						return;
-					}
-
 					Branch currentBranch = repo.Head;
 					string[] refspecs = {$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"};
 					PushRefs(refspecs, repo);
@@ -155,10 +149,6 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 			{
-				if (IsInvalidProtocol(repo))
-				{
-					return;
-				}
 				PushRefs(refspecs, repo);
 			});
 		}
@@ -170,44 +160,52 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseLibRepoAsync(repo =>
 			{
-				if (IsInvalidProtocol(repo))
+				try
 				{
-					return;
-				}
-
-				Branch localBranch = repo.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-				if (localBranch == null)
-				{
-					throw new Exception($"No local branch with name {branchName}");
-				}
-
-				PushOptions pushOptions = GetPushOptions();
-
-				// Check if corresponding remote branch exists
-				Branch remoteBranch = repo.Branches
-					.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
-
-				if (remoteBranch != null)
-				{
-					// Remote branch exists, so connect local and remote branch
-					localBranch = repo.Branches.Add(branchName, remoteBranch.Tip);
-					repo.Branches.Update(localBranch, b => b.TrackedBranch = remoteBranch.CanonicalName);
-				}
-				else
-				{
-					// Remote branch does not yet exists
-					if (repo.Network.Remotes.Any(r => r.Name == Origin))
+					Branch localBranch = repo.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
+					if (localBranch == null)
 					{
-						Remote remote = Remote(repo);
-
-						repo.Branches.Update(
-							localBranch,
-							b => b.Remote = remote.Name,
-							b => b.UpstreamBranch = localBranch.CanonicalName);
+						throw new Exception($"No local branch with name {branchName}");
 					}
-				}
 
-				repo.Network.Push(localBranch, pushOptions);
+					PushOptions pushOptions = GetPushOptions();
+
+					// Check if corresponding remote branch exists
+					Branch remoteBranch = repo.Branches
+						.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+
+					if (remoteBranch != null)
+					{
+						// Remote branch exists, so connect local and remote branch
+						localBranch = repo.Branches.Add(branchName, remoteBranch.Tip);
+						repo.Branches.Update(localBranch, b => b.TrackedBranch = remoteBranch.CanonicalName);
+					}
+					else
+					{
+						// Remote branch does not yet exists
+						if (repo.Network.Remotes.Any(r => r.Name == Origin))
+						{
+							Remote remote = Remote(repo);
+
+							repo.Branches.Update(
+								localBranch,
+								b => b.Remote = remote.Name,
+								b => b.UpstreamBranch = localBranch.CanonicalName);
+						}
+					}
+
+					repo.Network.Push(localBranch, pushOptions);
+				}
+				catch (Exception e)
+				{
+					if (IsInvalidProtocol(e))
+					{
+						return;
+					}
+
+					Log.Error($"Error {e}");
+					throw;
+				}		
 			});
 		}
 
@@ -218,27 +216,36 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 			{
-				if (IsInvalidProtocol(repo))
+				try
 				{
-					return;
+					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Log.Debug("No 'origin' remote, skipping delete remote branch");
+						return;
+					};
+
+					repo.Branches.Remove(branchName, true);
+
+					PushOptions pushOptions = GetPushOptions();
+
+					Remote remote = Remote(repo);
+
+					// Using a refspec, like you would use with git push...
+					repo.Network.Push(remote, $":refs/heads/{branchName}", pushOptions);
+
+					credentialHandler.SetConfirm(true);
 				}
-
-				if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+				catch (Exception e)
 				{
-					Log.Debug("No 'origin' remote, skipping delete remote branch");
-					return;
-				};
+					if (IsInvalidProtocol(e))
+					{
+						return;
+					}
 
-				repo.Branches.Remove(branchName, true);
-
-				PushOptions pushOptions = GetPushOptions();
-
-				Remote remote = Remote(repo);
-
-				// Using a refspec, like you would use with git push...
-				repo.Network.Push(remote, $":refs/heads/{branchName}", pushOptions);
-
-				credentialHandler.SetConfirm(true);
+					Log.Error($"Error {e}");
+					credentialHandler.SetConfirm(false);
+					throw;
+				}
 			});
 		}
 
@@ -247,11 +254,6 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-				if (IsInvalidProtocol(repo))
-				{
-					return;
-				}
-
 				if (!repo.Network.Remotes.Any(r => r.Name == Origin))
 				{
 					Log.Debug("No 'origin' remote, skipping delete remote branch");
@@ -273,6 +275,11 @@ namespace GitMind.Git.Private
 			}
 			catch (Exception e)
 			{
+				if (IsInvalidProtocol(e))
+				{
+					return;
+				}
+
 				Log.Error($"Error {e}");
 				credentialHandler.SetConfirm(false);
 				throw;
@@ -333,10 +340,9 @@ namespace GitMind.Git.Private
 		}
 
 
-		private static bool IsInvalidProtocol(Repository repo)
+		private static bool IsInvalidProtocol(Exception e)
 		{
-			if (repo.Network.Remotes
-				.Any(remote => remote.Url.StartsWith("ssh:", StringComparison.OrdinalIgnoreCase)))
+			if (-1 != e.Message.IndexOfOic("Unsupported URL protocol"))
 			{
 				Log.Debug("Invalid protocol");
 				return true;

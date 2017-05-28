@@ -135,7 +135,7 @@ namespace GitMind.GitModel.Private
 			{
 				foreach (var pair in repository.GitCommits.ToList())
 				{
-					if (pair.Value.Sha.Sha.StartsWith(id, StringComparison.OrdinalIgnoreCase))
+					if (pair.Value.Sha.Sha.StartsWithOic(id))
 					{
 						commitId = new CommitId(pair.Value.Sha);
 						return repository.Commits.TryGetValue(commitId, out commit);

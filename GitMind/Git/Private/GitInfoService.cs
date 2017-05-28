@@ -48,11 +48,8 @@ namespace GitMind.Git.Private
 
 		public bool IsSupportedRemoteUrl(string workingFolder)
 		{
-			return repoCaller.UseRepo(repo =>
-			{
-				return !repo.Network.Remotes
-					.Any(remote => remote.Url.StartsWith("ssh:", StringComparison.OrdinalIgnoreCase));
-			})
+			return repoCaller.UseRepo(
+				repo => !repo.Network.Remotes.Any(remote => remote.Url.StartsWithOic("ssh:")))
 			.Or(false);
 		}
 	}

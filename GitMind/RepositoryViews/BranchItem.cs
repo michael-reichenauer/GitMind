@@ -79,7 +79,7 @@ namespace GitMind.RepositoryViews
 			IEnumerable<Branch> branches,
 			Command<Branch> branchCommand)
 		{
-			if (branches.Count() < 20)
+			if (branches.Count() < 21)
 			{
 				return branches
 					.Select(b => new BranchItem(b, branchCommand))

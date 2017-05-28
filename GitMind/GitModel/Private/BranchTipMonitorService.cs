@@ -109,8 +109,7 @@ namespace GitMind.GitModel.Private
 			return
 				branch1.IsRemote &&
 				branch2.IsTracking &&
-				0 == string.Compare(branch2.TrackedBranch.CanonicalName,
-					branch1.CanonicalName, StringComparison.OrdinalIgnoreCase);
+				0 == Txt.CompareOic(branch2.TrackedBranch.CanonicalName, branch1.CanonicalName);
 		}
 	}
 }

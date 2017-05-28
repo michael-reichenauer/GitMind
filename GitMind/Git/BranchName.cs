@@ -31,12 +31,10 @@ namespace GitMind.Git
 		protected override bool IsEqual(BranchName other) => 
 			caseInsensitiveName == other.caseInsensitiveName;
 
-		public bool IsEqual(string other) =>
-			0 == string.Compare(caseInsensitiveName, other, StringComparison.OrdinalIgnoreCase);
+		public bool IsEqual(string other) => 0 == Txt.CompareOic(caseInsensitiveName, other);
 
 
-		public bool StartsWith(string prefix) =>
-			caseInsensitiveName?.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ?? false;
+		public bool StartsWith(string prefix) => caseInsensitiveName?.StartsWithOic(prefix) ?? false;
 
 		public BranchName Substring(int startIndex) => new BranchName(name.Substring(startIndex));
 

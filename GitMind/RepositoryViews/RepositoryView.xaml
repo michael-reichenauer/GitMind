@@ -256,7 +256,7 @@
 
 														<!-- Show child branch meu item -->
 														<MenuItem
-															Header="Show branch"
+															Header="Show related nearby branch"
 															IsEnabled="{Binding HasChildren}"
 															ItemsSource="{Binding ChildBranches}">
 															<MenuItem.Icon>
@@ -578,20 +578,64 @@
 															ToolTip="Tip of branch to same commit as parent branch" />
 
 														<!-- Tag -->
-														<TextBlock
-															Text="{Binding Tags}"
-															Foreground="{Binding TagBrush}"
-															Background="{Binding TagBackgroundBrush}"
-															HorizontalAlignment="Left"
-															VerticalAlignment="Center" />
+														<ItemsControl ItemsSource="{Binding Tags}">
+															<ItemsControl.ItemsPanel>
+																<ItemsPanelTemplate>
+																	<StackPanel Orientation="Horizontal"/>
+																</ItemsPanelTemplate>
+															</ItemsControl.ItemsPanel>
+															<ItemsControl.ItemTemplate>
+																<DataTemplate>
+																	<Button	
+																		IsEnabled="{Binding IsLink}"
+																		Style="{DynamicResource BaseButtonStyle}"
+																		FontSize="12"
+																		Padding="0"
+																		Margin="0,0,3,0"
+																		Command="{Binding GotoTicketCommand}"
+																		ToolTip="{Binding ToolTip}"
+																		Cursor="Hand">
+																		<TextBlock
+																			Text="{Binding Path=Text}"
+																			Foreground="{Binding TicketBrush}"
+																			Background="{Binding TicketBackgroundBrush}"
+																			HorizontalAlignment="Left"
+																			VerticalAlignment="Center" />
+																	</Button>
+																</DataTemplate>
+															</ItemsControl.ItemTemplate>
+														</ItemsControl>
+																		
 
 														<!-- Tickets -->
-														<TextBlock
-															Text="{Binding Tickets}"
-															Foreground="{Binding TicketBrush}"
-															Background="{Binding TicketBackgroundBrush}"
-															HorizontalAlignment="Left"
-															VerticalAlignment="Center" />
+														<ItemsControl ItemsSource="{Binding Tickets}">
+															<ItemsControl.ItemsPanel>
+																<ItemsPanelTemplate>
+																	<StackPanel Orientation="Horizontal"/>
+																</ItemsPanelTemplate>
+															</ItemsControl.ItemsPanel>
+															<ItemsControl.ItemTemplate>
+																<DataTemplate>
+																	<Button	
+																		IsEnabled="{Binding IsLink}"
+																		Style="{DynamicResource BaseButtonStyle}"
+																		FontSize="12"
+																		Padding="0"
+																		Margin="0,0,3,0"
+																		Command="{Binding GotoTicketCommand}"
+																		ToolTip="{Binding ToolTip}"
+																		Cursor="Hand">
+																		<TextBlock
+																			Text="{Binding Path=Text}"
+																			Foreground="{Binding TicketBrush}"
+																			Background="{Binding TicketBackgroundBrush}"
+																			HorizontalAlignment="Left"
+																			VerticalAlignment="Center" />
+																	</Button>
+																</DataTemplate>
+															</ItemsControl.ItemTemplate>
+														</ItemsControl>
+													
 
 														<!-- Subject -->
 														<TextBlock
