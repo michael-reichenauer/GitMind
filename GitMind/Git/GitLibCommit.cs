@@ -11,6 +11,7 @@ namespace GitMind.Git
 		public GitLibCommit(
 			CommitSha sha,
 			string subject,
+			string message,
 			string author,
 			DateTime authorDate,
 			DateTime commitDate,
@@ -18,6 +19,7 @@ namespace GitMind.Git
 		{
 			Sha = sha;
 			Subject = subject;
+			Message = message;
 			Author = author;
 			AuthorDate = authorDate;
 			CommitDate = commitDate;
@@ -26,6 +28,7 @@ namespace GitMind.Git
 
 		public CommitSha Sha { get; }
 		public string Subject { get; }
+		public string Message { get; }
 		public string Author { get; }
 		public DateTime AuthorDate { get; }
 		public DateTime CommitDate { get; }

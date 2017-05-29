@@ -515,6 +515,7 @@ namespace GitMind.GitModel.Private
 			GitCommit gitCommit = new GitCommit(
 				virtualSha,
 				branch.ParentCommit.Subject,
+				branch.ParentCommit.Message,
 				branch.ParentCommit.Author,
 				branch.ParentCommit.AuthorDate,
 				branch.ParentCommit.CommitDate + TimeSpan.FromSeconds(1),

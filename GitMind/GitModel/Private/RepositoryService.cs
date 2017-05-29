@@ -79,6 +79,8 @@ namespace GitMind.GitModel.Private
 			R<Repository> repository = await GetCachedRepositoryAsync(workingFolder);
 			if (!repository.IsOk)
 			{
+				await remoteService.Value.FetchAllNotesAsync();
+
 				repository = await GetFreshRepositoryAsync(workingFolder, null);
 			}
 
@@ -159,6 +161,12 @@ namespace GitMind.GitModel.Private
 			}
 
 			Log.Debug("Fetching");
+
+			if (isFetchNotes)
+			{
+				await remoteService.Value.FetchAllNotesAsync();
+			}
+
 			R result = await remoteService.Value.FetchAsync();
 			RepositoryErrorChanged?.Invoke(this, new RepositoryErrorEventArgs(""));
 			if (result.IsFaulted)
@@ -166,10 +174,6 @@ namespace GitMind.GitModel.Private
 				string text = $"Fetch error: {result.Error.Exception.Message}";
 				Log.Warn(text);
 				RepositoryErrorChanged?.Invoke(this, new RepositoryErrorEventArgs(text));
-			}
-			else if (isFetchNotes)
-			{
-				await remoteService.Value.FetchAllNotesAsync();
 			}
 
 			fetchedTime = DateTime.Now;

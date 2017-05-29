@@ -219,7 +219,7 @@ namespace GitMind.RepositoryViews
 			ObservableCollection<LinkItem> issueItems = new ObservableCollection<LinkItem>();
 			ObservableCollection<LinkItem> tagItems = new ObservableCollection<LinkItem>();
 
-			Links subjectIssueLinks = commitsService.GetIssueLinks(Commit.Subject);
+			Links subjectIssueLinks = commitsService.GetIssueLinks(Commit.Message);
 
 			if (!string.IsNullOrEmpty(Commit.Tags))
 			{
@@ -229,11 +229,11 @@ namespace GitMind.RepositoryViews
 				{
 					Links tagIssueLinks = commitsService.GetIssueLinks(tag);
 					Links tagTagLinks = commitsService.GetTagLinks(tag);
-					if (tagIssueLinks.TotalText == tag)
+					if (tagIssueLinks.AllLinks.Any())
 					{
 						tagIssueLinks.AllLinks.ForEach(link => issueItems.Add(new LinkItem(this, $"[{link.Text}]", link.Uri, link.LinkType)));
 					}
-					else if (tagTagLinks.TotalText == tag)
+					else if (tagTagLinks.AllLinks.Any())
 					{
 						tagTagLinks.AllLinks.ForEach(link => tagItems.Add(new LinkItem(this, $"[{link.Text}]", link.Uri, link.LinkType)));
 					}

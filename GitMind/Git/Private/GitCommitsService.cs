@@ -223,6 +223,7 @@ namespace GitMind.Git.Private
 			return commit != null ? new GitCommit(
 				new CommitSha(commit.Sha),
 				commit.MessageShort,
+				commit.Message,
 				commit.Author.Name,
 				commit.Author.When.LocalDateTime,
 				commit.Committer.When.LocalDateTime,

@@ -21,6 +21,7 @@ namespace GitMind.GitModel
 			CommitId realCommitId, 
 			CommitSha realCommitSha,
 			string subject,
+			string message,
 			string author, 
 			DateTime authorDate, 
 			DateTime commitDate,
@@ -49,6 +50,7 @@ namespace GitMind.GitModel
 			RealCommitId = realCommitId;
 			RealCommitSha = realCommitSha;
 			Subject = subject;
+			Message = message;
 			Author = author;
 			AuthorDate = authorDate;			
 			AuthorDateText = authorDate.ToShortDateString() + " " + authorDate.ToShortTimeString();
@@ -74,6 +76,7 @@ namespace GitMind.GitModel
 		public CommitId RealCommitId { get; }
 		public CommitSha RealCommitSha { get; }
 		public string Subject { get; }
+		public string Message { get; }
 		public string Author { get; }
 		public DateTime AuthorDate { get; }
 		public string AuthorDateText { get; }

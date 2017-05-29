@@ -16,6 +16,7 @@ namespace GitMind.GitModel.Private
 		public GitCommit(
 			CommitSha sha,
 			string subject,
+			string message,
 			string author,
 			DateTime authorDate,
 			DateTime commitDate,
@@ -23,6 +24,7 @@ namespace GitMind.GitModel.Private
 		{
 			Sha = sha;
 			Subject = subject;
+			Message = message;
 			Author = author;
 			AuthorDate = authorDate;
 			CommitDate = commitDate;
@@ -30,6 +32,7 @@ namespace GitMind.GitModel.Private
 		}
 		[DataMember] public CommitSha Sha { get; private set; }
 		[DataMember] public string Subject { get; private set; }
+		[DataMember] public string Message { get; private set; }
 		[DataMember] public string Author { get; private set; }
 		[DataMember] public DateTime AuthorDate { get; private set; }
 		[DataMember] public DateTime CommitDate { get; private set; }

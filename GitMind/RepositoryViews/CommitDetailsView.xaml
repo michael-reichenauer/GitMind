@@ -168,7 +168,7 @@
 					VerticalScrollBarVisibility="Auto">
 					<TextBox
 						Margin="0,5,0,0"
-						Text="{Binding Subject, Mode=OneWay}"
+						Text="{Binding Message, Mode=OneWay}"
 						Style="{DynamicResource LabelStyle}"
 						Foreground="{Binding SubjectBrush}"		
 						FontStyle="{Binding SubjectStyle}"			

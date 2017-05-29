@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
@@ -158,9 +160,9 @@ namespace GitMind.GitModel.Private
 						var groupMatch = patterns[i].Rgx.Match(patternMatch);
 
 						string matchText = groupMatch.Groups[0].Value;
-						string matchValue = groupMatch.Groups[1].Value;
+						var matchValues = groupMatch.Groups.Cast<Group>().Skip(1).Cast<object>().ToArray();
 
-						string uri = string.Format(patterns[i].LinkPattern, matchValue);
+						string uri = string.Format(patterns[i].LinkPattern, matchValues);
 
 						Link link = new Link(matchText, uri, patterns[i].LinkType);
 						links.Add(link);

@@ -29,6 +29,7 @@ namespace GitMind.GitModel.Private
 
 		public CommitSha Sha => gitCommit.Value.Sha;
 		public string Subject => gitCommit.Value.Subject;
+		public string Message => gitCommit.Value.Message;
 		public string Author => gitCommit.Value.Author;
 		public DateTime AuthorDate => gitCommit.Value.AuthorDate;
 		public DateTime CommitDate => gitCommit.Value.CommitDate;

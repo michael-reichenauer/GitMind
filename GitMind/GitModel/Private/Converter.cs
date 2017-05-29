@@ -39,6 +39,7 @@ namespace GitMind.GitModel.Private
 				commit.RealCommitId,
 				commit.RealCommitSha,
 				commit.Subject,
+				commit.Message,
 				commit.Author,
 				commit.AuthorDate,
 				commit.CommitDate,

@@ -33,6 +33,7 @@ namespace GitMind.Git
 		public GitLibCommit Tip => new GitLibCommit(
 			new CommitSha(branch.Tip.Sha),
 			branch.Tip.MessageShort,
+			branch.Tip.Message,
 			branch.Tip.Author.Name,
 			branch.Tip.Author.When.LocalDateTime,
 			branch.Tip.Committer.When.LocalDateTime,
