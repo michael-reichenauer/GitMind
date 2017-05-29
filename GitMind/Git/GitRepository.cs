@@ -150,6 +150,7 @@ namespace GitMind.Git
 			return new GitLibCommit(
 				new CommitSha(commit.Sha),
 				commit.MessageShort,
+				commit.Message,
 				commit.Author.Name,
 				commit.Author.When.LocalDateTime,
 				commit.Committer.When.LocalDateTime,

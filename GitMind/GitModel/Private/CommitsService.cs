@@ -119,6 +119,7 @@ namespace GitMind.GitModel.Private
 			return new GitCommit(
 				gitLibCommit.Sha,
 				gitLibCommit.Subject,
+				gitLibCommit.Message,
 				gitLibCommit.Author,
 				gitLibCommit.AuthorDate,
 				gitLibCommit.CommitDate,
@@ -180,7 +181,8 @@ namespace GitMind.GitModel.Private
 
 			GitCommit gitCommit = new GitCommit(
 				virtualSha,
-				"<Repository with no committs yet ...>",
+				"<Repository with no commits yet ...>",
+				"<Repository with no commits yet ...>",
 				"",
 				DateTime.Now,
 				DateTime.Now,
@@ -303,6 +305,7 @@ namespace GitMind.GitModel.Private
 
 			GitCommit gitCommit = new GitCommit(
 				CommitSha.Uncommitted,
+				subject,
 				subject,
 				gitRepository.UserName ?? "",
 				DateTime.Now,

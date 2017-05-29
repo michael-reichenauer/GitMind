@@ -219,7 +219,7 @@ namespace GitMind.RepositoryViews
 			ObservableCollection<LinkItem> issueItems = new ObservableCollection<LinkItem>();
 			ObservableCollection<LinkItem> tagItems = new ObservableCollection<LinkItem>();
 
-			Links subjectIssueLinks = commitsService.GetIssueLinks(Commit.Subject);
+			Links subjectIssueLinks = commitsService.GetIssueLinks(Commit.Message);
 
 			if (!string.IsNullOrEmpty(Commit.Tags))
 			{

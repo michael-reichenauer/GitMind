@@ -384,7 +384,7 @@ namespace GitMind.RepositoryViews.Private
 				return commits
 					.Where(c =>
 						StartsWith(c.RealCommitSha.Sha, filterText)
-						|| Contains(c.Subject, filterText)
+						|| Contains(c.Message, filterText)
 						|| Contains(c.Author, filterText)
 						|| Contains(c.AuthorDateText, filterText)
 						|| Contains(c.Tickets, filterText)

@@ -89,22 +89,8 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public string Subject
-		{
-			get
-			{
-				string subject = CommitViewModel?.Subject;
-				if (CommitViewModel != null)
-				{
-					CommitSha commitSha = CommitViewModel.Commit.RealCommitSha;
-					subject = gitCommitsService.GetFullMessage(commitSha)
-						.Or(CommitViewModel?.Subject);
-				}
-
-				return subject;
-			}
-		}
-
+		public string Message => CommitViewModel?.Commit.Message;
+	
 		public string CommitId => CommitViewModel?.Commit.RealCommitSha.Sha;
 		public string ShortId => CommitViewModel?.ShortId;
 		public string BranchName => CommitViewModel?.Commit?.Branch?.Name;
@@ -127,7 +113,7 @@ namespace GitMind.RepositoryViews
 			path => commitsService.UndoUncommittedFileAsync(path));
 		public Command ShowCommitDiffCommand => CommitViewModel?.ShowCommitDiffCommand;
 
-		public override string ToString() => $"{CommitId} {Subject}";
+		public override string ToString() => $"{CommitId} {CommitViewModel?.Commit.Subject}";
 
 		private async Task SetFilesAsync(Commit commit)
 		{
