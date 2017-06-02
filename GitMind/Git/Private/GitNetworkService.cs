@@ -126,8 +126,7 @@ namespace GitMind.Git.Private
 
 			string[] refspecs =
 			{
-				$"refs/heads/{branchName}:refs/heads/{branchName}",
-				"refs/tags/*:refs/tags/"
+				$"refs/heads/{branchName}:refs/heads/{branchName}"
 			};
 			return PushRefsAsync(refspecs);
 		}
@@ -176,8 +175,7 @@ namespace GitMind.Git.Private
 					Branch currentBranch = repo.Head;
 					string[] refspecs =
 					{
-						$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}",
-						"refs/tags/*:refs/tags/"
+						$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"
 					};
 					PushRefs(refspecs, repo);
 				});
