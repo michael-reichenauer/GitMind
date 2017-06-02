@@ -159,10 +159,10 @@ namespace GitMind.Git.Private
 					File.Delete(file);
 				}
 			}
-			catch (Exception e) when(e.IsNotFatal())
+			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Warn($"Failed to delete notes file {e}");
-			}			
+			}
 		}
 
 
@@ -175,6 +175,14 @@ namespace GitMind.Git.Private
 			List<CommitBranchName> mergedNames = new List<CommitBranchName>();
 			foreach (CommitBranchName commitBranchName in branchNames)
 			{
+				if (commitBranchName.Id.StartsWith("c75093b")
+					|| commitBranchName.Id.StartsWith("bf31a417")
+					|| commitBranchName.Id.StartsWith("5da25400"))
+				{
+					Log.Warn($"Invalid commit {commitBranchName}");
+					continue;
+				}
+
 				if (nameById.TryGetValue(commitBranchName.Id, out BranchName branchName))
 				{
 					if (commitBranchName.Name == branchName)
@@ -194,12 +202,12 @@ namespace GitMind.Git.Private
 
 				// Normal copy of entry
 				nameById[commitBranchName.Id] = commitBranchName.Name;
-				mergedNames.Add(commitBranchName);			
+				mergedNames.Add(commitBranchName);
 			}
 
 			Log.Debug($"Number of merged entries: {mergedNames.Count}");
 
-			StringBuilder sb = new StringBuilder();			
+			StringBuilder sb = new StringBuilder();
 			mergedNames.ForEach(n => sb.Append($"{n.Id} {n.Name}\n"));
 
 			return sb.ToString();

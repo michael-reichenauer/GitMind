@@ -47,7 +47,7 @@ namespace GitMind.GitModel.Private
 
 		public async Task<MRepository> UpdateAsync(
 			MRepository mRepository, Status status, IReadOnlyList<string> repoIds)
-		{		
+		{
 			return await Task.Run(() => UpdateRepository(mRepository, status, repoIds));
 		}
 
@@ -133,7 +133,7 @@ namespace GitMind.GitModel.Private
 				t.Log("AddMultiBranches");
 
 				branchHierarchyService.SetBranchHierarchy(repository);
-				t.Log("SetBranchHierarchy");			
+				t.Log("SetBranchHierarchy");
 
 				SetCurrentBranchAndCommit(repository, gitRepository);
 				t.Log("SetCurrentBranchAndCommit");
@@ -154,13 +154,13 @@ namespace GitMind.GitModel.Private
 			repository.CurrentBranchId = currentBranch.Id;
 
 			repository.CurrentCommitId = status.IsOK
-				? gitRepository.Head.HasCommits 
+				? gitRepository.Head.HasCommits
 					? repository.Commit(new CommitId(gitRepository.Head.TipId)).Id
 					: CommitId.NoCommits
 				: CommitId.Uncommitted;
 
 			if (currentBranch.TipCommit.IsVirtual
-			    && currentBranch.TipCommit.FirstParentId == repository.CurrentCommitId)
+					&& currentBranch.TipCommit.FirstParentId == repository.CurrentCommitId)
 			{
 				repository.CurrentCommitId = currentBranch.TipCommit.Id;
 			}
@@ -213,7 +213,7 @@ namespace GitMind.GitModel.Private
 			foreach (MCommit virtualCommit in virtualCommits)
 			{
 				if (virtualCommit.ParentIds.Any())
-				{			
+				{
 					virtualCommit.FirstParent.ChildIds.Remove(virtualCommit.Id);
 					virtualCommit.FirstParent.FirstChildIds.Remove(virtualCommit.Id);
 
