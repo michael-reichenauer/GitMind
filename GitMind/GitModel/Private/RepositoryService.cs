@@ -233,6 +233,12 @@ namespace GitMind.GitModel.Private
 
 		private async Task UpdateRepositoryAsync(Status status, IReadOnlyList<string> repoIds)
 		{
+			if (Repository == null)
+			{
+				Log.Warn("No repository yet to update");
+				return;
+			}
+
 			Repository = await UpdateRepositoryAsync(Repository, status, repoIds);
 
 			RepositoryUpdated?.Invoke(this, new RepositoryUpdatedEventArgs());

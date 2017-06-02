@@ -108,7 +108,7 @@ namespace GitMind.GitModel.Private
 					}
 					else if (intoIndex == -1 && ofIndex > 0 && subject.Length > ofIndex + OfText.Length)
 					{
-						// Found the "into" word after the source branch name
+						// Found the "of" word after the source branch name
 						targetBranchName = sourceBranchName;
 					}
 				}

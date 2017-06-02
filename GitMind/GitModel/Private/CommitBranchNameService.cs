@@ -96,7 +96,7 @@ namespace GitMind.GitModel.Private
 			{
 				return commit.FromSubjectBranchName;
 			}
-		
+
 			return null;
 		}
 
@@ -109,10 +109,10 @@ namespace GitMind.GitModel.Private
 					&& b.TipCommit.SubBranchId == null);
 
 			foreach (MSubBranch branch in branches)
-			{ 
+			{
 				MCommit branchTip = branch.TipCommit;
 
-				if (!branchTip.HasFirstChild 
+				if (!branchTip.HasFirstChild
 					&& !branches.Any(b => b.Name != branch.Name && b.TipCommitId == branch.TipCommitId))
 				{
 					branchTip.SetBranchName(branch.Name);
@@ -123,7 +123,7 @@ namespace GitMind.GitModel.Private
 
 
 		private static bool TryGetCommit(
-			MRepository repository, 
+			MRepository repository,
 			string id,
 			out MCommit commit)
 		{
@@ -140,7 +140,7 @@ namespace GitMind.GitModel.Private
 						commitId = new CommitId(pair.Value.Sha);
 						return repository.Commits.TryGetValue(commitId, out commit);
 					}
-				}				
+				}
 			}
 
 			commit = null;
@@ -166,7 +166,7 @@ namespace GitMind.GitModel.Private
 
 				if (commit.HasBranchName && commit.BranchName != subBranch.Name)
 				{
-					Log.Warn($"commit already has branch {commit.BranchName} != {subBranch.Name}");
+					Log.Warn($"commit {commit} already has branch {commit.BranchName} != {subBranch.Name}");
 					break;
 				}
 
@@ -256,7 +256,7 @@ namespace GitMind.GitModel.Private
 			{
 				BranchName commitBranchName = GetBranchName(commit);
 
-				if (commitBranchName != null)			
+				if (commitBranchName != null)
 				{
 					if (commitBranchName == branchName)
 					{
