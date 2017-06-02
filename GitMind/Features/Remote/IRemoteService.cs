@@ -20,5 +20,6 @@ namespace GitMind.Features.Remote
 		bool CanExecutePushCurrentBranch();
 		Task TryPushAllBranchesAsync();
 		bool CanExecuteTryPushAllBranches();
+		Task<R> PushTagsAsync();
 	}
 }

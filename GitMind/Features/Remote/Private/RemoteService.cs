@@ -53,6 +53,11 @@ namespace GitMind.Features.Remote.Private
 		}
 
 
+		public Task<R> PushTagsAsync()
+		{
+			return gitNetworkService.PushTagsAsync();
+		}
+
 
 		public Task<R> PushBranchAsync(BranchName branchName)
 		{
@@ -62,6 +67,7 @@ namespace GitMind.Features.Remote.Private
 
 		public Task PushNotesAsync(CommitSha rootId)
 		{
+
 			return gitCommitBranchNameService.PushNotesAsync(rootId);
 		}
 

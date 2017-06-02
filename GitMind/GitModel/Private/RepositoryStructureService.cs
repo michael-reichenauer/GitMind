@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
+using GitMind.Features.Tags;
 using GitMind.Git;
 using GitMind.Utils;
 
@@ -105,8 +106,8 @@ namespace GitMind.GitModel.Private
 				//	return;
 				//}
 
-				tagService.AddTags(gitRepository, repository);
-				t.Log("AddTags");
+				tagService.CopyTags(gitRepository, repository);
+				t.Log("CopyTags");
 
 				branchService.AddActiveBranches(gitRepository, repository);
 				t.Log("AddActiveBranches");

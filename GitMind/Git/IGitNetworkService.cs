@@ -22,5 +22,6 @@ namespace GitMind.Git
 		Task<R> PublishBranchAsync(BranchName branchName);
 
 		Task<R> DeleteRemoteBranchAsync(BranchName branchName);
+		Task<R> PushTagsAsync();
 	}
 }

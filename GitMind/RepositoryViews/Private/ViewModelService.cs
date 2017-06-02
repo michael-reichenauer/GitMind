@@ -9,6 +9,7 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Common.ThemeHandling;
 using GitMind.Features.Branches;
 using GitMind.Features.Commits;
+using GitMind.Features.Tags;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -27,6 +28,7 @@ namespace GitMind.RepositoryViews.Private
 
 		private readonly IBranchService branchService;
 		private readonly ICommitsService commitsService;
+		private readonly ITagService tagService;
 		private readonly IThemeService themeService;
 		private readonly IMessage message;
 		private readonly IRepositoryMgr repositoryMgr;
@@ -40,6 +42,7 @@ namespace GitMind.RepositoryViews.Private
 		public ViewModelService(
 			IBranchService branchService,
 			ICommitsService commitsService,
+			ITagService tagService,
 			IThemeService themeService,
 			IMessage message,
 			IRepositoryMgr repositoryMgr,
@@ -48,6 +51,7 @@ namespace GitMind.RepositoryViews.Private
 		{
 			this.branchService = branchService;
 			this.commitsService = commitsService;
+			this.tagService = tagService;
 			this.themeService = themeService;
 			this.message = message;
 			this.repositoryMgr = repositoryMgr;
@@ -551,7 +555,8 @@ namespace GitMind.RepositoryViews.Private
 			SetNumberOfItems(
 				commits, 
 				sourceCommits.Count,
-				i => new CommitViewModel(branchService, themeService, repositoryCommands, commitsService));
+				i => new CommitViewModel(
+					branchService, themeService, repositoryCommands, commitsService, tagService));
 
 			commitsById.Clear();
 			int graphWidth = repositoryViewModel.GraphWidth;

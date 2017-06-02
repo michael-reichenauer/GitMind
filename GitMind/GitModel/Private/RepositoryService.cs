@@ -160,6 +160,8 @@ namespace GitMind.GitModel.Private
 				return;
 			}
 
+			await remoteService.Value.PushTagsAsync();
+
 			Log.Debug("Fetching");
 
 			if (isFetchNotes)
