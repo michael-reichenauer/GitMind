@@ -134,7 +134,7 @@ namespace GitMind.Git.Private
 
 		public async Task<R> PushTagAsync(string tagCanonicalName)
 		{
-			Log.Warn($"Push tag {tagCanonicalName} ...");
+			Log.Debug($"Push tag {tagCanonicalName} ...");
 
 			string[] refspecs = { tagCanonicalName };
 

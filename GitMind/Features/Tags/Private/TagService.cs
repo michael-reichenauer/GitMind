@@ -82,15 +82,6 @@ namespace GitMind.Features.Tags.Private
 					{
 						R<string> addResult = await repoCaller.UseLibRepoAsync(repository =>
 						{
-							LibGit2Sharp.Remote remote = repository.Network.Remotes["origin"];
-
-							var refs = repository.Network.ListReferences(remote);
-							var remoteTagRefs = refs.Where(r => r.CanonicalName.StartsWith("refs/tags/")).ToList();
-
-							// Should retrieve the local tags
-							var allRefs = repository.Refs.Where(r => r.CanonicalName.StartsWith("refs/tags/")).ToList();
-							var localTags = allRefs.Where(r => !remoteTagRefs.Contains(r)).ToList();
-
 							Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 
 							Tag tag = repository.Tags.Add(tagText, commit);
@@ -98,16 +89,17 @@ namespace GitMind.Features.Tags.Private
 							return tag.CanonicalName;
 						});
 
-
+						R result = addResult;
 						if (addResult.IsOk)
 						{
 							// Try to push immediately
-							await gitNetworkService.PushTagAsync(addResult.Value);
+							result = await gitNetworkService.PushTagAsync(addResult.Value);
 						}
-						else
+					
+						if (result.IsFaulted)
 						{
 							message.ShowWarning(
-								$"Failed to add tag '{tagText}'\n{addResult.Error.Exception.Message}");
+								$"Failed to add tag '{tagText}'\n{result.Error.Exception.Message}");
 						}
 					}
 				}
