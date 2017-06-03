@@ -67,7 +67,7 @@ namespace GitMind.Features.Tags.Private
 		}
 
 
-		public async Task AddTag(CommitSha commitSha)
+		public async Task AddTagAsync(CommitSha commitSha)
 		{
 			using (statusService.PauseStatusNotifications())
 			{
@@ -101,6 +101,32 @@ namespace GitMind.Features.Tags.Private
 							message.ShowWarning(
 								$"Failed to add tag '{tagText}'\n{result.Error.Exception.Message}");
 						}
+					}
+				}
+			}
+		}
+
+
+		public async Task DeleteTagAsync(string tagName)
+		{
+			Log.Debug($"Delete tag {tagName}");
+			using (statusService.PauseStatusNotifications(Refresh.Repo))
+			{
+				using (progress.ShowDialog($"Delete tag {tagName} ..."))
+				{
+					R deleteLocalResult = await repoCaller.UseLibRepoAsync(repo => repo.Tags.Remove(tagName));
+
+					R result = deleteLocalResult;
+					if (deleteLocalResult.IsOk)
+					{
+						// Try to delete remote
+						result = await gitNetworkService.DeleteRemoteTagAsync(tagName);
+					}
+
+					if (result.IsFaulted)
+					{
+						message.ShowWarning(
+							$"Failed to delete tag '{tagName}'\n{result.Error.Exception.Message}");
 					}
 				}
 			}

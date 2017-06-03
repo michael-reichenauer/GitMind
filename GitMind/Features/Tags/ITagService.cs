@@ -10,6 +10,8 @@ namespace GitMind.Features.Tags
 	{
 		void CopyTags(GitRepository repo, MRepository repository);
 
-		Task AddTag(CommitSha commitSha);
+		Task AddTagAsync(CommitSha commitSha);
+
+		Task DeleteTagAsync(string tagName);
 	}
 }
