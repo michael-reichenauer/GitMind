@@ -161,7 +161,9 @@
     <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
     <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />
     <Compile Include="GitModel\RepositoryUpdatedEventArgs.cs" />
+    <Compile Include="RepositoryViews\DeleteTagItem.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
+    <Compile Include="RepositoryViews\LinkItem.cs" />
     <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />
     <Compile Include="Utils\AsyncLock.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />

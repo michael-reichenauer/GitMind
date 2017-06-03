@@ -506,6 +506,29 @@
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
+
+																<MenuItem
+																	Header="Delete tag"
+																	IsEnabled="{Binding HasDeleteTags}"
+																	ItemsSource="{Binding DeleteTagItems}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock 
+																				Style="{DynamicResource MenuIconStyle}" 
+																				Text="&#xE92B;" 
+																				Foreground="{DynamicResource UndoBrush}"/>
+																		</Border>
+																	</MenuItem.Icon>
+																	<MenuItem.Resources>
+																		<DataTemplate
+																			DataType="{x:Type local:DeleteTagItem}">
+																			<MenuItem
+																				Header="{Binding Text}"
+																				Command="{Binding DeleteTagCommand}"/>
+																		</DataTemplate>
+																	</MenuItem.Resources>
+																</MenuItem>
+
 															</MenuItem>
 															
 

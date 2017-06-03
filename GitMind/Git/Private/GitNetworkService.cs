@@ -132,6 +132,8 @@ namespace GitMind.Git.Private
 		}
 
 
+
+
 		public async Task<R> PushTagAsync(string tagCanonicalName)
 		{
 			Log.Debug($"Push tag {tagCanonicalName} ...");
@@ -265,6 +267,44 @@ namespace GitMind.Git.Private
 			});
 		}
 
+
+
+		public Task<R> DeleteRemoteTagAsync(string tagName)
+		{
+			Log.Debug($"Delete remote tag {tagName} ...");
+
+			return repoCaller.UseRepoAsync(PushTimeout, repo =>
+			{
+				try
+				{
+					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Log.Debug("No 'origin' remote, skipping delete remote tag");
+						return;
+					};
+
+					PushOptions pushOptions = GetPushOptions();
+
+					Remote remote = Remote(repo);
+
+					// Using a refspec, like you would use with git push...
+					repo.Network.Push(remote, $":refs/tags/{tagName}", pushOptions);
+
+					credentialHandler.SetConfirm(true);
+				}
+				catch (Exception e)
+				{
+					if (IsInvalidProtocol(e))
+					{
+						return;
+					}
+
+					Log.Error($"Error {e}");
+					credentialHandler.SetConfirm(false);
+					throw;
+				}
+			});
+		}
 
 		private void PushRefs(IEnumerable<string> refspecs, Repository repo)
 		{
