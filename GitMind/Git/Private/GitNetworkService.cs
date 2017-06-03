@@ -306,6 +306,49 @@ namespace GitMind.Git.Private
 			});
 		}
 
+		public Task<R> PruneLocalTagsAsync()
+		{
+			Log.Debug("Prune local tags  ...");
+
+			return repoCaller.UseRepoAsync(PushTimeout, repo =>
+			{
+				try
+				{
+					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Log.Debug("No 'origin' remote, skipping pruning local tags");
+						return;
+					};
+		
+					Remote remote = Remote(repo);
+					
+					var refs = repo.Network.ListReferences(remote);
+					var remoteTagRefs = refs.Where(r => r.CanonicalName.StartsWith("refs/tags/")).ToList();
+					
+					// Should retrieve the local tags
+					var allRefs = repo.Refs.Where(r => r.CanonicalName.StartsWith("refs/tags/")).ToList();
+					var localTags = allRefs.Where(r => !remoteTagRefs.Contains(r)).ToList();
+
+					foreach (Reference reference in localTags)
+					{
+						Log.Debug($"Remove {reference.CanonicalName}");
+						repo.Refs.Remove(reference);
+					}
+				}
+				catch (Exception e)
+				{
+					if (IsInvalidProtocol(e))
+					{
+						return;
+					}
+
+					Log.Error($"Error {e}");
+					credentialHandler.SetConfirm(false);
+					throw;
+				}
+			});
+		}
+
 		private void PushRefs(IEnumerable<string> refspecs, Repository repo)
 		{
 			try
