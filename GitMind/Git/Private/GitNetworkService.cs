@@ -13,7 +13,7 @@ namespace GitMind.Git.Private
 	internal class GitNetworkService : IGitNetworkService
 	{
 		private static readonly string Origin = "origin";
-	
+
 		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
 		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
@@ -97,25 +97,25 @@ namespace GitMind.Git.Private
 						return;
 					};
 
-					Remote remote = Remote(repo);		
+					Remote remote = Remote(repo);
 					repo.Network.Fetch(remote, refspecs, fetchOptions);
-					}
-					catch (NoCredentialException)
+				}
+				catch (NoCredentialException)
+				{
+					Log.Debug("Canceled enter credentials");
+					credentialHandler.SetConfirm(false);
+				}
+				catch (Exception e)
+				{
+					if (IsInvalidProtocol(e))
 					{
-						Log.Debug("Canceled enter credentials");
-						credentialHandler.SetConfirm(false);
+						return;
 					}
-					catch (Exception e)
-					{
-						if (IsInvalidProtocol(e))
-						{
-							return;
-						}
 
-						Log.Error($"Error {e}");
-						credentialHandler.SetConfirm(false);
-						throw;
-					}
+					Log.Error($"Error {e}");
+					credentialHandler.SetConfirm(false);
+					throw;
+				}
 			});
 		}
 
@@ -124,8 +124,21 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Push branch {branchName} ...");
 
-			string[] refspecs = { $"refs/heads/{branchName}:refs/heads/{branchName}"};
+			string[] refspecs =
+			{
+				$"refs/heads/{branchName}:refs/heads/{branchName}"
+			};
 			return PushRefsAsync(refspecs);
+		}
+
+
+		public async Task<R> PushTagAsync(string tagCanonicalName)
+		{
+			Log.Debug($"Push tag {tagCanonicalName} ...");
+
+			string[] refspecs = { tagCanonicalName };
+
+			return await PushRefsAsync(refspecs);
 		}
 
 
@@ -136,7 +149,10 @@ namespace GitMind.Git.Private
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 				{
 					Branch currentBranch = repo.Head;
-					string[] refspecs = {$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"};
+					string[] refspecs =
+					{
+						$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"
+					};
 					PushRefs(refspecs, repo);
 				});
 		}
@@ -205,7 +221,7 @@ namespace GitMind.Git.Private
 
 					Log.Error($"Error {e}");
 					throw;
-				}		
+				}
 			});
 		}
 

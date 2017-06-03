@@ -5,11 +5,13 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Common.ThemeHandling;
-using GitMind.Features.Branches;
-using GitMind.Features.Commits;
+using GitMind.Features.Tags;
 using GitMind.Git;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.Utils.UI;
+using IBranchService = GitMind.Features.Branches.IBranchService;
+using ICommitsService = GitMind.Features.Commits.ICommitsService;
 using Log = GitMind.Utils.Log;
 
 
@@ -21,6 +23,7 @@ namespace GitMind.RepositoryViews
 		private readonly IThemeService themeService;
 		private readonly IRepositoryCommands repositoryCommands;
 		private readonly ICommitsService commitsService;
+		private readonly ITagService tagService;
 
 
 		private Commit commit;
@@ -32,12 +35,14 @@ namespace GitMind.RepositoryViews
 			IBranchService branchService,
 			IThemeService themeService,
 			IRepositoryCommands repositoryCommands,
-			ICommitsService commitsService)
+			ICommitsService commitsService,
+			ITagService tagService)
 		{
 			this.branchService = branchService;
 			this.themeService = themeService;
 			this.repositoryCommands = repositoryCommands;
 			this.commitsService = commitsService;
+			this.tagService = tagService;
 		}
 
 
@@ -57,6 +62,7 @@ namespace GitMind.RepositoryViews
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.IsUncommitted;
+		public bool IsNotUncommitted => !Commit.IsUncommitted;
 		public bool CanUncommit => UncommitCommand.CanExecute();
 		public bool CanUndo => !Commit.IsUncommitted;
 		public bool IsShown => BranchTips == null;
@@ -155,6 +161,8 @@ namespace GitMind.RepositoryViews
 			() => commitsService.UndoCommitAsync(Commit), () => commitsService.CanUndoCommit(Commit));
 
 		public Command MergeBranchCommitCommand => AsyncCommand(() => branchService.MergeBranchCommitAsync(Commit));
+
+		public Command AddTagCommitCommand => AsyncCommand(() => tagService.AddTag(Commit.RealCommitSha));
 
 
 
