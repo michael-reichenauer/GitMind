@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
@@ -20,6 +21,7 @@ namespace GitMind.Features.Tags.Private
 		private readonly IRepoCaller repoCaller;
 		private readonly IStatusService statusService;
 		private readonly IProgressService progress;
+		private readonly IGitNetworkService gitNetworkService;
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
 
@@ -28,12 +30,14 @@ namespace GitMind.Features.Tags.Private
 			IRepoCaller repoCaller,
 			IStatusService statusService,
 			IProgressService progressService,
+			IGitNetworkService gitNetworkService,
 			IMessage message,
 			WindowOwner owner)
 		{
 			this.repoCaller = repoCaller;
 			this.statusService = statusService;
 			this.progress = progressService;
+			this.gitNetworkService = gitNetworkService;
 			this.message = message;
 			this.owner = owner;
 		}
@@ -76,17 +80,34 @@ namespace GitMind.Features.Tags.Private
 
 					using (progress.ShowDialog($"Add tag {tagText} ..."))
 					{
-						R result = await repoCaller.UseLibRepoAsync(repository =>
+						R<string> addResult = await repoCaller.UseLibRepoAsync(repository =>
 						{
+							LibGit2Sharp.Remote remote = repository.Network.Remotes["origin"];
+
+							var refs = repository.Network.ListReferences(remote);
+							var remoteTagRefs = refs.Where(r => r.CanonicalName.StartsWith("refs/tags/")).ToList();
+
+							// Should retrieve the local tags
+							var allRefs = repository.Refs.Where(r => r.CanonicalName.StartsWith("refs/tags/")).ToList();
+							var localTags = allRefs.Where(r => !remoteTagRefs.Contains(r)).ToList();
+
 							Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 
-							repository.Tags.Add(tagText, commit);
+							Tag tag = repository.Tags.Add(tagText, commit);
+
+							return tag.CanonicalName;
 						});
 
-						if (!result.IsOk)
+
+						if (addResult.IsOk)
+						{
+							// Try to push immediately
+							await gitNetworkService.PushTagAsync(addResult.Value);
+						}
+						else
 						{
 							message.ShowWarning(
-								$"Failed to add tag '{tagText}'\n{result.Error.Exception.Message}");
+								$"Failed to add tag '{tagText}'\n{addResult.Error.Exception.Message}");
 						}
 					}
 				}

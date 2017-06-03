@@ -132,37 +132,13 @@ namespace GitMind.Git.Private
 		}
 
 
-		public async Task<R> PushTagsAsync()
+		public async Task<R> PushTagAsync(string tagCanonicalName)
 		{
-			Log.Warn("Push tags ...");
+			Log.Warn($"Push tag {tagCanonicalName} ...");
 
-			await Task.Yield();
-			//string[] refspecs = { "refs/tags/*:refs/tags/" };
+			string[] refspecs = { tagCanonicalName };
 
-			//string refsText = string.Join(",", refspecs);
-			//Log.Debug($"Push refs {refsText} ...");
-
-			
-			//R<List<string>> result = await repoCaller.UseLibRepoAsync(repository =>
-			//{
-			//	ReferenceCollection referenceCollection = repository.;
-
-			//	List<string> refs = new List<string>();
-			//	foreach (var tag in repository.Tags)
-			//	{
-				
-			//		refs.Add($"{tag.CanonicalName}:{tag.CanonicalName}");
-			//	}
-
-			//	return refs;
-			//});
-
-			//if (result.IsOk && result.Value.Any())
-			//{
-			//	return await PushRefsAsync(result.Value);
-			//}
-
-			return R.Ok;
+			return await PushRefsAsync(refspecs);
 		}
 
 

@@ -53,12 +53,6 @@ namespace GitMind.Features.Remote.Private
 		}
 
 
-		public Task<R> PushTagsAsync()
-		{
-			return gitNetworkService.PushTagsAsync();
-		}
-
-
 		public Task<R> PushBranchAsync(BranchName branchName)
 		{
 			return gitNetworkService.PushBranchAsync(branchName);
