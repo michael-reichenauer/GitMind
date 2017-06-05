@@ -3,11 +3,25 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using GitMind.Common;
 
 
 namespace System
 {
+	internal class FatalExceptionEventArgs : EventArgs
+	{
+		public string Message { get; }
+
+		public Exception Exception { get; }
+
+
+		public FatalExceptionEventArgs(string message, Exception exception)
+		{
+			Message = message;
+			Exception = exception;
+		}
+	}
+
+
 	internal static class FatalExceptionsExtensions
 	{
 		private static readonly IReadOnlyList<Type> FatalTypes = new[]
@@ -44,6 +58,9 @@ namespace System
 		};
 
 
+		public static event EventHandler<FatalExceptionEventArgs> FatalExeption;
+
+
 		public static bool IsNotFatal(this Exception e)
 		{
 			Exception exception = e;
@@ -54,7 +71,8 @@ namespace System
 				StackTrace stackTrace = new StackTrace(1, true);
 				string stackTraceText = stackTrace.ToString();
 				string message = $"Exception type is fatal: {exceptionType}, {e}\n at \n{stackTraceText}";
-				ExceptionHandling.Shutdown(message, exception);
+
+				FatalExeption?.Invoke(null, new FatalExceptionEventArgs(message, exception));
 				return false;
 			}
 

@@ -29,10 +29,8 @@ namespace GitMind.Common
 		public static void HandleUnhandledException()
 		{
 			// Add the event handler for handling non-UI thread exceptions to the event. 
-			AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-			{
+			AppDomain.CurrentDomain.UnhandledException += (s, e) => 
 				HandleException("app domain exception", e.ExceptionObject as Exception);
-			};
 
 			// Log exceptions that hasn't been handled when a Task is finalized.
 			TaskScheduler.UnobservedTaskException += (s, e) =>
@@ -40,6 +38,10 @@ namespace GitMind.Common
 				HandleException("unobserved task exception", e.Exception);
 				e.SetObserved();
 			};
+
+			// Add event handler for fatal execptions using catch condition "when (e.IsNotFatal())"
+			FatalExceptionsExtensions.FatalExeption += (s, e) => 
+				HandleException(e.Message, e.Exception);
 		}
 
 
