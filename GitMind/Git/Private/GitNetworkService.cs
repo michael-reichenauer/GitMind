@@ -13,7 +13,7 @@ namespace GitMind.Git.Private
 	internal class GitNetworkService : IGitNetworkService
 	{
 		private static readonly string Origin = "origin";
-	
+
 		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
 		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
@@ -97,25 +97,25 @@ namespace GitMind.Git.Private
 						return;
 					};
 
-					Remote remote = Remote(repo);		
+					Remote remote = Remote(repo);
 					repo.Network.Fetch(remote, refspecs, fetchOptions);
-					}
-					catch (NoCredentialException)
+				}
+				catch (NoCredentialException)
+				{
+					Log.Debug("Canceled enter credentials");
+					credentialHandler.SetConfirm(false);
+				}
+				catch (Exception e)
+				{
+					if (IsInvalidProtocol(e))
 					{
-						Log.Debug("Canceled enter credentials");
-						credentialHandler.SetConfirm(false);
+						return;
 					}
-					catch (Exception e)
-					{
-						if (IsInvalidProtocol(e))
-						{
-							return;
-						}
 
-						Log.Error($"Error {e}");
-						credentialHandler.SetConfirm(false);
-						throw;
-					}
+					Log.Error($"Error {e}");
+					credentialHandler.SetConfirm(false);
+					throw;
+				}
 			});
 		}
 
@@ -124,8 +124,23 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Push branch {branchName} ...");
 
-			string[] refspecs = { $"refs/heads/{branchName}:refs/heads/{branchName}"};
+			string[] refspecs =
+			{
+				$"refs/heads/{branchName}:refs/heads/{branchName}"
+			};
 			return PushRefsAsync(refspecs);
+		}
+
+
+
+
+		public async Task<R> PushTagAsync(string tagCanonicalName)
+		{
+			Log.Debug($"Push tag {tagCanonicalName} ...");
+
+			string[] refspecs = { tagCanonicalName };
+
+			return await PushRefsAsync(refspecs);
 		}
 
 
@@ -136,7 +151,10 @@ namespace GitMind.Git.Private
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 				{
 					Branch currentBranch = repo.Head;
-					string[] refspecs = {$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"};
+					string[] refspecs =
+					{
+						$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"
+					};
 					PushRefs(refspecs, repo);
 				});
 		}
@@ -205,7 +223,7 @@ namespace GitMind.Git.Private
 
 					Log.Error($"Error {e}");
 					throw;
-				}		
+				}
 			});
 		}
 
@@ -249,6 +267,87 @@ namespace GitMind.Git.Private
 			});
 		}
 
+
+
+		public Task<R> DeleteRemoteTagAsync(string tagName)
+		{
+			Log.Debug($"Delete remote tag {tagName} ...");
+
+			return repoCaller.UseRepoAsync(PushTimeout, repo =>
+			{
+				try
+				{
+					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Log.Debug("No 'origin' remote, skipping delete remote tag");
+						return;
+					};
+
+					PushOptions pushOptions = GetPushOptions();
+
+					Remote remote = Remote(repo);
+
+					// Using a refspec, like you would use with git push...
+					repo.Network.Push(remote, $":refs/tags/{tagName}", pushOptions);
+
+					credentialHandler.SetConfirm(true);
+				}
+				catch (Exception e)
+				{
+					if (IsInvalidProtocol(e))
+					{
+						return;
+					}
+
+					Log.Error($"Error {e}");
+					credentialHandler.SetConfirm(false);
+					throw;
+				}
+			});
+		}
+
+		public Task<R> PruneLocalTagsAsync()
+		{
+			Log.Debug("Prune local tags  ...");
+
+			return repoCaller.UseRepoAsync(PushTimeout, repo =>
+			{
+				try
+				{
+					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					{
+						Log.Debug("No 'origin' remote, skipping pruning local tags");
+						return;
+					};
+		
+					Remote remote = Remote(repo);
+					
+					var refs = repo.Network.ListReferences(remote);
+					var remoteTagRefs = refs.Where(r => r.CanonicalName.StartsWith("refs/tags/")).ToList();
+					
+					// Should retrieve the local tags
+					var allRefs = repo.Refs.Where(r => r.CanonicalName.StartsWith("refs/tags/")).ToList();
+					var localTags = allRefs.Where(r => !remoteTagRefs.Contains(r)).ToList();
+
+					foreach (Reference reference in localTags)
+					{
+						Log.Debug($"Remove {reference.CanonicalName}");
+						repo.Refs.Remove(reference);
+					}
+				}
+				catch (Exception e)
+				{
+					if (IsInvalidProtocol(e))
+					{
+						return;
+					}
+
+					Log.Error($"Error {e}");
+					credentialHandler.SetConfirm(false);
+					throw;
+				}
+			});
+		}
 
 		private void PushRefs(IEnumerable<string> refspecs, Repository repo)
 		{

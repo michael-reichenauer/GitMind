@@ -44,6 +44,7 @@ namespace GitMind.RepositoryViews
 		private readonly ICommandLine commandLine;
 		private readonly ICommitsService commitsService;
 		private readonly IProgressService progress;
+		private readonly IGitNetworkService gitNetworkService;
 
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
@@ -83,6 +84,7 @@ namespace GitMind.RepositoryViews
 			IThemeService themeService,
 			IMessage message,
 			IProgressService progressService,
+			IGitNetworkService gitNetworkService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
 		{
 			this.workingFolder = workingFolder;
@@ -97,6 +99,7 @@ namespace GitMind.RepositoryViews
 			this.themeService = themeService;
 			this.message = message;
 			this.progress = progressService;
+			this.gitNetworkService = gitNetworkService;
 
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
 
@@ -382,6 +385,8 @@ namespace GitMind.RepositoryViews
 				using (await refreshLock.LockAsync())
 				{
 					Log.Debug("Refreshing after manual trigger ...");
+
+					await gitNetworkService.PruneLocalTagsAsync();
 
 					Log.Debug("Get fresh repository from scratch");
 					await repositoryService.GetRemoteAndFreshRepositoryAsync();

@@ -1,16 +1,16 @@
-using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Common.ThemeHandling;
-using GitMind.Features.Branches;
-using GitMind.Features.Commits;
+using GitMind.Features.Tags;
 using GitMind.Git;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.Utils.UI;
-using Log = GitMind.Utils.Log;
+using IBranchService = GitMind.Features.Branches.IBranchService;
+using ICommitsService = GitMind.Features.Commits.ICommitsService;
 
 
 namespace GitMind.RepositoryViews
@@ -21,6 +21,7 @@ namespace GitMind.RepositoryViews
 		private readonly IThemeService themeService;
 		private readonly IRepositoryCommands repositoryCommands;
 		private readonly ICommitsService commitsService;
+		private readonly ITagService tagService;
 
 
 		private Commit commit;
@@ -32,12 +33,14 @@ namespace GitMind.RepositoryViews
 			IBranchService branchService,
 			IThemeService themeService,
 			IRepositoryCommands repositoryCommands,
-			ICommitsService commitsService)
+			ICommitsService commitsService,
+			ITagService tagService)
 		{
 			this.branchService = branchService;
 			this.themeService = themeService;
 			this.repositoryCommands = repositoryCommands;
 			this.commitsService = commitsService;
+			this.tagService = tagService;
 		}
 
 
@@ -57,6 +60,7 @@ namespace GitMind.RepositoryViews
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.IsUncommitted;
+		public bool IsNotUncommitted => !Commit.IsUncommitted;
 		public bool CanUncommit => UncommitCommand.CanExecute();
 		public bool CanUndo => !Commit.IsUncommitted;
 		public bool IsShown => BranchTips == null;
@@ -76,6 +80,7 @@ namespace GitMind.RepositoryViews
 		public Brush TicketBrush { get; set; }
 		public Brush TicketBackgroundBrush { get; set; }
 		public Brush BranchTipBrush { get; set; }
+		public bool HasDeleteTags => DeleteTagItems.Any();
 		//public FontWeight SubjectWeight => Commit.CommitBranchName != null ? FontWeights.Bold : FontWeights.Normal;
 
 		public string ToolTip { get; set; }
@@ -85,6 +90,8 @@ namespace GitMind.RepositoryViews
 
 		public ObservableCollection<LinkItem> Tickets { get; private set; }
 		public ObservableCollection<LinkItem> Tags { get; private set; }
+
+		public ObservableCollection<DeleteTagItem> DeleteTagItems { get; private set; }
 
 
 
@@ -156,6 +163,8 @@ namespace GitMind.RepositoryViews
 
 		public Command MergeBranchCommitCommand => AsyncCommand(() => branchService.MergeBranchCommitAsync(Commit));
 
+		public Command AddTagCommitCommand => AsyncCommand(() => tagService.AddTagAsync(Commit.RealCommitSha));
+
 
 
 		// Values used by other properties
@@ -218,6 +227,7 @@ namespace GitMind.RepositoryViews
 		{
 			ObservableCollection<LinkItem> issueItems = new ObservableCollection<LinkItem>();
 			ObservableCollection<LinkItem> tagItems = new ObservableCollection<LinkItem>();
+			ObservableCollection<DeleteTagItem> deleteTagItems = new ObservableCollection<DeleteTagItem>();
 
 			Links subjectIssueLinks = commitsService.GetIssueLinks(Commit.Message);
 
@@ -227,6 +237,8 @@ namespace GitMind.RepositoryViews
 
 				foreach (string tag in tags)
 				{
+					deleteTagItems.Add(new DeleteTagItem(tagService, tag));
+
 					Links tagIssueLinks = commitsService.GetIssueLinks(tag);
 					Links tagTagLinks = commitsService.GetTagLinks(tag);
 					if (tagIssueLinks.AllLinks.Any())
@@ -244,6 +256,7 @@ namespace GitMind.RepositoryViews
 				}			
 			}
 
+			DeleteTagItems = deleteTagItems;
 			Tags = tagItems;
 
 
@@ -270,46 +283,6 @@ namespace GitMind.RepositoryViews
 			}
 
 			return text;
-		}
-	}
-
-
-	internal class LinkItem : ViewModel
-	{
-		private readonly CommitViewModel viewModel;
-		private readonly LinkType linkType;
-
-
-		public LinkItem(CommitViewModel viewModel, string text, string uri, LinkType linkType)
-		{
-			this.viewModel = viewModel;
-			this.linkType = linkType;
-			Text = text;
-			Uri = uri;
-		}
-
-		public string Text { get; }
-		public bool IsLink => !string.IsNullOrEmpty(Uri);
-		public string Uri { get; }
-		public string ToolTip => "Show " + Uri;
-		public Brush TicketBrush => linkType == LinkType.issue ? viewModel.TicketBrush : viewModel.TagBrush;
-		public Brush TicketBackgroundBrush => linkType == LinkType.issue ? viewModel.TicketBackgroundBrush : viewModel.TagBackgroundBrush;
-		public Command GotoTicketCommand => Command(GotoTicket);
-
-
-		private void GotoTicket()
-		{
-			try
-			{
-				Process process = new Process();
-				process.StartInfo.FileName = Uri;
-				process.Start();
-
-			}
-			catch (Exception ex) when (ex.IsNotFatal())
-			{
-				Log.Error($"Failed to open help link {ex}");
-			}
 		}
 	}
 }

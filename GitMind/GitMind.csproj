@@ -139,6 +139,12 @@
     <Compile Include="Features\StatusHandling\StatusFile.cs" />
     <Compile Include="Features\StatusHandling\Private\StatusService.cs" />
     <Compile Include="Features\StatusHandling\Refresh.cs" />
+    <Compile Include="Features\Tags\ITagService.cs" />
+    <Compile Include="Features\Tags\Private\AddTagDialog.xaml.cs">
+      <DependentUpon>AddTagDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Tags\Private\AddTagDialogViewModel.cs" />
+    <Compile Include="Features\Tags\Private\TagService.cs" />
     <Compile Include="GitModel\ICommitsFiles.cs" />
     <Compile Include="GitModel\Link.cs" />
     <Compile Include="GitModel\Private\LinkService.cs" />
@@ -155,7 +161,9 @@
     <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
     <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />
     <Compile Include="GitModel\RepositoryUpdatedEventArgs.cs" />
+    <Compile Include="RepositoryViews\DeleteTagItem.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
+    <Compile Include="RepositoryViews\LinkItem.cs" />
     <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />
     <Compile Include="Utils\AsyncLock.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
@@ -204,6 +212,7 @@
     <Compile Include="Git\GitNote.cs" />
     <Compile Include="Git\ICredentialHandler.cs" />
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
+    <Compile Include="Utils\FatalExceptionEventArgs.cs" />
     <Compile Include="Utils\Txt.cs" />
     <Compile Include="Utils\Throttler.cs" />
     <Compile Include="Utils\UI\CredentialsDialog.cs" />
@@ -275,13 +284,11 @@
     <Compile Include="GitModel\Private\ICommitBranchNameService.cs" />
     <Compile Include="GitModel\Private\IBranchService.cs" />
     <Compile Include="GitModel\Private\ICommitsService.cs" />
-    <Compile Include="GitModel\Private\ITagService.cs" />
     <Compile Include="GitModel\Private\MBranch.cs" />
     <Compile Include="GitModel\Private\MCommit.cs" />
     <Compile Include="GitModel\Private\MCommitFiles.cs" />
     <Compile Include="GitModel\Private\MSubBranch.cs" />
     <Compile Include="GitModel\Private\SpecifiedBranchName.cs" />
-    <Compile Include="GitModel\Private\TagService.cs" />
     <Compile Include="GitModel\Repository.cs" />
     <Compile Include="GitModel\Tag.cs" />
     <Compile Include="Git\GitCommitFiles.cs" />
@@ -368,6 +375,10 @@
     <Page Include="Features\Commits\Private\CommitDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Features\Tags\Private\AddTagDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="RepositoryViews\CommitDetailsView.xaml">
       <SubType>Designer</SubType>
