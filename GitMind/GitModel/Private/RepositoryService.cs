@@ -193,7 +193,7 @@ namespace GitMind.GitModel.Private
 
 		private async void OnRepoChanged(IReadOnlyList<string> repoIds)
 		{
-			if (Repository?.MRepository?.RepositoryIds.SequenceEqual(repoIds) ?? false) 
+			if (Repository?.MRepository?.RepositoryIds.SequenceEqual(repoIds) ?? true) 
 			{
 				Log.Debug("Same repo");
 				return;
@@ -211,7 +211,7 @@ namespace GitMind.GitModel.Private
 		{
 			try
 			{
-				if (Repository?.Status?.IsSame(status) ?? false)
+				if (Repository?.Status?.IsSame(status) ?? true)
 				{
 					Log.Debug("Same status");
 					return;
