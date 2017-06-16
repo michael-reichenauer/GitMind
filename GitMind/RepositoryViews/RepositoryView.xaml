@@ -524,7 +524,7 @@
 																</MenuItem>
 
 																<MenuItem
-																	Header="{Binding PreviewMergeToBranchText}"
+																	Header="{Binding PreviewMergeBranchCommitText}"
 																	IsEnabled="{Binding IsMergeable}"
 																	Command="{Binding PreviewMergeCommitBranchCommand}">
 																	<MenuItem.Icon>
