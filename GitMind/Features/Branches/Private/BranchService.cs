@@ -165,7 +165,8 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Switching to branch {branch.Name} ..."))
 			{
-				R result = await gitBranchService.SwitchToBranchAsync(branch.Name);
+				R result = await gitBranchService.SwitchToBranchAsync(
+					branch.Name, branch.TipCommit.RealCommitSha);
 				if (result.IsFaulted)
 				{
 					message.ShowWarning($"Failed to switch,\n{result.Message}");
@@ -337,7 +338,7 @@ namespace GitMind.Features.Branches.Private
 					await gitBranchService.MergeAsync(branch.Name);
 
 					repositoryCommands.SetCurrentMerging(branch, branch.TipCommit.RealCommitSha);
-			
+
 					await repositoryService.Value.CheckLocalRepositoryAsync();
 				}
 

@@ -10,7 +10,7 @@ namespace GitMind.Features.Branches.Private
 	{
 		Task<R> CreateBranchAsync(BranchName branchName, CommitSha commitSha);
 
-		Task<R> SwitchToBranchAsync(BranchName branchName);
+		Task<R> SwitchToBranchAsync(BranchName branchName, CommitSha tipCommitRealCommitSha);
 
 		Task<R<BranchName>> SwitchToCommitAsync(CommitSha commitSha, BranchName branchName);
 
