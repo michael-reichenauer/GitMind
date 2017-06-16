@@ -240,7 +240,7 @@ namespace GitMind.Git
 			MergeTreeOptions options = new MergeTreeOptions();
 			options.SkipReuc = false;
 			options.FailOnConflict = false;
-			options.MergeFileFavor = MergeFileFavor.Union;
+			options.MergeFileFavor = MergeFileFavor.Normal;
 			MergeTreeResult result = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
 
 			return repository.Diff.Compare<Patch>(
