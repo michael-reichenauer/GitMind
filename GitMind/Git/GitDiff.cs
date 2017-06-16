@@ -239,7 +239,7 @@ namespace GitMind.Git
 
 			MergeTreeOptions mergeTreeOptions = new MergeTreeOptions();
 			mergeTreeOptions.SkipReuc = true;
-			mergeTreeOptions.FailOnConflict = true;
+			mergeTreeOptions.FailOnConflict = false;
 			MergeTreeOptions options = mergeTreeOptions;
 			MergeTreeResult result = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
 
