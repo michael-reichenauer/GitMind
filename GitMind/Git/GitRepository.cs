@@ -64,7 +64,7 @@ namespace GitMind.Git
 
 		public GitBranch Head => new GitBranch(repository.Head, repository);
 
-		public GitDiff Diff => new GitDiff(diffService, repository.Diff, repository);
+		public GitDiff Diff => new GitDiff(repository.Diff, repository);
 
 		public string UserName => repository.Config.GetValueOrDefault<string>("user.name");
 

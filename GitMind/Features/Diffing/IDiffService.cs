@@ -29,5 +29,6 @@ namespace GitMind.Features.Diffing
 		Task ShowTheirDiffAsync(CommitFile file);
 		IReadOnlyList<string> GetAllTempNames();
 		void ShowDiff(CommitSha uncommittedId);
+		Task ShowPreviewMergeDiffAsync(CommitSha commitSha, CommitSha commitSha2);
 	}
 }

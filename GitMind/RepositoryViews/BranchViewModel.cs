@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Media;
 using GitMind.Common.ThemeHandling;
 using GitMind.Features.Branches;
+using GitMind.Features.Diffing;
 using GitMind.GitModel;
 using GitMind.Utils.UI;
 
@@ -14,6 +15,7 @@ namespace GitMind.RepositoryViews
 	internal class BranchViewModel : ViewModel
 	{
 		private readonly IBranchService branchService;
+		private readonly IDiffService diffService;
 		private readonly IThemeService themeService;
 		private readonly IRepositoryCommands repositoryCommands;
 
@@ -26,10 +28,12 @@ namespace GitMind.RepositoryViews
 
 		public BranchViewModel(
 			IBranchService branchService,
+			IDiffService diffService,
 			IThemeService themeService,
 			IRepositoryCommands repositoryCommands)
 		{
 			this.branchService = branchService;
+			this.diffService = diffService;
 			this.themeService = themeService;
 			this.repositoryCommands = repositoryCommands;
 			this.showBranchCommand = Command<Branch>(repositoryCommands.ShowBranch);
@@ -67,6 +71,7 @@ namespace GitMind.RepositoryViews
 
 		public string SwitchBranchText => $"Switch to branch '{Name}'";
 		public string MergeToBranchText => $"Merge to branch '{CurrentBranchName}'";
+		public string PreviewMergeToBranchText => $"Preview merge to branch '{CurrentBranchName}'";
 		public string CurrentBranchName { get; set; }
 		public bool CanDeleteBranch => Branch.IsLocal || Branch.IsRemote;
 
@@ -93,6 +98,10 @@ namespace GitMind.RepositoryViews
 			() => branchService.CreateBranchAsync(Branch));
 
 		public Command MergeBranchCommand => AsyncCommand(() => branchService.MergeBranchAsync(Branch));
+		public Command PreviewMergeBranchCommand => AsyncCommand(
+			() => diffService.ShowPreviewMergeDiffAsync(
+				Branch.TipCommit.RealCommitSha, Branch.Repository.CurrentCommit.RealCommitSha));
+
 		public Command DeleteBranchCommand => AsyncCommand(
 			() => branchService.DeleteBranchAsync(Branch), () => branchService.CanDeleteBranch(Branch));
 

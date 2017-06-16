@@ -241,15 +241,34 @@
 														</MenuItem>
 
 														<!-- Merge to other branch -->
-														<MenuItem
-															Header="{Binding MergeToBranchText}"
-															IsEnabled="{Binding IsMergeable}"
-															Command="{Binding MergeBranchCommand}">
+														<MenuItem Header="Merge" IsEnabled="{Binding IsMergeable}">
 															<MenuItem.Icon>
 																<Border>
 																	<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE0B3;" />
 																</Border>
 															</MenuItem.Icon>
+															
+															<MenuItem
+																Header="{Binding MergeToBranchText}"
+																IsEnabled="{Binding IsMergeable}"
+																Command="{Binding MergeBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE0B3;" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+
+															<MenuItem
+																Header="{Binding PreviewMergeToBranchText}"
+																IsEnabled="{Binding IsMergeable}"
+																Command="{Binding PreviewMergeBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE915;" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
 														</MenuItem>
 
 														<Separator Background="{DynamicResource BorderBrush}" />

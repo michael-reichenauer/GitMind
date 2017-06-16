@@ -10,7 +10,6 @@ namespace GitMind.Git
 {
 	internal class GitDiff
 	{
-		private readonly IDiffService diffService;
 		private readonly Diff diff;
 		private readonly Repository repository;
 		private static readonly SimilarityOptions DetectRenames =
@@ -24,9 +23,8 @@ namespace GitMind.Git
 		{ ContextLines = 10000, Similarity = DetectRenames };
 
 
-		public GitDiff(IDiffService diffService, Diff diff, Repository repository)
+		public GitDiff(Diff diff, Repository repository)
 		{
-			this.diffService = diffService;
 			this.diff = diff;
 			this.repository = repository;
 		}
@@ -231,6 +229,24 @@ namespace GitMind.Git
 			}
 
 			return uniqueFiles;
+		}
+
+
+		public string GetPreMergePatch(CommitSha commitSha1, CommitSha commitSha2)
+		{
+			Commit commit1 = repository.Lookup<Commit>(new ObjectId(commitSha1.Sha));
+			Commit commit2 = repository.Lookup<Commit>(new ObjectId(commitSha2.Sha));
+
+			MergeTreeOptions mergeTreeOptions = new MergeTreeOptions();
+			mergeTreeOptions.SkipReuc = true;
+			mergeTreeOptions.FailOnConflict = true;
+			MergeTreeOptions options = mergeTreeOptions;
+			MergeTreeResult result = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
+
+			return repository.Diff.Compare<Patch>(
+				repository.Head.Tip.Tree,
+				result.Tree,
+				DefultCompareOptions);
 		}
 	}
 }

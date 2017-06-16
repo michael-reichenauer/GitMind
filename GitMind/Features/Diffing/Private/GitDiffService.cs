@@ -34,7 +34,7 @@ namespace GitMind.Features.Diffing.Private
 			this.progressService = progressService;
 			this.statusService = statusService;
 		}
-		 
+
 
 		public Task<R<CommitDiff>> GetFileDiffAsync(CommitSha commitSha, string path)
 		{
@@ -67,6 +67,18 @@ namespace GitMind.Features.Diffing.Private
 				string patch = repo.Diff.GetPatch(commitSha);
 
 				return await gitDiffParser.ParseAsync(commitSha, patch);
+			});
+		}
+
+
+		public Task<R<CommitDiff>> GetPreviewMergeDiffAsync(CommitSha commitSha1, CommitSha commitSha2)
+		{
+			Log.Debug($"Get diff for pre-merge {commitSha1}-{commitSha2} ...");
+			return repoCaller.UseRepoAsync(async repo =>
+			{
+				string patch = repo.Diff.GetPreMergePatch(commitSha1, commitSha2);
+
+				return await gitDiffParser.ParseAsync(null, patch);
 			});
 		}
 
