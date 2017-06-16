@@ -101,10 +101,10 @@ namespace GitMind.RepositoryViews
 		public Command MergeBranchCommand => AsyncCommand(() => branchService.MergeBranchAsync(Branch));
 		public Command PreviewMergeBranchCommand => AsyncCommand(
 			() => diffService.ShowPreviewMergeDiffAsync(
-				Branch.TipCommit.RealCommitSha, Branch.Repository.CurrentCommit.RealCommitSha));
+				Branch.Repository.CurrentCommit.RealCommitSha, Branch.TipCommit.RealCommitSha));
 		public Command PreviewMergeFromBranchCommand => AsyncCommand(
 			() => diffService.ShowPreviewMergeDiffAsync(
-				Branch.Repository.CurrentCommit.RealCommitSha, Branch.TipCommit.RealCommitSha));
+				Branch.TipCommit.RealCommitSha, Branch.Repository.CurrentCommit.RealCommitSha));
 
 
 		public Command DeleteBranchCommand => AsyncCommand(
