@@ -237,10 +237,10 @@ namespace GitMind.Git
 			Commit commit1 = repository.Lookup<Commit>(new ObjectId(commitSha1.Sha));
 			Commit commit2 = repository.Lookup<Commit>(new ObjectId(commitSha2.Sha));
 
-			MergeTreeOptions mergeTreeOptions = new MergeTreeOptions();
-			mergeTreeOptions.SkipReuc = false;
-			mergeTreeOptions.FailOnConflict = false;
-			MergeTreeOptions options = mergeTreeOptions;
+			MergeTreeOptions options = new MergeTreeOptions();
+			options.SkipReuc = false;
+			options.FailOnConflict = false;
+			options.MergeFileFavor = MergeFileFavor.Union;
 			MergeTreeResult result = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
 
 			return repository.Diff.Compare<Patch>(
