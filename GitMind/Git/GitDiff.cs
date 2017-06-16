@@ -238,7 +238,7 @@ namespace GitMind.Git
 			Commit commit2 = repository.Lookup<Commit>(new ObjectId(commitSha2.Sha));
 
 			MergeTreeOptions mergeTreeOptions = new MergeTreeOptions();
-			mergeTreeOptions.SkipReuc = true;
+			mergeTreeOptions.SkipReuc = false;
 			mergeTreeOptions.FailOnConflict = false;
 			MergeTreeOptions options = mergeTreeOptions;
 			MergeTreeResult result = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
