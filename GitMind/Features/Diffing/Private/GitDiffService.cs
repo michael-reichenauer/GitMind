@@ -76,9 +76,34 @@ namespace GitMind.Features.Diffing.Private
 			Log.Debug($"Get diff for pre-merge {commitSha1}-{commitSha2} ...");
 			return repoCaller.UseRepoAsync(async repo =>
 			{
-				string patch = repo.Diff.GetPreMergePatch(commitSha1, commitSha2);
+				MergePatch patch = repo.Diff.GetPreMergePatch(commitSha1, commitSha2);
 
-				return await gitDiffParser.ParseAsync(null, patch);
+				CommitDiff diff = await gitDiffParser.ParseAsync(null, patch.Patch);
+
+				if (patch.ConflictPatch == "")
+				{
+					return diff;
+				}
+
+				// There where conflicts
+				if (File.Exists(diff.LeftPath + ".1"))
+				{
+					File.Delete(diff.LeftPath + ".1");
+				}
+				if (File.Exists(diff.RightPath + ".1"))
+				{
+					File.Delete(diff.RightPath + ".1");
+				}
+				File.Move(diff.LeftPath, diff.LeftPath + ".1");
+				File.Move(diff.RightPath, diff.RightPath + ".1");
+				CommitDiff conflictDiff = await gitDiffParser.ParseAsync(null, patch.ConflictPatch);
+				File.AppendAllText(conflictDiff.LeftPath, File.ReadAllText(diff.LeftPath + ".1"));
+				File.AppendAllText(conflictDiff.RightPath, File.ReadAllText(diff.RightPath + ".1"));
+
+				File.Delete(diff.LeftPath + ".1");
+				File.Delete(diff.RightPath + ".1");
+
+				return conflictDiff;
 			});
 		}
 

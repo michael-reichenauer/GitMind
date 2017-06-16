@@ -232,21 +232,48 @@ namespace GitMind.Git
 		}
 
 
-		public string GetPreMergePatch(CommitSha commitSha1, CommitSha commitSha2)
+		public MergePatch GetPreMergePatch(CommitSha commitSha1, CommitSha commitSha2)
 		{
+			string patch = "";
+			string conflictPatch = "";
+
 			Commit commit1 = repository.Lookup<Commit>(new ObjectId(commitSha1.Sha));
 			Commit commit2 = repository.Lookup<Commit>(new ObjectId(commitSha2.Sha));
 
 			MergeTreeOptions options = new MergeTreeOptions();
-			options.SkipReuc = false;
-			options.FailOnConflict = false;
+
 			options.MergeFileFavor = MergeFileFavor.Normal;
 			MergeTreeResult result = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
 
-			return repository.Diff.Compare<Patch>(
-				commit1.Tree,
-				result.Tree,
-				DefultCompareOptions);
+			if (result.Status == MergeTreeStatus.Succeeded)
+			{
+				patch = repository.Diff.Compare<Patch>(
+					commit1.Tree,
+					result.Tree,
+					DefultCompareOptions);
+			}
+			else
+			{
+				// There was a conflict, lets get one patch with "Theirs" in case of conflict and
+				// one patch of the conflicts
+				options.MergeFileFavor = MergeFileFavor.Theirs;
+				result = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
+
+				options.MergeFileFavor = MergeFileFavor.Ours;
+				MergeTreeResult conflictResult = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
+
+				patch = repository.Diff.Compare<Patch>(
+					commit1.Tree,
+					result.Tree,
+					DefultCompareOptions);
+
+				conflictPatch = repository.Diff.Compare<Patch>(
+					result.Tree,
+					conflictResult.Tree,
+					DefultCompareOptions);
+			}
+
+			return new MergePatch(patch, conflictPatch);
 		}
 	}
 }
