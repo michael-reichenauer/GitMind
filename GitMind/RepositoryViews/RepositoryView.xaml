@@ -269,6 +269,19 @@
 																	</Border>
 																</MenuItem.Icon>
 															</MenuItem>
+
+
+															<MenuItem
+																Header="{Binding PreviewMergeFromBranchText}"
+																IsEnabled="{Binding IsMergeable}"
+																Command="{Binding PreviewMergeFromBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE915;" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+
 														</MenuItem>
 
 														<Separator Background="{DynamicResource BorderBrush}" />

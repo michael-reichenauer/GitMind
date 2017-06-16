@@ -72,6 +72,7 @@ namespace GitMind.RepositoryViews
 		public string SwitchBranchText => $"Switch to branch '{Name}'";
 		public string MergeToBranchText => $"Merge to branch '{CurrentBranchName}'";
 		public string PreviewMergeToBranchText => $"Preview merge to branch '{CurrentBranchName}'";
+		public string PreviewMergeFromBranchText => $"Preview merge from branch '{CurrentBranchName}'";
 		public string CurrentBranchName { get; set; }
 		public bool CanDeleteBranch => Branch.IsLocal || Branch.IsRemote;
 
@@ -101,6 +102,10 @@ namespace GitMind.RepositoryViews
 		public Command PreviewMergeBranchCommand => AsyncCommand(
 			() => diffService.ShowPreviewMergeDiffAsync(
 				Branch.TipCommit.RealCommitSha, Branch.Repository.CurrentCommit.RealCommitSha));
+		public Command PreviewMergeFromBranchCommand => AsyncCommand(
+			() => diffService.ShowPreviewMergeDiffAsync(
+				Branch.Repository.CurrentCommit.RealCommitSha, Branch.TipCommit.RealCommitSha));
+
 
 		public Command DeleteBranchCommand => AsyncCommand(
 			() => branchService.DeleteBranchAsync(Branch), () => branchService.CanDeleteBranch(Branch));
