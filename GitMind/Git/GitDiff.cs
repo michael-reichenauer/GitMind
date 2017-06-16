@@ -244,7 +244,7 @@ namespace GitMind.Git
 			MergeTreeResult result = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
 
 			return repository.Diff.Compare<Patch>(
-				repository.Head.Tip.Tree,
+				commit1.Tree,
 				result.Tree,
 				DefultCompareOptions);
 		}
