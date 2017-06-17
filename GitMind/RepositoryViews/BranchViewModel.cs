@@ -116,7 +116,8 @@ namespace GitMind.RepositoryViews
 
 		public Command PreviewPushBranchCommand => AsyncCommand(
 			() => diffService.ShowPreviewMergeDiffAsync(
-				Branch.RemoteTipCommit.RealCommitSha, Branch.LocalTipCommit.RealCommitSha));
+				Branch.MainbBranch.RemoteTipCommit.RealCommitSha,
+				Branch.IsUncommited ? Branch.LocalTipCommit.FirstParent.RealCommitSha : Branch.LocalTipCommit.RealCommitSha));
 
 		public Command UpdateBranchCommand => Command(() => branchService.UpdateBranchAsync(Branch));
 
