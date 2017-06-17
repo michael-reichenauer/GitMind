@@ -86,22 +86,47 @@ namespace GitMind.Features.Diffing.Private
 				}
 
 				// There where conflicts
-				if (File.Exists(diff.LeftPath + ".1"))
-				{
-					File.Delete(diff.LeftPath + ".1");
-				}
-				if (File.Exists(diff.RightPath + ".1"))
-				{
-					File.Delete(diff.RightPath + ".1");
-				}
-				File.Move(diff.LeftPath, diff.LeftPath + ".1");
-				File.Move(diff.RightPath, diff.RightPath + ".1");
-				CommitDiff conflictDiff = await gitDiffParser.ParseAsync(null, patch.ConflictPatch);
-				File.AppendAllText(conflictDiff.LeftPath, File.ReadAllText(diff.LeftPath + ".1"));
-				File.AppendAllText(conflictDiff.RightPath, File.ReadAllText(diff.RightPath + ".1"));
+				string leftTempPath = diff.LeftPath + ".1";
+				string rigthTempPath = diff.RightPath + ".1";
 
-				File.Delete(diff.LeftPath + ".1");
-				File.Delete(diff.RightPath + ".1");
+				if (File.Exists(leftTempPath))
+				{
+					File.Delete(leftTempPath);
+				}
+				if (File.Exists(rigthTempPath))
+				{
+					File.Delete(rigthTempPath);
+				}
+
+				File.Move(diff.LeftPath, leftTempPath);
+				File.Move(diff.RightPath, rigthTempPath);
+
+				CommitDiff conflictDiff = await gitDiffParser.ParseAsync(null, patch.ConflictPatch, true, true);
+
+				string left = File.ReadAllText(conflictDiff.LeftPath);
+				string right = File.ReadAllText(conflictDiff.RightPath);
+
+				string divider =
+					"=====================================================" + 
+					"=================================================\n" +
+					"#####################################################" +
+					"#################################################\n" +
+					"=====================================================" + 
+					"=================================================\n";
+				string conflictText1 = divider + "NOTE: There are conflicts !!!\n\nFiles with conflicts:\n\n";
+				string conflictText2 = divider +  "Files with no conflicts:\n\n";
+
+				File.WriteAllText(conflictDiff.LeftPath, conflictText1);
+				File.WriteAllText(conflictDiff.RightPath, conflictText1);
+				File.AppendAllText(conflictDiff.LeftPath, left);
+				File.AppendAllText(conflictDiff.RightPath, right);
+				File.AppendAllText(conflictDiff.LeftPath, conflictText2);
+				File.AppendAllText(conflictDiff.RightPath, conflictText2);
+				File.AppendAllText(conflictDiff.LeftPath, File.ReadAllText(leftTempPath));
+				File.AppendAllText(conflictDiff.RightPath, File.ReadAllText(rigthTempPath));
+
+				File.Delete(leftTempPath);
+				File.Delete(rigthTempPath);
 
 				return conflictDiff;
 			});

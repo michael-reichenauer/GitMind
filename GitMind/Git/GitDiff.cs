@@ -234,9 +234,6 @@ namespace GitMind.Git
 
 		public MergePatch GetPreMergePatch(CommitSha commitSha1, CommitSha commitSha2)
 		{
-			string patch = "";
-			string conflictPatch = "";
-
 			Commit commit1 = repository.Lookup<Commit>(new ObjectId(commitSha1.Sha));
 			Commit commit2 = repository.Lookup<Commit>(new ObjectId(commitSha2.Sha));
 
@@ -247,33 +244,56 @@ namespace GitMind.Git
 
 			if (result.Status == MergeTreeStatus.Succeeded)
 			{
-				patch = repository.Diff.Compare<Patch>(
+				string patchText = repository.Diff.Compare<Patch>(
 					commit1.Tree,
 					result.Tree,
 					DefultCompareOptions);
+
+				return new MergePatch(patchText, "");
 			}
-			else
+
+			// There where conflicts, lets get one patch without conflicted files and
+			// one patch of the conflicted files. We use two patches, one where all conflicts where
+			// using "Theirs" and one patch with all conflicts using "Ours" changes. We can then
+			// create one patch with no files with conflicts and one patch with only conflicted files.
+			// We Start getting a patch of all files, using "Theirs" for conflicts.
+			options.MergeFileFavor = MergeFileFavor.Theirs;
+			MergeTreeResult theirsResult = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
+
+			// We getting a patch of all files, using "Ours" for conflicts.
+			options.MergeFileFavor = MergeFileFavor.Ours;
+			MergeTreeResult oursResult = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
+
+			// We get a patch of all changed files (both with and without conflicts)
+			Patch allDiffPatch = repository.Diff.Compare<Patch>(
+				commit1.Tree,
+				theirsResult.Tree,
+				DefultCompareOptions);
+
+			// We get a patch of only files with conflicts (compaing "Theirs" and "Ours" changes only)
+			Patch conflictsPatch = repository.Diff.Compare<Patch>(
+				theirsResult.Tree,
+				oursResult.Tree,
+				DefultCompareOptions);
+			List<PatchEntryChanges> conflictsFiles = conflictsPatch.ToList();
+
+			// We now get the list of files, which have no conflicts 
+			var nonConflictFiles = allDiffPatch
+				.Where(entry => !conflictsFiles.Any(e => e.Path == entry.Path))
+				.Select(entry => entry.Path);
+
+			// Getting the patch of files with no conflicts
+			string conConflictPatchText = "";
+			if (nonConflictFiles.Any())
 			{
-				// There was a conflict, lets get one patch with "Theirs" in case of conflict and
-				// one patch of the conflicts
-				options.MergeFileFavor = MergeFileFavor.Theirs;
-				result = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
-
-				options.MergeFileFavor = MergeFileFavor.Ours;
-				MergeTreeResult conflictResult = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
-
-				patch = repository.Diff.Compare<Patch>(
+				conConflictPatchText = repository.Diff.Compare<Patch>(
 					commit1.Tree,
-					result.Tree,
-					DefultCompareOptions);
-
-				conflictPatch = repository.Diff.Compare<Patch>(
-					result.Tree,
-					conflictResult.Tree,
+					theirsResult.Tree,
+					nonConflictFiles,
 					DefultCompareOptions);
 			}
 
-			return new MergePatch(patch, conflictPatch);
+			return new MergePatch(conConflictPatchText, conflictsPatch);
 		}
 	}
 }
