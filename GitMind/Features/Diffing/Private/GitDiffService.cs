@@ -107,14 +107,14 @@ namespace GitMind.Features.Diffing.Private
 				string right = File.ReadAllText(conflictDiff.RightPath);
 
 				string divider =
-					"=====================================================" + 
+					"========================================================" +
 					"=================================================\n" +
-					"#####################################################" +
+					"########################################################" +
 					"#################################################\n" +
-					"=====================================================" + 
+					"========================================================" +
 					"=================================================\n";
-				string conflictText1 = divider + "NOTE: There are conflicts !!!\n\nFiles with conflicts:\n\n";
-				string conflictText2 = divider +  "Files with no conflicts:\n\n";
+				string conflictText1 = divider + "NOTE: There are conflicts !!!\n\nFiles with conflicts:\n";
+				string conflictText2 = divider;
 
 				File.WriteAllText(conflictDiff.LeftPath, conflictText1);
 				File.WriteAllText(conflictDiff.RightPath, conflictText1);

@@ -275,25 +275,25 @@ namespace GitMind.Git
 				theirsResult.Tree,
 				oursResult.Tree,
 				DefultCompareOptions);
-			List<PatchEntryChanges> conflictsFiles = conflictsPatch.ToList();
+			//List<PatchEntryChanges> conflictsFiles = conflictsPatch.ToList();
 
-			// We now get the list of files, which have no conflicts 
-			var nonConflictFiles = allDiffPatch
-				.Where(entry => !conflictsFiles.Any(e => e.Path == entry.Path))
-				.Select(entry => entry.Path);
+			//// We now get the list of files, which have no conflicts 
+			//var nonConflictFiles = allDiffPatch
+			//	.Where(entry => !conflictsFiles.Any(e => e.Path == entry.Path))
+			//	.Select(entry => entry.Path);
 
 			// Getting the patch of files with no conflicts
-			string conConflictPatchText = "";
-			if (nonConflictFiles.Any())
-			{
-				conConflictPatchText = repository.Diff.Compare<Patch>(
-					commit1.Tree,
-					theirsResult.Tree,
-					nonConflictFiles,
-					DefultCompareOptions);
-			}
+			//string conConflictPatchText = "";
+			//if (allDiffPatch.Any())
+			//{
+			//	conConflictPatchText = repository.Diff.Compare<Patch>(
+			//		commit1.Tree,
+			//		theirsResult.Tree,
+			//		nonConflictFiles,
+			//		DefultCompareOptions);
+			//}
 
-			return new MergePatch(conConflictPatchText, conflictsPatch);
+			return new MergePatch(allDiffPatch, conflictsPatch);
 		}
 	}
 }
