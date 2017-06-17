@@ -114,7 +114,15 @@ namespace GitMind.RepositoryViews
 
 		public Command PushBranchCommand => Command(() => branchService.PushBranchAsync(Branch));
 
+		public Command PreviewPushBranchCommand => AsyncCommand(
+			() => diffService.ShowPreviewMergeDiffAsync(
+				Branch.RemoteTipCommit.RealCommitSha, Branch.LocalTipCommit.RealCommitSha));
+
 		public Command UpdateBranchCommand => Command(() => branchService.UpdateBranchAsync(Branch));
+
+		public Command PreviewUpdateBranchCommand => AsyncCommand(
+			() => diffService.ShowPreviewMergeDiffAsync(
+				Branch.LocalTipCommit.RealCommitSha, Branch.RemoteTipCommit.RealCommitSha));
 
 		public Command ChangeColorCommand => Command(() =>
 		{
