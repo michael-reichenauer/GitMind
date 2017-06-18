@@ -10,7 +10,6 @@ namespace GitMind.Git
 {
 	internal class GitDiff
 	{
-		private readonly IDiffService diffService;
 		private readonly Diff diff;
 		private readonly Repository repository;
 		private static readonly SimilarityOptions DetectRenames =
@@ -24,9 +23,8 @@ namespace GitMind.Git
 		{ ContextLines = 10000, Similarity = DetectRenames };
 
 
-		public GitDiff(IDiffService diffService, Diff diff, Repository repository)
+		public GitDiff(Diff diff, Repository repository)
 		{
-			this.diffService = diffService;
 			this.diff = diff;
 			this.repository = repository;
 		}
@@ -231,6 +229,54 @@ namespace GitMind.Git
 			}
 
 			return uniqueFiles;
+		}
+
+
+		public MergePatch GetPreMergePatch(CommitSha commitSha1, CommitSha commitSha2)
+		{
+			Commit commit1 = repository.Lookup<Commit>(new ObjectId(commitSha1.Sha));
+			Commit commit2 = repository.Lookup<Commit>(new ObjectId(commitSha2.Sha));
+
+			MergeTreeOptions options = new MergeTreeOptions();
+
+			options.MergeFileFavor = MergeFileFavor.Normal;
+			MergeTreeResult result = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
+
+			if (result.Status == MergeTreeStatus.Succeeded)
+			{
+				string patchText = repository.Diff.Compare<Patch>(
+					commit1.Tree,
+					result.Tree,
+					DefultCompareOptions);
+
+				return new MergePatch(patchText, "");
+			}
+
+			// There where conflicts, lets get one patch without conflicted files and
+			// one patch of the conflicted files. We use two patches, one where all conflicts where
+			// using "Theirs" and one patch with all conflicts using "Ours" changes. We can then
+			// create one patch with no files with conflicts and one patch with only conflicted files.
+			// We Start getting a patch of all files, using "Theirs" for conflicts.
+			options.MergeFileFavor = MergeFileFavor.Theirs;
+			MergeTreeResult theirsResult = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
+
+			// We getting a patch of all files, using "Ours" for conflicts.
+			options.MergeFileFavor = MergeFileFavor.Ours;
+			MergeTreeResult oursResult = repository.ObjectDatabase.MergeCommits(commit1, commit2, options);
+
+			// We get a patch of all changed files (both with and without conflicts)
+			Patch allDiffPatch = repository.Diff.Compare<Patch>(
+				commit1.Tree,
+				theirsResult.Tree,
+				DefultCompareOptions);
+
+			// We get a patch of only files with conflicts (compaing "Theirs" and "Ours" changes only)
+			Patch conflictsPatch = repository.Diff.Compare<Patch>(
+				theirsResult.Tree,
+				oursResult.Tree,
+				DefultCompareOptions);
+		
+			return new MergePatch(allDiffPatch, conflictsPatch);
 		}
 	}
 }

@@ -164,9 +164,8 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Switching to branch {branch.Name} ..."))
 			{
-				// Switching
-				R result = await gitBranchService.SwitchToBranchAsync(branch.Name);
-				// Swithed
+				R result = await gitBranchService.SwitchToBranchAsync(
+					branch.Name, branch.TipCommit.RealCommitSha);
 				if (result.IsFaulted)
 				{
 					message.ShowWarning($"Failed to switch,\n{result.Message}");

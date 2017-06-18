@@ -34,7 +34,7 @@ namespace GitMind.Features.Diffing.Private
 			this.progressService = progressService;
 			this.statusService = statusService;
 		}
-		 
+
 
 		public Task<R<CommitDiff>> GetFileDiffAsync(CommitSha commitSha, string path)
 		{
@@ -67,6 +67,68 @@ namespace GitMind.Features.Diffing.Private
 				string patch = repo.Diff.GetPatch(commitSha);
 
 				return await gitDiffParser.ParseAsync(commitSha, patch);
+			});
+		}
+
+
+		public Task<R<CommitDiff>> GetPreviewMergeDiffAsync(CommitSha commitSha1, CommitSha commitSha2)
+		{
+			Log.Debug($"Get diff for pre-merge {commitSha1}-{commitSha2} ...");
+			return repoCaller.UseRepoAsync(async repo =>
+			{
+				MergePatch patch = repo.Diff.GetPreMergePatch(commitSha1, commitSha2);
+
+				CommitDiff diff = await gitDiffParser.ParseAsync(null, patch.Patch);
+
+				if (patch.ConflictPatch == "")
+				{
+					return diff;
+				}
+
+				// There where conflicts
+				string leftTempPath = diff.LeftPath + ".1";
+				string rigthTempPath = diff.RightPath + ".1";
+
+				if (File.Exists(leftTempPath))
+				{
+					File.Delete(leftTempPath);
+				}
+				if (File.Exists(rigthTempPath))
+				{
+					File.Delete(rigthTempPath);
+				}
+
+				File.Move(diff.LeftPath, leftTempPath);
+				File.Move(diff.RightPath, rigthTempPath);
+
+				CommitDiff conflictDiff = await gitDiffParser.ParseAsync(null, patch.ConflictPatch, true, true);
+
+				string left = File.ReadAllText(conflictDiff.LeftPath);
+				string right = File.ReadAllText(conflictDiff.RightPath);
+
+				string divider =
+					"========================================================" +
+					"=================================================\n" +
+					"########################################################" +
+					"#################################################\n" +
+					"========================================================" +
+					"=================================================\n";
+				string conflictText1 = divider + "NOTE: There are conflicts !!!\n\nFiles with conflicts:\n";
+				string conflictText2 = divider;
+
+				File.WriteAllText(conflictDiff.LeftPath, conflictText1);
+				File.WriteAllText(conflictDiff.RightPath, conflictText1);
+				File.AppendAllText(conflictDiff.LeftPath, left);
+				File.AppendAllText(conflictDiff.RightPath, right);
+				File.AppendAllText(conflictDiff.LeftPath, conflictText2);
+				File.AppendAllText(conflictDiff.RightPath, conflictText2);
+				File.AppendAllText(conflictDiff.LeftPath, File.ReadAllText(leftTempPath));
+				File.AppendAllText(conflictDiff.RightPath, File.ReadAllText(rigthTempPath));
+
+				File.Delete(leftTempPath);
+				File.Delete(rigthTempPath);
+
+				return conflictDiff;
 			});
 		}
 
