@@ -212,44 +212,122 @@
 
 														<MenuItem
 															Header="Push branch"
-															InputGestureText="Ctrl-Up"
-															Visibility="{Binding CanPush, Converter={StaticResource VC}}"
-															Command="{Binding PushBranchCommand}">
+															IsEnabled="{Binding CanPush}">
 															<MenuItem.Icon>
 																<Border>
 																	<TextBlock
-																		Style="{DynamicResource MenuIconStyle}"
-																		Text="&#xE25A;"
+																		Style="{DynamicResource MenuIconStyle}" Text="&#xE25A;"
 																		Foreground="{DynamicResource LocalAheadBrush}" />
 																</Border>
 															</MenuItem.Icon>
+
+															<MenuItem
+																Header="Push branch"
+																InputGestureText="Ctrl-Up"
+																Visibility="{Binding CanPush, Converter={StaticResource VC}}"
+																Command="{Binding PushBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock
+																			Style="{DynamicResource MenuIconStyle}"
+																			Text="&#xE25A;"
+																			Foreground="{DynamicResource LocalAheadBrush}" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+
+															<MenuItem
+																Header="Preview push branch"
+																Command="{Binding PreviewPushBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE915;" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+
 														</MenuItem>
 
 														<MenuItem
 															Header="Update branch"
-															InputGestureText="Ctrl-Down"
-															Visibility="{Binding CanUpdate, Converter={StaticResource VC}}"
-															Command="{Binding UpdateBranchCommand}">
+															IsEnabled="{Binding CanUpdate}">
 															<MenuItem.Icon>
 																<Border>
 																	<TextBlock
-																		Style="{DynamicResource MenuIconStyle}"
-																		Text="&#xE258;"
+																		Style="{DynamicResource MenuIconStyle}" Text="&#xE258;"
 																		Foreground="{DynamicResource RemoteAheadBrush}" />
 																</Border>
 															</MenuItem.Icon>
+
+															<MenuItem
+																Header="Update branch"
+																InputGestureText="Ctrl-Down"
+																Command="{Binding UpdateBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock
+																			Style="{DynamicResource MenuIconStyle}"
+																			Text="&#xE258;"
+																			Foreground="{DynamicResource RemoteAheadBrush}" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+
+															<MenuItem
+																Header="Preview update branch"
+																Command="{Binding PreviewUpdateBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE915;" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+
+
 														</MenuItem>
 
 														<!-- Merge to other branch -->
-														<MenuItem
-															Header="{Binding MergeToBranchText}"
-															IsEnabled="{Binding IsMergeable}"
-															Command="{Binding MergeBranchCommand}">
+														<MenuItem Header="Merge" IsEnabled="{Binding IsMergeable}">
 															<MenuItem.Icon>
 																<Border>
 																	<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE0B3;" />
 																</Border>
 															</MenuItem.Icon>
+
+															<MenuItem
+																Header="{Binding MergeToBranchText}"
+																IsEnabled="{Binding IsMergeable}"
+																Command="{Binding MergeBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE0B3;" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+
+															<MenuItem
+																Header="{Binding PreviewMergeToBranchText}"
+																IsEnabled="{Binding IsMergeable}"
+																Command="{Binding PreviewMergeBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE915;" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+
+
+															<MenuItem
+																Header="{Binding PreviewMergeFromBranchText}"
+																IsEnabled="{Binding IsMergeable}"
+																Command="{Binding PreviewMergeFromBranchCommand}">
+																<MenuItem.Icon>
+																	<Border>
+																		<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE915;" />
+																	</Border>
+																</MenuItem.Icon>
+															</MenuItem>
+
 														</MenuItem>
 
 														<Separator Background="{DynamicResource BorderBrush}" />
@@ -392,9 +470,9 @@
 
 															<!-- Commit command -->
 															<MenuItem Visibility="{Binding IsUncommitted, Converter={StaticResource VC}}"
-																Header="Commit"
-																InputGestureText="Ctrl-Shift-Enter"
-																Command="{Binding CommitCommand}">
+															          Header="Commit"
+															          InputGestureText="Ctrl-Shift-Enter"
+															          Command="{Binding CommitCommand}">
 																<MenuItem.Icon>
 																	<Border>
 																		<TextBlock
@@ -404,7 +482,7 @@
 																	</Border>
 																</MenuItem.Icon>
 															</MenuItem>
-															
+
 															<MenuItem
 																Header="Toggle commit details"
 																InputGestureText="Enter"
@@ -426,8 +504,6 @@
 																	</Border>
 																</MenuItem.Icon>
 															</MenuItem>
-
-															
 
 															<MenuItem Header="Switch">
 																<MenuItem.Icon>
@@ -480,6 +556,7 @@
 																		<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE0B3;" />
 																	</Border>
 																</MenuItem.Icon>
+
 																<MenuItem
 																	Header="{Binding MergeBranchCommitText}"
 																	Command="{Binding MergeBranchCommitCommand}">
@@ -489,6 +566,18 @@
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
+
+																<MenuItem
+																	Header="{Binding PreviewMergeBranchCommitText}"
+																	IsEnabled="{Binding IsMergeable}"
+																	Command="{Binding PreviewMergeCommitBranchCommand}">
+																	<MenuItem.Icon>
+																		<Border>
+																			<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE915;" />
+																		</Border>
+																	</MenuItem.Icon>
+																</MenuItem>
+
 															</MenuItem>
 
 															<MenuItem Header="Tags" Visibility="{Binding IsNotUncommitted, Converter={StaticResource VC}}">
@@ -513,10 +602,10 @@
 																	ItemsSource="{Binding DeleteTagItems}">
 																	<MenuItem.Icon>
 																		<Border>
-																			<TextBlock 
-																				Style="{DynamicResource MenuIconStyle}" 
-																				Text="&#xE92B;" 
-																				Foreground="{DynamicResource UndoBrush}"/>
+																			<TextBlock
+																				Style="{DynamicResource MenuIconStyle}"
+																				Text="&#xE92B;"
+																				Foreground="{DynamicResource UndoBrush}" />
 																		</Border>
 																	</MenuItem.Icon>
 																	<MenuItem.Resources>
@@ -524,13 +613,13 @@
 																			DataType="{x:Type local:DeleteTagItem}">
 																			<MenuItem
 																				Header="{Binding Text}"
-																				Command="{Binding DeleteTagCommand}"/>
+																				Command="{Binding DeleteTagCommand}" />
 																		</DataTemplate>
 																	</MenuItem.Resources>
 																</MenuItem>
 
 															</MenuItem>
-															
+
 
 															<MenuItem Header="Undo" Visibility="{Binding IsUncommitted, Converter={StaticResource VC}}">
 																<MenuItem.Icon>
@@ -624,12 +713,12 @@
 														<ItemsControl ItemsSource="{Binding Tags}">
 															<ItemsControl.ItemsPanel>
 																<ItemsPanelTemplate>
-																	<StackPanel Orientation="Horizontal"/>
+																	<StackPanel Orientation="Horizontal" />
 																</ItemsPanelTemplate>
 															</ItemsControl.ItemsPanel>
 															<ItemsControl.ItemTemplate>
 																<DataTemplate>
-																	<Button	
+																	<Button
 																		IsEnabled="{Binding IsLink}"
 																		Style="{DynamicResource BaseButtonStyle}"
 																		FontSize="12"
@@ -648,18 +737,18 @@
 																</DataTemplate>
 															</ItemsControl.ItemTemplate>
 														</ItemsControl>
-																		
+
 
 														<!-- Tickets -->
 														<ItemsControl ItemsSource="{Binding Tickets}">
 															<ItemsControl.ItemsPanel>
 																<ItemsPanelTemplate>
-																	<StackPanel Orientation="Horizontal"/>
+																	<StackPanel Orientation="Horizontal" />
 																</ItemsPanelTemplate>
 															</ItemsControl.ItemsPanel>
 															<ItemsControl.ItemTemplate>
 																<DataTemplate>
-																	<Button	
+																	<Button
 																		IsEnabled="{Binding IsLink}"
 																		Style="{DynamicResource BaseButtonStyle}"
 																		FontSize="12"
@@ -678,7 +767,7 @@
 																</DataTemplate>
 															</ItemsControl.ItemTemplate>
 														</ItemsControl>
-													
+
 
 														<!-- Subject -->
 														<TextBlock

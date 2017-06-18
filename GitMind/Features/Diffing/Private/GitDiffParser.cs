@@ -22,7 +22,8 @@ namespace GitMind.Features.Diffing.Private
 		private static readonly char[] LineEnding = "\r".ToCharArray();
 
 
-		public Task<CommitDiff> ParseAsync(CommitSha commitSha, string patch, bool addPrefixes = true)
+		public Task<CommitDiff> ParseAsync(
+			CommitSha commitSha, string patch, bool addPrefixes = true, bool isConflicts = false)
 		{
 			string[] patchLines = patch.Split("\n".ToCharArray());
 
@@ -54,7 +55,7 @@ namespace GitMind.Features.Diffing.Private
 						left.AppendLine(prefix + FilePart);
 						right.AppendLine(prefix + FilePart);
 
-						string fileName = GetFileName(index, patchLines);
+						string fileName = GetFileName(index, patchLines, isConflicts);
 						files.Add(fileName);
 						left.AppendLine(prefix + fileName);
 						right.AppendLine(prefix + fileName);
@@ -86,8 +87,6 @@ namespace GitMind.Features.Diffing.Private
 				string rightName = $"Commit {shortId}-after";
 				string leftPath = Path.Combine(tempPath, leftName);
 				string rightPath = Path.Combine(tempPath, rightName);
-
-			
 
 				if (addPrefixes)
 				{
@@ -142,7 +141,7 @@ namespace GitMind.Features.Diffing.Private
 		}
 
 
-		private string GetFileName(int index, IReadOnlyList<string> diff)
+		private string GetFileName(int index, IReadOnlyList<string> diff, bool isConflicts)
 		{
 			string line = diff[index];
 
@@ -171,7 +170,7 @@ namespace GitMind.Features.Diffing.Private
 			}
 			else
 			{
-				return "Modified: " + sourceFileName;
+				return (isConflicts ? "Conflicts: " : "Modified: ") + sourceFileName;
 			}
 		}
 

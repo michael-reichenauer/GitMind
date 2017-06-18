@@ -7,6 +7,7 @@ namespace GitMind.Features.Diffing.Private
 {
 	internal interface IGitDiffParser
 	{
-		Task<CommitDiff> ParseAsync(CommitSha commitSha, string patch, bool addPrefixes = true);
+		Task<CommitDiff> ParseAsync(
+			CommitSha commitSha, string patch, bool addPrefixes = true, bool isConflicts = false);
 	}
 }

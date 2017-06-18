@@ -161,6 +161,7 @@
     <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
     <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />
     <Compile Include="GitModel\RepositoryUpdatedEventArgs.cs" />
+    <Compile Include="Git\MergePatch.cs" />
     <Compile Include="RepositoryViews\DeleteTagItem.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
     <Compile Include="RepositoryViews\LinkItem.cs" />

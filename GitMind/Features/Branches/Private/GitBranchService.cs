@@ -116,7 +116,7 @@ namespace GitMind.Features.Branches.Private
 
 
 
-		public Task<R> SwitchToBranchAsync(BranchName branchName)
+		public Task<R> SwitchToBranchAsync(BranchName branchName, CommitSha tipSha)
 		{
 			Log.Debug($"Switch to branch {branchName} ...");
 			return repoCaller.UseLibRepoAsync(repository =>
@@ -136,6 +136,16 @@ namespace GitMind.Features.Branches.Private
 						repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
 
 						repository.Checkout(branch);
+					}
+					else
+					{
+						// No existing branch with that name. Try create a local branch
+						Commit commit = repository.Lookup<Commit>(new ObjectId(tipSha.Sha));
+						if (commit != null)
+						{
+							branch = repository.Branches.Add(branchName, commit);
+							repository.Checkout(branch);
+						}
 					}
 				}
 			});

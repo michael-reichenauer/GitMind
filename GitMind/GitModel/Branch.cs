@@ -12,6 +12,8 @@ namespace GitMind.GitModel
 		private readonly CommitId tipCommitId;
 		private readonly CommitId firstCommitId;
 		private readonly CommitId parentCommitId;
+		private readonly CommitId localTipCommitId;
+		private readonly CommitId remoteTipCommitId;
 		private readonly IReadOnlyList<CommitId> commitIds;
 		private readonly string parentBranchId;
 
@@ -22,6 +24,8 @@ namespace GitMind.GitModel
 			CommitId tipCommitId,
 			CommitId firstCommitId,
 			CommitId parentCommitId,
+			CommitId localTipCommitId,
+			CommitId remoteTipCommitId,
 			IReadOnlyList<CommitId> commitIds,
 			string parentBranchId,
 			IReadOnlyList<BranchName> childBranchNames,
@@ -41,10 +45,13 @@ namespace GitMind.GitModel
 			this.tipCommitId = tipCommitId;
 			this.firstCommitId = firstCommitId;
 			this.parentCommitId = parentCommitId;
+			this.localTipCommitId = localTipCommitId;
+			this.remoteTipCommitId = remoteTipCommitId;
 			this.commitIds = commitIds;
 			this.parentBranchId = parentBranchId;
 			Id = id;
 			Name = name;
+
 			ChildBranchNames = childBranchNames;
 			MainBranchId = mainBranchId;
 			LocalSubBranchId = localSubBranchId;
@@ -62,6 +69,8 @@ namespace GitMind.GitModel
 
 		public string Id { get; }
 		public BranchName Name { get; }
+		public Commit LocalTipCommit => Repository.Commits[localTipCommitId];
+		public Commit RemoteTipCommit => Repository.Commits[remoteTipCommitId];
 		public IReadOnlyList<BranchName> ChildBranchNames { get; }
 		public string MainBranchId { get; }
 		public string LocalSubBranchId { get; }

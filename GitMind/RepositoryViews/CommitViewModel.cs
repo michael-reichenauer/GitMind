@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using GitMind.Common.ThemeHandling;
+using GitMind.Features.Diffing;
 using GitMind.Features.Tags;
 using GitMind.Git;
 using GitMind.GitModel;
@@ -18,6 +19,7 @@ namespace GitMind.RepositoryViews
 	internal class CommitViewModel : ViewModel
 	{
 		private readonly IBranchService branchService;
+		private readonly IDiffService diffService;
 		private readonly IThemeService themeService;
 		private readonly IRepositoryCommands repositoryCommands;
 		private readonly ICommitsService commitsService;
@@ -31,12 +33,14 @@ namespace GitMind.RepositoryViews
 
 		public CommitViewModel(
 			IBranchService branchService,
+			IDiffService diffService,
 			IThemeService themeService,
 			IRepositoryCommands repositoryCommands,
 			ICommitsService commitsService,
 			ITagService tagService)
 		{
 			this.branchService = branchService;
+			this.diffService = diffService;
 			this.themeService = themeService;
 			this.repositoryCommands = repositoryCommands;
 			this.commitsService = commitsService;
@@ -57,6 +61,7 @@ namespace GitMind.RepositoryViews
 		public string CommitBranchText => $"Hide branch: {Commit.Branch.Name}";
 		public string SwitchToBranchText => $"Switch to branch: {Commit.Branch.Name}";
 		public string MergeBranchCommitText => $"Merge from this commit to branch: {Commit.Repository.CurrentBranch.Name}";
+		public string PreviewMergeBranchCommitText => $"Preview merge from this commit to branch: {Commit.Repository.CurrentBranch.Name}";
 		public string CommitBranchName => Commit.Branch.Name;
 		public bool IsCurrent => Commit.IsCurrent;
 		public bool IsUncommitted => Commit.IsUncommitted;
@@ -162,6 +167,10 @@ namespace GitMind.RepositoryViews
 			() => commitsService.UndoCommitAsync(Commit), () => commitsService.CanUndoCommit(Commit));
 
 		public Command MergeBranchCommitCommand => AsyncCommand(() => branchService.MergeBranchCommitAsync(Commit));
+
+		public Command PreviewMergeCommitBranchCommand => AsyncCommand(
+			() => diffService.ShowPreviewMergeDiffAsync(
+				Commit.Repository.CurrentCommit.RealCommitSha, Commit.RealCommitSha));
 
 		public Command AddTagCommitCommand => AsyncCommand(() => tagService.AddTagAsync(Commit.RealCommitSha));
 

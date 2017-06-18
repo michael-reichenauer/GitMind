@@ -12,6 +12,8 @@ namespace GitMind.Features.Diffing.Private
 
 		Task<R<CommitDiff>> GetCommitDiffRangeAsync(CommitSha commitSha1, CommitSha commitSha2);
 
+		Task<R<CommitDiff>> GetPreviewMergeDiffAsync(CommitSha commitSha1, CommitSha commitSha2);
+
 		Task<R<CommitDiff>> GetFileDiffAsync(CommitSha commitSha, string path);
 
 		void GetFile(string fileId, string filePath);

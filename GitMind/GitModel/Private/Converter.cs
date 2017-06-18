@@ -15,6 +15,8 @@ namespace GitMind.GitModel.Private
 				branch.TipCommitId,
 				branch.FirstCommitId,
 				branch.ParentCommitId,
+				branch.LocalTipCommitId,
+				branch.RemoteTipCommitId,
 				branch.Commits.Select(c => c.Id).ToList(),
 				branch.ParentBranchId,
 				branch.ChildBranchNames.ToList(),
