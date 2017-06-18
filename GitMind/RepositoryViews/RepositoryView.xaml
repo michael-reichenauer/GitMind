@@ -212,7 +212,7 @@
 
 														<MenuItem
 															Header="Push branch"
-															Visibility="{Binding CanPush, Converter={StaticResource VC}}">
+															IsEnabled="{Binding CanPush}">
 															<MenuItem.Icon>
 																<Border>
 																	<TextBlock
@@ -250,7 +250,7 @@
 
 														<MenuItem
 															Header="Update branch"
-															Visibility="{Binding CanUpdate, Converter={StaticResource VC}}">
+															IsEnabled="{Binding CanUpdate}">
 															<MenuItem.Icon>
 																<Border>
 																	<TextBlock
