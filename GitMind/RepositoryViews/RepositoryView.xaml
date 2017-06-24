@@ -31,7 +31,8 @@
 				Style="{DynamicResource ListBoxScrollbarStyle}"
 				SelectionMode="Extended"
 				SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
-				SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+				SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+				ManipulationBoundaryFeedback="OnManipulationBoundaryFeedback">
 
 				<ListBox.InputBindings>
 					<KeyBinding Key="Enter" Command="{Binding ToggleDetailsCommand}" />
