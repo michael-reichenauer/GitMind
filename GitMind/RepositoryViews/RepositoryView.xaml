@@ -236,7 +236,9 @@
 																	</Border>
 																</MenuItem.Icon>
 															</MenuItem>
-
+															
+															<Separator Background="{DynamicResource BorderBrush}" />
+															
 															<MenuItem
 																Header="Preview push branch"
 																Command="{Binding PreviewPushBranchCommand}">
@@ -274,6 +276,8 @@
 																</MenuItem.Icon>
 															</MenuItem>
 
+															<Separator Background="{DynamicResource BorderBrush}" />
+
 															<MenuItem
 																Header="Preview update branch"
 																Command="{Binding PreviewUpdateBranchCommand}">
@@ -305,6 +309,8 @@
 																	</Border>
 																</MenuItem.Icon>
 															</MenuItem>
+
+															<Separator Background="{DynamicResource BorderBrush}" />
 
 															<MenuItem
 																Header="{Binding PreviewMergeToBranchText}"
@@ -567,6 +573,8 @@
 																		</Border>
 																	</MenuItem.Icon>
 																</MenuItem>
+
+																<Separator Background="{DynamicResource BorderBrush}" />
 
 																<MenuItem
 																	Header="{Binding PreviewMergeBranchCommitText}"
