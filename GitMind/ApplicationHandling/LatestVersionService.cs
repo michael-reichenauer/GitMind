@@ -105,6 +105,11 @@ namespace GitMind.ApplicationHandling
 				Log.Debug($"Downloading remote setup {latestUri} ...");
 
 				LatestInfo latestInfo = GetCachedLatestVersionInfo();
+				if (latestInfo == null)
+				{
+					// No installed version.
+					return false;
+				}
 
 				using (HttpClient httpClient = GetHttpClient())
 				{

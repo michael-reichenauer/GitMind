@@ -31,7 +31,8 @@
 				Style="{DynamicResource ListBoxScrollbarStyle}"
 				SelectionMode="Extended"
 				SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
-				SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+				SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+				ManipulationBoundaryFeedback="OnManipulationBoundaryFeedback">
 
 				<ListBox.InputBindings>
 					<KeyBinding Key="Enter" Command="{Binding ToggleDetailsCommand}" />
@@ -235,7 +236,9 @@
 																	</Border>
 																</MenuItem.Icon>
 															</MenuItem>
-
+															
+															<Separator Background="{DynamicResource BorderBrush}" />
+															
 															<MenuItem
 																Header="Preview push branch"
 																Command="{Binding PreviewPushBranchCommand}">
@@ -273,6 +276,8 @@
 																</MenuItem.Icon>
 															</MenuItem>
 
+															<Separator Background="{DynamicResource BorderBrush}" />
+
 															<MenuItem
 																Header="Preview update branch"
 																Command="{Binding PreviewUpdateBranchCommand}">
@@ -304,6 +309,8 @@
 																	</Border>
 																</MenuItem.Icon>
 															</MenuItem>
+
+															<Separator Background="{DynamicResource BorderBrush}" />
 
 															<MenuItem
 																Header="{Binding PreviewMergeToBranchText}"
@@ -567,9 +574,10 @@
 																	</MenuItem.Icon>
 																</MenuItem>
 
+																<Separator Background="{DynamicResource BorderBrush}" />
+
 																<MenuItem
 																	Header="{Binding PreviewMergeBranchCommitText}"
-																	IsEnabled="{Binding IsMergeable}"
 																	Command="{Binding PreviewMergeCommitBranchCommand}">
 																	<MenuItem.Icon>
 																		<Border>

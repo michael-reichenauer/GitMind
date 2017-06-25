@@ -75,7 +75,7 @@ namespace GitMind.RepositoryViews
 				CommitViewModel commit = item.Content as CommitViewModel;
 				if (commit != null)
 				{
-					
+
 					if (viewPoint.X < viewModel.GraphWidth)
 					{
 						branch = viewModel.Branches.FirstOrDefault(b => b.Branch == commit.Commit.Branch);
@@ -138,6 +138,13 @@ namespace GitMind.RepositoryViews
 
 				}
 			}
+		}
+
+		private void OnManipulationBoundaryFeedback(
+			object sender, ManipulationBoundaryFeedbackEventArgs e)
+		{
+			// Prevent the window to slightly move when its edge is encountered using touch scrolling.
+			e.Handled = true;
 		}
 	}
 }
