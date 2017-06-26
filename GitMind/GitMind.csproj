@@ -129,6 +129,7 @@
     </Compile>
     <Compile Include="Common\ProgressHandling\ProgressDialogViewModel.cs" />
     <Compile Include="Common\ProgressHandling\ProgressService.cs" />
+    <Compile Include="Common\Tracking\Track.cs" />
     <Compile Include="Features\Remote\IRemoteService.cs" />
     <Compile Include="Features\Remote\Private\RemoteService.cs" />
     <Compile Include="Features\StatusHandling\IStatusService.cs" />

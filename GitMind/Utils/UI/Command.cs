@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using GitMind.Common.Tracking;
 
 
 namespace GitMind.Utils.UI
@@ -246,6 +247,7 @@ namespace GitMind.Utils.UI
 				canExecute = false;
 				RaiseCanExecuteChanaged();
 				Log.Usage(memberName);
+				Track.Command(memberName);
 
 				if (executeMethod != null)
 				{

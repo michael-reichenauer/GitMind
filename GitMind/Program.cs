@@ -4,6 +4,7 @@ using System.Reflection;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Utils;
+using Microsoft.Win32;
 
 
 namespace GitMind
@@ -16,7 +17,7 @@ namespace GitMind
 		[STAThread]
 		public static void Main()
 		{
-			Log.Debug(GetStartlineText());
+			Log.Debug(GetStartLineText());
 
 			Program program = new Program();
 			program.Run();
@@ -56,7 +57,7 @@ namespace GitMind
 		}
 
 
-		private static string GetStartlineText()
+		private static string GetStartLineText()
 		{
 			string version = GetProgramVersion();
 
