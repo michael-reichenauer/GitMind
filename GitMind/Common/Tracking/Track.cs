@@ -78,22 +78,34 @@ namespace GitMind.Common.Tracking
 		{
 			string trackIdPath = Path.Combine(Path.GetTempPath(), TrackIdFileName);
 
-			string userId;
+			string trackId = null;
 			if (File.Exists(trackIdPath))
 			{
-				userId = File.ReadAllText(trackIdPath);
+				trackId = File.ReadAllText(trackIdPath);
 			}
-			else
+
+			if (string.IsNullOrWhiteSpace(trackId))
 			{
-				userId = Guid.NewGuid().ToString();
-				userId = (string)Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\GitMind", "TrackId", userId);
-				File.WriteAllText(trackIdPath, userId);
+				// No track id in temp file, lets check registry
+				string regId = (string)Registry.GetValue(
+					"HKEY_CURRENT_USER\\SOFTWARE\\GitMind", "TrackId", null);
+				if (!string.IsNullOrWhiteSpace(regId))
+				{
+					// Using the track id in the registry
+					trackId = regId;
+				}
+				else
+				{
+					trackId = Guid.NewGuid().ToString();
+				}
+
+				File.WriteAllText(trackIdPath, trackId);
 			}
 
 			// Backup track id in registry in case temp file is deleted
-			Registry.SetValue("HKEY_CURRENT_USER\\SOFTWARE\\GitMind", "TrackId", userId);
+			Registry.SetValue("HKEY_CURRENT_USER\\SOFTWARE\\GitMind", "TrackId", trackId);
 
-			return userId;
+			return trackId;
 		}
 
 
