@@ -10,7 +10,7 @@
 	xmlns:private="clr-namespace:GitMind.Features.Commits.Private"
 	mc:Ignorable="d"
 	Title="Commit" 
-	Width="500" Height="380" Background="{DynamicResource BackgroundBrush}"
+	Width="530" Height="380" Background="{DynamicResource BackgroundBrush}"
 	WindowStyle="None" AllowsTransparency="True"
 	BorderBrush="{DynamicResource BorderBrush}" BorderThickness="3"		
 	WindowStartupLocation="CenterOwner">
@@ -105,12 +105,20 @@
 
 				<TextBlock Grid.Row="0" Text="Message:" Foreground="{DynamicResource TextBrush}" Margin="0,0,0,5"/>
 
+				<Rectangle Grid.Row="1"
+					Stroke="DarkRed"
+					Width="335"
+					Height="20" 
+					HorizontalAlignment="Left"/>
+				
 				<TextBox Grid.Row="1" Name="SubjectText"
 					Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
 					KeyboardNavigation.TabIndex="0"
 					Margin="0"
-					Width="330"
-					HorizontalAlignment="Left"	
+					FontFamily="Consolas"
+					FontSize="12"
+					TextAlignment="Left"
+					HorizontalAlignment="Stretch"
 					Background="Transparent"
 					BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
 					Foreground="{DynamicResource TextBrush}"
@@ -122,12 +130,23 @@
 							CommandParameter="{Binding ElementName=CommitDialogWindow}"/>
 					</TextBox.InputBindings>
 				</TextBox>
+
+				<Rectangle 
+					Grid.Row="3"
+					Stroke="DarkRed"
+					Margin="0,8,0,5" 
+					Width="480"
+					VerticalAlignment="Stretch"
+					HorizontalAlignment="Left"/>
 				
 				<TextBox Grid.Row="3" Name="DescriptionText"
 					Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
 					KeyboardNavigation.TabIndex="0"
 					VerticalAlignment="Stretch"
 					Margin="0,8,0,5"
+				  FontFamily="Consolas"
+				  FontSize="12"
+				  TextAlignment="Left"
 					Background="Transparent"
 					BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
 					Foreground="{DynamicResource TextBrush}"

@@ -234,7 +234,7 @@ namespace GitMind.MainWindowViews
 				}
 				catch (Exception e)
 				{
-					Log.Error($"Failed to atcivate other instance, {e}");
+					Log.Exception(e, "Failed to activate other instance");
 
 					message.ShowError(
 						"Failed to activate other instance. If this problem appears again\n" +
@@ -368,7 +368,7 @@ namespace GitMind.MainWindowViews
 			}
 			catch (Exception ex) when (ex.IsNotFatal())
 			{
-				Log.Error($"Failed to open feedback link {ex}");
+				Log.Exception(ex, "Failed to open feedback link");
 			}
 		}
 
@@ -385,7 +385,7 @@ namespace GitMind.MainWindowViews
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Error($"Failed to open options {e}");
+				Log.Exception(e, "Failed to open options");
 			}
 		}
 
@@ -400,7 +400,7 @@ namespace GitMind.MainWindowViews
 			}
 			catch (Exception ex) when (ex.IsNotFatal())
 			{
-				Log.Error($"Failed to open help link {ex}");
+				Log.Exception(ex, "Failed to open help link");
 			}
 		}
 

@@ -301,7 +301,7 @@ namespace GitMind.RepositoryViews.Private
 			catch (Exception e)
 			{
 				message.ShowError($"Failed to show branch {branch}");
-				Log.Error($"Failed to show branch {branch}, {e}");
+				Log.Exception(e, $"Failed to show branch {branch}");
 			}		
 		}
 

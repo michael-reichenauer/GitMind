@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
+using GitMind.Common.Tracking;
 using GitMind.Utils;
 using Microsoft.Win32;
 
@@ -46,12 +47,14 @@ namespace GitMind.ApplicationHandling.Installation
 		{
 			if (commandLine.IsInstall && !commandLine.IsSilent)
 			{
+				Track.Event("Install-Normal");
 				InstallNormal();
 
 				return false;
 			}
 			else if (commandLine.IsInstall && commandLine.IsSilent)
 			{
+				Track.Event("Install-Silent");
 				InstallSilent();
 
 				if (commandLine.IsRunInstalled)
@@ -63,12 +66,14 @@ namespace GitMind.ApplicationHandling.Installation
 			}
 			else if (commandLine.IsUninstall && !commandLine.IsSilent)
 			{
+				Track.Event("Uninstall-Normal");
 				UninstallNormal();
 
 				return false;
 			}
 			else if (commandLine.IsUninstall && commandLine.IsSilent)
 			{
+				Track.Event("Uninstall-Silent");
 				UninstallSilent();
 
 				return false;
@@ -230,7 +235,7 @@ namespace GitMind.ApplicationHandling.Installation
 				}
 				catch (Exception ex) when (e.IsNotFatal())
 				{
-					Log.Error($"Failed to copy {sourcePath} to target {targetPath}, {ex}");
+					Log.Exception(ex, $"Failed to copy {sourcePath} to target {targetPath}");
 					throw;
 				}
 			}

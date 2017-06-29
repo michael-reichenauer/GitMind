@@ -12,6 +12,7 @@ using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ThemeHandling;
+using GitMind.Common.Tracking;
 using GitMind.Features.Diffing;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
@@ -56,6 +57,7 @@ namespace GitMind
 		protected override void OnExit(ExitEventArgs e)
 		{
 			Log.Usage("Exit program");
+			Track.ExitProgram();
 			base.OnExit(e);
 		}
 
@@ -89,6 +91,7 @@ namespace GitMind
 			}
 
 			Log.Usage($"Start version: {GetProgramVersion()}");
+			Track.StartProgram();
 			Start();
 		}
 

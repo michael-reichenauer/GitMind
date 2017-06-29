@@ -11,6 +11,7 @@ using GitMind.Common;
 using GitMind.Common.ThemeHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
+using GitMind.Common.Tracking;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
 using GitMind.Git;
@@ -311,6 +312,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (!repositoryService.IsPaused)
 			{
+				Track.Event("MainWindow-Activated");
 				Log.Usage("Activate window");
 
 				Timing t = new Timing();
@@ -380,6 +382,7 @@ namespace GitMind.RepositoryViews
 
 		public async Task ManualRefreshAsync()
 		{
+			Track.Event("MainWindow-ManualRefresh");
 			using (progress.ShowDialog("Refreshing view ..."))
 			{
 				using (await refreshLock.LockAsync())

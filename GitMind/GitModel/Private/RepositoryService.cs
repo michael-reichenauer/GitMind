@@ -226,7 +226,7 @@ namespace GitMind.GitModel.Private
 			}
 			catch (Exception e)
 			{
-				Log.Error($"Error handling status change {e}");
+				Log.Exception(e, "Error handling status change");
 			}			
 		}
 

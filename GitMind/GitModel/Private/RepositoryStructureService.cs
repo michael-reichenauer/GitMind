@@ -64,7 +64,7 @@ namespace GitMind.GitModel.Private
 			}
 			catch (Exception e)
 			{
-				Log.Error($"Failed to update repository {e}");
+				Log.Exception(e, "Failed to update repository");
 
 				Log.Debug("Retry from scratch using a new repository ...");
 

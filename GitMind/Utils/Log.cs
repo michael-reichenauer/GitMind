@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling.SettingsHandling;
+using GitMind.Common.Tracking;
 
 
 namespace GitMind.Utils
@@ -102,6 +103,17 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelError, msg, memberName, sourceFilePath, sourceLineNumber);
+		}
+
+		public static void Exception(
+			Exception e,
+			string msg,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0)
+		{
+			Write(LevelError, $"{msg}\n{e}", memberName, sourceFilePath, sourceLineNumber);
+			Track.Exception(e, msg);
 		}
 
 
