@@ -105,11 +105,17 @@
 
 				<TextBlock Grid.Row="0" Text="Message:" Foreground="{DynamicResource TextBrush}" Margin="0,0,0,5"/>
 
+				<Rectangle Grid.Row="1"
+					Stroke="DarkRed"
+					Width="330"
+					Height="20" 
+					HorizontalAlignment="Left"/>
+				
 				<TextBox Grid.Row="1" Name="SubjectText"
 					Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
 					KeyboardNavigation.TabIndex="0"
 					Margin="0"
-					Width="330"
+					Width="400"
 					HorizontalAlignment="Left"	
 					Background="Transparent"
 					BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
@@ -122,7 +128,14 @@
 							CommandParameter="{Binding ElementName=CommitDialogWindow}"/>
 					</TextBox.InputBindings>
 				</TextBox>
-				
+
+				<Rectangle 
+					Grid.Row="2"
+					Stroke="DarkRed"
+					Margin="0,8,0,5" 
+					Width="330"
+					VerticalAlignment="Stretch"
+					HorizontalAlignment="Left"/>
 				<TextBox Grid.Row="3" Name="DescriptionText"
 					Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
 					KeyboardNavigation.TabIndex="0"

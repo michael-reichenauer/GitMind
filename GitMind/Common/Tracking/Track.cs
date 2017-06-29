@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Win32;
 
 
@@ -56,9 +57,14 @@ namespace GitMind.Common.Tracking
 		}
 
 
-		public static void Command(string command)
+		public static void Command(
+			string command, 
+			DateTime startTime, 
+			TimeSpan duration, 
+			string exitCode, 
+			bool isSuccess)
 		{
-			Tc.TrackEvent("Command-" + command);
+			Tc.TrackRequest(new RequestTelemetry(command, startTime, duration, exitCode, isSuccess));
 		}
 
 
@@ -71,8 +77,9 @@ namespace GitMind.Common.Tracking
 		public static void Exception(Exception e)
 		{
 			Tc.TrackException(e);
+			Tc.Flush();
 		}
-
+		
 
 		private static string GetTrackId()
 		{
