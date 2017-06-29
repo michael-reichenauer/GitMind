@@ -44,7 +44,7 @@ namespace GitMind.Features.Commits.Private
 
 			if (string.IsNullOrWhiteSpace(viewModel.Subject))
 			{
-				//SubjectText.Focus();
+				SubjectText.Focus();
 			}
 			else
 			{
