@@ -235,7 +235,7 @@ namespace GitMind.ApplicationHandling.Installation
 				}
 				catch (Exception ex) when (e.IsNotFatal())
 				{
-					Log.Error($"Failed to copy {sourcePath} to target {targetPath}, {ex}");
+					Log.Exception(ex, $"Failed to copy {sourcePath} to target {targetPath}");
 					throw;
 				}
 			}

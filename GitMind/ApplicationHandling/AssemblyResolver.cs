@@ -61,7 +61,7 @@ namespace GitMind.ApplicationHandling
 			}
 			catch (Exception e)
 			{
-				Log.Error($"Failed to load, {e}");
+				Log.Exception(e, "Failed to load");
 				throw;
 			}
 		}

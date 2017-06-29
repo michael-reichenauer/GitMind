@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
+using GitMind.Common.Tracking;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 
@@ -93,8 +94,7 @@ namespace GitMind.Common
 
 			hasShutdown = true;
 
-			string errorMessage = $"{message}:\n{e}";
-			Log.Error(errorMessage);
+			Log.Exception(e, message);
 
 			if (IsDispatcherInitialized)
 			{

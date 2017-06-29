@@ -63,7 +63,8 @@ namespace GitMind.Git.Private
 					{
 						return;
 					}
-					Log.Error($"Error {e}");
+
+					Log.Exception(e, "");
 					credentialHandler.SetConfirm(false);
 					throw;
 				}
@@ -112,7 +113,7 @@ namespace GitMind.Git.Private
 						return;
 					}
 
-					Log.Error($"Error {e}");
+					Log.Exception(e, "");
 					credentialHandler.SetConfirm(false);
 					throw;
 				}
@@ -221,7 +222,7 @@ namespace GitMind.Git.Private
 						return;
 					}
 
-					Log.Error($"Error {e}");
+					Log.Exception(e, "");
 					throw;
 				}
 			});
@@ -260,7 +261,7 @@ namespace GitMind.Git.Private
 						return;
 					}
 
-					Log.Error($"Error {e}");
+					Log.Exception(e, "");
 					credentialHandler.SetConfirm(false);
 					throw;
 				}
@@ -299,7 +300,7 @@ namespace GitMind.Git.Private
 						return;
 					}
 
-					Log.Error($"Error {e}");
+					Log.Exception(e, "");
 					credentialHandler.SetConfirm(false);
 					throw;
 				}
@@ -319,12 +320,12 @@ namespace GitMind.Git.Private
 						Log.Debug("No 'origin' remote, skipping pruning local tags");
 						return;
 					};
-		
+
 					Remote remote = Remote(repo);
-					
+
 					var refs = repo.Network.ListReferences(remote);
 					var remoteTagRefs = refs.Where(r => r.CanonicalName.StartsWith("refs/tags/")).ToList();
-					
+
 					// Should retrieve the local tags
 					var allRefs = repo.Refs.Where(r => r.CanonicalName.StartsWith("refs/tags/")).ToList();
 					var localTags = allRefs.Where(r => !remoteTagRefs.Contains(r)).ToList();
@@ -342,7 +343,7 @@ namespace GitMind.Git.Private
 						return;
 					}
 
-					Log.Error($"Error {e}");
+					Log.Exception(e, "");
 					credentialHandler.SetConfirm(false);
 					throw;
 				}
@@ -379,7 +380,7 @@ namespace GitMind.Git.Private
 					return;
 				}
 
-				Log.Error($"Error {e}");
+				Log.Exception(e, "");
 				credentialHandler.SetConfirm(false);
 				throw;
 			}

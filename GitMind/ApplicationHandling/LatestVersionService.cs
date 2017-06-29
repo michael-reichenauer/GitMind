@@ -57,7 +57,7 @@ namespace GitMind.ApplicationHandling
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Error($"Failed to install new version {e}");
+				Log.Exception(e, "Failed to install new version");
 			}
 
 			return false;
@@ -121,7 +121,7 @@ namespace GitMind.ApplicationHandling
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Error($"Failed to install new version {e}");
+				Log.Exception(e, "Failed to install new version");
 			}
 
 			return false;

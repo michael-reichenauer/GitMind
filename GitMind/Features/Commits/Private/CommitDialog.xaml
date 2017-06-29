@@ -107,7 +107,7 @@
 
 				<Rectangle Grid.Row="1"
 					Stroke="DarkRed"
-					Width="330"
+					Width="328"
 					Height="20" 
 					HorizontalAlignment="Left"/>
 				
@@ -116,6 +116,8 @@
 					KeyboardNavigation.TabIndex="0"
 					Margin="0"
 					Width="400"
+					FontFamily="Consolas"
+					FontSize="12"
 					HorizontalAlignment="Left"	
 					Background="Transparent"
 					BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
@@ -133,7 +135,7 @@
 					Grid.Row="2"
 					Stroke="DarkRed"
 					Margin="0,8,0,5" 
-					Width="330"
+					Width="328"
 					VerticalAlignment="Stretch"
 					HorizontalAlignment="Left"/>
 				<TextBox Grid.Row="3" Name="DescriptionText"
@@ -141,6 +143,8 @@
 					KeyboardNavigation.TabIndex="0"
 					VerticalAlignment="Stretch"
 					Margin="0,8,0,5"
+				  FontFamily="Consolas"
+				  FontSize="12"
 					Background="Transparent"
 					BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
 					Foreground="{DynamicResource TextBrush}"

@@ -70,7 +70,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Error($"Failed to create json {e}");
+				Log.Exception(e, "Failed to create json");
 			}
 		}
 
@@ -86,7 +86,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 				}
 				catch (Exception e) when (e.IsNotFatal())
 				{
-					Log.Error($"Failed to parse json {e}");
+					Log.Exception(e, "Failed to parse json");
 				}
 			}
 

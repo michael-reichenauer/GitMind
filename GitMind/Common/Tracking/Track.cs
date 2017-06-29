@@ -74,9 +74,9 @@ namespace GitMind.Common.Tracking
 		}
 
 
-		public static void Exception(Exception e)
+		public static void Exception(Exception e, string msg)
 		{
-			Tc.TrackException(e);
+			Tc.TrackException(e, new Dictionary<string, string> { { "Message", msg } });
 			Tc.Flush();
 		}
 		
