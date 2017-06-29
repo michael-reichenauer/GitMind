@@ -382,6 +382,7 @@ namespace GitMind.RepositoryViews
 
 		public async Task ManualRefreshAsync()
 		{
+			Track.Event("MainWindow-ManualRefresh");
 			using (progress.ShowDialog("Refreshing view ..."))
 			{
 				using (await refreshLock.LockAsync())
