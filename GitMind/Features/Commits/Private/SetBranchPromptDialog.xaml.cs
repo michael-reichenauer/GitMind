@@ -58,7 +58,7 @@ namespace GitMind.Features.Commits.Private
 			}
 			catch (Exception ex) when (ex.IsNotFatal())
 			{
-				Log.Error($"Failed to open help link {ex}");
+				Log.Exception(ex, "Failed to open help link");
 			}
 		}
 

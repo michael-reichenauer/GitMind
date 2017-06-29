@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using GitMind.Git;
 
 
 namespace GitMind.Features.Tags.Private

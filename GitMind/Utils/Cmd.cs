@@ -22,7 +22,7 @@ namespace GitMind.Utils
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Error($"Exception for {path} {args}, {e}");
+				Log.Exception(e, $"Exception for {path} {args}");
 				return new CmdResult(-1, EmptyLines, new[] { e.Message });
 			}
 		}
@@ -62,7 +62,7 @@ namespace GitMind.Utils
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Error($"Exception for {path} {args}, {e}");
+				Log.Exception(e, $"Exception for {path} {args}");
 				return new CmdResult(-1, EmptyLines, new[] { e.Message });
 			}
 		}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
+using GitMind.Common.Tracking;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
