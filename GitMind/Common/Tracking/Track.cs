@@ -25,6 +25,7 @@ namespace GitMind.Common.Tracking
 			Tc.Context.User.Id = GetTrackId();
 			Tc.Context.Session.Id = Guid.NewGuid().ToString();
 			Tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
+			Tc.Context.Component.Version = GetProgramVersion();
 		}
 
 		public static void StartProgram()
@@ -33,9 +34,7 @@ namespace GitMind.Common.Tracking
 			{
 				isStarted = true;
 
-				Tc.TrackEvent(
-					"Start-Program",
-					new Dictionary<string, string> { { "Version", GetProgramVersion() } });
+				Tc.TrackEvent("Start-Program");
 			}
 		}
 
