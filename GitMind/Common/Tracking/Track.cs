@@ -30,12 +30,13 @@ namespace GitMind.Common.Tracking
 			Log.Info("Enable usage and error reporting");
 			Tc = new TelemetryClient();
 
-			Tc.InstrumentationKey = "33982a8a-1da0-42c0-9d0a-8a159494c847";
+			Tc.InstrumentationKey = GetInstrumentationKey();
 			Tc.Context.User.Id = GetTrackId();
 			Tc.Context.Session.Id = Guid.NewGuid().ToString();
 			Tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 			Tc.Context.Component.Version = GetProgramVersion();
 		}
+
 
 		public static void StartProgram()
 		{
@@ -46,6 +47,7 @@ namespace GitMind.Common.Tracking
 				Tc?.TrackEvent("Start-Program");
 			}
 		}
+
 
 		public static void ExitProgram()
 		{
@@ -94,6 +96,27 @@ namespace GitMind.Common.Tracking
 			Tc?.Flush();
 		}
 
+
+		private static string GetInstrumentationKey()
+		{
+			if (0 != Txt.CompareOic(
+				ProgramPaths.GetInstallFilePath(), ProgramPaths.GetCurrentInstancePath())
+				&& !IsSetupFile())
+			{
+				Log.Info("Using test metrics");
+				return "77fee87e-bd1e-4341-ac5b-0a65c3e567bb";
+			}
+
+			Log.Info("Using production metrics");
+			return "33982a8a-1da0-42c0-9d0a-8a159494c847";
+		}
+
+
+		private static bool IsSetupFile()
+		{
+			return Path.GetFileNameWithoutExtension(ProgramPaths.GetCurrentInstancePath())
+				.StartsWith("GitMindSetup", StringComparison.OrdinalIgnoreCase);
+		}
 
 		private static string GetTrackId()
 		{
