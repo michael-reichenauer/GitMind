@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using GitMind.ApplicationHandling.SettingsHandling;
+using GitMind.Utils;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Win32;
@@ -19,6 +21,13 @@ namespace GitMind.Common.Tracking
 
 		static Track()
 		{
+			if (Settings.Get<Options>().DisableErrorAndUsageReporting)
+			{
+				Log.Info("Disable usage and error reporting");
+				return;
+			}
+
+			Log.Info("Enable usage and error reporting");
 			Tc = new TelemetryClient();
 
 			Tc.InstrumentationKey = "33982a8a-1da0-42c0-9d0a-8a159494c847";
@@ -34,7 +43,7 @@ namespace GitMind.Common.Tracking
 			{
 				isStarted = true;
 
-				Tc.TrackEvent("Start-Program");
+				Tc?.TrackEvent("Start-Program");
 			}
 		}
 
@@ -43,16 +52,16 @@ namespace GitMind.Common.Tracking
 			if (isStarted)
 			{
 				isStarted = false;
-				Tc.TrackEvent("Exit-Program");
+				Tc?.TrackEvent("Exit-Program");
 			}
 
-			Tc.Flush();
+			Tc?.Flush();
 		}
 
 
 		public static void Event(string eventName)
 		{
-			Tc.TrackEvent(eventName);
+			Tc?.TrackEvent(eventName);
 		}
 
 
@@ -63,28 +72,28 @@ namespace GitMind.Common.Tracking
 
 
 		public static void Command(
-			string command, 
-			DateTime startTime, 
-			TimeSpan duration, 
-			string exitCode, 
+			string command,
+			DateTime startTime,
+			TimeSpan duration,
+			string exitCode,
 			bool isSuccess)
 		{
-			Tc.TrackRequest(new RequestTelemetry(command, startTime, duration, exitCode, isSuccess));
+			Tc?.TrackRequest(new RequestTelemetry(command, startTime, duration, exitCode, isSuccess));
 		}
 
 
 		public static void Window(string window)
 		{
-			Tc.TrackPageView(window);
+			Tc?.TrackPageView(window);
 		}
 
 
 		public static void Exception(Exception e, string msg)
 		{
-			Tc.TrackException(e, new Dictionary<string, string> { { "Message", msg } });
-			Tc.Flush();
+			Tc?.TrackException(e, new Dictionary<string, string> { { "Message", msg } });
+			Tc?.Flush();
 		}
-		
+
 
 		private static string GetTrackId()
 		{
