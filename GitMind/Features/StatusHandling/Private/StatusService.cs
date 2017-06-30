@@ -110,7 +110,7 @@ namespace GitMind.Features.StatusHandling.Private
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to check status, {e}");
+				Log.Exception(e, "Failed to check status");
 			}
 			finally
 			{
@@ -220,7 +220,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 			if (branchIds.IsFaulted)
 			{
-				Log.Warn($"Failed to get branch ids {branchIds.Error}");
+				Log.Error($"Failed to get branch ids {branchIds.Error}");
 				return new List<string>();
 			}
 
@@ -237,7 +237,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 			if (status.IsFaulted)
 			{
-				Log.Warn($"Failed to read status");
+				Log.Error("Failed to read status");
 				return Status.Default;
 			}
 
@@ -254,7 +254,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 			if (status.IsFaulted)
 			{
-				Log.Warn($"Failed to read status");
+				Log.Error("Failed to read status");
 				return Status.Default;
 			}
 
@@ -271,7 +271,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 			if (branchIds.IsFaulted)
 			{
-				Log.Warn($"Failed to get branch ids {branchIds.Error}");
+				Log.Error($"Failed to get branch ids {branchIds.Error}");
 				return new List<string>();
 			}
 

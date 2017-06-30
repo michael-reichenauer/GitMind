@@ -86,7 +86,7 @@ namespace GitMind.Git
 			}
 			else
 			{
-				Log.Warn($"Could not find commit {commitSha}");
+				Log.Error($"Could not find commit {commitSha}");
 			}
 
 			return new GitNote[0];
@@ -104,7 +104,7 @@ namespace GitMind.Git
 			}
 			else
 			{
-				Log.Warn($"Could not find commit {commitId}");
+				Log.Error($"Could not find commit {commitId}");
 			}
 		}
 

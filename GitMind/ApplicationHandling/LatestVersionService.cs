@@ -175,7 +175,7 @@ namespace GitMind.ApplicationHandling
 			}
 			catch (Exception e) when(e.IsNotFatal())
 			{
-				Log.Warn($"Failed to get latest version {e}");
+				Log.Exception(e, "Failed to get latest version");
 			}
 
 			return new Version(0, 0, 0, 0);
@@ -223,7 +223,7 @@ namespace GitMind.ApplicationHandling
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to download latest setup: {e}");
+				Log.Exception(e, "Failed to download latest setup");
 				return e;
 			}
 		}

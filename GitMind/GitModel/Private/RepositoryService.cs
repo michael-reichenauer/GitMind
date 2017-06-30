@@ -335,7 +335,7 @@ namespace GitMind.GitModel.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to read cached repository {e}");		
+				Log.Exception(e, "Failed to read cached repository");		
 				return e;
 			}
 			finally

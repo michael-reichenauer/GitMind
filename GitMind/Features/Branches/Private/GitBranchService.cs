@@ -96,7 +96,7 @@ namespace GitMind.Features.Branches.Private
 				Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 				if (commit == null)
 				{
-					Log.Warn($"Unknown commit id {commitSha}");
+					Log.Error($"Unknown commit id {commitSha}");
 					return;
 				}
 
@@ -160,7 +160,7 @@ namespace GitMind.Features.Branches.Private
 				Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
 				if (commit == null)
 				{
-					Log.Warn($"Unknown commit id {commitSha}");
+					Log.Error($"Unknown commit id {commitSha}");
 					return null;
 				}
 

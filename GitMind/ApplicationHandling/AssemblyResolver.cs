@@ -46,7 +46,7 @@ namespace GitMind.ApplicationHandling
 					{
 						if (resolveName != "GitMind.resources")
 						{
-							Log.Warn($"Failed to resolve assembly {resolveName}");
+							Log.Error($"Failed to resolve assembly {resolveName}");
 						}
 
 						return null;

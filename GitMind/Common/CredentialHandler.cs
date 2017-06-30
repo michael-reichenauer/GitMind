@@ -69,7 +69,7 @@ namespace GitMind.Common
 				}
 				catch (ApplicationException e)
 				{
-					Log.Warn($"Error {e.Message}");
+					Log.Exception(e, "");
 				}
 			}
 		}

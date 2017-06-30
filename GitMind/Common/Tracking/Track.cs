@@ -56,6 +56,12 @@ namespace GitMind.Common.Tracking
 		}
 
 
+		public static void Event(string eventName, string message)
+		{
+			Tc.TrackEvent(eventName, new Dictionary<string, string> { { "Message", message } });
+		}
+
+
 		public static void Command(
 			string command, 
 			DateTime startTime, 
