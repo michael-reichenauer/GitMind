@@ -110,7 +110,7 @@ namespace GitMind.Features.StatusHandling.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to create repo to check ignored files, {e}");
+				Log.Exception(e, "Failed to create repo to check ignored files");
 			}
 
 			return null;

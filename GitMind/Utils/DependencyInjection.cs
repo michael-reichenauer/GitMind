@@ -54,7 +54,7 @@ namespace GitMind.Utils
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to register types {e}");
+				Log.Exception(e, "Failed to register types");
 				throw;
 			}
 		}

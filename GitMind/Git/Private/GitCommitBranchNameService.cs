@@ -85,7 +85,7 @@ namespace GitMind.Git.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to add commit name for {commitSha} {branchName}, {e}");
+				Log.Exception(e, $"Failed to add commit name for {commitSha} {branchName}");
 			}
 		}
 
@@ -109,7 +109,7 @@ namespace GitMind.Git.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to read local {nameSpace}, {e}");
+				Log.Exception(e, $"Failed to read local {nameSpace}");
 			}
 
 			if (string.IsNullOrWhiteSpace(addedNotesText))
@@ -161,7 +161,7 @@ namespace GitMind.Git.Private
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to delete notes file {e}");
+				Log.Exception(e, "Failed to delete notes file");
 			}
 		}
 
@@ -262,7 +262,7 @@ namespace GitMind.Git.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to read local {nameSpace}, {e}");
+				Log.Exception(e, $"Failed to read local {nameSpace}");
 			}
 
 			List<CommitBranchName> branchNames = ParseBranchNames(notesText);
@@ -300,7 +300,7 @@ namespace GitMind.Git.Private
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to parse notes text, error: {e}\n text:\n{text}");
+				Log.Exception(e, "Failed to parse notes text");
 			}
 
 			return branchNames;

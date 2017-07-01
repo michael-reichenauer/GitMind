@@ -254,7 +254,7 @@ namespace GitMind.ApplicationHandling.Installation
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to write version {e}");
+				Log.Exception(e, "Failed to write version");
 			}
 		}
 
@@ -406,7 +406,7 @@ namespace GitMind.ApplicationHandling.Installation
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to delete uninstall support {e}");
+				Log.Exception(e, "Failed to delete uninstall support");
 			}
 		}
 
@@ -435,9 +435,8 @@ namespace GitMind.ApplicationHandling.Installation
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to delete folder context menu {e}");
+				Log.Exception(e, "Failed to delete folder context menu");
 			}
-
 		}
 
 

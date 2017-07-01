@@ -112,12 +112,12 @@ namespace GitMind.GitModel.Private
 			}
 			catch (ArgumentException e)
 			{
-				Log.Warn($"Failed to parse {filePath} {e}");
+				Log.Exception(e, $"Failed to parse {filePath}");
 				messageService.ShowError($"Failed to parse {filePath}\n{e.Message}");
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to parse {filePath} {e}");
+				Log.Exception(e, $"Failed to parse {filePath}");
 				messageService.ShowError($"Failed to parse {filePath}\n{e.Message}");
 			}			
 		}

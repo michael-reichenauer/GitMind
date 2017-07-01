@@ -81,7 +81,7 @@ namespace GitMind.Utils
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn("Failed to close RPC remoting service");
+				Log.Exception(e, "Failed to close RPC remoting service");
 			}
 		}
 

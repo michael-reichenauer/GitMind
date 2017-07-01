@@ -171,7 +171,7 @@ namespace GitMind
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to activate other instance {e}");
+				Log.Exception(e, "Failed to activate other instance");
 			}
 
 			return false;
@@ -200,7 +200,7 @@ namespace GitMind
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to delete temp files {e}");
+				Log.Exception(e, "Failed to delete temp files");
 			}
 		}
 

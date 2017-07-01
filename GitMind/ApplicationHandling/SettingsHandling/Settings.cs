@@ -24,7 +24,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Error editing the settings {e}");
+				Log.Exception(e, "Error editing the settings");
 			}
 		}
 
@@ -123,7 +123,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to read file {path}, {e}");
+				Log.Exception(e, $"Failed to read file {path}");
 			}
 
 			return null;
@@ -138,7 +138,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to write file {path}, {e}");
+				Log.Exception(e, $"Failed to write file {path}");
 			}
 		}
 
