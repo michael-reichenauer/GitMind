@@ -202,7 +202,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to get version from {path}, {e}");
+				Log.Exception(e, $"Failed to get version from {path}");
 				return new Version(0, 0, 0, 0);
 			}
 		}

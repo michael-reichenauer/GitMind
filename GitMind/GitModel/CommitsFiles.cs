@@ -53,7 +53,7 @@ namespace GitMind.GitModel
 					return files;
 				}
 
-				Log.Warn($"Failed to get files for {commitSha}");
+				Log.Error($"Failed to get files for {commitSha}");
 				return Enumerable.Empty<CommitFile>();
 			}
 

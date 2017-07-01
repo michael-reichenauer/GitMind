@@ -108,8 +108,9 @@
 				<Rectangle Grid.Row="1"
 					Stroke="DarkRed"
 					Width="335"
-					Height="20" 
-					HorizontalAlignment="Left"/>
+					Height="16" 
+					HorizontalAlignment="Left"
+					VerticalAlignment="Center"/>
 				
 				<TextBox Grid.Row="1" Name="SubjectText"
 					Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
@@ -118,6 +119,7 @@
 					FontFamily="Consolas"
 					FontSize="12"
 					TextAlignment="Left"
+				  VerticalAlignment="Center"
 					HorizontalAlignment="Stretch"
 					Background="Transparent"
 					BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"

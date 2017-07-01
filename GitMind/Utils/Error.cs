@@ -47,7 +47,7 @@ namespace GitMind.Utils
 
 			if (exception != noErrorException && exception != noValueException)
 			{
-				Log.Warn($"Error: {Message}");
+				Log.Exception(exception, $"Error: {Message}");
 			}
 		}
 

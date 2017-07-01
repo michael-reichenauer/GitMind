@@ -47,7 +47,7 @@ namespace GitMind.GitModel.Private.Caching
 			}
 			catch (Exception e) when(e.IsNotFatal())
 			{
-				Log.Warn($"Failed to delete cache {e}");
+				Log.Exception(e, "Failed to delete cache");
 			}
 		}
 
@@ -133,13 +133,13 @@ namespace GitMind.GitModel.Private.Caching
 					}
 					catch (Exception e) when(e.IsNotFatal())
 					{
-						Log.Warn($"Failed to delete temp files, {e.Message}");
+						Log.Exception(e, "Failed to delete temp files");
 					}			
 				}).RunInBackground();
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to serialize data {e.Message}");
+				Log.Exception(e, "Failed to serialize data");
 			}		
 		}
 
@@ -155,7 +155,7 @@ namespace GitMind.GitModel.Private.Caching
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Log.Warn($"Failed to delete {path}, {e.Message}");
+				Log.Exception(e, $"Failed to delete {path}");
 			}
 		}
 
@@ -171,7 +171,7 @@ namespace GitMind.GitModel.Private.Caching
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to serialize data {e.Message}");
+				Log.Exception(e, "Failed to serialize data");
 
 				if (File.Exists(path))
 				{
@@ -197,7 +197,7 @@ namespace GitMind.GitModel.Private.Caching
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Failed to read cache {e}");
+				Log.Exception(e, "Failed to read cache");
 				return default(T);
 			}
 		}

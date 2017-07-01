@@ -131,7 +131,7 @@ namespace GitMind.Common.ThemeHandling
 			}
 			catch (Exception e)
 			{
-				Log.Warn($"Error in theme option, {e}");
+				Log.Exception(e, "Error in theme option");
 				currentTheme = new Theme(new ThemeOption());
 				return false;
 			}			

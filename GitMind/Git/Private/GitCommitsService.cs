@@ -125,7 +125,7 @@ namespace GitMind.Git.Private
 					}
 					catch (Exception e)
 					{
-						Log.Warn($"Failed to delete {path}, {e.Message}");
+						Log.Exception(e, $"Failed to delete {path}");
 						failedPaths.Add(fullPath);
 					}
 				}
@@ -163,7 +163,7 @@ namespace GitMind.Git.Private
 					}
 					catch (Exception e)
 					{
-						Log.Warn($"Failed to delete {path}, {e.Message}");
+						Log.Exception(e, $"Failed to delete {path}");
 					}
 				}
 			});

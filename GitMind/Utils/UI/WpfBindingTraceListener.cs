@@ -14,7 +14,7 @@ namespace GitMind.Utils.UI
 
 		public override void WriteLine(string message)
 		{
-			Log.Warn($"WPF binding error:\n{message}");
+			Log.Error($"WPF binding error:\n{message}");
 		}
 
 

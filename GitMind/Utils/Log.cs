@@ -93,6 +93,7 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelWarn, msg, memberName, sourceFilePath, sourceLineNumber);
+			Track.Event($"Warn-{sourceFilePath}-{memberName}", msg);
 		}
 
 
@@ -103,6 +104,7 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelError, msg, memberName, sourceFilePath, sourceLineNumber);
+			Track.Event($"Error-{sourceFilePath}-{memberName}", msg);
 		}
 
 		public static void Exception(
@@ -113,6 +115,7 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelError, $"{msg}\n{e}", memberName, sourceFilePath, sourceLineNumber);
+			Track.Event($"Exception-{e.GetType().Name}-{sourceFilePath}-{memberName}", $"{e.Message}, {msg}");
 			Track.Exception(e, msg);
 		}
 
