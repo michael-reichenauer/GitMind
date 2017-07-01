@@ -107,6 +107,7 @@
 
 				<Rectangle Grid.Row="1"
 					Stroke="DarkRed"
+					StrokeDashArray="2 2"
 					Width="335"
 					Height="16" 
 					HorizontalAlignment="Left"
@@ -136,6 +137,7 @@
 				<Rectangle 
 					Grid.Row="3"
 					Stroke="DarkRed"
+					StrokeDashArray="2 2"
 					Margin="0,8,0,5" 
 					Width="480"
 					VerticalAlignment="Stretch"
