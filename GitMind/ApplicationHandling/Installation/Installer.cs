@@ -119,7 +119,7 @@ namespace GitMind.ApplicationHandling.Installation
 		private void StartInstalled()
 		{
 			string targetPath = ProgramPaths.GetInstallFilePath();
-			cmd.Start(targetPath, "");
+			cmd.Start(targetPath, "/run");
 		}
 
 

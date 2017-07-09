@@ -52,7 +52,7 @@ namespace GitMind.ApplicationHandling
 			{
 				string installedPath = ProgramPaths.GetInstallFilePath();
 
-				cmd.Start(installedPath, null);
+				cmd.Start(installedPath, "/run");
 				return true;
 			}
 			catch (Exception e) when (e.IsNotFatal())

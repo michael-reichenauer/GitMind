@@ -82,7 +82,7 @@ namespace GitMind
 				return;
 			}
 
-			if (IsActivatedOtherInstance())
+			if (!commandLine.IsRunInstalled && IsActivatedOtherInstance())
 			{
 				// Another instance for this working folder is already running and it received the
 				// command line from this instance, lets exit this instance, while other instance continuous
@@ -157,6 +157,7 @@ namespace GitMind
 		{
 			try
 			{
+				Track.Event("ActivatedOtherInstance");
 				string id = MainWindowIpcService.GetId(workingFolder);
 				using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 				{
