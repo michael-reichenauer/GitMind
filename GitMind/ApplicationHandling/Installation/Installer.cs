@@ -47,7 +47,7 @@ namespace GitMind.ApplicationHandling.Installation
 		{
 			if (commandLine.IsInstall && !commandLine.IsSilent)
 			{
-				Track.Event("Install-Normal");
+				Track.Request("Install-Normal");
 				InstallNormal();
 
 				return false;
@@ -73,7 +73,7 @@ namespace GitMind.ApplicationHandling.Installation
 			}
 			else if (commandLine.IsUninstall && commandLine.IsSilent)
 			{
-				Track.Event("Uninstall-Silent");
+				Track.Request("Uninstall-Silent");
 				UninstallSilent();
 
 				return false;

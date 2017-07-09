@@ -67,6 +67,14 @@ namespace GitMind.Common.Tracking
 		}
 
 
+		public static void Request(string requestName)
+		{
+
+			Tc?.TrackRequest(new RequestTelemetry(
+				requestName, DateTime.Now, TimeSpan.FromMilliseconds(1), "", true));
+		}
+
+
 		public static void Event(string eventName, string message)
 		{
 			Tc.TrackEvent(eventName, new Dictionary<string, string> { { "Message", message } });

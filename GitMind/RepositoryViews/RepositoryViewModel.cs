@@ -312,7 +312,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (!repositoryService.IsPaused)
 			{
-				Track.Event("MainWindow-Activated");
+				Track.Request("MainWindow-Activated");
 				Log.Usage("Activate window");
 
 				Timing t = new Timing();
@@ -345,6 +345,7 @@ namespace GitMind.RepositoryViews
 			{
 				Timing t = new Timing();
 				Log.Usage("Automatic remote check");
+				Track.Event("MainWindow-AutoCheck");
 				await repositoryService.CheckRemoteChangesAsync(false);
 				t.Log("Auto refresh done");
 			}
@@ -364,6 +365,7 @@ namespace GitMind.RepositoryViews
 		{
 			Log.Debug("Update repository view model after updated Repository");
 			Timing t = new Timing();
+			Track.Event("MainWindow-RepositoryUpdated");
 			using (progress.ShowBusy())
 			{
 				UpdateViewModel();
@@ -382,7 +384,7 @@ namespace GitMind.RepositoryViews
 
 		public async Task ManualRefreshAsync()
 		{
-			Track.Event("MainWindow-ManualRefresh");
+			Track.Request("MainWindow-ManualRefresh");
 			using (progress.ShowDialog("Refreshing view ..."))
 			{
 				using (await refreshLock.LockAsync())
