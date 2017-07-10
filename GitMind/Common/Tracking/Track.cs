@@ -107,23 +107,22 @@ namespace GitMind.Common.Tracking
 
 		private static string GetInstrumentationKey()
 		{
-			if (0 != Txt.CompareOic(
-				ProgramPaths.GetInstallFilePath(), ProgramPaths.GetCurrentInstancePath())
-				&& !IsSetupFile())
+			if (ProgramPaths.GetCurrentInstancePath().StartsWithOic(ProgramPaths.GetProgramFolderPath())
+				|| IsSetupFile())
 			{
-				Log.Info("Using test metrics");
-				return "77fee87e-bd1e-4341-ac5b-0a65c3e567bb";
+				Log.Info("Using production metrics");
+				return "33982a8a-1da0-42c0-9d0a-8a159494c847";
 			}
 
-			Log.Info("Using production metrics");
-			return "33982a8a-1da0-42c0-9d0a-8a159494c847";
+			Log.Info("Using test metrics");
+			return "77fee87e-bd1e-4341-ac5b-0a65c3e567bb";
 		}
 
 
 		private static bool IsSetupFile()
 		{
 			return Path.GetFileNameWithoutExtension(ProgramPaths.GetCurrentInstancePath())
-				.StartsWith("GitMindSetup", StringComparison.OrdinalIgnoreCase);
+				.StartsWithOic("GitMindSetup");
 		}
 
 		private static string GetTrackId()
