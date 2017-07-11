@@ -344,7 +344,6 @@ namespace GitMind.Git.Private
 					}
 
 					Log.Exception(e, "");
-					credentialHandler.SetConfirm(false);
 					throw;
 				}
 			});
