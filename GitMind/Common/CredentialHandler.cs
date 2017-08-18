@@ -61,7 +61,7 @@ namespace GitMind.Common
 			if (isConfirmed && dialog.SaveChecked)
 			{
 				Track.Event("CredentialsDialog-Confirmed");
-				dialog.Confirm(true);				
+				dialog.Confirm(true);
 			}
 			else if (dialog.SaveChecked)
 			{
@@ -86,7 +86,6 @@ namespace GitMind.Common
 
 			// dialog.AlwaysDisplay = true;
 
-			Track.Event("CredentialsDialog-Show");
 			dialog.Name = usernameFromUrl;
 
 			if (dialog.Show(owner.Win32Window) == DialogResult.OK)
