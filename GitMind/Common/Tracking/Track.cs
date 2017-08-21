@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
 using Microsoft.ApplicationInsights;
@@ -32,6 +33,7 @@ namespace GitMind.Common.Tracking
 
 			Tc.InstrumentationKey = GetInstrumentationKey();
 			Tc.Context.User.Id = GetTrackId();
+			Tc.Context.User.UserAgent = ProgramPaths.ProgramName;
 			Tc.Context.Session.Id = Guid.NewGuid().ToString();
 			Tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 			Tc.Context.Component.Version = GetProgramVersion();
@@ -107,8 +109,7 @@ namespace GitMind.Common.Tracking
 
 		private static string GetInstrumentationKey()
 		{
-			if (ProgramPaths.GetCurrentInstancePath().StartsWithOic(ProgramPaths.GetProgramFolderPath())
-				|| IsSetupFile())
+			if (ProgramPaths.GetCurrentInstancePath().StartsWithOic(ProgramPaths.GetProgramFolderPath()))
 			{
 				Log.Info("Using production metrics");
 				return "33982a8a-1da0-42c0-9d0a-8a159494c847";
