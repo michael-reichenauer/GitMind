@@ -95,14 +95,9 @@ namespace GitMind.Common.Tracking
 		}
 
 
-		public static void Command(
-			string command,
-			DateTime startTime,
-			TimeSpan duration,
-			string exitCode,
-			bool isSuccess)
+		public static void Command(string name)
 		{
-			Tc?.TrackRequest(new RequestTelemetry(command, startTime, duration, exitCode, isSuccess));
+			Event($"Command-{name}");
 		}
 
 

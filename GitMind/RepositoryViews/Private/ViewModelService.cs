@@ -7,6 +7,7 @@ using System.Windows.Media;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ThemeHandling;
+using GitMind.Common.Tracking;
 using GitMind.Features.Branches;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
@@ -183,6 +184,7 @@ namespace GitMind.RepositoryViews.Private
 			{
 				// Showing the specified branch
 				Log.Usage("Open branch");
+				Track.Command("Open-Branch");
 				Log.Info($"Open branch {commit.SecondParent.Branch}");
 				currentlyShownBranches.Add(commit.SecondParent.Branch);
 				if (commit.SecondParent.Branch.IsMainPart)
@@ -243,6 +245,7 @@ namespace GitMind.RepositoryViews.Private
 				}
 
 				Log.Usage("Close branch");
+				Track.Command("Close-Branch");
 				Log.Info($"Close branch {otherBranch.Branch}");
 				IEnumerable<Branch> closingBranches = GetBranchAndDescendants(
 					currentlyShownBranches, otherBranch.Branch);
