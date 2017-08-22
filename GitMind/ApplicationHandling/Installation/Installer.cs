@@ -141,6 +141,8 @@ namespace GitMind.ApplicationHandling.Installation
 					{
 						return false;
 					}
+
+					Thread.Sleep(1000);
 				}
 			}
 		}
