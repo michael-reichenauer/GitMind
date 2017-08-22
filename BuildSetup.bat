@@ -44,7 +44,7 @@ if exist %MSBUILD% (
   echo.
 
   echo Copy Setup file ...
-  copy GitMind\bin\Debug\GitMind.exe GitMindSetup.exe /Y >NUL
+  copy GitMind\bin\Release\GitMind.exe GitMindSetup.exe /Y >NUL
 
   PowerShell -Command "& {(Get-Item GitMindSetup.exe).VersionInfo.FILEVERSION }" > version.txt
   echo.
