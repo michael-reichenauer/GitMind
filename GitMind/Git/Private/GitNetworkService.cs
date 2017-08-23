@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
+using GitMind.Common.Tracking;
 using GitMind.Utils;
 using LibGit2Sharp;
 
@@ -41,21 +42,26 @@ namespace GitMind.Git.Private
 			Log.Debug("Fetch all ...");
 			return repoCaller.UseRepoAsync(FetchTimeout, repo =>
 			{
+				Timing timing = new Timing();
+				string remoteUrl = "";
 				try
 				{
 					if (!HasRemote(repo))
 					{
 						Log.Debug("No 'origin' remote, skipping fetch");
 						return;
-					};
-
+					}
+					remoteUrl = Remote(repo).Url;
 					repo.Fetch(Origin, fetchOptions);
 					credentialHandler.SetConfirm(true);
+					Track.Dependency("Fetch", remoteUrl, timing.Elapsed, true);
 				}
-				catch (NoCredentialException)
+				catch (NoCredentialException e)
 				{
 					Log.Debug("Canceled enter credentials");
 					credentialHandler.SetConfirm(false);
+					Log.Exception(e, "");
+					Track.Dependency("Fetch", remoteUrl, timing.Elapsed, false);
 				}
 				catch (Exception e)
 				{
@@ -66,6 +72,7 @@ namespace GitMind.Git.Private
 
 					Log.Exception(e, "");
 					credentialHandler.SetConfirm(false);
+					Track.Dependency("Fetch", remoteUrl, timing.Elapsed, false);
 					throw;
 				}
 			});
@@ -90,6 +97,9 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseRepoAsync(repo =>
 			{
+				Timing timing = new Timing();
+				string remoteUrl = "";
+
 				try
 				{
 					if (!HasRemote(repo))
@@ -99,12 +109,16 @@ namespace GitMind.Git.Private
 					};
 
 					Remote remote = Remote(repo);
+					remoteUrl = remote.Url;
 					repo.Network.Fetch(remote, refspecs, fetchOptions);
+					Track.Dependency("FetchRefs", remoteUrl, timing.Elapsed, true);
 				}
-				catch (NoCredentialException)
+				catch (NoCredentialException e)
 				{
 					Log.Debug("Canceled enter credentials");
+					Log.Exception(e, "");
 					credentialHandler.SetConfirm(false);
+					Track.Dependency("FetchRefs", remoteUrl, timing.Elapsed, false);
 				}
 				catch (Exception e)
 				{
@@ -115,6 +129,7 @@ namespace GitMind.Git.Private
 
 					Log.Exception(e, "");
 					credentialHandler.SetConfirm(false);
+					Track.Dependency("FetchRefs", remoteUrl, timing.Elapsed, false);
 					throw;
 				}
 			});
@@ -179,8 +194,13 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseLibRepoAsync(repo =>
 			{
+				Timing timing = new Timing();
+				string remoteUrl = "";
+
 				try
 				{
+					
+
 					Branch localBranch = repo.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
 					if (localBranch == null)
 					{
@@ -205,6 +225,7 @@ namespace GitMind.Git.Private
 						if (repo.Network.Remotes.Any(r => r.Name == Origin))
 						{
 							Remote remote = Remote(repo);
+							remoteUrl = remote.Url;
 
 							repo.Branches.Update(
 								localBranch,
@@ -214,6 +235,7 @@ namespace GitMind.Git.Private
 					}
 
 					repo.Network.Push(localBranch, pushOptions);
+					Track.Dependency("PublishBranch", remoteUrl, timing.Elapsed, true);
 				}
 				catch (Exception e)
 				{
@@ -223,6 +245,7 @@ namespace GitMind.Git.Private
 					}
 
 					Log.Exception(e, "");
+					Track.Dependency("PublishBranch", remoteUrl, timing.Elapsed, false);
 					throw;
 				}
 			});
@@ -232,6 +255,8 @@ namespace GitMind.Git.Private
 		public Task<R> DeleteRemoteBranchAsync(BranchName branchName)
 		{
 			Log.Debug($"Delete remote branch {branchName} ...");
+			Timing timing = new Timing();
+			string remoteUrl = "";
 
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 			{
@@ -248,11 +273,13 @@ namespace GitMind.Git.Private
 					PushOptions pushOptions = GetPushOptions();
 
 					Remote remote = Remote(repo);
+					remoteUrl = remote.Url;
 
 					// Using a refspec, like you would use with git push...
 					repo.Network.Push(remote, $":refs/heads/{branchName}", pushOptions);
 
 					credentialHandler.SetConfirm(true);
+					Track.Dependency("DeleteRemoteBranch", remoteUrl, timing.Elapsed, true);
 				}
 				catch (Exception e)
 				{
@@ -263,6 +290,7 @@ namespace GitMind.Git.Private
 
 					Log.Exception(e, "");
 					credentialHandler.SetConfirm(false);
+					Track.Dependency("DeleteRemoteBranch", remoteUrl, timing.Elapsed, false);
 					throw;
 				}
 			});
@@ -276,6 +304,9 @@ namespace GitMind.Git.Private
 
 			return repoCaller.UseRepoAsync(PushTimeout, repo =>
 			{
+				Timing timing = new Timing();
+				string remoteUrl = "";
+
 				try
 				{
 					if (!HasRemote(repo))
@@ -287,11 +318,13 @@ namespace GitMind.Git.Private
 					PushOptions pushOptions = GetPushOptions();
 
 					Remote remote = Remote(repo);
+					remoteUrl = remote.Url;
 
 					// Using a refspec, like you would use with git push...
 					repo.Network.Push(remote, $":refs/tags/{tagName}", pushOptions);
 
 					credentialHandler.SetConfirm(true);
+					Track.Dependency("DeleteRemoteTag", remoteUrl, timing.Elapsed, true);
 				}
 				catch (Exception e)
 				{
@@ -302,6 +335,7 @@ namespace GitMind.Git.Private
 
 					Log.Exception(e, "");
 					credentialHandler.SetConfirm(false);
+					Track.Dependency("DeleteRemoteTag", remoteUrl, timing.Elapsed, false);
 					throw;
 				}
 			});
@@ -351,26 +385,33 @@ namespace GitMind.Git.Private
 
 		private void PushRefs(IEnumerable<string> refspecs, Repository repo)
 		{
+			Timing timing = new Timing();
+			string remoteUrl = "";
+
 			try
 			{
 				if (!HasRemote(repo))
 				{
 					Log.Debug("No 'origin' remote, skipping delete remote branch");
 					return;
-				};
+				};			
 
 				PushOptions pushOptions = GetPushOptions();
 
 				Remote remote = Remote(repo);
+				remoteUrl = remote.Url;
 
 				repo.Network.Push(remote, refspecs, pushOptions);
 
 				credentialHandler.SetConfirm(true);
+				Track.Dependency("PushRefs", remoteUrl, timing.Elapsed, true);
 			}
-			catch (NoCredentialException)
+			catch (NoCredentialException e)
 			{
 				Log.Debug("Canceled enter credentials");
 				credentialHandler.SetConfirm(false);
+				Log.Exception(e, "");
+				Track.Dependency("PushRefs", remoteUrl, timing.Elapsed, false);
 			}
 			catch (Exception e)
 			{
@@ -381,6 +422,7 @@ namespace GitMind.Git.Private
 
 				Log.Exception(e, "");
 				credentialHandler.SetConfirm(false);
+				Track.Dependency("PushRefs", remoteUrl, timing.Elapsed, false);
 				throw;
 			}
 		}

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
 using Microsoft.ApplicationInsights;
@@ -66,8 +65,15 @@ namespace GitMind.Common.Tracking
 		public static void Event(string eventName)
 		{
 			Tc?.TrackEvent(eventName);
+
 		}
 
+
+		public static void Dependency(
+			string commandName, string target, TimeSpan duration, bool isSuccess)
+		{
+			Tc?.TrackDependency(target, commandName, DateTimeOffset.Now - duration, duration, isSuccess);
+		}
 
 		public static void Event(string eventName, string message)
 		{

@@ -312,7 +312,7 @@ namespace GitMind.RepositoryViews
 		{
 			if (!repositoryService.IsPaused)
 			{
-				Track.Request("MainWindow-Activated");
+				Track.Command("MainWindow-Activated");
 				Log.Usage("Activate window");
 
 				Timing t = new Timing();
@@ -384,7 +384,7 @@ namespace GitMind.RepositoryViews
 
 		public async Task ManualRefreshAsync()
 		{
-			Track.Request("MainWindow-ManualRefresh");
+			Track.Command("MainWindow-ManualRefresh");
 			using (progress.ShowDialog("Refreshing view ..."))
 			{
 				using (await refreshLock.LockAsync())
