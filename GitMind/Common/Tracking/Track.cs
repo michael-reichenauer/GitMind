@@ -116,7 +116,8 @@ namespace GitMind.Common.Tracking
 
 		private static string GetInstrumentationKey()
 		{
-			if (ProgramPaths.GetCurrentInstancePath().StartsWithOic(ProgramPaths.GetProgramFolderPath()))
+			if (ProgramPaths.GetCurrentInstancePath().StartsWithOic(ProgramPaths.GetProgramFolderPath())
+				|| IsSetupFile())
 			{
 				Log.Info("Using production metrics");
 				return "33982a8a-1da0-42c0-9d0a-8a159494c847";

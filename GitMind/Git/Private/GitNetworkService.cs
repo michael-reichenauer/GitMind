@@ -43,7 +43,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					if (!HasRemote(repo))
 					{
 						Log.Debug("No 'origin' remote, skipping fetch");
 						return;
@@ -92,7 +92,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					if (!HasRemote(repo))
 					{
 						Log.Debug("No 'origin' remote, skipping fetch");
 						return;
@@ -237,7 +237,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					if (!HasRemote(repo))
 					{
 						Log.Debug("No 'origin' remote, skipping delete remote branch");
 						return;
@@ -278,7 +278,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					if (!HasRemote(repo))
 					{
 						Log.Debug("No 'origin' remote, skipping delete remote tag");
 						return;
@@ -315,7 +315,7 @@ namespace GitMind.Git.Private
 			{
 				try
 				{
-					if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+					if (!HasRemote(repo))
 					{
 						Log.Debug("No 'origin' remote, skipping pruning local tags");
 						return;
@@ -353,7 +353,7 @@ namespace GitMind.Git.Private
 		{
 			try
 			{
-				if (!repo.Network.Remotes.Any(r => r.Name == Origin))
+				if (!HasRemote(repo))
 				{
 					Log.Debug("No 'origin' remote, skipping delete remote branch");
 					return;
@@ -448,6 +448,19 @@ namespace GitMind.Git.Private
 			}
 
 			return false;
+		}
+
+		private static bool HasRemote(Repository repo)
+		{
+			try
+			{
+				return repo.Network.Remotes.Any(r => r.Name == Origin);
+			}
+			catch (Exception e)
+			{
+				Log.Debug($"No remotes {e.Message}");
+				return false;
+			}
 		}
 
 
