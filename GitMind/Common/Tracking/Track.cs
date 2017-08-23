@@ -72,6 +72,11 @@ namespace GitMind.Common.Tracking
 		public static void Dependency(
 			string commandName, string target, TimeSpan duration, bool isSuccess)
 		{
+			if (Uri.TryCreate(target, UriKind.Absolute, out Uri uri))
+			{
+				target = uri.Host;
+			}
+
 			Tc?.TrackDependency(target, commandName, DateTimeOffset.Now - duration, duration, isSuccess);
 		}
 

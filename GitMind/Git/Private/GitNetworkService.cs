@@ -51,6 +51,7 @@ namespace GitMind.Git.Private
 						Log.Debug("No 'origin' remote, skipping fetch");
 						return;
 					}
+
 					remoteUrl = Remote(repo).Url;
 					repo.Fetch(Origin, fetchOptions);
 					credentialHandler.SetConfirm(true);
