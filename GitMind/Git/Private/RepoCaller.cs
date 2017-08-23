@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
+using GitMind.Common.Tracking;
 using GitMind.Features.Diffing;
 using GitMind.Utils;
 using LibGit2Sharp;
@@ -43,6 +44,12 @@ namespace GitMind.Git.Private
 					return R.Ok;
 				}
 			}
+			catch (OperationCanceledException)
+			{
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
+			}
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
@@ -66,6 +73,12 @@ namespace GitMind.Git.Private
 					return R.Ok;
 				}
 			}
+			catch (OperationCanceledException)
+			{
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
+			}
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
@@ -88,6 +101,12 @@ namespace GitMind.Git.Private
 
 					return R.Ok;
 				}
+			}
+			catch (OperationCanceledException)
+			{
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
 			}
 			catch (Exception e)
 			{
@@ -129,7 +148,13 @@ namespace GitMind.Git.Private
 				return await Task.Run(() => UseRepo(doAction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
-			catch (OperationCanceledException e)
+			catch (OperationCanceledException)
+			{
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
+			}
+			catch (Exception e)
 			{
 				Log.Exception(e, $"Timeout for {memberName} in {workingFolder}");
 				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
@@ -150,7 +175,13 @@ namespace GitMind.Git.Private
 				return await Task.Run(() => UseRepo(doAction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
-			catch (OperationCanceledException e)
+			catch (OperationCanceledException)
+			{
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
+			}
+			catch (Exception e)
 			{
 				Log.Exception(e, $"Timeout for {memberName} in {workingFolder}");
 				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
@@ -176,6 +207,12 @@ namespace GitMind.Git.Private
 
 					return result;
 				}
+			}
+			catch (OperationCanceledException)
+			{
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
 			}
 			catch (Exception e)
 			{
@@ -203,6 +240,12 @@ namespace GitMind.Git.Private
 					return result;
 				}
 			}
+			catch (OperationCanceledException)
+			{
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
+			}
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
@@ -229,6 +272,12 @@ namespace GitMind.Git.Private
 					return result;
 				}
 			}
+			catch (OperationCanceledException)
+			{
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
+			}
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
@@ -253,6 +302,12 @@ namespace GitMind.Git.Private
 					return result;
 				}
 			}
+			catch (OperationCanceledException)
+			{
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
+			}
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
@@ -274,6 +329,12 @@ namespace GitMind.Git.Private
 
 					return result;
 				}
+			}
+			catch (OperationCanceledException)
+			{
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
 			}
 			catch (Exception e)
 			{
@@ -310,9 +371,15 @@ namespace GitMind.Git.Private
 				return await Task.Run(() => UseRepo(doFunction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
-			catch (OperationCanceledException e)
+			catch (OperationCanceledException)
 			{
-				Log.Exception(e, $"Timeout for {memberName} in {workingFolder}");
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
+			}
+			catch (Exception e)
+			{
+				Log.Exception(e, $"Error for {memberName} in {workingFolder}");
 				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
 				return error;
 			}
@@ -331,9 +398,15 @@ namespace GitMind.Git.Private
 				return await Task.Run(() => UseLibRepo(doFunction, memberName), cts.Token)
 					.WithCancellation(cts.Token);
 			}
-			catch (OperationCanceledException e)
+			catch (OperationCanceledException)
 			{
-				Log.Exception(e, $"Timeout for {memberName} in {workingFolder}");
+				Log.Debug("Canceled");
+				Track.TraceWarn("Canceled");
+				return Error.None;
+			}
+			catch (Exception e)
+			{
+				Log.Exception(e, $"Error for {memberName} in {workingFolder}");
 				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
 				return error;
 			}
@@ -375,6 +448,12 @@ namespace GitMind.Git.Private
 
 						return result;
 					}
+				}
+				catch (OperationCanceledException)
+				{
+					Log.Debug("Canceled");
+					Track.TraceWarn("Canceled");
+					return Error.None;
 				}
 				catch (Exception e)
 				{
