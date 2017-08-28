@@ -1,13 +1,16 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
 using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.Win32;
 
 
@@ -19,6 +22,7 @@ namespace GitMind.Common.Tracking
 
 		private static readonly TelemetryClient Tc;
 		private static bool isStarted = false;
+
 
 		static Track()
 		{
@@ -34,12 +38,17 @@ namespace GitMind.Common.Tracking
 			Tc.InstrumentationKey = GetInstrumentationKey();
 			Tc.Context.User.Id = GetTrackId();
 			Tc.Context.Cloud.RoleInstance = Tc.Context.User.Id;
-			Tc.Context.User.UserAgent = ProgramPaths.ProgramName;
+			Tc.Context.User.UserAgent = $"{ProgramPaths.ProgramName}/{ProgramPaths.GetRunningVersion()}";
 			Tc.Context.Session.Id = Guid.NewGuid().ToString();
 			Tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 			Tc.Context.Component.Version = GetProgramVersion();
+
+			var builder = TelemetryConfiguration.Active.TelemetryProcessorChainBuilder;
+			builder.Use((next) => new TelemetryTracer(next));
+			builder.Build();
 		}
 
+	
 
 		public static void StartProgram()
 		{
@@ -80,7 +89,12 @@ namespace GitMind.Common.Tracking
 			}
 
 			Tc?.TrackDependency(target, commandName, DateTimeOffset.Now - duration, duration, isSuccess);
+
+			//Tc?.TrackDependency(
+			//	target, target, target, 
+			//	commandName, DateTimeOffset.Now - duration, duration, isSuccess.ToString(), isSuccess);
 		}
+
 
 		public static void Event(string eventName, string message)
 		{
@@ -147,6 +161,7 @@ namespace GitMind.Common.Tracking
 				.StartsWithOic("GitMindSetup");
 		}
 
+
 		private static string GetTrackId()
 		{
 			string trackIdPath = Path.Combine(Path.GetTempPath(), TrackIdFileName);
@@ -187,6 +202,33 @@ namespace GitMind.Common.Tracking
 			Assembly assembly = Assembly.GetExecutingAssembly();
 			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 			return fvi.FileVersion;
+		}
+
+
+		private class TelemetryTracer : ITelemetryProcessor
+		{
+			private readonly ITelemetryProcessor next;
+
+
+			public TelemetryTracer(ITelemetryProcessor next)
+			{
+				this.next = next;
+			}
+
+
+			public void Process(ITelemetry item)
+			{
+				//// Use Application Insight serializer
+				//byte[] bytes = JsonSerializer.Serialize(new[] {item}, false);
+				//string text = Encoding.UTF8.GetString(bytes);
+
+				//// Indent the json for to make readable 
+				//object obj = Json.As<object>(text);
+				string indentedText = Json.AsJson(item);
+
+				Log.Debug($"Telemetry: {item.GetType().Name}\n{indentedText}");
+				next.Process(item);
+			}
 		}
 	}
 }
