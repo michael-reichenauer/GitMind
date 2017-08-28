@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -32,6 +33,7 @@ namespace GitMind.Common.Tracking
 
 			Tc.InstrumentationKey = GetInstrumentationKey();
 			Tc.Context.User.Id = GetTrackId();
+			Tc.Context.Cloud.RoleInstance = Tc.Context.User.Id;
 			Tc.Context.User.UserAgent = ProgramPaths.ProgramName;
 			Tc.Context.Session.Id = Guid.NewGuid().ToString();
 			Tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
