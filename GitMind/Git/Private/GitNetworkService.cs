@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling;
 using GitMind.Common.Tracking;
 using GitMind.Utils;
 using LibGit2Sharp;
@@ -18,17 +17,15 @@ namespace GitMind.Git.Private
 		private static readonly TimeSpan FetchTimeout = TimeSpan.FromSeconds(30);
 		private static readonly TimeSpan PushTimeout = TimeSpan.FromSeconds(30);
 
-		private readonly WorkingFolder workingFolder;
+
 		private readonly IRepoCaller repoCaller;
 		private readonly ICredentialHandler credentialHandler;
 
 
 		public GitNetworkService(
-			WorkingFolder workingFolder,
 			IRepoCaller repoCaller,
 			ICredentialHandler credentialHandler)
 		{
-			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
 			this.credentialHandler = credentialHandler;
 		}
@@ -200,7 +197,7 @@ namespace GitMind.Git.Private
 
 				try
 				{
-					
+
 
 					Branch localBranch = repo.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
 					if (localBranch == null)
@@ -395,7 +392,7 @@ namespace GitMind.Git.Private
 				{
 					Log.Debug("No 'origin' remote, skipping delete remote branch");
 					return;
-				};			
+				};
 
 				PushOptions pushOptions = GetPushOptions();
 
