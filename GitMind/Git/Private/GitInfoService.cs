@@ -27,7 +27,7 @@ namespace GitMind.Git.Private
 				string rootFolder = folder;
 				while (!string.IsNullOrEmpty(rootFolder))
 				{
-					if (LibGit2Sharp.Repository.IsValid(rootFolder))
+					if (!rootFolder.EndsWith(".git") && LibGit2Sharp.Repository.IsValid(rootFolder))
 					{
 						Log.Debug($"Root folder for {folder} is {rootFolder}");
 						return rootFolder;

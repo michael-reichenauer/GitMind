@@ -43,12 +43,11 @@ namespace GitMind.Common.Tracking
 			Tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 			Tc.Context.Component.Version = GetProgramVersion();
 
-			var builder = TelemetryConfiguration.Active.TelemetryProcessorChainBuilder;
-			builder.Use((next) => new TelemetryTracer(next));
-			builder.Build();
+			//var builder = TelemetryConfiguration.Active.TelemetryProcessorChainBuilder;
+			//builder.Use((next) => new TelemetryTracer(next));
+			//builder.Build();
 		}
 
-	
 
 		public static void StartProgram()
 		{
@@ -218,13 +217,13 @@ namespace GitMind.Common.Tracking
 
 			public void Process(ITelemetry item)
 			{
-				//// Use Application Insight serializer
-				//byte[] bytes = JsonSerializer.Serialize(new[] {item}, false);
-				//string text = Encoding.UTF8.GetString(bytes);
+				// Use Application Insight serializer
+				byte[] bytes = JsonSerializer.Serialize(new[] { item }, false);
+				string text = Encoding.UTF8.GetString(bytes);
 
-				//// Indent the json for to make readable 
-				//object obj = Json.As<object>(text);
-				string indentedText = Json.AsJson(item);
+				// Indent the json for to make readable 
+				object obj = Json.As<object>(text);
+				string indentedText = Json.AsJson(obj);
 
 				Log.Debug($"Telemetry: {item.GetType().Name}\n{indentedText}");
 				next.Process(item);
