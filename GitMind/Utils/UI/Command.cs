@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using GitMind.Common.Tracking;
@@ -24,7 +23,7 @@ namespace GitMind.Utils.UI
 
 		public Command(Func<Task> executeMethodAsync, string memberName)
 		{
-			SetCommand(executeMethodAsync,  memberName);
+			SetCommand(executeMethodAsync, memberName);
 		}
 
 		public Command(Func<Task> executeMethodAsync, Func<bool> canExecuteMethod, string memberName)
@@ -182,7 +181,7 @@ namespace GitMind.Utils.UI
 			this.memberName = memberName;
 		}
 
-	
+
 		public Command With(Func<T> parameterFunc)
 		{
 			Command cmd = new Command(() => Execute(parameterFunc()), () => CanExecute(parameterFunc()), memberName);
@@ -242,14 +241,12 @@ namespace GitMind.Utils.UI
 
 		public async Task ExecuteAsync(T parameter)
 		{
-			DateTime starTime = DateTime.Now;
-			Stopwatch sw = Stopwatch.StartNew();
 			try
 			{
 				IsCompleted = false;
 				canExecute = false;
 				RaiseCanExecuteChanaged();
-				Log.Usage(memberName);				
+				Log.Usage(memberName);
 
 				if (executeMethod != null)
 				{
@@ -262,11 +259,10 @@ namespace GitMind.Utils.UI
 					await executeMethodAsync(parameter);
 				}
 
-				Track.Command(memberName, starTime, sw.Elapsed, "", true);
+				Track.Command(memberName);
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				Track.Command(memberName, starTime, sw.Elapsed, e.Message, false);
 				Asserter.FailFast($"Unhandled command exception {e}");
 			}
 			finally

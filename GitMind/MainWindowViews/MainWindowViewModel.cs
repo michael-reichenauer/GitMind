@@ -9,6 +9,7 @@ using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
+using GitMind.Common.Tracking;
 using GitMind.Features.Commits;
 using GitMind.Features.Remote;
 using GitMind.Git;
@@ -16,7 +17,6 @@ using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
-using Message = System.Windows.Forms.Message;
 
 
 namespace GitMind.MainWindowViews
@@ -240,7 +240,7 @@ namespace GitMind.MainWindowViews
 						"Failed to activate other instance. If this problem appears again\n" +
 						"You may have to use Task Manager to kill other GitMind process or restart computer");
 				}
-			
+
 				Application.Current.Shutdown(0);
 				ipcRemotingService.Dispose();
 				return;
@@ -377,11 +377,11 @@ namespace GitMind.MainWindowViews
 		{
 			try
 			{
+				Track.Command("OpenOptions");
 				Settings.EnsureExists<Options>();
-				Process proc = new Process();
 				string optionsName = nameof(Options);
-				proc.StartInfo.FileName = Path.Combine(ProgramPaths.DataFolderPath, $"{optionsName}.json");
-				proc.Start();
+				string filePath = Path.Combine(ProgramPaths.DataFolderPath, $"{optionsName}.json");
+				Process.Start("notepad.exe", filePath);
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{

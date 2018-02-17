@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
 using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.Win32;
 
 
@@ -18,6 +22,7 @@ namespace GitMind.Common.Tracking
 
 		private static readonly TelemetryClient Tc;
 		private static bool isStarted = false;
+
 
 		static Track()
 		{
@@ -32,9 +37,15 @@ namespace GitMind.Common.Tracking
 
 			Tc.InstrumentationKey = GetInstrumentationKey();
 			Tc.Context.User.Id = GetTrackId();
+			Tc.Context.Cloud.RoleInstance = Tc.Context.User.Id;
+			Tc.Context.User.UserAgent = $"{ProgramPaths.ProgramName}/{ProgramPaths.GetRunningVersion()}";
 			Tc.Context.Session.Id = Guid.NewGuid().ToString();
 			Tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 			Tc.Context.Component.Version = GetProgramVersion();
+
+			//var builder = TelemetryConfiguration.Active.TelemetryProcessorChainBuilder;
+			//builder.Use((next) => new TelemetryTracer(next));
+			//builder.Build();
 		}
 
 
@@ -64,6 +75,23 @@ namespace GitMind.Common.Tracking
 		public static void Event(string eventName)
 		{
 			Tc?.TrackEvent(eventName);
+
+		}
+
+
+		public static void Dependency(
+			string commandName, string target, TimeSpan duration, bool isSuccess)
+		{
+			if (Uri.TryCreate(target, UriKind.Absolute, out Uri uri))
+			{
+				target = uri.Host;
+			}
+
+			Tc?.TrackDependency(target, commandName, DateTimeOffset.Now - duration, duration, isSuccess);
+
+			//Tc?.TrackDependency(
+			//	target, target, target, 
+			//	commandName, DateTimeOffset.Now - duration, duration, isSuccess.ToString(), isSuccess);
 		}
 
 
@@ -73,14 +101,29 @@ namespace GitMind.Common.Tracking
 		}
 
 
-		public static void Command(
-			string command,
-			DateTime startTime,
-			TimeSpan duration,
-			string exitCode,
-			bool isSuccess)
+		public static void TraceWarn(string message)
 		{
-			Tc?.TrackRequest(new RequestTelemetry(command, startTime, duration, exitCode, isSuccess));
+			Tc?.TrackTrace(message, SeverityLevel.Warning);
+		}
+
+
+		public static void TraceError(string message)
+		{
+			Tc?.TrackTrace(message, SeverityLevel.Error);
+		}
+
+
+		public static void Request(string requestName)
+		{
+
+			Tc?.TrackRequest(new RequestTelemetry(
+				requestName, DateTime.Now, TimeSpan.FromMilliseconds(1), "", true));
+		}
+
+
+		public static void Command(string name)
+		{
+			Event($"Command-{name}");
 		}
 
 
@@ -99,24 +142,24 @@ namespace GitMind.Common.Tracking
 
 		private static string GetInstrumentationKey()
 		{
-			if (0 != Txt.CompareOic(
-				ProgramPaths.GetInstallFilePath(), ProgramPaths.GetCurrentInstancePath())
-				&& !IsSetupFile())
+			if (ProgramPaths.GetCurrentInstancePath().StartsWithOic(ProgramPaths.GetProgramFolderPath())
+				|| IsSetupFile())
 			{
-				Log.Info("Using test metrics");
-				return "77fee87e-bd1e-4341-ac5b-0a65c3e567bb";
+				Log.Info("Using production metrics");
+				return "33982a8a-1da0-42c0-9d0a-8a159494c847";
 			}
 
-			Log.Info("Using production metrics");
-			return "33982a8a-1da0-42c0-9d0a-8a159494c847";
+			Log.Info("Using test metrics");
+			return "77fee87e-bd1e-4341-ac5b-0a65c3e567bb";
 		}
 
 
 		private static bool IsSetupFile()
 		{
 			return Path.GetFileNameWithoutExtension(ProgramPaths.GetCurrentInstancePath())
-				.StartsWith("GitMindSetup", StringComparison.OrdinalIgnoreCase);
+				.StartsWithOic("GitMindSetup");
 		}
+
 
 		private static string GetTrackId()
 		{
@@ -158,6 +201,33 @@ namespace GitMind.Common.Tracking
 			Assembly assembly = Assembly.GetExecutingAssembly();
 			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 			return fvi.FileVersion;
+		}
+
+
+		private class TelemetryTracer : ITelemetryProcessor
+		{
+			private readonly ITelemetryProcessor next;
+
+
+			public TelemetryTracer(ITelemetryProcessor next)
+			{
+				this.next = next;
+			}
+
+
+			public void Process(ITelemetry item)
+			{
+				// Use Application Insight serializer
+				byte[] bytes = JsonSerializer.Serialize(new[] { item }, false);
+				string text = Encoding.UTF8.GetString(bytes);
+
+				// Indent the json for to make readable 
+				object obj = Json.As<object>(text);
+				string indentedText = Json.AsJson(obj);
+
+				Log.Debug($"Telemetry: {item.GetType().Name}\n{indentedText}");
+				next.Process(item);
+			}
 		}
 	}
 }

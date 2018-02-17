@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows;
@@ -82,7 +80,7 @@ namespace GitMind
 				return;
 			}
 
-			if (IsActivatedOtherInstance())
+			if (!commandLine.IsRunInstalled && IsActivatedOtherInstance())
 			{
 				// Another instance for this working folder is already running and it received the
 				// command line from this instance, lets exit this instance, while other instance continuous
@@ -129,9 +127,9 @@ namespace GitMind
 			applicationMutex = new Mutex(true, Installer.ProductGuid);
 
 			MainWindow = mainWindow.Value;
-			
+
 			themeService.SetThemeWpfColors();
-	
+
 
 			MainWindow.Show();
 
@@ -157,6 +155,8 @@ namespace GitMind
 		{
 			try
 			{
+				Log.Debug("Try ActivatedOtherInstance");
+				Track.Event("ActivatedOtherInstance");
 				string id = MainWindowIpcService.GetId(workingFolder);
 				using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 				{

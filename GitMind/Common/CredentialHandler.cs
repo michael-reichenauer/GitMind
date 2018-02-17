@@ -2,6 +2,7 @@
 using System.Net;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using GitMind.Common.Tracking;
 using GitMind.Git;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
@@ -59,12 +60,14 @@ namespace GitMind.Common
 
 			if (isConfirmed && dialog.SaveChecked)
 			{
+				Track.Event("CredentialsDialog-Confirmed");
 				dialog.Confirm(true);
 			}
 			else if (dialog.SaveChecked)
 			{
 				try
 				{
+					Track.Event("CredentialsDialog-Denied");
 					dialog.Confirm(false);
 				}
 				catch (ApplicationException e)

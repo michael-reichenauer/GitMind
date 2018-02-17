@@ -39,7 +39,7 @@ namespace GitMind.Utils
 		{
 			DisableErrorAndUsageReporting = new Lazy<bool>(() =>
 				Settings.Get<Options>().DisableErrorAndUsageReporting);
-		
+
 			Task.Factory.StartNew(SendBufferedLogRows, TaskCreationOptions.LongRunning)
 				.RunInBackground();
 		}
@@ -93,7 +93,7 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelWarn, msg, memberName, sourceFilePath, sourceLineNumber);
-			Track.Event($"Warn-{sourceFilePath}-{memberName}", msg);
+			Track.TraceWarn($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
 		}
 
 
@@ -104,7 +104,7 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelError, msg, memberName, sourceFilePath, sourceLineNumber);
-			Track.Event($"Error-{sourceFilePath}-{memberName}", msg);
+			Track.TraceError($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
 		}
 
 		public static void Exception(
@@ -115,8 +115,9 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelError, $"{msg}\n{e}", memberName, sourceFilePath, sourceLineNumber);
-			Track.Event($"Exception-{e.GetType().Name}-{sourceFilePath}-{memberName}", $"{e.Message}, {msg}");
-			Track.Exception(e, msg);
+
+			string message = $"{sourceFilePath}-{memberName}({sourceLineNumber}) - {e.Message}, {msg}";
+			Track.Exception(e, message);
 		}
 
 
@@ -142,7 +143,7 @@ namespace GitMind.Utils
 				//byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
 				//UdpClient.Send(bytes, bytes.Length, LocalLogEndPoint);
 				SendLog(text);
-				WriteToFile(text);			
+				WriteToFile(text);
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
@@ -151,7 +152,7 @@ namespace GitMind.Utils
 			}
 		}
 
-		
+
 		private static void SendLog(string text)
 		{
 			logTexts.Add(text);
@@ -174,7 +175,7 @@ namespace GitMind.Utils
 				UdpClient.Send(bytes, bytes.Length, usageLogEndPoint);
 			}
 			catch (Exception)
-			{		
+			{
 				// Ignore failed
 			}
 		}
@@ -214,7 +215,7 @@ namespace GitMind.Utils
 				}
 
 				SendLog("ERROR Failed to log to file: " + error);
-			}		
+			}
 		}
 
 
@@ -241,13 +242,13 @@ namespace GitMind.Utils
 					{
 						SendLog("ERROR Failed to move temp to second log file: " + e);
 					}
-					
+
 				}).RunInBackground();
 			}
 			catch (Exception e)
 			{
 				SendLog("ERROR Failed to move large log file: " + e);
-			}	
+			}
 		}
 
 		private static class Native

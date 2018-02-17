@@ -47,7 +47,7 @@ namespace GitMind.ApplicationHandling.Installation
 		{
 			if (commandLine.IsInstall && !commandLine.IsSilent)
 			{
-				Track.Event("Install-Normal");
+				Track.Request("Install-Normal");
 				InstallNormal();
 
 				return false;
@@ -73,7 +73,7 @@ namespace GitMind.ApplicationHandling.Installation
 			}
 			else if (commandLine.IsUninstall && commandLine.IsSilent)
 			{
-				Track.Event("Uninstall-Silent");
+				Track.Request("Uninstall-Silent");
 				UninstallSilent();
 
 				return false;
@@ -119,7 +119,7 @@ namespace GitMind.ApplicationHandling.Installation
 		private void StartInstalled()
 		{
 			string targetPath = ProgramPaths.GetInstallFilePath();
-			cmd.Start(targetPath, "");
+			cmd.Start(targetPath, "/run");
 		}
 
 
@@ -141,6 +141,8 @@ namespace GitMind.ApplicationHandling.Installation
 					{
 						return false;
 					}
+
+					Thread.Sleep(1000);
 				}
 			}
 		}
