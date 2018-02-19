@@ -352,9 +352,7 @@ namespace GitMind.GitModel.Private
 			Dictionary<CommitId, Commit> rCommits = new Dictionary<CommitId, Commit>();
 			Branch currentBranch = null;
 			Commit currentCommit = null;
-			MCommit rootCommit = mRepository.Branches
-				.First(b => b.Value.Name == BranchName.Master && b.Value.IsActive)
-				.Value.FirstCommit;
+			CommitId rootCommitId = mRepository.RootCommitId;
 
 			Repository repository = new Repository(
 				mRepository,
@@ -364,7 +362,7 @@ namespace GitMind.GitModel.Private
 				new Lazy<Commit>(() => currentCommit),
 				commitsFiles,
 				mRepository.Status,
-				rootCommit.Id,
+				rootCommitId,
 				mRepository.Uncommitted?.Id ?? CommitId.None);
 
 			foreach (var mCommit in mRepository.Commits.Values)
