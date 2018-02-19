@@ -171,6 +171,7 @@ namespace GitMind.GitModel.Private
 		private void SetSpecifiedCommitBranchNames(MRepository repository)
 		{
 			MCommit rootCommit = GetRootCommit(repository);
+			repository.RootCommitId = rootCommit.RealCommitId;
 
 			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitsService.GetSpecifiedNames(
 				rootCommit.Sha);

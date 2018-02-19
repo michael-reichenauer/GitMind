@@ -204,6 +204,7 @@ namespace GitMind.MainWindowViews
 			settings.IsShowCommitDetails = viewModel.RepositoryViewModel.IsShowCommitDetails;
 
 			settings.ShownBranches = viewModel.RepositoryViewModel.Branches
+				.Where(b => !b.Name.StartsWith("_Multibranch_") && !b.Name.StartsWith("_Branch_"))
 				.Select(b => b.Branch.Name.ToString())
 				.Distinct()
 				.ToList();
@@ -261,7 +262,9 @@ namespace GitMind.MainWindowViews
 		private IReadOnlyList<string> RestoreShownBranches()
 		{
 			WorkFolderSettings settings = Settings.GetWorkFolderSetting(workingFolder);
-			return settings.ShownBranches;
+			return settings.ShownBranches
+				.Where(n => !n.StartsWith("_Branch_") && !n.StartsWith("_Multibranch_"))
+				.ToList();
 		}
 
 
