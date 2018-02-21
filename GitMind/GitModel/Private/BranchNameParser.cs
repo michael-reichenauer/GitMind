@@ -131,8 +131,8 @@ namespace GitMind.GitModel.Private
 			}
 
 			// Trim "'" and " " from barnch names
-			sourceBranchName = sourceBranchName?.Trim(TrimChars);
-			targetBranchName = targetBranchName?.Trim(TrimChars);
+			sourceBranchName = TrimBranchName(sourceBranchName);
+			targetBranchName = TrimBranchName(targetBranchName);
 
 			if (targetBranchName != null && targetBranchName.StartsWith("origin/"))
 			{
@@ -197,6 +197,21 @@ namespace GitMind.GitModel.Private
 			}
 
 			return new MergeBranchNames(sourceBranchName, targetBranchName);
+		}
+
+
+		private static string TrimBranchName(string name)
+		{
+			if (name != null && name.StartsWith("'"))
+			{
+				int index = name.IndexOf("'", 1);
+				if (index > 1)
+				{
+					return name.Substring(1, index - 1);
+				}
+			}
+
+			return name?.Trim(TrimChars);
 		}
 	}
 }
