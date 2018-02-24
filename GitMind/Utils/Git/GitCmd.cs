@@ -18,14 +18,16 @@ namespace GitMind.Utils.Git
 
 		public async Task<CmdResult2> DoAsync(string args, CancellationToken ct)
 		{
-			string cmdPath = @"C:\Work Files\GitMinimal\tools\cmd\gitx.exe";
+			string cmdPath = @"C:\Work Files\GitMinimal\tools\cmd\git.exe";
 			string workFolder = @"C:\Work Files\AcmAcs";
 
-			void OnOutput(string s) => Log.Debug($"{s}");
-			void OnError(string s) => Log.Warn($"{s}");
+			//void OnOutput(string s) => Log.Debug($"{s}");
+			//void OnError(string s) => Log.Warn($"{s}");
 
-			CmdResult2 result = await cmd.RunAsync(cmdPath, args, workFolder, OnOutput, OnError, ct);
+			Timing t = Timing.StartNew();
 
+			CmdResult2 result = await cmd.RunAsync(cmdPath, args, workFolder, null, null, ct);
+			t.Log($"{result}");
 			return result;
 		}
 	}

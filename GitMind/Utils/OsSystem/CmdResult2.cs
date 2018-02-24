@@ -42,10 +42,11 @@
 			}
 			else
 			{
+				int maxRows = 5;
 				string[] rows = text.Split(Eol);
-				if (rows.Length > 10)
+				if (rows.Length > maxRows)
 				{
-					return $"{string.Join("\n", rows, 0, 5)} \n[...]";
+					return $"{string.Join("\n", rows, 0, maxRows)} \n... ({rows.Length} lines)";
 				}
 				else
 				{
