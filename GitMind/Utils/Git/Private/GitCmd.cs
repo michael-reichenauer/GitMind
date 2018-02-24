@@ -5,7 +5,7 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git
 {
-	public class GitCmd
+	public class GitCmd : IGitCmd
 	{
 		private readonly ICmd2 cmd;
 
