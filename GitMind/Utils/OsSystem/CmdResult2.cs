@@ -1,8 +1,8 @@
 ﻿namespace GitMind.Utils.OsSystem
 {
-	public class CmdResult
+	public class CmdResult2
 	{
-		public CmdResult(
+		public CmdResult2(
 			string command, string arguments, int exitCode, string output, string error)
 		{
 			Command = command;
@@ -22,7 +22,7 @@
 
 		public string Error { get; }
 
-		public static implicit operator string(CmdResult result) => result.Output;
+		public static implicit operator string(CmdResult2 result2) => result2.Output;
 
 		public override string ToString() =>
 			$"Command: {Command} {Arguments}\n"+

@@ -218,11 +218,12 @@
     <Compile Include="Git\ICredentialHandler.cs" />
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
+    <Compile Include="Utils\Git\GitCmd.cs" />
     <Compile Include="Utils\OsSystem\AsyncCountdownEvent.cs" />
     <Compile Include="Utils\OsSystem\AsyncManualResetEvent.cs" />
     <Compile Include="Utils\OsSystem\ICmd2.cs" />
     <Compile Include="Utils\OsSystem\Cmd2.cs" />
-    <Compile Include="Utils\OsSystem\CmdResult.cs" />
+    <Compile Include="Utils\OsSystem\CmdResult2.cs" />
     <Compile Include="Utils\Txt.cs" />
     <Compile Include="Utils\Throttler.cs" />
     <Compile Include="Utils\UI\CredentialsDialog.cs" />

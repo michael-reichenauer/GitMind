@@ -10,7 +10,7 @@ namespace GitMind.Utils.OsSystem
 		/// <summary>
 		/// Runs the specified command and returns detailed process result.
 		/// </summary>
-		Task<CmdResult> RunAsync(
+		Task<CmdResult2> RunAsync(
 			string command,
 			string arguments = null,
 			string workingDirectory = null,

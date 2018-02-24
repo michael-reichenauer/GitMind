@@ -38,7 +38,7 @@ namespace GitMind.Utils.OsSystem
 		/// <summary>
 		/// Runs the specified command and returns detailed process result.
 		/// </summary>
-		public async Task<CmdResult> RunAsync(
+		public async Task<CmdResult2> RunAsync(
 			string command,
 			string arguments = null,
 			string workingDirectory = null,
@@ -66,7 +66,7 @@ namespace GitMind.Utils.OsSystem
 					workingDirectory,
 					outputLine => ReportLine(outputText, outputLine, outputProgress, completeEvent),
 					errorLine => ReportLine(errorText, errorLine, errorProgress, completeEvent),
-					exitCode => { processExitCode = exitCode; completeEvent.Signal(); });
+					exitCode => { processExitCode = ProcessExitCode(exitCode, completeEvent); });
 
 				ct.Register(() => Kill(process));
 
@@ -75,6 +75,7 @@ namespace GitMind.Utils.OsSystem
 			}
 			catch (Exception e)
 			{
+				Log.Error($"Cmd failed: {command} {arguments}");
 				Log.Exception(e, $"Cmd failed: {command} {arguments}");
 			}
 			finally
@@ -85,8 +86,16 @@ namespace GitMind.Utils.OsSystem
 				}
 			}
 
-			return new CmdResult(
+			return new CmdResult2(
 				command, arguments, processExitCode, outputText.ToString(), errorText.ToString());
+		}
+
+
+		private static int ProcessExitCode(int exitCode, AsyncCountdownEvent completeEvent)
+		{
+			Log.Debug($"Exit code {exitCode}");
+			completeEvent.Signal();
+			return exitCode;
 		}
 
 
