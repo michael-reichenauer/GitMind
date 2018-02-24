@@ -11,8 +11,8 @@ namespace GitMindTest.AutoMocking
 	public class AutoMock : IDisposable
 	{
 		private readonly Lazy<IContainer> container;
-		private readonly ContainerBuilder containerBuilder;
-		private readonly AutofacMoqSource autofacMoqSource;
+		private readonly ContainerBuilder builder;
+		private readonly AutofacMoqSource autofacMoqSource = new AutofacMoqSource();
 
 		private bool disposed;
 
@@ -23,17 +23,20 @@ namespace GitMindTest.AutoMocking
 		}
 
 
-		public AutoMock(ContainerBuilder containerBuilder)
+		public AutoMock(ContainerBuilder builder)
 		{
-			this.containerBuilder = containerBuilder;
+			this.builder = builder;
 
-			containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource());
-			containerBuilder.RegisterSource(autofacMoqSource = new AutofacMoqSource());
+			builder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource());
+			builder.RegisterSource(autofacMoqSource);
 
-			container = new Lazy<IContainer>(() => containerBuilder.Build());
+			container = new Lazy<IContainer>(() => builder.Build());
 		}
 
-		private ContainerBuilder ContainerBuilder
+
+		private IContainer Container => container.Value;
+
+		private ContainerBuilder Builder
 		{
 			get
 			{
@@ -43,7 +46,7 @@ namespace GitMindTest.AutoMocking
 						"Cannot register after first use of Resolve<T>() or Mock<T>()");
 				}
 
-				return containerBuilder;
+				return builder;
 			}
 		}
 
@@ -52,14 +55,14 @@ namespace GitMindTest.AutoMocking
 
 
 		public T Resolve<TArg1, T>(TArg1 arg1) =>
-			container.Value.Resolve<Func<TArg1, T>>()(arg1);
+			Container.Resolve<Func<TArg1, T>>()(arg1);
 
 		public T Resolve<TArg1, TArg2, T>(TArg1 arg1, TArg2 arg2) =>
-			container.Value.Resolve<Func<TArg1, TArg2, T>>()(arg1, arg2);
+			Container.Resolve<Func<TArg1, TArg2, T>>()(arg1, arg2);
 
 
 		public T Resolve<TArg1, TArg2, TArg3, T>(TArg1 arg1, TArg2 arg2, TArg3 arg3) =>
-			container.Value.Resolve<Func<TArg1, TArg2, TArg3, T>>()(arg1, arg2, arg3);
+			Container.Resolve<Func<TArg1, TArg2, TArg3, T>>()(arg1, arg2, arg3);
 
 
 		public Mock<T> Mock<T>()
@@ -70,7 +73,7 @@ namespace GitMindTest.AutoMocking
 		}
 
 
-		public void VerifyAll() => container.Value.Resolve<MockRepository>().VerifyAll();
+		public void VerifyAll() => Container.Resolve<MockRepository>().VerifyAll();
 
 
 		/// <summary>
@@ -82,8 +85,8 @@ namespace GitMindTest.AutoMocking
 		{
 			Mock<T> mock = new Mock<T>(MockBehavior.Strict);
 
-			RegisterAsSingleInstance(ContainerBuilder, mock);
-			RegisterAsSingleInstance(ContainerBuilder, mock.Object);
+			RegisterAsSingleInstance(Builder, mock);
+			RegisterAsSingleInstance(Builder, mock.Object);
 
 			return this;
 		}
@@ -91,7 +94,7 @@ namespace GitMindTest.AutoMocking
 		public AutoMock RegisterType<T>()
 			where T : class
 		{
-			RegisterTypes(ContainerBuilder, new[] { typeof(T) });
+			RegisterTypes(Builder, new[] { typeof(T) });
 			return this;
 		}
 
@@ -99,12 +102,12 @@ namespace GitMindTest.AutoMocking
 		public AutoMock RegisterSingleInstance<T>(T instance)
 			where T : class
 		{
-			ContainerBuilder.RegisterInstance(instance)
+			Builder.RegisterInstance(instance)
 				.As<T>()
 				.AsSelf()
 				.SingleInstance();
 
-			RegisterAsSingleInstance(ContainerBuilder, instance);
+			RegisterAsSingleInstance(Builder, instance);
 			return this;
 		}
 
@@ -117,14 +120,14 @@ namespace GitMindTest.AutoMocking
 				nameSpace != null &&
 				type.Namespace.StartsWith(nameSpace, StringComparison.Ordinal)).ToArray();
 
-			RegisterTypes(ContainerBuilder, types);
+			RegisterTypes(Builder, types);
 
 			return this;
 		}
 
 		public AutoMock RegisterAssemblyOf<T>()
 		{
-			RegisterTypes(ContainerBuilder, typeof(T).Assembly.GetTypes());
+			RegisterTypes(Builder, typeof(T).Assembly.GetTypes());
 			return this;
 		}
 
@@ -143,7 +146,7 @@ namespace GitMindTest.AutoMocking
 			{
 				if (disposing)
 				{
-					container.Value.Dispose();
+					Container.Dispose();
 				}
 
 				disposed = true;

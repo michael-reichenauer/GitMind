@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.OsSystem;
 using GitMindTest.AutoMocking;
@@ -11,7 +12,7 @@ namespace GitMindTest.Utils.Git
 	[TestFixture]
 	public class GitCmdTest
 	{
-		private CancellationToken ct = CancellationToken.None;
+		private readonly CancellationToken ct = CancellationToken.None;
 
 		[Test]
 		public async Task Test()
@@ -20,9 +21,11 @@ namespace GitMindTest.Utils.Git
 				.RegisterNamespaceOf<IGitLog>()
 				.RegisterNamespaceOf<ICmd2>())
 			{
-				IGitCmd gitCmd = am.Resolve<IGitCmd>();
-				var result = await gitCmd.DoAsync("log --all --pretty=\"%H|%ai|%ci|%an|%P|%s\"", ct);
+				IGitLog gitLog = am.Resolve<IGitLog>();
 
+				var result = await gitLog.GetAsync(ct);
+
+				Log.Debug($"Log contained {result.Count} Commits");
 			}
 		}
 	}

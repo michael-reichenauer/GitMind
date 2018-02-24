@@ -219,10 +219,11 @@
     <Compile Include="Git\ICredentialHandler.cs" />
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
-    <Compile Include="Utils\Git\GitLog.cs" />
+    <Compile Include="Utils\Git\Private\GitLog.cs" />
     <Compile Include="Utils\Git\IGitLog.cs" />
     <Compile Include="Utils\Git\Private\GitCmd.cs" />
     <Compile Include="Utils\Git\Private\IGitCmd.cs" />
+    <Compile Include="Utils\Git\LogCommit.cs" />
     <Compile Include="Utils\OsSystem\AsyncCountdownEvent.cs" />
     <Compile Include="Utils\OsSystem\AsyncManualResetEvent.cs" />
     <Compile Include="Utils\OsSystem\ICmd2.cs" />
