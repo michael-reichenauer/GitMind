@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,33 +9,10 @@ using System.Threading.Tasks;
 namespace GitMind.Utils.OsSystem
 {
 	/// <summary>
-	/// Used to run external shell commands/programs. 
+	/// Used to run commands/programs. 
 	/// </summary>	
 	public class Cmd2 : ICmd2
 	{
-		//	/// <summary>
-		//	/// Runs the specified command and returns the output
-		//	/// </summary>
-		//	public async Task<string> RunAsync(
-		//		string command,
-		//		string arguments = null,
-		//		string workingDirectory = null,
-		//		Action<string> outputProgress = null,
-		//		Action<string> errorProgress = null,
-		//		CancellationToken ct = default(CancellationToken))
-		//	{
-		//		CmdResult result = await RunCmdAsync(
-		//			command,
-		//			arguments,
-		//			workingDirectory,
-		//			outputProgress,
-		//			errorProgress,
-		//			CancellationToken.None);
-
-		//		return result.Output;
-		//	}
-
-
 		/// <summary>
 		/// Runs the specified command and returns detailed process result.
 		/// </summary>
@@ -49,7 +27,7 @@ namespace GitMind.Utils.OsSystem
 			Process process = null;
 			StringBuilder outputText = new StringBuilder();
 			StringBuilder errorText = new StringBuilder();
-			int processExitCode = -1;
+			int exitCode = -1;
 
 			try
 			{
@@ -57,45 +35,28 @@ namespace GitMind.Utils.OsSystem
 				errorProgress = errorProgress ?? (line => { });
 				command = Quote(command);
 
-				// Two streams (output and error) and one process needs to complete
-				AsyncCountdownEvent completeEvent = new AsyncCountdownEvent(3);
-
-				process = StartProcess(
+				process = await StartProcessAsync(
 					command,
 					arguments,
 					workingDirectory,
-					outputLine => ReportLine(outputText, outputLine, outputProgress, completeEvent),
-					errorLine => ReportLine(errorText, errorLine, errorProgress, completeEvent),
-					exitCode => { processExitCode = ProcessExitCode(exitCode, completeEvent); });
+					outputLine => ReportLine(outputText, outputLine, outputProgress),
+					errorLine => ReportLine(errorText, errorLine, errorProgress),
+					ct);
 
-				ct.Register(() => Kill(process));
-
-				// Await end of output stream, end of error stream and exit code 
-				await completeEvent.WaitAsync(ct);
+				exitCode = process?.ExitCode ?? -1;
 			}
 			catch (Exception e)
 			{
-				Log.Error($"Cmd failed: {command} {arguments}");
 				Log.Exception(e, $"Cmd failed: {command} {arguments}");
+				errorText.AppendLine($"{e.GetType()}, {e.Message}");
 			}
 			finally
 			{
-				if (process != null)
-				{
-					process.Dispose();
-				}
+				process?.Dispose();
 			}
 
 			return new CmdResult2(
-				command, arguments, processExitCode, outputText.ToString(), errorText.ToString());
-		}
-
-
-		private static int ProcessExitCode(int exitCode, AsyncCountdownEvent completeEvent)
-		{
-			Log.Debug($"Exit code {exitCode}");
-			completeEvent.Signal();
-			return exitCode;
+				command, arguments, exitCode, outputText.ToString(), errorText.ToString());
 		}
 
 
@@ -104,19 +65,11 @@ namespace GitMind.Utils.OsSystem
 		/// </summary>
 		private void ReportLine(
 			StringBuilder text,
-			string line,
-			Action<string> lineProgress,
-			AsyncCountdownEvent countdownEvent)
+			string textFragment,
+			Action<string> lineProgress)
 		{
-			if (line != null)
-			{
-				text.AppendLine(line);
-				lineProgress(line);
-			}
-			else
-			{
-				countdownEvent.Signal();
-			}
+			text.Append(textFragment);
+			lineProgress(textFragment);
 		}
 
 
@@ -127,7 +80,7 @@ namespace GitMind.Utils.OsSystem
 		{
 			try
 			{
-				process.Kill();
+				process?.Kill();
 			}
 			catch (Exception)
 			{
@@ -152,40 +105,63 @@ namespace GitMind.Utils.OsSystem
 		/// <summary>
 		/// Starts the process.
 		/// </summary>
-		private static Process StartProcess(
+		private static async Task<Process> StartProcessAsync(
 			string command,
 			string arguments,
 			string workingDirectory,
 			Action<string> outputLines,
-			Action<string> errorLines,
-			Action<int> exitCode)
+			Action<string> onErrorText,
+			CancellationToken ct)
 		{
 			Process process = new Process();
+			process.StartInfo.FileName = command;
+			process.StartInfo.Arguments = arguments;
+
 			process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 			process.StartInfo.CreateNoWindow = true;
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
-			process.EnableRaisingEvents = true;
 			process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
 			process.StartInfo.StandardErrorEncoding = Encoding.UTF8;
 
-			process.StartInfo.FileName = command;
-			process.StartInfo.Arguments = arguments;
+
 			if (!string.IsNullOrWhiteSpace(workingDirectory))
 			{
 				process.StartInfo.WorkingDirectory = workingDirectory;
 			}
 
-			process.OutputDataReceived += (s, e) => outputLines(e.Data);
-			process.ErrorDataReceived += (s, e) => errorLines(e.Data);
-			process.Exited += (s, e) => exitCode(process.ExitCode);
-
 			process.Start();
-			process.BeginOutputReadLine();
-			process.BeginErrorReadLine();
+			ct.Register(() => Kill(process));
+
+			Task outputStreamTask = ReadStreamAsync(process.StandardOutput, outputLines, ct);
+			Task errorStreamTask = ReadStreamAsync(process.StandardError, onErrorText, ct);
+
+			process.WaitForExit();
+			await Task.WhenAll(outputStreamTask, errorStreamTask);
 
 			return process;
+		}
+
+
+		private static async Task ReadStreamAsync(
+			StreamReader stream, Action<string> onText, CancellationToken ct)
+		{
+			using (StreamReader reader = stream)
+			{
+				char[] buffer = new char[1024 * 4];
+
+				while (!ct.IsCancellationRequested)
+				{
+					int readCount = await reader.ReadAsync(buffer, 0, buffer.Length);
+					if (readCount == 0)
+					{
+						break;
+					}
+
+					onText(new string(buffer, 0, readCount));
+				}
+			}
 		}
 	}
 }

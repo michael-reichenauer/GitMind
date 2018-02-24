@@ -2,6 +2,9 @@
 {
 	public class CmdResult2
 	{
+		private static readonly char[] Eol = "\n".ToCharArray();
+
+
 		public CmdResult2(
 			string command, string arguments, int exitCode, string output, string error)
 		{
@@ -24,10 +27,12 @@
 
 		public static implicit operator string(CmdResult2 result2) => result2.Output;
 
-		public override string ToString() =>
-			$"Command: {Command} {Arguments}\n"+
-			$"Exit code: {ExitCode}\nOutput: {Truncate(Output)}\nError: {Truncate(Error)}";
 
+		public override string ToString() => $"{Command} {Arguments}{ExitText}{OutputText}{ErrorText}";
+
+		private string ExitText => ExitCode == 0 ? "" : $"\nExit code: {ExitCode}";
+		private string OutputText => string.IsNullOrEmpty(Output) ? "" : $"\n{Truncate(Output)}";
+		private string ErrorText => string.IsNullOrEmpty(Error) ? "" : $"\nError:\n{Truncate(Error)}";
 
 		private static string Truncate(string text)
 		{
@@ -37,10 +42,10 @@
 			}
 			else
 			{
-				string[] rows = text.Split("\n".ToCharArray());
+				string[] rows = text.Split(Eol);
 				if (rows.Length > 10)
 				{
-					return string.Join("\n", rows, 0, 10) + "\n[...]";
+					return $"{string.Join("\n", rows, 0, 5)} \n[...]";
 				}
 				else
 				{

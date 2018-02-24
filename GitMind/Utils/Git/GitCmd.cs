@@ -18,7 +18,7 @@ namespace GitMind.Utils.Git
 
 		public async Task<CmdResult2> DoAsync(string args, CancellationToken ct)
 		{
-			string cmdPath = @"C:\Work Files\GitMinimal\tools\cmd\git.exe";
+			string cmdPath = @"C:\Work Files\GitMinimal\tools\cmd\gitx.exe";
 			string workFolder = @"C:\Work Files\AcmAcs";
 
 			void OnOutput(string s) => Log.Debug($"{s}");

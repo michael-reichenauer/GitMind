@@ -18,7 +18,7 @@ namespace GitMindTest.Utils.Git
 		{
 			GitCmd gitCmd = new GitCmd(new Cmd2());
 
-			var result = await gitCmd.DoAsync("gcf", ct);
+			var result = await gitCmd.DoAsync("gc --auto", ct);
 
 			Log.Debug($"Test result: {result}");
 		}
