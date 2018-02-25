@@ -1,0 +1,16 @@
+﻿using System;
+
+
+namespace GitMind.Utils.OsSystem
+{
+	internal class CmdOptions
+	{
+		public string WorkingDirectory { get; set; }
+		public Action<string> OutputProgress { get; set; }
+		public Action<string> ErrorProgress { get; set; }
+		public Action<string> OutputLines { get; set; }
+		public Action<string> ErrorLines { get; set; }
+		public bool IsOutputDisabled { get; set; }
+		public bool IsErrortDisabled { get; set; }
+	}
+}

@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-namespace GitMind.Utils.OsSystem
+namespace GitMind.Utils
 {
 	/// <summary>
 	/// An asynchronous manual reset event that releases all waiters when it is set, 

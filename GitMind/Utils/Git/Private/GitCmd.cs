@@ -1,11 +1,12 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
 {
-	public class GitCmd : IGitCmd
+	internal class GitCmd : IGitCmd
 	{
 		private readonly ICmd2 cmd;
 
@@ -15,18 +16,34 @@ namespace GitMind.Utils.Git.Private
 			this.cmd = cmd;
 		}
 
+		private static string CmdPath => @"C:\Work Files\GitMinimal\tools\cmd\git.exe";
+		private static string WorkFolder => @"C:\Work Files\AcmAcs";
 
-		public async Task<CmdResult2> DoAsync(string args, CancellationToken ct)
+
+
+
+		public async Task<CmdResult2> RunAsync(string args, CancellationToken ct)
 		{
-			string cmdPath = @"C:\Work Files\GitMinimal\tools\cmd\git.exe";
-			string workFolder = @"C:\Work Files\AcmAcs";
-
-			//void OnOutput(string s) => Log.Debug($"{s}");
-			//void OnError(string s) => Log.Warn($"{s}");
-
 			Timing t = Timing.StartNew();
+			CmdOptions options = new CmdOptions { WorkingDirectory = WorkFolder };
+			CmdResult2 result = await cmd.RunAsync(CmdPath, args, options, ct);
+			t.Log($"{result}");
+			return result;
+		}
 
-			CmdResult2 result = await cmd.RunAsync(cmdPath, args, workFolder, null, null, ct);
+
+		public async Task<CmdResult2> RunAsync(
+			string args, Action<string> outputLines, CancellationToken ct)
+		{
+			Timing t = Timing.StartNew();
+			CmdOptions options = new CmdOptions
+			{
+				WorkingDirectory = WorkFolder,
+				OutputLines = outputLines,
+				IsOutputDisabled = true,
+			};
+
+			CmdResult2 result = await cmd.RunAsync(CmdPath, args, options, ct);
 			t.Log($"{result}");
 			return result;
 		}

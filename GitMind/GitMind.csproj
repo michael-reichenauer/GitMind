@@ -224,10 +224,11 @@
     <Compile Include="Utils\Git\Private\GitCmd.cs" />
     <Compile Include="Utils\Git\Private\IGitCmd.cs" />
     <Compile Include="Utils\Git\LogCommit.cs" />
-    <Compile Include="Utils\OsSystem\AsyncCountdownEvent.cs" />
-    <Compile Include="Utils\OsSystem\AsyncManualResetEvent.cs" />
+    <Compile Include="Utils\AsyncCountdownEvent.cs" />
+    <Compile Include="Utils\AsyncManualResetEvent.cs" />
+    <Compile Include="Utils\OsSystem\CmdOptions.cs" />
     <Compile Include="Utils\OsSystem\ICmd2.cs" />
-    <Compile Include="Utils\OsSystem\Cmd2.cs" />
+    <Compile Include="Utils\OsSystem\Private\Cmd2.cs" />
     <Compile Include="Utils\OsSystem\CmdResult2.cs" />
     <Compile Include="Utils\Txt.cs" />
     <Compile Include="Utils\Throttler.cs" />

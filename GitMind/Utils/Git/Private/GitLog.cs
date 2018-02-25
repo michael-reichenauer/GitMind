@@ -10,6 +10,7 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitLog : IGitLog
 	{
+		private static readonly string GitLogArgs = "log --all --pretty=\"%H|%ai|%ci|%an|%P|%s\"";
 		private static readonly string[] NoParents = new string[0];
 		private static readonly char[] IdSplitter = " ".ToCharArray();
 		private static readonly char[] LogRowSplitter = "|".ToCharArray();
@@ -25,64 +26,66 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<IReadOnlyList<LogCommit>> GetAsync(CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.DoAsync("log --all --pretty=\"%H|%ai|%ci|%an|%P|%s\"", ct);
+			List<LogCommit> commits = new List<LogCommit>();
 
-			if (result.ExitCode != 0)
-			{
-				Log.Warn($"Failed to get git log, {result}");
-				return new List<LogCommit>();
-			}
-
-			IReadOnlyList<string> logLines = result.Output.Trim().Split("\n".ToCharArray());
-
-			List<LogCommit> commits = new List<LogCommit>(logLines.Count);
-
-			foreach (string line in logLines)
-			{
-				string[] parts = line.Split(LogRowSplitter);
-
-				string subjec = GetSubject(parts);
-
-				var gitCommit = new LogCommit(
-					sha: parts[0],
-					subject: subjec,
-					message: subjec,
-					author: parts[3],
-					parentIds: GetParentIds(parts),
-					authorDate: DateTime.Parse(parts[1]),
-					commitDate: DateTime.Parse(parts[2]));
-
-				commits.Add(gitCommit);
-			}
+			await GetAsync(commit => commits.Add(commit), ct);
 
 			return commits;
 		}
 
-		private static string GetSubject(string[] logRowParts)
+
+		public async Task GetAsync(Action<LogCommit> commits, CancellationToken ct)
+		{
+			CmdResult2 result = await gitCmd.RunAsync(GitLogArgs, line => commits(Parse(line)), ct);
+
+			if (result.ExitCode != 0 && !ct.IsCancellationRequested)
+			{
+				ApplicationException e = new ApplicationException($"Failed to get git log: {result}");
+				Log.Exception(e, "Failed to get log");
+				throw e;
+			}
+		}
+
+
+		private static LogCommit Parse(string line)
 		{
 			try
 			{
-				string subject = logRowParts[5];
-				if (logRowParts.Length > 6)
-				{
-					// The subject contains one or more "|", so join these parts into original subject
-					logRowParts.Skip(5).ForEach(part => subject += "|" + part);
-				}
-				return subject;
+				string[] parts = line.Split(LogRowSplitter);
+
+				string subject = GetSubject(parts);
+
+				var gitCommit = new LogCommit(
+					sha: parts[0],
+					subject: subject,
+					message: subject,
+					author: parts[3],
+					parentIds: GetParentIds(parts),
+					authorDate: DateTime.Parse(parts[1]),
+					commitDate: DateTime.Parse(parts[2]));
+				return gitCommit;
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				Log.Exception(e, $"Failed to parse log line:\n{line}");
 				throw;
 			}
-
 		}
 
 
-		private static string[] GetParentIds(string[] logRowParts)
+		private static string GetSubject(IReadOnlyList<string> lineParts)
 		{
-			return string.IsNullOrEmpty(logRowParts[4]) ? NoParents : logRowParts[4].Split(IdSplitter);
+			if (lineParts.Count > 6)
+			{
+				// The subject contains one or more "|", so rejoin these parts into original subject
+				return string.Join("|", lineParts.Skip(5));
+			}
+
+			return lineParts[5];
 		}
 
+
+		private static IReadOnlyList<string> GetParentIds(IReadOnlyList<string> lineParts) =>
+			string.IsNullOrWhiteSpace(lineParts[4]) ? NoParents : lineParts[4].Split(IdSplitter);
 	}
 }

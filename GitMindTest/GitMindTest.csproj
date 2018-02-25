@@ -73,7 +73,8 @@
     <Compile Include="Utils\CmdTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\EquatableTest.cs" />
-    <Compile Include="Utils\Git\GitCmdTest.cs" />
+    <Compile Include="Utils\Git\Private\GitCmdTest.cs" />
+    <Compile Include="Utils\Git\GitLogTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

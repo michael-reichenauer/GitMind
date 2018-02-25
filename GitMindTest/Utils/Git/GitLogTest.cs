@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -10,11 +11,11 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitCmdTest
+	public class GitLogTest
 	{
 		private readonly CancellationToken ct = CancellationToken.None;
 
-		[Test]
+		[Test, Explicit]
 		public async Task Test()
 		{
 			using (AutoMock am = new AutoMock()
@@ -23,7 +24,7 @@ namespace GitMindTest.Utils.Git
 			{
 				IGitLog gitLog = am.Resolve<IGitLog>();
 
-				var result = await gitLog.GetAsync(ct);
+				IReadOnlyList<LogCommit> result = await gitLog.GetAsync(ct);
 
 				Log.Debug($"Log contained {result.Count} Commits");
 			}
