@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.OsSystem;
@@ -20,7 +21,8 @@ namespace GitMindTest.Utils.Git
 		{
 			using (AutoMock am = new AutoMock()
 				.RegisterNamespaceOf<IGitLog>()
-				.RegisterNamespaceOf<ICmd2>())
+				.RegisterNamespaceOf<ICmd2>()
+				.RegisterSingleInstance(new WorkingFolderPath(@"C:\Work Files\GitMind")))
 			{
 				IGitLog gitLog = am.Resolve<IGitLog>();
 
