@@ -26,7 +26,7 @@ namespace GitMind.Utils.Git.Private
 		{
 			CmdOptions options = new CmdOptions { WorkingDirectory = workingFolder };
 
-			return await GitCmdAsync(gitArgs, options, ct);
+			return await CmdAsync(gitArgs, options, ct);
 		}
 
 
@@ -40,11 +40,11 @@ namespace GitMind.Utils.Git.Private
 				IsOutputDisabled = true,
 			};
 
-			return await GitCmdAsync(gitArgs, options, ct);
+			return await CmdAsync(gitArgs, options, ct);
 		}
 
 
-		private async Task<CmdResult2> GitCmdAsync(
+		private async Task<CmdResult2> CmdAsync(
 			string gitArgs, CmdOptions options, CancellationToken ct)
 		{
 			Timing t = Timing.StartNew();

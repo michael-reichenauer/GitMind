@@ -5,8 +5,10 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	class GitFetch : IGitFetch
+	internal class GitFetch : IGitFetch
 	{
+		private static readonly string FetchArgs = "fetch -p -v --progress";
+
 		private readonly IGitCmd gitCmd;
 
 
@@ -18,7 +20,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task FetchAsync(CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.RunAsync("fetch", ct);
+			CmdResult2 result = await gitCmd.RunAsync(FetchArgs, ct);
 
 			if (result.ExitCode != 0 && !result.IsCanceled)
 			{
