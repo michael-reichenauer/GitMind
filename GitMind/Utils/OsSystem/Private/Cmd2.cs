@@ -8,13 +8,9 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.OsSystem.Private
 {
-	/// <summary>
-	/// Used to run commands/programs. 
-	/// </summary>	
 	internal class Cmd2 : ICmd2
 	{
 		private static readonly char[] QuoteChar = "\"".ToCharArray();
-
 
 		public Task<CmdResult2> RunAsync(string command, string arguments, CancellationToken ct) =>
 			RunAsync(command, arguments, new CmdOptions(), ct);
@@ -58,10 +54,12 @@ namespace GitMind.Utils.OsSystem.Private
 
 			ct.Register(() => Cancel(process, tcs));
 
+			Task inputTask = ProcessInputData(process, options, ct);
 			Task<OutData> outputAndErrorTask = ProcessOutDataAsync(process, options, ct);
 
-			int exitCode = await tcs.Task;
-			OutData outData = await outputAndErrorTask;
+			await inputTask.ConfigureAwait(false);
+			int exitCode = await tcs.Task.ConfigureAwait(false);
+			OutData outData = await outputAndErrorTask.ConfigureAwait(false);
 
 			process?.Dispose();
 
@@ -90,6 +88,7 @@ namespace GitMind.Utils.OsSystem.Private
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
+			process.StartInfo.RedirectStandardInput = options.InputTextAsync != null;
 			process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
 			process.StartInfo.StandardErrorEncoding = Encoding.UTF8;
 			process.EnableRaisingEvents = true;
@@ -113,7 +112,12 @@ namespace GitMind.Utils.OsSystem.Private
 			Task errorStreamTask = ReadStreamAsync(
 				process.StandardError, errorText, options.ErrorProgress, options.ErrorLines, ct);
 
-			await Task.WhenAll(outputStreamTask, errorStreamTask);
+			Task streamsTask = Task.WhenAll(outputStreamTask, errorStreamTask);
+
+			// Ensure cancel will abanden asds stream reading
+			TaskCompletionSource<bool> canceledTcs = new TaskCompletionSource<bool>();
+			ct.Register(() => canceledTcs.TrySetResult(true));
+			await Task.WhenAny(streamsTask, canceledTcs.Task);
 
 			string error = (errorText?.ToString() ?? "") +
 				(ct.IsCancellationRequested ? "... Cancelled" : "");
@@ -169,17 +173,120 @@ namespace GitMind.Utils.OsSystem.Private
 		{
 			try
 			{
+				int processId = process.Id;
 				process?.Close();
 				tcs.TrySetResult(-1);
+
+				// This is probaly not needed, but to just to be sure
+				process = Process.GetProcessById(processId);
 				process?.Kill();
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
+				Log.Error($"Exception {e}");
 				// Ignore errors. Either there was a running process, which we could kill,
 				// or there is no running process to kill. It may have already stopped or not started yet
 			}
 		}
 
+
+		//private static Task ProcessInputData(
+		//	Process process, CmdOptions options, CancellationToken ct)
+		//{
+		//	if (options.InputText == null)
+		//	{
+		//		return Task.CompletedTask;
+		//	}
+
+		//	return Task.Run(() =>
+		//	{
+		//		using (process.StandardInput)
+		//		{
+		//			while (!ct.IsCancellationRequested)
+		//			{
+		//				string text = options.InputText(ct);
+		//				if (string.IsNullOrEmpty(text))
+		//				{
+		//					break;
+		//				}
+
+		//				process.StandardInput.WriteLine(text);
+		//			}
+		//		}
+		//	},
+		//	ct);
+		//}
+
+
+		//private static Task ReadStreamAsync(
+		//	StreamReader stream, Action<string> onText, CancellationToken ct)
+		//{
+		//	return Task.Run(() =>
+		//	{
+		//		using (StreamReader reader = stream)
+		//		{
+		//			char[] buffer = new char[1024 * 4];
+
+		//			while (!ct.IsCancellationRequested)
+		//			{
+		//				int readCount = reader.Read(buffer, 0, buffer.Length);
+		//				if (readCount == 0)
+		//				{
+		//					break;
+		//				}
+
+		//				onText(new string(buffer, 0, readCount));
+		//			}
+		//		}
+		//	},
+		//	ct);
+		//}
+
+		//private static Task ReadLinesAsync(
+		//	StreamReader stream, Action<string> onLine, CancellationToken ct)
+		//{
+		//	return Task.Run(() =>
+		//	{
+		//		using (StreamReader reader = stream)
+		//		{
+		//			while (!ct.IsCancellationRequested)
+		//			{
+		//				string line = reader.ReadLine();
+		//				if (line == null)
+		//				{
+		//					break;
+		//				}
+
+		//				onLine(line);
+		//			}
+		//		}
+		//	},
+		//	ct);
+		//}
+
+
+		private static async Task ProcessInputData(
+			Process process, CmdOptions options, CancellationToken ct)
+		{
+			if (options.InputTextAsync == null)
+			{
+				return;
+			}
+
+			using (process.StandardInput)
+			{
+				while (!ct.IsCancellationRequested)
+				{
+					string text = await options.InputTextAsync(ct);
+					if (string.IsNullOrEmpty(text))
+					{
+						break;
+					}
+
+					await process.StandardInput.WriteLineAsync(text);
+				}
+			}
+		}
 
 		private static async Task ReadStreamAsync(
 			StreamReader stream, Action<string> onText, CancellationToken ct)
@@ -218,6 +325,7 @@ namespace GitMind.Utils.OsSystem.Private
 				}
 			}
 		}
+
 
 
 		private static string Quote(string text)

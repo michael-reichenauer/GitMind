@@ -10,7 +10,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitVersionTest
+	public class GitPushTest
 	{
 		private readonly CancellationToken ct = CancellationToken.None;
 
@@ -22,10 +22,9 @@ namespace GitMindTest.Utils.Git
 				.RegisterNamespaceOf<ICmd2>()
 				.RegisterSingleInstance(new WorkingFolderPath(@"C:\Work Files\GitMind")))
 			{
-				IGitVersion gitFetch = am.Resolve<IGitVersion>();
+				IGitPush gitFetch = am.Resolve<IGitPush>();
 
-				string version = await gitFetch.GetAsync(ct);
-				Assert.AreEqual("git version 2.16.2.windows.1\r\n", version);
+				await gitFetch.PushAsync(ct);
 			}
 		}
 	}

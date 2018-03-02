@@ -9,6 +9,7 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitCmd : IGitCmd
 	{
+		// git config --list --show-origin
 		private static string GitCmdPath => @"C:\Work Files\MinGit\cmd\git.exe";
 
 		private readonly ICmd2 cmd;
@@ -19,6 +20,15 @@ namespace GitMind.Utils.Git.Private
 		{
 			this.cmd = cmd;
 			this.workingFolder = workingFolder;
+		}
+
+
+		public async Task<CmdResult2> RunAsync(
+			string gitArgs, CmdOptions options, CancellationToken ct)
+		{
+			options.WorkingDirectory = options.WorkingDirectory ?? workingFolder;
+
+			return await CmdAsync(gitArgs, options, ct);
 		}
 
 
