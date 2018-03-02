@@ -38,12 +38,7 @@ namespace GitMind.Utils.Git.Private
 		{
 			CmdResult2 result = await gitCmd.RunAsync(GitLogArgs, line => commits(Parse(line)), ct);
 
-			if (result.ExitCode != 0 && !ct.IsCancellationRequested)
-			{
-				ApplicationException e = new ApplicationException($"Failed to get git log: {result}");
-				Log.Exception(e, "Failed to get log");
-				throw e;
-			}
+			result.ThrowIfError("Failed to get log");
 		}
 
 

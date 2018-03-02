@@ -23,6 +23,9 @@ namespace GitMind.Utils.OsSystem.Private
 		public async Task<CmdResult2> RunAsync(
 			string command, string arguments, CmdOptions options, CancellationToken ct)
 		{
+			// Makse sure we can handle comd paths with "space"
+			command = Quote(command);
+
 			try
 			{
 				return await RunProcessAsync(command, arguments, options, ct);
@@ -30,7 +33,7 @@ namespace GitMind.Utils.OsSystem.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Cmd failed: {command} {arguments}");
-				return new CmdResult2(command, arguments, -1, "", $"{e.GetType()}, {e.Message}");
+				return new CmdResult2(command, arguments, -1, "", $"{e.GetType()}, {e.Message}", ct);
 			}
 		}
 
@@ -45,7 +48,7 @@ namespace GitMind.Utils.OsSystem.Private
 			TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
 
 			Process process = new Process();
-			process.StartInfo.FileName = Quote(command);
+			process.StartInfo.FileName = command;
 			process.StartInfo.Arguments = arguments;
 
 			SetProcessOptions(process, options);
@@ -62,7 +65,7 @@ namespace GitMind.Utils.OsSystem.Private
 
 			process?.Dispose();
 
-			return new CmdResult2(command, arguments, exitCode, outData.Outout, outData.Error);
+			return new CmdResult2(command, arguments, exitCode, outData.Outout, outData.Error, ct);
 		}
 
 

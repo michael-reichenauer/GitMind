@@ -8,10 +8,10 @@ namespace GitMind.Utils.Git.Private
 {
 	public interface IGitCmd
 	{
-		Task<CmdResult2> RunAsync(string args, CancellationToken ct);
+		Task<CmdResult2> RunAsync(string gitArgs, CancellationToken ct);
 
 
 		Task<CmdResult2> RunAsync(
-			string args, Action<string> outputLines, CancellationToken ct);
+			string gitArgs, Action<string> outputLines, CancellationToken ct);
 	}
 }

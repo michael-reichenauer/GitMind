@@ -1,4 +1,8 @@
-﻿namespace GitMind.Utils.OsSystem
+﻿using System;
+using System.Threading;
+
+
+namespace GitMind.Utils.OsSystem
 {
 	public class CmdResult2
 	{
@@ -6,12 +10,18 @@
 
 
 		public CmdResult2(
-			string command, string arguments, int exitCode, string output, string error)
+			string command,
+			string arguments,
+			int exitCode,
+			string output,
+			string error,
+			CancellationToken ct)
 		{
 			Command = command;
 			Arguments = arguments;
 			Output = output;
 			Error = error;
+			IsCanceled = ct.IsCancellationRequested;
 			ExitCode = exitCode;
 		}
 
@@ -25,8 +35,20 @@
 
 		public string Error { get; }
 
+		public bool IsCanceled { get; }
+
 		public static implicit operator string(CmdResult2 result2) => result2.Output;
 
+		public void ThrowIfError(string message)
+		{
+			if (ExitCode != 0 && !IsCanceled)
+			{
+				string errorText = $"{message},\n{this}";
+				ApplicationException e = new ApplicationException(errorText);
+				Log.Exception(e);
+				throw e;
+			}
+		}
 
 		public override string ToString() => $"{Command} {Arguments}{ExitText}{OutputText}{ErrorText}";
 
