@@ -221,6 +221,8 @@
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
+    <Compile Include="Utils\Git\Private\GitVersion.cs" />
+    <Compile Include="Utils\Git\IGitVersion.cs" />
     <Compile Include="Utils\Git\Private\GitFetch.cs" />
     <Compile Include="Utils\Git\IGitFetch.cs" />
     <Compile Include="Utils\Git\Private\GitLog.cs" />

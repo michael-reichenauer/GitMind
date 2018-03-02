@@ -9,7 +9,7 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitCmd : IGitCmd
 	{
-		private static string GitCmdPath => @"C:\Work Files\GitMinimal\tools\cmd\git.exe";
+		private static string GitCmdPath => @"C:\Work Files\MinGit\cmd\git.exe";
 
 		private readonly ICmd2 cmd;
 		private readonly WorkingFolderPath workingFolder;

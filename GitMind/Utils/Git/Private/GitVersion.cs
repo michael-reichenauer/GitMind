@@ -5,25 +5,27 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	class GitFetch : IGitFetch
+	internal class GitVersion : IGitVersion
 	{
 		private readonly IGitCmd gitCmd;
 
 
-		public GitFetch(IGitCmd gitCmd)
+		public GitVersion(IGitCmd gitCmd)
 		{
 			this.gitCmd = gitCmd;
 		}
 
 
-		public async Task FetchAsync(CancellationToken ct)
+		public async Task<string> GetAsync(CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.RunAsync("fetch", ct);
+			CmdResult2 result = await gitCmd.RunAsync("version", ct);
 
 			if (result.ExitCode != 0 && !result.IsCanceled)
 			{
-				Log.Warn($"Failed to fetch: {result}");
+				Log.Warn($"Failed to get version: {result}");
 			}
+
+			return result.Output;
 		}
 	}
 }
