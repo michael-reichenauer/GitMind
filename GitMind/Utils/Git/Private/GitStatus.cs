@@ -7,8 +7,6 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitStatus : IGitStatus
 	{
-		private static readonly char[] Eol = "\n".ToCharArray();
-
 		private readonly IGitCmd gitCmd;
 		private static readonly string StatusArgs = "status -s";
 
@@ -25,23 +23,21 @@ namespace GitMind.Utils.Git.Private
 
 			result.ThrowIfError("Failed to get status");
 
-			string statusText = result.Output;
-			Status status = ParseStatus(statusText);
+			Status status = ParseStatus(result);
 			Log.Debug($"Status: {status}");
 			return status;
 		}
 
 
-		private static Status ParseStatus(string status)
+		private static Status ParseStatus(CmdResult2 result)
 		{
 			int modified = 0;
 			int added = 0;
 			int deleted = 0;
 			int other = 0;
 
-			string[] statusLines = status.Split(Eol);
 
-			foreach (string line in statusLines)
+			foreach (string line in result.OutputLines)
 			{
 				if (line.StartsWith(" M "))
 				{

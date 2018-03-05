@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 
@@ -33,7 +34,11 @@ namespace GitMind.Utils.OsSystem
 
 		public string Output { get; }
 
+		public IReadOnlyList<string> OutputLines => Output.Split(Eol);
+
 		public string Error { get; }
+
+		public IReadOnlyList<string> ErrorLines => Error.Split(Eol);
 
 		public bool IsCanceled { get; }
 
