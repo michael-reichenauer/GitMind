@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -88,10 +89,14 @@ namespace GitMind.Utils.OsSystem.Private
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
-			process.StartInfo.RedirectStandardInput = options.InputTextAsync != null;
+			process.StartInfo.RedirectStandardInput = options.InputText != null;
 			process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
 			process.StartInfo.StandardErrorEncoding = Encoding.UTF8;
 			process.EnableRaisingEvents = true;
+			IDictionary<string, string> environment = process.StartInfo.Environment;
+
+			string p = @"C:\Temp\git-credential-gitmind\git-credential-gitmind\bin\Debug";
+			environment["Path"] = $"{p};{environment["Path"]}";
 
 			if (!string.IsNullOrWhiteSpace(options.WorkingDirectory))
 			{
@@ -190,32 +195,32 @@ namespace GitMind.Utils.OsSystem.Private
 		}
 
 
-		//private static Task ProcessInputData(
-		//	Process process, CmdOptions options, CancellationToken ct)
-		//{
-		//	if (options.InputText == null)
-		//	{
-		//		return Task.CompletedTask;
-		//	}
+		private static Task ProcessInputData(
+			Process process, CmdOptions options, CancellationToken ct)
+		{
+			if (options.InputText == null)
+			{
+				return Task.CompletedTask;
+			}
 
-		//	return Task.Run(() =>
-		//	{
-		//		using (process.StandardInput)
-		//		{
-		//			while (!ct.IsCancellationRequested)
-		//			{
-		//				string text = options.InputText(ct);
-		//				if (string.IsNullOrEmpty(text))
-		//				{
-		//					break;
-		//				}
+			return Task.Run(() =>
+			{
+				using (process.StandardInput)
+				{
+					while (!ct.IsCancellationRequested)
+					{
+						string text = options.InputText(ct);
+						if (string.IsNullOrEmpty(text))
+						{
+							break;
+						}
 
-		//				process.StandardInput.WriteLine(text);
-		//			}
-		//		}
-		//	},
-		//	ct);
-		//}
+						process.StandardInput.WriteLine(text);
+					}
+				}
+			},
+			ct);
+		}
 
 
 		//private static Task ReadStreamAsync(
@@ -265,28 +270,28 @@ namespace GitMind.Utils.OsSystem.Private
 		//}
 
 
-		private static async Task ProcessInputData(
-			Process process, CmdOptions options, CancellationToken ct)
-		{
-			if (options.InputTextAsync == null)
-			{
-				return;
-			}
+		//private static async Task ProcessInputDataAsync(
+		//	Process process, CmdOptions options, CancellationToken ct)
+		//{
+		//	if (options.InputTextAsync == null)
+		//	{
+		//		return;
+		//	}
 
-			using (process.StandardInput)
-			{
-				while (!ct.IsCancellationRequested)
-				{
-					string text = await options.InputTextAsync(ct);
-					if (string.IsNullOrEmpty(text))
-					{
-						break;
-					}
+		//	using (process.StandardInput)
+		//	{
+		//		while (!ct.IsCancellationRequested)
+		//		{
+		//			string text = await options.InputTextAsync(ct);
+		//			if (string.IsNullOrEmpty(text))
+		//			{
+		//				break;
+		//			}
 
-					await process.StandardInput.WriteLineAsync(text);
-				}
-			}
-		}
+		//			await process.StandardInput.WriteLineAsync(text);
+		//		}
+		//	}
+		//}
 
 		private static async Task ReadStreamAsync(
 			StreamReader stream, Action<string> onText, CancellationToken ct)

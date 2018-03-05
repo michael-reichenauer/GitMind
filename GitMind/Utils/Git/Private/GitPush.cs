@@ -8,7 +8,10 @@ namespace GitMind.Utils.Git.Private
 	internal class GitPush : IGitPush
 	{
 		private readonly IGitCmd gitCmd;
-		private static readonly string PushArgs = "push --porcelain";
+		private static readonly string PushArgs =
+			@"-c credential.helper=gitmind push --porcelain";
+		//private static readonly string PushArgs =
+		//	@"push --porcelain";
 
 
 		public GitPush(IGitCmd gitCmd)
@@ -27,6 +30,7 @@ namespace GitMind.Utils.Git.Private
 				CmdOptions options = new CmdOptions
 				{
 					ErrorProgress = text => ErrorProgress(text, cts),
+					//InputText = text => InputText(text, ct)
 				};
 
 				CmdResult2 result = await gitCmd.RunAsync(PushArgs, options, ct);
@@ -37,6 +41,13 @@ namespace GitMind.Utils.Git.Private
 				}
 			}
 
+		}
+
+
+		private string InputText(CancellationToken text, CancellationToken ct)
+		{
+			//await Task.Yield();
+			return "x";
 		}
 
 
