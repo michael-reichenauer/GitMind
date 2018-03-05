@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	internal interface IGitLog
+	public interface IGitLog
 	{
 		Task<IReadOnlyList<LogCommit>> GetAsync(CancellationToken ct);
 	}

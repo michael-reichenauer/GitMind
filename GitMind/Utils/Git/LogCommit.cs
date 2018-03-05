@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace GitMind.Utils.Git
 {
-	internal class LogCommit
+	public class LogCommit
 	{
 		public string Sha { get; }
 		public string Subject { get; }

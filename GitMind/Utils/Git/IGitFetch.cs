@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	internal interface IGitFetch
+	public interface IGitFetch
 	{
 		Task FetchAsync(CancellationToken ct);
 	}

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	internal interface IGitVersion
+	public interface IGitVersion
 	{
 		Task<string> GetAsync(CancellationToken ct);
 	}

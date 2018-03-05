@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	internal interface IGitPush
+	public interface IGitPush
 	{
 		Task PushAsync(CancellationToken ct);
 	}
