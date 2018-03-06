@@ -12,6 +12,9 @@ namespace GitMind.Utils.Git.Private
 		// git config --list --show-origin
 		private static string GitCmdPath => @"C:\Work Files\MinGit\cmd\git.exe";
 
+		private static readonly string CredentialsConfig =
+			@"-c credential.helper=!GitMind.exe";
+
 		private readonly ICmd2 cmd;
 		private readonly WorkingFolderPath workingFolder;
 
@@ -58,6 +61,7 @@ namespace GitMind.Utils.Git.Private
 			string gitArgs, CmdOptions options, CancellationToken ct)
 		{
 			Timing t = Timing.StartNew();
+			gitArgs = $"{CredentialsConfig} {gitArgs}";
 			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, options, ct);
 			Log.Debug($"{t.ElapsedMs}ms: {result}");
 			return result;

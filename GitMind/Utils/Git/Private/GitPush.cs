@@ -8,10 +8,8 @@ namespace GitMind.Utils.Git.Private
 	internal class GitPush : IGitPush
 	{
 		private readonly IGitCmd gitCmd;
-		private static readonly string PushArgs =
-			@"-c credential.helper=gitmind push --porcelain";
-		//private static readonly string PushArgs =
-		//	@"push --porcelain";
+
+		private static readonly string PushArgs = @"push --porcelain";
 
 
 		public GitPush(IGitCmd gitCmd)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -95,8 +96,12 @@ namespace GitMind.Utils.OsSystem.Private
 			process.EnableRaisingEvents = true;
 			IDictionary<string, string> environment = process.StartInfo.Environment;
 
-			string p = @"C:\Temp\git-credential-gitmind\git-credential-gitmind\bin\Debug";
-			environment["Path"] = $"{p};{environment["Path"]}";
+
+			//string p = @"C:\Temp\git-credential-gitmind\git-credential-gitmind\bin\Debug";
+			string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			Log.Debug($"Dir {dir}");
+
+			environment["Path"] = $"{dir};{environment["Path"]}";
 
 			if (!string.IsNullOrWhiteSpace(options.WorkingDirectory))
 			{

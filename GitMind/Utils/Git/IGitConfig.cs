@@ -7,6 +7,7 @@ namespace GitMind.Utils.Git
 {
 	public interface IGitConfig
 	{
-		Task<IReadOnlyDictionary<string, string>> GetAsync(CancellationToken ct);
+		bool TryGet(string name, out GitSetting setting);
+		Task<IReadOnlyList<GitSetting>> GetAsync(CancellationToken ct);
 	}
 }

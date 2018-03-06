@@ -69,7 +69,7 @@ namespace GitMind.Utils.OsSystem
 			}
 			else
 			{
-				int maxRows = 5;
+				int maxRows = 200;
 				string[] rows = text.Split(Eol);
 				if (rows.Length > maxRows)
 				{

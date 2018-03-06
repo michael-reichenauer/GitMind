@@ -15,10 +15,10 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public async Task Test()
 		{
-			string ToText(IReadOnlyDictionary<string, string> c) =>
-				string.Join("\n", c.Select(p => $"{p.Key}={p.Value}"));
+			string ToText(IReadOnlyList<GitSetting> c) =>
+				string.Join("\n", c.Select(p => p.ToStringAll()));
 
-			IReadOnlyDictionary<string, string> config = await gitCmd.GetAsync(ct);
+			IReadOnlyList<GitSetting> config = await gitCmd.GetAsync(ct);
 			Log.Debug($"Config:\n{ToText(config)}");
 		}
 	}
