@@ -71,7 +71,7 @@ namespace GitMind.Utils.Git.Private
 			Timing t = Timing.StartNew();
 
 			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, options, ct);
-			Log.Debug($"{t.ElapsedMs}ms: {result}");
+			Log.Usage($"{t.ElapsedMs}ms: {result.ToStringShort()}");
 			return result;
 		}
 

@@ -57,9 +57,14 @@ namespace GitMind.Utils.OsSystem
 
 		public override string ToString() => $"{Command} {Arguments}{ExitText}{OutputText}{ErrorText}";
 
+		public string ToStringShort() => $"{Command} {Arguments}{ShortExit}";
+
+
 		private string ExitText => ExitCode == 0 ? "" : $"\nExit code: {ExitCode}";
+		private string ShortExit => ExitCode == 0 ? "" : $"\nExit code: {ExitCode}{ErrorText}";
 		private string OutputText => string.IsNullOrEmpty(Output) ? "" : $"\n{Truncate(Output)}";
 		private string ErrorText => string.IsNullOrEmpty(Error) ? "" : $"\nError:\n{Truncate(Error)}";
+
 
 		private static string Truncate(string text)
 		{
