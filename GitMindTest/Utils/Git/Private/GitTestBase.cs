@@ -21,7 +21,7 @@ namespace GitMindTest.Utils.Git.Private
 		public void Setup()
 		{
 			am = new AutoMock()
-				.RegisterNamespaceOf<IGitVersion>()
+				.RegisterNamespaceOf<IGitInfo>()
 				.RegisterNamespaceOf<ICmd2>()
 				.RegisterSingleInstance(new WorkingFolderPath(@"C:\Work Files\GitMind"));
 			resolved = new Lazy<TInterface>(() => am.Resolve<TInterface>());

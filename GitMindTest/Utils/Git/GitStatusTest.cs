@@ -18,7 +18,7 @@ namespace GitMindTest.Utils.Git
 		public async Task Test()
 		{
 			using (AutoMock am = new AutoMock()
-				.RegisterNamespaceOf<IGitVersion>()
+				.RegisterNamespaceOf<IGitInfo>()
 				.RegisterNamespaceOf<ICmd2>()
 				.RegisterSingleInstance(new WorkingFolderPath(@"C:\Work Files\GitMind")))
 			{

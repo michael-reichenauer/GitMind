@@ -4,21 +4,28 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 
 namespace GitMind.Utils.Git.Private
 {
 	internal class GitCredentialManager : IGitCredentialManager
 	{
-		private static readonly string CredentialsMgrPath =
-			@"C:\Work Files\MinGit\mingw64\libexec\git-core\git-credential-manager.exe";
+		private static readonly char[] QuoteChar = "\"".ToCharArray();
+		private string CredentialsMgrPath => Path.Combine(
+				gitInfo.GetGitPathAsync(CancellationToken.None).Result, "git-credential-manager.exe");
 
 		private readonly IGitConfig gitConfig;
+		private readonly IGitInfo gitInfo;
 
 
-		public GitCredentialManager(IGitConfig gitConfig)
+
+		public GitCredentialManager(
+			IGitConfig gitConfig,
+			IGitInfo gitInfo)
 		{
 			this.gitConfig = gitConfig;
+			this.gitInfo = gitInfo;
 		}
 
 
@@ -134,10 +141,13 @@ namespace GitMind.Utils.Git.Private
 			Console.WriteLine(line);
 		}
 
-		private static Process StartCredentialsManager(string argument)
+		private Process StartCredentialsManager(string argument)
 		{
+			string cmd = Quote(CredentialsMgrPath);
+			Log.Debug($"{cmd} {argument}");
+
 			Process process = new Process();
-			process.StartInfo.FileName = CredentialsMgrPath;
+			process.StartInfo.FileName = cmd;
 			process.StartInfo.Arguments = argument;
 			SetProcessOptions(process);
 
@@ -157,6 +167,13 @@ namespace GitMind.Utils.Git.Private
 			process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
 			process.StartInfo.StandardErrorEncoding = Encoding.UTF8;
 			process.EnableRaisingEvents = true;
+		}
+
+		private static string Quote(string text)
+		{
+			text = text.Trim();
+			text = text.Trim(QuoteChar);
+			return $"\"{text}\"";
 		}
 	}
 }
