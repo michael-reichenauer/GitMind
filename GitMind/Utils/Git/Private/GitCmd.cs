@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
+using GitMind.Common.Tracking;
 using GitMind.Utils.OsSystem;
 
 
@@ -71,7 +72,8 @@ namespace GitMind.Utils.Git.Private
 			Timing t = Timing.StartNew();
 
 			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, options, ct);
-			Log.Usage($"{t.ElapsedMs}ms: {result.ToStringShort()}");
+			Log.Debug($"{t.ElapsedMs}ms: {result.ToStringShort()}");
+			Track.Event("git", $"{t.ElapsedMs}ms: {result.ToStringShort()}");
 			return result;
 		}
 
