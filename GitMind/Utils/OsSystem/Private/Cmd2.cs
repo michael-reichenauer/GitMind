@@ -94,14 +94,8 @@ namespace GitMind.Utils.OsSystem.Private
 			process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
 			process.StartInfo.StandardErrorEncoding = Encoding.UTF8;
 			process.EnableRaisingEvents = true;
-			IDictionary<string, string> environment = process.StartInfo.Environment;
-
-
-			//string p = @"C:\Temp\git-credential-gitmind\git-credential-gitmind\bin\Debug";
-			string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-			Log.Debug($"Dir {dir}");
-
-			environment["Path"] = $"{dir};{environment["Path"]}";
+			options.EnvironmentVariables?.Invoke(process.StartInfo.Environment);
+		
 
 			if (!string.IsNullOrWhiteSpace(options.WorkingDirectory))
 			{

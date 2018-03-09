@@ -50,7 +50,7 @@ namespace GitMind.Utils.Git.Private
 			Log.Debug($"Command: {command}");
 
 			string commandRequest = ReadCommandRequestText();
-			Log.Debug($"Input:\n{commandRequest}");
+			// Log.Debug($"Input:\n{commandRequest}");
 
 
 			gitConfig.TryGet("credential.helper", out GitSetting helper);
@@ -75,7 +75,7 @@ namespace GitMind.Utils.Git.Private
 			if (command == "get")
 			{
 				string outputText = ReadCommandResponseText(process);
-				Log.Debug($"Output:\n{outputText}");
+				// Log.Debug($"Output:\n{outputText}");
 
 				WriteCommandResponseText(outputText);
 			}
@@ -130,7 +130,7 @@ namespace GitMind.Utils.Git.Private
 
 		private static void WriteLine(string line)
 		{
-			Log.Debug($"Write line: {line}");
+			// Log.Debug($"Write line: {line}");
 			Console.WriteLine(line);
 		}
 

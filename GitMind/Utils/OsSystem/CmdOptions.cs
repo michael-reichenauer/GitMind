@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 
@@ -15,5 +16,7 @@ namespace GitMind.Utils.OsSystem
 		public Action<string> ErrorLines { get; set; }
 		public bool IsOutputDisabled { get; set; }
 		public bool IsErrortDisabled { get; set; }
+
+		public Action<IDictionary<string, string>> EnvironmentVariables { get; set; }
 	}
 }

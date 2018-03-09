@@ -23,14 +23,10 @@ namespace GitMind.Utils.Git.Private
 
 		public bool TryGet(string name, out GitSetting setting)
 		{
-			string ToText(IReadOnlyList<GitSetting> c) =>
-				string.Join("\n", c.Select(p => p.ToStringAll()));
-
-
 			IReadOnlyList<GitSetting> settings =
 				Task.Run(() => GetAsync(CancellationToken.None)).Result;
 
-			Log.Debug($"Config:\n{ToText(settings)}");
+			// Log.Debug($"Config:\n{ToText(settings)}");
 			setting = settings.FirstOrDefault(s => s.Name == name);
 
 			return setting != null;
@@ -69,5 +65,9 @@ namespace GitMind.Utils.Git.Private
 
 			return settings.Select(s => new GitSetting(s.Key, s.Value)).ToList();
 		}
+
+
+		private string ToText(IReadOnlyList<GitSetting> c) => 
+			string.Join("\n", c.Select(p => p.ToStringAll()));
 	}
 }

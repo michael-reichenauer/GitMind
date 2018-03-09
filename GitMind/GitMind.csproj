@@ -221,6 +221,8 @@
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
+    <Compile Include="Utils\Git\Private\GitEnvironmentService.cs" />
+    <Compile Include="Utils\Git\IGitEnvironmentService.cs" />
     <Compile Include="Utils\Git\Private\GitCredentialManager.cs" />
     <Compile Include="Utils\Git\IGitCredentialManager.cs" />
     <Compile Include="Utils\Git\Private\GitConfig.cs" />
