@@ -6,6 +6,6 @@ namespace GitMind.Utils.Git
 {
 	public interface IGitFetch
 	{
-		Task FetchAsync(CancellationToken ct);
+		Task<bool> FetchAsync(CancellationToken ct);
 	}
 }

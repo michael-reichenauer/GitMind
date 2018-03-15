@@ -18,14 +18,17 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task FetchAsync(CancellationToken ct)
+		public async Task<bool> FetchAsync(CancellationToken ct)
 		{
 			CmdResult2 result = await gitCmd.RunAsync(FetchArgs, ct);
 
 			if (result.ExitCode != 0 && !result.IsCanceled)
 			{
 				Log.Warn($"Failed to fetch: {result}");
+				return false;
 			}
+
+			return false;
 		}
 	}
 }
