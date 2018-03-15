@@ -28,15 +28,16 @@ namespace GitMind.Common.Tracking
 		{
 			if (Settings.Get<Options>().DisableErrorAndUsageReporting)
 			{
-				Log.Info("Disable usage and error reporting");
+				Log.Info("Disabled usage and error reporting");
 				return;
 			}
 
-			Log.Info("Enable usage and error reporting");
+			Log.Info("Enabled usage and error reporting");
 			Tc = new TelemetryClient();
 
 			Tc.InstrumentationKey = GetInstrumentationKey();
 			Tc.Context.User.Id = GetTrackId();
+			SetInternalNodeName();
 			Tc.Context.Cloud.RoleInstance = Tc.Context.User.Id;
 			Tc.Context.User.UserAgent = $"{ProgramPaths.ProgramName}/{ProgramPaths.GetRunningVersion()}";
 			Tc.Context.Session.Id = Guid.NewGuid().ToString();
@@ -55,7 +56,7 @@ namespace GitMind.Common.Tracking
 			{
 				isStarted = true;
 
-				Tc?.TrackEvent("Start-Program");
+				Event("Start-Program");
 			}
 		}
 
@@ -65,7 +66,7 @@ namespace GitMind.Common.Tracking
 			if (isStarted)
 			{
 				isStarted = false;
-				Tc?.TrackEvent("Exit-Program");
+				Event("Exit-Program");
 			}
 
 			Tc?.Flush();
@@ -74,19 +75,36 @@ namespace GitMind.Common.Tracking
 
 		public static void Event(string eventName)
 		{
-			Tc?.TrackEvent(eventName);
+			Event(eventName);
 
+		}
+
+
+		public static void Event(string eventName, string message)
+		{
+			Log.Debug($"{eventName}: {message}");
+
+			if (message != null)
+			{
+				Tc.TrackEvent(eventName, new Dictionary<string, string> { { "Message", message } });
+			}
+			else
+			{
+				Tc?.TrackEvent(eventName);
+			}
 		}
 
 
 		public static void Dependency(
 			string commandName, string target, TimeSpan duration, bool isSuccess)
 		{
+
 			if (Uri.TryCreate(target, UriKind.Absolute, out Uri uri))
 			{
 				target = uri.Host;
 			}
 
+			Log.Debug($"{commandName}, {target}, {duration}, {isSuccess}");
 			Tc?.TrackDependency(target, commandName, DateTimeOffset.Now - duration, duration, isSuccess);
 
 			//Tc?.TrackDependency(
@@ -95,27 +113,34 @@ namespace GitMind.Common.Tracking
 		}
 
 
-		public static void Event(string eventName, string message)
+		public static void Info(string message)
 		{
-			Tc.TrackEvent(eventName, new Dictionary<string, string> { { "Message", message } });
+			Trace(message, SeverityLevel.Information);
 		}
 
 
-		public static void TraceWarn(string message)
+		public static void Warn(string message)
 		{
-			Tc?.TrackTrace(message, SeverityLevel.Warning);
+			Trace(message, SeverityLevel.Warning);
 		}
 
 
-		public static void TraceError(string message)
+		public static void Error(string message)
 		{
-			Tc?.TrackTrace(message, SeverityLevel.Error);
+			Trace(message, SeverityLevel.Error);
 		}
 
+#pragma warning disable CS3001 // Argument type is not CLS-compliant
+		public static void Trace(string message, SeverityLevel level)
+#pragma warning restore CS3001 // Argument type is not CLS-compliant
+		{
+			Log.Debug($"{level}: {message}");
+			Tc?.TrackTrace(message, level);
+		}
 
 		public static void Request(string requestName)
 		{
-
+			Log.Debug($"{requestName}");
 			Tc?.TrackRequest(new RequestTelemetry(
 				requestName, DateTime.Now, TimeSpan.FromMilliseconds(1), "", true));
 		}
@@ -129,12 +154,14 @@ namespace GitMind.Common.Tracking
 
 		public static void Window(string window)
 		{
+			Log.Debug($"{window}");
 			Tc?.TrackPageView(window);
 		}
 
 
 		public static void Exception(Exception e, string msg)
 		{
+			Log.Debug($"{e.GetType()}, {msg}");
 			Tc?.TrackException(e, new Dictionary<string, string> { { "Message", msg } });
 			Tc?.Flush();
 		}
@@ -195,6 +222,7 @@ namespace GitMind.Common.Tracking
 			// Backup track id in registry in case temp file is deleted
 			Registry.SetValue("HKEY_CURRENT_USER\\SOFTWARE\\GitMind", "TrackId", trackId);
 
+			Log.Debug($"Track id: {trackId}");
 			return trackId;
 		}
 
@@ -204,6 +232,17 @@ namespace GitMind.Common.Tracking
 			Assembly assembly = Assembly.GetExecutingAssembly();
 			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 			return fvi.FileVersion;
+		}
+
+
+		private static void SetInternalNodeName()
+		{
+			PropertyInfo internalProperty = typeof(TelemetryContext).GetProperty("Internal",
+				BindingFlags.NonPublic | BindingFlags.Instance);
+
+			InternalContext internalContext = (InternalContext)internalProperty.GetValue(Tc.Context);
+
+			internalContext.NodeName = Tc.Context.User.Id;
 		}
 
 

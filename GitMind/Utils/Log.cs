@@ -93,7 +93,7 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelWarn, msg, memberName, sourceFilePath, sourceLineNumber);
-			Track.TraceWarn($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
+			Track.Warn($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
 		}
 
 
@@ -104,7 +104,7 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelError, msg, memberName, sourceFilePath, sourceLineNumber);
-			Track.TraceError($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
+			Track.Error($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
 		}
 
 		public static void Exception(

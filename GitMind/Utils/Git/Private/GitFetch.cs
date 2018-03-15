@@ -28,7 +28,7 @@ namespace GitMind.Utils.Git.Private
 				return false;
 			}
 
-			return false;
+			return true;
 		}
 	}
 }

@@ -14,6 +14,11 @@ namespace System.Linq
 			}
 		}
 
+		public static string AsString<T1, T2>(this IDictionary<T1, T2> dictionary) =>
+			dictionary == null ? "{}" :
+				"{" + string.Join(",", dictionary.Select(p => $"{p.Key}={p.Value}")) + "}";
+
+
 		public static IReadOnlyList<TSource> AsReadOnlyList<TSource>(this IReadOnlyList<TSource> source)
 		{
 			return source;
