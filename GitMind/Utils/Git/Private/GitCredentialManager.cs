@@ -60,8 +60,10 @@ namespace GitMind.Utils.Git.Private
 			// Log.Debug($"Input:\n{commandRequest}");
 
 
-			gitConfig.TryGet("credential.helper", out GitSetting helper);
-			if (helper == null || helper.Values.All(v => v == "!GitMind.exe"))
+			//gitConfig.TryGet("credential.helper", out GitSetting helper);
+			//Log.Debug($"Helper: '{helper}'");
+
+			//if (helper == null || helper.Values.All(v => v == "!GitMind.exe"))
 			{
 				if (command == "get")
 				{
@@ -73,23 +75,21 @@ namespace GitMind.Utils.Git.Private
 				return;
 			}
 
-			Log.Debug($"Helper: '{helper}'");
+			//Process process = StartCredentialsManager(command);
 
-			Process process = StartCredentialsManager(command);
+			//WriteCommandRequestText(commandRequest, process);
 
-			WriteCommandRequestText(commandRequest, process);
+			//if (command == "get")
+			//{
+			//	string outputText = ReadCommandResponseText(process);
+			//	// Log.Debug($"Output:\n{outputText}");
 
-			if (command == "get")
-			{
-				string outputText = ReadCommandResponseText(process);
-				// Log.Debug($"Output:\n{outputText}");
+			//	WriteCommandResponseText(outputText);
+			//}
 
-				WriteCommandResponseText(outputText);
-			}
-
-			process.WaitForExit();
-			Log.Debug($"Exit code {process.ExitCode}");
-			process.Close();
+			//process.WaitForExit();
+			//Log.Debug($"Exit code {process.ExitCode}");
+			//process.Close();
 		}
 
 

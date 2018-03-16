@@ -18,7 +18,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task PushAsync(CancellationToken ct)
+		public async Task<bool> PushAsync(CancellationToken ct)
 		{
 			using (CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
 			{
@@ -36,9 +36,11 @@ namespace GitMind.Utils.Git.Private
 				if (result.ExitCode != 0 && !result.IsCanceled)
 				{
 					Log.Warn($"Failed to push: {result}");
+					return false;
 				}
 			}
 
+			return true;
 		}
 
 

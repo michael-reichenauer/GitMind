@@ -6,6 +6,6 @@ namespace GitMind.Utils.Git
 {
 	public interface IGitPush
 	{
-		Task PushAsync(CancellationToken ct);
+		Task<bool> PushAsync(CancellationToken ct);
 	}
 }
