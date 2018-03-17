@@ -73,16 +73,12 @@ namespace GitMind.Common.Tracking
 		}
 
 
-		public static void Event(string eventName)
-		{
-			Event(eventName);
-
-		}
+		public static void Event(string eventName) => Event(eventName, null);
 
 
 		public static void Event(string eventName, string message)
 		{
-			Log.Debug($"{eventName}: {message}");
+			Log.Info($"{eventName}: {message}");
 
 			if (message != null)
 			{
@@ -104,7 +100,7 @@ namespace GitMind.Common.Tracking
 				target = uri.Host;
 			}
 
-			Log.Debug($"{commandName}, {target}, {duration}, {isSuccess}");
+			Log.Info($"{commandName}, {target}, {duration}, {isSuccess}");
 			Tc?.TrackDependency(target, commandName, DateTimeOffset.Now - duration, duration, isSuccess);
 
 			//Tc?.TrackDependency(
@@ -140,7 +136,7 @@ namespace GitMind.Common.Tracking
 
 		public static void Request(string requestName)
 		{
-			Log.Debug($"{requestName}");
+			Log.Info($"{requestName}");
 			Tc?.TrackRequest(new RequestTelemetry(
 				requestName, DateTime.Now, TimeSpan.FromMilliseconds(1), "", true));
 		}
@@ -161,7 +157,7 @@ namespace GitMind.Common.Tracking
 
 		public static void Exception(Exception e, string msg)
 		{
-			Log.Debug($"{e.GetType()}, {msg}");
+			Log.Info($"{e.GetType()}, {msg}");
 			Tc?.TrackException(e, new Dictionary<string, string> { { "Message", msg } });
 			Tc?.Flush();
 		}
@@ -222,7 +218,7 @@ namespace GitMind.Common.Tracking
 			// Backup track id in registry in case temp file is deleted
 			Registry.SetValue("HKEY_CURRENT_USER\\SOFTWARE\\GitMind", "TrackId", trackId);
 
-			Log.Debug($"Track id: {trackId}");
+			Log.Info($"Track id: {trackId}");
 			return trackId;
 		}
 
