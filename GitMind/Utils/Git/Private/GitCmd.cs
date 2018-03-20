@@ -13,13 +13,7 @@ namespace GitMind.Utils.Git.Private
 	internal class GitCmd : IGitCmd
 	{
 		// git config --list --show-origin
-		private static readonly string CredentialsConfig =
-			@"-c credential.helper=!GitMind.exe";
-
-		//'!f() { sleep 1; echo "username=${GIT_USER}\npassword=${GIT_PASSWORD}"; }; f'
-
-		//private static readonly string CredentialsConfig =
-		//	@"-c credential.helper='!echo ""username=michael.reichenauer@gmail.com\npassword=pass""'";
+		private static readonly string CredentialsConfig = @"-c credential.helper=!GitMind.exe";
 
 		private readonly ICmd2 cmd;
 		private readonly IGitEnvironmentService gitEnvironmentService;
