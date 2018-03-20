@@ -54,7 +54,7 @@ namespace GitMind.Utils.Git.Private
 		private static void ErrorProgress(string text, CancellationTokenSource cts)
 		{
 			Log.Debug($"Push error: {text}");
-			if (text.Contains("ctrl+c"))
+			if (text.Contains("no-gitmind-pswd-prompt"))
 			{
 				Log.Warn($"Login failed, {text}");
 				cts.Cancel();

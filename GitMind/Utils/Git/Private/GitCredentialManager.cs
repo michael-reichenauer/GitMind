@@ -51,45 +51,56 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+
 		private void HandleCall(string[] args)
 		{
 			string command = args[1];
 			Log.Debug($"Command: {command}");
 
 			string commandRequest = ReadCommandRequestText();
-			// Log.Debug($"Input:\n{commandRequest}");
 
 
-			//gitConfig.TryGet("credential.helper", out GitSetting helper);
-			//Log.Debug($"Helper: '{helper}'");
+			gitConfig.TryGet("credential.helper", out GitSetting helper);
+			Log.Debug($"Helper: '{helper}'");
 
-			//if (helper == null || helper.Values.All(v => v == "!GitMind.exe"))
+			if (helper == null || helper.Values.All(v => v == "!GitMind.exe"))
 			{
+				// No configured credential manager, lest start builtin git crededential manager
+				Log.Debug("No configured credential manager, call git provided manager");
+				Process process = StartCredentialsManager(command);
+
+				WriteCommandRequestText(commandRequest, process);
+
 				if (command == "get")
 				{
-					WriteLine($"path=");
-					WriteLine($"username=");
-					WriteLine($"password=");
+					string outputText = ReadCommandResponseText(process);
+					// Log.Debug($"Output:\n{outputText}");
+
+					WriteCommandResponseText(outputText);
 				}
+
+				process.WaitForExit();
+				Log.Debug($"Exit code {process.ExitCode}");
+				process.Close();
 
 				return;
 			}
-
-			//Process process = StartCredentialsManager(command);
-
-			//WriteCommandRequestText(commandRequest, process);
-
-			//if (command == "get")
-			//{
-			//	string outputText = ReadCommandResponseText(process);
-			//	// Log.Debug($"Output:\n{outputText}");
-
-			//	WriteCommandResponseText(outputText);
-			//}
-
-			//process.WaitForExit();
-			//Log.Debug($"Exit code {process.ExitCode}");
-			//process.Close();
+			else
+			{
+				// None of the configured credential managers provided credentials
+				Log.Debug($"None off the cinfigured managers could provide credentials");
+				if (command == "get")
+				{
+					Log.Debug($"Input for get:\n{commandRequest}");
+					Log.Debug($"Return no credentials");
+					WriteLine($"username=");
+					Write($"password=");
+				}
+				else
+				{
+					Log.Debug($"Input:\n{commandRequest}");
+				}
+			}
 		}
 
 
@@ -108,6 +119,7 @@ namespace GitMind.Utils.Git.Private
 			using (StreamWriter outputStream = new StreamWriter(Console.OpenStandardOutput()))
 			{
 				outputStream.Write(outputText);
+				// Log.Debug($"Wrote response to git:\n{outputText}");
 			}
 		}
 
@@ -117,7 +129,7 @@ namespace GitMind.Utils.Git.Private
 			if (!string.IsNullOrEmpty(inputText))
 			{
 				process.StandardInput.Write(inputText);
-				Log.Debug("Wrote inout text to git-credential-manager");
+				//Log.Debug($"Wrote request to credential manager:\n{inputText}");
 			}
 		}
 
@@ -133,6 +145,12 @@ namespace GitMind.Utils.Git.Private
 			}
 
 			return inputText;
+		}
+
+		private static void Write(string text)
+		{
+			// Log.Debug($"Write: {text}");
+			Console.Write(text);
 		}
 
 		private static void WriteLine(string line)
