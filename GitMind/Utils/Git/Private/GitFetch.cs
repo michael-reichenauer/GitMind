@@ -7,7 +7,7 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitFetch : IGitFetch
 	{
-		private static readonly string FetchArgs = "fetch -p -v --progress";
+		private static readonly string FetchArgs = "fetch --prune --tags --progress";
 
 		private readonly IGitCmd gitCmd;
 
