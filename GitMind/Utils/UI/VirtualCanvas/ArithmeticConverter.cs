@@ -32,7 +32,7 @@ namespace GitMind.Utils.UI.VirtualCanvas
 		/// Applies a unary arithmetic operator to a numeric value and returns the result.
 		/// </summary>
 		/// <param name="value">Input value that is convertable via 
-		/// <see cref="System.Convert.ToDouble"/>.</param>
+		/// <see cref="GitMind.Utils.System.Convert.ToDouble"/>.</param>
 		/// <param name="targetType">Ignored; the target type is always <see cref="Double"/>.</param>
 		/// <param name="parameter">The unary arithmetic operator(s) to apply to the value.  Supported 
 		/// operators are + (Math.Abs) and - (Negate).</param>
@@ -62,7 +62,7 @@ namespace GitMind.Utils.UI.VirtualCanvas
 		/// the result. 
 		/// </summary>
 		/// <param name="values">Input values that are convertable via 
-		/// <see cref="System.Convert.ToDouble"/>.</param>
+		/// <see cref="GitMind.Utils.System.Convert.ToDouble"/>.</param>
 		/// <param name="targetType">Ignored; the target type is always <see cref="Double"/>.</param>
 		/// <param name="parameter">The binary arithmetic operator(s) to apply to the values.  
 		/// Supported operators are +, -, *, /, %, and ^.  The number of operators must be exactly one 

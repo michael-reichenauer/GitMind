@@ -4,6 +4,7 @@ using System.Reflection;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using Microsoft.Win32;
 
 
@@ -34,6 +35,12 @@ namespace GitMind
 
 			// Activate dependency injection support
 			dependencyInjection.RegisterDependencyInjectionTypes();
+
+			var credentialManager = dependencyInjection.Resolve<IGitCredentialManager>();
+			if (credentialManager.TryHandleCall())
+			{
+				return;  // The credential manager handled this call
+			}
 
 			// Start application
 			App application = dependencyInjection.Resolve<App>();

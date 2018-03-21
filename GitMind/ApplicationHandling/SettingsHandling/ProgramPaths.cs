@@ -99,7 +99,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 
 		public static string GetCurrentInstancePath()
 		{
-			return Assembly.GetEntryAssembly().Location;
+			return Assembly.GetEntryAssembly()?.Location;
 		}
 
 
@@ -176,12 +176,12 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 					}
 
 					return GetVersion(installFilePath);
-				}				
+				}
 			}
 			catch (Exception)
 			{
 				return new Version(0, 0, 0, 0);
-			}			
+			}
 		}
 
 		public static Version GetVersion(string path)

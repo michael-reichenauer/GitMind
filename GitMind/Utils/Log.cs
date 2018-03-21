@@ -93,7 +93,7 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelWarn, msg, memberName, sourceFilePath, sourceLineNumber);
-			Track.TraceWarn($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
+			Track.Warn($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
 		}
 
 
@@ -104,12 +104,13 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelError, msg, memberName, sourceFilePath, sourceLineNumber);
-			Track.TraceError($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
+			Track.Error($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
 		}
 
 		public static void Exception(
 			Exception e,
 			string msg,
+			EofParameters eof = null,
 			[CallerMemberName] string memberName = "",
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
@@ -117,6 +118,19 @@ namespace GitMind.Utils
 			Write(LevelError, $"{msg}\n{e}", memberName, sourceFilePath, sourceLineNumber);
 
 			string message = $"{sourceFilePath}-{memberName}({sourceLineNumber}) - {e.Message}, {msg}";
+			Track.Exception(e, message);
+		}
+
+		public static void Exception(
+			Exception e,
+			EofParameters eof = null,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0)
+		{
+			Write(LevelError, $"{e}", memberName, sourceFilePath, sourceLineNumber);
+
+			string message = $"{sourceFilePath}-{memberName}({sourceLineNumber}) - {e.Message}";
 			Track.Exception(e, message);
 		}
 

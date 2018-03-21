@@ -54,5 +54,7 @@ using System.Windows;
 
 [assembly: InternalsVisibleTo("GitMindTest")]
 
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+
 [assembly: CLSCompliant(true)]
 
