@@ -20,8 +20,7 @@ namespace GitMind.Utils.Git
 
 		public static implicit operator string(GitSetting setting) => setting.Value;
 
-		public override string ToString() => $"{Name}={Value} ({Values.Count})";
-		public string ToStringAll() => Values.Count == 1 ? $"{Name}={Value}" :
+		public override string ToString() => Values.Count == 1 ? $"{Name}={Value}" :
 			$"{Name} ({Values.Count}):\n" + string.Join("\n", Values.Select(v => $"    {Name}={v}"));
 	}
 }

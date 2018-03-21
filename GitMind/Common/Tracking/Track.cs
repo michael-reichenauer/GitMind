@@ -127,10 +127,10 @@ namespace GitMind.Common.Tracking
 		}
 
 #pragma warning disable CS3001 // Argument type is not CLS-compliant
-		public static void Trace(string message, SeverityLevel level)
+		private static void Trace(string message, SeverityLevel level)
 #pragma warning restore CS3001 // Argument type is not CLS-compliant
 		{
-			Log.Debug($"{level}: {message}");
+			Log.Info($"{level}: {message}");
 			Tc?.TrackTrace(message, level);
 		}
 
@@ -150,7 +150,7 @@ namespace GitMind.Common.Tracking
 
 		public static void Window(string window)
 		{
-			Log.Debug($"{window}");
+			Log.Info($"{window}");
 			Tc?.TrackPageView(window);
 		}
 

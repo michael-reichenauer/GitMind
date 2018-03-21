@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using GitMind.Common.Tracking;
 
 
 namespace GitMind.Utils.Git.Private
@@ -61,7 +62,7 @@ namespace GitMind.Utils.Git.Private
 
 
 			gitConfig.TryGet("credential.helper", out GitSetting helper);
-			Log.Debug($"Helper: '{helper}'");
+			Track.Info($"credential.helper: '{helper}'");
 
 			if (helper == null || helper.Values.All(v => v == "!GitMind.exe"))
 			{
@@ -88,7 +89,7 @@ namespace GitMind.Utils.Git.Private
 			else
 			{
 				// None of the configured credential managers provided credentials
-				Log.Debug($"None off the cinfigured managers could provide credentials");
+				Log.Debug($"None off the configured managers could provide credentials");
 				if (command == "get")
 				{
 					Log.Debug($"Input for get:\n{commandRequest}");
@@ -98,7 +99,7 @@ namespace GitMind.Utils.Git.Private
 				}
 				else
 				{
-					Log.Debug($"Input:\n{commandRequest}");
+					// Log.Debug($"Input:\n{commandRequest}");
 				}
 			}
 		}

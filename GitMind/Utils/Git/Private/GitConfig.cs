@@ -67,7 +67,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private string ToText(IReadOnlyList<GitSetting> c) => 
-			string.Join("\n", c.Select(p => p.ToStringAll()));
+		private string ToText(IReadOnlyList<GitSetting> c) =>
+			string.Join("\n", c.Select(p => p.ToString()));
 	}
 }

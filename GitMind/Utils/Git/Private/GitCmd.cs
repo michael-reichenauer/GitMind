@@ -69,7 +69,7 @@ namespace GitMind.Utils.Git.Private
 			gitArgs = $"{CredentialsConfig} {gitArgs}";
 
 			Timing t = Timing.StartNew();
-			Log.Debug($"Run: {GitCmdPath} {gitArgs}");
+			Log.Debug($"Runing: {GitCmdPath} {gitArgs}");
 			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, options, ct);
 			Log.Debug($"{t.ElapsedMs}ms: {result}");
 			Track.Event("gitCmd", $"{t.ElapsedMs}ms: {result.ToStringShort()}");

@@ -63,7 +63,8 @@ namespace GitMind.Utils.OsSystem
 		private string ExitText => ExitCode == 0 ? "" : $"\nExit code: {ExitCode}";
 		private string ShortExit => ExitCode == 0 ? "" : $"\nExit code: {ExitCode}{ErrorText}";
 		private string OutputText => string.IsNullOrEmpty(Output) ? "" : $"\n{Truncate(Output)}";
-		private string ErrorText => string.IsNullOrEmpty(Error) ? "" : $"\nError:\n{Truncate(Error)}";
+		private string ErrorText => string.IsNullOrEmpty(Error) ? "" :
+				ExitCode == 0 ? $"\nProgress:\n{Truncate(Error)}" : $"\nError:\n{Truncate(Error)}";
 
 
 		private static string Truncate(string text)
