@@ -22,7 +22,7 @@ namespace GitMindTest.Utils.Git.Private
 			{
 				IGitCmd gitCmd = am.Resolve<IGitCmd>();
 
-				CmdResult2 result = await gitCmd.RunAsync("version", ct);
+				GitResult result = await gitCmd.RunAsync("version", ct);
 
 				Assert.AreEqual(0, result.ExitCode);
 				Assert.That(result.Output, Is.StringMatching(@"git version \d\.\d+.*windows"));

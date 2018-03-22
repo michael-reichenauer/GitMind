@@ -36,7 +36,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task GetAsync(Action<LogCommit> commits, CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.RunAsync(GitLogArgs, line => commits(Parse(line)), ct);
+			GitResult result = await gitCmd.RunAsync(GitLogArgs, line => commits(Parse(line)), ct);
 
 			result.ThrowIfError("Failed to get log");
 		}

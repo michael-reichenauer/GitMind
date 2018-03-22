@@ -25,13 +25,13 @@ namespace GitMind.Utils.Git.Private
 				ct = cts.Token;
 
 				// In case login failes, we need to detect that 
-				CmdOptions options = new CmdOptions
+				GitOptions options = new GitOptions
 				{
 					ErrorProgress = text => ErrorProgress(text, cts),
 					//InputText = text => InputText(text, ct)
 				};
 
-				CmdResult2 result = await gitCmd.RunAsync(PushArgs, options, ct);
+				GitResult result = await gitCmd.RunAsync(PushArgs, options, ct);
 
 				if (result.ExitCode != 0 && !result.IsCanceled)
 				{

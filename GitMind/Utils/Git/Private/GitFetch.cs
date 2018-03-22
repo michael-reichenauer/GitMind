@@ -20,7 +20,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<bool> FetchAsync(CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.RunAsync(FetchArgs, ct);
+			GitResult result = await gitCmd.RunAsync(FetchArgs, ct);
 
 			if (result.ExitCode != 0 && !result.IsCanceled)
 			{

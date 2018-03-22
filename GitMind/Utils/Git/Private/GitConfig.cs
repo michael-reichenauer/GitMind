@@ -35,7 +35,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<IReadOnlyList<GitSetting>> GetAsync(CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.RunAsync(ConfigListArgs, ct);
+			GitResult result = await gitCmd.RunAsync(ConfigListArgs, ct);
 			result.ThrowIfError("Failed to get config list");
 
 			Dictionary<string, List<string>> settings = new Dictionary<string, List<string>>();

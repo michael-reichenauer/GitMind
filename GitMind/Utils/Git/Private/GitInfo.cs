@@ -18,7 +18,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<string> GetGitPathAsync(CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.RunAsync("--exec-path", ct);
+			GitResult result = await gitCmd.RunAsync("--exec-path", ct);
 
 			if (result.ExitCode != 0 && !result.IsCanceled)
 			{
@@ -31,7 +31,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<string> GetVersionAsync(CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.RunAsync("version", ct);
+			GitResult result = await gitCmd.RunAsync("version", ct);
 
 			if (result.ExitCode != 0 && !result.IsCanceled)
 			{

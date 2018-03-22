@@ -34,23 +34,23 @@ namespace GitMind.Utils.Git.Private
 		private string GitCmdPath => gitEnvironmentService.GetGitCmdPath();
 
 
-		public async Task<CmdResult2> RunAsync(
-			string gitArgs, CmdOptions options, CancellationToken ct)
+		public async Task<GitResult> RunAsync(
+			string gitArgs, GitOptions options, CancellationToken ct)
 		{
 			return await CmdAsync(gitArgs, options, ct);
 		}
 
 
-		public async Task<CmdResult2> RunAsync(string gitArgs, CancellationToken ct)
+		public async Task<GitResult> RunAsync(string gitArgs, CancellationToken ct)
 		{
-			return await CmdAsync(gitArgs, new CmdOptions(), ct);
+			return await CmdAsync(gitArgs, new GitOptions(), ct);
 		}
 
 
-		public async Task<CmdResult2> RunAsync(
+		public async Task<GitResult> RunAsync(
 			string gitArgs, Action<string> outputLines, CancellationToken ct)
 		{
-			CmdOptions options = new CmdOptions
+			GitOptions options = new GitOptions
 			{
 				OutputLines = outputLines,
 				IsOutputDisabled = true,
@@ -60,8 +60,8 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private async Task<CmdResult2> CmdAsync(
-			string gitArgs, CmdOptions options, CancellationToken ct)
+		private async Task<GitResult> CmdAsync(
+			string gitArgs, GitOptions options, CancellationToken ct)
 		{
 			AdjustOptions(options);
 
@@ -70,7 +70,8 @@ namespace GitMind.Utils.Git.Private
 
 			Timing t = Timing.StartNew();
 			Log.Debug($"Runing: {GitCmdPath} {gitArgs}");
-			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, options, ct);
+			CmdOptions cmdOptions = ToCmdOptions(options);
+			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, cmdOptions, ct);
 			Log.Debug($"{t.ElapsedMs}ms: {result}");
 			Track.Event("gitCmd", $"{t.ElapsedMs}ms: {result.ToStringShort()}");
 			if (result.ExitCode != 0)
@@ -78,11 +79,11 @@ namespace GitMind.Utils.Git.Private
 				Log.Warn($"Exit: {result.ExitCode}, Error: {result.Error}");
 			}
 
-			return result;
+			return new GitResult(result);
 		}
 
 
-		private void AdjustOptions(CmdOptions options)
+		private void AdjustOptions(GitOptions options)
 		{
 			options.WorkingDirectory = options.WorkingDirectory ?? workingFolder;
 
@@ -95,5 +96,18 @@ namespace GitMind.Utils.Git.Private
 				environment["GIT_ASKPASS"] = "no-gitmind-pswd-prompt";
 			};
 		}
+
+
+		private static CmdOptions ToCmdOptions(GitOptions options) => new CmdOptions()
+		{
+			InputText = options.InputText,
+			OutputLines = options.OutputLines,
+			ErrorLines = options.ErrorLines,
+			IsErrortDisabled = options.IsErrortDisabled,
+			EnvironmentVariables = options.EnvironmentVariables,
+			WorkingDirectory = options.WorkingDirectory,
+			IsOutputDisabled = options.IsOutputDisabled,
+			ErrorProgress = options.ErrorProgress
+		};
 	}
 }
