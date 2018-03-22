@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -6,7 +7,9 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitFetch : IGitFetch
 	{
-		private static readonly string FetchArgs = "fetch --prune --tags --progress";
+		private static readonly string FetchArgs = "fetch --prune --tags --progress origin";
+		private static readonly string FetchRefsArgs = "fetch --progress origin";
+
 
 		private readonly IGitCmd gitCmd;
 
@@ -17,9 +20,16 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<GitResult> FetchAsync(CancellationToken ct)
+		public async Task<GitResult> FetchAsync(CancellationToken ct) => 
+			await gitCmd.RunAsync(FetchArgs, ct);
+
+
+		public async Task<GitResult> FetchRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
 		{
-			return await gitCmd.RunAsync(FetchArgs, ct);
+			string refsText = string.Join(" ", refspecs);
+			string fetchRefsArgs = $"{FetchRefsArgs} {refsText}";
+
+			return await gitCmd.RunAsync(fetchRefsArgs, ct);
 		}
 	}
 }

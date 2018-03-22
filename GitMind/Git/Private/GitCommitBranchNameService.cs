@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.GitModel.Private;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.Git.Private
@@ -22,18 +24,21 @@ namespace GitMind.Git.Private
 		private readonly IRepoCaller repoCaller;
 		private readonly Lazy<IRepositoryMgr> repositoryMgr;
 		private readonly IGitNetworkService gitNetworkService;
+		private readonly IGitFetch gitFetch;
 
 
 		public GitCommitBranchNameService(
 			WorkingFolder workingFolder,
 			IRepoCaller repoCaller,
 			Lazy<IRepositoryMgr> repositoryMgr,
-			IGitNetworkService gitNetworkService)
+			IGitNetworkService gitNetworkService,
+			IGitFetch gitFetch)
 		{
 			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
 			this.repositoryMgr = repositoryMgr;
 			this.gitNetworkService = gitNetworkService;
+			this.gitFetch = gitFetch;
 		}
 
 
@@ -223,7 +228,7 @@ namespace GitMind.Git.Private
 				$"+refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
 			};
 
-			return await gitNetworkService.FetchRefsAsync(noteRefs);
+			return (await gitFetch.FetchRefsAsync(noteRefs, CancellationToken.None)).AsR();
 		}
 
 
@@ -236,7 +241,7 @@ namespace GitMind.Git.Private
 				$"+refs/notes/{nameSpace}:refs/notes/{nameSpace}"
 			};
 
-			return await gitNetworkService.FetchRefsAsync(noteRefs);
+			return (await gitFetch.FetchRefsAsync(noteRefs, CancellationToken.None)).AsR();
 		}
 
 

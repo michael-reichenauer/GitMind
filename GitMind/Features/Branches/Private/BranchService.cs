@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Commits;
@@ -153,7 +154,8 @@ namespace GitMind.Features.Branches.Private
 				else
 				{
 					Log.Debug($"Update branch {branch.Name}");
-					result = await gitNetworkService.FetchBranchAsync(branch.Name);
+					string[] refspecs = { $"{branch.Name}:{branch.Name}" };
+					result = (await gitFetch.FetchRefsAsync(refspecs, CancellationToken.None)).AsR();
 				}
 
 				if (result.IsFaulted)

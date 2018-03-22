@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Remote;
 using GitMind.Features.StatusHandling;
-using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -89,7 +87,7 @@ namespace GitMind.GitModel.Private
 				repository = await GetFreshRepositoryAsync(workingFolder, null);
 			}
 
-			Repository = repository.Value;			
+			Repository = repository.Value;
 		}
 
 
@@ -129,7 +127,7 @@ namespace GitMind.GitModel.Private
 			IReadOnlyList<string> repoIds = await repoIdsTask;
 
 			if (Repository.Status.IsSame(status)
-			    && Repository.MRepository.RepositoryIds.SequenceEqual(repoIds))
+					&& Repository.MRepository.RepositoryIds.SequenceEqual(repoIds))
 			{
 				Log.Debug("Repository has not changed after command");
 				return;
@@ -198,7 +196,7 @@ namespace GitMind.GitModel.Private
 
 		private async void OnRepoChanged(IReadOnlyList<string> repoIds)
 		{
-			if (Repository?.MRepository?.RepositoryIds.SequenceEqual(repoIds) ?? true) 
+			if (Repository?.MRepository?.RepositoryIds.SequenceEqual(repoIds) ?? true)
 			{
 				Log.Debug("Same repo");
 				return;
@@ -232,7 +230,7 @@ namespace GitMind.GitModel.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, "Error handling status change");
-			}			
+			}
 		}
 
 
@@ -340,7 +338,7 @@ namespace GitMind.GitModel.Private
 			}
 			catch (Exception e)
 			{
-				Log.Exception(e, "Failed to read cached repository");		
+				Log.Exception(e, "Failed to read cached repository");
 				return e;
 			}
 			finally

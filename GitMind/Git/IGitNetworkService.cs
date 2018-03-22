@@ -9,9 +9,9 @@ namespace GitMind.Git
 	{
 		//Task<R> FetchAsync();
 
-		Task<R> FetchBranchAsync(BranchName branchName);
+		// Task<R> FetchBranchAsync(BranchName branchName);
 
-		Task<R> FetchRefsAsync(IEnumerable<string> refspecs);
+		//Task<R> FetchRefsAsync(IEnumerable<string> refspecs);
 
 		Task<R> PushCurrentBranchAsync();
 

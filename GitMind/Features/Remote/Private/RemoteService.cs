@@ -113,8 +113,8 @@ namespace GitMind.Features.Remote.Private
 				foreach (Branch branch in updatableBranches)
 				{
 					progress.SetText($"Updating branch {branch.Name} ...");
-
-					await gitNetworkService.FetchBranchAsync(branch.Name);
+					string[] refspecs = { $"{branch.Name}:{branch.Name}" };
+					await gitFetch.FetchRefsAsync(refspecs, CancellationToken.None);
 				}
 
 				progress.SetText("Updating all branches ...");

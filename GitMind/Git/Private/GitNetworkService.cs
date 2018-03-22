@@ -31,107 +31,107 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> FetchAsync()
-		{
-			FetchOptions fetchOptions = GetFetchOptions(
-				new FetchOptions { Prune = true, TagFetchMode = TagFetchMode.All });
+		//public Task<R> FetchAsync()
+		//{
+		//	FetchOptions fetchOptions = GetFetchOptions(
+		//		new FetchOptions { Prune = true, TagFetchMode = TagFetchMode.All });
 
-			Log.Debug("Fetch all ...");
-			return repoCaller.UseRepoAsync(FetchTimeout, repo =>
-			{
-				Timing timing = new Timing();
-				string remoteUrl = "";
-				try
-				{
-					if (!HasRemote(repo))
-					{
-						Log.Debug("No 'origin' remote, skipping fetch");
-						return;
-					}
+		//	Log.Debug("Fetch all ...");
+		//	return repoCaller.UseRepoAsync(FetchTimeout, repo =>
+		//	{
+		//		Timing timing = new Timing();
+		//		string remoteUrl = "";
+		//		try
+		//		{
+		//			if (!HasRemote(repo))
+		//			{
+		//				Log.Debug("No 'origin' remote, skipping fetch");
+		//				return;
+		//			}
 
-					remoteUrl = Remote(repo).Url;
-					repo.Fetch(Origin, fetchOptions);
-					credentialHandler.SetConfirm(true);
-					Track.Dependency("Fetch", remoteUrl, timing.Elapsed, true);
-				}
-				catch (NoCredentialException e)
-				{
-					Log.Debug("Canceled enter credentials");
-					credentialHandler.SetConfirm(false);
-					Log.Exception(e, "");
-					Track.Dependency("Fetch", remoteUrl, timing.Elapsed, false);
-				}
-				catch (Exception e)
-				{
-					if (IsInvalidProtocol(e))
-					{
-						return;
-					}
+		//			remoteUrl = Remote(repo).Url;
+		//			repo.Fetch(Origin, fetchOptions);
+		//			credentialHandler.SetConfirm(true);
+		//			Track.Dependency("Fetch", remoteUrl, timing.Elapsed, true);
+		//		}
+		//		catch (NoCredentialException e)
+		//		{
+		//			Log.Debug("Canceled enter credentials");
+		//			credentialHandler.SetConfirm(false);
+		//			Log.Exception(e, "");
+		//			Track.Dependency("Fetch", remoteUrl, timing.Elapsed, false);
+		//		}
+		//		catch (Exception e)
+		//		{
+		//			if (IsInvalidProtocol(e))
+		//			{
+		//				return;
+		//			}
 
-					Log.Exception(e, "");
-					credentialHandler.SetConfirm(false);
-					Track.Dependency("Fetch", remoteUrl, timing.Elapsed, false);
-					throw;
-				}
-			});
-		}
-
-
-		public Task<R> FetchBranchAsync(BranchName branchName)
-		{
-			Log.Debug($"Fetch branch {branchName}...");
-
-			string[] refspecs = { $"{branchName}:{branchName}" };
-
-			return FetchRefsAsync(refspecs);
-		}
+		//			Log.Exception(e, "");
+		//			credentialHandler.SetConfirm(false);
+		//			Track.Dependency("Fetch", remoteUrl, timing.Elapsed, false);
+		//			throw;
+		//		}
+		//	});
+		//}
 
 
-		public Task<R> FetchRefsAsync(IEnumerable<string> refspecs)
-		{
-			FetchOptions fetchOptions = GetFetchOptions(new FetchOptions());
-			string refsText = string.Join(",", refspecs);
-			Log.Debug($"Fetch refs {refsText} ...");
+		//public Task<R> FetchBranchAsync(BranchName branchName)
+		//{
+		//	Log.Debug($"Fetch branch {branchName}...");
 
-			return repoCaller.UseRepoAsync(repo =>
-			{
-				Timing timing = new Timing();
-				string remoteUrl = "";
+		//	string[] refspecs = { $"{branchName}:{branchName}" };
 
-				try
-				{
-					if (!HasRemote(repo))
-					{
-						Log.Debug("No 'origin' remote, skipping fetch");
-						return;
-					};
+		//	return FetchRefsAsync(refspecs);
+		//}
 
-					Remote remote = Remote(repo);
-					remoteUrl = remote.Url;
-					repo.Network.Fetch(remote, refspecs, fetchOptions);
-					Track.Dependency("FetchRefs", remoteUrl, timing.Elapsed, true);
-				}
-				catch (NoCredentialException e)
-				{
-					Log.Debug("Canceled enter credentials");
-					Log.Exception(e, "");
-					credentialHandler.SetConfirm(false);
-					Track.Dependency("FetchRefs", remoteUrl, timing.Elapsed, false);
-				}
-				catch (Exception e)
-				{
-					if (IsInvalidProtocol(e))
-					{
-						return;
-					}
 
-					Log.Exception(e, "");
-					credentialHandler.SetConfirm(false);
-					Track.Dependency("FetchRefs", remoteUrl, timing.Elapsed, false);
-					throw;
-				}
-			});
-		}
+		//public Task<R> FetchRefsAsync(IEnumerable<string> refspecs)
+		//{
+		//	FetchOptions fetchOptions = GetFetchOptions(new FetchOptions());
+		//	string refsText = string.Join(",", refspecs);
+		//	Log.Debug($"Fetch refs {refsText} ...");
+
+		//	return repoCaller.UseRepoAsync(repo =>
+		//	{
+		//		Timing timing = new Timing();
+		//		string remoteUrl = "";
+
+		//		try
+		//		{
+		//			if (!HasRemote(repo))
+		//			{
+		//				Log.Debug("No 'origin' remote, skipping fetch");
+		//				return;
+		//			};
+
+		//			Remote remote = Remote(repo);
+		//			remoteUrl = remote.Url;
+		//			repo.Network.Fetch(remote, refspecs, fetchOptions);
+		//			Track.Dependency("FetchRefs", remoteUrl, timing.Elapsed, true);
+		//		}
+		//		catch (NoCredentialException e)
+		//		{
+		//			Log.Debug("Canceled enter credentials");
+		//			Log.Exception(e, "");
+		//			credentialHandler.SetConfirm(false);
+		//			Track.Dependency("FetchRefs", remoteUrl, timing.Elapsed, false);
+		//		}
+		//		catch (Exception e)
+		//		{
+		//			if (IsInvalidProtocol(e))
+		//			{
+		//				return;
+		//			}
+
+		//			Log.Exception(e, "");
+		//			credentialHandler.SetConfirm(false);
+		//			Track.Dependency("FetchRefs", remoteUrl, timing.Elapsed, false);
+		//			throw;
+		//		}
+		//	});
+		//}
 
 
 		public Task<R> PushBranchAsync(BranchName branchName)
