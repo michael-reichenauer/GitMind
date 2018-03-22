@@ -1,11 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Utils.Git.Private;
 
 
 namespace GitMind.Utils.Git
 {
 	public interface IGitFetch
 	{
-		Task<bool> FetchAsync(CancellationToken ct);
+		Task<GitResult> FetchAsync(CancellationToken ct);
 	}
 }

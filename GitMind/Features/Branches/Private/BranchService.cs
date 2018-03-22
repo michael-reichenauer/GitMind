@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
@@ -9,6 +10,7 @@ using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.Features.Branches.Private
@@ -20,6 +22,7 @@ namespace GitMind.Features.Branches.Private
 	{
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitNetworkService gitNetworkService;
+		private readonly IGitFetch gitFetch;
 		private readonly ICommitsService commitsService;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
@@ -32,6 +35,7 @@ namespace GitMind.Features.Branches.Private
 		public BranchService(
 			IGitBranchService gitBranchService,
 			IGitNetworkService gitNetworkService,
+			IGitFetch gitFetch,
 			ICommitsService commitsService,
 			IProgressService progressService,
 			IMessage message,
@@ -42,6 +46,7 @@ namespace GitMind.Features.Branches.Private
 		{
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
+			this.gitFetch = gitFetch;
 			this.commitsService = commitsService;
 			this.progress = progressService;
 			this.message = message;
@@ -134,13 +139,13 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Updating branch {branch.Name} ..."))
 			{
-				R result;
+				R result = R.NoValue;
 				if (branch == branch.Repository.CurrentBranch ||
 					branch.IsMainPart && branch.LocalSubBranch == branch.Repository.CurrentBranch)
 				{
 					Log.Debug("Update current branch");
-					result = await gitNetworkService.FetchAsync();
-					if (result.IsOk)
+
+					if ((await gitFetch.FetchAsync(CancellationToken.None)).IsOk)
 					{
 						result = await gitBranchService.MergeCurrentBranchAsync();
 					}

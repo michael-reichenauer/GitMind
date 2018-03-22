@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
@@ -11,6 +12,7 @@ using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.Features.Remote.Private
@@ -23,6 +25,7 @@ namespace GitMind.Features.Remote.Private
 		private readonly IStatusService statusService;
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitNetworkService gitNetworkService;
+		private readonly IGitFetch gitFetch;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 
 
@@ -33,6 +36,7 @@ namespace GitMind.Features.Remote.Private
 			IStatusService statusService,
 			IGitBranchService gitBranchService,
 			IGitNetworkService gitNetworkService,
+			IGitFetch gitFetch,
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
 			this.repositoryMgr = repositoryMgr;
@@ -41,15 +45,16 @@ namespace GitMind.Features.Remote.Private
 			this.statusService = statusService;
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
+			this.gitFetch = gitFetch;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 		}
 
 		private Repository Repository => repositoryMgr.Repository;
 
 
-		public Task<R> FetchAsync()
+		public async Task<R> FetchAsync()
 		{
-			return gitNetworkService.FetchAsync();
+			return (await gitFetch.FetchAsync(CancellationToken.None)).AsR();
 		}
 
 

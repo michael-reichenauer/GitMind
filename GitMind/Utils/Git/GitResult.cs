@@ -2,13 +2,15 @@
 using GitMind.Utils.OsSystem;
 
 
-namespace GitMind.Utils.Git.Private
+namespace GitMind.Utils.Git
 {
 	public class GitResult
 	{
 		private readonly CmdResult2 cmdResult;
 		
 		public GitResult(CmdResult2 cmdResult) => this.cmdResult = cmdResult;
+
+		public bool IsOk => ExitCode == 0;
 
 		public int ExitCode => cmdResult.ExitCode;
 		public string Output => cmdResult.Output;

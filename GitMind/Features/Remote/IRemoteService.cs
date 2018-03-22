@@ -2,6 +2,7 @@
 using GitMind.Common;
 using GitMind.Git;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.Features.Remote

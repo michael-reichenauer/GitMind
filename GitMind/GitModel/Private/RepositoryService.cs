@@ -167,8 +167,6 @@ namespace GitMind.GitModel.Private
 
 			Log.Debug("Fetching");
 
-			await gitFetch.FetchAsync(CancellationToken.None);
-
 			if (isFetchNotes)
 			{
 				await remoteService.Value.FetchAllNotesAsync();

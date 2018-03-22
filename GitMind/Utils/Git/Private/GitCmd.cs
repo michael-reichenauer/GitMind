@@ -72,11 +72,15 @@ namespace GitMind.Utils.Git.Private
 			Log.Debug($"Runing: {GitCmdPath} {gitArgs}");
 			CmdOptions cmdOptions = ToCmdOptions(options);
 			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, cmdOptions, ct);
-			Log.Debug($"{t.ElapsedMs}ms: {result}");
 			Track.Event("gitCmd", $"{t.ElapsedMs}ms: {result.ToStringShort()}");
-			if (result.ExitCode != 0)
+			
+			if (result.ExitCode == 0)
 			{
-				Log.Warn($"Exit: {result.ExitCode}, Error: {result.Error}");
+				Log.Debug($"{t.ElapsedMs}ms: {result}");
+			}
+			else
+			{
+				Log.Warn($"{t.ElapsedMs}ms: {result}");
 			}
 
 			return new GitResult(result);

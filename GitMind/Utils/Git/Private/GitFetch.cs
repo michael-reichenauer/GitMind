@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
@@ -18,17 +17,9 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<bool> FetchAsync(CancellationToken ct)
+		public async Task<GitResult> FetchAsync(CancellationToken ct)
 		{
-			GitResult result = await gitCmd.RunAsync(FetchArgs, ct);
-
-			if (result.ExitCode != 0 && !result.IsCanceled)
-			{
-				Log.Warn($"Failed to fetch: {result}");
-				return false;
-			}
-
-			return true;
+			return await gitCmd.RunAsync(FetchArgs, ct);
 		}
 	}
 }

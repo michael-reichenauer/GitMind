@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
 using GitMind.Utils.OsSystem;
 using GitMindTest.AutoMocking;

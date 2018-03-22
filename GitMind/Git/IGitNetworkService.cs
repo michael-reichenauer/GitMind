@@ -7,7 +7,7 @@ namespace GitMind.Git
 {
 	internal interface IGitNetworkService
 	{
-		Task<R> FetchAsync();
+		//Task<R> FetchAsync();
 
 		Task<R> FetchBranchAsync(BranchName branchName);
 

@@ -12,8 +12,8 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public async Task Test()
 		{
-			bool result = await gitCmd.FetchAsync(ct);
-			Assert.IsTrue(result);
+			GitResult result = await gitCmd.FetchAsync(ct);
+			Assert.IsTrue(result.IsOk);
 		}
 	}
 }
