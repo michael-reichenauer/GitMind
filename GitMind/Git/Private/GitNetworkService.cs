@@ -158,20 +158,20 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> PushCurrentBranchAsync()
-		{
-			Log.Debug("Push current branch ...");
+		//public Task<R> PushCurrentBranchAsync()
+		//{
+		//	Log.Debug("Push current branch ...");
 
-			return repoCaller.UseRepoAsync(PushTimeout, repo =>
-				{
-					Branch currentBranch = repo.Head;
-					string[] refspecs =
-					{
-						$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"
-					};
-					PushRefs(refspecs, repo);
-				});
-		}
+		//	return repoCaller.UseRepoAsync(PushTimeout, repo =>
+		//		{
+		//			Branch currentBranch = repo.Head;
+		//			string[] refspecs =
+		//			{
+		//				$"{currentBranch.CanonicalName}:{currentBranch.CanonicalName}"
+		//			};
+		//			PushRefs(refspecs, repo);
+		//		});
+		//}
 
 
 		public Task<R> PushRefsAsync(IEnumerable<string> refspecs)

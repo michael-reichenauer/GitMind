@@ -26,6 +26,7 @@ namespace GitMind.Features.Remote.Private
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitNetworkService gitNetworkService;
 		private readonly IGitFetch gitFetch;
+		private readonly IGitPush gitPush;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 
 
@@ -37,6 +38,7 @@ namespace GitMind.Features.Remote.Private
 			IGitBranchService gitBranchService,
 			IGitNetworkService gitNetworkService,
 			IGitFetch gitFetch,
+			IGitPush gitPush,
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
 			this.repositoryMgr = repositoryMgr;
@@ -46,6 +48,7 @@ namespace GitMind.Features.Remote.Private
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
 			this.gitFetch = gitFetch;
+			this.gitPush = gitPush;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 		}
 
@@ -162,12 +165,12 @@ namespace GitMind.Features.Remote.Private
 			{
 				await PushNotesAsync(Repository.RootCommit.RealCommitSha);
 
-				R result = await gitNetworkService.PushCurrentBranchAsync();
+				GitResult result = await gitPush.PushAsync(CancellationToken.None);
 
-				if (result.IsFaulted)
+				if (!result.IsOk)
 				{
 					message.ShowWarning(
-						 $"Failed to push current branch {branchName}.\n{result.Message}");
+						 $"Failed to push current branch {branchName}.\n{result.Error}");
 				}
 			}
 		}
@@ -189,18 +192,18 @@ namespace GitMind.Features.Remote.Private
 
 				await PushNotesAsync(Repository.RootCommit.RealCommitSha);
 
-				R result = R.Ok;
+				//R result = R.Ok;
 				if (currentBranch.CanBePushed)
 				{
 					progress.SetText($"Pushing current branch {currentBranch.Name} ...");
-					result = await gitNetworkService.PushCurrentBranchAsync();
+					GitResult result = await gitPush.PushAsync(CancellationToken.None);
 				}
 
-				if (result.IsFaulted)
-				{
-					message.ShowWarning(
-						$"Failed to push current branch {currentBranch.Name}.\n{result.Message}");
-				}
+				//if (result.IsFaulted)
+				//{
+				//	message.ShowWarning(
+				//		$"Failed to push current branch {currentBranch.Name}.\n{result.Message}");
+				//}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
 					.Where(b => !b.IsCurrentBranch && b.CanBePushed)

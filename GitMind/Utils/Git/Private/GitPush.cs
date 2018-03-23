@@ -18,7 +18,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<bool> PushAsync(CancellationToken ct)
+		public async Task<GitResult> PushAsync(CancellationToken ct)
 		{
 			using (CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
 			{
@@ -31,16 +31,8 @@ namespace GitMind.Utils.Git.Private
 					//InputText = text => InputText(text, ct)
 				};
 
-				GitResult result = await gitCmd.RunAsync(PushArgs, options, ct);
-
-				if (result.ExitCode != 0 && !result.IsCanceled)
-				{
-					Log.Warn($"Failed to push: {result}");
-					return false;
-				}
+				return await gitCmd.RunAsync(PushArgs, options, ct);
 			}
-
-			return true;
 		}
 
 

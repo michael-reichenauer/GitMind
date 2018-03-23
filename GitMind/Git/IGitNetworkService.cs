@@ -13,7 +13,7 @@ namespace GitMind.Git
 
 		//Task<R> FetchRefsAsync(IEnumerable<string> refspecs);
 
-		Task<R> PushCurrentBranchAsync();
+		//Task<R> PushCurrentBranchAsync();
 
 		Task<R> PushBranchAsync(BranchName branchName);
 
