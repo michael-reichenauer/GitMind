@@ -8,7 +8,7 @@ namespace GitMind.Utils.Git.Private
 	internal class GitFetch : IGitFetch
 	{
 		private static readonly string FetchArgs = "fetch --prune --tags --progress origin";
-		private static readonly string FetchRefsArgs = "fetch --progress origin";
+		private static readonly string FetchRefsArgs = "fetch origin";
 
 
 		private readonly IGitCmd gitCmd;
@@ -20,7 +20,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<GitResult> FetchAsync(CancellationToken ct) => 
+		public async Task<GitResult> FetchAsync(CancellationToken ct) =>
 			await gitCmd.RunAsync(FetchArgs, ct);
 
 
