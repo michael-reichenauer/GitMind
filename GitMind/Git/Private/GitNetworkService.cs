@@ -174,16 +174,16 @@ namespace GitMind.Git.Private
 		//}
 
 
-		public Task<R> PushRefsAsync(IEnumerable<string> refspecs)
-		{
-			string refsText = string.Join(",", refspecs);
-			Log.Debug($"Push refs {refsText} ...");
+		//public Task<R> PushRefsAsync(IEnumerable<string> refspecs)
+		//{
+		//	string refsText = string.Join(",", refspecs);
+		//	Log.Debug($"Push refs {refsText} ...");
 
-			return repoCaller.UseRepoAsync(PushTimeout, repo =>
-			{
-				PushRefs(refspecs, repo);
-			});
-		}
+		//	return repoCaller.UseRepoAsync(PushTimeout, repo =>
+		//	{
+		//		PushRefs(refspecs, repo);
+		//	});
+		//}
 
 
 		public Task<R> PublishBranchAsync(BranchName branchName)

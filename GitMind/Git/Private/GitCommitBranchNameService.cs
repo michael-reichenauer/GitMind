@@ -25,6 +25,7 @@ namespace GitMind.Git.Private
 		private readonly Lazy<IRepositoryMgr> repositoryMgr;
 		private readonly IGitNetworkService gitNetworkService;
 		private readonly IGitFetch gitFetch;
+		private readonly IGitPush gitPush;
 
 
 		public GitCommitBranchNameService(
@@ -32,13 +33,15 @@ namespace GitMind.Git.Private
 			IRepoCaller repoCaller,
 			Lazy<IRepositoryMgr> repositoryMgr,
 			IGitNetworkService gitNetworkService,
-			IGitFetch gitFetch)
+			IGitFetch gitFetch,
+			IGitPush gitPush)
 		{
 			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
 			this.repositoryMgr = repositoryMgr;
 			this.gitNetworkService = gitNetworkService;
 			this.gitFetch = gitFetch;
+			this.gitPush = gitPush;
 		}
 
 
@@ -146,7 +149,7 @@ namespace GitMind.Git.Private
 			repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 
 			string[] refs = { $"refs/notes/{nameSpace}:refs/notes/{nameSpace}" };
-			R result = await gitNetworkService.PushRefsAsync(refs);
+			GitResult result = await gitPush.PushRefsAsync(refs, CancellationToken.None);
 			if (result.IsOk)
 			{
 				RemoveNotesFile(nameSpace);
