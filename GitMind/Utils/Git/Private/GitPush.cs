@@ -44,6 +44,25 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		public async Task<GitResult> PushTagAsync(string tagName, CancellationToken ct)
+		{
+			using (CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
+			{
+				ct = cts.Token;
+
+				// In case login failes, we need to detect that 
+				GitOptions options = new GitOptions
+				{
+					ErrorProgress = text => ErrorProgress(text, cts),
+					//InputText = text => InputText(text, ct)
+				};
+
+				string pushTagArgs = $"{PushArgs} {tagName}";
+				return await gitCmd.RunAsync(pushTagArgs, options, ct);
+			}
+		}
+
+
 		public async Task<GitResult> PushRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
 		{
 			using (CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(ct))

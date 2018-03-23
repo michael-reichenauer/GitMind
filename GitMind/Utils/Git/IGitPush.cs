@@ -11,5 +11,6 @@ namespace GitMind.Utils.Git
 
 		Task<GitResult> PushRefsAsync(IEnumerable<string> refspecs, CancellationToken ct);
 		Task<GitResult> PushBranchAsync(string branchName, CancellationToken ct);
+		Task<GitResult> PushTagAsync(string tagName, CancellationToken ct);
 	}
 }

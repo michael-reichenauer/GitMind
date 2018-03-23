@@ -23,7 +23,7 @@ namespace GitMind.Git
 
 		Task<R> DeleteRemoteBranchAsync(BranchName branchName);
 		Task<R> DeleteRemoteTagAsync(string tagName);
-		Task<R> PushTagAsync(string tagCanonicalName);
+		//Task<R> PushTagAsync(string tagCanonicalName);
 		Task<R> PruneLocalTagsAsync();
 	}
 }

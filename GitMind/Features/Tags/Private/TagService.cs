@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
@@ -11,6 +12,7 @@ using GitMind.Git.Private;
 using GitMind.GitModel.Private;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using LibGit2Sharp;
 
 
@@ -22,6 +24,7 @@ namespace GitMind.Features.Tags.Private
 		private readonly IStatusService statusService;
 		private readonly IProgressService progress;
 		private readonly IGitNetworkService gitNetworkService;
+		private readonly IGitPush gitPush;
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
 
@@ -31,6 +34,7 @@ namespace GitMind.Features.Tags.Private
 			IStatusService statusService,
 			IProgressService progressService,
 			IGitNetworkService gitNetworkService,
+			IGitPush gitPush,
 			IMessage message,
 			WindowOwner owner)
 		{
@@ -38,6 +42,7 @@ namespace GitMind.Features.Tags.Private
 			this.statusService = statusService;
 			this.progress = progressService;
 			this.gitNetworkService = gitNetworkService;
+			this.gitPush = gitPush;
 			this.message = message;
 			this.owner = owner;
 		}
@@ -93,7 +98,13 @@ namespace GitMind.Features.Tags.Private
 						if (addResult.IsOk)
 						{
 							// Try to push immediately
-							result = await gitNetworkService.PushTagAsync(addResult.Value);
+							Log.Debug($"Try to push tag: '{addResult.Value}'");
+							GitResult pushResult = await gitPush.PushTagAsync(tagText, CancellationToken.None);
+							if (pushResult.IsFaulted)
+							{
+								message.ShowWarning(
+									$"Failed to add tag '{tagText}'\n{pushResult.Error}");
+							}
 						}
 					
 						if (result.IsFaulted)

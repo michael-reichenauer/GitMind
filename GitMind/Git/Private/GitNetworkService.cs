@@ -134,28 +134,28 @@ namespace GitMind.Git.Private
 		//}
 
 
-		public Task<R> PushBranchAsync(BranchName branchName)
-		{
-			Log.Debug($"Push branch {branchName} ...");
+		//public Task<R> PushBranchAsync(BranchName branchName)
+		//{
+		//	Log.Debug($"Push branch {branchName} ...");
 
-			string[] refspecs =
-			{
-				$"refs/heads/{branchName}:refs/heads/{branchName}"
-			};
-			return PushRefsAsync(refspecs);
-		}
-
-
+		//	string[] refspecs =
+		//	{
+		//		$"refs/heads/{branchName}:refs/heads/{branchName}"
+		//	};
+		//	return PushRefsAsync(refspecs);
+		//}
 
 
-		public async Task<R> PushTagAsync(string tagCanonicalName)
-		{
-			Log.Debug($"Push tag {tagCanonicalName} ...");
 
-			string[] refspecs = { tagCanonicalName };
 
-			return await PushRefsAsync(refspecs);
-		}
+		//public async Task<R> PushTagAsync(string tagCanonicalName)
+		//{
+		//	Log.Debug($"Push tag {tagCanonicalName} ...");
+
+		//	string[] refspecs = { tagCanonicalName };
+
+		//	return await PushRefsAsync(refspecs);
+		//}
 
 
 		//public Task<R> PushCurrentBranchAsync()
