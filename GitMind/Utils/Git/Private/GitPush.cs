@@ -9,7 +9,7 @@ namespace GitMind.Utils.Git.Private
 	{
 		private readonly IGitCmd gitCmd;
 
-		private static readonly string PushArgs = "push --porcelain";
+		private static readonly string PushArgs = "push --porcelain origin";
 
 
 		public GitPush(IGitCmd gitCmd)
