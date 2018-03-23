@@ -1,6 +1,6 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
@@ -9,7 +9,7 @@ namespace GitMind.Utils.Git.Private
 	{
 		private readonly IGitCmd gitCmd;
 
-		private static readonly string PushArgs = @"push --porcelain";
+		private static readonly string PushArgs = "push --porcelain";
 
 
 		public GitPush(IGitCmd gitCmd)
@@ -32,6 +32,35 @@ namespace GitMind.Utils.Git.Private
 				};
 
 				return await gitCmd.RunAsync(PushArgs, options, ct);
+			}
+		}
+
+
+		public async Task<GitResult> PushBranchAsync(string branchName, CancellationToken ct)
+		{
+			string[] refspecs = { $"refs/heads/{branchName}:refs/heads/{branchName}" };
+
+			return await PushRefsAsync(refspecs, ct);
+		}
+
+
+		public async Task<GitResult> PushRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
+		{
+			using (CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
+			{
+				ct = cts.Token;
+
+				// In case login failes, we need to detect that 
+				GitOptions options = new GitOptions
+				{
+					ErrorProgress = text => ErrorProgress(text, cts),
+					//InputText = text => InputText(text, ct)
+				};
+
+				string refsText = string.Join(" ", refspecs);
+				string pushRefsArgs = $"{PushArgs} {refsText}";
+
+				return await gitCmd.RunAsync(pushRefsArgs, options, ct);
 			}
 		}
 

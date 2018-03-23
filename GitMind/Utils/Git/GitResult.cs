@@ -11,7 +11,7 @@ namespace GitMind.Utils.Git
 		public GitResult(CmdResult2 cmdResult) => this.cmdResult = cmdResult;
 
 		public bool IsOk => ExitCode == 0;
-
+		public bool IsFaulted => !IsOk;
 		public int ExitCode => cmdResult.ExitCode;
 		public string Output => cmdResult.Output;
 		public IReadOnlyList<string> OutputLines => cmdResult.OutputLines;

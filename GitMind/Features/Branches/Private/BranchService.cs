@@ -24,6 +24,7 @@ namespace GitMind.Features.Branches.Private
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitNetworkService gitNetworkService;
 		private readonly IGitFetch gitFetch;
+		private readonly IGitPush gitPush;
 		private readonly ICommitsService commitsService;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
@@ -37,6 +38,7 @@ namespace GitMind.Features.Branches.Private
 			IGitBranchService gitBranchService,
 			IGitNetworkService gitNetworkService,
 			IGitFetch gitFetch,
+			IGitPush gitPush,
 			ICommitsService commitsService,
 			IProgressService progressService,
 			IMessage message,
@@ -48,6 +50,7 @@ namespace GitMind.Features.Branches.Private
 			this.gitBranchService = gitBranchService;
 			this.gitNetworkService = gitNetworkService;
 			this.gitFetch = gitFetch;
+			this.gitPush = gitPush;
 			this.commitsService = commitsService;
 			this.progress = progressService;
 			this.message = message;
@@ -125,11 +128,11 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Pushing branch {branch.Name} ..."))
 			{
-				R result = await gitNetworkService.PushBranchAsync(branch.Name);
+				GitResult result = await gitPush.PushBranchAsync(branch.Name, CancellationToken.None);
 
 				if (result.IsFaulted)
 				{
-					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Message}");
+					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Error}");
 				}
 			}
 		}
@@ -154,8 +157,7 @@ namespace GitMind.Features.Branches.Private
 				else
 				{
 					Log.Debug($"Update branch {branch.Name}");
-					string[] refspecs = { $"{branch.Name}:{branch.Name}" };
-					result = (await gitFetch.FetchRefsAsync(refspecs, CancellationToken.None)).AsR();
+					result = (await gitFetch.FetchBranchAsync(branch.Name, CancellationToken.None)).AsR();
 				}
 
 				if (result.IsFaulted)

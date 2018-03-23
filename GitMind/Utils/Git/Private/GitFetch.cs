@@ -24,6 +24,14 @@ namespace GitMind.Utils.Git.Private
 			await gitCmd.RunAsync(FetchArgs, ct);
 
 
+		public async Task<GitResult> FetchBranchAsync(string branchName, CancellationToken ct)
+		{
+			string[] refspecs = { $"{branchName}:{branchName}" };
+
+			return await FetchRefsAsync(refspecs, CancellationToken.None);
+		}
+
+
 		public async Task<GitResult> FetchRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
 		{
 			string refsText = string.Join(" ", refspecs);

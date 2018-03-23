@@ -61,9 +61,9 @@ namespace GitMind.Features.Remote.Private
 		}
 
 
-		public Task<R> PushBranchAsync(BranchName branchName)
+		public async Task<R> PushBranchAsync(BranchName branchName)
 		{
-			return gitNetworkService.PushBranchAsync(branchName);
+			return (await gitPush.PushBranchAsync(branchName, CancellationToken.None)).AsR();
 		}
 
 
