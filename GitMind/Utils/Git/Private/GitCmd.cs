@@ -13,7 +13,7 @@ namespace GitMind.Utils.Git.Private
 	internal class GitCmd : IGitCmd
 	{
 		// git config --list --show-origin
-		private static readonly string CredentialsConfig = @"-c credential.helper=!GitMind.exe";
+		//private static readonly string CredentialsConfig = @"-c credential.helper=!GitMind.exe";
 
 		private readonly ICmd2 cmd;
 		private readonly IGitEnvironmentService gitEnvironmentService;
@@ -66,14 +66,14 @@ namespace GitMind.Utils.Git.Private
 			AdjustOptions(options);
 
 			// Enable credentials handling
-			gitArgs = $"{CredentialsConfig} {gitArgs}";
+			//gitArgs = $"{CredentialsConfig} {gitArgs}";
 
 			Timing t = Timing.StartNew();
 			Log.Debug($"Runing: {GitCmdPath} {gitArgs}");
 			CmdOptions cmdOptions = ToCmdOptions(options);
 			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, cmdOptions, ct);
 			Track.Event("gitCmd", $"{t.ElapsedMs}ms: {result.ToStringShort()}");
-			
+
 			if (result.ExitCode == 0)
 			{
 				Log.Debug($"{t.ElapsedMs}ms: {result}");
@@ -97,7 +97,10 @@ namespace GitMind.Utils.Git.Private
 				string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 				environment["Path"] = $"{dir};{environment["Path"]}";
 
-				environment["GIT_ASKPASS"] = "no-gitmind-pswd-prompt";
+				string askPath = @"C:\Work Files\GitMindAsk\GitMindAsk\bin\Debug";
+				environment["Path"] = $"{askPath};{environment["Path"]}";
+
+				environment["GIT_ASKPASS"] = @"GitMindAsk";
 			};
 		}
 
