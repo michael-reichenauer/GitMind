@@ -97,10 +97,10 @@ namespace GitMind.Utils.Git.Private
 				string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 				environment["Path"] = $"{dir};{environment["Path"]}";
 
-				string askPath = @"C:\Work Files\GitMindAsk\GitMindAsk\bin\Debug";
-				environment["Path"] = $"{askPath};{environment["Path"]}";
+				//string askPath = @"C:\Work Files\GitMindAsk\GitMindAsk\bin\Debug";
+				//environment["Path"] = $"{askPath};{environment["Path"]}";
 
-				environment["GIT_ASKPASS"] = @"GitMindAsk";
+				environment["GIT_ASKPASS"] = @"GitMind";
 			};
 		}
 

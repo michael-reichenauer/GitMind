@@ -36,12 +36,6 @@ namespace GitMind
 			// Activate dependency injection support
 			dependencyInjection.RegisterDependencyInjectionTypes();
 
-			var credentialManager = dependencyInjection.Resolve<IGitCredentialManager>();
-			if (credentialManager.TryHandleCall())
-			{
-				return;  // The credential manager handled this call
-			}
-
 			// Start application
 			App application = dependencyInjection.Resolve<App>();
 			ExceptionHandling.HandleDispatcherUnhandledException();

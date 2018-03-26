@@ -14,6 +14,7 @@ using GitMind.Common.Tracking;
 using GitMind.Features.Diffing;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind
@@ -27,6 +28,7 @@ namespace GitMind
 		private readonly IDiffService diffService;
 		private readonly IThemeService themeService;
 		private readonly IInstaller installer;
+		private readonly IGitAskPassService askPassService;
 		private readonly Lazy<MainWindow> mainWindow;
 		private readonly WorkingFolder workingFolder;
 
@@ -40,6 +42,7 @@ namespace GitMind
 			IDiffService diffService,
 			IThemeService themeService,
 			IInstaller installer,
+			IGitAskPassService askPassService,
 			Lazy<MainWindow> mainWindow,
 			WorkingFolder workingFolder)
 		{
@@ -47,6 +50,7 @@ namespace GitMind
 			this.diffService = diffService;
 			this.themeService = themeService;
 			this.installer = installer;
+			this.askPassService = askPassService;
 			this.mainWindow = mainWindow;
 			this.workingFolder = workingFolder;
 		}
@@ -63,6 +67,11 @@ namespace GitMind
 		protected override void OnStartup(StartupEventArgs e)
 		{
 			base.OnStartup(e);
+
+			if (askPassService.TryHandleRequest())
+			{
+				return;  // The credential manager handled this call
+			}
 
 			if (IsInstallOrUninstall())
 			{

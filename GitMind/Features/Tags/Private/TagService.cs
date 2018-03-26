@@ -1,11 +1,9 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
-using GitMind.Features.Branches.Private;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -106,7 +104,7 @@ namespace GitMind.Features.Tags.Private
 									$"Failed to add tag '{tagText}'\n{pushResult.Error}");
 							}
 						}
-					
+
 						if (result.IsFaulted)
 						{
 							message.ShowWarning(

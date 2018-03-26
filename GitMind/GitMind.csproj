@@ -133,6 +133,11 @@
     <Compile Include="Common\ProgressHandling\ProgressService.cs" />
     <Compile Include="Common\Tracking\Track.cs" />
     <Compile Include="Features\Remote\IRemoteService.cs" />
+    <Compile Include="Features\Remote\Private\AskPassDialogViewModel.cs" />
+    <Compile Include="Features\Remote\Private\AskPassDialog.xaml.cs">
+      <DependentUpon>AskPassDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Remote\Private\GitPromptService.cs" />
     <Compile Include="Features\Remote\Private\RemoteService.cs" />
     <Compile Include="Common\ResultExtensions.cs" />
     <Compile Include="Features\StatusHandling\IStatusService.cs" />
@@ -222,6 +227,9 @@
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
+    <Compile Include="Utils\Git\IGitAskPassService.cs" />
+    <Compile Include="Utils\Git\IGitPromptService.cs" />
+    <Compile Include="Utils\Git\Private\GitAskPassService.cs" />
     <Compile Include="Utils\Git\Private\GitEnvironmentService.cs" />
     <Compile Include="Utils\Git\IGitEnvironmentService.cs" />
     <Compile Include="Utils\Git\Private\GitCredentialManager.cs" />
@@ -411,6 +419,10 @@
     <Page Include="Features\Commits\Private\CommitDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Features\Remote\Private\AskPassDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Features\Tags\Private\AddTagDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
