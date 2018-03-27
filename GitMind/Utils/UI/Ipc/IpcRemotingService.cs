@@ -24,8 +24,7 @@ namespace GitMind.Utils.UI.Ipc
 			string mutexName = GetId(serverId);
 			string channelName = GetChannelName(serverId);
 
-			bool isMutexCreated;
-			channelMutex = new Mutex(true, mutexName, out isMutexCreated);
+			channelMutex = new Mutex(true, mutexName, out bool isMutexCreated);
 			if (isMutexCreated)
 			{
 				CreateIpcServer(channelName);
@@ -122,7 +121,7 @@ namespace GitMind.Utils.UI.Ipc
 			{
 				Log.Error($"Failed to makeIPC call {channelName}");
 			}
-		
+
 			return ipcProxy;
 		}
 
