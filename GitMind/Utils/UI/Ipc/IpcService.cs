@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace GitMind.Utils
+namespace GitMind.Utils.UI.Ipc
 {
 	/// <summary>
 	/// The IPC Remoting service base class. 

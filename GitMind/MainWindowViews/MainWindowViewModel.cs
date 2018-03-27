@@ -16,6 +16,7 @@ using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.UI;
+using GitMind.Utils.UI.Ipc;
 using Application = System.Windows.Application;
 
 

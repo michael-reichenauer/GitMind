@@ -3,6 +3,7 @@ using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.Features.Commits;
 using GitMind.Utils;
+using GitMind.Utils.UI.Ipc;
 
 
 namespace GitMind.MainWindowViews
