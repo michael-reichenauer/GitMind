@@ -13,7 +13,8 @@ namespace GitMind.Utils.Git.Private
 	internal class GitCmd : IGitCmd
 	{
 		// git config --list --show-origin
-		//private static readonly string CredentialsConfig = @"-c credential.helper=!GitMind.exe";
+		private static readonly string CredentialsConfig = 
+			"-c credential.helper=\"!GitMind.exe --cmg\"";
 
 		private readonly ICmd2 cmd;
 		private readonly IGitEnvironmentService gitEnvironmentService;
@@ -66,7 +67,7 @@ namespace GitMind.Utils.Git.Private
 			AdjustOptions(options);
 
 			// Enable credentials handling
-			//gitArgs = $"{CredentialsConfig} {gitArgs}";
+			gitArgs = $"{CredentialsConfig} {gitArgs}";
 
 			Timing t = Timing.StartNew();
 			Log.Debug($"Runing: {GitCmdPath} {gitArgs}");

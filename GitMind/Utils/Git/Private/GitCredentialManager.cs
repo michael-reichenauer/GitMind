@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
-using GitMind.Common.Tracking;
 
 
 namespace GitMind.Utils.Git.Private
@@ -55,58 +53,72 @@ namespace GitMind.Utils.Git.Private
 
 		private void HandleCall(string[] args)
 		{
-			string command = args[1];
+			string command = args[2];
 			Log.Debug($"Command: {command}");
 
 			string commandRequest = ReadCommandRequestText();
-
-
-			gitConfig.TryGet("credential.helper", out GitSetting helper);
-			Track.Info($"credential.helper: '{helper}'");
-
-			if (helper == null || helper.Values.All(v => v == "!GitMind.exe"))
+			if (command == "get")
 			{
-				// No configured credential manager, lest start builtin git crededential manager
-				Log.Debug("No configured credential manager, call git provided manager");
-				Process process = StartCredentialsManager(command);
-
-				WriteCommandRequestText(commandRequest, process);
-
-				if (command == "get")
-				{
-					string outputText = ReadCommandResponseText(process);
-					// Log.Debug($"Output:\n{outputText}");
-
-					WriteCommandResponseText(outputText);
-				}
-
-				process.WaitForExit();
-				Log.Debug($"Exit code {process.ExitCode}");
-				process.Close();
-
+				Log.Debug($"Input for get:\n{commandRequest}");
+				Write("quit=true\n");
+				//Log.Debug($"Return no credentials");
+				//Write(commandRequest);
+				//Write($"username=\n");
+				//Write($"password=\n");
 				return;
 			}
-			else
-			{
-				// None of the configured credential managers provided credentials
-				Log.Debug($"None off the configured managers could provide credentials");
-				if (command == "get")
-				{
-					Log.Debug($"Input for get:\n{commandRequest}");
-					Log.Debug($"Return no credentials");
-					WriteLine($"username=");
-					Write($"password=");
-				}
-				else
-				{
-					// Log.Debug($"Input:\n{commandRequest}");
-				}
-			}
+
+			return;
+
+
+			//gitConfig.TryGet("credential.helper", out GitSetting helper);
+			//Track.Info($"credential.helper: '{helper}'");
+
+			//if (helper == null || helper.Values.All(v => v == "!GitMind.exe"))
+			//{
+			//	// No configured credential manager, lest start builtin git crededential manager
+			//	Log.Debug("No configured credential manager, call git provided manager");
+			//	Process process = StartCredentialsManager(command);
+
+			//	WriteCommandRequestText($"{commandRequest}\n", process);
+
+			//	if (command == "get")
+			//	{
+			//		string outputText = ReadCommandResponseText(process);
+			//		// Log.Debug($"Output:\n{outputText}");
+
+			//		WriteCommandResponseText(outputText);
+			//	}
+
+			//	process.WaitForExit();
+			//	Log.Debug($"Exit code {process.ExitCode}");
+			//	process.Close();
+
+			//	return;
+			//}
+			//else
+			//{
+			//	// None of the configured credential managers provided credentials
+			//	Log.Debug($"None off the configured managers could provide credentials");
+			//	if (command == "get")
+			//	{
+			//		Log.Debug($"Input for get:\n{commandRequest}");
+			//		Log.Debug($"Return no credentials");
+			//		WriteLine($"username=");
+			//		Write($"password=");
+			//	}
+			//	else
+			//	{
+			//		// Log.Debug($"Input:\n{commandRequest}");
+			//	}
+			//}
 		}
 
 
 		private static bool IsCredentialCall(IReadOnlyList<string> args) =>
-			args.Count == 2 && (args[1] == "get" || args[1] == "store" || args[1] == "erase");
+			args.Count == 3 &&
+			args[1] == "--cmg" &&
+			(args[2] == "get" || args[2] == "store" || args[2] == "erase");
 
 
 		private static string ReadCommandResponseText(Process process)
@@ -139,11 +151,6 @@ namespace GitMind.Utils.Git.Private
 		{
 			StreamReader inputStream = new StreamReader(Console.OpenStandardInput());
 			string inputText = inputStream.ReadToEnd();
-			if (!string.IsNullOrEmpty(inputText) && !inputText.EndsWith("\n\n"))
-			{
-				// The credentials manager expects empty last line
-				inputText += "\n";
-			}
 
 			return inputText;
 		}

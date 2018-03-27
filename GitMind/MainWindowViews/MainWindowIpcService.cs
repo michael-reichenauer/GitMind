@@ -21,7 +21,7 @@ namespace GitMind.MainWindowViews
 
 
 		public static string GetId(string workingFolder) =>
-			InstanceId + Uri.EscapeDataString(workingFolder);
+			InstanceId + Uri.EscapeDataString(workingFolder.ToLower());
 
 
 		public void Activate(string[] args)
