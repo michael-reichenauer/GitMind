@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
@@ -20,6 +19,7 @@ namespace GitMind.Utils.Git.Private
 		public bool IsErrortDisabled { get; set; }
 
 		public Action<IDictionary<string, string>> EnvironmentVariables { get; set; }
+		public bool IsEnableCredentials { get; set; }
 	}
 
 	internal interface IGitCmd

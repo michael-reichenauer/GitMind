@@ -69,11 +69,6 @@ namespace GitMind
 		{
 			base.OnStartup(e);
 
-			if (askPassService.TryHandleRequest())
-			{
-				return;  // The credential manager handled this call
-			}
-
 			if (IsInstallOrUninstall())
 			{
 				// An installation or uninstallation was triggered, lets end this instance

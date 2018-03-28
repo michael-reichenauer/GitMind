@@ -393,6 +393,11 @@ namespace GitMind.Utils.UI
 					// for some reason, this is encountered when credentials are overwritten
 					break;
 
+				case CREDUI.ReturnCodes.ERROR_NOT_FOUND:
+					// for some reason, this is encountered when dialog was not shown
+					break;
+
+
 				default:
 					throw new ApplicationException("Credential confirmation failed. " + confirmCredentials);
 			}

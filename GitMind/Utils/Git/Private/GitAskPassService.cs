@@ -1,24 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using GitMind.Utils.UI.Ipc;
 
 
 namespace GitMind.Utils.Git.Private
 {
 	internal class GitAskPassService : IGitAskPassService
 	{
-		private static readonly Regex AskCredentialRegex = new Regex(@"(\S+)\s+for\s+['""]([^'""]+)['""]:\s*", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-		private static readonly Regex AskPassphraseRegex = new Regex(@"Enter\s+passphrase\s*for\s*key\s*['""]([^'""]+)['""]\:\s*", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-		private static readonly Regex AskPasswordRegex = new Regex(@"(\S+)'s\s+password:\s*", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-		private static readonly Regex AskAuthenticityRegex = new Regex(@"^\s*The authenticity of host '([^']+)' can't be established.\s+RSA key fingerprint is ([^\s:]+:[^\.]+).", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
-		private readonly IGitPromptService gitPromptService;
-
-
-		public GitAskPassService(IGitPromptService gitPromptService)
-		{
-			this.gitPromptService = gitPromptService;
-		}
+		public static readonly Regex AskCredentialRegex = new Regex(@"(\S+)\s+for\s+['""]([^'""]+)['""]:\s*", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+		public static readonly Regex AskPassphraseRegex = new Regex(@"Enter\s+passphrase\s*for\s*key\s*['""]([^'""]+)['""]\:\s*", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+		public static readonly Regex AskPasswordRegex = new Regex(@"(\S+)'s\s+password:\s*", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+		public static readonly Regex AskAuthenticityRegex = new Regex(@"^\s*The authenticity of host '([^']+)' can't be established.\s+RSA key fingerprint is ([^\s:]+:[^\.]+).", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
 
 		public bool TryHandleRequest()
@@ -47,34 +40,21 @@ namespace GitMind.Utils.Git.Private
 		{
 			Log.Debug($"Ask Pass prompt: '{promptText}'");
 
-			if (AskAuthenticityRegex.Match(promptText).Success)
+			string sessionId = "AskPassId";
+			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 			{
-				// Git prompts for yes or no answer
-				if (gitPromptService.TryPromptYesNo(promptText))
+				string response = ipcRemotingService.CallService<CredentialIpcService, string>(
+					sessionId, service => service.AskPassRequest(promptText));
+
+				if (!string.IsNullOrEmpty(response))
 				{
-					Log.Debug("Approved authorization of host.");
-					Console.Out.Write("yes\n");
+					Log.Debug("Response: ******");
+					Console.Write(response);
 				}
 				else
 				{
-					Log.Debug("Denied authorization of host.");
-					Console.Out.Write("no\n");
+					Log.Debug("No Response:");
 				}
-
-				return;
-			}
-
-
-			// Git prompts from some text
-			if (gitPromptService.TryPromptText(promptText, out string response))
-			{
-				Log.Debug("Response acquired.");
-
-				Console.Out.Write(response ?? "" + "\n");
-			}
-			else
-			{
-				Log.Debug("Ask pass canceled.");
 			}
 		}
 

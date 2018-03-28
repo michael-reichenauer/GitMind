@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common.Tracking;
+using GitMind.MainWindowViews;
 using GitMind.Utils.OsSystem;
 
 
@@ -12,22 +13,21 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitCmd : IGitCmd
 	{
-		// git config --list --show-origin
-		private static readonly string CredentialsConfig = 
-			"-c credential.helper=\"!GitMind.exe --cmg\"";
-
 		private readonly ICmd2 cmd;
 		private readonly IGitEnvironmentService gitEnvironmentService;
+		private readonly WindowOwner owner;
 		private readonly WorkingFolderPath workingFolder;
 
 
 		public GitCmd(
 			ICmd2 cmd,
 			IGitEnvironmentService gitEnvironmentService,
+			WindowOwner owner,
 			WorkingFolderPath workingFolder)
 		{
 			this.cmd = cmd;
 			this.gitEnvironmentService = gitEnvironmentService;
+			this.owner = owner;
 			this.workingFolder = workingFolder;
 		}
 
@@ -64,10 +64,36 @@ namespace GitMind.Utils.Git.Private
 		private async Task<GitResult> CmdAsync(
 			string gitArgs, GitOptions options, CancellationToken ct)
 		{
-			AdjustOptions(options);
+			//if (options.IsEnableCredentials)
+			{
+				using (CredentialSession session = new CredentialSession(owner))
+				{
+					//// Enable credentials handling
+					//gitArgs = $"-c credential.helper =\"!GitMind.exe --cmg {session.Id}\" { gitArgs}";
 
-			// Enable credentials handling
-			gitArgs = $"{CredentialsConfig} {gitArgs}";
+					GitResult gitResult = await RunGitCmsAsync(gitArgs, options, ct);
+
+					bool isValidCredentials =
+						!(gitResult.ExitCode == 128 &&
+						-1 != gitResult.Error.IndexOf("Authentication failed", StringComparison.OrdinalIgnoreCase));
+
+					session.ConfirmValidCrededntial(isValidCredentials);
+
+					return gitResult;
+				}
+			}
+			//else
+			//{
+			//	return await RunGitCmsAsync(gitArgs, options, ct);
+			//}
+		}
+
+
+
+		private async Task<GitResult> RunGitCmsAsync(
+			string gitArgs, GitOptions options, CancellationToken ct)
+		{
+			AdjustOptions(options);
 
 			Timing t = Timing.StartNew();
 			Log.Debug($"Runing: {GitCmdPath} {gitArgs}");
@@ -95,12 +121,9 @@ namespace GitMind.Utils.Git.Private
 			// Used to enable credentials handling
 			options.EnvironmentVariables = environment =>
 			{
-				string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-				environment["Path"] = $"{dir};{environment["Path"]}";
-
-				//string askPath = @"C:\Work Files\GitMindAsk\GitMindAsk\bin\Debug";
-				//environment["Path"] = $"{askPath};{environment["Path"]}";
-
+				// If git needs to ask for command line credentials, redirect that to GitMind exe to answer
+				string instanceDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+				environment["Path"] = $"{instanceDir};{environment["Path"]}";
 				environment["GIT_ASKPASS"] = @"GitMind";
 			};
 		}
