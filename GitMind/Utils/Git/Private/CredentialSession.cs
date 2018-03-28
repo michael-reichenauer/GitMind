@@ -32,7 +32,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public string Id { get; } = "AskPassId";    // Guid.NewGuid().ToString();
+		public string Id { get; } = Guid.NewGuid().ToString();
 
 
 		public void Dispose()
@@ -53,10 +53,8 @@ namespace GitMind.Utils.Git.Private
 				{
 					string seeking = match.Groups[1].Value;
 					string totalUrl = match.Groups[2].Value;
-					Log.Debug($"Seek: {seeking}, url: {totalUrl}");
 
 					ParseUrl(totalUrl, out string url, out string username);
-					Log.Debug($"Url: {url}, username: {username}");
 
 					if (seeking.SameIc("Username"))
 					{
@@ -76,7 +74,7 @@ namespace GitMind.Utils.Git.Private
 									 username == askPassDialog.Name)
 					{
 						string password = askPassDialog.Password;
-						Log.Debug($"Return password for {username}: {password}");
+						Log.Debug($"Response: <password for {username}>");
 						return password;
 					}
 					else

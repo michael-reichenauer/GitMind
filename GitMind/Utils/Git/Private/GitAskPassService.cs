@@ -38,9 +38,10 @@ namespace GitMind.Utils.Git.Private
 
 		private void AskPass(string promptText)
 		{
-			Log.Debug($"Ask Pass prompt: '{promptText}'");
+			string sessionId = Environment.GetEnvironmentVariable("GITMIND_SESSIONID");
 
-			string sessionId = "AskPassId";
+			Log.Debug($"Ask Pass session {sessionId} prompt: '{promptText}'");
+
 			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 			{
 				string response = ipcRemotingService.CallService<CredentialIpcService, string>(
