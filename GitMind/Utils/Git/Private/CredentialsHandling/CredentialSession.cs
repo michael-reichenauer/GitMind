@@ -115,7 +115,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 				IsCredentialRequested = true;
 				TargetUri = url;
 
-				string username = LastUsername ?? parsedUsername ?? "michael.reichenauer@gmail.com";
+				string username = LastUsername ?? parsedUsername;
 
 				// Try get cached credential och show credential dialog
 				if (credentialService.TryGetCredential(url, username, out gitCredential))
