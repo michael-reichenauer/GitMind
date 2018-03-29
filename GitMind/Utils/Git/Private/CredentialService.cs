@@ -31,7 +31,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (dialog != null)
 			{
-				gitCredential = new GitCredential(dialog);
+				gitCredential = new GitCredential(dialog, url);
 				return true;
 			}
 

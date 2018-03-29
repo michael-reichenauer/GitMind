@@ -92,7 +92,7 @@ namespace GitMind.Utils.Git.Private
 
 					if (isRetry)
 					{
-						UiThread.Run(() => message.ShowError($"Invalid credentials for {session.Uri}"));
+						UiThread.Run(() => message.ShowError($"Invalid credentials for {session.TargetUri}"));
 					}
 				}
 			} while (isRetry);

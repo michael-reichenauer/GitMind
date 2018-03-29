@@ -10,9 +10,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		private readonly ICredentialService credentialService;
 		private IpcRemotingService serverSideIpcService;
 
-
-		private IGitCredential askPassCredential = null;
-		private string askUrl = null;
+		private IGitCredential gitCredential = null;
 
 
 		public CredentialSession(ICredentialService credentialService, string username)
@@ -29,7 +27,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		public bool IsAskPassCanceled { get; private set; } = false;
 		public bool IsCredentialRequested { get; private set; } = false;
 		public string LastUsername { get; private set; }
-		public object Uri { get; private set; }
+		public object TargetUri { get; private set; }
 
 
 		public void Dispose()
@@ -50,7 +48,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 				{
 					string seeking = match.Groups[1].Value;
 					string totalUrl = match.Groups[2].Value;
-					return HandleCredential(seeking, totalUrl);
+					return HandleGetCredential(seeking, totalUrl);
 				}
 			}
 			catch (Exception e)
@@ -63,39 +61,49 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		}
 
 
-		public string HandleCredential(string seeking, string totalUrl)
+		public string HandleGetCredential(string seeking, string totalUrl)
 		{
+			// This function will be called 2 times. The first time is a request for UserName. 
+			// However, we try to get both user name and password and then store credential in memory
+			// so the password can be returned in the second call without bothering the user again.
+			// The total url may contain some parts (user name) of the credential, lets try extract that.
 			ParseUrl(totalUrl, out string url, out string parsedUsername);
 
 			if (seeking.SameIc("Username"))
 			{
+				// First call requesting the UserName
 				IsCredentialRequested = true;
-				Uri = url;
-				string name = LastUsername ?? parsedUsername;
+				TargetUri = url;
 
-				if (credentialService.TryGetCredential(url, name, out askPassCredential))
+				string username = LastUsername ?? parsedUsername;
+
+				// Try get cached credential och show credential dialog
+				if (credentialService.TryGetCredential(url, username, out gitCredential))
 				{
-					askUrl = url;
-					LastUsername = askPassCredential.Username;
+					TargetUri = url;
+					LastUsername = gitCredential.Username;
 					Log.Debug($"Response: {LastUsername}");
 					return LastUsername;
 				}
 
 				IsAskPassCanceled = true;
 			}
-			else if (seeking.SameIc("Password") &&
-			         askPassCredential != null &&
-			         askUrl == url &&
-			         parsedUsername == askPassCredential.Username)
+			else if (seeking.SameIc("Password"))
 			{
-				string password = askPassCredential.Password;
-				Log.Debug($"Response: <password for {parsedUsername}>");
-				return password;
+				// Second call requesting the Password. Lets ensure it is for the stored Username in previous call
+				if (gitCredential != null &&
+				    url == gitCredential.Url &&
+				    parsedUsername == gitCredential.Username)
+				{
+					string password = gitCredential.Password;
+					Log.Debug($"Response: <password for {parsedUsername}>");
+					return password;
+				}
 			}
 			else
 			{
-				Log.Debug($"Invalid request");
-				askPassCredential = null;
+				Log.Debug("Invalid request");
+				gitCredential = null;
 			}
 
 			Log.Debug("No response");
@@ -106,7 +114,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		{
 			Log.Debug($"Confirm valid credentials: {isValid}");
 
-			credentialService.SetDialogConfirm(askPassCredential, isValid);
+			credentialService.SetDialogConfirm(gitCredential, isValid);
 		}
 
 
