@@ -1,4 +1,4 @@
-﻿namespace GitMind.Utils.Git.Private
+﻿namespace GitMind.Utils.Git.Private.CredentialsHandling
 {
 	internal class CredentialCommandData
 	{

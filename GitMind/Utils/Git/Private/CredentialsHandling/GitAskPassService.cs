@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using GitMind.Utils.UI.Ipc;
 
 
-namespace GitMind.Utils.Git.Private
+namespace GitMind.Utils.Git.Private.CredentialsHandling
 {
 	internal class GitAskPassService : IGitAskPassService
 	{

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common.Tracking;
 using GitMind.MainWindowViews;
+using GitMind.Utils.Git.Private.CredentialsHandling;
 using GitMind.Utils.OsSystem;
 
 
@@ -15,6 +16,7 @@ namespace GitMind.Utils.Git.Private
 	{
 		private readonly ICmd2 cmd;
 		private readonly IGitEnvironmentService gitEnvironmentService;
+		private readonly ICredentialService credentialService;
 		private readonly WindowOwner owner;
 		private readonly WorkingFolderPath workingFolder;
 
@@ -22,11 +24,13 @@ namespace GitMind.Utils.Git.Private
 		public GitCmd(
 			ICmd2 cmd,
 			IGitEnvironmentService gitEnvironmentService,
+			ICredentialService credentialService,
 			WindowOwner owner,
 			WorkingFolderPath workingFolder)
 		{
 			this.cmd = cmd;
 			this.gitEnvironmentService = gitEnvironmentService;
+			this.credentialService = credentialService;
 			this.owner = owner;
 			this.workingFolder = workingFolder;
 		}
@@ -64,30 +68,26 @@ namespace GitMind.Utils.Git.Private
 		private async Task<GitResult> CmdAsync(
 			string gitArgs, GitOptions options, CancellationToken ct)
 		{
-			//if (options.IsEnableCredentials)
+			GitResult gitResult;
+			bool isRetry = false;
+			do
 			{
-				using (CredentialSession session = new CredentialSession(owner))
+				using (CredentialSession session = new CredentialSession(credentialService))
 				{
 					//// Enable credentials handling
 					//gitArgs = $"-c credential.helper =\"!GitMind.exe --cmg {session.Id}\" { gitArgs}";
 
-					GitResult gitResult = await RunGitCmsAsync(gitArgs, options, session.Id, ct);
+					gitResult = await RunGitCmsAsync(gitArgs, options, session.Id, ct);
 
-					bool isValidCredentials =
-						!(gitResult.ExitCode == 128 &&
-						-1 != gitResult.Error.IndexOf("Authentication failed", StringComparison.OrdinalIgnoreCase));
-
-					session.ConfirmValidCrededntial(isValidCredentials);
-
-					return gitResult;
+					session.ConfirmValidCrededntial(!gitResult.IsAuthenticationFailed);
+					isRetry = gitResult.IsAuthenticationFailed &&
+										session.IsCredentialRequested &&
+										!session.IsAskPassCanceled;
 				}
-			}
-			//else
-			//{
-			//	return await RunGitCmsAsync(gitArgs, options, ct);
-			//}
-		}
+			} while (isRetry);
 
+			return gitResult;
+		}
 
 
 		private async Task<GitResult> RunGitCmsAsync(

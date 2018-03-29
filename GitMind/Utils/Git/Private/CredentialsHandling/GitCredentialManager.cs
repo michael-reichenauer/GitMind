@@ -4,7 +4,7 @@ using System.IO;
 using GitMind.Utils.UI.Ipc;
 
 
-namespace GitMind.Utils.Git.Private
+namespace GitMind.Utils.Git.Private.CredentialsHandling
 {
 	internal class GitCredentialManager : IGitCredentialManager
 	{
@@ -32,24 +32,24 @@ namespace GitMind.Utils.Git.Private
 
 		private static void HandleCall(string[] args)
 		{
-			string command = args[2];
-			string sessionId = args[3];
+			//string command = args[2];
+			//string sessionId = args[3];
 
-			string commandData = ReadCommandData();
+			//string commandData = ReadCommandData();
 
-			Log.Debug($"Command: {command}, Id: {sessionId}, {commandData}");
+			//Log.Debug($"Command: {command}, Id: {sessionId}, {commandData}");
 
-			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
-			{
-				string response = ipcRemotingService.CallService<CredentialIpcService, string>(
-					sessionId, service => service.CredentialRequest(command, commandData));
+			//using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
+			//{
+			//	string response = ipcRemotingService.CallService<CredentialIpcService, string>(
+			//		sessionId, service => service.CredentialRequest(command, commandData));
 
-				if (!string.IsNullOrEmpty(response))
-				{
-					// Log.Debug($"Write: {text}");
-					Console.Write(response);
-				}
-			}
+			//	if (!string.IsNullOrEmpty(response))
+			//	{
+			//		// Log.Debug($"Write: {text}");
+			//		Console.Write(response);
+			//	}
+			//}
 		}
 
 		private static string ReadCommandData()
