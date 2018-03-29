@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using GitMind.ApplicationHandling;
+using GitMind.Common.MessageDialogs;
 using GitMind.Utils.Git;
 using GitMind.Utils.OsSystem;
 using GitMindTest.AutoMocking;
@@ -23,6 +24,7 @@ namespace GitMindTest.Utils.Git.Private
 			am = new AutoMock()
 				.RegisterNamespaceOf<IGitInfo>()
 				.RegisterNamespaceOf<ICmd2>()
+				.RegisterType<IMessageService>()
 				.RegisterSingleInstance(new WorkingFolderPath(@"C:\Work Files\GitMind"));
 			resolved = new Lazy<TInterface>(() => am.Resolve<TInterface>());
 		}

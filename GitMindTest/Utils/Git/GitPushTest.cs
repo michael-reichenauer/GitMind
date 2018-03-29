@@ -9,7 +9,7 @@ namespace GitMindTest.Utils.Git
 	[TestFixture]
 	public class GitPushTest : GitTestBase<IGitPush>
 	{
-		[Test, Explicit]
+		[Test, Explicit, RequiresSTA]
 		public async Task Test()
 		{
 			GitResult result = await gitCmd.PushAsync(ct);

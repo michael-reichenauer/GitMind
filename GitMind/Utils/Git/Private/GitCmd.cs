@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
+using GitMind.Common.MessageDialogs;
 using GitMind.Common.Tracking;
 using GitMind.MainWindowViews;
 using GitMind.Utils.Git.Private.CredentialsHandling;
@@ -17,6 +18,7 @@ namespace GitMind.Utils.Git.Private
 		private readonly ICmd2 cmd;
 		private readonly IGitEnvironmentService gitEnvironmentService;
 		private readonly ICredentialService credentialService;
+		private readonly IMessage message;
 		private readonly WindowOwner owner;
 		private readonly WorkingFolderPath workingFolder;
 
@@ -25,12 +27,14 @@ namespace GitMind.Utils.Git.Private
 			ICmd2 cmd,
 			IGitEnvironmentService gitEnvironmentService,
 			ICredentialService credentialService,
+			IMessage message,
 			WindowOwner owner,
 			WorkingFolderPath workingFolder)
 		{
 			this.cmd = cmd;
 			this.gitEnvironmentService = gitEnvironmentService;
 			this.credentialService = credentialService;
+			this.message = message;
 			this.owner = owner;
 			this.workingFolder = workingFolder;
 		}
@@ -70,19 +74,22 @@ namespace GitMind.Utils.Git.Private
 		{
 			GitResult gitResult;
 			bool isRetry = false;
+			string username = null;
 			do
 			{
-				using (CredentialSession session = new CredentialSession(credentialService))
+				using (CredentialSession session = new CredentialSession(credentialService, username))
 				{
 					//// Enable credentials handling
 					//gitArgs = $"-c credential.helper =\"!GitMind.exe --cmg {session.Id}\" { gitArgs}";
 
 					gitResult = await RunGitCmsAsync(gitArgs, options, session.Id, ct);
-
+					username = session.LastUsername;
 					session.ConfirmValidCrededntial(!gitResult.IsAuthenticationFailed);
 					isRetry = gitResult.IsAuthenticationFailed &&
 										session.IsCredentialRequested &&
 										!session.IsAskPassCanceled;
+
+					message.ShowWarning($"Invalid credentials for {session.Uri}");
 				}
 			} while (isRetry);
 

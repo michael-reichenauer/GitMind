@@ -15,10 +15,10 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		private string askUrl = null;
 
 
-		public CredentialSession(
-			ICredentialService credentialService)
+		public CredentialSession(ICredentialService credentialService, string username)
 		{
 			this.credentialService = credentialService;
+			LastUsername = username;
 
 			StartIpcServerSide();
 		}
@@ -28,6 +28,9 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 
 		public bool IsAskPassCanceled { get; private set; } = false;
 		public bool IsCredentialRequested { get; private set; } = false;
+		public string LastUsername { get; private set; }
+		public object Uri { get; private set; }
+
 
 		public void Dispose()
 		{
@@ -48,17 +51,20 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 					string seeking = match.Groups[1].Value;
 					string totalUrl = match.Groups[2].Value;
 
-					ParseUrl(totalUrl, out string url, out string username);
+					ParseUrl(totalUrl, out string url, out string parsedUsername);
 
 					if (seeking.SameIc("Username"))
 					{
 						IsCredentialRequested = true;
+						Uri = url;
+						string name = LastUsername ?? parsedUsername;
 
-						if (credentialService.TryGetCredential(url, username, out askPassCredential))
+						if (credentialService.TryGetCredential(url, name, out askPassCredential))
 						{
 							askUrl = url;
-							Log.Debug($"Response: {askPassCredential.Username}");
-							return askPassCredential.Username;
+							LastUsername = askPassCredential.Username;
+							Log.Debug($"Response: {LastUsername}");
+							return LastUsername;
 						}
 
 						IsAskPassCanceled = true;
@@ -66,10 +72,10 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 					else if (seeking.SameIc("Password") &&
 									 askPassCredential != null &&
 									 askUrl == url &&
-									 username == askPassCredential.Username)
+									 parsedUsername == askPassCredential.Username)
 					{
 						string password = askPassCredential.Password;
-						Log.Debug($"Response: <password for {username}>");
+						Log.Debug($"Response: <password for {parsedUsername}>");
 						return password;
 					}
 					else
