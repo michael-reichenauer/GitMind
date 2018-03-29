@@ -88,8 +88,10 @@ namespace GitMind.Utils.Git.Private
 					isRetry = gitResult.IsAuthenticationFailed &&
 										session.IsCredentialRequested &&
 										!session.IsAskPassCanceled;
-
-					message.ShowWarning($"Invalid credentials for {session.Uri}");
+					if (isRetry)
+					{
+						message.ShowError($"Invalid credentials for {session.Uri}");
+					}
 				}
 			} while (isRetry);
 
