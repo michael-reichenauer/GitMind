@@ -9,6 +9,7 @@ using GitMind.Common.Tracking;
 using GitMind.MainWindowViews;
 using GitMind.Utils.Git.Private.CredentialsHandling;
 using GitMind.Utils.OsSystem;
+using GitMind.Utils.UI;
 
 
 namespace GitMind.Utils.Git.Private
@@ -88,9 +89,10 @@ namespace GitMind.Utils.Git.Private
 					isRetry = gitResult.IsAuthenticationFailed &&
 										session.IsCredentialRequested &&
 										!session.IsAskPassCanceled;
+
 					if (isRetry)
 					{
-						message.ShowError($"Invalid credentials for {session.Uri}");
+						UiThread.Run(() => message.ShowError($"Invalid credentials for {session.Uri}"));
 					}
 				}
 			} while (isRetry);

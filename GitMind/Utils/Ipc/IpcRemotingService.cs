@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters;
 using System.Threading;
 
 
-namespace GitMind.Utils.UI.Ipc
+namespace GitMind.Utils.Ipc
 {
 	internal class IpcRemotingService : IDisposable
 	{

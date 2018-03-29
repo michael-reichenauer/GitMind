@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using GitMind.Utils.UI.Ipc;
 
 
 namespace GitMind.Utils.Git.Private.CredentialsHandling

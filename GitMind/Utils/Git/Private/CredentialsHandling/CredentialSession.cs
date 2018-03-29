@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using GitMind.Utils.UI.Ipc;
+using GitMind.Utils.Ipc;
 
 
 namespace GitMind.Utils.Git.Private.CredentialsHandling

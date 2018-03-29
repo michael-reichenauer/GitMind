@@ -15,8 +15,8 @@ using GitMind.Features.Remote;
 using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Ipc;
 using GitMind.Utils.UI;
-using GitMind.Utils.UI.Ipc;
 using Application = System.Windows.Application;
 
 

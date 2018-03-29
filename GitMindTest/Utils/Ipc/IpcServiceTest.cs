@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.Remoting;
-using GitMind.Utils.UI.Ipc;
+using GitMind.Utils.Ipc;
 using NUnit.Framework;
 
 

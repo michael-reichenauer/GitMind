@@ -273,11 +273,12 @@
     <Compile Include="ApplicationHandling\SettingsHandling\Options.cs" />
     <Compile Include="ApplicationHandling\SettingsHandling\WorkFolderSettings.cs" />
     <Compile Include="Utils\Equatable.cs" />
-    <Compile Include="Utils\UI\Ipc\IpcService.cs" />
+    <Compile Include="Utils\Ipc\IpcService.cs" />
     <Compile Include="Utils\Json.cs" />
     <Compile Include="GitModel\Private\Caching\Serializer.cs" />
     <Compile Include="Utils\SingleInstanceAttribute.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
+    <Compile Include="Utils\UI\UiThread.cs" />
     <Compile Include="Utils\UI\VisibleWindow.cs" />
     <Compile Include="Utils\UI\WpfBindingTraceListener.cs" />
     <Compile Include="RepositoryViews\BranchItem.cs" />
@@ -300,7 +301,7 @@
     <Compile Include="MainWindowViews\HamburgerButton.xaml.cs">
       <DependentUpon>HamburgerButton.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Utils\UI\Ipc\IpcRemotingService.cs" />
+    <Compile Include="Utils\Ipc\IpcRemotingService.cs" />
     <Compile Include="Utils\UI\BusyProgress.cs" />
     <Compile Include="Utils\UI\HideableGridSplitter.cs" />
     <Compile Include="Utils\Compare.cs" />

@@ -15,7 +15,7 @@ using GitMind.Features.Diffing;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
-using GitMind.Utils.UI.Ipc;
+using GitMind.Utils.Ipc;
 
 
 namespace GitMind

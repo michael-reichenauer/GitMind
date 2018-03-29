@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using GitMind.Utils.UI.Ipc;
+using GitMind.Utils.Ipc;
 
 
 namespace GitMind.Utils.Git.Private.CredentialsHandling

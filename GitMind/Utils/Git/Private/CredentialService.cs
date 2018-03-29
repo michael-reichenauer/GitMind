@@ -52,6 +52,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+
 		public void SetDialogConfirm(IGitCredential gitCredential, bool isConfirmed)
 		{
 			try
@@ -107,7 +108,6 @@ namespace GitMind.Utils.Git.Private
 			{
 				return dialog;
 			}
-
 
 			Log.Debug($"User canceled {target}, {username}, {message}");
 			return null;
