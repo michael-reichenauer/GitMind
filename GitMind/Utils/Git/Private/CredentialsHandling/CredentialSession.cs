@@ -50,39 +50,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 				{
 					string seeking = match.Groups[1].Value;
 					string totalUrl = match.Groups[2].Value;
-
-					ParseUrl(totalUrl, out string url, out string parsedUsername);
-
-					if (seeking.SameIc("Username"))
-					{
-						IsCredentialRequested = true;
-						Uri = url;
-						string name = LastUsername ?? parsedUsername;
-
-						if (credentialService.TryGetCredential(url, name, out askPassCredential))
-						{
-							askUrl = url;
-							LastUsername = askPassCredential.Username;
-							Log.Debug($"Response: {LastUsername}");
-							return LastUsername;
-						}
-
-						IsAskPassCanceled = true;
-					}
-					else if (seeking.SameIc("Password") &&
-									 askPassCredential != null &&
-									 askUrl == url &&
-									 parsedUsername == askPassCredential.Username)
-					{
-						string password = askPassCredential.Password;
-						Log.Debug($"Response: <password for {parsedUsername}>");
-						return password;
-					}
-					else
-					{
-						Log.Debug($"Invalid request");
-						askPassCredential = null;
-					}
+					return HandleCredential(seeking, totalUrl);
 				}
 			}
 			catch (Exception e)
@@ -95,15 +63,51 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		}
 
 
+		public string HandleCredential(string seeking, string totalUrl)
+		{
+			ParseUrl(totalUrl, out string url, out string parsedUsername);
+
+			if (seeking.SameIc("Username"))
+			{
+				IsCredentialRequested = true;
+				Uri = url;
+				string name = LastUsername ?? parsedUsername;
+
+				if (credentialService.TryGetCredential(url, name, out askPassCredential))
+				{
+					askUrl = url;
+					LastUsername = askPassCredential.Username;
+					Log.Debug($"Response: {LastUsername}");
+					return LastUsername;
+				}
+
+				IsAskPassCanceled = true;
+			}
+			else if (seeking.SameIc("Password") &&
+			         askPassCredential != null &&
+			         askUrl == url &&
+			         parsedUsername == askPassCredential.Username)
+			{
+				string password = askPassCredential.Password;
+				Log.Debug($"Response: <password for {parsedUsername}>");
+				return password;
+			}
+			else
+			{
+				Log.Debug($"Invalid request");
+				askPassCredential = null;
+			}
+
+			Log.Debug("No response");
+			return "";
+		}
+
 		public void ConfirmValidCrededntial(bool isValid)
 		{
 			Log.Debug($"Confirm valid credentials: {isValid}");
 
 			credentialService.SetDialogConfirm(askPassCredential, isValid);
 		}
-
-
-
 
 
 		private void StartIpcServerSide()
@@ -114,7 +118,6 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 			serverSideIpcService.TryCreateServer(Id);
 			serverSideIpcService.PublishService(new CredentialIpcService(this));
 		}
-
 
 
 		private static void ParseUrl(string totallUrl, out string url, out string username)
