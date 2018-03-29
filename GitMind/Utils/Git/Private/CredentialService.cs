@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Windows.Threading;
 using GitMind.Common.Tracking;
 using GitMind.MainWindowViews;
 using GitMind.Utils.UI;
-using Application = System.Windows.Application;
 
 
 namespace GitMind.Utils.Git.Private
@@ -29,16 +27,7 @@ namespace GitMind.Utils.Git.Private
 
 			CredentialsDialog dialog = null;
 
-			var dispatcher = GetApplicationDispatcher();
-			if (dispatcher.CheckAccess())
-			{
-
-				dialog = ShowDialog(targetKey, username, message);
-			}
-			else
-			{
-				dispatcher.Invoke(() => dialog = ShowDialog(targetKey, username, message));
-			}
+			UiThread.Run(() => dialog = ShowDialog(targetKey, username, message));
 
 			if (dialog != null)
 			{
@@ -112,9 +101,5 @@ namespace GitMind.Utils.Git.Private
 			Log.Debug($"User canceled {target}, {username}, {message}");
 			return null;
 		}
-
-
-		private static Dispatcher GetApplicationDispatcher() =>
-			Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
 	}
 }
