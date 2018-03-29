@@ -50,6 +50,16 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 					string totalUrl = match.Groups[2].Value;
 					return HandleGetCredential(seeking, totalUrl);
 				}
+				else if ((match = GitAskPassService.AskPasswordRegex.Match(prompt)).Success)
+				{
+					string resource = match.Groups[1].Value;
+					return HandleGetPassword(resource);
+				}
+				else if ((match = GitAskPassService.AskPassphraseRegex.Match(prompt)).Success)
+				{
+					string resource = match.Groups[1].Value;
+					return HandleGetPassphrase(resource);
+				}
 			}
 			catch (Exception e)
 			{
@@ -57,6 +67,36 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 			}
 
 			Log.Debug("No response");
+			return "";
+		}
+
+
+		private string HandleGetPassword(string username)
+		{
+			// Try get cached password och show credential dialog
+			if (credentialService.TryGetPassword(username, out gitCredential))
+			{
+				LastUsername = gitCredential.Username;
+				Log.Debug($"Response: {gitCredential.Password}");
+				return LastUsername;
+			}
+
+			IsAskPassCanceled = true;
+			return "";
+		}
+
+
+		private string HandleGetPassphrase(string resource)
+		{
+			// Try get cached password och show credential dialog
+			if (credentialService.TryGetPassword(resource, out gitCredential))
+			{
+				LastUsername = gitCredential.Username;
+				Log.Debug($"Response: {gitCredential.Password}");
+				return LastUsername;
+			}
+
+			IsAskPassCanceled = true;
 			return "";
 		}
 
@@ -75,7 +115,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 				IsCredentialRequested = true;
 				TargetUri = url;
 
-				string username = LastUsername ?? parsedUsername;
+				string username = LastUsername ?? parsedUsername ?? "michael.reichenauer@gmail.com";
 
 				// Try get cached credential och show credential dialog
 				if (credentialService.TryGetCredential(url, username, out gitCredential))
@@ -92,8 +132,8 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 			{
 				// Second call requesting the Password. Lets ensure it is for the stored Username in previous call
 				if (gitCredential != null &&
-				    url == gitCredential.Url &&
-				    parsedUsername == gitCredential.Username)
+						url == gitCredential.Url &&
+						parsedUsername == gitCredential.Username)
 				{
 					string password = gitCredential.Password;
 					Log.Debug($"Response: <password for {parsedUsername}>");

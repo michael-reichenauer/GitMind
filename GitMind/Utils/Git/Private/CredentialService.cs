@@ -20,14 +20,48 @@ namespace GitMind.Utils.Git.Private
 
 		public bool TryGetCredential(string url, string username, out IGitCredential gitCredential)
 		{
-			string message = $"Enter credentials for: {url}";
+			string message = $"Enter credentials for {url}";
 
-			// The key in Windows Credentials Store 
+			// The key in Windows Credentials Manager 
 			string targetKey = $"GitMind:{url}";
 
+			return TryGet(url, username, targetKey, message, false, out gitCredential);
+		}
+
+
+		public bool TryGetPassword(string username, out IGitCredential gitCredential)
+		{
+			string message = "Enter password:";
+
+			// The key in Windows Credentials Manager 
+			string targetKey = $"GitMind:pswd:{username}";
+
+			return TryGet(null, username, targetKey, message, true, out gitCredential);
+		}
+
+
+		public bool TryGetPassphrase(string username, out IGitCredential gitCredential)
+		{
+			string message = "Enter passphrase:";
+
+			// The key in Windows Credentials Manager 
+			string targetKey = $"GitMind:pswd:{username}";
+
+			return TryGet(null, username, targetKey, message, true, out gitCredential);
+		}
+
+
+		private bool TryGet(
+			string url,
+			string username,
+			string targetKey,
+			string message,
+			bool isNameReadonly,
+			out IGitCredential gitCredential)
+		{
 			CredentialsDialog dialog = null;
 
-			UiThread.Run(() => dialog = ShowDialog(targetKey, username, message));
+			UiThread.Run(() => dialog = ShowDialog(targetKey, username, message, isNameReadonly));
 
 			if (dialog != null)
 			{
@@ -39,7 +73,6 @@ namespace GitMind.Utils.Git.Private
 			gitCredential = null;
 			return false;
 		}
-
 
 
 		public void SetDialogConfirm(IGitCredential gitCredential, bool isConfirmed)
@@ -82,12 +115,17 @@ namespace GitMind.Utils.Git.Private
 
 
 
-		private CredentialsDialog ShowDialog(string target, string username, string message)
+		private CredentialsDialog ShowDialog(
+			string target,
+			string username,
+			string message,
+			bool isNameReadonly)
 		{
 			CredentialsDialog dialog = new CredentialsDialog(target, "GitMind", message);
 			dialog.SaveChecked = true;
 
 			dialog.Name = username;
+			dialog.KeepName = isNameReadonly;
 
 			// The credential dialog is only shown if there are no cached value for that user
 			// The dialog contains a "save" check box, which when checked and credentials have been saved
