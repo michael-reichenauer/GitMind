@@ -296,48 +296,48 @@ namespace GitMind.Git.Private
 
 
 
-		public Task<R> DeleteRemoteTagAsync(string tagName)
-		{
-			Log.Debug($"Delete remote tag {tagName} ...");
+		//public Task<R> DeleteRemoteTagAsync(string tagName)
+		//{
+		//	Log.Debug($"Delete remote tag {tagName} ...");
 
-			return repoCaller.UseRepoAsync(PushTimeout, repo =>
-			{
-				Timing timing = new Timing();
-				string remoteUrl = "";
+		//	return repoCaller.UseRepoAsync(PushTimeout, repo =>
+		//	{
+		//		Timing timing = new Timing();
+		//		string remoteUrl = "";
 
-				try
-				{
-					if (!HasRemote(repo))
-					{
-						Log.Debug("No 'origin' remote, skipping delete remote tag");
-						return;
-					};
+		//		try
+		//		{
+		//			if (!HasRemote(repo))
+		//			{
+		//				Log.Debug("No 'origin' remote, skipping delete remote tag");
+		//				return;
+		//			};
 
-					PushOptions pushOptions = GetPushOptions();
+		//			PushOptions pushOptions = GetPushOptions();
 
-					Remote remote = Remote(repo);
-					remoteUrl = remote.Url;
+		//			Remote remote = Remote(repo);
+		//			remoteUrl = remote.Url;
 
-					// Using a refspec, like you would use with git push...
-					repo.Network.Push(remote, $":refs/tags/{tagName}", pushOptions);
+		//			// Using a refspec, like you would use with git push...
+		//			repo.Network.Push(remote, $":refs/tags/{tagName}", pushOptions);
 
-					credentialHandler.SetConfirm(true);
-					Track.Dependency("DeleteRemoteTag", remoteUrl, timing.Elapsed, true);
-				}
-				catch (Exception e)
-				{
-					if (IsInvalidProtocol(e))
-					{
-						return;
-					}
+		//			credentialHandler.SetConfirm(true);
+		//			Track.Dependency("DeleteRemoteTag", remoteUrl, timing.Elapsed, true);
+		//		}
+		//		catch (Exception e)
+		//		{
+		//			if (IsInvalidProtocol(e))
+		//			{
+		//				return;
+		//			}
 
-					Log.Exception(e, "");
-					credentialHandler.SetConfirm(false);
-					Track.Dependency("DeleteRemoteTag", remoteUrl, timing.Elapsed, false);
-					throw;
-				}
-			});
-		}
+		//			Log.Exception(e, "");
+		//			credentialHandler.SetConfirm(false);
+		//			Track.Dependency("DeleteRemoteTag", remoteUrl, timing.Elapsed, false);
+		//			throw;
+		//		}
+		//	});
+		//}
 
 		public Task<R> PruneLocalTagsAsync()
 		{

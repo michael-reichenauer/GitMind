@@ -129,7 +129,7 @@ namespace GitMind.Features.Tags.Private
 					if (deleteLocalResult.IsOk)
 					{
 						// Try to delete remote
-						result = await gitNetworkService.DeleteRemoteTagAsync(tagName);
+						result = (await gitPush.PushDeleteRemoteTagAsync(tagName, CancellationToken.None)).AsR();
 					}
 
 					if (result.IsFaulted)

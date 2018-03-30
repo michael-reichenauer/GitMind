@@ -13,5 +13,6 @@ namespace GitMind.Utils.Git
 		Task<GitResult> PushBranchAsync(string branchName, CancellationToken ct);
 		Task<GitResult> PushTagAsync(string tagName, CancellationToken ct);
 		Task<GitResult> PushDeleteRemoteBranchAsync(string branchName, CancellationToken ct);
+		Task<GitResult> PushDeleteRemoteTagAsync(string tagName, CancellationToken ct);
 	}
 }
