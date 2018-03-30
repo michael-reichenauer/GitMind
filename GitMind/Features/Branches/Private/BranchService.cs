@@ -89,7 +89,7 @@ namespace GitMind.Features.Branches.Private
 							{
 								progress.SetText($"Publishing branch {dialog.BranchName}...");
 
-								R publish = await gitNetworkService.PublishBranchAsync(branchName);
+								R publish = (await gitPush.PushBranchAsync(branchName, CancellationToken.None)).AsR();
 								if (publish.IsFaulted)
 								{
 									message.ShowWarning($"Failed to publish the branch {branchName}.");
@@ -113,7 +113,7 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Publishing branch {branch.Name} ..."))
 			{
-				R publish = await gitNetworkService.PublishBranchAsync(branch.Name);
+				R publish = (await gitPush.PushBranchAsync(branch.Name, CancellationToken.None)).AsR();
 
 				if (publish.IsFaulted)
 				{

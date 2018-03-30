@@ -89,7 +89,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		private string HandleGetPassphrase(string resource)
 		{
 			// Try get cached password och show credential dialog
-			if (credentialService.TryGetPassword(resource, out gitCredential))
+			if (credentialService.TryGetPassphrase(resource, out gitCredential))
 			{
 				LastUsername = gitCredential.Username;
 				Log.Debug($"Response: {gitCredential.Password}");

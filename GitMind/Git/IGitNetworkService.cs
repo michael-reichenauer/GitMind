@@ -19,7 +19,7 @@ namespace GitMind.Git
 
 		//Task<R> PushRefsAsync(IEnumerable<string> refspecs);
 
-		Task<R> PublishBranchAsync(BranchName branchName);
+		//Task<R> PublishBranchAsync(BranchName branchName);
 
 		Task<R> DeleteRemoteBranchAsync(BranchName branchName);
 		Task<R> DeleteRemoteTagAsync(string tagName);

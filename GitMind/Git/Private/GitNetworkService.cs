@@ -186,68 +186,68 @@ namespace GitMind.Git.Private
 		//}
 
 
-		public Task<R> PublishBranchAsync(BranchName branchName)
-		{
-			Log.Debug($"Publish branch {branchName} ...");
+		//public Task<R> PublishBranchAsync(BranchName branchName)
+		//{
+		//	Log.Debug($"Publish branch {branchName} ...");
 
-			return repoCaller.UseLibRepoAsync(repo =>
-			{
-				Timing timing = new Timing();
-				string remoteUrl = "";
+		//	return repoCaller.UseLibRepoAsync(repo =>
+		//	{
+		//		Timing timing = new Timing();
+		//		string remoteUrl = "";
 
-				try
-				{
+		//		try
+		//		{
 
 
-					Branch localBranch = repo.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-					if (localBranch == null)
-					{
-						throw new Exception($"No local branch with name {branchName}");
-					}
+		//			Branch localBranch = repo.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
+		//			if (localBranch == null)
+		//			{
+		//				throw new Exception($"No local branch with name {branchName}");
+		//			}
 
-					PushOptions pushOptions = GetPushOptions();
+		//			PushOptions pushOptions = GetPushOptions();
 
-					// Check if corresponding remote branch exists
-					Branch remoteBranch = repo.Branches
-						.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+		//			// Check if corresponding remote branch exists
+		//			Branch remoteBranch = repo.Branches
+		//				.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
 
-					if (remoteBranch != null)
-					{
-						// Remote branch exists, so connect local and remote branch
-						localBranch = repo.Branches.Add(branchName, remoteBranch.Tip);
-						repo.Branches.Update(localBranch, b => b.TrackedBranch = remoteBranch.CanonicalName);
-					}
-					else
-					{
-						// Remote branch does not yet exists
-						if (repo.Network.Remotes.Any(r => r.Name == Origin))
-						{
-							Remote remote = Remote(repo);
-							remoteUrl = remote.Url;
+		//			if (remoteBranch != null)
+		//			{
+		//				// Remote branch exists, so connect local and remote branch
+		//				localBranch = repo.Branches.Add(branchName, remoteBranch.Tip);
+		//				repo.Branches.Update(localBranch, b => b.TrackedBranch = remoteBranch.CanonicalName);
+		//			}
+		//			else
+		//			{
+		//				// Remote branch does not yet exists
+		//				if (repo.Network.Remotes.Any(r => r.Name == Origin))
+		//				{
+		//					Remote remote = Remote(repo);
+		//					remoteUrl = remote.Url;
 
-							repo.Branches.Update(
-								localBranch,
-								b => b.Remote = remote.Name,
-								b => b.UpstreamBranch = localBranch.CanonicalName);
-						}
-					}
+		//					repo.Branches.Update(
+		//						localBranch,
+		//						b => b.Remote = remote.Name,
+		//						b => b.UpstreamBranch = localBranch.CanonicalName);
+		//				}
+		//			}
 
-					repo.Network.Push(localBranch, pushOptions);
-					Track.Dependency("PublishBranch", remoteUrl, timing.Elapsed, true);
-				}
-				catch (Exception e)
-				{
-					if (IsInvalidProtocol(e))
-					{
-						return;
-					}
+		//			repo.Network.Push(localBranch, pushOptions);
+		//			Track.Dependency("PublishBranch", remoteUrl, timing.Elapsed, true);
+		//		}
+		//		catch (Exception e)
+		//		{
+		//			if (IsInvalidProtocol(e))
+		//			{
+		//				return;
+		//			}
 
-					Log.Exception(e, "");
-					Track.Dependency("PublishBranch", remoteUrl, timing.Elapsed, false);
-					throw;
-				}
-			});
-		}
+		//			Log.Exception(e, "");
+		//			Track.Dependency("PublishBranch", remoteUrl, timing.Elapsed, false);
+		//			throw;
+		//		}
+		//	});
+		//}
 
 
 		public Task<R> DeleteRemoteBranchAsync(BranchName branchName)
