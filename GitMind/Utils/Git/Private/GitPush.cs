@@ -34,6 +34,13 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		public async Task<GitResult> PushDeleteRemoteBranchAsync(string branchName, CancellationToken ct)
+		{
+			string pushArgs = $"{PushArgs} --delete {branchName}";
+
+			return await gitCmd.RunAsync(pushArgs, ct);
+		}
+
 		public async Task<GitResult> PushTagAsync(string tagName, CancellationToken ct)
 		{
 			string pushArgs = $"{PushArgs} {tagName}";

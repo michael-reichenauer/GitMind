@@ -310,7 +310,7 @@ namespace GitMind.Features.Branches.Private
 			R deleted;
 			if (isRemote)
 			{
-				deleted = await gitNetworkService.DeleteRemoteBranchAsync(branch.Name);
+				deleted = (await gitPush.PushDeleteRemoteBranchAsync(branch.Name, CancellationToken.None)).AsR();
 			}
 			else
 			{

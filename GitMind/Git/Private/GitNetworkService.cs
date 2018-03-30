@@ -250,49 +250,49 @@ namespace GitMind.Git.Private
 		//}
 
 
-		public Task<R> DeleteRemoteBranchAsync(BranchName branchName)
-		{
-			Log.Debug($"Delete remote branch {branchName} ...");
-			Timing timing = new Timing();
-			string remoteUrl = "";
+		//public Task<R> DeleteRemoteBranchAsync(BranchName branchName)
+		//{
+		//	Log.Debug($"Delete remote branch {branchName} ...");
+		//	Timing timing = new Timing();
+		//	string remoteUrl = "";
 
-			return repoCaller.UseRepoAsync(PushTimeout, repo =>
-			{
-				try
-				{
-					if (!HasRemote(repo))
-					{
-						Log.Debug("No 'origin' remote, skipping delete remote branch");
-						return;
-					};
+		//	return repoCaller.UseRepoAsync(PushTimeout, repo =>
+		//	{
+		//		try
+		//		{
+		//			if (!HasRemote(repo))
+		//			{
+		//				Log.Debug("No 'origin' remote, skipping delete remote branch");
+		//				return;
+		//			};
 
-					repo.Branches.Remove(branchName, true);
+		//			repo.Branches.Remove(branchName, true);
 
-					PushOptions pushOptions = GetPushOptions();
+		//			PushOptions pushOptions = GetPushOptions();
 
-					Remote remote = Remote(repo);
-					remoteUrl = remote.Url;
+		//			Remote remote = Remote(repo);
+		//			remoteUrl = remote.Url;
 
-					// Using a refspec, like you would use with git push...
-					repo.Network.Push(remote, $":refs/heads/{branchName}", pushOptions);
+		//			// Using a refspec, like you would use with git push...
+		//			repo.Network.Push(remote, $":refs/heads/{branchName}", pushOptions);
 
-					credentialHandler.SetConfirm(true);
-					Track.Dependency("DeleteRemoteBranch", remoteUrl, timing.Elapsed, true);
-				}
-				catch (Exception e)
-				{
-					if (IsInvalidProtocol(e))
-					{
-						return;
-					}
+		//			credentialHandler.SetConfirm(true);
+		//			Track.Dependency("DeleteRemoteBranch", remoteUrl, timing.Elapsed, true);
+		//		}
+		//		catch (Exception e)
+		//		{
+		//			if (IsInvalidProtocol(e))
+		//			{
+		//				return;
+		//			}
 
-					Log.Exception(e, "");
-					credentialHandler.SetConfirm(false);
-					Track.Dependency("DeleteRemoteBranch", remoteUrl, timing.Elapsed, false);
-					throw;
-				}
-			});
-		}
+		//			Log.Exception(e, "");
+		//			credentialHandler.SetConfirm(false);
+		//			Track.Dependency("DeleteRemoteBranch", remoteUrl, timing.Elapsed, false);
+		//			throw;
+		//		}
+		//	});
+		//}
 
 
 
