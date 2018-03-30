@@ -21,7 +21,6 @@ namespace GitMind.Features.Tags.Private
 		private readonly IRepoCaller repoCaller;
 		private readonly IStatusService statusService;
 		private readonly IProgressService progress;
-		private readonly IGitNetworkService gitNetworkService;
 		private readonly IGitPush gitPush;
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
@@ -31,7 +30,6 @@ namespace GitMind.Features.Tags.Private
 			IRepoCaller repoCaller,
 			IStatusService statusService,
 			IProgressService progressService,
-			IGitNetworkService gitNetworkService,
 			IGitPush gitPush,
 			IMessage message,
 			WindowOwner owner)
@@ -39,7 +37,6 @@ namespace GitMind.Features.Tags.Private
 			this.repoCaller = repoCaller;
 			this.statusService = statusService;
 			this.progress = progressService;
-			this.gitNetworkService = gitNetworkService;
 			this.gitPush = gitPush;
 			this.message = message;
 			this.owner = owner;

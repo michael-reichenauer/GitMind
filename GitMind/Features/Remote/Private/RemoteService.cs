@@ -24,7 +24,6 @@ namespace GitMind.Features.Remote.Private
 		private readonly IMessage message;
 		private readonly IStatusService statusService;
 		private readonly IGitBranchService gitBranchService;
-		private readonly IGitNetworkService gitNetworkService;
 		private readonly IGitFetch gitFetch;
 		private readonly IGitPush gitPush;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
@@ -36,7 +35,6 @@ namespace GitMind.Features.Remote.Private
 			IMessage message,
 			IStatusService statusService,
 			IGitBranchService gitBranchService,
-			IGitNetworkService gitNetworkService,
 			IGitFetch gitFetch,
 			IGitPush gitPush,
 			IGitCommitBranchNameService gitCommitBranchNameService)
@@ -46,7 +44,6 @@ namespace GitMind.Features.Remote.Private
 			this.message = message;
 			this.statusService = statusService;
 			this.gitBranchService = gitBranchService;
-			this.gitNetworkService = gitNetworkService;
 			this.gitFetch = gitFetch;
 			this.gitPush = gitPush;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;

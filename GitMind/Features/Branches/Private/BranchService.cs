@@ -22,7 +22,6 @@ namespace GitMind.Features.Branches.Private
 	internal class BranchService : IBranchService
 	{
 		private readonly IGitBranchService gitBranchService;
-		private readonly IGitNetworkService gitNetworkService;
 		private readonly IGitFetch gitFetch;
 		private readonly IGitPush gitPush;
 		private readonly ICommitsService commitsService;
@@ -36,7 +35,6 @@ namespace GitMind.Features.Branches.Private
 
 		public BranchService(
 			IGitBranchService gitBranchService,
-			IGitNetworkService gitNetworkService,
 			IGitFetch gitFetch,
 			IGitPush gitPush,
 			ICommitsService commitsService,
@@ -48,7 +46,6 @@ namespace GitMind.Features.Branches.Private
 			IStatusService statusService)
 		{
 			this.gitBranchService = gitBranchService;
-			this.gitNetworkService = gitNetworkService;
 			this.gitFetch = gitFetch;
 			this.gitPush = gitPush;
 			this.commitsService = commitsService;

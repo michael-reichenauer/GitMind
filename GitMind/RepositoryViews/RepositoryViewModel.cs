@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -18,6 +19,7 @@ using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.RepositoryViews.Private;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
 using ListBox = System.Windows.Controls.ListBox;
@@ -37,6 +39,7 @@ namespace GitMind.RepositoryViews
 		private readonly IRepositoryService repositoryService;
 
 		private readonly IGitInfoService gitInfoService;
+		private readonly IGitFetch gitFetch;
 
 		private readonly IThemeService themeService;
 		private readonly IMessage message;
@@ -45,7 +48,6 @@ namespace GitMind.RepositoryViews
 		private readonly ICommandLine commandLine;
 		private readonly ICommitsService commitsService;
 		private readonly IProgressService progress;
-		private readonly IGitNetworkService gitNetworkService;
 
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
@@ -82,10 +84,10 @@ namespace GitMind.RepositoryViews
 			ICommitsService commitsService,
 			IRepositoryService repositoryService,
 			IGitInfoService gitInfoService,
+			IGitFetch gitFetch,
 			IThemeService themeService,
 			IMessage message,
 			IProgressService progressService,
-			IGitNetworkService gitNetworkService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
 		{
 			this.workingFolder = workingFolder;
@@ -96,11 +98,11 @@ namespace GitMind.RepositoryViews
 			this.repositoryService = repositoryService;
 
 			this.gitInfoService = gitInfoService;
+			this.gitFetch = gitFetch;
 
 			this.themeService = themeService;
 			this.message = message;
 			this.progress = progressService;
-			this.gitNetworkService = gitNetworkService;
 
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
 
@@ -391,7 +393,7 @@ namespace GitMind.RepositoryViews
 				{
 					Log.Debug("Refreshing after manual trigger ...");
 
-					await gitNetworkService.PruneLocalTagsAsync();
+					await gitFetch.FetchPruneTagsAsync(CancellationToken.None);
 
 					Log.Debug("Get fresh repository from scratch");
 					await repositoryService.GetRemoteAndFreshRepositoryAsync();

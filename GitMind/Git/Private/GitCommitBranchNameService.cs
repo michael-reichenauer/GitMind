@@ -23,7 +23,6 @@ namespace GitMind.Git.Private
 		private readonly WorkingFolder workingFolder;
 		private readonly IRepoCaller repoCaller;
 		private readonly Lazy<IRepositoryMgr> repositoryMgr;
-		private readonly IGitNetworkService gitNetworkService;
 		private readonly IGitFetch gitFetch;
 		private readonly IGitPush gitPush;
 
@@ -32,14 +31,12 @@ namespace GitMind.Git.Private
 			WorkingFolder workingFolder,
 			IRepoCaller repoCaller,
 			Lazy<IRepositoryMgr> repositoryMgr,
-			IGitNetworkService gitNetworkService,
 			IGitFetch gitFetch,
 			IGitPush gitPush)
 		{
 			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
 			this.repositoryMgr = repositoryMgr;
-			this.gitNetworkService = gitNetworkService;
 			this.gitFetch = gitFetch;
 			this.gitPush = gitPush;
 		}

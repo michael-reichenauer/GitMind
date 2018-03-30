@@ -24,20 +24,20 @@ namespace GitMind.Utils.Git.Private
 			await gitCmd.RunAsync(FetchArgs, ct);
 
 
-		public async Task<GitResult> FetchBranchAsync(string branchName, CancellationToken ct)
-		{
-			string[] refspecs = { $"{branchName}:{branchName}" };
-
-			return await FetchRefsAsync(refspecs, CancellationToken.None);
-		}
+		public async Task<GitResult> FetchBranchAsync(string branchName, CancellationToken ct) => 
+			await FetchRefsAsync(new[] { $"{branchName}:{branchName}" }, ct);
 
 
 		public async Task<GitResult> FetchRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
 		{
 			string refsText = string.Join(" ", refspecs);
-			string fetchRefsArgs = $"{FetchRefsArgs} {refsText}";
+			string args = $"{FetchRefsArgs} {refsText}";
 
-			return await gitCmd.RunAsync(fetchRefsArgs, ct);
+			return await gitCmd.RunAsync(args, ct);
 		}
+
+
+		public async Task<GitResult> FetchPruneTagsAsync(CancellationToken ct) => 
+			await gitCmd.RunAsync("fetch --prune origin \"+refs/tags/*:refs/tags/*\"", ct);
 	}
 }

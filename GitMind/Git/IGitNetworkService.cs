@@ -5,25 +5,25 @@ using GitMind.Utils;
 
 namespace GitMind.Git
 {
-	internal interface IGitNetworkService
-	{
-		//Task<R> FetchAsync();
+	//internal interface IGitNetworkService
+	//{
+	//	//Task<R> FetchAsync();
 
-		// Task<R> FetchBranchAsync(BranchName branchName);
+	//	// Task<R> FetchBranchAsync(BranchName branchName);
 
-		//Task<R> FetchRefsAsync(IEnumerable<string> refspecs);
+	//	//Task<R> FetchRefsAsync(IEnumerable<string> refspecs);
 
-		//Task<R> PushCurrentBranchAsync();
+	//	//Task<R> PushCurrentBranchAsync();
 
-		//Task<R> PushBranchAsync(BranchName branchName);
+	//	//Task<R> PushBranchAsync(BranchName branchName);
 
-		//Task<R> PushRefsAsync(IEnumerable<string> refspecs);
+	//	//Task<R> PushRefsAsync(IEnumerable<string> refspecs);
 
-		//Task<R> PublishBranchAsync(BranchName branchName);
+	//	//Task<R> PublishBranchAsync(BranchName branchName);
 
-		//Task<R> DeleteRemoteBranchAsync(BranchName branchName);
-		//Task<R> DeleteRemoteTagAsync(string tagName);
-		//Task<R> PushTagAsync(string tagCanonicalName);
-		Task<R> PruneLocalTagsAsync();
-	}
+	//	//Task<R> DeleteRemoteBranchAsync(BranchName branchName);
+	//	//Task<R> DeleteRemoteTagAsync(string tagName);
+	//	//Task<R> PushTagAsync(string tagCanonicalName);
+	//	Task<R> PruneLocalTagsAsync();
+	//}
 }
