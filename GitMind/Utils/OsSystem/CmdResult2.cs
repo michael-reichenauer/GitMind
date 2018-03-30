@@ -10,18 +10,19 @@ namespace GitMind.Utils.OsSystem
 		private static readonly char[] Eol = "\n".ToCharArray();
 
 
-		public CmdResult2(
-			string command,
+		public CmdResult2(string command,
 			string arguments,
 			int exitCode,
 			string output,
 			string error,
+			TimeSpan elapsed,
 			CancellationToken ct)
 		{
 			Command = command;
 			Arguments = arguments;
 			Output = output;
 			Error = error;
+			Elapsed = elapsed;
 			IsCanceled = ct.IsCancellationRequested;
 			ExitCode = exitCode;
 		}
@@ -37,6 +38,9 @@ namespace GitMind.Utils.OsSystem
 		public IReadOnlyList<string> OutputLines => Output.Split(Eol);
 
 		public string Error { get; }
+
+		public TimeSpan Elapsed { get; }
+		public long ElapsedMs => (long)Elapsed.TotalMilliseconds;
 
 		public IReadOnlyList<string> ErrorLines => Error.Split(Eol);
 

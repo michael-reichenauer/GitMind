@@ -29,7 +29,7 @@ namespace GitMind.Utils.OsSystem.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Cmd failed: {command} {arguments}");
-				return new CmdResult2(command, arguments, -1, "", $"{e.GetType()}, {e.Message}", ct);
+				return new CmdResult2(command, arguments, -1, "", $"{e.GetType()}, {e.Message}", TimeSpan.Zero, ct);
 			}
 		}
 
@@ -40,6 +40,7 @@ namespace GitMind.Utils.OsSystem.Private
 			CmdOptions options,
 			CancellationToken ct)
 		{
+			Stopwatch stopwatch = Stopwatch.StartNew();
 			// The task async exit code
 			TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
 
@@ -62,8 +63,8 @@ namespace GitMind.Utils.OsSystem.Private
 			OutData outData = await outputAndErrorTask.ConfigureAwait(false);
 
 			process?.Dispose();
-
-			return new CmdResult2(command, arguments, exitCode, outData.Outout, outData.Error, ct);
+			stopwatch.Start();
+			return new CmdResult2(command, arguments, exitCode, outData.Outout, outData.Error, stopwatch.Elapsed, ct);
 		}
 
 

@@ -104,19 +104,18 @@ namespace GitMind.Utils.Git.Private
 		{
 			AdjustOptions(options, sessionId);
 
-			Timing t = Timing.StartNew();
 			Log.Debug($"Runing: {GitCmdPath} {gitArgs}");
 			CmdOptions cmdOptions = ToCmdOptions(options);
 			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, cmdOptions, ct);
-			Track.Event("gitCmd", $"{t.ElapsedMs}ms: {result.ToStringShort()}");
+			Track.Event("gitCmd", $"{result.ElapsedMs}ms: {result.ToStringShort()}");
 
 			if (result.ExitCode == 0)
 			{
-				Log.Debug($"{t.ElapsedMs}ms: {result}");
+				Log.Debug($"{result.ElapsedMs}ms: {result}");
 			}
 			else
 			{
-				Log.Warn($"{t.ElapsedMs}ms: {result}");
+				Log.Warn($"{result.ElapsedMs}ms: {result}");
 			}
 
 			return new GitResult(result);
