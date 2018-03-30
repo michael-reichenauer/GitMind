@@ -7,6 +7,6 @@ namespace GitMind.Git
 	{
 		R<string> GetCurrentRootPath(string folder);
 
-		bool IsSupportedRemoteUrl(string workingFolder);
+		//bool IsSupportedRemoteUrl(string workingFolder);
 	}
 }

@@ -52,7 +52,7 @@ namespace GitMind.RepositoryViews
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string settingFilterText = "";
-		private bool isValidUri;
+		//private bool isValidUri;
 
 		private int width = 0;
 		private int graphWidth = 0;
@@ -286,7 +286,7 @@ namespace GitMind.RepositoryViews
 					t.Log("Updated view model after cached/fresh");
 				}
 
-				isValidUri = gitInfoService.IsSupportedRemoteUrl(workingFolder);
+				// isValidUri = gitInfoService.IsSupportedRemoteUrl(workingFolder);
 				
 				using (progress.ShowBusy())
 				{
@@ -329,12 +329,12 @@ namespace GitMind.RepositoryViews
 					await repositoryService.CheckRemoteChangesAsync(false);
 				}
 
-				if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
-				{
-					FetchErrorText =
-						"SSH protocol is not yet supported for remote access.\n" +
-						"Use git:// or https:// instead if yopu want remote status, updates and push support.";
-				}
+				//if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
+				//{
+				//	FetchErrorText =
+				//		"SSH protocol is not yet supported for remote access.\n" +
+				//		"Use git:// or https:// instead if yopu want remote status, updates and push support.";
+				//}
 
 				t.Log("Activate refresh done");
 			}
@@ -354,12 +354,12 @@ namespace GitMind.RepositoryViews
 
 			await repositoryService.CheckBranchTipCommitsAsync();
 
-			if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
-			{
-				FetchErrorText =
-					"SSH protocol is not yet supported for remote access.\n" +
-					"Use git:// or https:// instead if yopu want remote status, updates and push support.";
-			}
+			//if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
+			//{
+			//	FetchErrorText =
+			//		"SSH protocol is not yet supported for remote access.\n" +
+			//		"Use git:// or https:// instead if yopu want remote status, updates and push support.";
+			//}
 		}
 
 
