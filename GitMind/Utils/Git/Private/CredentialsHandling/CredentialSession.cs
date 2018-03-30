@@ -82,7 +82,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 			}
 
 			IsAskPassCanceled = true;
-			return "";
+			return null;
 		}
 
 
@@ -97,7 +97,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 			}
 
 			IsAskPassCanceled = true;
-			return "";
+			return null;
 		}
 
 
@@ -127,6 +127,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 				}
 
 				IsAskPassCanceled = true;
+				return null;
 			}
 			else if (seeking.SameIc("Password"))
 			{
@@ -147,7 +148,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 			}
 
 			Log.Debug("No response");
-			return "";
+			return null;
 		}
 
 		public void ConfirmValidCrededntial(bool isValid)

@@ -47,6 +47,13 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 				string response = ipcRemotingService.CallService<CredentialIpcService, string>(
 					sessionId, service => service.AskPassRequest(promptText));
 
+				if (response == null)
+				{
+					Log.Debug($"Respone: null, Canceled");
+					Console.Out.Close();
+					return;
+				}
+
 				if (!string.IsNullOrEmpty(response))
 				{
 					Log.Debug("Response: ******");
