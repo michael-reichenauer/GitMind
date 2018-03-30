@@ -6,7 +6,8 @@ namespace GitMind.Utils.Git
 {
 	public interface IGitInfo
 	{
-		Task<string> GetVersionAsync(CancellationToken ct);
-		Task<string> GetGitPathAsync(CancellationToken ct);
+		Task<string> TryGetGitVersionAsync(CancellationToken ct);
+		Task<string> TryGetGitPathAsync(CancellationToken ct);
+		Task<string> TryGetWorkingFolderRootAsync(string path, CancellationToken ct);
 	}
 }

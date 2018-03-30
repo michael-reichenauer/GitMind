@@ -237,8 +237,6 @@
     <Compile Include="Utils\Git\Private\GitCredential.cs" />
     <Compile Include="Utils\Git\Private\GitEnvironmentService.cs" />
     <Compile Include="Utils\Git\IGitEnvironmentService.cs" />
-    <Compile Include="Utils\Git\Private\CredentialsHandling\GitCredentialManager.cs" />
-    <Compile Include="Utils\Git\IGitCredentialManager.cs" />
     <Compile Include="Utils\Git\Private\GitConfig.cs" />
     <Compile Include="Utils\Git\IGitConfig.cs" />
     <Compile Include="Utils\Git\GitSetting.cs" />
@@ -260,7 +258,7 @@
     <Compile Include="Utils\Git\LogCommit.cs" />
     <Compile Include="Utils\AsyncCountdownEvent.cs" />
     <Compile Include="Utils\AsyncManualResetEvent.cs" />
-    <Compile Include="Utils\Git\Private\IGitCredential.cs" />
+    <Compile Include="Utils\Git\Private\CredentialsHandling\IGitCredential.cs" />
     <Compile Include="Utils\OsSystem\CmdOptions.cs" />
     <Compile Include="Utils\OsSystem\ICmd2.cs" />
     <Compile Include="Utils\OsSystem\Private\Cmd2.cs" />

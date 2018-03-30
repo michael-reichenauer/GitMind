@@ -10,7 +10,6 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitCmd gitCmd;
 
 		private static readonly string PushArgs = "push --porcelain origin";
-		//private static readonly string PushBranchArgs = "push --porcelain -u origin";
 
 
 		public GitPush(IGitCmd gitCmd)

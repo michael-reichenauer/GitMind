@@ -80,11 +80,9 @@ namespace GitMind.Utils.Git.Private
 			{
 				using (CredentialSession session = new CredentialSession(credentialService, username))
 				{
-					//// Enable credentials handling
-					//gitArgs = $"-c credential.helper =\"!GitMind.exe --cmg {session.Id}\" { gitArgs}";
-
 					gitResult = await RunGitCmsAsync(gitArgs, options, session.Id, ct);
-					username = session.LastUsername;
+
+					username = session.Username;
 					session.ConfirmValidCrededntial(!gitResult.IsAuthenticationFailed);
 					isRetry = gitResult.IsAuthenticationFailed &&
 										session.IsCredentialRequested &&
@@ -143,7 +141,6 @@ namespace GitMind.Utils.Git.Private
 
 		private static CmdOptions ToCmdOptions(GitOptions options) => new CmdOptions()
 		{
-			InputText = options.InputText,
 			OutputLines = options.OutputLines,
 			ErrorLines = options.ErrorLines,
 			IsErrortDisabled = options.IsErrortDisabled,

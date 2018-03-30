@@ -1,4 +1,7 @@
-﻿namespace GitMind.Utils.Git.Private
+﻿using GitMind.Utils.Git.Private.CredentialsHandling;
+
+
+namespace GitMind.Utils.Git.Private
 {
 	internal interface ICredentialService
 	{

@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -15,48 +17,34 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<string> GetWorkingFolderRootAsync(CancellationToken ct)
+		public async Task<string> TryGetWorkingFolderRootAsync(string path, CancellationToken ct)
 		{
-			GitResult result = await gitCmd.RunAsync("rev-parse --show-toplevel", ct);
-
-			if (result.ExitCode != 0 && !result.IsCanceled)
+			if (path.EndsWith(".git"))
 			{
-				Log.Warn($"Failed to get version: {result}");
+				path = Path.GetDirectoryName(path);
 			}
 
-			return result.Output.Trim();
+			GitResult result = await gitCmd.RunAsync($"-C \"{path}\" rev-parse --show-toplevel", ct);
+
+			return result.IsOk && !string.IsNullOrWhiteSpace(result.Output)
+				? result.Output.Replace("/", "\\").Trim() : null;
 		}
 
 
-		public async Task<string> GetGitPathAsync(CancellationToken ct)
+		public async Task<string> TryGetGitPathAsync(CancellationToken ct)
 		{
 			GitResult result = await gitCmd.RunAsync("--exec-path", ct);
 
-			if (result.ExitCode != 0 && !result.IsCanceled)
-			{
-				Log.Warn($"Failed to get version: {result}");
-			}
-
-			return result.Output.Trim();
+			return result.IsOk ? result.Output.Trim() : null;
 		}
 
 
-		public async Task<string> GetVersionAsync(CancellationToken ct)
+		public async Task<string> TryGetGitVersionAsync(CancellationToken ct)
 		{
 			GitResult result = await gitCmd.RunAsync("version", ct);
 
-			if (result.ExitCode != 0 && !result.IsCanceled)
-			{
-				Log.Warn($"Failed to get version: {result}");
-				return "";
-			}
-
-			if (result.Output.StartsWith("git version "))
-			{
-				return result.Output.Substring(12).Trim();
-			}
-
-			return "";
+			return result.IsOk && result.Output.StartsWithOic("git version ")
+				? result.Output.Substring(12).Trim() : null;
 		}
 	}
 }

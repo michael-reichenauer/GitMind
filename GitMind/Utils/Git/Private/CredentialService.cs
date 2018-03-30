@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using GitMind.Common.Tracking;
 using GitMind.MainWindowViews;
+using GitMind.Utils.Git.Private.CredentialsHandling;
 using GitMind.Utils.UI;
 
 
@@ -83,7 +84,6 @@ namespace GitMind.Utils.Git.Private
 
 				if (credentialsDialog == null)
 				{
-					Log.Debug("No dialog");
 					return;
 				}
 

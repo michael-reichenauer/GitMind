@@ -1,4 +1,5 @@
-﻿using GitMind.Utils.UI;
+﻿using GitMind.Utils.Git.Private.CredentialsHandling;
+using GitMind.Utils.UI;
 
 
 namespace GitMind.Utils.Git.Private

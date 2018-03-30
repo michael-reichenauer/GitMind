@@ -16,7 +16,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		public CredentialSession(ICredentialService credentialService, string username)
 		{
 			this.credentialService = credentialService;
-			LastUsername = username;
+			Username = username;
 
 			StartIpcServerSide();
 		}
@@ -26,7 +26,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 
 		public bool IsAskPassCanceled { get; private set; } = false;
 		public bool IsCredentialRequested { get; private set; } = false;
-		public string LastUsername { get; private set; }
+		public string Username { get; private set; }
 		public object TargetUri { get; private set; }
 
 
@@ -76,9 +76,9 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 			// Try get cached password och show credential dialog
 			if (credentialService.TryGetPassword(username, out gitCredential))
 			{
-				LastUsername = gitCredential.Username;
+				Username = gitCredential.Username;
 				Log.Debug($"Response: {gitCredential.Password}");
-				return LastUsername;
+				return Username;
 			}
 
 			IsAskPassCanceled = true;
@@ -91,9 +91,9 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 			// Try get cached password och show credential dialog
 			if (credentialService.TryGetPassphrase(resource, out gitCredential))
 			{
-				LastUsername = gitCredential.Username;
+				Username = gitCredential.Username;
 				Log.Debug($"Response: {gitCredential.Password}");
-				return LastUsername;
+				return Username;
 			}
 
 			IsAskPassCanceled = true;
@@ -115,15 +115,15 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 				IsCredentialRequested = true;
 				TargetUri = url;
 
-				string username = LastUsername ?? parsedUsername;
+				string username = Username ?? parsedUsername;
 
 				// Try get cached credential och show credential dialog
 				if (credentialService.TryGetCredential(url, username, out gitCredential))
 				{
 					TargetUri = url;
-					LastUsername = gitCredential.Username;
-					Log.Debug($"Response: {LastUsername}");
-					return LastUsername;
+					Username = gitCredential.Username;
+					Log.Debug($"Response: {Username}");
+					return Username;
 				}
 
 				IsAskPassCanceled = true;
@@ -153,8 +153,6 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 
 		public void ConfirmValidCrededntial(bool isValid)
 		{
-			Log.Debug($"Confirm valid credentials: {isValid}");
-
 			credentialService.SetDialogConfirm(gitCredential, isValid);
 		}
 
