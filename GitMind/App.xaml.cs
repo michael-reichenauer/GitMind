@@ -161,7 +161,7 @@ namespace GitMind
 			try
 			{
 				Log.Debug("Try ActivatedOtherInstance");
-				Track.Event("ActivatedOtherInstance");
+				
 				string id = MainWindowIpcService.GetId(workingFolder);
 				using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 				{
@@ -170,6 +170,7 @@ namespace GitMind
 						// Another GitMind instance for that working folder is already running, activate that.
 						var args = Environment.GetCommandLineArgs();
 						ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(args));
+						Track.Event("ActivatedOtherInstance");
 						return true;
 					}
 				}
