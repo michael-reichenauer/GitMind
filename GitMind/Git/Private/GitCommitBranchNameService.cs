@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
-using GitMind.GitModel.Private;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;

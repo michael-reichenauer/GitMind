@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.Tracking;
-using GitMind.MainWindowViews;
 using GitMind.Utils.Git.Private.CredentialsHandling;
 using GitMind.Utils.OsSystem;
 using GitMind.Utils.UI;
@@ -20,7 +19,6 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitEnvironmentService gitEnvironmentService;
 		private readonly ICredentialService credentialService;
 		private readonly IMessage message;
-		private readonly WindowOwner owner;
 		private readonly WorkingFolderPath workingFolder;
 
 
@@ -29,14 +27,12 @@ namespace GitMind.Utils.Git.Private
 			IGitEnvironmentService gitEnvironmentService,
 			ICredentialService credentialService,
 			IMessage message,
-			WindowOwner owner,
 			WorkingFolderPath workingFolder)
 		{
 			this.cmd = cmd;
 			this.gitEnvironmentService = gitEnvironmentService;
 			this.credentialService = credentialService;
 			this.message = message;
-			this.owner = owner;
 			this.workingFolder = workingFolder;
 		}
 
@@ -129,7 +125,7 @@ namespace GitMind.Utils.Git.Private
 			// Used to enable credentials handling
 			options.EnvironmentVariables = environment =>
 			{
-				// If git needs to ask for command line credentials, redirect that to GitMind exe to answer
+				// If git needs to ask for command line credentials, redirect that to GitMind to answer
 				string instanceDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 				environment["Path"] = $"{instanceDir};{environment["Path"]}";
 				environment["GIT_ASKPASS"] = "GitMind";

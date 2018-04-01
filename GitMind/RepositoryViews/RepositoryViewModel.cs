@@ -38,7 +38,6 @@ namespace GitMind.RepositoryViews
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService;
 
-		private readonly IGitInfoService gitInfoService;
 		private readonly IGitFetch gitFetch;
 
 		private readonly IThemeService themeService;
@@ -83,7 +82,6 @@ namespace GitMind.RepositoryViews
 			IViewModelService viewModelService,
 			ICommitsService commitsService,
 			IRepositoryService repositoryService,
-			IGitInfoService gitInfoService,
 			IGitFetch gitFetch,
 			IThemeService themeService,
 			IMessage message,
@@ -97,7 +95,6 @@ namespace GitMind.RepositoryViews
 			this.commitsService = commitsService;
 			this.repositoryService = repositoryService;
 
-			this.gitInfoService = gitInfoService;
 			this.gitFetch = gitFetch;
 
 			this.themeService = themeService;

@@ -78,7 +78,7 @@
     <Compile Include="Utils\Git\GitPushTest.cs" />
     <Compile Include="Utils\Git\GitStatusTest.cs" />
     <Compile Include="Utils\Git\Private\GitTestBase.cs" />
-    <Compile Include="Utils\Git\GitInfoTest.cs" />
+    <Compile Include="Utils\Git\GitEnvironmentServiceTest.cs" />
     <Compile Include="Utils\Git\Private\GitCmdTest.cs" />
     <Compile Include="Utils\Git\GitLogTest.cs" />
     <Compile Include="Utils\Ipc\IpcServiceTest.cs" />

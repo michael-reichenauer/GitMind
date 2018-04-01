@@ -206,8 +206,6 @@
     <Compile Include="Git\Private\GitNetworkService.cs" />
     <Compile Include="Git\IGitNetworkService.cs" />
     <Compile Include="Features\Branches\Private\GitBranchService.cs" />
-    <Compile Include="Git\Private\GitInfoService.cs" />
-    <Compile Include="Git\IGitInfoService.cs" />
     <Compile Include="Git\Private\GitCommitBranchNameService.cs" />
     <Compile Include="Features\Branches\Private\IGitBranchService.cs" />
     <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />

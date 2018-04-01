@@ -5,6 +5,15 @@ using GitMind.Utils.Ipc;
 
 namespace GitMind.Utils.Git.Private.CredentialsHandling
 {
+	/// <summary>
+	/// Handles credentials for a git command. 
+	/// If git needs credentials and non of the configured credential helpers like
+	/// e.g. git-credential-manager handles the request,
+	/// git will try to get credentials from the command line or a defined GIT_ASKPASS program.
+	/// So gitCmd will define GIT_ASKPASS to GitMind and thus redirect git to a GitMind instance,
+	/// which will forward the request using named pipe to IpcRemotingService started by
+	/// this instance. 
+	/// </summary>
 	internal class CredentialSession : IDisposable
 	{
 		private readonly ICredentialService credentialService;
@@ -160,7 +169,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		private void StartIpcServerSide()
 		{
 			// Start IPC server side, which can receive requests from a tmp GitMind process started by 
-			// git, when git requires credentials
+			// git, when git requires credentials via the GIT_ASKPASS environment vartiable
 			serverSideIpcService = new IpcRemotingService();
 			serverSideIpcService.TryCreateServer(Id);
 			serverSideIpcService.PublishService(new CredentialIpcService(this));

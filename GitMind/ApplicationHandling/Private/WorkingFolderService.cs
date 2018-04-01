@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Git;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.ApplicationHandling.Private
@@ -10,17 +13,17 @@ namespace GitMind.ApplicationHandling.Private
 	internal class WorkingFolderService : IWorkingFolderService
 	{
 		private readonly ICommandLine commandLine;
-		private readonly IGitInfoService gitInfoService;
+		private readonly Lazy<IGitInfo> gitInfo;
 
 		private string workingFolder;
 
 
 		public WorkingFolderService(
 			ICommandLine commandLine,
-			IGitInfoService gitInfoService)
+			Lazy<IGitInfo> gitInfo)
 		{
 			this.commandLine = commandLine;
-			this.gitInfoService = gitInfoService;
+			this.gitInfo = gitInfo;
 		}
 
 
@@ -133,7 +136,9 @@ namespace GitMind.ApplicationHandling.Private
 				return Error.From("No working folder");
 			}
 
-			return gitInfoService.GetCurrentRootPath(path);
+			string rootPath = Task.Run(() => gitInfo.Value.TryGetWorkingFolderRootAsync(path, CancellationToken.None)).Result;
+
+			return !string.IsNullOrEmpty(rootPath) ? R.From(rootPath) : R<string>.NoValue;
 		}
 	}
 }

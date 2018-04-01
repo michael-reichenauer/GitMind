@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMindTest.Utils.Git.Private;
 using NUnit.Framework;
@@ -7,7 +8,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitInfoTest : GitTestBase<IGitInfo>
+	public class GitEnvironmentServiceTest : GitTestBase<IGitEnvironmentService>
 	{
 		[Test, Explicit]
 		public async Task TestVersion()
@@ -18,9 +19,18 @@ namespace GitMindTest.Utils.Git
 
 
 		[Test, Explicit]
-		public async Task TestGitPath()
+		public async Task TestGitCorePath()
 		{
-			string path = await gitCmd.TryGetGitPathAsync(ct);
+			string path = await gitCmd.TryGetGitCorePathAsync(ct);
+			Log.Debug(path);
+			Assert.AreNotEqual(null, path);
+		}
+
+		[Test, Explicit]
+		public async Task TestGitCmdPath()
+		{
+			string path = await gitCmd.TryGetGitCmdPathAsync(ct);
+			Log.Debug(path);
 			Assert.AreNotEqual(null, path);
 		}
 
