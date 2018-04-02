@@ -9,7 +9,7 @@ namespace GitMind.Utils
 		public static R NoValue = new R(Error.NoValue);
 	
 
-		public R(Error error)
+		protected R(Error error)
 		{
 			Error = error;
 		}
