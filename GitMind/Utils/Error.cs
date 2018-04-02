@@ -5,28 +5,28 @@ namespace GitMind.Utils
 {
 	public class Error : Equatable<Error>
 	{
-		private Error(Exception e, string message, string text)
+		private readonly string message;
+		
+		private Error(string message, Exception exception)
 		{
-			Exception = e;
-			Message = message;
-			Text = text;
+			Exception = exception ?? new Exception();
+			this.message = message;
 		}
 		
-		public static Error None { get; } = new Error(new Exception("No error"), "No error", "No error");
-		public static Error NoValue { get; } = new Error(new Exception("No value"), "No value", "No value");
+		public static Error None { get; } = From("No error");
+		public static Error NoValue { get; } = From("No value");
 
-		public string Message { get; }
-		public string Text { get; }
 		public Exception Exception { get; }
 
-		public static Error From(Exception e) => 
-			new Error(e, e.Message, $"{e.GetType().Name}: {e.Message}");
+		public string Message => !string.IsNullOrEmpty(message) ?
+			$"{message},\n{Exception.Message}" : Exception.Message;
 
-		public static Error From(Exception e, string message) =>
-			new Error(e, $"{message}; {e.Message}", $"{message},\n{e.GetType().Name}: {e.Message}");
 
-		public static Error From(string message) =>
-			new Error(new Exception(message), message, $"{message},\nException: {message}");
+		public static Error From(Exception e) => new Error(null, e);
+
+		public static Error From(string message, Exception e) => new Error(message, e);
+
+		public static Error From(string message) => new Error(null, new Exception(message));
 
 	
 		public static implicit operator Error(Exception e) => From(e);
@@ -55,6 +55,7 @@ namespace GitMind.Utils
 
 		protected override int GetHash() => 0;
 
-		public override string ToString() => Text;
+		public override string ToString() => 
+			$"{Exception.GetType().Name}, {Message}\n {Exception.StackTrace}";
 	}
 }

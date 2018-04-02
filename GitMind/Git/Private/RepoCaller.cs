@@ -46,7 +46,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				return Error.From($"Failed to {memberName} in {workingFolder}", e);
 			}
 		}
 
@@ -69,7 +69,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				return Error.From($"Failed to {memberName} in {workingFolder}", e);
 			}
 		}
 
@@ -92,7 +92,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				return Error.From($"Failed to {memberName} in {workingFolder}", e);
 			}
 		}
 
@@ -132,7 +132,7 @@ namespace GitMind.Git.Private
 			catch (OperationCanceledException e)
 			{
 				Log.Exception(e, $"Timeout for {memberName} in {workingFolder}");
-				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				Error error = Error.From($"Failed to {memberName} in {workingFolder}", e);
 				return error;
 			}
 		}
@@ -153,7 +153,7 @@ namespace GitMind.Git.Private
 			catch (OperationCanceledException e)
 			{
 				Log.Exception(e, $"Timeout for {memberName} in {workingFolder}");
-				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				Error error = Error.From($"Failed to {memberName} in {workingFolder}", e);
 				return error;
 			}
 		}
@@ -180,7 +180,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				return Error.From($"Failed to {memberName} in {workingFolder}", e);
 			}
 		}
 
@@ -206,7 +206,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				return Error.From($"Failed to {memberName} in {workingFolder}", e);
 			}
 		}
 
@@ -232,7 +232,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				return Error.From($"Failed to {memberName} in {workingFolder}", e);
 			}
 		}
 
@@ -256,7 +256,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				return Error.From($"Failed to {memberName} in {workingFolder}", e);
 			}
 		}
 
@@ -278,7 +278,7 @@ namespace GitMind.Git.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
-				return Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				return Error.From($"Failed to {memberName} in {workingFolder}", e);
 			}
 		}
 
@@ -313,7 +313,7 @@ namespace GitMind.Git.Private
 			catch (OperationCanceledException e)
 			{
 				Log.Exception(e, $"Timeout for {memberName} in {workingFolder}");
-				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				Error error = Error.From($"Failed to {memberName} in {workingFolder}", e);
 				return error;
 			}
 		}
@@ -334,7 +334,7 @@ namespace GitMind.Git.Private
 			catch (OperationCanceledException e)
 			{
 				Log.Exception(e, $"Timeout for {memberName} in {workingFolder}");
-				Error error = Error.From(e, $"Failed to {memberName} in {workingFolder}");
+				Error error = Error.From($"Failed to {memberName} in {workingFolder}", e);
 				return error;
 			}
 		}
@@ -379,7 +379,7 @@ namespace GitMind.Git.Private
 				catch (Exception e)
 				{
 					Log.Exception(e, $"Failed to {memberName} in {workingFolder}");
-					return Error.From(e, $"Failed to {memberName} in {workingFolder}");
+					return Error.From($"Failed to {memberName} in {workingFolder}", e);
 				}
 			});
 		}
