@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using GitMind.Utils.OsSystem;
 
 
-namespace GitMind.Utils.Git
+namespace GitMind.Utils.Git.Private
 {
 	public class GitResult
 	{

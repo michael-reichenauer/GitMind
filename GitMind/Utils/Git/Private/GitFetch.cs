@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Common;
 
 
 namespace GitMind.Utils.Git.Private
@@ -20,24 +21,24 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<GitResult> FetchAsync(CancellationToken ct) =>
-			await gitCmd.RunAsync(FetchArgs, ct);
+		public async Task<R> FetchAsync(CancellationToken ct) =>
+			(await gitCmd.RunAsync(FetchArgs, ct)).AsR();
 
 
-		public async Task<GitResult> FetchBranchAsync(string branchName, CancellationToken ct) => 
+		public async Task<R> FetchBranchAsync(string branchName, CancellationToken ct) => 
 			await FetchRefsAsync(new[] { $"{branchName}:{branchName}" }, ct);
 
 
-		public async Task<GitResult> FetchRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
+		public async Task<R> FetchRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
 		{
 			string refsText = string.Join(" ", refspecs);
 			string args = $"{FetchRefsArgs} {refsText}";
 
-			return await gitCmd.RunAsync(args, ct);
+			return (await gitCmd.RunAsync(args, ct)).AsR();
 		}
 
 
-		public async Task<GitResult> FetchPruneTagsAsync(CancellationToken ct) => 
-			await gitCmd.RunAsync("fetch --prune origin \"+refs/tags/*:refs/tags/*\"", ct);
+		public async Task<R> FetchPruneTagsAsync(CancellationToken ct) => 
+			(await gitCmd.RunAsync("fetch --prune origin \"+refs/tags/*:refs/tags/*\"", ct)).AsR();
 	}
 }

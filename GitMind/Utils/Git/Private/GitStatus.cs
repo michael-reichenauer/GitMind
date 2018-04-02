@@ -16,11 +16,14 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<Status> GetAsync(CancellationToken ct)
+		public async Task<R<Status>> GetAsync(CancellationToken ct)
 		{
 			GitResult result = await gitCmd.RunAsync(StatusArgs, ct);
 
-			result.ThrowIfError("Failed to get status");
+			if (result.IsFaulted)
+			{
+				return Error.From(result.Error);
+			}
 
 			Status status = ParseStatus(result);
 			Log.Debug($"Status: {status}");

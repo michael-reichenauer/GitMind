@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Utils.OsSystem;
+using GitMind.Common;
 
 
 namespace GitMind.Utils.Git.Private
@@ -24,7 +24,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<IReadOnlyList<LogCommit>> GetAsync(CancellationToken ct)
+		public async Task<R<IReadOnlyList<LogCommit>>> GetAsync(CancellationToken ct)
 		{
 			List<LogCommit> commits = new List<LogCommit>();
 
@@ -34,11 +34,11 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task GetAsync(Action<LogCommit> commits, CancellationToken ct)
+		public async Task<R> GetAsync(Action<LogCommit> commits, CancellationToken ct)
 		{
 			GitResult result = await gitCmd.RunAsync(GitLogArgs, line => commits(Parse(line)), ct);
 
-			result.ThrowIfError("Failed to get log");
+			return result.AsR();
 		}
 
 

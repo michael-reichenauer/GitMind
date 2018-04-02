@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMindTest.Utils.Git.Private;
 using NUnit.Framework;
@@ -12,7 +13,7 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestFetch()
 		{
-			GitResult result = await gitCmd.FetchAsync(ct);
+			R result = await gitCmd.FetchAsync(ct);
 			Assert.IsTrue(result.IsOk);
 		}
 
@@ -21,7 +22,7 @@ namespace GitMindTest.Utils.Git
 		{
 			string[] rfs = { "master:master" };
 
-			GitResult result = await gitCmd.FetchRefsAsync(rfs, ct);
+			R result = await gitCmd.FetchRefsAsync(rfs, ct);
 			Assert.IsTrue(result.IsOk);
 		}
 
@@ -35,7 +36,7 @@ namespace GitMindTest.Utils.Git
 				"+refs/notes/GitMind.Branches.Manual:refs/notes/origin/GitMind.Branches.Manual"
 			};
 
-			GitResult result = await gitCmd.FetchRefsAsync(rfs, ct);
+			R result = await gitCmd.FetchRefsAsync(rfs, ct);
 			Assert.IsTrue(result.IsOk);
 		}
 	}

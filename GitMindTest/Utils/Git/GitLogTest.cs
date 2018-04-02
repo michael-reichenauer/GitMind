@@ -14,9 +14,9 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public async Task Test()
 		{
-			IReadOnlyList<LogCommit> result = await gitCmd.GetAsync(ct);
+			R<IReadOnlyList<LogCommit>> result = await gitCmd.GetAsync(ct);
 
-			Log.Debug($"Log contained {result.Count} Commits");
+			Log.Debug($"Log contained {result.Value.Count} Commits");
 		}
 	}
 }

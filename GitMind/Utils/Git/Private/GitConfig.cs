@@ -21,22 +21,25 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public bool TryGet(string name, out GitSetting setting)
-		{
-			IReadOnlyList<GitSetting> settings =
-				Task.Run(() => GetAsync(CancellationToken.None)).Result;
+		//public bool TryGet(string name, out GitSetting setting)
+		//{
+		//	IReadOnlyList<GitSetting> settings =
+		//		Task.Run(() => GetAsync(CancellationToken.None)).Result;
 
-			// Log.Debug($"Config:\n{ToText(settings)}");
-			setting = settings.FirstOrDefault(s => s.Name == name);
+		//	// Log.Debug($"Config:\n{ToText(settings)}");
+		//	setting = settings.FirstOrDefault(s => s.Name == name);
 
-			return setting != null;
-		}
+		//	return setting != null;
+		//}
 
 
-		public async Task<IReadOnlyList<GitSetting>> GetAsync(CancellationToken ct)
+		public async Task<R<IReadOnlyList<GitSetting>>> GetAsync(CancellationToken ct)
 		{
 			GitResult result = await gitCmd.RunAsync(ConfigListArgs, ct);
-			result.ThrowIfError("Failed to get config list");
+			if (result.IsFaulted)
+			{
+				return Error.From(result.Error);
+			}
 
 			Dictionary<string, List<string>> settings = new Dictionary<string, List<string>>();
 

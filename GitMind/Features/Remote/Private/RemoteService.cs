@@ -54,13 +54,13 @@ namespace GitMind.Features.Remote.Private
 
 		public async Task<R> FetchAsync()
 		{
-			return (await gitFetch.FetchAsync(CancellationToken.None)).AsR();
+			return await gitFetch.FetchAsync(CancellationToken.None);
 		}
 
 
 		public async Task<R> PushBranchAsync(BranchName branchName)
 		{
-			return (await gitPush.PushBranchAsync(branchName, CancellationToken.None)).AsR();
+			return await gitPush.PushBranchAsync(branchName, CancellationToken.None);
 		}
 
 
@@ -162,7 +162,7 @@ namespace GitMind.Features.Remote.Private
 			{
 				await PushNotesAsync(Repository.RootCommit.RealCommitSha);
 
-				GitResult result = await gitPush.PushAsync(CancellationToken.None);
+				R result = await gitPush.PushAsync(CancellationToken.None);
 
 				if (!result.IsOk)
 				{
@@ -189,22 +189,22 @@ namespace GitMind.Features.Remote.Private
 
 				await PushNotesAsync(Repository.RootCommit.RealCommitSha);
 
-				//R result = R.Ok;
+				R result = R.Ok;
 				if (currentBranch.CanBePushed)
 				{
 					progress.SetText($"Pushing current branch {currentBranch.Name} ...");
-					GitResult result = await gitPush.PushAsync(CancellationToken.None);
+					result = await gitPush.PushAsync(CancellationToken.None);
 				}
 
-				//if (result.IsFaulted)
-				//{
-				//	message.ShowWarning(
-				//		$"Failed to push current branch {currentBranch.Name}.\n{result.Message}");
-				//}
+				if (result.IsFaulted)
+				{
+					message.ShowWarning(
+						$"Failed to push current branch {currentBranch.Name}.\n{result.Message}");
+				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
-					.Where(b => !b.IsCurrentBranch && b.CanBePushed)
-					.ToList();
+				.Where(b => !b.IsCurrentBranch && b.CanBePushed)
+				.ToList();
 
 				foreach (Branch branch in pushableBranches)
 				{

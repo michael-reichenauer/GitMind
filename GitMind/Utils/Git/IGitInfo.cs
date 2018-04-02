@@ -2,6 +2,6 @@
 {
 	public interface IGitInfo
 	{
-		string TryGetWorkingFolderRoot(string path);
+		R<string> GetWorkingFolderRoot(string path);
 	}
 }

@@ -1,8 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-
-namespace GitMind.Utils.Git.Private
+﻿namespace GitMind.Utils.Git.Private
 {
 	internal class GitInfo : IGitInfo
 	{
@@ -15,7 +11,11 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public string TryGetWorkingFolderRoot(string path) =>
-			gitEnvironmentService.TryGetWorkingFolderRoot(path);
+		public R<string> GetWorkingFolderRoot(string path)
+		{
+			string rootPath = gitEnvironmentService.TryGetWorkingFolderRoot(path);
+
+			return !string.IsNullOrEmpty(rootPath) ? R.From(rootPath) : R<string>.NoValue;
+		}
 	}
 }

@@ -11,6 +11,7 @@ using GitMind.GitModel.Private;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 using LibGit2Sharp;
 
 
@@ -94,7 +95,7 @@ namespace GitMind.Features.Tags.Private
 						{
 							// Try to push immediately
 							Log.Debug($"Try to push tag: '{addResult.Value}'");
-							GitResult pushResult = await gitPush.PushTagAsync(tagText, CancellationToken.None);
+							R pushResult = await gitPush.PushTagAsync(tagText, CancellationToken.None);
 							if (pushResult.IsFaulted)
 							{
 								message.ShowWarning(
@@ -126,7 +127,7 @@ namespace GitMind.Features.Tags.Private
 					if (deleteLocalResult.IsOk)
 					{
 						// Try to delete remote
-						result = (await gitPush.PushDeleteRemoteTagAsync(tagName, CancellationToken.None)).AsR();
+						result = await gitPush.PushDeleteRemoteTagAsync(tagName, CancellationToken.None);
 					}
 
 					if (result.IsFaulted)

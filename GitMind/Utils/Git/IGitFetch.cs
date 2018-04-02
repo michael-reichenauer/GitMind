@@ -7,9 +7,9 @@ namespace GitMind.Utils.Git
 {
 	public interface IGitFetch
 	{
-		Task<GitResult> FetchAsync(CancellationToken ct);
-		Task<GitResult> FetchBranchAsync(string branchName, CancellationToken ct);
-		Task<GitResult> FetchRefsAsync(IEnumerable<string> refspecs, CancellationToken ct);
-		Task<GitResult> FetchPruneTagsAsync(CancellationToken ct);
+		Task<R> FetchAsync(CancellationToken ct);
+		Task<R> FetchBranchAsync(string branchName, CancellationToken ct);
+		Task<R> FetchRefsAsync(IEnumerable<string> refspecs, CancellationToken ct);
+		Task<R> FetchPruneTagsAsync(CancellationToken ct);
 	}
 }

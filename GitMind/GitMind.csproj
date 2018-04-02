@@ -236,7 +236,7 @@
     <Compile Include="Utils\Git\Private\GitConfig.cs" />
     <Compile Include="Utils\Git\IGitConfig.cs" />
     <Compile Include="Utils\Git\GitSetting.cs" />
-    <Compile Include="Utils\Git\GitResult.cs" />
+    <Compile Include="Utils\Git\Private\GitResult.cs" />
     <Compile Include="Utils\Git\Private\GitOptions.cs" />
     <Compile Include="Utils\Git\Private\GitStatus.cs" />
     <Compile Include="Utils\Git\IGitStatus.cs" />

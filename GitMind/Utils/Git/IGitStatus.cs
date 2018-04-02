@@ -7,6 +7,6 @@ namespace GitMind.Utils.Git
 {
 	internal interface IGitStatus
 	{
-		Task<Status> GetAsync(CancellationToken ct);
+		Task<R<Status>> GetAsync(CancellationToken ct);
 	}
 }

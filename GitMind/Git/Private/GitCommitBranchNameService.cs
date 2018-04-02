@@ -10,6 +10,7 @@ using GitMind.Common;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 
 
 namespace GitMind.Git.Private
@@ -145,7 +146,7 @@ namespace GitMind.Git.Private
 			repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 
 			string[] refs = { $"refs/notes/{nameSpace}:refs/notes/{nameSpace}" };
-			GitResult result = await gitPush.PushRefsAsync(refs, CancellationToken.None);
+			R result = await gitPush.PushRefsAsync(refs, CancellationToken.None);
 			if (result.IsOk)
 			{
 				RemoveNotesFile(nameSpace);
@@ -227,7 +228,7 @@ namespace GitMind.Git.Private
 				$"+refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
 			};
 
-			return (await gitFetch.FetchRefsAsync(noteRefs, CancellationToken.None)).AsR();
+			return await gitFetch.FetchRefsAsync(noteRefs, CancellationToken.None);
 		}
 
 
@@ -240,7 +241,7 @@ namespace GitMind.Git.Private
 				$"+refs/notes/{nameSpace}:refs/notes/{nameSpace}"
 			};
 
-			return (await gitFetch.FetchRefsAsync(noteRefs, CancellationToken.None)).AsR();
+			return await gitFetch.FetchRefsAsync(noteRefs, CancellationToken.None);
 		}
 
 

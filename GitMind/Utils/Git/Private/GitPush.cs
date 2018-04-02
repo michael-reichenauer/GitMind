@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Common;
 
 
 namespace GitMind.Utils.Git.Private
@@ -18,35 +19,35 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<GitResult> PushAsync(CancellationToken ct) => 
-			await gitCmd.RunAsync(PushArgs, ct);
+		public async Task<R> PushAsync(CancellationToken ct) => 
+			(await gitCmd.RunAsync(PushArgs, ct)).AsR();
 
 
-		public async Task<GitResult> PushBranchAsync(string branchName, CancellationToken ct)
+		public async Task<R> PushBranchAsync(string branchName, CancellationToken ct)
 		{
 			string args = $"{PushArgs} -u refs/heads/{branchName}:refs/heads/{branchName}";
 
-			return await gitCmd.RunAsync(args, ct);
+			return (await gitCmd.RunAsync(args, ct)).AsR();
 		}
 
 
-		public async Task<GitResult> PushDeleteRemoteBranchAsync(string branchName, CancellationToken ct) => 
-			await gitCmd.RunAsync($"{PushArgs} --delete {branchName}", ct);
+		public async Task<R> PushDeleteRemoteBranchAsync(string branchName, CancellationToken ct) => 
+			(await gitCmd.RunAsync($"{PushArgs} --delete {branchName}", ct)).AsR();
 
 
-		public async Task<GitResult> PushTagAsync(string tagName, CancellationToken ct) => 
-			await gitCmd.RunAsync($"{PushArgs} {tagName}", ct);
+		public async Task<R> PushTagAsync(string tagName, CancellationToken ct) => 
+			(await gitCmd.RunAsync($"{PushArgs} {tagName}", ct)).AsR();
 
 
-		public async Task<GitResult> PushDeleteRemoteTagAsync(string tagName, CancellationToken ct) => 
-			await gitCmd.RunAsync($"{PushArgs} --delete {tagName}", ct);
+		public async Task<R> PushDeleteRemoteTagAsync(string tagName, CancellationToken ct) => 
+			(await gitCmd.RunAsync($"{PushArgs} --delete {tagName}", ct)).AsR();
 
 
-		public async Task<GitResult> PushRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
+		public async Task<R> PushRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
 		{
 			string refsText = string.Join(" ", refspecs);
 
-			return await gitCmd.RunAsync($"{PushArgs} {refsText}", ct);
+			return (await gitCmd.RunAsync($"{PushArgs} {refsText}", ct)).AsR();
 		}
 	}
 }

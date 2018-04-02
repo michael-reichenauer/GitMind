@@ -18,8 +18,8 @@ namespace GitMindTest.Utils.Git
 			string ToText(IReadOnlyList<GitSetting> c) =>
 				string.Join("\n", c.Select(p => p.ToString()));
 
-			IReadOnlyList<GitSetting> config = await gitCmd.GetAsync(ct);
-			Log.Debug($"Config:\n{ToText(config)}");
+			R<IReadOnlyList<GitSetting>> config = await gitCmd.GetAsync(ct);
+			Log.Debug($"Config:\n{ToText(config.Value)}");
 		}
 	}
 }

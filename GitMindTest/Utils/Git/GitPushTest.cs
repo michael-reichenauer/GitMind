@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMindTest.Utils.Git.Private;
 using NUnit.Framework;
@@ -12,7 +13,7 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public async Task Test()
 		{
-			GitResult result = await gitCmd.PushAsync(ct);
+			R result = await gitCmd.PushAsync(ct);
 			Assert.IsTrue(result.IsOk);
 		}
 	}

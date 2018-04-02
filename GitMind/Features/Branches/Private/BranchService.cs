@@ -12,6 +12,8 @@ using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
+using Status = GitMind.Features.StatusHandling.Status;
 
 
 namespace GitMind.Features.Branches.Private
@@ -86,7 +88,7 @@ namespace GitMind.Features.Branches.Private
 							{
 								progress.SetText($"Publishing branch {dialog.BranchName}...");
 
-								R publish = (await gitPush.PushBranchAsync(branchName, CancellationToken.None)).AsR();
+								R publish = await gitPush.PushBranchAsync(branchName, CancellationToken.None);
 								if (publish.IsFaulted)
 								{
 									message.ShowWarning($"Failed to publish the branch {branchName}.");
@@ -110,7 +112,7 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Publishing branch {branch.Name} ..."))
 			{
-				R publish = (await gitPush.PushBranchAsync(branch.Name, CancellationToken.None)).AsR();
+				R publish = await gitPush.PushBranchAsync(branch.Name, CancellationToken.None);
 
 				if (publish.IsFaulted)
 				{
@@ -125,7 +127,7 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Pushing branch {branch.Name} ..."))
 			{
-				GitResult result = await gitPush.PushBranchAsync(branch.Name, CancellationToken.None);
+				R result = await gitPush.PushBranchAsync(branch.Name, CancellationToken.None);
 
 				if (result.IsFaulted)
 				{
@@ -154,7 +156,7 @@ namespace GitMind.Features.Branches.Private
 				else
 				{
 					Log.Debug($"Update branch {branch.Name}");
-					result = (await gitFetch.FetchBranchAsync(branch.Name, CancellationToken.None)).AsR();
+					result = await gitFetch.FetchBranchAsync(branch.Name, CancellationToken.None);
 				}
 
 				if (result.IsFaulted)
@@ -307,7 +309,7 @@ namespace GitMind.Features.Branches.Private
 			R deleted;
 			if (isRemote)
 			{
-				deleted = (await gitPush.PushDeleteRemoteBranchAsync(branch.Name, CancellationToken.None)).AsR();
+				deleted = await gitPush.PushDeleteRemoteBranchAsync(branch.Name, CancellationToken.None);
 			}
 			else
 			{

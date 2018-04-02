@@ -7,6 +7,6 @@ namespace GitMind.Utils.Git
 {
 	public interface IGitLog
 	{
-		Task<IReadOnlyList<LogCommit>> GetAsync(CancellationToken ct);
+		Task<R<IReadOnlyList<LogCommit>>> GetAsync(CancellationToken ct);
 	}
 }
