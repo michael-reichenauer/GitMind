@@ -11,25 +11,25 @@ namespace GitMindTest.Utils.Git
 	public class GitEnvironmentServiceTest : GitTestBase<IGitEnvironmentService>
 	{
 		[Test, Explicit]
-		public async Task TestVersion()
+		public void TestVersion()
 		{
-			string version = await gitCmd.TryGetGitVersionAsync(ct);
+			string version = gitCmd.TryGetGitVersion();
 			Assert.AreEqual("2.16.2.windows.1", version);
 		}
 
 
 		[Test, Explicit]
-		public async Task TestGitCorePath()
+		public void TestGitCorePath()
 		{
-			string path = await gitCmd.TryGetGitCorePathAsync(ct);
+			string path = gitCmd.TryGetGitCorePath();
 			Log.Debug(path);
 			Assert.AreNotEqual(null, path);
 		}
 
 		[Test, Explicit]
-		public async Task TestGitCmdPath()
+		public void TestGitCmdPath()
 		{
-			string path = await gitCmd.TryGetGitCmdPathAsync(ct);
+			string path = gitCmd.TryGetGitCmdPath();
 			Log.Debug(path);
 			Assert.AreNotEqual(null, path);
 		}
