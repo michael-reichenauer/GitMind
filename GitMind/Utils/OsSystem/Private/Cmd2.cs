@@ -12,6 +12,12 @@ namespace GitMind.Utils.OsSystem.Private
 	{
 		private static readonly char[] QuoteChar = "\"".ToCharArray();
 
+		public CmdResult2 Run(string command, string arguments)
+		{
+			return Task.Run(() => RunAsync(command, arguments, CancellationToken.None)).Result;
+		}
+
+
 		public Task<CmdResult2> RunAsync(string command, string arguments, CancellationToken ct) =>
 			RunAsync(command, arguments, new CmdOptions(), ct);
 
@@ -40,7 +46,9 @@ namespace GitMind.Utils.OsSystem.Private
 			CmdOptions options,
 			CancellationToken ct)
 		{
+			// Log.Debug($"Runing: {command} {arguments}");
 			Stopwatch stopwatch = Stopwatch.StartNew();
+
 			// The task async exit code
 			TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
 
@@ -55,7 +63,7 @@ namespace GitMind.Utils.OsSystem.Private
 
 			ct.Register(() => Cancel(process, tcs));
 
-			Task inputTask = ProcessInputData(process, options, ct);
+			Task inputTask = ProcessInputDataAsync(process, options, ct);
 			Task<OutData> outputAndErrorTask = ProcessOutDataAsync(process, options, ct);
 
 			await inputTask.ConfigureAwait(false);
@@ -193,7 +201,7 @@ namespace GitMind.Utils.OsSystem.Private
 		}
 
 
-		private static Task ProcessInputData(
+		private static Task ProcessInputDataAsync(
 			Process process, CmdOptions options, CancellationToken ct)
 		{
 			if (options.InputText == null)

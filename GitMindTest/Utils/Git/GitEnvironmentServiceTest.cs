@@ -36,13 +36,13 @@ namespace GitMindTest.Utils.Git
 
 
 		[Test, Explicit]
-		public async Task TestWorkingFolderRootPath()
+		public void TestWorkingFolderRootPath()
 		{
-			Assert.AreEqual(@"C:\Work Files\GitMind", await gitCmd.TryGetWorkingFolderRootAsync(
-				@"C:\Work Files\GitMind\GitMind\Common\MessageDialogs", ct));
+			Assert.AreEqual(@"C:\Work Files\GitMind", gitCmd.TryGetWorkingFolderRoot(
+				@"C:\Work Files\GitMind\GitMind\Common\MessageDialogs"));
 
-			Assert.AreEqual(@"C:\Work Files\GitMind", await gitCmd.TryGetWorkingFolderRootAsync(
-				@"C:\Work Files\GitMind\.git", ct));
+			Assert.AreEqual(@"C:\Work Files\GitMind", gitCmd.TryGetWorkingFolderRoot(
+				@"C:\Work Files\GitMind\.git"));
 
 
 		}

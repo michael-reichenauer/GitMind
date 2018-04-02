@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.Tracking;
 using GitMind.Utils.OsSystem;
@@ -40,11 +38,11 @@ namespace GitMind.Utils.Git.Private
 			{
 				gitCmdPath = gitPath;
 
-				string gitFullPath = TryGetGitCmdPathAsync(CancellationToken.None).Result;
+				string gitFullPath = TryGetGitCmdPath();
 				string gitVersion = null;
 				if (!string.IsNullOrEmpty(gitFullPath))
 				{
-					gitVersion = TryGetGitVersionAsync(CancellationToken.None).Result;
+					gitVersion = TryGetGitVersion();
 				}
 
 				Track.Info($"Using git: {gitFullPath}, Version: {gitVersion}");
@@ -54,32 +52,60 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<string> TryGetWorkingFolderRootAsync(string path, CancellationToken ct)
+		public string TryGetWorkingFolderRoot(string path)
 		{
 			if (path.EndsWith(".git"))
 			{
 				path = Path.GetDirectoryName(path);
 			}
 
-			CmdResult2 result = await cmd.RunAsync(
-				GetGitCmdPath(), $"-C \"{path}\" rev-parse --show-toplevel", ct);
+			string workingFolderRoot = null;
 
-			return result.ExitCode == 0 && !string.IsNullOrWhiteSpace(result.Output)
-				? result.Output.Replace("/", "\\").Trim() : null;
+			while (!string.IsNullOrEmpty(path))
+			{
+				string gitRepoPath = Path.Combine(path, ".git");
+				if (Directory.Exists(gitRepoPath))
+				{
+
+					workingFolderRoot = path.Replace("/", "\\").Trim();
+					break;
+				}
+
+				path = Path.GetDirectoryName(path);
+			}
+
+			Log.Debug($"Root: {workingFolderRoot}");
+			return workingFolderRoot;
 		}
 
+		//public async Task<string> TryGetWorkingFolderRootAsync(string path, CancellationToken ct)
+		//{
+		//	if (path.EndsWith(".git"))
+		//	{
+		//		path = Path.GetDirectoryName(path);
+		//	}
 
-		public async Task<string> TryGetGitCorePathAsync(CancellationToken ct)
+		//	CmdResult2 result = await cmd.RunAsync(
+		//		GetGitCmdPath(), $"-C \"{path}\" rev-parse --show-toplevel", ct);
+		//	Log.Debug($"cmd: {result.ElapsedMs} ms: {result}");
+		//	string folderPath = result.ExitCode == 0 && !string.IsNullOrWhiteSpace(result.Output)
+		//		? result.Output.Replace("/", "\\").Trim() : null;
+
+		//	return folderPath;
+		//}
+
+
+		public string TryGetGitCorePath()
 		{
-			CmdResult2 result = await cmd.RunAsync(GetGitCmdPath(), "--exec-path", ct);
+			CmdResult2 result = cmd.Run(GetGitCmdPath(), "--exec-path");
 
 			return result.ExitCode == 0 ? result.Output.Trim() : null;
 		}
 
 
-		public async Task<string> TryGetGitCmdPathAsync(CancellationToken ct)
+		public string TryGetGitCmdPath()
 		{
-			string corePath = await TryGetGitCorePathAsync(ct);
+			string corePath = TryGetGitCorePath();
 
 			if (string.IsNullOrEmpty(corePath))
 			{
@@ -101,9 +127,9 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<string> TryGetGitVersionAsync(CancellationToken ct)
+		public string TryGetGitVersion()
 		{
-			CmdResult2 result = await cmd.RunAsync(GetGitCmdPath(), "version", ct);
+			CmdResult2 result = cmd.Run(GetGitCmdPath(), "version");
 
 			return result.ExitCode == 0 && result.Output.StartsWithOic("git version ")
 				? result.Output.Substring(12).Trim() : null;

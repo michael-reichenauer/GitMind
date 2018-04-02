@@ -15,7 +15,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<string> TryGetWorkingFolderRootAsync(string path, CancellationToken ct) =>
-			await gitEnvironmentService.TryGetWorkingFolderRootAsync(path, ct);
+		public string TryGetWorkingFolderRoot(string path) =>
+			gitEnvironmentService.TryGetWorkingFolderRoot(path);
 	}
 }

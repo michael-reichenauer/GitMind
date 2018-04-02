@@ -73,6 +73,7 @@ namespace GitMind.Features.Remote.Private
 
 		public Task<R> FetchAllNotesAsync()
 		{
+			Log.Warn("Fetch all notes");
 			return gitCommitBranchNameService.FetchAllNotesAsync();
 		}
 

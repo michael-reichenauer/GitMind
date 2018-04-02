@@ -136,7 +136,7 @@ namespace GitMind.ApplicationHandling.Private
 				return Error.From("No working folder");
 			}
 
-			string rootPath = Task.Run(() => gitInfo.Value.TryGetWorkingFolderRootAsync(path, CancellationToken.None)).Result;
+			string rootPath = gitInfo.Value.TryGetWorkingFolderRoot(path);
 
 			return !string.IsNullOrEmpty(rootPath) ? R.From(rootPath) : R<string>.NoValue;
 		}

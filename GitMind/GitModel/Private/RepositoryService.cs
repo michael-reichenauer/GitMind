@@ -82,8 +82,6 @@ namespace GitMind.GitModel.Private
 			R<Repository> repository = await GetCachedRepositoryAsync(workingFolder);
 			if (!repository.IsOk)
 			{
-				await remoteService.Value.FetchAllNotesAsync();
-
 				repository = await GetFreshRepositoryAsync(workingFolder, null);
 			}
 
