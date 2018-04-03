@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
@@ -18,7 +19,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<Status>> GetAsync(CancellationToken ct)
 		{
-			GitResult result = await gitCmd.RunAsync(StatusArgs, ct);
+			CmdResult2 result = await gitCmd.RunAsync(StatusArgs, ct);
 
 			if (result.IsFaulted)
 			{
@@ -31,7 +32,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private static Status ParseStatus(GitResult result)
+		private static Status ParseStatus(CmdResult2 result)
 		{
 			int modified = 0;
 			int added = 0;

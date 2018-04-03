@@ -26,29 +26,23 @@ namespace GitMind.Utils.OsSystem
 		}
 
 		public string Command { get; }
-
 		public string Arguments { get; }
-
 		public int ExitCode { get; }
-
 		public string Output { get; }
-
-		public IEnumerable<string> OutputLines => Lines(Output);
-
 		public string Error { get; }
-
 		public TimeSpan Elapsed { get; }
 		public long ElapsedMs => (long)Elapsed.TotalMilliseconds;
-
-		public IEnumerable<string> ErrorLines => Lines(Error);
-
 		public bool IsCanceled { get; }
+		public bool IsOk => ExitCode == 0;
+		public bool IsFaulted => !IsOk;
+		public IEnumerable<string> OutputLines => Lines(Output);
+		public IEnumerable<string> ErrorLines => Lines(Error);
 
 		public static implicit operator string(CmdResult2 result2) => result2.Output;
 
 		public void ThrowIfError(string message)
 		{
-			if (ExitCode != 0 && !IsCanceled)
+			if (ExitCode != 0)
 			{
 				string errorText = $"{message},\n{this}";
 				ApplicationException e = new ApplicationException(errorText);

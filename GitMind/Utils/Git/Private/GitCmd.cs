@@ -40,20 +40,20 @@ namespace GitMind.Utils.Git.Private
 		private string GitCmdPath => gitEnvironmentService.GetGitCmdPath();
 
 
-		public async Task<GitResult> RunAsync(
+		public async Task<CmdResult2> RunAsync(
 			string gitArgs, GitOptions options, CancellationToken ct)
 		{
 			return await CmdAsync(gitArgs, options, ct);
 		}
 
 
-		public async Task<GitResult> RunAsync(string gitArgs, CancellationToken ct)
+		public async Task<CmdResult2> RunAsync(string gitArgs, CancellationToken ct)
 		{
 			return await CmdAsync(gitArgs, new GitOptions(), ct);
 		}
 
 
-		public async Task<GitResult> RunAsync(
+		public async Task<CmdResult2> RunAsync(
 			string gitArgs, Action<string> outputLines, CancellationToken ct)
 		{
 			GitOptions options = new GitOptions
@@ -66,21 +66,21 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private async Task<GitResult> CmdAsync(
+		private async Task<CmdResult2> CmdAsync(
 			string gitArgs, GitOptions options, CancellationToken ct)
 		{
-			GitResult gitResult;
+			CmdResult2 result;
 			bool isRetry = false;
 			string username = null;
 			do
 			{
 				using (CredentialSession session = new CredentialSession(credentialService, username))
 				{
-					gitResult = await RunGitCmsAsync(gitArgs, options, session.Id, ct);
+					result = await RunGitCmsAsync(gitArgs, options, session.Id, ct);
 
 					username = session.Username;
-					session.ConfirmValidCrededntial(!gitResult.IsAuthenticationFailed);
-					isRetry = gitResult.IsAuthenticationFailed &&
+					session.ConfirmValidCrededntial(!IsAuthenticationFailed(result));
+					isRetry = IsAuthenticationFailed(result) &&
 										session.IsCredentialRequested &&
 										!session.IsAskPassCanceled;
 
@@ -91,11 +91,11 @@ namespace GitMind.Utils.Git.Private
 				}
 			} while (isRetry);
 
-			return gitResult;
+			return result;
 		}
 
 
-		private async Task<GitResult> RunGitCmsAsync(
+		private async Task<CmdResult2> RunGitCmsAsync(
 			string gitArgs, GitOptions options, string sessionId, CancellationToken ct)
 		{
 			AdjustOptions(options, sessionId);
@@ -114,8 +114,12 @@ namespace GitMind.Utils.Git.Private
 				Log.Warn($"{result.ElapsedMs}ms: {result}");
 			}
 
-			return new GitResult(result);
+			return result;
 		}
+
+
+		private static bool IsAuthenticationFailed(CmdResult2 result) =>
+			result.ExitCode == 128 && -1 != result.Error.IndexOfOic("Authentication failed");
 
 
 		private void AdjustOptions(GitOptions options, string sessionId)

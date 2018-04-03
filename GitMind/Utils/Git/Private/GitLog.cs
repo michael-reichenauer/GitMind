@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
+using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
@@ -36,7 +37,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R> GetAsync(Action<LogCommit> commits, CancellationToken ct)
 		{
-			GitResult result = await gitCmd.RunAsync(GitLogArgs, line => commits(Parse(line)), ct);
+			CmdResult2 result = await gitCmd.RunAsync(GitLogArgs, line => commits(Parse(line)), ct);
 
 			return result.AsR();
 		}

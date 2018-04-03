@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
@@ -34,7 +35,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<IReadOnlyList<GitSetting>>> GetAsync(CancellationToken ct)
 		{
-			GitResult result = await gitCmd.RunAsync(ConfigListArgs, ct);
+			CmdResult2 result = await gitCmd.RunAsync(ConfigListArgs, ct);
 			if (result.IsFaulted)
 			{
 				return Error.From(result.Error);

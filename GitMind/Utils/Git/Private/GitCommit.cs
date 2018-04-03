@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
+using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
@@ -21,7 +22,7 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<IReadOnlyList<CommitFile>>> GetCommitFilesAsync(
 			string commit, CancellationToken ct)
 		{
-			GitResult result = await gitCmd.RunAsync(
+			CmdResult2 result = await gitCmd.RunAsync(
 				$"diff-tree --no-commit-id --name-status -r --find-renames -m --root {commit}", ct);
 
 			if (result.IsFaulted)
@@ -32,7 +33,7 @@ namespace GitMind.Utils.Git.Private
 			return R.From(ParseCommitFiles(result));
 		}
 
-		private IReadOnlyList<CommitFile> ParseCommitFiles(GitResult result)
+		private IReadOnlyList<CommitFile> ParseCommitFiles(CmdResult2 result)
 		{
 
 			List<CommitFile> files = new List<CommitFile>();
