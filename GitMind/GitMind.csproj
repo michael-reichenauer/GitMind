@@ -221,6 +221,7 @@
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
+    <Compile Include="Utils\Git\Private\GitDiff.cs" />
     <Compile Include="Utils\Git\IGitDiff.cs" />
     <Compile Include="Utils\Git\GitFile2.cs" />
     <Compile Include="Utils\Git\Private\FileStatus.cs" />
@@ -232,7 +233,7 @@
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialSession.cs" />
     <Compile Include="Utils\Git\IGitAskPassService.cs" />
     <Compile Include="Utils\Git\IGitPromptService.cs" />
-    <Compile Include="Utils\Git\Private\GitAskPassService.cs" />
+    <Compile Include="Utils\Git\Private\CredentialsHandling\GitAskPassService.cs" />
     <Compile Include="Utils\Git\Private\GitCredential.cs" />
     <Compile Include="Utils\Git\Private\GitEnvironmentService.cs" />
     <Compile Include="Utils\Git\IGitEnvironmentService.cs" />

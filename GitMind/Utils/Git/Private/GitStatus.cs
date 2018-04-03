@@ -60,11 +60,11 @@ namespace GitMind.Utils.Git.Private
 			{
 				string filePath = line.Substring(2).Trim();
 
-				if (line.StartsWith("?? "))
+				if (line.StartsWith("?? ") || line.StartsWith(" A "))
 				{
 					files.Add(new GitFile2(workingFolder, filePath, null, GitFileStatus.Added));
 				}
-				else if (line.StartsWith(" D "))
+				else if (line.StartsWith(" D ") || line.StartsWith("D"))
 				{
 					files.Add(new GitFile2(workingFolder, filePath, null, GitFileStatus.Deleted));
 				}
