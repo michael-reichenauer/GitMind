@@ -15,7 +15,7 @@ namespace GitMind.Utils.Git.Private
 		public bool IsFaulted => !IsOk;
 		public int ExitCode => cmdResult.ExitCode;
 		public string Output => cmdResult.Output;
-		public IReadOnlyList<string> OutputLines => cmdResult.OutputLines;
+		public IEnumerable<string> OutputLines => cmdResult.OutputLines;
 		public string Error => cmdResult.Error;
 		public bool IsCanceled => cmdResult.IsCanceled;
 

@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
@@ -46,23 +45,21 @@ namespace GitMind.Utils.Git.Private
 			foreach (string line in result.OutputLines)
 			{
 				string settingText = line.Trim();
-				if (!string.IsNullOrEmpty(settingText))
+
+				string[] setting = settingText.Split(EqualChar);
+
+				string key = setting[0];
+				string value = setting[1];
+
+				if (!settings.TryGetValue(key, out List<string> values))
 				{
-					string[] setting = settingText.Split(EqualChar);
+					values = new List<string>();
+					settings[key] = values;
+				}
 
-					string key = setting[0];
-					string value = setting[1];
-
-					if (!settings.TryGetValue(key, out List<string> values))
-					{
-						values = new List<string>();
-						settings[key] = values;
-					}
-
-					if (!(values.Any() && values.Last() == value))
-					{
-						values.Add(value);
-					}
+				if (!(values.Any() && values.Last() == value))
+				{
+					values.Add(value);
 				}
 			}
 

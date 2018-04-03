@@ -7,7 +7,7 @@ namespace GitMind.Utils.Git.Private
 	internal class GitStatus : IGitStatus
 	{
 		private readonly IGitCmd gitCmd;
-		private static readonly string StatusArgs = "status -s";
+		private static readonly string StatusArgs = "status -s --porcelain";
 
 
 		public GitStatus(IGitCmd gitCmd)
@@ -53,7 +53,7 @@ namespace GitMind.Utils.Git.Private
 				{
 					deleted++;
 				}
-				else if (!string.IsNullOrWhiteSpace(line))
+				else
 				{
 					other++;
 				}

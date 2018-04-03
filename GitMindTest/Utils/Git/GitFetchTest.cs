@@ -17,6 +17,7 @@ namespace GitMindTest.Utils.Git
 			Assert.IsTrue(result.IsOk);
 		}
 
+
 		[Test]
 		public async Task TestFetchBranch()
 		{

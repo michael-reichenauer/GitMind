@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 
@@ -7,9 +8,6 @@ namespace GitMind.Utils.OsSystem
 {
 	public class CmdResult2
 	{
-		private static readonly char[] Eol = "\n".ToCharArray();
-
-
 		public CmdResult2(string command,
 			string arguments,
 			int exitCode,
@@ -35,14 +33,14 @@ namespace GitMind.Utils.OsSystem
 
 		public string Output { get; }
 
-		public IReadOnlyList<string> OutputLines => Output.Split(Eol);
+		public IEnumerable<string> OutputLines => Lines(Output);
 
 		public string Error { get; }
 
 		public TimeSpan Elapsed { get; }
 		public long ElapsedMs => (long)Elapsed.TotalMilliseconds;
 
-		public IReadOnlyList<string> ErrorLines => Error.Split(Eol);
+		public IEnumerable<string> ErrorLines => Lines(Error);
 
 		public bool IsCanceled { get; }
 
@@ -71,6 +69,23 @@ namespace GitMind.Utils.OsSystem
 				ExitCode == 0 ? $"\nProgress:\n{Truncate(Error)}" : $"\nError:\n{Truncate(Error)}";
 
 
+		private static IEnumerable<string> Lines(string text)
+		{
+			using (System.IO.StringReader reader = new System.IO.StringReader(text))
+			{
+				while (true)
+				{
+					string line = reader.ReadLine();
+					if (line == null)
+					{
+						yield break;
+					}
+
+					yield return line;
+				}
+			}
+		}
+
 		private static string Truncate(string text)
 		{
 			if (text == null)
@@ -80,15 +95,13 @@ namespace GitMind.Utils.OsSystem
 			else
 			{
 				int maxRows = 4;
-				string[] rows = text.Split(Eol);
-				if (rows.Length > maxRows)
+				string subText = string.Join("\n", Lines(text).Take(maxRows));
+				if (subText.Length + maxRows < text.Length)
 				{
-					return $"{string.Join("\n", rows, 0, maxRows)} \n... ({rows.Length} lines)";
+					subText += "\n...";
 				}
-				else
-				{
-					return text;
-				}
+
+				return subText;
 			}
 		}
 	}
