@@ -232,7 +232,7 @@
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialSession.cs" />
     <Compile Include="Utils\Git\IGitAskPassService.cs" />
     <Compile Include="Utils\Git\IGitPromptService.cs" />
-    <Compile Include="Utils\Git\Private\CredentialsHandling\GitAskPassService.cs" />
+    <Compile Include="Utils\Git\Private\GitAskPassService.cs" />
     <Compile Include="Utils\Git\Private\GitCredential.cs" />
     <Compile Include="Utils\Git\Private\GitEnvironmentService.cs" />
     <Compile Include="Utils\Git\IGitEnvironmentService.cs" />
