@@ -15,7 +15,7 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestFetch()
 		{
-			R<IReadOnlyList<CommitFile>> result = await gitCmd.GetCommitFilesAsync("d79878", ct);
+			R<IReadOnlyList<GitFile2>> result = await gitCmd.GetCommitFilesAsync("d79878", ct);
 			Assert.IsTrue(result.IsOk);
 		}
 	}

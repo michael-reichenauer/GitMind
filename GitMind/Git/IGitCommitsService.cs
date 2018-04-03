@@ -5,14 +5,14 @@ using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
-
+using GitMind.Utils.Git;
 
 
 namespace GitMind.Git
 {
 	internal interface IGitCommitsService
 	{
-		Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(CommitSha commitSha);
+		Task<R<IReadOnlyList<GitFile2>>> GetFilesForCommitAsync(CommitSha commitSha);
 
 		Task EditCommitBranchAsync(CommitSha commitSha, CommitSha rootSha, BranchName branchName);
 	

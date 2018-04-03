@@ -221,7 +221,8 @@
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
-    <Compile Include="Utils\Git\Private\CommitFile.cs" />
+    <Compile Include="Utils\Git\IGitDiff.cs" />
+    <Compile Include="Utils\Git\GitFile2.cs" />
     <Compile Include="Utils\Git\Private\FileStatus.cs" />
     <Compile Include="Utils\Git\Private\GitCommit.cs" />
     <Compile Include="Utils\Git\IGitCommit.cs" />
@@ -256,6 +257,7 @@
     <Compile Include="Utils\AsyncCountdownEvent.cs" />
     <Compile Include="Utils\AsyncManualResetEvent.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\IGitCredential.cs" />
+    <Compile Include="Utils\Git\Private\Status2.cs" />
     <Compile Include="Utils\OsSystem\CmdOptions.cs" />
     <Compile Include="Utils\OsSystem\ICmd2.cs" />
     <Compile Include="Utils\OsSystem\Private\Cmd2.cs" />

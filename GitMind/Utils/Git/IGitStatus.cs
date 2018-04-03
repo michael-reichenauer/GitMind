@@ -5,8 +5,8 @@ using GitMind.Utils.Git.Private;
 
 namespace GitMind.Utils.Git
 {
-	internal interface IGitStatus
+	public interface IGitStatus
 	{
-		Task<R<Status>> GetAsync(CancellationToken ct);
+		Task<R<Status2>> GetStatusAsync(CancellationToken ct);
 	}
 }

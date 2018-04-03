@@ -1,15 +1,18 @@
 ﻿using System.IO;
+using GitMind.Git;
+using GitMind.Utils.Git.Private;
+using LibGit2Sharp;
 
 
-namespace GitMind.Utils.Git.Private
+namespace GitMind.Utils.Git
 {
-	public class CommitFile
+	public class GitFile2
 	{
-		public CommitFile(
+		public GitFile2(
 			string workfolderPath,
 			string filePath,
 			string oldFilePath,
-			FileStatus status)
+			GitFileStatus status)
 		{
 			FilePath = filePath;
 			OldFilePath = oldFilePath;
@@ -21,12 +24,12 @@ namespace GitMind.Utils.Git.Private
 		public string OldFilePath { get; }
 		public string FillPath => Path.Combine(WorkfolderPath, FilePath);
 		public string WorkfolderPath { get; set; }
-		public FileStatus Status { get; }
+		public GitFileStatus Status { get; }
 
-		public bool IsModified => Status.HasFlag(FileStatus.Modified);
-		public bool IsAdded => Status.HasFlag(FileStatus.Added);
-		public bool IsDeleted => Status.HasFlag(FileStatus.Deleted);
-		public bool IsRenamed => Status.HasFlag(FileStatus.Renamed);
+		//public bool IsModified => Status.HasFlag(FileStatus.Modified);
+		//public bool IsAdded => Status.HasFlag(FileStatus.Added);
+		//public bool IsDeleted => Status.HasFlag(FileStatus.Deleted);
+		//public bool IsRenamed => Status.HasFlag(FileStatus.Renamed);
 
 		public override string ToString() => $"{FilePath} ({Status})";
 	}

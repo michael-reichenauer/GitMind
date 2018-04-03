@@ -1,0 +1,26 @@
+﻿using System.Collections.Generic;
+
+
+namespace GitMind.Utils.Git.Private
+{
+	public class Status2
+	{
+		public Status2(int modified, int added, int deleted, IReadOnlyList<GitFile2> files)
+		{
+			Modified = modified;
+			Added = added;
+			Deleted = deleted;
+			Files = files;
+		}
+
+		public int Modified { get; }
+		public int Added { get; }
+		public int Deleted { get; }
+		public IReadOnlyList<GitFile2> Files { get; }
+		public int Changed => Modified + Added + Deleted;
+
+		public bool OK => Changed == 0;
+
+		public override string ToString() => $"Changed {Changed} ({Modified}M, {Added}A, {Deleted}D)";
+	}
+}

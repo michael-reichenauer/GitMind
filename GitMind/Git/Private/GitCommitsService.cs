@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
-using GitMind.GitModel.Private;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 using LibGit2Sharp;
+using GitCommit = GitMind.GitModel.Private.GitCommit;
 
 
 namespace GitMind.Git.Private
@@ -24,6 +27,8 @@ namespace GitMind.Git.Private
 		private readonly Lazy<IRepositoryMgr> repositoryMgr;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 		private readonly IStatusService statusService;
+		private readonly IGitCommit gitCommit;
+		private readonly IGitStatus gitStatus;
 		private readonly IRepoCaller repoCaller;
 
 
@@ -33,25 +38,36 @@ namespace GitMind.Git.Private
 			Lazy<IRepositoryMgr> repositoryMgr,
 			IGitCommitBranchNameService gitCommitBranchNameService,
 			IStatusService statusService,
+			IGitCommit gitCommit,
+			IGitStatus gitStatus,
 			IRepoCaller repoCaller)
 		{
 			this.workingFolder = workingFolder;
 			this.repositoryMgr = repositoryMgr;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 			this.statusService = statusService;
+			this.gitCommit = gitCommit;
+			this.gitStatus = gitStatus;
 			this.repoCaller = repoCaller;
 		}
 
 
-		public async Task<R<IReadOnlyList<StatusFile>>> GetFilesForCommitAsync(CommitSha commitSha)
+		public async Task<R<IReadOnlyList<GitFile2>>> GetFilesForCommitAsync(CommitSha commitSha)
 		{
 			if (commitSha == CommitSha.Uncommitted)
 			{
-				Status status = repositoryMgr.Value.Repository.Status;
-				return R.From(status.ChangedFiles);
+				R<Status2> status = await gitStatus.GetStatusAsync(CancellationToken.None);
+				if (status.IsOk)
+				{
+					return R.From(status.Value.Files);
+				}
+				else
+				{
+					return status.Error;
+				}
 			}
 
-			return await repoCaller.UseRepoAsync(repo => repo.Diff.GetFiles(workingFolder, commitSha));
+			return await gitCommit.GetCommitFilesAsync(commitSha.Sha, CancellationToken.None);
 		}
 
 

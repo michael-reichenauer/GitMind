@@ -1,15 +1,16 @@
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel
 {
 	public class CommitFile
 	{
-		private readonly StatusFile gitFile;
+		private readonly GitFile2 gitFile;
 
 
-		public CommitFile(StatusFile gitFile)
+		public CommitFile(GitFile2 gitFile)
 		{
 			this.gitFile = gitFile;
 		}
@@ -18,7 +19,7 @@ namespace GitMind.GitModel
 		public string Path => gitFile.FilePath;
 		public string OldPath => gitFile.OldFilePath;
 
-		public GitConflict Conflict => gitFile.Conflict;
+		public GitConflict Conflict => new GitConflict(Path, null, null, null);
 
 		public GitFileStatus Status => gitFile.Status;
 

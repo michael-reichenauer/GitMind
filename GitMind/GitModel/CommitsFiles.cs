@@ -6,6 +6,7 @@ using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel
@@ -40,7 +41,7 @@ namespace GitMind.GitModel
 					return Enumerable.Empty<CommitFile>();
 				}
 
-				Task<R<IReadOnlyList<StatusFile>>> commitsFilesForCommitTask =
+				Task<R<IReadOnlyList<GitFile2>>> commitsFilesForCommitTask =
 					gitCommitsService.GetFilesForCommitAsync(commitSha);
 
 				currentTask = commitsFilesForCommitTask;
