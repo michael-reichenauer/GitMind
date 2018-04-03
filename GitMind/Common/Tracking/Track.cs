@@ -32,10 +32,15 @@ namespace GitMind.Common.Tracking
 				return;
 			}
 
+			string instrumentationKey = GetInstrumentationKey();
+			if (instrumentationKey == null)
+			{
+				return;
+			}
+
 			Log.Info("Enabled usage and error reporting");
 			Tc = new TelemetryClient();
-
-			Tc.InstrumentationKey = GetInstrumentationKey();
+			Tc.InstrumentationKey = instrumentationKey;
 			Tc.Context.User.Id = GetTrackId();
 			SetInternalNodeName();
 			Tc.Context.Cloud.RoleInstance = Tc.Context.User.Id;
@@ -82,7 +87,7 @@ namespace GitMind.Common.Tracking
 
 			if (message != null)
 			{
-				Tc.TrackEvent(eventName, new Dictionary<string, string> { { "Message", message } });
+				Tc?.TrackEvent(eventName, new Dictionary<string, string> { { "Message", message } });
 			}
 			else
 			{
@@ -167,6 +172,12 @@ namespace GitMind.Common.Tracking
 		{
 			string currentInstancePath = ProgramPaths.GetCurrentInstancePath();
 
+			if (currentInstancePath == null)
+			{
+				Log.Debug("Running in test functions, disabled Tracking");
+				return null;
+			}
+
 			Log.Debug($"Path '{currentInstancePath}'");
 
 			if (currentInstancePath != null &&
@@ -175,8 +186,6 @@ namespace GitMind.Common.Tracking
 				Log.Info("Using production metrics");
 				return "33982a8a-1da0-42c0-9d0a-8a159494c847";
 			}
-
-			
 
 			Log.Info("Using test metrics");
 			return "77fee87e-bd1e-4341-ac5b-0a65c3e567bb";

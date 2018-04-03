@@ -1,6 +1,4 @@
 ﻿using GitMind.Utils;
-using GitMind.Utils.Git;
-using GitMind.Utils.Git.Private;
 using GitMind.Utils.OsSystem;
 
 

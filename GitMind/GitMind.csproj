@@ -241,6 +241,7 @@
     <Compile Include="Utils\Git\IGitConfig.cs" />
     <Compile Include="Utils\Git\GitSetting.cs" />
     <Compile Include="Utils\Git\Private\GitOptions.cs" />
+    <Compile Include="Utils\Git\Private\GitRepo.cs" />
     <Compile Include="Utils\Git\Private\GitStatus.cs" />
     <Compile Include="Utils\Git\IGitStatus.cs" />
     <Compile Include="Utils\Git\Private\GitPush.cs" />
@@ -258,6 +259,7 @@
     <Compile Include="Utils\AsyncCountdownEvent.cs" />
     <Compile Include="Utils\AsyncManualResetEvent.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\IGitCredential.cs" />
+    <Compile Include="Utils\Git\IGitRepo.cs" />
     <Compile Include="Utils\Git\Private\Status2.cs" />
     <Compile Include="Utils\OsSystem\CmdOptions.cs" />
     <Compile Include="Utils\OsSystem\ICmd2.cs" />

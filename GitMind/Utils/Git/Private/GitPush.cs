@@ -19,8 +19,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R> PushAsync(CancellationToken ct) => 
-			(await gitCmd.RunAsync(PushArgs, ct)).AsR();
+		public async Task<R> PushAsync(CancellationToken ct) => await gitCmd.RunAsync(PushArgs, ct);
 
 
 		public async Task<R> PushBranchAsync(string branchName, CancellationToken ct)
@@ -31,15 +30,15 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R> PushDeleteRemoteBranchAsync(string branchName, CancellationToken ct) => 
+		public async Task<R> PushDeleteRemoteBranchAsync(string branchName, CancellationToken ct) =>
 			(await gitCmd.RunAsync($"{PushArgs} --delete {branchName}", ct)).AsR();
 
 
-		public async Task<R> PushTagAsync(string tagName, CancellationToken ct) => 
+		public async Task<R> PushTagAsync(string tagName, CancellationToken ct) =>
 			(await gitCmd.RunAsync($"{PushArgs} {tagName}", ct)).AsR();
 
 
-		public async Task<R> PushDeleteRemoteTagAsync(string tagName, CancellationToken ct) => 
+		public async Task<R> PushDeleteRemoteTagAsync(string tagName, CancellationToken ct) =>
 			(await gitCmd.RunAsync($"{PushArgs} --delete {tagName}", ct)).AsR();
 
 

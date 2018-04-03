@@ -17,10 +17,10 @@ namespace GitMind.Utils.Git.Private
 		public int Added { get; }
 		public int Deleted { get; }
 		public IReadOnlyList<GitFile2> Files { get; }
-		public int Changed => Modified + Added + Deleted;
+		public int AllChanges => Modified + Added + Deleted;
 
-		public bool OK => Changed == 0;
+		public bool OK => AllChanges == 0;
 
-		public override string ToString() => $"Changed {Changed} ({Modified}M, {Added}A, {Deleted}D)";
+		public override string ToString() => $"Changed {AllChanges} ({Modified}M, {Added}A, {Deleted}D)";
 	}
 }

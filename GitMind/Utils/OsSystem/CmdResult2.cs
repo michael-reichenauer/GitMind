@@ -40,6 +40,8 @@ namespace GitMind.Utils.OsSystem
 
 		public static implicit operator string(CmdResult2 result2) => result2.Output;
 
+		public static implicit operator R(CmdResult2 result) => result.IsOk ? R.Ok : Utils.Error.From(result);
+
 		public void ThrowIfError(string message)
 		{
 			if (ExitCode != 0)
