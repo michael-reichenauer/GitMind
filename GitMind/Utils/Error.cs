@@ -15,7 +15,7 @@ namespace GitMind.Utils
 			Exception = exception ?? new Exception();
 			this.message = message ?? "";
 
-			if (!(exception == noError && exception == noValue && message == null))
+			if (!((exception == noError || exception == noValue) && message == null))
 			{
 				Log.Error(ToString());
 			}

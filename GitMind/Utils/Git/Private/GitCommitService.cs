@@ -10,7 +10,7 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitCommitService : IGitCommit
 	{
-		public static readonly Regex CommitOutputRegEx = new Regex(@"^\[(\w*)\s+(\(.*\)\s+)?(\w+)\]",
+		public static readonly Regex CommitOutputRegEx = new Regex(@"^\[(\S*)\s+(\(.*\)\s+)?(\w+)\]",
 				RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
 
@@ -51,7 +51,6 @@ namespace GitMind.Utils.Git.Private
 
 			if (CommitOutputRegEx.TryMatch(result.Value.Output, out Match match))
 			{
-				Log.Debug($"Got ");
 				// string branch = match.Groups[1].Value;.
 				string shortId = match.Groups[3].Value;
 				R<GitCommit> commit = await GetCommitAsync(shortId, ct);
