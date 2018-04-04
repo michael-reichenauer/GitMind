@@ -32,13 +32,13 @@ namespace GitMind.Common.Tracking
 				return;
 			}
 
-			string instrumentationKey = GetInstrumentationKey();
+			string instrumentationKey = GetInstrumentationKey(out bool isProduction);
 			if (instrumentationKey == null)
 			{
 				return;
 			}
 
-			Log.Info("Enabled usage and error reporting");
+			
 			Tc = new TelemetryClient();
 			Tc.InstrumentationKey = instrumentationKey;
 			Tc.Context.User.Id = GetTrackId();
@@ -48,7 +48,7 @@ namespace GitMind.Common.Tracking
 			Tc.Context.Session.Id = Guid.NewGuid().ToString();
 			Tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 			Tc.Context.Component.Version = GetProgramVersion();
-
+			Log.Info($"Enabled usage and error reporting for: {Tc.Context.User.Id}, Production: {isProduction}");
 			//var builder = TelemetryConfiguration.Active.TelemetryProcessorChainBuilder;
 			//builder.Use((next) => new TelemetryTracer(next));
 			//builder.Build();
@@ -168,8 +168,9 @@ namespace GitMind.Common.Tracking
 		}
 
 
-		private static string GetInstrumentationKey()
+		private static string GetInstrumentationKey(out bool isProduction)
 		{
+			isProduction = false;
 			string currentInstancePath = ProgramPaths.GetCurrentInstancePath();
 
 			if (currentInstancePath == null)
@@ -178,16 +179,13 @@ namespace GitMind.Common.Tracking
 				return null;
 			}
 
-			Log.Debug($"Path '{currentInstancePath}'");
-
 			if (currentInstancePath != null &&
 				(currentInstancePath.StartsWithOic(ProgramPaths.GetProgramFolderPath()) || IsSetupFile()))
 			{
-				Log.Info("Using production metrics");
+				isProduction = true;
 				return "33982a8a-1da0-42c0-9d0a-8a159494c847";
 			}
 
-			Log.Info("Using test metrics");
 			return "77fee87e-bd1e-4341-ac5b-0a65c3e567bb";
 		}
 
@@ -230,7 +228,6 @@ namespace GitMind.Common.Tracking
 			// Backup track id in registry in case temp file is deleted
 			Registry.SetValue("HKEY_CURRENT_USER\\SOFTWARE\\GitMind", "TrackId", trackId);
 
-			Log.Info($"Track id: {trackId}");
 			return trackId;
 		}
 
