@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Git;
 using GitMind.GitModel.Private;
 using GitMind.Utils.OsSystem;
 

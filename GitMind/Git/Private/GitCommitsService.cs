@@ -186,20 +186,28 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R<GitCommit>> CommitAsync(
+		public async Task<R<GitCommit>> CommitAsync(
 			string message, string branchName, IReadOnlyList<CommitFile> paths)
 		{
 			Log.Debug($"Commit {paths.Count} files: {message} ...");
 
-			return repoCaller.UseLibRepoAsync(
-				repo =>
-				{
-					AddPaths(repo, paths);
-					GitCommit gitCommit = Commit(repo, message);
-					CommitSha commitSha = gitCommit.Sha;
-					gitCommitBranchNameService.SetCommitBranchNameAsync(commitSha, branchName);
-					return gitCommit;
-				});
+			R<GitCommit> commit = await gitCommit.CommitAllChangesAsync(message, CancellationToken.None);
+			if (commit.IsOk)
+			{
+				CommitSha commitSha = commit.Value.Sha;
+				await gitCommitBranchNameService.SetCommitBranchNameAsync(commitSha, branchName);
+			}
+
+			return commit;
+			//return repoCaller.UseLibRepoAsync(
+			//	repo =>
+			//	{
+			//		AddPaths(repo, paths);
+			//		GitCommit gitCommit = Commit(repo, message);
+			//		CommitSha commitSha = gitCommit.Sha;
+			//		gitCommitBranchNameService.SetCommitBranchNameAsync(commitSha, branchName);
+			//		return gitCommit;
+			//	});
 		}
 
 
