@@ -51,7 +51,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (CommitOutputRegEx.TryMatch(result.Value.Output, out Match match))
 			{
-				// string branch = match.Groups[1].Value;
+				// string branch = match.Groups[1].Value;.
 				string shortId = match.Groups[3].Value;
 				R<GitCommit> commit = await GetCommitAsync(shortId, ct);
 
