@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture, Explicit]
-	public class GitFetchTest : GitTestBase<IGitFetch>
+	public class GitFetchTest : GitTestBase<IGitFetchService>
 	{
 		[Test]
 		public async Task TestFetch()

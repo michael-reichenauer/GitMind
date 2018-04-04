@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitPushTest : GitTestBase<IGitPush>
+	public class GitPushTest : GitTestBase<IGitPushService>
 	{
 		[Test, Explicit]
 		public async Task Test()

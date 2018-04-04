@@ -45,7 +45,7 @@ namespace GitMindTest.Utils.Git.Private
 			workingFolder = CreateTmpDir();
 
 			am = new AutoMock()
-				.RegisterNamespaceOf<IGitInfo>()
+				.RegisterNamespaceOf<IGitInfoService>()
 				.RegisterNamespaceOf<ICmd2>()
 				.RegisterType<IMessageService>()
 				.RegisterSingleInstance(new WorkingFolderPath(workingFolder));
@@ -75,8 +75,8 @@ namespace GitMindTest.Utils.Git.Private
 
 		protected async Task<Status2> GetStatusAsync()
 		{
-			IGitStatus gitStatus = am.Resolve<IGitStatus>();
-			var result = await gitStatus.GetStatusAsync(ct);
+			IGitStatusService2 gitStatusService2 = am.Resolve<IGitStatusService2>();
+			var result = await gitStatusService2.GetStatusAsync(ct);
 			Assert.IsTrue(result.IsOk);
 
 			return result.Value;
@@ -84,8 +84,8 @@ namespace GitMindTest.Utils.Git.Private
 
 		protected async Task<GitCommit> CommitAllChangesAsync(string message)
 		{
-			IGitCommit gitCommit = am.Resolve<IGitCommit>();
-			R<GitCommit> result = await gitCommit.CommitAllChangesAsync(message, ct);
+			IGitCommitService2 gitCommitService2 = am.Resolve<IGitCommitService2>();
+			R<GitCommit> result = await gitCommitService2.CommitAllChangesAsync(message, ct);
 			Assert.IsTrue(result.IsOk);
 			return result.Value;
 		}
@@ -116,9 +116,9 @@ namespace GitMindTest.Utils.Git.Private
 
 		private async Task CreateNewGitRepoAsync(string path)
 		{
-			IGitRepo gitRepo = am.Resolve<IGitRepo>();
+			IGitRepoService gitRepoService = am.Resolve<IGitRepoService>();
 
-			R result = await gitRepo.InitAsync(path, ct);
+			R result = await gitRepoService.InitAsync(path, ct);
 			Assert.IsTrue(result.IsOk);
 		}
 

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	public interface IGitConfig
+	public interface IGitConfigService
 	{
 		// bool TryGet(string name, out GitSetting setting);
 		Task<R<IReadOnlyList<GitSetting>>> GetAsync(CancellationToken ct);

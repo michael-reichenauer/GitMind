@@ -10,19 +10,19 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitLog : IGitLog
+	internal class GitLogService : IGitLogService
 	{
 		private static readonly string LogFormat = "%H|%ai|%ci|%an|%P|%s";
 		private static readonly List<CommitId> NoParents = new List<CommitId>();
 		private static readonly char[] IdSplitter = " ".ToCharArray();
 		private static readonly char[] LogRowSplitter = "|".ToCharArray();
 
-		private readonly IGitCmd gitCmd;
+		private readonly IGitCmdService gitCmdService;
 
 
-		public GitLog(IGitCmd gitCmd)
+		public GitLogService(IGitCmdService gitCmdService)
 		{
-			this.gitCmd = gitCmd;
+			this.gitCmdService = gitCmdService;
 		}
 
 
@@ -55,7 +55,7 @@ namespace GitMind.Utils.Git.Private
 				}
 			}
 
-			R<CmdResult2> result = await gitCmd.RunAsync($"log --all --pretty=\"{LogFormat}\"", OutputLines, ct);
+			R<CmdResult2> result = await gitCmdService.RunAsync($"log --all --pretty=\"{LogFormat}\"", OutputLines, ct);
 
 			if (result.IsFaulted && !ct.IsCancellationRequested)
 			{
@@ -69,7 +69,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<GitCommit>> GetCommitAsync(string sha, CancellationToken ct)
 		{
-			var result = await gitCmd.RunAsync($"show --no-patch --pretty=\"{LogFormat}\" {sha}", ct);
+			var result = await gitCmdService.RunAsync($"show --no-patch --pretty=\"{LogFormat}\" {sha}", ct);
 			if (result.IsFaulted)
 			{
 				return Error.From("Failed to get commit log", result);

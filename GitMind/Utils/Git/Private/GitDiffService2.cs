@@ -8,21 +8,21 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitDiff : IGitDiff
+	internal class GitDiffService2 : IGitDiffService2
 	{
-		private readonly IGitCmd gitCmd;
+		private readonly IGitCmdService gitCmdService;
 		private readonly WorkingFolderPath workingFolder;
 
 
-		public GitDiff(IGitCmd gitCmd, WorkingFolderPath workingFolder)
+		public GitDiffService2(IGitCmdService gitCmdService, WorkingFolderPath workingFolder)
 		{
-			this.gitCmd = gitCmd;
+			this.gitCmdService = gitCmdService;
 			this.workingFolder = workingFolder;
 		}
 		public async Task<R<IReadOnlyList<GitFile2>>> GetFilesAsync(
 			string sha, CancellationToken ct)
 		{
-			R<CmdResult2> result = await gitCmd.RunAsync(
+			R<CmdResult2> result = await gitCmdService.RunAsync(
 				$"diff-tree --no-commit-id --name-status -r --find-renames -m --root {sha}", ct);
 
 			if (result.IsFaulted)

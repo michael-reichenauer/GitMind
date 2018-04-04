@@ -23,22 +23,22 @@ namespace GitMind.Git.Private
 		private readonly WorkingFolder workingFolder;
 		private readonly IRepoCaller repoCaller;
 		private readonly Lazy<IRepositoryMgr> repositoryMgr;
-		private readonly IGitFetch gitFetch;
-		private readonly IGitPush gitPush;
+		private readonly IGitFetchService gitFetchService;
+		private readonly IGitPushService gitPushService;
 
 
 		public GitCommitBranchNameService(
 			WorkingFolder workingFolder,
 			IRepoCaller repoCaller,
 			Lazy<IRepositoryMgr> repositoryMgr,
-			IGitFetch gitFetch,
-			IGitPush gitPush)
+			IGitFetchService gitFetchService,
+			IGitPushService gitPushService)
 		{
 			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
 			this.repositoryMgr = repositoryMgr;
-			this.gitFetch = gitFetch;
-			this.gitPush = gitPush;
+			this.gitFetchService = gitFetchService;
+			this.gitPushService = gitPushService;
 		}
 
 
@@ -146,7 +146,7 @@ namespace GitMind.Git.Private
 			repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 
 			string[] refs = { $"refs/notes/{nameSpace}:refs/notes/{nameSpace}" };
-			R result = await gitPush.PushRefsAsync(refs, CancellationToken.None);
+			R result = await gitPushService.PushRefsAsync(refs, CancellationToken.None);
 			if (result.IsOk)
 			{
 				RemoveNotesFile(nameSpace);
@@ -228,7 +228,7 @@ namespace GitMind.Git.Private
 				$"+refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
 			};
 
-			return await gitFetch.FetchRefsAsync(noteRefs, CancellationToken.None);
+			return await gitFetchService.FetchRefsAsync(noteRefs, CancellationToken.None);
 		}
 
 
@@ -241,7 +241,7 @@ namespace GitMind.Git.Private
 				$"+refs/notes/{nameSpace}:refs/notes/{nameSpace}"
 			};
 
-			return await gitFetch.FetchRefsAsync(noteRefs, CancellationToken.None);
+			return await gitFetchService.FetchRefsAsync(noteRefs, CancellationToken.None);
 		}
 
 

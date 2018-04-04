@@ -5,20 +5,20 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitRepo : IGitRepo
+	internal class GitRepoService : IGitRepoService
 	{
-		private readonly IGitCmd gitCmd;
+		private readonly IGitCmdService gitCmdService;
 
 
-		public GitRepo(IGitCmd gitCmd)
+		public GitRepoService(IGitCmdService gitCmdService)
 		{
-			this.gitCmd = gitCmd;
+			this.gitCmdService = gitCmdService;
 		}
 
 
 		public async Task<R> InitAsync(string path, CancellationToken ct)
 		{
-			R<CmdResult2> result = await gitCmd.RunAsync($"init \"{path}\"", ct);
+			R<CmdResult2> result = await gitCmdService.RunAsync($"init \"{path}\"", ct);
 			if (result.IsOk)
 			{
 				Log.Info($"Created repo at: {path}");

@@ -8,41 +8,41 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitCommitService : IGitCommit
+	internal class GitCommitService2 : IGitCommitService2
 	{
 		public static readonly Regex CommitOutputRegEx = new Regex(@"^\[(\S*)\s+(\(.*\)\s+)?(\w+)\]",
 				RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
 
-		private readonly IGitCmd gitCmd;
-		private readonly IGitDiff gitDiff;
-		private readonly IGitLog gitLog;
+		private readonly IGitCmdService gitCmdService;
+		private readonly IGitDiffService2 gitDiffService2;
+		private readonly IGitLogService gitLogService;
 
 
-		public GitCommitService(IGitCmd gitCmd, IGitDiff gitDiff, IGitLog gitLog)
+		public GitCommitService2(IGitCmdService gitCmdService, IGitDiffService2 gitDiffService2, IGitLogService gitLogService)
 		{
-			this.gitCmd = gitCmd;
-			this.gitDiff = gitDiff;
-			this.gitLog = gitLog;
+			this.gitCmdService = gitCmdService;
+			this.gitDiffService2 = gitDiffService2;
+			this.gitLogService = gitLogService;
 		}
 
 		public Task<R<GitCommit>> GetCommitAsync(string sha, CancellationToken ct) =>
-			gitLog.GetCommitAsync(sha, ct);
+			gitLogService.GetCommitAsync(sha, ct);
 
 
 		public Task<R<IReadOnlyList<GitFile2>>> GetCommitFilesAsync(string sha, CancellationToken ct) =>
-			gitDiff.GetFilesAsync(sha, ct);
+			gitDiffService2.GetFilesAsync(sha, ct);
 
 
 		public async Task<R<GitCommit>> CommitAllChangesAsync(string message, CancellationToken ct)
 		{
-			R<CmdResult2> result = await gitCmd.RunAsync("add .", ct);
+			R<CmdResult2> result = await gitCmdService.RunAsync("add .", ct);
 			if (result.IsFaulted)
 			{
 				return Error.From("Failed to stage using add before commit", result);
 			}
 
-			result = await gitCmd.RunAsync($"commit -am \"{message}\"", ct);
+			result = await gitCmdService.RunAsync($"commit -am \"{message}\"", ct);
 
 			if (result.IsFaulted)
 			{

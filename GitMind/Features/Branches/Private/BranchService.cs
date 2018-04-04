@@ -24,8 +24,8 @@ namespace GitMind.Features.Branches.Private
 	internal class BranchService : IBranchService
 	{
 		private readonly IGitBranchService gitBranchService;
-		private readonly IGitFetch gitFetch;
-		private readonly IGitPush gitPush;
+		private readonly IGitFetchService gitFetchService;
+		private readonly IGitPushService gitPushService;
 		private readonly ICommitsService commitsService;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
@@ -37,8 +37,8 @@ namespace GitMind.Features.Branches.Private
 
 		public BranchService(
 			IGitBranchService gitBranchService,
-			IGitFetch gitFetch,
-			IGitPush gitPush,
+			IGitFetchService gitFetchService,
+			IGitPushService gitPushService,
 			ICommitsService commitsService,
 			IProgressService progressService,
 			IMessage message,
@@ -48,8 +48,8 @@ namespace GitMind.Features.Branches.Private
 			IStatusService statusService)
 		{
 			this.gitBranchService = gitBranchService;
-			this.gitFetch = gitFetch;
-			this.gitPush = gitPush;
+			this.gitFetchService = gitFetchService;
+			this.gitPushService = gitPushService;
 			this.commitsService = commitsService;
 			this.progress = progressService;
 			this.message = message;
@@ -88,7 +88,7 @@ namespace GitMind.Features.Branches.Private
 							{
 								progress.SetText($"Publishing branch {dialog.BranchName}...");
 
-								R publish = await gitPush.PushBranchAsync(branchName, CancellationToken.None);
+								R publish = await gitPushService.PushBranchAsync(branchName, CancellationToken.None);
 								if (publish.IsFaulted)
 								{
 									message.ShowWarning($"Failed to publish the branch {branchName}.");
@@ -112,7 +112,7 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Publishing branch {branch.Name} ..."))
 			{
-				R publish = await gitPush.PushBranchAsync(branch.Name, CancellationToken.None);
+				R publish = await gitPushService.PushBranchAsync(branch.Name, CancellationToken.None);
 
 				if (publish.IsFaulted)
 				{
@@ -127,7 +127,7 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Pushing branch {branch.Name} ..."))
 			{
-				R result = await gitPush.PushBranchAsync(branch.Name, CancellationToken.None);
+				R result = await gitPushService.PushBranchAsync(branch.Name, CancellationToken.None);
 
 				if (result.IsFaulted)
 				{
@@ -148,7 +148,7 @@ namespace GitMind.Features.Branches.Private
 				{
 					Log.Debug("Update current branch");
 
-					if ((await gitFetch.FetchAsync(CancellationToken.None)).IsOk)
+					if ((await gitFetchService.FetchAsync(CancellationToken.None)).IsOk)
 					{
 						result = await gitBranchService.MergeCurrentBranchAsync();
 					}
@@ -156,7 +156,7 @@ namespace GitMind.Features.Branches.Private
 				else
 				{
 					Log.Debug($"Update branch {branch.Name}");
-					result = await gitFetch.FetchBranchAsync(branch.Name, CancellationToken.None);
+					result = await gitFetchService.FetchBranchAsync(branch.Name, CancellationToken.None);
 				}
 
 				if (result.IsFaulted)
@@ -309,7 +309,7 @@ namespace GitMind.Features.Branches.Private
 			R deleted;
 			if (isRemote)
 			{
-				deleted = await gitPush.PushDeleteRemoteBranchAsync(branch.Name, CancellationToken.None);
+				deleted = await gitPushService.PushDeleteRemoteBranchAsync(branch.Name, CancellationToken.None);
 			}
 			else
 			{

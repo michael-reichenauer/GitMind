@@ -10,7 +10,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitStatusTest : GitTestBase<IGitStatus>
+	public class GitStatusTest : GitTestBase<IGitStatusService2>
 	{
 		[Test]
 		public async Task TestStatus()

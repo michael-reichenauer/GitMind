@@ -5,22 +5,22 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitFetch : IGitFetch
+	internal class GitFetchService : IGitFetchService
 	{
 		private static readonly string FetchArgs = "fetch --prune --tags --progress origin";
 		private static readonly string FetchRefsArgs = "fetch origin";
 
 
-		private readonly IGitCmd gitCmd;
+		private readonly IGitCmdService gitCmdService;
 
 
-		public GitFetch(IGitCmd gitCmd)
+		public GitFetchService(IGitCmdService gitCmdService)
 		{
-			this.gitCmd = gitCmd;
+			this.gitCmdService = gitCmdService;
 		}
 
 
-		public async Task<R> FetchAsync(CancellationToken ct) => await gitCmd.RunAsync(FetchArgs, ct);
+		public async Task<R> FetchAsync(CancellationToken ct) => await gitCmdService.RunAsync(FetchArgs, ct);
 
 
 		public async Task<R> FetchBranchAsync(string branchName, CancellationToken ct) =>
@@ -32,11 +32,11 @@ namespace GitMind.Utils.Git.Private
 			string refsText = string.Join(" ", refspecs);
 			string args = $"{FetchRefsArgs} {refsText}";
 
-			return await gitCmd.RunAsync(args, ct);
+			return await gitCmdService.RunAsync(args, ct);
 		}
 
 
 		public async Task<R> FetchPruneTagsAsync(CancellationToken ct) =>
-			await gitCmd.RunAsync("fetch --prune origin \"+refs/tags/*:refs/tags/*\"", ct);
+			await gitCmdService.RunAsync("fetch --prune origin \"+refs/tags/*:refs/tags/*\"", ct);
 	}
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	public interface IGitDiff
+	public interface IGitDiffService2
 	{
 		Task<R<IReadOnlyList<GitFile2>>> GetFilesAsync(string sha, CancellationToken ct);
 	}

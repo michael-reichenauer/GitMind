@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	public interface IGitStatus
+	public interface IGitRepoService
 	{
-		Task<R<Status2>> GetStatusAsync(CancellationToken ct);
+		Task<R> InitAsync(string path, CancellationToken ct);
 	}
 }

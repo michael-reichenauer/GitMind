@@ -24,8 +24,8 @@ namespace GitMind.Features.Remote.Private
 		private readonly IMessage message;
 		private readonly IStatusService statusService;
 		private readonly IGitBranchService gitBranchService;
-		private readonly IGitFetch gitFetch;
-		private readonly IGitPush gitPush;
+		private readonly IGitFetchService gitFetchService;
+		private readonly IGitPushService gitPushService;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 
 
@@ -35,8 +35,8 @@ namespace GitMind.Features.Remote.Private
 			IMessage message,
 			IStatusService statusService,
 			IGitBranchService gitBranchService,
-			IGitFetch gitFetch,
-			IGitPush gitPush,
+			IGitFetchService gitFetchService,
+			IGitPushService gitPushService,
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
 			this.repositoryMgr = repositoryMgr;
@@ -44,8 +44,8 @@ namespace GitMind.Features.Remote.Private
 			this.message = message;
 			this.statusService = statusService;
 			this.gitBranchService = gitBranchService;
-			this.gitFetch = gitFetch;
-			this.gitPush = gitPush;
+			this.gitFetchService = gitFetchService;
+			this.gitPushService = gitPushService;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 		}
 
@@ -54,13 +54,13 @@ namespace GitMind.Features.Remote.Private
 
 		public async Task<R> FetchAsync()
 		{
-			return await gitFetch.FetchAsync(CancellationToken.None);
+			return await gitFetchService.FetchAsync(CancellationToken.None);
 		}
 
 
 		public async Task<R> PushBranchAsync(BranchName branchName)
 		{
-			return await gitPush.PushBranchAsync(branchName, CancellationToken.None);
+			return await gitPushService.PushBranchAsync(branchName, CancellationToken.None);
 		}
 
 
@@ -114,7 +114,7 @@ namespace GitMind.Features.Remote.Private
 				{
 					progress.SetText($"Updating branch {branch.Name} ...");
 					string[] refspecs = { $"{branch.Name}:{branch.Name}" };
-					await gitFetch.FetchRefsAsync(refspecs, CancellationToken.None);
+					await gitFetchService.FetchRefsAsync(refspecs, CancellationToken.None);
 				}
 
 				progress.SetText("Updating all branches ...");
@@ -162,7 +162,7 @@ namespace GitMind.Features.Remote.Private
 			{
 				await PushNotesAsync(Repository.RootCommit.RealCommitSha);
 
-				R result = await gitPush.PushAsync(CancellationToken.None);
+				R result = await gitPushService.PushAsync(CancellationToken.None);
 
 				if (!result.IsOk)
 				{
@@ -193,7 +193,7 @@ namespace GitMind.Features.Remote.Private
 				if (currentBranch.CanBePushed)
 				{
 					progress.SetText($"Pushing current branch {currentBranch.Name} ...");
-					result = await gitPush.PushAsync(CancellationToken.None);
+					result = await gitPushService.PushAsync(CancellationToken.None);
 				}
 
 				if (result.IsFaulted)

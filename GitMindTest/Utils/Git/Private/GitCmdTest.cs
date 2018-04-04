@@ -18,12 +18,12 @@ namespace GitMindTest.Utils.Git.Private
 		public async Task TestCmd()
 		{
 			using (AutoMock am = new AutoMock()
-				.RegisterNamespaceOf<IGitCmd>()
+				.RegisterNamespaceOf<IGitCmdService>()
 				.RegisterNamespaceOf<ICmd2>())
 			{
-				IGitCmd gitCmd = am.Resolve<IGitCmd>();
+				IGitCmdService gitCmdService = am.Resolve<IGitCmdService>();
 
-				R<CmdResult2> result = await gitCmd.RunAsync("version", ct);
+				R<CmdResult2> result = await gitCmdService.RunAsync("version", ct);
 
 				Assert.AreEqual(0, result.Value.ExitCode);
 				Assert.That(result.Value.Output, Is.StringMatching(@"git version \d\.\d+.*windows"));

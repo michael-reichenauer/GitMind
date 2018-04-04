@@ -7,7 +7,7 @@ using GitMind.GitModel.Private;
 
 namespace GitMind.Utils.Git
 {
-	public interface IGitLog
+	public interface IGitLogService
 	{
 		Task<R<IReadOnlyList<GitCommit>>> GetLogAsync(CancellationToken ct);
 

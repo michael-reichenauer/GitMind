@@ -13,7 +13,7 @@ using GitMind.Utils.UI;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitCmd : IGitCmd
+	internal class GitCmdService : IGitCmdService
 	{
 		private readonly ICmd2 cmd;
 		private readonly IGitEnvironmentService gitEnvironmentService;
@@ -22,7 +22,7 @@ namespace GitMind.Utils.Git.Private
 		private readonly WorkingFolderPath workingFolder;
 
 
-		public GitCmd(
+		public GitCmdService(
 			ICmd2 cmd,
 			IGitEnvironmentService gitEnvironmentService,
 			ICredentialService credentialService,

@@ -1,11 +1,11 @@
 ﻿namespace GitMind.Utils.Git.Private
 {
-	internal class GitInfo : IGitInfo
+	internal class GitInfoService : IGitInfoService
 	{
 		private readonly IGitEnvironmentService gitEnvironmentService;
 
 
-		public GitInfo(IGitEnvironmentService gitEnvironmentService)
+		public GitInfoService(IGitEnvironmentService gitEnvironmentService)
 		{
 			this.gitEnvironmentService = gitEnvironmentService;
 		}

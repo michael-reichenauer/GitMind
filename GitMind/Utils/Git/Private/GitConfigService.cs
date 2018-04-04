@@ -7,17 +7,17 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitConfig : IGitConfig
+	internal class GitConfigService : IGitConfigService
 	{
 		private static readonly string ConfigListArgs = "config --list";
 		private static readonly char[] EqualChar = "=".ToCharArray();
 
-		private readonly IGitCmd gitCmd;
+		private readonly IGitCmdService gitCmdService;
 
 
-		public GitConfig(IGitCmd gitCmd)
+		public GitConfigService(IGitCmdService gitCmdService)
 		{
-			this.gitCmd = gitCmd;
+			this.gitCmdService = gitCmdService;
 		}
 
 
@@ -35,7 +35,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<IReadOnlyList<GitSetting>>> GetAsync(CancellationToken ct)
 		{
-			R<CmdResult2> result = await gitCmd.RunAsync(ConfigListArgs, ct);
+			R<CmdResult2> result = await gitCmdService.RunAsync(ConfigListArgs, ct);
 			if (result.IsFaulted)
 			{
 				return Error.From("Failed to get list of config values", result);

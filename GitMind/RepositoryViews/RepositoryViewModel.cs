@@ -38,7 +38,7 @@ namespace GitMind.RepositoryViews
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService;
 
-		private readonly IGitFetch gitFetch;
+		private readonly IGitFetchService gitFetchService;
 
 		private readonly IThemeService themeService;
 		private readonly IMessage message;
@@ -82,7 +82,7 @@ namespace GitMind.RepositoryViews
 			IViewModelService viewModelService,
 			ICommitsService commitsService,
 			IRepositoryService repositoryService,
-			IGitFetch gitFetch,
+			IGitFetchService gitFetchService,
 			IThemeService themeService,
 			IMessage message,
 			IProgressService progressService,
@@ -95,7 +95,7 @@ namespace GitMind.RepositoryViews
 			this.commitsService = commitsService;
 			this.repositoryService = repositoryService;
 
-			this.gitFetch = gitFetch;
+			this.gitFetchService = gitFetchService;
 
 			this.themeService = themeService;
 			this.message = message;
@@ -390,7 +390,7 @@ namespace GitMind.RepositoryViews
 				{
 					Log.Debug("Refreshing after manual trigger ...");
 
-					await gitFetch.FetchPruneTagsAsync(CancellationToken.None);
+					await gitFetchService.FetchPruneTagsAsync(CancellationToken.None);
 
 					Log.Debug("Get fresh repository from scratch");
 					await repositoryService.GetRemoteAndFreshRepositoryAsync();

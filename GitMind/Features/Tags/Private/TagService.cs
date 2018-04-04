@@ -22,7 +22,7 @@ namespace GitMind.Features.Tags.Private
 		private readonly IRepoCaller repoCaller;
 		private readonly IStatusService statusService;
 		private readonly IProgressService progress;
-		private readonly IGitPush gitPush;
+		private readonly IGitPushService gitPushService;
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
 
@@ -31,14 +31,14 @@ namespace GitMind.Features.Tags.Private
 			IRepoCaller repoCaller,
 			IStatusService statusService,
 			IProgressService progressService,
-			IGitPush gitPush,
+			IGitPushService gitPushService,
 			IMessage message,
 			WindowOwner owner)
 		{
 			this.repoCaller = repoCaller;
 			this.statusService = statusService;
 			this.progress = progressService;
-			this.gitPush = gitPush;
+			this.gitPushService = gitPushService;
 			this.message = message;
 			this.owner = owner;
 		}
@@ -95,7 +95,7 @@ namespace GitMind.Features.Tags.Private
 						{
 							// Try to push immediately
 							Log.Debug($"Try to push tag: '{addResult.Value}'");
-							R pushResult = await gitPush.PushTagAsync(tagText, CancellationToken.None);
+							R pushResult = await gitPushService.PushTagAsync(tagText, CancellationToken.None);
 							if (pushResult.IsFaulted)
 							{
 								message.ShowWarning(
@@ -127,7 +127,7 @@ namespace GitMind.Features.Tags.Private
 					if (deleteLocalResult.IsOk)
 					{
 						// Try to delete remote
-						result = await gitPush.PushDeleteRemoteTagAsync(tagName, CancellationToken.None);
+						result = await gitPushService.PushDeleteRemoteTagAsync(tagName, CancellationToken.None);
 					}
 
 					if (result.IsFaulted)

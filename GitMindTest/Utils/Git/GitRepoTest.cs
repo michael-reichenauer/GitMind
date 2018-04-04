@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitRepoTest : GitTestBase<IGitRepo>
+	public class GitRepoTest : GitTestBase<IGitRepoService>
 	{
 		[Test]
 		public async Task TestInitRepo()

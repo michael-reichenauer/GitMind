@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	public interface IGitFetch
+	public interface IGitFetchService
 	{
 		Task<R> FetchAsync(CancellationToken ct);
 		Task<R> FetchBranchAsync(string branchName, CancellationToken ct);

@@ -11,7 +11,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitLogTest : GitTestBase<IGitLog>
+	public class GitLogTest : GitTestBase<IGitLogService>
 	{
 		[Test]
 		public async Task TestLog()

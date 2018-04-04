@@ -9,7 +9,6 @@ using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
-using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using LibGit2Sharp;
@@ -23,30 +22,27 @@ namespace GitMind.Git.Private
 		{ DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
 
 		private readonly WorkingFolder workingFolder;
-		private readonly Lazy<IRepositoryMgr> repositoryMgr;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 		private readonly IStatusService statusService;
-		private readonly IGitCommit gitCommit;
-		private readonly IGitStatus gitStatus;
+		private readonly IGitCommitService2 gitCommitService2;
+		private readonly IGitStatusService2 gitStatusService2;
 		private readonly IRepoCaller repoCaller;
 
 
 
 		public GitCommitsService(
 			WorkingFolder workingFolder,
-			Lazy<IRepositoryMgr> repositoryMgr,
 			IGitCommitBranchNameService gitCommitBranchNameService,
 			IStatusService statusService,
-			IGitCommit gitCommit,
-			IGitStatus gitStatus,
+			IGitCommitService2 gitCommitService2,
+			IGitStatusService2 gitStatusService2,
 			IRepoCaller repoCaller)
 		{
 			this.workingFolder = workingFolder;
-			this.repositoryMgr = repositoryMgr;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 			this.statusService = statusService;
-			this.gitCommit = gitCommit;
-			this.gitStatus = gitStatus;
+			this.gitCommitService2 = gitCommitService2;
+			this.gitStatusService2 = gitStatusService2;
 			this.repoCaller = repoCaller;
 		}
 
@@ -55,7 +51,7 @@ namespace GitMind.Git.Private
 		{
 			if (commitSha == CommitSha.Uncommitted)
 			{
-				R<Status2> status = await gitStatus.GetStatusAsync(CancellationToken.None);
+				R<Status2> status = await gitStatusService2.GetStatusAsync(CancellationToken.None);
 				if (status.IsOk)
 				{
 					return R.From(status.Value.Files);
@@ -66,7 +62,7 @@ namespace GitMind.Git.Private
 				}
 			}
 
-			return await gitCommit.GetCommitFilesAsync(commitSha.Sha, CancellationToken.None);
+			return await gitCommitService2.GetCommitFilesAsync(commitSha.Sha, CancellationToken.None);
 		}
 
 
@@ -190,7 +186,7 @@ namespace GitMind.Git.Private
 		{
 			Log.Debug($"Commit {paths.Count} files: {message} ...");
 
-			R<GitCommit> commit = await gitCommit.CommitAllChangesAsync(message, CancellationToken.None);
+			R<GitCommit> commit = await gitCommitService2.CommitAllChangesAsync(message, CancellationToken.None);
 			if (commit.IsOk)
 			{
 				CommitSha commitSha = commit.Value.Sha;

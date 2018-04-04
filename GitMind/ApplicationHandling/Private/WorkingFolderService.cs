@@ -13,14 +13,14 @@ namespace GitMind.ApplicationHandling.Private
 	internal class WorkingFolderService : IWorkingFolderService
 	{
 		private readonly ICommandLine commandLine;
-		private readonly Lazy<IGitInfo> gitInfo;
+		private readonly Lazy<IGitInfoService> gitInfo;
 
 		private string workingFolder;
 
 
 		public WorkingFolderService(
 			ICommandLine commandLine,
-			Lazy<IGitInfo> gitInfo)
+			Lazy<IGitInfoService> gitInfo)
 		{
 			this.commandLine = commandLine;
 			this.gitInfo = gitInfo;

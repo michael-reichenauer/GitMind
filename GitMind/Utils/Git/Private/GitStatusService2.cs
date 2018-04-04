@@ -9,24 +9,24 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitStatus : IGitStatus
+	internal class GitStatusService2 : IGitStatusService2
 	{
 		private static readonly string StatusArgs = "status -s --porcelain --untracked-files=all";
 
-		private readonly IGitCmd gitCmd;
+		private readonly IGitCmdService gitCmdService;
 		private readonly WorkingFolderPath workingFolder;
 
 
-		public GitStatus(IGitCmd gitCmd, WorkingFolderPath workingFolder)
+		public GitStatusService2(IGitCmdService gitCmdService, WorkingFolderPath workingFolder)
 		{
-			this.gitCmd = gitCmd;
+			this.gitCmdService = gitCmdService;
 			this.workingFolder = workingFolder;
 		}
 
 
 		public async Task<R<Status2>> GetStatusAsync(CancellationToken ct)
 		{
-			R<CmdResult2> result = await gitCmd.RunAsync(StatusArgs, ct);
+			R<CmdResult2> result = await gitCmdService.RunAsync(StatusArgs, ct);
 
 			if (result.IsFaulted)
 			{

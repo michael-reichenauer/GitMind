@@ -19,7 +19,7 @@ namespace GitMind.GitModel.Private
 		private static readonly TimeSpan RemoteRepositoryInterval = TimeSpan.FromSeconds(15);
 		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1000);
 
-		private readonly IGitFetch gitFetch;
+		private readonly IGitFetchService gitFetchService;
 		private readonly IStatusService statusService;
 		private readonly ICacheService cacheService;
 		private readonly ICommitsFiles commitsFiles;
@@ -32,7 +32,7 @@ namespace GitMind.GitModel.Private
 		private AsyncLock syncRootAsync = new AsyncLock();
 
 		public RepositoryService(
-			IGitFetch gitFetch,
+			IGitFetchService gitFetchService,
 			IStatusService statusService,
 			ICacheService cacheService,
 			ICommitsFiles commitsFiles,
@@ -41,7 +41,7 @@ namespace GitMind.GitModel.Private
 			IProgressService progressService,
 			IBranchTipMonitorService branchTipMonitorService)
 		{
-			this.gitFetch = gitFetch;
+			this.gitFetchService = gitFetchService;
 			this.statusService = statusService;
 			this.cacheService = cacheService;
 			this.commitsFiles = commitsFiles;
