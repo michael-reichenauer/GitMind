@@ -225,7 +225,7 @@
     <Compile Include="Utils\Git\IGitDiff.cs" />
     <Compile Include="Utils\Git\GitFile2.cs" />
     <Compile Include="Utils\Git\Private\FileStatus.cs" />
-    <Compile Include="Utils\Git\Private\GitCommit.cs" />
+    <Compile Include="Utils\Git\Private\GitCommitService.cs" />
     <Compile Include="Utils\Git\IGitCommit.cs" />
     <Compile Include="Utils\Git\Private\CredentialService.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialCommandData.cs" />
@@ -255,7 +255,6 @@
     <Compile Include="Utils\Git\Private\GitCmd.cs" />
     <Compile Include="Utils\Git\Private\ICredentialService.cs" />
     <Compile Include="Utils\Git\Private\IGitCmd.cs" />
-    <Compile Include="Utils\Git\LogCommit.cs" />
     <Compile Include="Utils\AsyncCountdownEvent.cs" />
     <Compile Include="Utils\AsyncManualResetEvent.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\IGitCredential.cs" />

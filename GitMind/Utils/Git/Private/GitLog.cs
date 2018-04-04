@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
+using GitMind.GitModel.Private;
 using GitMind.Utils.OsSystem;
 
 
@@ -11,8 +12,8 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitLog : IGitLog
 	{
-		private static readonly string GitLogArgs = "log --all --pretty=\"%H|%ai|%ci|%an|%P|%s\"";
-		private static readonly string[] NoParents = new string[0];
+		private static readonly string LogFormat = "%H|%ai|%ci|%an|%P|%s";
+		private static readonly List<CommitId> NoParents = new List<CommitId>();
 		private static readonly char[] IdSplitter = " ".ToCharArray();
 		private static readonly char[] LogRowSplitter = "|".ToCharArray();
 
@@ -25,21 +26,62 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R<IReadOnlyList<LogCommit>>> GetAsync(CancellationToken ct)
+		public async Task<R<IReadOnlyList<GitCommit>>> GetLogAsync(CancellationToken ct)
 		{
-			List<LogCommit> commits = new List<LogCommit>();
+			List<GitCommit> commits = new List<GitCommit>();
 
-			await GetAsync(commit => commits.Add(commit), ct);
+			R result = await GetLogAsync(commit => commits.Add(commit), ct);
 
+			if (result.IsFaulted)
+			{
+				return Error.From("Failed to get log", result);
+			}
+
+			Log.Info($"Got log for {commits.Count} commits");
 			return commits;
 		}
 
 
-		public async Task<R> GetAsync(Action<LogCommit> commits, CancellationToken ct) => 
-			await gitCmd.RunAsync(GitLogArgs, line => commits(Parse(line)), ct);
+		public async Task<R> GetLogAsync(Action<GitCommit> commits, CancellationToken ct)
+		{
+			int count = 0;
+
+			void OutputLines(string line)
+			{
+				if (!ct.IsCancellationRequested)
+				{
+					count++;
+					commits(Parse(line));
+				}
+			}
+
+			R<CmdResult2> result = await gitCmd.RunAsync($"log --all --pretty=\"{LogFormat}\"", OutputLines, ct);
+
+			if (result.IsFaulted && !ct.IsCancellationRequested)
+			{
+				return Error.From("Failed to get log", result);
+			}
+
+			Log.Info($"Got log for {count} commits");
+			return R.Ok;
+		}
 
 
-		private static LogCommit Parse(string line)
+		public async Task<R<GitCommit>> GetCommitAsync(string sha, CancellationToken ct)
+		{
+			var result = await gitCmd.RunAsync($"show --no-patch --pretty=\"{LogFormat}\" {sha}", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From("Failed to get commit log", result);
+			}
+
+			GitCommit commit = Parse(result.Value.OutputLines.First());
+			Log.Info($"Got log for commit {commit.Sha.ShortSha}");
+			return commit;
+		}
+
+
+		private static GitCommit Parse(string line)
 		{
 			try
 			{
@@ -47,8 +89,8 @@ namespace GitMind.Utils.Git.Private
 
 				string subject = GetSubject(parts);
 
-				var gitCommit = new LogCommit(
-					sha: parts[0],
+				var gitCommit = new GitCommit(
+					sha: new CommitSha(parts[0]),
 					subject: subject,
 					message: subject,
 					author: parts[3],
@@ -77,7 +119,8 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private static IReadOnlyList<string> GetParentIds(IReadOnlyList<string> lineParts) =>
-			string.IsNullOrWhiteSpace(lineParts[4]) ? NoParents : lineParts[4].Split(IdSplitter);
+		private static List<CommitId> GetParentIds(IReadOnlyList<string> lineParts) =>
+			string.IsNullOrWhiteSpace(lineParts[4])
+				? NoParents : lineParts[4].Split(IdSplitter).Select(sha => new CommitId(sha)).ToList();
 	}
 }

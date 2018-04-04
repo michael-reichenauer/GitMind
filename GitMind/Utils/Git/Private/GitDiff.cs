@@ -20,10 +20,10 @@ namespace GitMind.Utils.Git.Private
 			this.workingFolder = workingFolder;
 		}
 		public async Task<R<IReadOnlyList<GitFile2>>> GetFilesAsync(
-			string commit, CancellationToken ct)
+			string sha, CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmd.RunAsync(
-				$"diff-tree --no-commit-id --name-status -r --find-renames -m --root {commit}", ct);
+				$"diff-tree --no-commit-id --name-status -r --find-renames -m --root {sha}", ct);
 
 			if (result.IsFaulted)
 			{

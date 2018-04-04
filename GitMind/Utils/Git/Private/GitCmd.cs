@@ -108,15 +108,21 @@ namespace GitMind.Utils.Git.Private
 			// Log.Debug($"Runing: {GitCmdPath} {gitArgs}");
 			CmdOptions cmdOptions = ToCmdOptions(options);
 			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, cmdOptions, ct);
-			Track.Event("gitCmd", $"{result.ElapsedMs}ms: {result.ToStringShort()}");
 
-			if (result.IsFaulted)
+			if (result.IsFaulted && !result.IsCanceled)
 			{
+				Track.Event("gitCmd", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}");
 				Log.Warn($"{result.ElapsedMs}ms: {result}");
+			}
+			else
+			{
+				Track.Event("gitCmd", $"{result.ElapsedMs}ms: {result.Command} {result.Arguments}");
+				Log.Debug($"{result}");
 			}
 
 			return result;
 		}
+
 
 
 		private static bool IsAuthenticationFailed(CmdResult2 result) =>

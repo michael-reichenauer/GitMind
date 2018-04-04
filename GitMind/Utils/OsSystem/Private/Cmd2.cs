@@ -192,9 +192,9 @@ namespace GitMind.Utils.OsSystem.Private
 				process = Process.GetProcessById(processId);
 				process?.Kill();
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
-				Log.Error($"Exception {e}");
+				// Log.Error($"Exception {e}");
 				// Ignore errors. Either there was a running process, which we could kill,
 				// or there is no running process to kill. It may have already stopped or not started yet
 			}

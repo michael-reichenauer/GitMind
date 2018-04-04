@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMindTest.Utils.Git.Private;
@@ -18,13 +19,13 @@ namespace GitMindTest.Utils.Git
 
 			WriteFile("file1.txt", "some text");
 
-			R<string> result = await gitCmd.CommitAllChangesAsync("Some message 1", ct);
+			R<GitCommit> result = await gitCmd.CommitAllChangesAsync("Some message 1", ct);
 			Assert.IsTrue(result.IsOk);
 
 			Status2 status = await GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
 
-			var files = await gitCmd.GetCommitFilesAsync(result.Value, ct);
+			var files = await gitCmd.GetCommitFilesAsync(result.Value.Sha.Sha, ct);
 			Assert.AreEqual(1, files.Value.Count);
 			Assert.IsNotNull(files.Value.FirstOrDefault(f => f.FilePath == "file1.txt"));
 
@@ -45,7 +46,7 @@ namespace GitMindTest.Utils.Git
 
 			WriteFile("file1.txt", "some text");
 
-			R<string> result = await gitCmd.CommitAllChangesAsync("Some message 1", ct);
+			R<GitCommit> result = await CommitAllChangesAsync("Some message 1");
 			Assert.IsTrue(result.IsOk);
 		}
 	}

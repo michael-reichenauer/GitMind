@@ -2,12 +2,14 @@
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Git;
+using GitMind.GitModel.Private;
 using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitCommit : IGitCommit
+	internal class GitCommitService : IGitCommit
 	{
 		public static readonly Regex CommitOutputRegEx = new Regex(@"^\[(\w*)\s+(\(.*\)\s+)?(\w+)\]",
 				RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -15,20 +17,25 @@ namespace GitMind.Utils.Git.Private
 
 		private readonly IGitCmd gitCmd;
 		private readonly IGitDiff gitDiff;
+		private readonly IGitLog gitLog;
 
 
-		public GitCommit(IGitCmd gitCmd, IGitDiff gitDiff)
+		public GitCommitService(IGitCmd gitCmd, IGitDiff gitDiff, IGitLog gitLog)
 		{
 			this.gitCmd = gitCmd;
 			this.gitDiff = gitDiff;
+			this.gitLog = gitLog;
 		}
 
+		public Task<R<GitCommit>> GetCommitAsync(string sha, CancellationToken ct) =>
+			gitLog.GetCommitAsync(sha, ct);
 
-		public Task<R<IReadOnlyList<GitFile2>>> GetCommitFilesAsync(string commit, CancellationToken ct) =>
-			gitDiff.GetFilesAsync(commit, ct);
+
+		public Task<R<IReadOnlyList<GitFile2>>> GetCommitFilesAsync(string sha, CancellationToken ct) =>
+			gitDiff.GetFilesAsync(sha, ct);
 
 
-		public async Task<R<string>> CommitAllChangesAsync(string message, CancellationToken ct)
+		public async Task<R<GitCommit>> CommitAllChangesAsync(string message, CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmd.RunAsync("add .", ct);
 			if (result.IsFaulted)
@@ -47,11 +54,10 @@ namespace GitMind.Utils.Git.Private
 			{
 				// string branch = match.Groups[1].Value;
 				string shortId = match.Groups[3].Value;
-				result = await gitCmd.RunAsync($"rev-parse --verify {shortId}", ct);
-				string commitId = result.Value.Output.Trim();
+				R<GitCommit> commit = await GetCommitAsync(shortId, ct);
 
-				Log.Info($"Commted {commitId} '{message}'");
-				return commitId;
+				Log.Info($"Commited {commit}");
+				return commit;
 			}
 
 			return Error.From("Commit succeded, but failed to parse commit id from output");

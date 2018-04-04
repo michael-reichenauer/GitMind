@@ -42,6 +42,6 @@ namespace GitMind.GitModel.Private
 
 		public void SetBranchNameFromSubject(string banchName) => BranchNameFromSubject = banchName;
 
-		public override string ToString() => $"{Sha.Sha.Substring(0, 6)} {AuthorDate} {Subject}";
+		public override string ToString() => $"{Sha.ShortSha} {AuthorDate} {Subject}";
 	}
 }

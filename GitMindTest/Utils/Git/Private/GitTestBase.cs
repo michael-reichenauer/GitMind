@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.OsSystem;
@@ -81,10 +82,10 @@ namespace GitMindTest.Utils.Git.Private
 			return result.Value;
 		}
 
-		protected async Task<string> CommitAllChangesAsync(string message)
+		protected async Task<GitCommit> CommitAllChangesAsync(string message)
 		{
 			IGitCommit gitCommit = am.Resolve<IGitCommit>();
-			R<string> result = await gitCommit.CommitAllChangesAsync(message, ct);
+			R<GitCommit> result = await gitCommit.CommitAllChangesAsync(message, ct);
 			Assert.IsTrue(result.IsOk);
 			return result.Value;
 		}
