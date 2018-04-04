@@ -117,7 +117,7 @@ namespace GitMind.Utils.Git.Private
 			else
 			{
 				Track.Event("gitCmd", $"{result.ElapsedMs}ms: {result.Command} {result.Arguments}");
-				Log.Debug($"{result}");
+				Log.Debug($"{result.ElapsedMs}ms: {result}");
 			}
 
 			return result;

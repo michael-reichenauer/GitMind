@@ -76,7 +76,7 @@ namespace GitMind.Utils.Git.Private
 			}
 
 			GitCommit commit = Parse(result.Value.OutputLines.First());
-			Log.Info($"Got log for commit {commit.Sha.ShortSha}");
+			Log.Debug($"Got log for commit {commit.Sha.ShortSha}");
 			return commit;
 		}
 

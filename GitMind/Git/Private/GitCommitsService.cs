@@ -8,12 +8,11 @@ using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;
+using GitMind.GitModel.Private;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
-using GitMind.Utils.Git.Private;
 using LibGit2Sharp;
-using GitCommit = GitMind.GitModel.Private.GitCommit;
 
 
 namespace GitMind.Git.Private
@@ -199,15 +198,6 @@ namespace GitMind.Git.Private
 			}
 
 			return commit;
-			//return repoCaller.UseLibRepoAsync(
-			//	repo =>
-			//	{
-			//		AddPaths(repo, paths);
-			//		GitCommit gitCommit = Commit(repo, message);
-			//		CommitSha commitSha = gitCommit.Sha;
-			//		gitCommitBranchNameService.SetCommitBranchNameAsync(commitSha, branchName);
-			//		return gitCommit;
-			//	});
 		}
 
 
