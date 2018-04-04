@@ -260,11 +260,12 @@
     <Compile Include="Utils\AsyncManualResetEvent.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\IGitCredential.cs" />
     <Compile Include="Utils\Git\IGitRepo.cs" />
-    <Compile Include="Utils\Git\Private\Status2.cs" />
+    <Compile Include="Utils\Git\Status2.cs" />
     <Compile Include="Utils\OsSystem\CmdOptions.cs" />
     <Compile Include="Utils\OsSystem\ICmd2.cs" />
     <Compile Include="Utils\OsSystem\Private\Cmd2.cs" />
     <Compile Include="Utils\OsSystem\CmdResult2.cs" />
+    <Compile Include="Utils\RegexExtensions.cs" />
     <Compile Include="Utils\Txt.cs" />
     <Compile Include="Utils\Throttler.cs" />
     <Compile Include="Utils\UI\CredentialsDialog.cs" />

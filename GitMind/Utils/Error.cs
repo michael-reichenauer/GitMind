@@ -6,13 +6,13 @@ namespace GitMind.Utils
 	public class Error : Equatable<Error>
 	{
 		private readonly string message;
-		
+
 		private Error(string message, Exception exception)
 		{
 			Exception = exception ?? new Exception();
 			this.message = message;
 		}
-		
+
 		public static Error None { get; } = From("No error");
 		public static Error NoValue { get; } = From("No value");
 
@@ -21,6 +21,8 @@ namespace GitMind.Utils
 		public string Message => !string.IsNullOrEmpty(message) ?
 			$"{message},\n{Exception.Message}" : Exception.Message;
 
+		public static Error From(string message, Error error) => new Error(message, error.Exception);
+		public static Error From(string message, R result) => From(message, result.Error);
 
 		public static Error From(Exception e) => new Error(null, e);
 
@@ -28,7 +30,7 @@ namespace GitMind.Utils
 
 		public static Error From(string message) => new Error(null, new Exception(message));
 
-	
+
 		public static implicit operator Error(Exception e) => From(e);
 
 
@@ -55,7 +57,6 @@ namespace GitMind.Utils
 
 		protected override int GetHash() => 0;
 
-		public override string ToString() => 
-			$"{Exception.GetType().Name}, {Message}\n {Exception.StackTrace}";
+		public override string ToString() => $"{Message}\n{Exception.GetType().Name}, at:\n{Exception.StackTrace}";
 	}
 }

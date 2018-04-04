@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Common;
 
 
 namespace GitMind.Utils.Git.Private
@@ -26,27 +25,27 @@ namespace GitMind.Utils.Git.Private
 		{
 			string args = $"{PushArgs} -u refs/heads/{branchName}:refs/heads/{branchName}";
 
-			return (await gitCmd.RunAsync(args, ct)).AsR();
+			return await gitCmd.RunAsync(args, ct);
 		}
 
 
 		public async Task<R> PushDeleteRemoteBranchAsync(string branchName, CancellationToken ct) =>
-			(await gitCmd.RunAsync($"{PushArgs} --delete {branchName}", ct)).AsR();
+			await gitCmd.RunAsync($"{PushArgs} --delete {branchName}", ct);
 
 
 		public async Task<R> PushTagAsync(string tagName, CancellationToken ct) =>
-			(await gitCmd.RunAsync($"{PushArgs} {tagName}", ct)).AsR();
+			await gitCmd.RunAsync($"{PushArgs} {tagName}", ct);
 
 
 		public async Task<R> PushDeleteRemoteTagAsync(string tagName, CancellationToken ct) =>
-			(await gitCmd.RunAsync($"{PushArgs} --delete {tagName}", ct)).AsR();
+			await gitCmd.RunAsync($"{PushArgs} --delete {tagName}", ct);
 
 
 		public async Task<R> PushRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
 		{
 			string refsText = string.Join(" ", refspecs);
 
-			return (await gitCmd.RunAsync($"{PushArgs} {refsText}", ct)).AsR();
+			return await gitCmd.RunAsync($"{PushArgs} {refsText}", ct);
 		}
 	}
 }

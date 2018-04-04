@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Utils.Git.Private;
 
 
 namespace GitMind.Utils.Git
@@ -10,5 +9,8 @@ namespace GitMind.Utils.Git
 	{
 		Task<R<IReadOnlyList<GitFile2>>> GetCommitFilesAsync(
 			string commit, CancellationToken ct);
+
+
+		Task<R<string>> CommitAllChangesAsync(string message, CancellationToken ct);
 	}
 }

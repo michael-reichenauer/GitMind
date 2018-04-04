@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Utils.Git;
+using GitMind.Utils;
 using GitMind.Utils.Git.Private;
 using GitMind.Utils.OsSystem;
 using GitMindTest.AutoMocking;
@@ -23,10 +23,10 @@ namespace GitMindTest.Utils.Git.Private
 			{
 				IGitCmd gitCmd = am.Resolve<IGitCmd>();
 
-				CmdResult2 result = await gitCmd.RunAsync("version", ct);
+				R<CmdResult2> result = await gitCmd.RunAsync("version", ct);
 
-				Assert.AreEqual(0, result.ExitCode);
-				Assert.That(result.Output, Is.StringMatching(@"git version \d\.\d+.*windows"));
+				Assert.AreEqual(0, result.Value.ExitCode);
+				Assert.That(result.Value.Output, Is.StringMatching(@"git version \d\.\d+.*windows"));
 			}
 		}
 	}

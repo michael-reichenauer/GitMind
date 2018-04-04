@@ -22,20 +22,19 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<IReadOnlyList<GitFile2>>> GetFilesAsync(
 			string commit, CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.RunAsync(
+			R<CmdResult2> result = await gitCmd.RunAsync(
 				$"diff-tree --no-commit-id --name-status -r --find-renames -m --root {commit}", ct);
 
 			if (result.IsFaulted)
 			{
-				return Error.From(result.Error);
+				return Error.From("Failed to get list of commit files", result);
 			}
 
-			return R.From(ParseCommitFiles(result));
+			return R.From(ParseCommitFiles(result.Value));
 		}
 
 		private IReadOnlyList<GitFile2> ParseCommitFiles(CmdResult2 result)
 		{
-
 			List<GitFile2> files = new List<GitFile2>();
 			string folder = workingFolder;
 

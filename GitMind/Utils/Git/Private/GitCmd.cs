@@ -40,20 +40,20 @@ namespace GitMind.Utils.Git.Private
 		private string GitCmdPath => gitEnvironmentService.GetGitCmdPath();
 
 
-		public async Task<CmdResult2> RunAsync(
+		public async Task<R<CmdResult2>> RunAsync(
 			string gitArgs, GitOptions options, CancellationToken ct)
 		{
 			return await CmdAsync(gitArgs, options, ct);
 		}
 
 
-		public async Task<CmdResult2> RunAsync(string gitArgs, CancellationToken ct)
+		public async Task<R<CmdResult2>> RunAsync(string gitArgs, CancellationToken ct)
 		{
 			return await CmdAsync(gitArgs, new GitOptions(), ct);
 		}
 
 
-		public async Task<CmdResult2> RunAsync(
+		public async Task<R<CmdResult2>> RunAsync(
 			string gitArgs, Action<string> outputLines, CancellationToken ct)
 		{
 			GitOptions options = new GitOptions
@@ -66,7 +66,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private async Task<CmdResult2> CmdAsync(
+		private async Task<R<CmdResult2>> CmdAsync(
 			string gitArgs, GitOptions options, CancellationToken ct)
 		{
 			CmdResult2 result;
@@ -91,6 +91,11 @@ namespace GitMind.Utils.Git.Private
 				}
 			} while (isRetry);
 
+			if (result.IsFaulted)
+			{
+				return Error.From($"{result.Error}:\n{result}");
+			}
+
 			return result;
 		}
 
@@ -100,16 +105,12 @@ namespace GitMind.Utils.Git.Private
 		{
 			AdjustOptions(options, sessionId);
 
-			Log.Debug($"Runing: {GitCmdPath} {gitArgs}");
+			// Log.Debug($"Runing: {GitCmdPath} {gitArgs}");
 			CmdOptions cmdOptions = ToCmdOptions(options);
 			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, cmdOptions, ct);
 			Track.Event("gitCmd", $"{result.ElapsedMs}ms: {result.ToStringShort()}");
 
-			if (result.ExitCode == 0)
-			{
-				Log.Debug($"{result.ElapsedMs}ms: {result}");
-			}
-			else
+			if (result.IsFaulted)
 			{
 				Log.Warn($"{result.ElapsedMs}ms: {result}");
 			}

@@ -10,7 +10,7 @@ namespace GitMindTest.Utils.Git
 	[TestFixture]
 	public class GitRepoTest : GitTestBase<IGitRepo>
 	{
-		[Test, Explicit]
+		[Test]
 		public async Task TestInitRepo()
 		{
 			string path = CreateTmpDir();
@@ -20,11 +20,10 @@ namespace GitMindTest.Utils.Git
 		}
 
 
-		[Test, Explicit]
+		[Test]
 		public async Task TestCreateNewRepo()
 		{
-			string path = await GetNewGitRepoAsync();
-			Assert.IsNotNull(path);
+			await InitRepoAsync();
 		}
 	}
 }

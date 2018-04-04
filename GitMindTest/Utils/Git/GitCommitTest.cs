@@ -1,21 +1,51 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using GitMind.Utils;
 using GitMind.Utils.Git;
-using GitMind.Utils.Git.Private;
 using GitMindTest.Utils.Git.Private;
 using NUnit.Framework;
 
 
 namespace GitMindTest.Utils.Git
 {
-	[TestFixture, Explicit]
+	[TestFixture]
 	public class GitCommitTest : GitTestBase<IGitCommit>
 	{
 		[Test]
-		public async Task TestFetch()
+		public async Task TestCommit()
 		{
-			R<IReadOnlyList<GitFile2>> result = await gitCmd.GetCommitFilesAsync("d79878", ct);
+			await InitRepoAsync();
+
+			WriteFile("file1.txt", "some text");
+
+			R<string> result = await gitCmd.CommitAllChangesAsync("Some message 1", ct);
+			Assert.IsTrue(result.IsOk);
+
+			Status2 status = await GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+
+			var files = await gitCmd.GetCommitFilesAsync(result.Value, ct);
+			Assert.AreEqual(1, files.Value.Count);
+			Assert.IsNotNull(files.Value.FirstOrDefault(f => f.FilePath == "file1.txt"));
+
+			WriteFile("file2.txt", "some text");
+
+			result = await gitCmd.CommitAllChangesAsync("Some message 2", ct);
+			Assert.IsTrue(result.IsOk);
+
+			status = await GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+		}
+
+
+		[Test]
+		public async Task TestCommitAllChangesAsync()
+		{
+			await InitRepoAsync();
+
+			WriteFile("file1.txt", "some text");
+
+			R<string> result = await gitCmd.CommitAllChangesAsync("Some message 1", ct);
 			Assert.IsTrue(result.IsOk);
 		}
 	}

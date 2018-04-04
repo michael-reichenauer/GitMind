@@ -19,12 +19,28 @@ namespace GitMindTest.Utils.Git.Private
 		protected readonly CancellationToken ct = CancellationToken.None;
 		protected AutoMock am;
 		protected TInterface gitCmd => resolved.Value;
-		protected string workingFolder;
+		private string workingFolder;
+		private bool isRepo;
+
+		protected string WorkingFolder
+		{
+			get
+			{
+				if (!isRepo)
+				{
+					throw new InvalidOperationException("Working folder repo not yet created");
+				}
+
+				return workingFolder;
+			}
+		}
 
 
 		[SetUp]
 		public void Setup()
 		{
+			//CleanTempDirs();
+
 			workingFolder = CreateTmpDir();
 
 			am = new AutoMock()
@@ -33,8 +49,6 @@ namespace GitMindTest.Utils.Git.Private
 				.RegisterType<IMessageService>()
 				.RegisterSingleInstance(new WorkingFolderPath(workingFolder));
 			resolved = new Lazy<TInterface>(() => am.Resolve<TInterface>());
-
-			Task.Run(() => CreateNewGitRepoAsync(workingFolder)).Wait();
 		}
 
 
@@ -43,12 +57,56 @@ namespace GitMindTest.Utils.Git.Private
 		public void Teardown()
 		{
 			am.Dispose();
-			CleanTempDirs();
+			// CleanTempDirs();
 		}
 
 
+		protected async Task InitRepoAsync()
+		{
+			if (isRepo)
+			{
+				throw new InvalidOperationException("Working folder repo already created");
+			}
 
-		protected async Task<string> GetNewGitRepoAsync()
+			await CreateNewGitRepoAsync(workingFolder);
+			isRepo = true;
+		}
+
+		protected async Task<Status2> GetStatusAsync()
+		{
+			IGitStatus gitStatus = am.Resolve<IGitStatus>();
+			var result = await gitStatus.GetStatusAsync(ct);
+			Assert.IsTrue(result.IsOk);
+
+			return result.Value;
+		}
+
+		protected async Task<string> CommitAllChangesAsync(string message)
+		{
+			IGitCommit gitCommit = am.Resolve<IGitCommit>();
+			R<string> result = await gitCommit.CommitAllChangesAsync(message, ct);
+			Assert.IsTrue(result.IsOk);
+			return result.Value;
+		}
+
+
+		protected void WriteFile(string name, string text)
+		{
+			File.WriteAllText(GetPath(name), text);
+		}
+
+		protected void DeleteFile(string name)
+		{
+			File.Delete(GetPath(name));
+		}
+
+
+		protected string GetPath(string subPath)
+		{
+			return Path.Combine(WorkingFolder, subPath);
+		}
+
+		private async Task<string> GetNewGitRepoAsync()
 		{
 			string path = CreateTmpDir();
 			await CreateNewGitRepoAsync(path);

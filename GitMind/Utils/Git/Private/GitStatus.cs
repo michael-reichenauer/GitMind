@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
 using GitMind.Git;
 using GitMind.Utils.OsSystem;
-using LibGit2Sharp;
 
 
 namespace GitMind.Utils.Git.Private
@@ -27,15 +26,15 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<Status2>> GetStatusAsync(CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.RunAsync(StatusArgs, ct);
+			R<CmdResult2> result = await gitCmd.RunAsync(StatusArgs, ct);
 
 			if (result.IsFaulted)
 			{
-				return Error.From(result.Error);
+				return Error.From("Failed to get status", result);
 			}
-			
-			Status2 status = ParseStatus(result);
-			Log.Debug($"Status: {status}");
+
+			Status2 status = ParseStatus(result.Value);
+			Log.Info($"Status: {status}");
 			return status;
 		}
 

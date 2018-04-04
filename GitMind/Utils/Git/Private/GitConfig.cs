@@ -35,15 +35,15 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<IReadOnlyList<GitSetting>>> GetAsync(CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmd.RunAsync(ConfigListArgs, ct);
+			R<CmdResult2> result = await gitCmd.RunAsync(ConfigListArgs, ct);
 			if (result.IsFaulted)
 			{
-				return Error.From(result.Error);
+				return Error.From("Failed to get list of config values", result);
 			}
 
 			Dictionary<string, List<string>> settings = new Dictionary<string, List<string>>();
 
-			foreach (string line in result.OutputLines)
+			foreach (string line in result.Value.OutputLines)
 			{
 				string settingText = line.Trim();
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace GitMind.Utils.Git.Private
+namespace GitMind.Utils.Git
 {
 	public class Status2
 	{
@@ -21,6 +21,6 @@ namespace GitMind.Utils.Git.Private
 
 		public bool OK => AllChanges == 0;
 
-		public override string ToString() => $"Changed {AllChanges} ({Modified}M, {Added}A, {Deleted}D)";
+		public override string ToString() => OK ? "Ok" : $"{AllChanges} ({Modified}M, {Added}A, {Deleted}D)";
 	}
 }

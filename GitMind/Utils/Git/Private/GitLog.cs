@@ -35,12 +35,8 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R> GetAsync(Action<LogCommit> commits, CancellationToken ct)
-		{
-			CmdResult2 result = await gitCmd.RunAsync(GitLogArgs, line => commits(Parse(line)), ct);
-
-			return result.AsR();
-		}
+		public async Task<R> GetAsync(Action<LogCommit> commits, CancellationToken ct) => 
+			await gitCmd.RunAsync(GitLogArgs, line => commits(Parse(line)), ct);
 
 
 		private static LogCommit Parse(string line)
