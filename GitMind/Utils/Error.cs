@@ -5,16 +5,24 @@ namespace GitMind.Utils
 {
 	public class Error : Equatable<Error>
 	{
+		private static readonly Exception noError = new Exception("No error");
+		private static readonly Exception noValue = new Exception("No value");
+
 		private readonly string message;
 
 		private Error(string message, Exception exception)
 		{
 			Exception = exception ?? new Exception();
-			this.message = message;
+			this.message = message ?? "";
+
+			if (!(exception == noError && exception == noValue && message == null))
+			{
+				Log.Error(ToString());
+			}
 		}
 
-		public static Error None { get; } = From("No error");
-		public static Error NoValue { get; } = From("No value");
+		public static Error None { get; } = From(noError);
+		public static Error NoValue { get; } = From(noValue);
 
 		public Exception Exception { get; }
 
