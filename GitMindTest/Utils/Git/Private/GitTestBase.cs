@@ -41,7 +41,7 @@ namespace GitMindTest.Utils.Git.Private
 		public void Setup()
 		{
 			//CleanTempDirs();
-
+			isRepo = false;
 			workingFolder = CreateTmpDir();
 
 			am = new AutoMock()

@@ -112,37 +112,38 @@ namespace GitMind.Git.Private
 
 		public Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync()
 		{
-			return repoCaller.UseLibRepoAsync(repo =>
-			{
-				List<string> failedPaths = new List<string>();
+			return gitCommitService2.CleanWorkingFolderAsync(CancellationToken.None);
+			//return repoCaller.UseLibRepoAsync(repo =>
+			//{
+			//	List<string> failedPaths = new List<string>();
 
-				RepositoryStatus repositoryStatus = repo.RetrieveStatus(StatusOptions);
-				foreach (StatusEntry statusEntry in repositoryStatus.Ignored.Concat(repositoryStatus.Untracked))
-				{
-					string path = statusEntry.FilePath;
-					string fullPath = Path.Combine(workingFolder, path);
-					try
-					{
-						if (File.Exists(fullPath))
-						{
-							Log.Debug($"Delete file {fullPath}");
-							File.Delete(fullPath);
-						}
-						else if (Directory.Exists(fullPath))
-						{
-							Log.Debug($"Delete folder {fullPath}");
-							Directory.Delete(fullPath, true);
-						}
-					}
-					catch (Exception e)
-					{
-						Log.Exception(e, $"Failed to delete {path}");
-						failedPaths.Add(fullPath);
-					}
-				}
+			//	RepositoryStatus repositoryStatus = repo.RetrieveStatus(StatusOptions);
+			//	foreach (StatusEntry statusEntry in repositoryStatus.Ignored.Concat(repositoryStatus.Untracked))
+			//	{
+			//		string path = statusEntry.FilePath;
+			//		string fullPath = Path.Combine(workingFolder, path);
+			//		try
+			//		{
+			//			if (File.Exists(fullPath))
+			//			{
+			//				Log.Debug($"Delete file {fullPath}");
+			//				File.Delete(fullPath);
+			//			}
+			//			else if (Directory.Exists(fullPath))
+			//			{
+			//				Log.Debug($"Delete folder {fullPath}");
+			//				Directory.Delete(fullPath, true);
+			//			}
+			//		}
+			//		catch (Exception e)
+			//		{
+			//			Log.Exception(e, $"Failed to delete {path}");
+			//			failedPaths.Add(fullPath);
+			//		}
+			//	}
 
-				return failedPaths.AsReadOnlyList();
-			});
+			//	return failedPaths.AsReadOnlyList();
+			//});
 		}
 
 
