@@ -91,21 +91,16 @@ namespace GitMindTest.Utils.Git.Private
 		}
 
 
-		protected void WriteFile(string name, string text)
-		{
-			File.WriteAllText(GetPath(name), text);
-		}
+		protected void FileWrite(string name, string text) => File.WriteAllText(FileFullPath(name), text);
 
-		protected void DeleteFile(string name)
-		{
-			File.Delete(GetPath(name));
-		}
+		protected string FileRead(string name) => File.ReadAllText(FileFullPath(name));
 
+		protected bool FileExists(string name) => File.Exists(FileFullPath(name));
 
-		protected string GetPath(string subPath)
-		{
-			return Path.Combine(WorkingFolder, subPath);
-		}
+		protected void FileDelete(string name) => File.Delete(FileFullPath(name));
+
+		protected string FileFullPath(string subPath) => Path.Combine(WorkingFolder, subPath);
+
 
 		private async Task<string> GetNewGitRepoAsync()
 		{

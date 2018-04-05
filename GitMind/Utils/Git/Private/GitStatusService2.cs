@@ -45,9 +45,10 @@ namespace GitMind.Utils.Git.Private
 
 			int added = files.Count(file => file.Status.HasFlag(GitFileStatus.Added));
 			int deleted = files.Count(file => file.Status.HasFlag(GitFileStatus.Deleted));
-			int modified = files.Count - (added + deleted);
+			int conflicted = files.Count(file => file.Status.HasFlag(GitFileStatus.Conflict));
+			int modified = files.Count - (added + deleted + conflicted);
 
-			return new Status2(modified, added, deleted, files);
+			return new Status2(modified, added, deleted, conflicted, files);
 		}
 
 
@@ -59,18 +60,32 @@ namespace GitMind.Utils.Git.Private
 			{
 				string filePath = line.Substring(2).Trim();
 
-				if (line.StartsWith("?? ") || line.StartsWith(" A "))
+				GitFileStatus status = GitFileStatus.Modified;
+
+				if (line.StartsWith("DD ") ||
+						line.StartsWith("AU ") ||
+						line.StartsWith("UD ") ||
+						line.StartsWith("UA ") ||
+						line.StartsWith("DU ") ||
+						line.StartsWith("AA ") ||
+						line.StartsWith("UU "))
 				{
-					files.Add(new GitFile2(workingFolder, filePath, null, GitFileStatus.Added));
+					status = GitFileStatus.Conflict;
+				}
+				else if (line.StartsWith("AU "))
+				{
+
+				}
+				else if (line.StartsWith("?? ") || line.StartsWith(" A "))
+				{
+					status = GitFileStatus.Added;
 				}
 				else if (line.StartsWith(" D ") || line.StartsWith("D"))
 				{
-					files.Add(new GitFile2(workingFolder, filePath, null, GitFileStatus.Deleted));
+					status = GitFileStatus.Deleted;
 				}
-				else
-				{
-					files.Add(new GitFile2(workingFolder, filePath, null, GitFileStatus.Modified));
-				}
+
+				files.Add(new GitFile2(workingFolder, filePath, null, status));
 			}
 
 			return files;

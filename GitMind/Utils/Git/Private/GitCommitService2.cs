@@ -42,6 +42,19 @@ namespace GitMind.Utils.Git.Private
 			gitDiffService2.GetFilesAsync(sha, ct);
 
 
+		public async Task<R> UndoCommitAsync(string sha, CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync($"revert --no-commit {sha}", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From("Undo commit failed.", result);
+			}
+
+			Log.Info($"Undid commit {sha}");
+			return result;
+		}
+
+
 		public async Task<R<IReadOnlyList<string>>> UndoUncommitedAsync(CancellationToken ct)
 		{
 			R<IReadOnlyList<string>> result = await CleanFolderAsync("-fd", ct);

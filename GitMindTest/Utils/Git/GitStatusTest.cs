@@ -21,14 +21,14 @@ namespace GitMindTest.Utils.Git
 			Assert.IsTrue(status.IsOk);
 			Assert.AreEqual(0, status.Value.AllChanges);
 
-			WriteFile("file1.txt", "some text");
+			FileWrite("file1.txt", "some text");
 
 			status = await gitCmd.GetStatusAsync(ct);
 			Assert.AreEqual(1, status.Value.AllChanges);
 			Assert.AreEqual(1, status.Value.Added);
 			Assert.IsNotNull(status.Value.Files.FirstOrDefault(f => f.FilePath == "file1.txt"));
 
-			DeleteFile("file1.txt");
+			FileDelete("file1.txt");
 			status = await gitCmd.GetStatusAsync(ct);
 			Assert.IsTrue(status.IsOk);
 			Assert.AreEqual(0, status.Value.AllChanges);

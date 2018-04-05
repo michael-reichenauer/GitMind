@@ -18,10 +18,10 @@ namespace GitMindTest.Utils.Git
 		{
 			await InitRepoAsync();
 
-			WriteFile("file1.txt", "some text 1");
+			FileWrite("file1.txt", "some text 1");
 			await CommitAllChangesAsync("Message 1");
 
-			WriteFile("file2.txt", "some text 2");
+			FileWrite("file2.txt", "some text 2");
 			await CommitAllChangesAsync("Message 2");
 
 			R<IReadOnlyList<GitCommit>> log = await gitCmd.GetLogAsync(ct);
@@ -49,7 +49,7 @@ namespace GitMindTest.Utils.Git
 
 			for (int i = 0; i < 10; i++)
 			{
-				WriteFile("file.txt", $"some text {i}");
+				FileWrite("file.txt", $"some text {i}");
 				await CommitAllChangesAsync($"Message {i}");
 			}
 

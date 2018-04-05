@@ -16,5 +16,6 @@ namespace GitMind.Utils.Git
 		Task<R<GitCommit>> GetCommitAsync(string sha, CancellationToken ct);
 		Task<R<IReadOnlyList<string>>> UndoUncommitedAsync(CancellationToken ct);
 		Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync(CancellationToken ct);
+		Task<R> UndoCommitAsync(string sha, CancellationToken ct);
 	}
 }

@@ -98,16 +98,17 @@ namespace GitMind.Git.Private
 
 		public Task<R> UndoCommitAsync(CommitSha commitSha)
 		{
-			return repoCaller.UseRepoAsync(
-				repo =>
-				{
-					LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(
-						new ObjectId(commitSha.Sha));
-					Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
-					RevertOptions options = new RevertOptions { CommitOnSuccess = false };
+			return gitCommitService2.UndoCommitAsync(commitSha.Sha, CancellationToken.None);
+			//return repoCaller.UseRepoAsync(
+			//	repo =>
+			//	{
+			//		LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(
+			//			new ObjectId(commitSha.Sha));
+			//		Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
+			//		RevertOptions options = new RevertOptions { CommitOnSuccess = false };
 
-					repo.Revert(commit, signature, options);
-				});
+			//		repo.Revert(commit, signature, options);
+			//	});
 		}
 
 		public Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync()
