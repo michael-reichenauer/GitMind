@@ -17,7 +17,7 @@ namespace GitMind.Utils
 
 			if (!((exception == noError || exception == noValue) && message == null))
 			{
-				Log.Error(ToString());
+				Log.Warn(ToString());
 			}
 		}
 
@@ -26,8 +26,9 @@ namespace GitMind.Utils
 
 		public Exception Exception { get; }
 
-		public string Message => !string.IsNullOrEmpty(message) ?
-			$"{message},\n{Exception.Message}" : Exception.Message;
+		public string Message => !string.IsNullOrEmpty(message) ? $"{message}" : Exception.Message;
+
+		public string StackTrace => Exception.StackTrace != null ? $"at:\n{Exception.StackTrace}" : null;
 
 		public static Error From(string message, Error error) => new Error(message, error.Exception);
 		public static Error From(string message, R result) => From(message, result.Error);
@@ -65,6 +66,9 @@ namespace GitMind.Utils
 
 		protected override int GetHash() => 0;
 
-		public override string ToString() => $"{Message}\n{Exception.GetType().Name}, at:\n{Exception.StackTrace}";
+
+		public override string ToString() => !string.IsNullOrEmpty(message)
+			? $"{Message}\n{Exception.GetType().Name}, {Exception.Message}{StackTrace}"
+			: $"{Exception.GetType().Name}, {Exception.Message}{StackTrace}";
 	}
 }

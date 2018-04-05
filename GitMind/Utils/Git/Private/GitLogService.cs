@@ -37,7 +37,6 @@ namespace GitMind.Utils.Git.Private
 				return Error.From("Failed to get log", result);
 			}
 
-			Log.Info($"Got log for {commits.Count} commits");
 			return commits;
 		}
 
@@ -62,7 +61,7 @@ namespace GitMind.Utils.Git.Private
 				return Error.From("Failed to get log", result);
 			}
 
-			Log.Info($"Got log for {count} commits");
+			Log.Info($"Got log for {count} commits in {result.Value.WorkingDirectory}");
 			return R.Ok;
 		}
 

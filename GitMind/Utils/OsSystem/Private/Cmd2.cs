@@ -35,7 +35,15 @@ namespace GitMind.Utils.OsSystem.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Cmd failed: {command} {arguments}");
-				return new CmdResult2(command, arguments, -1, "", $"{e.GetType()}, {e.Message}", TimeSpan.Zero, ct);
+				return new CmdResult2(
+					command, 
+					arguments, 
+					options.WorkingDirectory,
+					-1, 
+					"", 
+					$"{e.GetType()}, {e.Message}", 
+					TimeSpan.Zero,
+					ct);
 			}
 		}
 
@@ -72,7 +80,15 @@ namespace GitMind.Utils.OsSystem.Private
 
 			process?.Dispose();
 			stopwatch.Start();
-			return new CmdResult2(command, arguments, exitCode, outData.Outout, outData.Error, stopwatch.Elapsed, ct);
+			return new CmdResult2(
+				command, 
+				arguments, 
+				options.WorkingDirectory, 
+				exitCode, 
+				outData.Outout, 
+				outData.Error, 
+				stopwatch.Elapsed,
+				ct);
 		}
 
 

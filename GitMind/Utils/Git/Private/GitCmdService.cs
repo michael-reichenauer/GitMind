@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -93,7 +94,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"{result.Error}:\n{result}");
+				return Error.From(string.Join("\n", result.ErrorLines.Take(10)), new GitException($"{result}"));
 			}
 
 			return result;
@@ -112,7 +113,6 @@ namespace GitMind.Utils.Git.Private
 			if (result.IsFaulted && !result.IsCanceled)
 			{
 				Track.Event("gitCmd", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}");
-				Log.Warn($"{result.ElapsedMs}ms: {result}");
 			}
 			else
 			{
@@ -155,5 +155,13 @@ namespace GitMind.Utils.Git.Private
 			IsOutputDisabled = options.IsOutputDisabled,
 			ErrorProgress = options.ErrorProgress
 		};
+	}
+
+
+	public class GitException : Exception
+	{
+		public GitException(string message) : base(message)
+		{
+		}
 	}
 }

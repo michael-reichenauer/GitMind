@@ -34,7 +34,7 @@ namespace GitMind.Utils.Git.Private
 			}
 
 			Status2 status = ParseStatus(result.Value);
-			Log.Info($"Status: {status}");
+			Log.Info($"Status: {status} in {result.Value.WorkingDirectory}");
 			return status;
 		}
 

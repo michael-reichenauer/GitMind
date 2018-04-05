@@ -19,7 +19,10 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitLogService gitLogService;
 
 
-		public GitCommitService2(IGitCmdService gitCmdService, IGitDiffService2 gitDiffService2, IGitLogService gitLogService)
+		public GitCommitService2(
+			IGitCmdService gitCmdService,
+			IGitDiffService2 gitDiffService2,
+			IGitLogService gitLogService)
 		{
 			this.gitCmdService = gitCmdService;
 			this.gitDiffService2 = gitDiffService2;
@@ -32,6 +35,30 @@ namespace GitMind.Utils.Git.Private
 
 		public Task<R<IReadOnlyList<GitFile2>>> GetCommitFilesAsync(string sha, CancellationToken ct) =>
 			gitDiffService2.GetFilesAsync(sha, ct);
+
+
+		public async Task<R> UndoUncommitedAsync(CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync("reset --hard", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From("Failed to undo uncommited changes, reset failed.", result);
+			}
+
+			result = await gitCmdService.RunAsync("clean -fxd", ct);
+			if (result.IsFaulted)
+			{
+				if (IsFailedToRemoveSomeFiles(result))
+				{
+					return R.Ok;
+				}
+
+				return Error.From("Failed to undo uncommited changes, reset failed.", result);
+			}
+
+			Log.Info($"Resetted and cleaned uncommited changes in {result.Value.WorkingDirectory}");
+			return R.Ok;
+		}
 
 
 		public async Task<R<GitCommit>> CommitAllChangesAsync(string message, CancellationToken ct)
@@ -60,6 +87,18 @@ namespace GitMind.Utils.Git.Private
 			}
 
 			return Error.From("Commit succeded, but failed to parse commit id from output");
+		}
+
+
+		private static bool IsFailedToRemoveSomeFiles(R<CmdResult2> result)
+		{
+			if (result.Error.Message.StartsWith("warning: failed to remove"))
+			{
+				Log.Warn("Failed to remove some files");
+				return true;
+			}
+
+			return false;
 		}
 	}
 }

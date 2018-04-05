@@ -8,8 +8,10 @@ namespace GitMind.Utils.OsSystem
 {
 	public class CmdResult2
 	{
-		public CmdResult2(string command,
+		public CmdResult2(
+			string command,
 			string arguments,
+			string workingDirectory,
 			int exitCode,
 			string output,
 			string error,
@@ -18,6 +20,7 @@ namespace GitMind.Utils.OsSystem
 		{
 			Command = command;
 			Arguments = arguments;
+			WorkingDirectory = workingDirectory;
 			Output = output;
 			Error = error;
 			Elapsed = elapsed;
@@ -27,6 +30,7 @@ namespace GitMind.Utils.OsSystem
 
 		public string Command { get; }
 		public string Arguments { get; }
+		public string WorkingDirectory { get; }
 		public int ExitCode { get; }
 		public string Output { get; }
 		public string Error { get; }
@@ -53,12 +57,13 @@ namespace GitMind.Utils.OsSystem
 			}
 		}
 
-		public override string ToString() => $"{Command} {Arguments}{ExitText}{OutputText}{ErrorText}";
+		public override string ToString() =>
+			$"{Command} {Arguments}{ExitText}{OutputText}{ErrorText}";
 
 		private string ExitText => ExitCode == 0 ? "" : $"\nExit code: {ExitCode}";
 		private string OutputText => string.IsNullOrEmpty(Output) ? "" : $"\n{Truncate(Output)}";
-		private string ErrorText => string.IsNullOrEmpty(Error) ? "" :
-				ExitCode == 0 ? $"\nProgress:\n{Truncate(Error)}" : $"\nError:\n{Truncate(Error)}";
+		private string ErrorText => string.IsNullOrEmpty(Error) ? "" : ExitCode == 0 ?
+			$"\nProgress:\n{Truncate(Error)}" : $"\nError:\n{Truncate(Error)}\nin: {WorkingDirectory}";
 
 
 		private static IEnumerable<string> Lines(string text)
