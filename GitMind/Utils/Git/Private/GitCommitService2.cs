@@ -9,7 +9,6 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	//
 	internal class GitCommitService2 : IGitCommitService2
 	{
 		public static readonly Regex CommitOutputRegEx = new Regex(@"^\[(\S*)\s+(\(.*\)\s+)?(\w+)\]",
@@ -77,16 +76,16 @@ namespace GitMind.Utils.Git.Private
 				return Error.From("Reset failed.", result);
 			}
 
-			result = await gitCmdService.RunAsync($"clean {cleanArgs}", ct);
-			if (result.IsFaulted)
+			CmdResult2 cleanResult = await gitCmdService.RunCmdAsync($"clean {cleanArgs}", ct);
+			if (cleanResult.IsFaulted)
 			{
-				if (IsFailedToRemoveSomeFiles(result, out IReadOnlyList<string> failedFiles))
+				if (IsFailedToRemoveSomeFiles(cleanResult, out IReadOnlyList<string> failedFiles))
 				{
 					Log.Warn($"Failed to clean {failedFiles.Count} files");
 					return R.From(failedFiles);
 				}
 
-				return Error.From("Clean failed.", result);
+				return Error.From(cleanResult.ToString());
 			}
 
 			return R.From(EmptyFileList);
@@ -122,10 +121,10 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private static bool IsFailedToRemoveSomeFiles(R result, out IReadOnlyList<string> failedFiles)
+		private static bool IsFailedToRemoveSomeFiles(CmdResult2 result, out IReadOnlyList<string> failedFiles)
 		{
 			// Check if error message contains any "warning: failed to remove <file>:"
-			failedFiles = CleanOutputRegEx.Matches(result.Error.Message).OfType<Match>()
+			failedFiles = CleanOutputRegEx.Matches(result.Error).OfType<Match>()
 				.Select(match => match.Groups[1].Value).ToList();
 
 			return failedFiles.Any();

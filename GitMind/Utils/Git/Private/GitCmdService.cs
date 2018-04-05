@@ -44,11 +44,16 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<CmdResult2>> RunAsync(
 			string gitArgs, GitOptions options, CancellationToken ct)
 		{
-			return await CmdAsync(gitArgs, options, ct);
+			return AsR(await CmdAsync(gitArgs, options, ct));
 		}
 
 
 		public async Task<R<CmdResult2>> RunAsync(string gitArgs, CancellationToken ct)
+		{
+			return AsR(await CmdAsync(gitArgs, new GitOptions(), ct));
+		}
+
+		public async Task<CmdResult2> RunCmdAsync(string gitArgs, CancellationToken ct)
 		{
 			return await CmdAsync(gitArgs, new GitOptions(), ct);
 		}
@@ -63,11 +68,11 @@ namespace GitMind.Utils.Git.Private
 				IsOutputDisabled = true,
 			};
 
-			return await CmdAsync(gitArgs, options, ct);
+			return AsR(await CmdAsync(gitArgs, options, ct));
 		}
 
 
-		private async Task<R<CmdResult2>> CmdAsync(
+		private async Task<CmdResult2> CmdAsync(
 			string gitArgs, GitOptions options, CancellationToken ct)
 		{
 			CmdResult2 result;
@@ -92,6 +97,13 @@ namespace GitMind.Utils.Git.Private
 				}
 			} while (isRetry);
 
+
+			return result;
+		}
+
+
+		private R<CmdResult2> AsR(CmdResult2 result)
+		{
 			if (result.IsFaulted)
 			{
 				return Error.From(string.Join("\n", result.ErrorLines.Take(10)), new GitException($"{result}"));

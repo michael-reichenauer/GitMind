@@ -15,5 +15,8 @@ namespace GitMind.Utils.Git.Private
 
 		Task<R<CmdResult2>> RunAsync(
 			string gitArgs, GitOptions options, CancellationToken ct);
+
+
+		Task<CmdResult2> RunCmdAsync(string gitArgs, CancellationToken ct);
 	}
 }
