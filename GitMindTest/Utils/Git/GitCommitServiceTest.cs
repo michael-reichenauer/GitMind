@@ -21,7 +21,7 @@ namespace GitMindTest.Utils.Git
 
 			// Write a file and check status
 			FileWrite("file1.txt", "some text");
-			Status2 status = await GetStatusAsync();
+			status = await GetStatusAsync();
 			Assert.AreEqual(1, status.AllChanges);
 
 			// Commit and then check status
@@ -63,7 +63,7 @@ namespace GitMindTest.Utils.Git
 
 			// Add a new file, check status that the file is considdered added
 			FileWrite("file1.txt", "some text");
-			Status2 status = await GetStatusAsync();
+			status = await GetStatusAsync();
 			Assert.AreEqual(1, status.AllChanges);
 			Assert.AreEqual(1, status.Added);
 
@@ -129,7 +129,7 @@ namespace GitMindTest.Utils.Git
 			// Writing a .sup file, which usually is ignored, but since not yet a .ignore file
 			// The staus will show the file and it does exist
 			FileWrite("file1.suo", "some text");
-			Status2 status = await GetStatusAsync();
+			status = await GetStatusAsync();
 			Assert.AreEqual(1, status.AllChanges);
 
 			// Using the UndoUncommitedAsync() will succeede, and it will remove the file
@@ -182,7 +182,7 @@ namespace GitMindTest.Utils.Git
 			// Undo the last commit and check that the previous version of the file exists but is not commited
 			R result = await gitCmd.UndoCommitAsync(commit2.Sha.Sha, ct);
 			Assert.IsTrue(result.IsOk);
-			Status2 status = await GetStatusAsync();
+			status = await GetStatusAsync();
 			Assert.AreEqual(1, status.AllChanges);
 			Assert.AreEqual(1, status.Modified);
 			Assert.AreEqual("Some text 1", FileRead("file1.txt"));
@@ -202,6 +202,34 @@ namespace GitMindTest.Utils.Git
 			// Clean the modifications and check that the last version of the file exists
 			await gitCmd.CleanWorkingFolderAsync(ct);
 			Assert.AreEqual("Some text 2", FileRead("file1.txt"));
+		}
+
+
+		[Test]
+		public async Task TestCommitingAsync()
+		{
+			// Init default working folder repo
+			await InitRepoAsync();
+
+			// Write file and check status that a file has been added
+			FileWrite("file1.txt", "Some text 1");
+			status = await GetStatusAsync();
+			Assert.AreEqual(1, status.Added);
+
+			// Commit and check status that staus  has no changes
+			GitCommit commit1 = await CommitAllChangesAsync("Message 1");
+			status = await GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+
+			// Make a change to to file and check that status is 1 file modified
+			FileWrite("file1.txt", "Some text 2");
+			status = await GetStatusAsync();
+			Assert.AreEqual(1, status.Modified);
+
+			// Commit and verify status
+			GitCommit commit2 = await CommitAllChangesAsync("Message 2");
+			status = await GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
 		}
 	}
 }

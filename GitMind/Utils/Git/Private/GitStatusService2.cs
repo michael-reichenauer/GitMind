@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling;
 using GitMind.Git;
 using GitMind.Utils.OsSystem;
 
@@ -11,16 +10,14 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitStatusService2 : IGitStatusService2
 	{
-		private static readonly string StatusArgs = "status -s --porcelain --untracked-files=all";
+		private static readonly string StatusArgs = "status -s --porcelain --ahead-behind --untracked-files=all";
 
 		private readonly IGitCmdService gitCmdService;
-		private readonly WorkingFolderPath workingFolder;
 
 
-		public GitStatusService2(IGitCmdService gitCmdService, WorkingFolderPath workingFolder)
+		public GitStatusService2(IGitCmdService gitCmdService)
 		{
 			this.gitCmdService = gitCmdService;
-			this.workingFolder = workingFolder;
 		}
 
 
@@ -85,7 +82,7 @@ namespace GitMind.Utils.Git.Private
 					status = GitFileStatus.Deleted;
 				}
 
-				files.Add(new GitFile2(workingFolder, filePath, null, status));
+				files.Add(new GitFile2(result.WorkingDirectory, filePath, null, status));
 			}
 
 			return files;

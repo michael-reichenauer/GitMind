@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling;
 using GitMind.Git;
 using GitMind.Utils.OsSystem;
 
@@ -11,14 +10,14 @@ namespace GitMind.Utils.Git.Private
 	internal class GitDiffService2 : IGitDiffService2
 	{
 		private readonly IGitCmdService gitCmdService;
-		private readonly WorkingFolderPath workingFolder;
 
 
-		public GitDiffService2(IGitCmdService gitCmdService, WorkingFolderPath workingFolder)
+		public GitDiffService2(IGitCmdService gitCmdService)
 		{
 			this.gitCmdService = gitCmdService;
-			this.workingFolder = workingFolder;
 		}
+
+
 		public async Task<R<IReadOnlyList<GitFile2>>> GetFilesAsync(
 			string sha, CancellationToken ct)
 		{
@@ -33,10 +32,11 @@ namespace GitMind.Utils.Git.Private
 			return R.From(ParseCommitFiles(result.Value));
 		}
 
+
 		private IReadOnlyList<GitFile2> ParseCommitFiles(CmdResult2 result)
 		{
 			List<GitFile2> files = new List<GitFile2>();
-			string folder = workingFolder;
+			string folder = result.WorkingDirectory;
 
 			foreach (string line in result.OutputLines)
 			{

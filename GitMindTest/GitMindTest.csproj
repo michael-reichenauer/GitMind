@@ -73,6 +73,7 @@
     <Compile Include="Utils\CmdTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\EquatableTest.cs" />
+    <Compile Include="Utils\Git\GitBranchServiceTest.cs" />
     <Compile Include="Utils\Git\GitCommitServiceTest.cs" />
     <Compile Include="Utils\Git\GitConfigTest.cs" />
     <Compile Include="Utils\Git\GitFetchTest.cs" />

@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMindTest.Utils.Git.Private;
@@ -43,9 +42,5 @@ namespace GitMindTest.Utils.Git
 			Status2 status = await GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
 		}
-
-
-
-
 	}
 }

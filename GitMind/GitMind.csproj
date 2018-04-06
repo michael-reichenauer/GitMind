@@ -221,6 +221,10 @@
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
+    <Compile Include="Utils\Git\GitAheadBehind.cs" />
+    <Compile Include="Utils\Git\Private\GitBranch2.cs" />
+    <Compile Include="Utils\Git\Private\GitBranchService2.cs" />
+    <Compile Include="Utils\Git\IGitBranchService2.cs" />
     <Compile Include="Utils\Git\Private\GitDiffService2.cs" />
     <Compile Include="Utils\Git\IGitDiffService2.cs" />
     <Compile Include="Utils\Git\GitFile2.cs" />

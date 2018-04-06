@@ -91,7 +91,7 @@ namespace GitMind.Utils.OsSystem
 			}
 			else
 			{
-				int maxRows = 4;
+				int maxRows = 10;
 				string subText = string.Join("\n", Lines(text).Take(maxRows));
 				if (subText.Length + maxRows < text.Length)
 				{

@@ -41,6 +41,18 @@ namespace GitMind.Utils.Git.Private
 		private string GitCmdPath => gitEnvironmentService.GetGitCmdPath();
 
 
+		public async Task<R<CmdResult2>> RunWithProgressAsync(
+			string gitArgs, Action<string> lines, CancellationToken ct)
+		{
+			GitOptions options = new GitOptions
+			{
+				ErrorLines = lines,
+			};
+
+			return AsR(await CmdAsync(gitArgs, options, ct));
+		}
+
+
 		public async Task<R<CmdResult2>> RunAsync(
 			string gitArgs, GitOptions options, CancellationToken ct)
 		{
@@ -157,16 +169,23 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private static CmdOptions ToCmdOptions(GitOptions options) => new CmdOptions()
+		private static CmdOptions ToCmdOptions(GitOptions options)
 		{
-			OutputLines = options.OutputLines,
-			ErrorLines = options.ErrorLines,
-			IsErrortDisabled = options.IsErrortDisabled,
-			EnvironmentVariables = options.EnvironmentVariables,
-			WorkingDirectory = options.WorkingDirectory,
-			IsOutputDisabled = options.IsOutputDisabled,
-			ErrorProgress = options.ErrorProgress
-		};
+			string workingDirectory =
+				options.WorkingDirectory != null && Directory.Exists(options.WorkingDirectory)
+				? options.WorkingDirectory : null;
+
+			return new CmdOptions()
+			{
+				OutputLines = options.OutputLines,
+				ErrorLines = options.ErrorLines,
+				IsErrortDisabled = options.IsErrortDisabled,
+				EnvironmentVariables = options.EnvironmentVariables,
+				WorkingDirectory = workingDirectory,
+				IsOutputDisabled = options.IsOutputDisabled,
+				ErrorProgress = options.ErrorProgress
+			};
+		}
 	}
 
 

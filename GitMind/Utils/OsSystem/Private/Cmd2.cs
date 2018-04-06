@@ -36,12 +36,12 @@ namespace GitMind.Utils.OsSystem.Private
 			{
 				Log.Exception(e, $"Cmd failed: {command} {arguments}");
 				return new CmdResult2(
-					command, 
-					arguments, 
+					command,
+					arguments,
 					options.WorkingDirectory,
-					-1, 
-					"", 
-					$"{e.GetType()}, {e.Message}", 
+					-1,
+					"",
+					$"{e.GetType()}, {e.Message}",
 					TimeSpan.Zero,
 					ct);
 			}
@@ -81,12 +81,12 @@ namespace GitMind.Utils.OsSystem.Private
 			process?.Dispose();
 			stopwatch.Start();
 			return new CmdResult2(
-				command, 
-				arguments, 
-				options.WorkingDirectory, 
-				exitCode, 
-				outData.Outout, 
-				outData.Error, 
+				command,
+				arguments,
+				options.WorkingDirectory,
+				exitCode,
+				outData.Outout,
+				outData.Error,
 				stopwatch.Elapsed,
 				ct);
 		}
@@ -244,76 +244,6 @@ namespace GitMind.Utils.OsSystem.Private
 			ct);
 		}
 
-
-		//private static Task ReadStreamAsync(
-		//	StreamReader stream, Action<string> onText, CancellationToken ct)
-		//{
-		//	return Task.Run(() =>
-		//	{
-		//		using (StreamReader reader = stream)
-		//		{
-		//			char[] buffer = new char[1024 * 4];
-
-		//			while (!ct.IsCancellationRequested)
-		//			{
-		//				int readCount = reader.Read(buffer, 0, buffer.Length);
-		//				if (readCount == 0)
-		//				{
-		//					break;
-		//				}
-
-		//				onText(new string(buffer, 0, readCount));
-		//			}
-		//		}
-		//	},
-		//	ct);
-		//}
-
-		//private static Task ReadLinesAsync(
-		//	StreamReader stream, Action<string> onLine, CancellationToken ct)
-		//{
-		//	return Task.Run(() =>
-		//	{
-		//		using (StreamReader reader = stream)
-		//		{
-		//			while (!ct.IsCancellationRequested)
-		//			{
-		//				string line = reader.ReadLine();
-		//				if (line == null)
-		//				{
-		//					break;
-		//				}
-
-		//				onLine(line);
-		//			}
-		//		}
-		//	},
-		//	ct);
-		//}
-
-
-		//private static async Task ProcessInputDataAsync(
-		//	Process process, CmdOptions options, CancellationToken ct)
-		//{
-		//	if (options.InputTextAsync == null)
-		//	{
-		//		return;
-		//	}
-
-		//	using (process.StandardInput)
-		//	{
-		//		while (!ct.IsCancellationRequested)
-		//		{
-		//			string text = await options.InputTextAsync(ct);
-		//			if (string.IsNullOrEmpty(text))
-		//			{
-		//				break;
-		//			}
-
-		//			await process.StandardInput.WriteLineAsync(text);
-		//		}
-		//	}
-		//}
 
 		private static async Task ReadStreamAsync(
 			StreamReader stream, Action<string> onText, CancellationToken ct)

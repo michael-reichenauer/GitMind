@@ -20,7 +20,10 @@ namespace GitMindTest.Utils.Git.Private
 		protected readonly CancellationToken ct = CancellationToken.None;
 		protected AutoMock am;
 		protected TInterface gitCmd => resolved.Value;
+		protected Status2 status;
+
 		private string workingFolder;
+		private string originUri;
 		private bool isRepo;
 
 		protected string WorkingFolder
@@ -36,13 +39,18 @@ namespace GitMindTest.Utils.Git.Private
 			}
 		}
 
+		protected string OriginUri =>
+			originUri ?? throw new InvalidOperationException("Origin repo not yet created");
+
+
 
 		[SetUp]
 		public void Setup()
 		{
-			//CleanTempDirs();
+			CleanTempDirs();
 			isRepo = false;
-			workingFolder = CreateTmpDir();
+			workingFolder = GetTempDirPath();
+			status = new Status2(0, 0, 0, 0, new GitFile2[0]);
 
 			am = new AutoMock()
 				.RegisterNamespaceOf<IGitInfoService>()
@@ -51,7 +59,6 @@ namespace GitMindTest.Utils.Git.Private
 				.RegisterSingleInstance(new WorkingFolderPath(workingFolder));
 			resolved = new Lazy<TInterface>(() => am.Resolve<TInterface>());
 		}
-
 
 
 		[TearDown]
@@ -69,9 +76,35 @@ namespace GitMindTest.Utils.Git.Private
 				throw new InvalidOperationException("Working folder repo already created");
 			}
 
-			await CreateNewGitRepoAsync(workingFolder);
+			IGitRepoService gitRepoService = am.Resolve<IGitRepoService>();
+
+			Directory.CreateDirectory(workingFolder);
+			R result = await gitRepoService.InitAsync(workingFolder, ct);
+			Assert.IsTrue(result.IsOk);
 			isRepo = true;
 		}
+
+
+		protected async Task CloneRepoAsync()
+		{
+			if (isRepo)
+			{
+				throw new InvalidOperationException("Working folder repo already created");
+			}
+
+			IGitRepoService gitRepoService = am.Resolve<IGitRepoService>();
+
+			originUri = DirCreateTmp();
+
+			R result = await gitRepoService.InitBareAsync(originUri, ct);
+			Assert.IsTrue(result.IsOk);
+
+			Directory.CreateDirectory(workingFolder);
+			result = await gitRepoService.CloneAsync(originUri, workingFolder, null, ct);
+			Assert.IsTrue(result.IsOk);
+			isRepo = true;
+		}
+
 
 		protected async Task<Status2> GetStatusAsync()
 		{
@@ -102,40 +135,17 @@ namespace GitMindTest.Utils.Git.Private
 		protected string FileFullPath(string subPath) => Path.Combine(WorkingFolder, subPath);
 
 
-		private async Task<string> GetNewGitRepoAsync()
-		{
-			string path = CreateTmpDir();
-			await CreateNewGitRepoAsync(path);
-			return path;
-		}
-
-		private async Task CreateNewGitRepoAsync(string path)
-		{
-			IGitRepoService gitRepoService = am.Resolve<IGitRepoService>();
-
-			R result = await gitRepoService.InitAsync(path, ct);
-			Assert.IsTrue(result.IsOk);
-		}
-
-
-		protected string CreateTmpDir()
+		protected string DirCreateTmp()
 		{
 			string path = GetTempDirPath();
-			if (Directory.Exists(path))
-			{
-				Directory.Delete(path, true);
-			}
-
 			Directory.CreateDirectory(path);
 			return path;
 		}
 
 
-		protected string GetTempDirPath()
+		private string GetTempDirPath()
 		{
-			string tempDirectory = Path.Combine(GetTempBaseDirPath(), Path.GetRandomFileName());
-			Directory.CreateDirectory(tempDirectory);
-			return tempDirectory;
+			return Path.Combine(GetTempBaseDirPath(), Path.GetRandomFileName());
 		}
 
 
