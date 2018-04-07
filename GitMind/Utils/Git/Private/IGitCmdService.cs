@@ -6,7 +6,7 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal interface IGitCmdService
+	public interface IGitCmdService
 	{
 		Task<R<CmdResult2>> RunAsync(string gitArgs, CancellationToken ct);
 

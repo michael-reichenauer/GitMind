@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitOptions
+	public class GitOptions
 	{
 		public string WorkingDirectory { get; set; }
 

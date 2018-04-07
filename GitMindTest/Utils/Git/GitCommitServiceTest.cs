@@ -138,7 +138,7 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(0, result.Value.Count);
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
-			Assert.IsFalse(io.FileExists("file1.suo"));
+			Assert.IsFalse(io.ExistsFile("file1.suo"));
 
 			// Adding a .gitignoire file to ignore .suo files
 			io.WriteFile(".gitignore", "*.suo\n");
@@ -148,7 +148,7 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file1.suo", "some text");
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
-			Assert.IsTrue(io.FileExists("file1.suo"));
+			Assert.IsTrue(io.ExistsFile("file1.suo"));
 
 			// Using the UndoUncommitedAsync() will succeede, but since  file ignored will not remove the file
 			result = await cmd.UndoUncommitedAsync(ct);
@@ -156,7 +156,7 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(0, result.Value.Count);
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
-			Assert.IsTrue(io.FileExists("file1.suo"));
+			Assert.IsTrue(io.ExistsFile("file1.suo"));
 
 			// But using CleanWorkingFolderAsync will remove the file
 			result = await cmd.CleanWorkingFolderAsync(ct);
@@ -164,7 +164,7 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(0, result.Value.Count);
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
-			Assert.IsFalse(io.FileExists("file1.suo"));
+			Assert.IsFalse(io.ExistsFile("file1.suo"));
 		}
 
 
@@ -197,7 +197,7 @@ namespace GitMindTest.Utils.Git
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(1, status.AllChanges);
 			Assert.AreEqual(1, status.Conflicted);
-			Assert.IsTrue(io.FileExists("file1.txt"));
+			Assert.IsTrue(io.ExistsFile("file1.txt"));
 
 			// Clean the modifications and check that the last version of the file exists
 			await cmd.CleanWorkingFolderAsync(ct);

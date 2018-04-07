@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMindTest.Utils.Git.Private;
 using NUnit.Framework;
@@ -10,7 +9,7 @@ namespace GitMindTest.Utils.Git
 	[TestFixture]
 	public class GitEnvironmentServiceTest : GitTestBase<IGitEnvironmentService>
 	{
-		[Test, Explicit]
+		[Test]
 		public void TestVersion()
 		{
 			string version = cmd.TryGetGitVersion();
@@ -18,27 +17,29 @@ namespace GitMindTest.Utils.Git
 		}
 
 
-		[Test, Explicit]
+		[Test]
 		public void TestGitCorePath()
 		{
 			string path = cmd.TryGetGitCorePath();
-			Log.Debug(path);
-			Assert.AreNotEqual(null, path);
+			Assert.IsNotNull(path);
 		}
 
-		[Test, Explicit]
+		[Test]
 		public void TestGitCmdPath()
 		{
 			string path = cmd.TryGetGitCmdPath();
-			Log.Debug(path);
-			Assert.AreNotEqual(null, path);
+			Assert.IsNotNull(path);
 		}
 
 
-		[Test, Explicit]
-		public void TestWorkingFolderRootPath()
+		[Test]
+		public async Task TestWorkingFolderRootPath()
 		{
-			Assert.AreEqual(@"C:\Work Files\GitMind", cmd.TryGetWorkingFolderRoot(
+			await git.InitRepoAsync();
+			string workingFolder = io.WorkingFolder;
+			io.CreateDir("Folder1");
+
+			Assert.AreEqual(workingFolder, cmd.TryGetWorkingFolderRoot(
 				@"C:\Work Files\GitMind\GitMind\Common\MessageDialogs"));
 
 			Assert.AreEqual(@"C:\Work Files\GitMind", cmd.TryGetWorkingFolderRoot(
