@@ -14,21 +14,21 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestStatus()
 		{
-			await InitRepoAsync();
+			await git.InitRepoAsync();
 
-			R<Status2> status = await gitCmd.GetStatusAsync(ct);
+			R<Status2> status = await cmd.GetStatusAsync(ct);
 			Assert.IsTrue(status.IsOk);
 			Assert.AreEqual(0, status.Value.AllChanges);
 
-			FileWrite("file1.txt", "some text");
+			io.WriteFile("file1.txt", "some text");
 
-			status = await gitCmd.GetStatusAsync(ct);
+			status = await cmd.GetStatusAsync(ct);
 			Assert.AreEqual(1, status.Value.AllChanges);
 			Assert.AreEqual(1, status.Value.Added);
 			Assert.IsNotNull(status.Value.Files.FirstOrDefault(f => f.FilePath == "file1.txt"));
 
-			FileDelete("file1.txt");
-			status = await gitCmd.GetStatusAsync(ct);
+			io.DeleteFile("file1.txt");
+			status = await cmd.GetStatusAsync(ct);
 			Assert.IsTrue(status.IsOk);
 			Assert.AreEqual(0, status.Value.AllChanges);
 		}
@@ -37,9 +37,9 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestGetStatus()
 		{
-			await InitRepoAsync();
+			await git.InitRepoAsync();
 
-			Status2 status = await GetStatusAsync();
+			Status2 status = await git.GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
 		}
 	}

@@ -16,35 +16,35 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestPusAsync()
 		{
-			await CloneRepoAsync();
+			await git.CloneRepoAsync();
 
 			// Get branches from an empty repo should be 0 branches
-			R<IReadOnlyList<GitBranch2>> branches = await gitCmd.GetBranchesAsync(ct);
-			Assert.IsTrue(branches.IsOk);
-			Assert.IsTrue(!branches.Value.Any());
+			R<IReadOnlyList<GitBranch2>> result = await cmd.GetBranchesAsync(ct);
+			Assert.IsTrue(result.IsOk);
+			Assert.IsTrue(!result.Value.Any());
 
 			// First commit
-			FileWrite("file1.txt", "text 1");
-			await CommitAllChangesAsync("Message 1");
+			io.WriteFile("file1.txt", "text 1");
+			await git.CommitAllChangesAsync("Message 1");
 
 			// After first commit, there is a master branch, which is missing the remote master,
 			// since that server repo is still empty untill first push
-			branches = await gitCmd.GetBranchesAsync(ct);
-			Assert.AreEqual(1, branches.Value.Count);
-			Assert.AreEqual("master", branches.Value[0].BranchName);
-			Assert.AreEqual(true, branches.Value[0].IsLocal);
-			Assert.AreEqual(true, branches.Value[0].IsRemoteMissing);
-			Assert.AreEqual(true, branches.Value[0].IsPushable);
-			Assert.AreEqual(false, branches.Value[0].IsFetchable);
+			result = await cmd.GetBranchesAsync(ct);
+			Assert.AreEqual(1, result.Value.Count);
+			Assert.AreEqual("master", result.Value[0].BranchName);
+			Assert.AreEqual(true, result.Value[0].IsLocal);
+			Assert.AreEqual(true, result.Value[0].IsRemoteMissing);
+			Assert.AreEqual(true, result.Value[0].IsPushable);
+			Assert.AreEqual(false, result.Value[0].IsFetchable);
 
 			// First push
-			await PushAsync();
+			await git.PushAsync();
 
 			// After push, we expect 2 branches local and remote
-			branches = await gitCmd.GetBranchesAsync(ct);
-			Assert.AreEqual(2, branches.Value.Count);
-			GitBranch2 local = branches.Value.First(branch => branch.IsLocal);
-			GitBranch2 remote = branches.Value.First(branch => branch.IsRemote);
+			result = await cmd.GetBranchesAsync(ct);
+			Assert.AreEqual(2, result.Value.Count);
+			GitBranch2 local = result.Value.First(branch => branch.IsLocal);
+			GitBranch2 remote = result.Value.First(branch => branch.IsRemote);
 			Assert.AreEqual("master", local.BranchName);
 			Assert.AreEqual(false, local.IsRemoteMissing);
 			Assert.AreEqual(false, local.IsPushable);
@@ -55,14 +55,14 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(false, remote.IsFetchable);
 
 			// Second commit
-			FileWrite("file1.txt", "text 2");
-			await CommitAllChangesAsync("Message 2");
+			io.WriteFile("file1.txt", "text 2");
+			await git.CommitAllChangesAsync("Message 2");
 
 			// Before second push, the local branch will be ahead 1, but remote is 0 0
-			branches = await gitCmd.GetBranchesAsync(ct);
-			Assert.AreEqual(2, branches.Value.Count);
-			local = branches.Value.First(branch => branch.IsLocal);
-			remote = branches.Value.First(branch => branch.IsRemote);
+			result = await cmd.GetBranchesAsync(ct);
+			Assert.AreEqual(2, result.Value.Count);
+			local = result.Value.First(branch => branch.IsLocal);
+			remote = result.Value.First(branch => branch.IsRemote);
 			Assert.AreEqual("master", local.BranchName);
 			Assert.AreEqual(1, local.AheadCount);
 			Assert.AreEqual(0, local.BehindCount);
@@ -76,12 +76,12 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(false, remote.IsFetchable);
 
 			// Second push
-			await PushAsync();
+			await git.PushAsync();
 
 			// branch is in synk
-			branches = await gitCmd.GetBranchesAsync(ct);
-			local = branches.Value.First(branch => branch.IsLocal);
-			remote = branches.Value.First(branch => branch.IsRemote);
+			result = await cmd.GetBranchesAsync(ct);
+			local = result.Value.First(branch => branch.IsLocal);
+			remote = result.Value.First(branch => branch.IsRemote);
 			Assert.AreEqual(false, local.IsFetchable);
 			Assert.AreEqual(false, local.IsPushable);
 			Assert.AreEqual(false, remote.IsFetchable);
@@ -91,21 +91,21 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestBehindAsync()
 		{
-			await CloneRepoAsync();
+			await git.CloneRepoAsync();
 
 			// 2 commits
-			FileWrite("file1.txt", "text 1");
-			await CommitAllChangesAsync("Message 1");
-			FileWrite("file1.txt", "text 2");
-			await CommitAllChangesAsync("Message 2");
+			io.WriteFile("file1.txt", "text 1");
+			await git.CommitAllChangesAsync("Message 1");
+			io.WriteFile("file1.txt", "text 2");
+			await git.CommitAllChangesAsync("Message 2");
 
 			// Push push
-			await PushAsync();
+			await git.PushAsync();
 
-			await UncommitAsync();
-			await UndoUncommitedAsync();
+			await git.UncommitAsync();
+			await git.UndoUncommitedAsync();
 
-			branches = await GetBranchesAsync();
+			branches = await git.GetBranchesAsync();
 			GitBranch2 local = branches.First(branch => branch.IsLocal);
 			GitBranch2 remote = branches.First(branch => branch.IsRemote);
 			Assert.AreEqual(0, local.AheadCount);
@@ -117,10 +117,10 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(false, remote.IsFetchable);
 			Assert.AreEqual(false, remote.IsPushable);
 
-			FileWrite("file1.txt", "text 3");
-			await CommitAllChangesAsync("Message 3");
+			io.WriteFile("file1.txt", "text 3");
+			await git.CommitAllChangesAsync("Message 3");
 
-			branches = await GetBranchesAsync();
+			branches = await git.GetBranchesAsync();
 			local = branches.First(branch => branch.IsLocal);
 			remote = branches.First(branch => branch.IsRemote);
 			Assert.AreEqual(1, local.AheadCount);
@@ -137,7 +137,7 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public async Task Test()
 		{
-			R<IReadOnlyList<GitBranch2>> branches = await gitCmd.GetBranchesAsync(ct);
+			R<IReadOnlyList<GitBranch2>> result = await cmd.GetBranchesAsync(ct);
 		}
 	}
 }

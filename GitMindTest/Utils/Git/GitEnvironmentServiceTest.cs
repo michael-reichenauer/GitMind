@@ -13,7 +13,7 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public void TestVersion()
 		{
-			string version = gitCmd.TryGetGitVersion();
+			string version = cmd.TryGetGitVersion();
 			Assert.AreEqual("2.16.2.windows.1", version);
 		}
 
@@ -21,7 +21,7 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public void TestGitCorePath()
 		{
-			string path = gitCmd.TryGetGitCorePath();
+			string path = cmd.TryGetGitCorePath();
 			Log.Debug(path);
 			Assert.AreNotEqual(null, path);
 		}
@@ -29,7 +29,7 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public void TestGitCmdPath()
 		{
-			string path = gitCmd.TryGetGitCmdPath();
+			string path = cmd.TryGetGitCmdPath();
 			Log.Debug(path);
 			Assert.AreNotEqual(null, path);
 		}
@@ -38,10 +38,10 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public void TestWorkingFolderRootPath()
 		{
-			Assert.AreEqual(@"C:\Work Files\GitMind", gitCmd.TryGetWorkingFolderRoot(
+			Assert.AreEqual(@"C:\Work Files\GitMind", cmd.TryGetWorkingFolderRoot(
 				@"C:\Work Files\GitMind\GitMind\Common\MessageDialogs"));
 
-			Assert.AreEqual(@"C:\Work Files\GitMind", gitCmd.TryGetWorkingFolderRoot(
+			Assert.AreEqual(@"C:\Work Files\GitMind", cmd.TryGetWorkingFolderRoot(
 				@"C:\Work Files\GitMind\.git"));
 
 

@@ -13,9 +13,9 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestInitAsync()
 		{
-			string path = DirCreateTmp();
+			string path = io.CreateTmpDir();
 
-			R result = await gitCmd.InitAsync(path, ct);
+			R result = await cmd.InitAsync(path, ct);
 			Assert.IsTrue(result.IsOk);
 		}
 
@@ -23,9 +23,9 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestInitBareAsync()
 		{
-			string path = DirCreateTmp();
+			string path = io.CreateTmpDir();
 
-			R result = await gitCmd.InitBareAsync(path, ct);
+			R result = await cmd.InitBareAsync(path, ct);
 			Assert.IsTrue(result.IsOk);
 		}
 
@@ -33,13 +33,13 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestCloneAsync()
 		{
-			string originPath = DirCreateTmp();
+			string originPath = io.CreateTmpDir();
 
-			R result = await gitCmd.InitBareAsync(originPath, ct);
+			R result = await cmd.InitBareAsync(originPath, ct);
 			Assert.IsTrue(result.IsOk);
 
-			string path = DirCreateTmp();
-			result = await gitCmd.CloneAsync(originPath, path, null, ct);
+			string path = io.CreateTmpDir();
+			result = await cmd.CloneAsync(originPath, path, null, ct);
 			Assert.IsTrue(result.IsOk);
 		}
 
@@ -49,8 +49,8 @@ namespace GitMindTest.Utils.Git
 		{
 			void Progress(string text) => Log.Debug($"Progress: {text}");
 
-			string path = DirCreateTmp();
-			R result = await gitCmd.CloneAsync(
+			string path = io.CreateTmpDir();
+			R result = await cmd.CloneAsync(
 				"https://github.com/michael-reichenauer/GitMind.git", path, Progress, ct);
 			Assert.IsTrue(result.IsOk);
 		}
@@ -59,13 +59,13 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestInitRepoAsync()
 		{
-			await InitRepoAsync();
+			await git.InitRepoAsync();
 		}
 
 		[Test]
 		public async Task TestCloneRepoAsync()
 		{
-			await CloneRepoAsync();
+			await git.CloneRepoAsync();
 		}
 	}
 }

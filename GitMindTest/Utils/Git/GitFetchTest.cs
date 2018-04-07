@@ -13,7 +13,7 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestFetch()
 		{
-			R result = await gitCmd.FetchAsync(ct);
+			R result = await cmd.FetchAsync(ct);
 			Assert.IsTrue(result.IsOk);
 		}
 
@@ -23,7 +23,7 @@ namespace GitMindTest.Utils.Git
 		{
 			string[] rfs = { "master:master" };
 
-			R result = await gitCmd.FetchRefsAsync(rfs, ct);
+			R result = await cmd.FetchRefsAsync(rfs, ct);
 			Assert.IsTrue(result.IsOk);
 		}
 
@@ -37,7 +37,7 @@ namespace GitMindTest.Utils.Git
 				"+refs/notes/GitMind.Branches.Manual:refs/notes/origin/GitMind.Branches.Manual"
 			};
 
-			R result = await gitCmd.FetchRefsAsync(rfs, ct);
+			R result = await cmd.FetchRefsAsync(rfs, ct);
 			Assert.IsTrue(result.IsOk);
 		}
 	}
