@@ -8,7 +8,7 @@ namespace GitMind.Utils.Git
 {
 	public interface IGitBranchService2
 	{
-		Task<R<GitAheadBehind>> GetAheadBehindAsync(string branchName, CancellationToken ct);
+		//Task<R<GitAheadBehind>> GetAheadBehindAsync(string branchName, CancellationToken ct);
 		Task<R<IReadOnlyList<GitBranch2>>> GetBranchesAsync(CancellationToken ct);
 	}
 }

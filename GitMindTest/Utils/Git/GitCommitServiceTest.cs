@@ -206,6 +206,42 @@ namespace GitMindTest.Utils.Git
 
 
 		[Test]
+		public async Task TestUncommitAsync()
+		{
+			await InitRepoAsync();
+
+			// Make 2 commits on a file
+			FileWrite("file1.txt", "Some text 1");
+			GitCommit commit1 = await CommitAllChangesAsync("Message 1");
+			FileWrite("file1.txt", "Some text 2");
+			GitCommit commit2 = await CommitAllChangesAsync("Message 2");
+
+			status = await GetStatusAsync();
+			Assert.AreEqual(true, status.OK);
+
+			branches = await GetBranchesAsync();
+			Assert.AreEqual(commit2.Sha, branches[0].TipSha);
+
+			R<GitCommit> commit = await gitCmd.GetCommitAsync(commit2.Sha.Sha, ct);
+			Assert.AreEqual(true, commit.IsOk);
+
+			R result = await gitCmd.UnCommitAsync(ct);
+			Assert.AreEqual(true, result.IsOk);
+
+			status = await GetStatusAsync();
+			Assert.AreEqual(1, status.Modified);
+
+			branches = await GetBranchesAsync();
+			Assert.AreEqual(commit1.Sha, branches[0].TipSha);
+
+			R undo = await gitCmd.UndoUncommitedAsync(ct);
+			Assert.AreEqual(true, undo.IsOk);
+			status = await GetStatusAsync();
+			Assert.AreEqual(true, status.OK);
+		}
+
+
+		[Test]
 		public async Task TestCommitingAsync()
 		{
 			// Init default working folder repo

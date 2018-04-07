@@ -47,10 +47,23 @@ namespace GitMind.Utils.Git.Private
 			R<CmdResult2> result = await gitCmdService.RunAsync($"revert --no-commit {sha}", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From("Undo commit failed.", result);
+				return Error.From($"Undo {sha} commit failed.", result);
 			}
 
 			Log.Info($"Undid commit {sha}");
+			return result;
+		}
+
+
+		public async Task<R> UnCommitAsync(CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync("reset HEAD~1", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From("Uncommit commit failed.", result);
+			}
+
+			Log.Info("Uncomitted commit");
 			return result;
 		}
 

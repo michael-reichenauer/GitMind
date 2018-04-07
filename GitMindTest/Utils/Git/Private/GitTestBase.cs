@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
@@ -7,6 +9,7 @@ using GitMind.Common.MessageDialogs;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 using GitMind.Utils.OsSystem;
 using GitMindTest.AutoMocking;
 using NUnit.Framework;
@@ -21,6 +24,7 @@ namespace GitMindTest.Utils.Git.Private
 		protected AutoMock am;
 		protected TInterface gitCmd => resolved.Value;
 		protected Status2 status;
+		protected IReadOnlyList<GitBranch2> branches;
 
 		private string workingFolder;
 		private string originUri;
@@ -47,7 +51,7 @@ namespace GitMindTest.Utils.Git.Private
 		[SetUp]
 		public void Setup()
 		{
-			CleanTempDirs();
+			// CleanTempDirs();
 			isRepo = false;
 			workingFolder = GetTempDirPath();
 			status = new Status2(0, 0, 0, 0, new GitFile2[0]);
@@ -115,6 +119,23 @@ namespace GitMindTest.Utils.Git.Private
 			return result.Value;
 		}
 
+
+		protected async Task<IReadOnlyList<GitBranch2>> GetBranchesAsync()
+		{
+			IGitBranchService2 branchService2 = am.Resolve<IGitBranchService2>();
+			R<IReadOnlyList<GitBranch2>> branches = await branchService2.GetBranchesAsync(ct);
+			Assert.IsTrue(branches.IsOk);
+
+			return branches.Value;
+		}
+
+		protected async Task<GitBranch2> GetCurrentBranchAsync()
+		{
+			var branches = await GetBranchesAsync();
+
+			return branches.First(branch => branch.IsCurrent);
+		}
+
 		protected async Task<GitCommit> CommitAllChangesAsync(string message)
 		{
 			IGitCommitService2 gitCommitService2 = am.Resolve<IGitCommitService2>();
@@ -123,6 +144,27 @@ namespace GitMindTest.Utils.Git.Private
 			return result.Value;
 		}
 
+		protected async Task UncommitAsync()
+		{
+			IGitCommitService2 gitCommitService2 = am.Resolve<IGitCommitService2>();
+			R result = await gitCommitService2.UnCommitAsync(ct);
+			Assert.IsTrue(result.IsOk);
+		}
+
+		protected async Task UndoUncommitedAsync()
+		{
+			IGitCommitService2 gitCommitService2 = am.Resolve<IGitCommitService2>();
+			R result = await gitCommitService2.UndoUncommitedAsync(ct);
+			Assert.IsTrue(result.IsOk);
+		}
+
+
+		protected async Task PushAsync()
+		{
+			IGitPushService gitPushService = am.Resolve<IGitPushService>();
+			R result = await gitPushService.PushAsync(ct);
+			Assert.IsTrue(result.IsOk);
+		}
 
 		protected void FileWrite(string name, string text) => File.WriteAllText(FileFullPath(name), text);
 

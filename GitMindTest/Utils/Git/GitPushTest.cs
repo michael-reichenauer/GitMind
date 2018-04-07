@@ -10,15 +10,14 @@ namespace GitMindTest.Utils.Git
 	public class GitPushTest : GitTestBase<IGitPushService>
 	{
 		[Test]
-		public async Task TestPusAsync()
+		public async Task TestPushAsync()
 		{
 			await CloneRepoAsync();
 
 			FileWrite("file1.txt", "text 1");
 			await CommitAllChangesAsync("Message 1");
 
-			IGitBranchService2 branchService2 = am.Resolve<IGitBranchService2>();
-			var aheadBehind = await branchService2.GetAheadBehindAsync("master", ct);
+			var branches = await GetBranchesAsync();
 
 			//R result = await gitCmd.PushAsync(ct);
 			//Assert.IsTrue(result.IsOk);
