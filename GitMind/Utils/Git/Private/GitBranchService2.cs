@@ -83,6 +83,20 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		public async Task<R> BranchAsync(string name, bool isCheckout, CancellationToken ct)
+		{
+			string args = isCheckout ? "checkout -b" : "branch";
+			R<CmdResult2> result = await gitCmdService.RunAsync($"{args} {name}", ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed to create branch {name}", result);
+			}
+
+			return result;
+		}
+
+
 		private static GitBranch2 ToBranch(Match match)
 		{
 			bool isCurrent = match.Groups[1].Value == "*";

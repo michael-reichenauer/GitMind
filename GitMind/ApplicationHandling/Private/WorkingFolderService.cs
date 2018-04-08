@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.Git;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 

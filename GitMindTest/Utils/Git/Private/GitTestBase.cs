@@ -13,12 +13,18 @@ namespace GitMindTest.Utils.Git.Private
 {
 	public class GitTestBase<TInterface>
 	{
-		private AutoMock am;
-
 		protected readonly CancellationToken ct = CancellationToken.None;
+		private AutoMock am;
+		private AutoMock am2;
+
 		protected TInterface cmd => am.Resolve<TInterface>();
+		protected TInterface cmd2 => am2.Resolve<TInterface>();
+
 		protected GitHelper git;
+		protected GitHelper git2;
+
 		protected IoHelper io;
+		protected IoHelper io2;
 
 		protected Status2 status;
 		protected IReadOnlyList<GitBranch2> branches;
@@ -29,6 +35,7 @@ namespace GitMindTest.Utils.Git.Private
 		{
 			// CleanTempDirs();
 			io = new IoHelper();
+			io2 = new IoHelper();
 
 			status = new Status2(0, 0, 0, 0, new GitFile2[0]);
 			branches = new GitBranch2[0];
@@ -39,8 +46,14 @@ namespace GitMindTest.Utils.Git.Private
 				.RegisterType<IMessageService>()
 				.RegisterSingleInstance(new WorkingFolderPath(io.WorkingFolder));
 
-			git = new GitHelper(am, io.WorkingFolder, io);
+			am2 = new AutoMock()
+				.RegisterNamespaceOf<IGitInfoService>()
+				.RegisterNamespaceOf<ICmd2>()
+				.RegisterType<IMessageService>()
+				.RegisterSingleInstance(new WorkingFolderPath(io2.WorkingFolder));
 
+			git = new GitHelper(am, io);
+			git2 = new GitHelper(am2, io2);
 		}
 
 
@@ -48,6 +61,7 @@ namespace GitMindTest.Utils.Git.Private
 		public void Teardown()
 		{
 			am.Dispose();
+			am2.Dispose();
 			// CleanTempDirs();
 		}
 	}

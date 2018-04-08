@@ -222,6 +222,12 @@
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
     <Compile Include="Utils\Git\GitAheadBehind.cs" />
+    <Compile Include="Utils\Git\GitMergeService2.cs" />
+    <Compile Include="Utils\Git\IGitMergeService2.cs" />
+    <Compile Include="Utils\Git\Private\GitCheckoutService.cs" />
+    <Compile Include="Utils\Git\IGitCheckoutService.cs" />
+    <Compile Include="Utils\Git\Private\GitPullService.cs" />
+    <Compile Include="Utils\Git\IGitPullService.cs" />
     <Compile Include="Utils\Git\Private\GitBranch2.cs" />
     <Compile Include="Utils\Git\Private\GitBranchService2.cs" />
     <Compile Include="Utils\Git\IGitBranchService2.cs" />

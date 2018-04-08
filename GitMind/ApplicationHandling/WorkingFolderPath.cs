@@ -7,7 +7,7 @@ namespace GitMind.ApplicationHandling
 	internal class WorkingFolderPath
 	{
 		private readonly IWorkingFolderService workingFolderService;
-		private readonly string path;
+		private string path;
 
 		public WorkingFolderPath(string path)
 		{
@@ -22,6 +22,8 @@ namespace GitMind.ApplicationHandling
 
 
 		public string Path => workingFolderService?.Path ?? path;
+
+		public void SetPath(string newPath) => path = newPath;
 
 		public static implicit operator string(WorkingFolderPath folderPath) => folderPath.Path;
 

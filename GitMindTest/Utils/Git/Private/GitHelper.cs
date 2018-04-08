@@ -22,16 +22,18 @@ namespace GitMindTest.Utils.Git.Private
 		private readonly string workingFolder;
 		private readonly IoHelper io;
 
-		private string originUri;
 		private bool isRepo = false;
 
 
-		public GitHelper(AutoMock am, string workingFolder, IoHelper io)
+		public GitHelper(AutoMock am, IoHelper io)
 		{
 			this.am = am;
-			this.workingFolder = workingFolder;
+			this.workingFolder = io.WorkingFolder;
 			this.io = io;
 		}
+
+
+		public string OriginUri { get; private set; }
 
 
 		public T Service<T>() => am.Resolve<T>();
@@ -58,17 +60,32 @@ namespace GitMindTest.Utils.Git.Private
 				throw new InvalidOperationException("Working folder repo already created");
 			}
 
-			originUri = io.CreateTmpDir();
+			OriginUri = io.CreateTmpDir();
 
-			R result = await Service<IGitRepoService>().InitBareAsync(originUri, ct);
+			R result = await Service<IGitRepoService>().InitBareAsync(OriginUri, ct);
 			Assert.IsTrue(result.IsOk);
 
 			Directory.CreateDirectory(workingFolder);
-			result = await Service<IGitRepoService>().CloneAsync(originUri, workingFolder, null, ct);
+			result = await Service<IGitRepoService>().CloneAsync(OriginUri, workingFolder, null, ct);
 			Assert.IsTrue(result.IsOk);
 			isRepo = true;
 		}
 
+
+		public async Task CloneRepoAsync(string uri)
+		{
+			if (isRepo)
+			{
+				throw new InvalidOperationException("Working folder repo already created");
+			}
+
+			OriginUri = uri;
+
+			Directory.CreateDirectory(workingFolder);
+			R result = await Service<IGitRepoService>().CloneAsync(OriginUri, workingFolder, null, ct);
+			Assert.IsTrue(result.IsOk);
+			isRepo = true;
+		}
 
 		public async Task<Status2> GetStatusAsync()
 		{
@@ -87,11 +104,19 @@ namespace GitMindTest.Utils.Git.Private
 			return branches.Value;
 		}
 
+
 		public async Task<GitBranch2> GetCurrentBranchAsync()
 		{
 			var branches = await GetBranchesAsync();
 
 			return branches.First(branch => branch.IsCurrent);
+		}
+
+
+		public async Task BrancheAsync(string name, bool isCheckout = true)
+		{
+			R result = await Service<IGitBranchService2>().BranchAsync(name, isCheckout, ct);
+			Assert.IsTrue(result.IsOk);
 		}
 
 
@@ -120,6 +145,25 @@ namespace GitMindTest.Utils.Git.Private
 		public async Task PushAsync()
 		{
 			R result = await Service<IGitPushService>().PushAsync(ct);
+			Assert.IsTrue(result.IsOk);
+		}
+
+
+		public async Task FetchAsync()
+		{
+			R result = await Service<IGitFetchService>().FetchAsync(ct);
+			Assert.IsTrue(result.IsOk);
+		}
+
+		public async Task CheckoutAsync(string branchName)
+		{
+			R result = await Service<IGitCheckoutService>().CheckoutAsync(branchName, ct);
+			Assert.IsTrue(result.IsOk);
+		}
+
+		public async Task MergeAsync(string branchName)
+		{
+			R result = await Service<IGitMergeService2>().MergeAsync(branchName, ct);
 			Assert.IsTrue(result.IsOk);
 		}
 	}

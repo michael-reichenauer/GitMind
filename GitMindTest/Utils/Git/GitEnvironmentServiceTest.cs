@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 using GitMind.Utils.Git;
 using GitMindTest.Utils.Git.Private;
 using NUnit.Framework;
@@ -38,14 +39,13 @@ namespace GitMindTest.Utils.Git
 			await git.InitRepoAsync();
 			string workingFolder = io.WorkingFolder;
 			io.CreateDir("Folder1");
+			io.CreateDir("Folder1/SubFolder");
 
 			Assert.AreEqual(workingFolder, cmd.TryGetWorkingFolderRoot(
-				@"C:\Work Files\GitMind\GitMind\Common\MessageDialogs"));
+				io.FullPath("Folder1/SubFolder")));
 
-			Assert.AreEqual(@"C:\Work Files\GitMind", cmd.TryGetWorkingFolderRoot(
-				@"C:\Work Files\GitMind\.git"));
-
-
+			Assert.AreEqual(workingFolder, cmd.TryGetWorkingFolderRoot(
+				Path.Combine(workingFolder, ".git")));
 		}
 	}
 }

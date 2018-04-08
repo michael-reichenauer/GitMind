@@ -14,7 +14,38 @@ namespace GitMindTest.Utils.Git
 	public class GitBranchServiceTest : GitTestBase<IGitBranchService2>
 	{
 		[Test]
-		public async Task TestPusAsync()
+		public async Task TestBranchAsync()
+		{
+			await git.InitRepoAsync();
+
+			io.WriteFile("file1.txt", "Text 1");
+			await git.CommitAllChangesAsync("Message 1");
+
+			branches = await git.GetBranchesAsync();
+			Assert.AreEqual(1, branches.Count);
+
+			await git.BrancheAsync("branch1");
+			branches = await git.GetBranchesAsync();
+			Assert.AreEqual(2, branches.Count);
+			GitBranch2 current = branches.First(branch => branch.IsCurrent);
+			Assert.AreEqual("branch1", current.Name);
+
+			Assert.AreEqual(branches[0].TipSha, branches[1].TipSha);
+			io.WriteFile("file1.txt", "Text on branch 1");
+			await git.CommitAllChangesAsync("Message 1");
+
+			branches = await git.GetBranchesAsync();
+			Assert.AreNotEqual(branches[0].TipSha, branches[1].TipSha);
+
+			await git.CheckoutAsync("master");
+			branches = await git.GetBranchesAsync();
+			current = branches.First(branch => branch.IsCurrent);
+			Assert.AreEqual("master", current.Name);
+		}
+
+
+		[Test]
+		public async Task TestGetBranchesAsync()
 		{
 			await git.CloneRepoAsync();
 
@@ -31,7 +62,7 @@ namespace GitMindTest.Utils.Git
 			// since that server repo is still empty untill first push
 			result = await cmd.GetBranchesAsync(ct);
 			Assert.AreEqual(1, result.Value.Count);
-			Assert.AreEqual("master", result.Value[0].BranchName);
+			Assert.AreEqual("master", result.Value[0].Name);
 			Assert.AreEqual(true, result.Value[0].IsLocal);
 			Assert.AreEqual(true, result.Value[0].IsRemoteMissing);
 			Assert.AreEqual(true, result.Value[0].IsPushable);
@@ -45,12 +76,12 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(2, result.Value.Count);
 			GitBranch2 local = result.Value.First(branch => branch.IsLocal);
 			GitBranch2 remote = result.Value.First(branch => branch.IsRemote);
-			Assert.AreEqual("master", local.BranchName);
+			Assert.AreEqual("master", local.Name);
 			Assert.AreEqual(false, local.IsRemoteMissing);
 			Assert.AreEqual(false, local.IsPushable);
 			Assert.AreEqual(false, local.IsFetchable);
-			Assert.AreEqual("origin/master", local.BoundBranchName);
-			Assert.AreEqual("origin/master", remote.BranchName);
+			Assert.AreEqual("origin/master", local.RemoteName);
+			Assert.AreEqual("origin/master", remote.Name);
 			Assert.AreEqual(false, remote.IsPushable);
 			Assert.AreEqual(false, remote.IsFetchable);
 
@@ -63,13 +94,13 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(2, result.Value.Count);
 			local = result.Value.First(branch => branch.IsLocal);
 			remote = result.Value.First(branch => branch.IsRemote);
-			Assert.AreEqual("master", local.BranchName);
+			Assert.AreEqual("master", local.Name);
 			Assert.AreEqual(1, local.AheadCount);
 			Assert.AreEqual(0, local.BehindCount);
 			Assert.AreEqual(true, local.IsPushable);
 			Assert.AreEqual(false, local.IsFetchable);
 			Assert.AreEqual(true, local.IsPushable);
-			Assert.AreEqual("origin/master", remote.BranchName);
+			Assert.AreEqual("origin/master", remote.Name);
 			Assert.AreEqual(0, remote.AheadCount);
 			Assert.AreEqual(0, remote.BehindCount);
 			Assert.AreEqual(false, remote.IsPushable);

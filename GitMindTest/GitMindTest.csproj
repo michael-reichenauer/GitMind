@@ -76,9 +76,11 @@
     <Compile Include="Utils\Git\GitBranchServiceTest.cs" />
     <Compile Include="Utils\Git\GitCommitServiceTest.cs" />
     <Compile Include="Utils\Git\GitConfigTest.cs" />
-    <Compile Include="Utils\Git\GitFetchTest.cs" />
+    <Compile Include="Utils\Git\GitFetchServiceTest.cs" />
+    <Compile Include="Utils\Git\GitMergeServiceTest.cs" />
+    <Compile Include="Utils\Git\GitPullServiceTest.cs" />
     <Compile Include="Utils\Git\GitPushTest.cs" />
-    <Compile Include="Utils\Git\GitRepoTest.cs" />
+    <Compile Include="Utils\Git\GitRepoServiceTest.cs" />
     <Compile Include="Utils\Git\GitStatusTest.cs" />
     <Compile Include="Utils\Git\Private\GitHelper.cs" />
     <Compile Include="Utils\Git\Private\GitTestBase.cs" />

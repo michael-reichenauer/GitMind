@@ -5,11 +5,11 @@ namespace GitMind.Utils.Git.Private
 {
 	public class GitBranch2
 	{
-		public string BranchName { get; }
+		public string Name { get; }
 		public CommitSha TipSha { get; }
 		public bool IsCurrent { get; }
 		public string Message { get; }
-		public string BoundBranchName { get; }
+		public string RemoteName { get; }
 		public int AheadCount { get; }
 		public int BehindCount { get; }
 		public bool IsRemoteMissing { get; }
@@ -20,12 +20,12 @@ namespace GitMind.Utils.Git.Private
 		public bool IsBehind => BehindCount > 0;
 
 		public bool IsPushable =>
-			!string.IsNullOrEmpty(BoundBranchName) &&
+			!string.IsNullOrEmpty(RemoteName) &&
 			(AheadCount > 0 || IsRemoteMissing) &&
 			(BehindCount == 0);
 
 		public bool IsFetchable =>
-			!string.IsNullOrEmpty(BoundBranchName) &&
+			!string.IsNullOrEmpty(RemoteName) &&
 			BehindCount > 0 &&
 			AheadCount == 0;
 
@@ -33,17 +33,17 @@ namespace GitMind.Utils.Git.Private
 			CommitSha tipSha,
 			bool isCurrent,
 			string message,
-			string boundBranchName,
+			string remoteName,
 			int aheadCount,
 			int behindCount,
 			bool isRemoteMissing)
 		{
 			IsRemote = branchName.StartsWith("remotes/");
-			BranchName = !IsRemote ? branchName : branchName.Substring(8);
+			Name = !IsRemote ? branchName : branchName.Substring(8);
 			TipSha = tipSha;
 			IsCurrent = isCurrent;
 			Message = message;
-			BoundBranchName = boundBranchName;
+			RemoteName = remoteName;
 			AheadCount = aheadCount;
 			BehindCount = behindCount;
 			IsRemoteMissing = isRemoteMissing;
@@ -51,7 +51,7 @@ namespace GitMind.Utils.Git.Private
 
 
 		public override string ToString() =>
-			$"{BranchName} {TipSha.ShortSha} ({CurrentText}{AheadCount}A {BehindCount}B) ->{BoundBranchName}";
+			$"{Name} {TipSha.ShortSha} ({CurrentText}{AheadCount}A {BehindCount}B) ->{RemoteName}";
 
 
 		private string CurrentText => IsCurrent ? "* " : "";

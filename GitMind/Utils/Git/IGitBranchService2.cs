@@ -10,5 +10,7 @@ namespace GitMind.Utils.Git
 	{
 		//Task<R<GitAheadBehind>> GetAheadBehindAsync(string branchName, CancellationToken ct);
 		Task<R<IReadOnlyList<GitBranch2>>> GetBranchesAsync(CancellationToken ct);
+
+		Task<R> BranchAsync(string name, bool isCheckout, CancellationToken ct);
 	}
 }

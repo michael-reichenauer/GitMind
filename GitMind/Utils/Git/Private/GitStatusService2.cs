@@ -61,17 +61,22 @@ namespace GitMind.Utils.Git.Private
 
 				if (line.StartsWith("DD ") ||
 						line.StartsWith("AU ") ||
-						line.StartsWith("UD ") ||
-						line.StartsWith("UA ") ||
-						line.StartsWith("DU ") ||
-						line.StartsWith("AA ") ||
-						line.StartsWith("UU "))
+						line.StartsWith("UA "))
 				{
+					// How to do reproduce this ???
 					status = GitFileStatus.Conflict;
 				}
-				else if (line.StartsWith("AU "))
+				else if (line.StartsWith("UU ") || line.StartsWith("AA "))
 				{
-
+					status = GitFileStatus.Conflict | GitFileStatus.ConflictMM;
+				}
+				else if (line.StartsWith("UD "))
+				{
+					status = GitFileStatus.Conflict | GitFileStatus.ConflictMD;
+				}
+				else if (line.StartsWith("DU "))
+				{
+					status = GitFileStatus.Conflict | GitFileStatus.ConflictDM;
 				}
 				else if (line.StartsWith("?? ") || line.StartsWith(" A "))
 				{
