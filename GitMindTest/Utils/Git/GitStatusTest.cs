@@ -16,7 +16,7 @@ namespace GitMindTest.Utils.Git
 		{
 			await git.InitRepoAsync();
 
-			R<Status2> status = await cmd.GetStatusAsync(ct);
+			R<GitStatus2> status = await cmd.GetStatusAsync(ct);
 			Assert.IsTrue(status.IsOk);
 			Assert.AreEqual(0, status.Value.AllChanges);
 
@@ -39,7 +39,7 @@ namespace GitMindTest.Utils.Git
 		{
 			await git.InitRepoAsync();
 
-			Status2 status = await git.GetStatusAsync();
+			GitStatus2 status = await git.GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
 		}
 	}

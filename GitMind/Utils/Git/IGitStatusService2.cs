@@ -6,6 +6,7 @@ namespace GitMind.Utils.Git
 {
 	public interface IGitStatusService2
 	{
-		Task<R<Status2>> GetStatusAsync(CancellationToken ct);
+		Task<R<GitStatus2>> GetStatusAsync(CancellationToken ct);
+		Task<R<GitConflicts>> GetConflictsAsync(CancellationToken ct);
 	}
 }

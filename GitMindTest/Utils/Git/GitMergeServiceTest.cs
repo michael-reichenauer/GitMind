@@ -68,6 +68,10 @@ namespace GitMindTest.Utils.Git
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(1, status.Modified);
 			Assert.AreEqual(4, status.Conflicted);
+
+			GitConflicts conflicts = await git.GetConflictsAsync();
+			Assert.AreEqual(false, conflicts.OK);
+			Assert.AreEqual(4, conflicts.Count);
 		}
 	}
 }

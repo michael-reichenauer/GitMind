@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R<Status2>> GetStatusAsync(CancellationToken ct)
+		public async Task<R<GitStatus2>> GetStatusAsync(CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmdService.RunAsync(StatusArgs, ct);
 
@@ -30,13 +31,114 @@ namespace GitMind.Utils.Git.Private
 				return Error.From("Failed to get status", result);
 			}
 
-			Status2 status = ParseStatus(result.Value);
+			GitStatus2 status = ParseStatus(result.Value);
 			Log.Info($"Status: {status} in {result.Value.WorkingDirectory}");
 			return status;
 		}
 
 
-		private Status2 ParseStatus(CmdResult2 result)
+
+		public async Task<R<GitConflicts>> GetConflictsAsync(CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync("ls-files -u", ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From("Failed to get status", result);
+			}
+
+			GitConflicts conflicts = ParseConflicts(result.Value);
+			Log.Info($"Conflicts: {conflicts} in {result.Value.WorkingDirectory}");
+			return conflicts;
+		}
+
+
+		private GitConflicts ParseConflicts(CmdResult2 result)
+		{
+			List<GitConflictFile> files = new List<GitConflictFile>();
+
+			string filePath = null;
+			string baseId = null;
+			string localId = null;
+			string remoteId = null;
+
+			// Parsing lines, where there are 1,2 or 3 lines for one file before the next file lines
+			foreach (string line in result.OutputLines)
+			{
+				string[] parts1 = line.Split("\t".ToCharArray());
+				string[] parts2 = parts1[0].Split(" ".ToCharArray());
+				string path = parts1[1].Trim();
+
+				if (path != filePath && filePath != null)
+				{
+					// Next file, store previous file
+					GitFileStatus status = GetConflictStatus(baseId, localId, remoteId);
+					files.Add(new GitConflictFile(result.WorkingDirectory, filePath, baseId, localId, remoteId, status));
+					baseId = null;
+					localId = null;
+					remoteId = null;
+				}
+
+				filePath = path;
+				SetIds(parts2, ref baseId, ref localId, ref remoteId);
+			}
+
+			if (filePath != null)
+			{
+				// Add last file
+				GitFileStatus status = GetConflictStatus(baseId, localId, remoteId);
+				files.Add(new GitConflictFile(result.WorkingDirectory, filePath, baseId, localId, remoteId, status));
+			}
+
+			return new GitConflicts(files);
+		}
+
+
+		private static void SetIds(
+			string[] parts, ref string baseId, ref string localId, ref string remoteId)
+		{
+			string id = parts[1].Trim();
+			string type = parts[2].Trim();
+
+			if (type == "1")
+			{
+				baseId = id;
+			}
+			else if (type == "2")
+			{
+				localId = id;
+			}
+			else
+			{
+				remoteId = id;
+			}
+		}
+
+
+		private GitFileStatus GetConflictStatus(string baseId, string localId, string remoteId)
+		{
+			if (baseId != null && localId != null && remoteId != null)
+			{
+				return GitFileStatus.Conflict | GitFileStatus.ConflictMM;
+			}
+			else if (baseId != null && localId != null)
+			{
+				return GitFileStatus.Conflict | GitFileStatus.ConflictMD;
+			}
+			else if (baseId != null && remoteId != null)
+			{
+				return GitFileStatus.Conflict | GitFileStatus.ConflictDM;
+			}
+			else if (localId != null && remoteId != null)
+			{
+				return GitFileStatus.Conflict | GitFileStatus.ConflictAA;
+			}
+
+			throw new InvalidOperationException("Unexpected state");
+		}
+
+
+		private GitStatus2 ParseStatus(CmdResult2 result)
 		{
 			IReadOnlyList<GitFile2> files = ParseFiles(result);
 
@@ -45,7 +147,7 @@ namespace GitMind.Utils.Git.Private
 			int conflicted = files.Count(file => file.Status.HasFlag(GitFileStatus.Conflict));
 			int modified = files.Count - (added + deleted + conflicted);
 
-			return new Status2(modified, added, deleted, conflicted, files);
+			return new GitStatus2(modified, added, deleted, conflicted, files);
 		}
 
 
@@ -66,9 +168,13 @@ namespace GitMind.Utils.Git.Private
 					// How to do reproduce this ???
 					status = GitFileStatus.Conflict;
 				}
-				else if (line.StartsWith("UU ") || line.StartsWith("AA "))
+				else if (line.StartsWith("UU "))
 				{
 					status = GitFileStatus.Conflict | GitFileStatus.ConflictMM;
+				}
+				else if (line.StartsWith("AA "))
+				{
+					status = GitFileStatus.Conflict | GitFileStatus.ConflictAA;
 				}
 				else if (line.StartsWith("UD "))
 				{

@@ -51,7 +51,7 @@ namespace GitMind.Git.Private
 		{
 			if (commitSha == CommitSha.Uncommitted)
 			{
-				R<Status2> status = await gitStatusService2.GetStatusAsync(CancellationToken.None);
+				R<GitStatus2> status = await gitStatusService2.GetStatusAsync(CancellationToken.None);
 				if (status.IsOk)
 				{
 					return R.From(status.Value.Files);

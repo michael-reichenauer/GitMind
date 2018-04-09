@@ -26,7 +26,7 @@ namespace GitMindTest.Utils.Git.Private
 		protected IoHelper io;
 		protected IoHelper io2;
 
-		protected Status2 status;
+		protected GitStatus2 status;
 		protected IReadOnlyList<GitBranch2> branches;
 
 
@@ -37,7 +37,7 @@ namespace GitMindTest.Utils.Git.Private
 			io = new IoHelper();
 			io2 = new IoHelper();
 
-			status = new Status2(0, 0, 0, 0, new GitFile2[0]);
+			status = new GitStatus2(0, 0, 0, 0, new GitFile2[0]);
 			branches = new GitBranch2[0];
 
 			am = new AutoMock()

@@ -213,7 +213,7 @@
     <Compile Include="MainWindowViews\WindowOwner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Common\CredentialHandler.cs" />
-    <Compile Include="Git\GitConflict.cs" />
+    <Compile Include="Git\GitConflicts.cs" />
     <Compile Include="Git\GitConflictStatus.cs" />
     <Compile Include="Git\GitFileStatus.cs" />
     <Compile Include="Git\GitNote.cs" />
@@ -226,6 +226,8 @@
     <Compile Include="Utils\Git\IGitMergeService2.cs" />
     <Compile Include="Utils\Git\Private\GitCheckoutService.cs" />
     <Compile Include="Utils\Git\IGitCheckoutService.cs" />
+    <Compile Include="Utils\Git\GitConflictFile.cs" />
+    <Compile Include="Utils\Git\GitConflicts.cs" />
     <Compile Include="Utils\Git\Private\GitPullService.cs" />
     <Compile Include="Utils\Git\IGitPullService.cs" />
     <Compile Include="Utils\Git\Private\GitBranch2.cs" />
@@ -269,7 +271,7 @@
     <Compile Include="Utils\AsyncManualResetEvent.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\IGitCredential.cs" />
     <Compile Include="Utils\Git\IGitRepoService.cs" />
-    <Compile Include="Utils\Git\Status2.cs" />
+    <Compile Include="Utils\Git\GitStatus2.cs" />
     <Compile Include="Utils\OsSystem\CmdOptions.cs" />
     <Compile Include="Utils\OsSystem\ICmd2.cs" />
     <Compile Include="Utils\OsSystem\Private\Cmd2.cs" />

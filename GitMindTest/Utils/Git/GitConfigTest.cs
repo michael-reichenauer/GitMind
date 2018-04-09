@@ -15,8 +15,8 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task Test()
 		{
-			string ToText(IReadOnlyList<GitSetting> c) =>
-				string.Join("\n", c.Select(p => p.ToString()));
+			//string ToText(IReadOnlyList<GitSetting> c) =>
+			//	string.Join("\n", c.Select(p => p.ToString()));
 
 			R<IReadOnlyList<GitSetting>> config = await cmd.GetAsync(ct);
 			Assert.AreEqual(true, config.IsOk);

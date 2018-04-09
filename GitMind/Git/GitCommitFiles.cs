@@ -83,12 +83,12 @@ namespace GitMind.Git
 
 		private GitConflict ToConflict(Conflict conflict)
 		{
-			GitConflict gitConflict = new GitConflict(
+			GitConflict gitConflicts = new GitConflict(
 				GetConflictPath(conflict),
 				conflict.Ours?.Id.Sha,
 				conflict.Theirs?.Id.Sha,
 				conflict.Ancestor?.Id.Sha);
-			return gitConflict;
+			return gitConflicts;
 		}
 
 

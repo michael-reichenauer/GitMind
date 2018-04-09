@@ -13,6 +13,7 @@ namespace GitMind.Git
 		Conflict = 16,
 		ConflictMM = 32,    // Modified by both
 		ConflictMD = 64,    // Modified by us, deleted by them
-		ConflictDM = 128,    // Deleted by us, modified by them
+		ConflictDM = 128,   // Deleted by us, modified by them
+		ConflictAA = 256    // Added by both
 	}
 }

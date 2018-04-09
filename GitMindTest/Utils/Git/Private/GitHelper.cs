@@ -87,9 +87,17 @@ namespace GitMindTest.Utils.Git.Private
 			isRepo = true;
 		}
 
-		public async Task<Status2> GetStatusAsync()
+		public async Task<GitStatus2> GetStatusAsync()
 		{
 			var result = await Service<IGitStatusService2>().GetStatusAsync(ct);
+			Assert.IsTrue(result.IsOk);
+
+			return result.Value;
+		}
+
+		public async Task<GitConflicts> GetConflictsAsync()
+		{
+			var result = await Service<IGitStatusService2>().GetConflictsAsync(ct);
 			Assert.IsTrue(result.IsOk);
 
 			return result.Value;

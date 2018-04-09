@@ -3,9 +3,9 @@
 
 namespace GitMind.Utils.Git
 {
-	public class Status2
+	public class GitStatus2
 	{
-		public Status2(int modified, int added, int deleted, int conflicted, IReadOnlyList<GitFile2> files)
+		public GitStatus2(int modified, int added, int deleted, int conflicted, IReadOnlyList<GitFile2> files)
 		{
 			Modified = modified;
 			Added = added;
@@ -23,7 +23,7 @@ namespace GitMind.Utils.Git
 
 		public bool OK => AllChanges == 0;
 
-		public override string ToString() => 
+		public override string ToString() =>
 			OK ? "Ok" : $"{AllChanges} ({Modified}M, {Added}A, {Deleted}D {Conflicted}C)";
 	}
 }
