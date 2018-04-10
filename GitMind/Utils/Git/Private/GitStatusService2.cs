@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -168,7 +169,26 @@ namespace GitMind.Utils.Git.Private
 			int conflicted = files.Count(file => file.Status.HasFlag(GitFileStatus.Conflict));
 			int modified = files.Count - (added + deleted + conflicted);
 
-			return new GitStatus2(modified, added, deleted, conflicted, files);
+			bool isMergeInProgress = GetMergeStatus(result, out string mergeMessage);
+
+			return new GitStatus2(
+				modified, added, deleted, conflicted, isMergeInProgress, mergeMessage, files);
+		}
+
+
+		private static bool GetMergeStatus(CmdResult2 result, out string mergeMessage)
+		{
+			bool isMergeInProgress = false;
+			mergeMessage = null;
+			string mergeIpPath = Path.Combine(result.WorkingDirectory, ".git", "MERGE_HEAD");
+			string mergeMsgPath = Path.Combine(result.WorkingDirectory, ".git", "MERGE_MSG");
+			if (File.Exists(mergeIpPath))
+			{
+				isMergeInProgress = true;
+				mergeMessage = File.ReadAllText(mergeMsgPath).Trim();
+			}
+
+			return isMergeInProgress;
 		}
 
 

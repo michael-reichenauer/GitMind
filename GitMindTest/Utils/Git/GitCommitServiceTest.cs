@@ -242,6 +242,51 @@ namespace GitMindTest.Utils.Git
 
 
 		[Test]
+		public async Task TestUncommitMergedCommitAsync()
+		{
+			await git.InitRepoAsync();
+
+			// Make 2 commits on a file
+			io.WriteFile("file1.txt", "Some text 1");
+			GitCommit commit1 = await git.CommitAllChangesAsync("Message 1");
+			io.WriteFile("file1.txt", "Some text 2");
+			GitCommit commit2 = await git.CommitAllChangesAsync("Message 2");
+
+			await git.BrancheAsync("branch1");
+
+			io.WriteFile("file1.txt", "Some text on branch 1");
+			GitCommit commit3 = await git.CommitAllChangesAsync("Message  on branch 1");
+
+			await git.CheckoutAsync("master");
+			await git.MergeAsync("branch1");
+			status = await git.GetStatusAsync();
+
+			//await git.CommitAllChangesAsync("");
+
+
+			//branches = await git.GetBranchesAsync();
+			//Assert.AreEqual(commit2.Sha, branches[0].TipSha);
+
+			//R<GitCommit> commit = await cmd.GetCommitAsync(commit2.Sha.Sha, ct);
+			//Assert.AreEqual(true, commit.IsOk);
+
+			//R result = await cmd.UnCommitAsync(ct);
+			//Assert.AreEqual(true, result.IsOk);
+
+			//status = await git.GetStatusAsync();
+			//Assert.AreEqual(1, status.Modified);
+
+			//branches = await git.GetBranchesAsync();
+			//Assert.AreEqual(commit1.Sha, branches[0].TipSha);
+
+			//R undo = await cmd.UndoUncommitedAsync(ct);
+			//Assert.AreEqual(true, undo.IsOk);
+			//status = await git.GetStatusAsync();
+			//Assert.AreEqual(true, status.OK);
+		}
+
+
+		[Test]
 		public async Task TestCommitingAsync()
 		{
 			// Init default working folder repo

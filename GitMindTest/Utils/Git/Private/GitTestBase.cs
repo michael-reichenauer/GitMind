@@ -37,7 +37,7 @@ namespace GitMindTest.Utils.Git.Private
 			io = new IoHelper();
 			io2 = new IoHelper();
 
-			status = new GitStatus2(0, 0, 0, 0, new GitFile2[0]);
+			status = new GitStatus2(0, 0, 0, 0, false, null, new GitFile2[0]);
 			branches = new GitBranch2[0];
 
 			am = new AutoMock()

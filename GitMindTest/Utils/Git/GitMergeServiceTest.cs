@@ -31,11 +31,13 @@ namespace GitMindTest.Utils.Git
 			// Merge has not automatically committed
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(1, status.Modified);
+			Assert.AreEqual(true, status.IsMerging);
+			Assert.AreEqual("Merge branch 'branch1'", status.MergeMessage);
 
 			await git.CommitAllChangesAsync("Message 1");
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(true, status.OK);
-
+			Assert.AreEqual(false, status.IsMerging);
 			Assert.AreEqual("Text on branch 1", io.ReadFile("file1.txt"));
 		}
 
@@ -78,6 +80,7 @@ namespace GitMindTest.Utils.Git
 			GitConflicts conflicts = await git.GetConflictsAsync();
 			Assert.AreEqual(false, conflicts.OK);
 			Assert.AreEqual(4, conflicts.Count);
+			Assert.AreEqual(true, status.IsMerging);
 
 			Assert.AreEqual("Text 1", await git.GetConflictFileAsync(conflicts.Files[0].BaseId));
 			Assert.AreEqual("Text on master 1\n", await git.GetConflictFileAsync(conflicts.Files[0].LocalId));

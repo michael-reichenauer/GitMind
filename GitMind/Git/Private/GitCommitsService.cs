@@ -201,48 +201,48 @@ namespace GitMind.Git.Private
 		}
 
 
-		public void AddPaths(LibGit2Sharp.Repository repo, IReadOnlyList<CommitFile> paths)
-		{
-			List<string> added = new List<string>();
-			foreach (CommitFile commitFile in paths)
-			{
-				string fullPath = Path.Combine(workingFolder, commitFile.Path);
-				if (File.Exists(fullPath))
-				{
-					repo.Index.Add(commitFile.Path);
-					added.Add(commitFile.Path);
-				}
+		//public void AddPaths(LibGit2Sharp.Repository repo, IReadOnlyList<CommitFile> paths)
+		//{
+		//	List<string> added = new List<string>();
+		//	foreach (CommitFile commitFile in paths)
+		//	{
+		//		string fullPath = Path.Combine(workingFolder, commitFile.Path);
+		//		if (File.Exists(fullPath))
+		//		{
+		//			repo.Index.Add(commitFile.Path);
+		//			added.Add(commitFile.Path);
+		//		}
 
-				if (commitFile.OldPath != null && !added.Contains(commitFile.OldPath))
-				{
-					repo.Index.Remove(commitFile.OldPath);
-				}
+		//		if (commitFile.OldPath != null && !added.Contains(commitFile.OldPath))
+		//		{
+		//			repo.Index.Remove(commitFile.OldPath);
+		//		}
 
-				if (commitFile.Status == GitFileStatus.Deleted)
-				{
-					repo.Remove(commitFile.Path);
-				}
-			}
-		}
+		//		if (commitFile.Status == GitFileStatus.Deleted)
+		//		{
+		//			repo.Remove(commitFile.Path);
+		//		}
+		//	}
+		//}
 
 
-		public GitCommit Commit(LibGit2Sharp.Repository repo, string message)
-		{
-			Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
+		//public GitCommit Commit(LibGit2Sharp.Repository repo, string message)
+		//{
+		//	Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
 
-			CommitOptions commitOptions = new CommitOptions();
+		//	CommitOptions commitOptions = new CommitOptions();
 
-			LibGit2Sharp.Commit commit = repo.Commit(message, signature, signature, commitOptions);
+		//	LibGit2Sharp.Commit commit = repo.Commit(message, signature, signature, commitOptions);
 
-			return commit != null ? new GitCommit(
-				new CommitSha(commit.Sha),
-				commit.MessageShort,
-				commit.Message,
-				commit.Author.Name,
-				commit.Author.When.LocalDateTime,
-				commit.Committer.When.LocalDateTime,
-				commit.Parents.Select(p => new CommitId(p.Sha)).ToList()) : null;
-		}
+		//	return commit != null ? new GitCommit(
+		//		new CommitSha(commit.Sha),
+		//		commit.MessageShort,
+		//		commit.Message,
+		//		commit.Author.Name,
+		//		commit.Author.When.LocalDateTime,
+		//		commit.Committer.When.LocalDateTime,
+		//		commit.Parents.Select(p => new CommitId(p.Sha)).ToList()) : null;
+		//}
 
 
 		public async Task UndoFileInWorkingFolderAsync(string path)
