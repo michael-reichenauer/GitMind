@@ -103,6 +103,13 @@ namespace GitMindTest.Utils.Git.Private
 			return result.Value;
 		}
 
+		public async Task<string> GetConflictFileAsync(string fileId)
+		{
+			var result = await Service<IGitStatusService2>().GetConflictFile(fileId, ct);
+			Assert.IsTrue(result.IsOk);
+
+			return result.Value;
+		}
 
 		public async Task<IReadOnlyList<GitBranch2>> GetBranchesAsync()
 		{

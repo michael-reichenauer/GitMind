@@ -53,6 +53,27 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		public async Task<R<string>> GetConflictFile(string fileId, CancellationToken ct)
+		{
+			//R<CmdResult2> result = await gitCmdService.RunAsync($"show --format=raw {fileId}", ct);
+			R<CmdResult2> result = await gitCmdService.RunAsync($"cat-file blob {fileId}", ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed to get file {fileId}", result);
+			}
+
+			string file = result.Value.Output;
+			if (file.EndsWith("\r\n"))
+			{
+				file = file.Substring(0, file.Length - 2);
+			}
+
+			Log.Info($"Got file: {fileId} {file.Length} bytes");
+			return file;
+		}
+
+
 		private GitConflicts ParseConflicts(CmdResult2 result)
 		{
 			List<GitConflictFile> files = new List<GitConflictFile>();

@@ -68,6 +68,11 @@ namespace GitMind.Utils.OsSystem
 
 		private static IEnumerable<string> Lines(string text)
 		{
+			if (text.EndsWith("\r\n"))
+			{
+				text = text.Substring(0, text.Length - 2);
+			}
+
 			using (System.IO.StringReader reader = new System.IO.StringReader(text))
 			{
 				while (true)

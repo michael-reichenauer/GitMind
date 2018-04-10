@@ -155,18 +155,19 @@ namespace GitMind.Utils.OsSystem.Private
 
 
 		private static Task ReadStreamAsync(
-			StreamReader stream, StringBuilder text,
+			StreamReader stream,
+			StringBuilder text,
 			Action<string> texts,
 			Action<string> lines,
 			CancellationToken ct)
 		{
-			if (texts != null)
+			if (lines != null)
 			{
-				return ReadStreamAsync(stream, s => Report(text, s, texts, null, ct), ct);
+				return ReadLinesAsync(stream, s => Report(text, s, null, lines, ct), ct);
 			}
 			else
 			{
-				return ReadLinesAsync(stream, s => Report(text, s, null, lines, ct), ct);
+				return ReadStreamAsync(stream, s => Report(text, s, texts, null, ct), ct);
 			}
 		}
 
@@ -248,6 +249,7 @@ namespace GitMind.Utils.OsSystem.Private
 		private static async Task ReadStreamAsync(
 			StreamReader stream, Action<string> onText, CancellationToken ct)
 		{
+			// Log.Warn("Read stream");
 			using (StreamReader reader = stream)
 			{
 				char[] buffer = new char[1024 * 4];
@@ -268,6 +270,7 @@ namespace GitMind.Utils.OsSystem.Private
 		private static async Task ReadLinesAsync(
 			StreamReader stream, Action<string> onLine, CancellationToken ct)
 		{
+			// Log.Warn("Read lines");
 			using (StreamReader reader = stream)
 			{
 				while (!ct.IsCancellationRequested)

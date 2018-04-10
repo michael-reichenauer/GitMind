@@ -7,7 +7,7 @@ namespace GitMindTest.Utils.Git.Private
 	{
 		public IoHelper()
 		{
-			WorkingFolder = GetTempDirPath();
+			WorkingFolder = GetFullTempPath();
 		}
 
 
@@ -25,12 +25,12 @@ namespace GitMindTest.Utils.Git.Private
 
 		public bool Exists(string subPath) => ExistsFile(subPath) || ExistsDir(subPath);
 
-		public string GetTempDirPath() => Path.Combine(GetTempBaseDirPath(), Path.GetRandomFileName());
+		public string GetFullTempPath() => Path.Combine(GetTempBaseDirPath(), Path.GetRandomFileName());
 
 
 		public string CreateTmpDir()
 		{
-			string path = GetTempDirPath();
+			string path = GetFullTempPath();
 			Directory.CreateDirectory(path);
 			return path;
 		}

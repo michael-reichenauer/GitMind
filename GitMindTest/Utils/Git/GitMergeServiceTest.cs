@@ -27,6 +27,12 @@ namespace GitMindTest.Utils.Git
 
 			R result = await cmd.MergeAsync("branch1", ct);
 			Assert.AreEqual(true, result.IsOk);
+
+			// Merge has not automatically committed
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(1, status.Modified);
+
+			await git.CommitAllChangesAsync("Message 1");
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(true, status.OK);
 
@@ -38,7 +44,7 @@ namespace GitMindTest.Utils.Git
 		{
 			await git.InitRepoAsync();
 
-			io.WriteFile("file1.txt", "Text 1");
+			io.WriteFile("file1.exe", "Text 1");
 			io.WriteFile("file2.txt", "Text 2");
 			io.WriteFile("file3.txt", "Text 3");
 			io.WriteFile("file4.txt", "Text 4");
@@ -46,7 +52,7 @@ namespace GitMindTest.Utils.Git
 			await git.CommitAllChangesAsync("Initial addon master");
 
 			await git.BrancheAsync("branch1");
-			io.WriteFile("file1.txt", "Text on branch 1");
+			io.WriteFile("file1.exe", "Text on branch 1\r\n\n");
 			io.DeleteFile("file2.txt");
 			io.WriteFile("file3.txt", "Text on branch 3");
 			io.WriteFile("file4.txt", "Text on branch 4");
@@ -55,7 +61,7 @@ namespace GitMindTest.Utils.Git
 			await git.CommitAllChangesAsync("Message 1 on branch 1");
 
 			await git.CheckoutAsync("master");
-			io.WriteFile("file1.txt", "Text on master 1");
+			io.WriteFile("file1.exe", "Text on master 1\n");
 			io.WriteFile("file2.txt", "Text on master 2");
 			io.DeleteFile("file3.txt");
 			// skip file 4
@@ -72,6 +78,10 @@ namespace GitMindTest.Utils.Git
 			GitConflicts conflicts = await git.GetConflictsAsync();
 			Assert.AreEqual(false, conflicts.OK);
 			Assert.AreEqual(4, conflicts.Count);
+
+			Assert.AreEqual("Text 1", await git.GetConflictFileAsync(conflicts.Files[0].BaseId));
+			Assert.AreEqual("Text on master 1\n", await git.GetConflictFileAsync(conflicts.Files[0].LocalId));
+			Assert.AreEqual("Text on branch 1\n\n", await git.GetConflictFileAsync(conflicts.Files[0].RemoteId));
 		}
 	}
 }
