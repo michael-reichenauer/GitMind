@@ -295,6 +295,9 @@ namespace GitMindTest.Utils.Git
 
 			R result = await cmd.UnCommitAsync(ct);
 			Assert.AreEqual(true, result.IsOk);
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(1, status.Added);
+			Assert.AreEqual("file2.txt", status.Files[0].FilePath);
 		}
 
 
