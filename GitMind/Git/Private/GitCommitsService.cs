@@ -18,8 +18,8 @@ namespace GitMind.Git.Private
 {
 	internal class GitCommitsService : IGitCommitsService
 	{
-		private static readonly StatusOptions StatusOptions = new StatusOptions
-		{ DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
+		//private static readonly StatusOptions StatusOptions = new StatusOptions
+		//{ DetectRenamesInWorkDir = true, DetectRenamesInIndex = true };
 
 		private readonly WorkingFolder workingFolder;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
@@ -92,8 +92,7 @@ namespace GitMind.Git.Private
 
 		public Task<R> UnCommitAsync()
 		{
-			return repoCaller.UseRepoAsync(
-				repo => repo.Reset(ResetMode.Mixed, repo.Head.Commits.ElementAt(1)));
+			return gitCommitService2.UnCommitAsync(CancellationToken.None);
 		}
 
 		public Task<R> UndoCommitAsync(CommitSha commitSha)
