@@ -84,9 +84,9 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task<R> ResetMerge()
+		public async Task<R> ResetMerge()
 		{
-			return repoCaller.UseRepoAsync(repo => repo.Reset(ResetMode.Hard));
+			return await gitCommitService2.UndoUncommitedAsync(CancellationToken.None);
 		}
 
 
