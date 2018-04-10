@@ -516,13 +516,17 @@ namespace GitMind.RepositoryViews.Private
 
 		private static List<Commit> GetCommits(IEnumerable<Branch> branches)
 		{
-			return branches
-				.SelectMany(branch => branch.Commits)
-				.OrderByDescending(commit => commit, Compare.With<Commit>(CompareCommits))
-				.ToList();
+			List<Commit> allCommits = branches
+				.SelectMany(branch => branch.Commits).ToList();
+
+			// Using custom sort to ensure all commits are compared to each other.
+			// This helps when commit dates are same and compare with parent is needed
+			Sorter.Sort(allCommits, Compare.With<Commit>(CompareCommitsDescending));
+			return allCommits;
 		}
 
-		private static int CompareCommits(Commit c1, Commit c2)
+
+		private static int CompareCommitsDescending(Commit c1, Commit c2)
 		{
 			if (c1 == c2)
 			{
@@ -531,26 +535,27 @@ namespace GitMind.RepositoryViews.Private
 
 			if (c1.CommitDate < c2.CommitDate)
 			{
-				return -1;
+				return 1;
 			}
 			else if (c1.CommitDate > c2.CommitDate)
 			{
-				return 1;
+				return -1;
 			}
 			else
 			{
 				if (c2.Parents.Any(c => c.Id == c1.Id))
 				{
-					return -1;
+					return 1;
 				}
 				else if (c1.Parents.Any(c => c.Id == c2.Id))
 				{
-					return 1;
+					return -1;
 				}
 
 				return 0;
 			}
 		}
+		
 
 		private void UpdateCommits(
 			IReadOnlyList<Commit> sourceCommits,
