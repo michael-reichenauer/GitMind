@@ -242,7 +242,7 @@ namespace GitMindTest.Utils.Git
 
 
 		[Test]
-		public async Task TestUncommitMergedCommitAsync()
+		public async Task TestUncommitMergedIntoMasterCommitAsync()
 		{
 			await git.InitRepoAsync();
 
@@ -260,29 +260,41 @@ namespace GitMindTest.Utils.Git
 			await git.CheckoutAsync("master");
 			await git.MergeAsync("branch1");
 			status = await git.GetStatusAsync();
+			await git.CommitAllChangesAsync($"{status.MergeMessage} into master");
 
-			//await git.CommitAllChangesAsync("");
+			R result = await cmd.UnCommitAsync(ct);
+			Assert.AreEqual(true, result.IsOk);
+		}
 
 
-			//branches = await git.GetBranchesAsync();
-			//Assert.AreEqual(commit2.Sha, branches[0].TipSha);
+		[Test]
+		public async Task TestUncommitMergedIntoBranchCommitAsync()
+		{
+			await git.InitRepoAsync();
 
-			//R<GitCommit> commit = await cmd.GetCommitAsync(commit2.Sha.Sha, ct);
-			//Assert.AreEqual(true, commit.IsOk);
+			// Make 2 commits on a file
+			io.WriteFile("file1.txt", "Some text 1");
+			GitCommit commit1 = await git.CommitAllChangesAsync("Message 1");
+			io.WriteFile("file1.txt", "Some text 2");
+			GitCommit commit2 = await git.CommitAllChangesAsync("Message 2");
 
-			//R result = await cmd.UnCommitAsync(ct);
-			//Assert.AreEqual(true, result.IsOk);
+			await git.BrancheAsync("branch1");
 
-			//status = await git.GetStatusAsync();
-			//Assert.AreEqual(1, status.Modified);
+			io.WriteFile("file1.txt", "Some text on branch 1");
+			GitCommit commit3 = await git.CommitAllChangesAsync("Message  on branch 1");
 
-			//branches = await git.GetBranchesAsync();
-			//Assert.AreEqual(commit1.Sha, branches[0].TipSha);
+			await git.CheckoutAsync("master");
+			io.WriteFile("file2.txt", "Some text 3");
+			GitCommit commit4 = await git.CommitAllChangesAsync("Message 3 on master");
 
-			//R undo = await cmd.UndoUncommitedAsync(ct);
-			//Assert.AreEqual(true, undo.IsOk);
-			//status = await git.GetStatusAsync();
-			//Assert.AreEqual(true, status.OK);
+			await git.CheckoutAsync("branch1");
+
+			await git.MergeAsync("master");
+			status = await git.GetStatusAsync();
+			await git.CommitAllChangesAsync($"{status.MergeMessage}");
+
+			R result = await cmd.UnCommitAsync(ct);
+			Assert.AreEqual(true, result.IsOk);
 		}
 
 
