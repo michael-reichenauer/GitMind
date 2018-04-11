@@ -76,7 +76,27 @@ namespace GitMind.Utils.Git.Private
 
 			GitCommit commit = Parse(result.Value.OutputLines.First());
 			Log.Debug($"Got log for commit {commit.Sha.ShortSha}");
+
 			return commit;
+		}
+
+		public async Task<R<string>> GetCommitMessageAsync(string sha, CancellationToken ct)
+		{
+			var result = await gitCmdService.RunAsync($"show --no-patch --no-expand-tabs --format=\"%B\" {sha}", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From("Failed to get commit log", result);
+			}
+
+			string message = result.Value.Output;
+
+			if (message.EndsWith("\n\n\r\n"))
+			{
+				message = message.Substring(0, message.Length - 4);
+			}
+
+			Log.Debug($"Got message for commit {sha}");
+			return message;
 		}
 
 

@@ -14,5 +14,6 @@ namespace GitMind.Utils.Git
 		Task<R> GetLogAsync(Action<GitCommit> commits, CancellationToken ct);
 
 		Task<R<GitCommit>> GetCommitAsync(string sha, CancellationToken ct);
+		Task<R<string>> GetCommitMessageAsync(string sha, CancellationToken ct);
 	}
 }

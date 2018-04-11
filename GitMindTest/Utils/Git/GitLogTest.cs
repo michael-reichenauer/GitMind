@@ -43,7 +43,7 @@ namespace GitMindTest.Utils.Git
 		}
 
 		[Test, Explicit]
-		public async Task Test()
+		public async Task TestGetPartialLog()
 		{
 			await git.InitRepoAsync();
 
@@ -79,6 +79,34 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(5, log2.Count);
 			Assert.AreEqual("Message 9", log2[0].Message);
 			Assert.AreEqual("Message 8", log2[1].Message);
+		}
+
+
+		[Test]
+		public async Task TestGetCommitMessageLog()
+		{
+			await git.InitRepoAsync();
+
+			io.WriteFile("file1.txt", "some text 1");
+			string message1 = "Message 1\n\nSome body text l1\nome body text l2";
+			GitCommit commit1 = await git.CommitAllChangesAsync(message1);
+
+			io.WriteFile("file2.txt", "some text 2");
+			string message2 = "Message 2";
+			GitCommit commit2 = await git.CommitAllChangesAsync(message2);
+
+			io.WriteFile("file2.txt", "some text 3");
+			string message3 = "Message 2\nsome short body";
+			GitCommit commit3 = await git.CommitAllChangesAsync(message3);
+
+			R<string> message21 = await cmd.GetCommitMessageAsync(commit1.Sha.Sha, ct);
+			Assert.AreEqual(message1, message21.Value);
+
+			R<string> message22 = await cmd.GetCommitMessageAsync(commit2.Sha.Sha, ct);
+			Assert.AreEqual(message2, message22.Value);
+
+			R<string> message23 = await cmd.GetCommitMessageAsync(commit3.Sha.Sha, ct);
+			Assert.AreEqual(message3, message23.Value);
 		}
 	}
 }

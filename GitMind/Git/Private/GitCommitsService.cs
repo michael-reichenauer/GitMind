@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -66,122 +65,34 @@ namespace GitMind.Git.Private
 		}
 
 
-		public Task EditCommitBranchAsync(CommitSha commitSha, CommitSha rootSha, BranchName branchName)
-		{
-			return gitCommitBranchNameService.EditCommitBranchNameAsync(commitSha, rootSha, branchName);
-		}
+		public Task EditCommitBranchAsync(CommitSha commitSha, CommitSha rootSha, BranchName branchName) =>
+			gitCommitBranchNameService.EditCommitBranchNameAsync(commitSha, rootSha, branchName);
 
 
-		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitSha rootSha)
-		{
-			return gitCommitBranchNameService.GetEditedBranchNames(rootSha);
-		}
+		public IReadOnlyList<CommitBranchName> GetSpecifiedNames(CommitSha rootSha) =>
+			gitCommitBranchNameService.GetEditedBranchNames(rootSha);
 
 
-		public IReadOnlyList<CommitBranchName> GetCommitBranches(CommitSha rootSha)
-		{
-			return gitCommitBranchNameService.GetCommitBrancheNames(rootSha);
-		}
+		public IReadOnlyList<CommitBranchName> GetCommitBranches(CommitSha rootSha) =>
+			gitCommitBranchNameService.GetCommitBrancheNames(rootSha);
 
 
-		public async Task<R> ResetMerge()
-		{
-			return await gitCommitService2.UndoUncommitedAsync(CancellationToken.None);
-		}
+		public async Task<R> ResetMerge() => await gitCommitService2.UndoUncommitedAsync(CancellationToken.None);
 
 
-		public Task<R> UnCommitAsync()
-		{
-			return gitCommitService2.UnCommitAsync(CancellationToken.None);
-		}
-
-		public Task<R> UndoCommitAsync(CommitSha commitSha)
-		{
-			return gitCommitService2.UndoCommitAsync(commitSha.Sha, CancellationToken.None);
-			//return repoCaller.UseRepoAsync(
-			//	repo =>
-			//	{
-			//		LibGit2Sharp.Commit commit = repo.Lookup<LibGit2Sharp.Commit>(
-			//			new ObjectId(commitSha.Sha));
-			//		Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
-			//		RevertOptions options = new RevertOptions { CommitOnSuccess = false };
-
-			//		repo.Revert(commit, signature, options);
-			//	});
-		}
-
-		public Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync()
-		{
-			return gitCommitService2.CleanWorkingFolderAsync(CancellationToken.None);
-			//return repoCaller.UseLibRepoAsync(repo =>
-			//{
-			//	List<string> failedPaths = new List<string>();
-
-			//	RepositoryStatus repositoryStatus = repo.RetrieveStatus(StatusOptions);
-			//	foreach (StatusEntry statusEntry in repositoryStatus.Ignored.Concat(repositoryStatus.Untracked))
-			//	{
-			//		string path = statusEntry.FilePath;
-			//		string fullPath = Path.Combine(workingFolder, path);
-			//		try
-			//		{
-			//			if (File.Exists(fullPath))
-			//			{
-			//				Log.Debug($"Delete file {fullPath}");
-			//				File.Delete(fullPath);
-			//			}
-			//			else if (Directory.Exists(fullPath))
-			//			{
-			//				Log.Debug($"Delete folder {fullPath}");
-			//				Directory.Delete(fullPath, true);
-			//			}
-			//		}
-			//		catch (Exception e)
-			//		{
-			//			Log.Exception(e, $"Failed to delete {path}");
-			//			failedPaths.Add(fullPath);
-			//		}
-			//	}
-
-			//	return failedPaths.AsReadOnlyList();
-			//});
-		}
+		public Task<R> UnCommitAsync() => gitCommitService2.UnCommitAsync(CancellationToken.None);
 
 
-		public async Task UndoWorkingFolderAsync()
-		{
+		public Task<R> UndoCommitAsync(CommitSha commitSha) =>
+			gitCommitService2.UndoCommitAsync(commitSha.Sha, CancellationToken.None);
+
+
+		public Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync() =>
+			gitCommitService2.CleanWorkingFolderAsync(CancellationToken.None);
+
+
+		public async Task UndoWorkingFolderAsync() =>
 			await gitCommitService2.UndoUncommitedAsync(CancellationToken.None);
-
-			//return repoCaller.UseRepoAsync(repo =>
-			//{
-			//	Log.Debug("Undo changes in working folder");
-			//	repo.Reset(ResetMode.Hard);
-
-			//	RepositoryStatus repositoryStatus = repo.RetrieveStatus(StatusOptions);
-			//	foreach (StatusEntry statusEntry in repositoryStatus.Untracked)
-			//	{
-			//		string path = statusEntry.FilePath;
-			//		try
-			//		{
-			//			string fullPath = Path.Combine(workingFolder, path);
-
-			//			if (File.Exists(fullPath))
-			//			{
-			//				Log.Debug($"Delete file {fullPath}");
-			//				File.Delete(fullPath);
-			//			}
-			//			else if (Directory.Exists(fullPath))
-			//			{
-			//				Log.Debug($"Delete folder {fullPath}");
-			//				Directory.Delete(fullPath, true);
-			//			}
-			//		}
-			//		catch (Exception e)
-			//		{
-			//			Log.Exception(e, $"Failed to delete {path}");
-			//		}
-			//	}
-			//});
-		}
 
 
 		public async Task<R<GitCommit>> CommitAsync(
@@ -200,48 +111,6 @@ namespace GitMind.Git.Private
 		}
 
 
-		//public void AddPaths(LibGit2Sharp.Repository repo, IReadOnlyList<CommitFile> paths)
-		//{
-		//	List<string> added = new List<string>();
-		//	foreach (CommitFile commitFile in paths)
-		//	{
-		//		string fullPath = Path.Combine(workingFolder, commitFile.Path);
-		//		if (File.Exists(fullPath))
-		//		{
-		//			repo.Index.Add(commitFile.Path);
-		//			added.Add(commitFile.Path);
-		//		}
-
-		//		if (commitFile.OldPath != null && !added.Contains(commitFile.OldPath))
-		//		{
-		//			repo.Index.Remove(commitFile.OldPath);
-		//		}
-
-		//		if (commitFile.Status == GitFileStatus.Deleted)
-		//		{
-		//			repo.Remove(commitFile.Path);
-		//		}
-		//	}
-		//}
-
-
-		//public GitCommit Commit(LibGit2Sharp.Repository repo, string message)
-		//{
-		//	Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
-
-		//	CommitOptions commitOptions = new CommitOptions();
-
-		//	LibGit2Sharp.Commit commit = repo.Commit(message, signature, signature, commitOptions);
-
-		//	return commit != null ? new GitCommit(
-		//		new CommitSha(commit.Sha),
-		//		commit.MessageShort,
-		//		commit.Message,
-		//		commit.Author.Name,
-		//		commit.Author.When.LocalDateTime,
-		//		commit.Committer.When.LocalDateTime,
-		//		commit.Parents.Select(p => new CommitId(p.Sha)).ToList()) : null;
-		//}
 
 
 		public async Task UndoFileInWorkingFolderAsync(string path)
