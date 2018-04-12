@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMindTest.Utils.Git.Private;
@@ -85,6 +87,43 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual("Text 1", await git.GetConflictFileAsync(conflicts.Files[0].BaseId));
 			Assert.AreEqual("Text on master 1\n", await git.GetConflictFileAsync(conflicts.Files[0].LocalId));
 			Assert.AreEqual("Text on branch 1\n\n", await git.GetConflictFileAsync(conflicts.Files[0].RemoteId));
+		}
+
+		[Test]
+		public async Task TestMergeCommitAsync()
+		{
+			await git.InitRepoAsync();
+
+			io.WriteFile("file1.txt", "Text 1");
+			await git.CommitAllChangesAsync("Message 1 on master");
+
+			await git.BrancheAsync("branch1");
+			io.WriteFile("file1.txt", "Text on branch 1");
+			GitCommit commit = await git.CommitAllChangesAsync("Message 1on branch1");
+
+			io.WriteFile("file1.txt", "Text on branch 2");
+			await git.CommitAllChangesAsync("Message 2on branch 1");
+
+			await git.CheckoutAsync("master");
+			Assert.AreEqual("Text 1", io.ReadFile("file1.txt"));
+
+			R result = await cmd.MergeAsync(commit.Sha.Sha, ct);
+			Assert.AreEqual(true, result.IsOk);
+
+			// Merge has not automatically committed
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(1, status.Modified);
+			Assert.AreEqual(true, status.IsMerging);
+			Assert.AreEqual($"Merge commit '{commit.Sha.Sha}'", status.MergeMessage);
+
+			await git.CommitAllChangesAsync("Message 2 on master");
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(true, status.OK);
+			Assert.AreEqual(false, status.IsMerging);
+			Assert.AreEqual("Text on branch 1", io.ReadFile("file1.txt"));
+
+			log = await git.GetLogAsync();
+			log.ForEach(c => Log.Debug($"{c}"));
 		}
 	}
 }

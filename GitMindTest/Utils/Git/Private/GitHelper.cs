@@ -36,7 +36,7 @@ namespace GitMindTest.Utils.Git.Private
 		public string OriginUri { get; private set; }
 
 
-		public T Service<T>() => am.Resolve<T>();
+		//public T Service<T>() => am.Resolve<T>();
 
 
 		public async Task InitRepoAsync()
@@ -47,8 +47,7 @@ namespace GitMindTest.Utils.Git.Private
 			}
 
 			Directory.CreateDirectory(workingFolder);
-			R result = await Service<IGitRepoService>().InitAsync(workingFolder, ct);
-			Assert.IsTrue(result.IsOk);
+			await Service<IGitRepoService>().Call(s => s.InitAsync(workingFolder, ct));
 			isRepo = true;
 		}
 
@@ -62,12 +61,10 @@ namespace GitMindTest.Utils.Git.Private
 
 			OriginUri = io.CreateTmpDir();
 
-			R result = await Service<IGitRepoService>().InitBareAsync(OriginUri, ct);
-			Assert.IsTrue(result.IsOk);
+			await Service<IGitRepoService>().Call(s => s.InitBareAsync(OriginUri, ct));
 
 			Directory.CreateDirectory(workingFolder);
-			result = await Service<IGitRepoService>().CloneAsync(OriginUri, workingFolder, null, ct);
-			Assert.IsTrue(result.IsOk);
+			await Service<IGitRepoService>().Call(s => s.CloneAsync(OriginUri, workingFolder, null, ct));
 			isRepo = true;
 		}
 
@@ -82,113 +79,61 @@ namespace GitMindTest.Utils.Git.Private
 			OriginUri = uri;
 
 			Directory.CreateDirectory(workingFolder);
-			R result = await Service<IGitRepoService>().CloneAsync(OriginUri, workingFolder, null, ct);
-			Assert.IsTrue(result.IsOk);
+			await Service<IGitRepoService>().Call(s => s.CloneAsync(OriginUri, workingFolder, null, ct));
 			isRepo = true;
 		}
 
-		public async Task<GitStatus2> GetStatusAsync()
+		public Task<GitStatus2> GetStatusAsync() => Service<IGitStatusService2>().Call(s => s.GetStatusAsync(ct));
+
+		public Task<GitConflicts> GetConflictsAsync() => Service<IGitStatusService2>().Call(s => s.GetConflictsAsync(ct));
+
+		public Task<string> GetConflictFileAsync(string fileId) => Service<IGitStatusService2>().Call(s => s.GetConflictFile(fileId, ct));
+
+		public Task<IReadOnlyList<GitBranch2>> GetBranchesAsync() => Service<IGitBranchService2>().Call(s => s.GetBranchesAsync(ct));
+
+		public async Task<GitBranch2> GetCurrentBranchAsync() => (await GetBranchesAsync()).First(branch => branch.IsCurrent);
+
+		public Task BrancheAsync(string name, bool isCheckout = true) => Service<IGitBranchService2>().Call(s => s.BranchAsync(name, isCheckout, ct));
+		
+		public Task<GitCommit> CommitAllChangesAsync(string message) => Service<IGitCommitService2>().Call(s => s.CommitAllChangesAsync(message, ct));
+		
+		public Task UncommitAsync() => Service<IGitCommitService2>().Call(s => s.UnCommitAsync(ct));
+		
+		public Task UndoUncommitedAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommitedAsync(ct));
+
+		public Task CleanWorkingFolderAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommitedAsync(ct));
+
+		public Task PushAsync() => Service<IGitPushService>().Call(s => s.PushAsync(ct));
+
+		public Task FetchAsync() => Service<IGitFetchService>().Call(s => s.FetchAsync(ct));
+
+		public Task CheckoutAsync(string branchName) => Service<IGitCheckoutService>().Call(s => s.CheckoutAsync(branchName, ct));
+
+		public Task MergeAsync(string branchName) => Service<IGitMergeService2>().Call(s => s.MergeAsync(branchName, ct));
+
+		public Task<IReadOnlyList<GitCommit>> GetLogAsync() => Service<IGitLogService>().Call(s => s.GetLogAsync(ct));
+
+		private SomeService<T> Service<T>() => new SomeService<T>(am.Resolve<T>());
+
+
+		private class SomeService<T>
 		{
-			var result = await Service<IGitStatusService2>().GetStatusAsync(ct);
-			Assert.IsTrue(result.IsOk);
+			private readonly T service;
+			
+			public SomeService(T service) => this.service = service;
 
-			return result.Value;
+			public async Task<TResult> Call<TResult>(Func<T, Task<R<TResult>>> func)
+			{
+				R<TResult> result = await func(service);
+				Assert.IsTrue(result.IsOk);
+				return result.Value; ;
+			}
+
+			public async Task Call(Func<T, Task<R>> func)
+			{
+				R result = await func(service);
+				Assert.IsTrue(result.IsOk);
+			}
 		}
-
-		public async Task<GitConflicts> GetConflictsAsync()
-		{
-			var result = await Service<IGitStatusService2>().GetConflictsAsync(ct);
-			Assert.IsTrue(result.IsOk);
-
-			return result.Value;
-		}
-
-		public async Task<string> GetConflictFileAsync(string fileId)
-		{
-			var result = await Service<IGitStatusService2>().GetConflictFile(fileId, ct);
-			Assert.IsTrue(result.IsOk);
-
-			return result.Value;
-		}
-
-		public async Task<IReadOnlyList<GitBranch2>> GetBranchesAsync()
-		{
-			R<IReadOnlyList<GitBranch2>> branches = await Service<IGitBranchService2>().GetBranchesAsync(ct);
-			Assert.IsTrue(branches.IsOk);
-
-			return branches.Value;
-		}
-
-
-		public async Task<GitBranch2> GetCurrentBranchAsync()
-		{
-			var branches = await GetBranchesAsync();
-
-			return branches.First(branch => branch.IsCurrent);
-		}
-
-
-		public async Task BrancheAsync(string name, bool isCheckout = true)
-		{
-			R result = await Service<IGitBranchService2>().BranchAsync(name, isCheckout, ct);
-			Assert.IsTrue(result.IsOk);
-		}
-
-
-		public async Task<GitCommit> CommitAllChangesAsync(string message)
-		{
-			R<GitCommit> result = await Service<IGitCommitService2>().CommitAllChangesAsync(message, ct);
-			Assert.IsTrue(result.IsOk);
-			return result.Value;
-		}
-
-
-		public async Task UncommitAsync()
-		{
-			R result = await Service<IGitCommitService2>().UnCommitAsync(ct);
-			Assert.IsTrue(result.IsOk);
-		}
-
-
-		public async Task UndoUncommitedAsync()
-		{
-			R result = await Service<IGitStatusService2>().UndoAllUncommitedAsync(ct);
-			Assert.IsTrue(result.IsOk);
-		}
-
-		public async Task CleanWorkingFolderAsync()
-		{
-			R result = await Service<IGitStatusService2>().UndoAllUncommitedAsync(ct);
-			Assert.IsTrue(result.IsOk);
-		}
-
-
-		public async Task PushAsync()
-		{
-			R result = await Service<IGitPushService>().PushAsync(ct);
-			Assert.IsTrue(result.IsOk);
-		}
-
-
-		public async Task FetchAsync()
-		{
-			R result = await Service<IGitFetchService>().FetchAsync(ct);
-			Assert.IsTrue(result.IsOk);
-		}
-
-		public async Task CheckoutAsync(string branchName)
-		{
-			R result = await Service<IGitCheckoutService>().CheckoutAsync(branchName, ct);
-			Assert.IsTrue(result.IsOk);
-		}
-
-		public async Task MergeAsync(string branchName)
-		{
-			R result = await Service<IGitMergeService2>().MergeAsync(branchName, ct);
-			Assert.IsTrue(result.IsOk);
-		}
-
-
-
 	}
 }

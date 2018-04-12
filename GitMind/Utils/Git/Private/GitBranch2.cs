@@ -1,8 +1,20 @@
-﻿using GitMind.Common;
+﻿using System.Collections.Generic;
+using System.Linq;
+using GitMind.Common;
 
 
 namespace GitMind.Utils.Git.Private
 {
+	public static class GitBranchesExtensions
+	{
+		public static bool TryGet(this IEnumerable<GitBranch2> branches, string branchName, out GitBranch2 branch)
+		{
+			branch = branches.FirstOrDefault(b => b.Name == branchName);
+			return branch != null;
+		}
+	}
+
+
 	public class GitBranch2
 	{
 		public string Name { get; }

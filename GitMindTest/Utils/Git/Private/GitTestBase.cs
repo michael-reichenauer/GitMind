@@ -2,6 +2,7 @@
 using System.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
+using GitMind.GitModel.Private;
 using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
 using GitMind.Utils.OsSystem;
@@ -28,7 +29,7 @@ namespace GitMindTest.Utils.Git.Private
 
 		protected GitStatus2 status;
 		protected IReadOnlyList<GitBranch2> branches;
-
+		protected IReadOnlyList<GitCommit> log;
 
 		[SetUp]
 		public void Setup()

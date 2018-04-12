@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Git;
 using GitMind.Git.Private;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
+using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 using LibGit2Sharp;
 
 
@@ -23,67 +27,111 @@ namespace GitMind.Features.Branches.Private
 			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true };
 
 
-		private readonly WorkingFolder workingFolder;
 		private readonly IRepoCaller repoCaller;
+		private readonly IGitBranchService2 gitBranchService2;
+		private readonly IGitMergeService2 gitMergeService2;
+		private readonly IGitCommitService2 gitCommitService2;
 
 
 		public GitBranchService(
-			WorkingFolder workingFolder,
-			IRepoCaller repoCaller)
+			IRepoCaller repoCaller,
+			IGitBranchService2 gitBranchService2,
+			IGitMergeService2 gitMergeService2,
+			IGitCommitService2 gitCommitService2)
 		{
-			this.workingFolder = workingFolder;
 			this.repoCaller = repoCaller;
+			this.gitBranchService2 = gitBranchService2;
+			this.gitMergeService2 = gitMergeService2;
+			this.gitCommitService2 = gitCommitService2;
 		}
 
 
-		public Task<R> MergeAsync(BranchName branchName)
+		public async Task<R> MergeAsync(BranchName branchName)
 		{
 			Log.Debug($"Merge branch {branchName} into current branch ...");
 
-			return repoCaller.UseLibRepoAsync(repository =>
+			R<IReadOnlyList<GitBranch2>> branches = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
+			if (branches.IsFaulted)
 			{
-				Signature signature = GetSignature(repository);
+				return Error.From("Failed to merge", branches);
+			}
 
-				Branch localbranch = TryGetBranch(repository, branchName);
-				Branch remoteBranch = TryGetBranch(repository, "origin/" + branchName);
+			// Trying to get both local and remote branch
+			branches.Value.TryGet(branchName, out GitBranch2 localbranch);
+			branches.Value.TryGet($"origin/{branchName}", out GitBranch2 remoteBranch);
 
-				Branch branch = localbranch ?? remoteBranch;
-				if (localbranch != null && remoteBranch != null)
+			GitBranch2 branch = localbranch ?? remoteBranch;
+			if (localbranch != null && remoteBranch != null)
+			{
+				// Both local and remote tip exists, use the branch with the most resent tip
+				R<GitCommit> localTipCommit = await gitCommitService2.GetCommitAsync(localbranch.TipSha.Sha, CancellationToken.None);
+				R<GitCommit> remoteTipCommit = await gitCommitService2.GetCommitAsync(remoteBranch.TipSha.Sha, CancellationToken.None);
+
+				if (localTipCommit.IsFaulted || remoteTipCommit.IsFaulted)
 				{
-					// Both local and remote tip exists, use the branch with the most resent tip
-					if (remoteBranch.Tip.Committer.When.LocalDateTime
-					> localbranch.Tip.Committer.When.LocalDateTime)
-					{
-						branch = remoteBranch;
-					}
+					return Error.From("Failed to merge", remoteTipCommit);
 				}
 
-				if (branch != null)
+				if (remoteTipCommit.Value.CommitDate > localTipCommit.Value.CommitDate)
 				{
-					repository.Merge(branch, signature, MergeNoFFNoCommit);
-
-					//RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
-
-					//if (!repositoryStatus.IsDirty)
-					//{
-					//	// Empty merge with no changes, lets reset merge since there is nothing to merge
-					//	repository.Reset(ResetMode.Hard);
-					//}
+					branch = remoteBranch;
 				}
-			});
+			}
+
+			if (branch == null)
+			{
+				return Error.From($"Failed to Merge, not valid branch {branchName}");
+			}
+
+
+			return await gitMergeService2.MergeAsync(branch.Name, CancellationToken.None);
+
+			//return repoCaller.UseLibRepoAsync(repository =>
+			//{
+			//	Signature signature = GetSignature(repository);
+
+			//	Branch localbranch = TryGetBranch(repository, branchName);
+			//	Branch remoteBranch = TryGetBranch(repository, "origin/" + branchName);
+
+			//	Branch branch = localbranch ?? remoteBranch;
+			//	if (localbranch != null && remoteBranch != null)
+			//	{
+			//		// Both local and remote tip exists, use the branch with the most resent tip
+			//		if (remoteBranch.Tip.Committer.When.LocalDateTime
+			//		> localbranch.Tip.Committer.When.LocalDateTime)
+			//		{
+			//			branch = remoteBranch;
+			//		}
+			//	}
+
+			//	if (branch != null)
+			//	{
+			//		repository.Merge(branch, signature, MergeNoFFNoCommit);
+
+			//		//RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
+
+			//		//if (!repositoryStatus.IsDirty)
+			//		//{
+			//		//	// Empty merge with no changes, lets reset merge since there is nothing to merge
+			//		//	repository.Reset(ResetMode.Hard);
+			//		//}
+			//	}
+			//});
 		}
 
-		public Task<R> MergeAsync(CommitSha commitSha)
+		public async Task<R> MergeAsync(CommitSha commitSha)
 		{
 			Log.Debug($"Merge branch from commit{commitSha} into current branch ...");
 
-			return repoCaller.UseLibRepoAsync(repository =>
-			{
-				Signature signature = GetSignature(repository);
-				Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
+			return await gitMergeService2.MergeAsync(commitSha.Sha, CancellationToken.None);
 
-				repository.Merge(commit, signature, MergeNoFFNoCommit);
-			});
+			//	return repoCaller.UseLibRepoAsync(repository =>
+			//{
+			//	Signature signature = GetSignature(repository);
+			//	Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
+
+			//	repository.Merge(commit, signature, MergeNoFFNoCommit);
+			//});
 		}
 
 
@@ -139,8 +187,8 @@ namespace GitMind.Features.Branches.Private
 					}
 					else
 					{
-						// No existing branch with that name. Try create a local branch
-						Commit commit = repository.Lookup<Commit>(new ObjectId(tipSha.Sha));
+					// No existing branch with that name. Try create a local branch
+					Commit commit = repository.Lookup<Commit>(new ObjectId(tipSha.Sha));
 						if (commit != null)
 						{
 							branch = repository.Branches.Add(branchName, commit);
@@ -166,12 +214,12 @@ namespace GitMind.Features.Branches.Private
 
 				if (branchName != null)
 				{
-					// Trying to get an existing switch branch) at that commit
-					Branch branch = repository.Branches
-						.FirstOrDefault(b =>
-							!b.IsRemote
-							&& branchName.IsEqual(b.FriendlyName)
-							&& b.Tip.Sha == commitSha.Sha);
+				// Trying to get an existing switch branch) at that commit
+				Branch branch = repository.Branches
+				.FirstOrDefault(b =>
+					!b.IsRemote
+					&& branchName.IsEqual(b.FriendlyName)
+					&& b.Tip.Sha == commitSha.Sha);
 
 					if (branch != null)
 					{
@@ -180,8 +228,8 @@ namespace GitMind.Features.Branches.Private
 					}
 				}
 
-				// No branch with that name so lets check out commit (detached head)
-				repository.Checkout(commit);
+			// No branch with that name so lets check out commit (detached head)
+			repository.Checkout(commit);
 
 				return null;
 			});
@@ -210,8 +258,8 @@ namespace GitMind.Features.Branches.Private
 				}
 				catch (NonFastForwardException)
 				{
-					// Failed with fast forward merge, trying no fast forward.
-					repo.MergeFetchedRefs(committer, MergeNoFastForwardAndCommit);
+				// Failed with fast forward merge, trying no fast forward.
+				repo.MergeFetchedRefs(committer, MergeNoFastForwardAndCommit);
 				}
 			});
 		}

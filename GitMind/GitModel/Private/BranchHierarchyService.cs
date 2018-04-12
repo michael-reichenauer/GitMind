@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GitMind.Common;
 using GitMind.Features.Branches.Private;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -158,7 +159,12 @@ namespace GitMind.GitModel.Private
 					branch.TempCommitIds.Clear();
 				}
 
-				List<MCommit> commits = branch.Commits.OrderByDescending(b => b.CommitDate).ToList();
+				List<MCommit> commits = branch.Commits.ToList();
+
+				// Using custom sort to ensure all commits are compared to each other.
+				// This helps when commit dates are same and compare with parent is needed
+				Sorter.Sort(commits, Compare.With<MCommit>(CompareCommitsDescending));
+
 				branch.TipCommitId = commits.Any() ? commits.First().Id : branch.ParentCommitId;
 
 				branch.FirstCommitId = commits.Any() ? commits.Last().Id : branch.ParentCommitId;
@@ -178,6 +184,36 @@ namespace GitMind.GitModel.Private
 						branch.FirstCommitId = branch.ParentCommitId;
 					}
 				}
+			}
+		}
+
+		private static int CompareCommitsDescending(MCommit c1, MCommit c2)
+		{
+			if (c1 == c2)
+			{
+				return 0;
+			}
+
+			if (c1.CommitDate < c2.CommitDate)
+			{
+				return 1;
+			}
+			else if (c1.CommitDate > c2.CommitDate)
+			{
+				return -1;
+			}
+			else
+			{
+				if (c2.Parents.Any(c => c.Id == c1.Id))
+				{
+					return 1;
+				}
+				else if (c1.Parents.Any(c => c.Id == c2.Id))
+				{
+					return -1;
+				}
+
+				return 0;
 			}
 		}
 
