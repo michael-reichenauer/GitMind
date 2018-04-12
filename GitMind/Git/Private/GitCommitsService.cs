@@ -77,7 +77,7 @@ namespace GitMind.Git.Private
 			gitCommitBranchNameService.GetCommitBrancheNames(rootSha);
 
 
-		public async Task<R> ResetMerge() => await gitStatusService2.UndoUncommitedAsync(CancellationToken.None);
+		public async Task<R> ResetMerge() => await gitStatusService2.UndoAllUncommitedAsync(CancellationToken.None);
 
 
 		public Task<R> UnCommitAsync() => gitCommitService2.UnCommitAsync(CancellationToken.None);
@@ -92,7 +92,7 @@ namespace GitMind.Git.Private
 
 
 		public async Task UndoWorkingFolderAsync() =>
-			await gitStatusService2.UndoUncommitedAsync(CancellationToken.None);
+			await gitStatusService2.UndoAllUncommitedAsync(CancellationToken.None);
 
 
 		public async Task<R<GitCommit>> CommitAsync(

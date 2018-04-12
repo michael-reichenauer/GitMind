@@ -82,9 +82,9 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R<IReadOnlyList<string>>> UndoUncommitedAsync(CancellationToken ct)
+		public async Task<R<IReadOnlyList<string>>> UndoAllUncommitedAsync(CancellationToken ct)
 		{
-			R<IReadOnlyList<string>> result = await CleanFolderAsync("-fd", ct);
+			R<IReadOnlyList<string>> result = await UndoAndCleanFolderAsync("-fd", ct);
 			if (result.IsFaulted)
 			{
 				return Error.From("Failed to undo uncommited changes", result);
@@ -95,9 +95,38 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		public async Task<R> UndoUncommitedFileAsync(
+			string path, CancellationToken ct)
+		{
+			CmdResult2 result = await gitCmdService.RunCmdAsync(
+				$"checkout --force -- \"{path}\"", CancellationToken.None);
+
+			if (result.IsFaulted)
+			{
+				if (IsFileUnkwon(result, path))
+				{
+					R deleteResult = DeleteFile(path, result);
+					if (deleteResult.IsFaulted)
+					{
+						return Error.From($"Failed to delete {path}", deleteResult);
+					}
+
+					Log.Info($"Undid file {path}");
+					return R.Ok;
+				}
+
+				return Error.From($"Failed to undo file {path}",
+					Error.From(string.Join("\n", result.ErrorLines.Take(10)), new GitException($"{result}")));
+			}
+
+			Log.Info($"Undid file {path}");
+			return R.Ok;
+		}
+
+
 		public async Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync(CancellationToken ct)
 		{
-			R<IReadOnlyList<string>> result = await CleanFolderAsync("-fxd", ct);
+			R<IReadOnlyList<string>> result = await UndoAndCleanFolderAsync("-fxd", ct);
 			if (result.IsFaulted)
 			{
 				return Error.From("Failed to clean working folder", result);
@@ -108,7 +137,32 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private async Task<R<IReadOnlyList<string>>> CleanFolderAsync(string cleanArgs, CancellationToken ct)
+		private static R DeleteFile(string path, CmdResult2 result)
+		{
+			try
+			{
+				string fullPath = Path.Combine(result.WorkingDirectory, path);
+				if (File.Exists(fullPath))
+				{
+					File.Delete(fullPath);
+					Log.Debug($"Deleted {fullPath}");
+				}
+
+				return R.Ok;
+			}
+			catch (Exception e)
+			{
+				return e;
+			}
+		}
+
+
+		private static bool IsFileUnkwon(CmdResult2 result, string path) =>
+			result.Error.StartsWith($"error: pathspec '{path}' did not match any file(s) known to git.");
+
+
+		private async Task<R<IReadOnlyList<string>>> UndoAndCleanFolderAsync(
+			string cleanArgs, CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmdService.RunAsync("reset --hard", ct);
 			if (result.IsFaulted)
