@@ -34,7 +34,7 @@ namespace GitMindTest.Utils.Git.Private
 		[SetUp]
 		public void Setup()
 		{
-			// CleanTempDirs();
+			//io.CleanTempDirs();
 			io = new IoHelper();
 			io2 = new IoHelper();
 
@@ -63,7 +63,7 @@ namespace GitMindTest.Utils.Git.Private
 		{
 			am.Dispose();
 			am2.Dispose();
-			// CleanTempDirs();
+			io.CleanTempDirs();
 		}
 	}
 }

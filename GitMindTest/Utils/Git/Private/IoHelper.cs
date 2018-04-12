@@ -48,9 +48,39 @@ namespace GitMindTest.Utils.Git.Private
 		public void CleanTempDirs()
 		{
 			string path = GetTempBaseDirPath();
+
+			ClearReadOnlyFlag(path);
+
 			if (Directory.Exists(path))
 			{
 				Directory.Delete(path, true);
+			}
+		}
+
+
+		private static void ClearReadOnlyFlag(string path)
+		{
+			if (!Directory.Exists(path))
+			{
+				return;
+			}
+
+			DirectoryInfo rootInfo = new DirectoryInfo(path);
+
+			DirectoryInfo[] objectsInfos = rootInfo.GetDirectories("objects", SearchOption.AllDirectories);
+
+			foreach (DirectoryInfo di in objectsInfos)
+			{
+				FileInfo[] files = di.GetFiles("*", SearchOption.AllDirectories);
+
+				foreach (FileInfo fileInfo in files)
+				{
+					FileAttributes attributes = File.GetAttributes(fileInfo.FullName);
+					if (attributes.HasFlag(FileAttributes.ReadOnly))
+					{
+						File.SetAttributes(fileInfo.FullName, attributes & ~FileAttributes.ReadOnly);
+					}
+				}
 			}
 		}
 	}

@@ -121,8 +121,6 @@ namespace GitMind.Features.Branches.Private
 
 		public async Task<R> MergeAsync(CommitSha commitSha)
 		{
-			Log.Debug($"Merge branch from commit{commitSha} into current branch ...");
-
 			return await gitMergeService2.MergeAsync(commitSha.Sha, CancellationToken.None);
 
 			//	return repoCaller.UseLibRepoAsync(repository =>
@@ -137,29 +135,29 @@ namespace GitMind.Features.Branches.Private
 
 		public Task<R> CreateBranchAsync(BranchName branchName, CommitSha commitSha)
 		{
-			Log.Debug($"Create branch {branchName} at commit {commitSha} ...");
+			return gitBranchService2.BranchFromCommitAsync(branchName, commitSha.Sha, true, CancellationToken.None);
 
-			return repoCaller.UseLibRepoAsync(repository =>
-			{
-				Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
-				if (commit == null)
-				{
-					Log.Error($"Unknown commit id {commitSha}");
-					return;
-				}
+			//return repoCaller.UseLibRepoAsync(repository =>
+			//{
+			//	Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
+			//	if (commit == null)
+			//	{
+			//		Log.Error($"Unknown commit id {commitSha}");
+			//		return;
+			//	}
 
-				Branch branch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
+			//	Branch branch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
 
-				if (branch != null)
-				{
-					Log.Warn($"Branch already exists {branchName}");
-					return;
-				}
+			//	if (branch != null)
+			//	{
+			//		Log.Warn($"Branch already exists {branchName}");
+			//		return;
+			//	}
 
-				branch = repository.Branches.Add(branchName, commit);
+			//	branch = repository.Branches.Add(branchName, commit);
 
-				repository.Checkout(branch);
-			});
+			//	repository.Checkout(branch);
+			//});
 		}
 
 
@@ -187,8 +185,8 @@ namespace GitMind.Features.Branches.Private
 					}
 					else
 					{
-					// No existing branch with that name. Try create a local branch
-					Commit commit = repository.Lookup<Commit>(new ObjectId(tipSha.Sha));
+						// No existing branch with that name. Try create a local branch
+						Commit commit = repository.Lookup<Commit>(new ObjectId(tipSha.Sha));
 						if (commit != null)
 						{
 							branch = repository.Branches.Add(branchName, commit);
@@ -214,12 +212,12 @@ namespace GitMind.Features.Branches.Private
 
 				if (branchName != null)
 				{
-				// Trying to get an existing switch branch) at that commit
-				Branch branch = repository.Branches
-				.FirstOrDefault(b =>
-					!b.IsRemote
-					&& branchName.IsEqual(b.FriendlyName)
-					&& b.Tip.Sha == commitSha.Sha);
+					// Trying to get an existing switch branch) at that commit
+					Branch branch = repository.Branches
+					.FirstOrDefault(b =>
+						!b.IsRemote
+						&& branchName.IsEqual(b.FriendlyName)
+						&& b.Tip.Sha == commitSha.Sha);
 
 					if (branch != null)
 					{
@@ -228,8 +226,8 @@ namespace GitMind.Features.Branches.Private
 					}
 				}
 
-			// No branch with that name so lets check out commit (detached head)
-			repository.Checkout(commit);
+				// No branch with that name so lets check out commit (detached head)
+				repository.Checkout(commit);
 
 				return null;
 			});
@@ -258,8 +256,8 @@ namespace GitMind.Features.Branches.Private
 				}
 				catch (NonFastForwardException)
 				{
-				// Failed with fast forward merge, trying no fast forward.
-				repo.MergeFetchedRefs(committer, MergeNoFastForwardAndCommit);
+					// Failed with fast forward merge, trying no fast forward.
+					repo.MergeFetchedRefs(committer, MergeNoFastForwardAndCommit);
 				}
 			});
 		}
