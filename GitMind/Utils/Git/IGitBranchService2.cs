@@ -12,5 +12,6 @@ namespace GitMind.Utils.Git
 		Task<R<IReadOnlyList<GitBranch2>>> GetBranchesAsync(CancellationToken ct);
 
 		Task<R> BranchAsync(string name, bool isCheckout, CancellationToken ct);
+		Task<R> BranchFromCommitAsync(string name, string sha, bool isCheckout, CancellationToken ct);
 	}
 }

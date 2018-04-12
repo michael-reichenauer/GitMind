@@ -93,8 +93,25 @@ namespace GitMind.Utils.Git.Private
 				return Error.From($"Failed to create branch {name}", result);
 			}
 
+			Log.Debug($"Created branch {name}");
 			return result;
 		}
+
+
+		public async Task<R> BranchFromCommitAsync(string name, string sha, bool isCheckout, CancellationToken ct)
+		{
+			string args = isCheckout ? "checkout -b" : "branch";
+			R<CmdResult2> result = await gitCmdService.RunAsync($"{args} {name} {sha}", ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed to create branch {name}", result);
+			}
+
+			Log.Debug($"Created branch {name} at {sha}");
+			return result;
+		}
+
 
 
 		private static GitBranch2 ToBranch(Match match)

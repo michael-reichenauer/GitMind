@@ -94,11 +94,11 @@ namespace GitMindTest.Utils.Git.Private
 		public async Task<GitBranch2> GetCurrentBranchAsync() => (await GetBranchesAsync()).First(branch => branch.IsCurrent);
 
 		public Task BrancheAsync(string name, bool isCheckout = true) => Service<IGitBranchService2>().Call(s => s.BranchAsync(name, isCheckout, ct));
-		
+
 		public Task<GitCommit> CommitAllChangesAsync(string message) => Service<IGitCommitService2>().Call(s => s.CommitAllChangesAsync(message, ct));
-		
+
 		public Task UncommitAsync() => Service<IGitCommitService2>().Call(s => s.UnCommitAsync(ct));
-		
+
 		public Task UndoUncommitedAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommitedAsync(ct));
 
 		public Task CleanWorkingFolderAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommitedAsync(ct));
@@ -113,13 +113,16 @@ namespace GitMindTest.Utils.Git.Private
 
 		public Task<IReadOnlyList<GitCommit>> GetLogAsync() => Service<IGitLogService>().Call(s => s.GetLogAsync(ct));
 
+		public Task<GitCommit> GetCommit(string sha) => Service<IGitCommitService2>().Call(s => s.GetCommitAsync(sha, ct));
+
+
 		private SomeService<T> Service<T>() => new SomeService<T>(am.Resolve<T>());
 
 
 		private class SomeService<T>
 		{
 			private readonly T service;
-			
+
 			public SomeService(T service) => this.service = service;
 
 			public async Task<TResult> Call<TResult>(Func<T, Task<R<TResult>>> func)

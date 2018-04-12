@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
@@ -41,6 +42,34 @@ namespace GitMindTest.Utils.Git
 			branches = await git.GetBranchesAsync();
 			current = branches.First(branch => branch.IsCurrent);
 			Assert.AreEqual("master", current.Name);
+		}
+
+
+		[Test]
+		public async Task TestBranchAtCommitAsync()
+		{
+			await git.InitRepoAsync();
+
+			io.WriteFile("file1.txt", "Text 1");
+			var commit1 = await git.CommitAllChangesAsync("Message 1");
+
+			io.WriteFile("file1.txt", "Text 2");
+			var commit2 = await git.CommitAllChangesAsync("Message 2");
+
+			io.WriteFile("file1.txt", "Text 3");
+			var commit3 = await git.CommitAllChangesAsync("Message 3");
+
+			await cmd.BranchFromCommitAsync("branch1", commit2.Sha.Sha, true, ct);
+
+			io.WriteFile("file1.txt", "Text 1 on bbranch1");
+			var commit4 = await git.CommitAllChangesAsync("Message 1 on branch1");
+
+			branches = await git.GetBranchesAsync();
+			branches.TryGet("branch1", out GitBranch2 branch);
+			Assert.AreEqual(commit4.Sha, branch.TipSha);
+			GitCommit parentCommit = await git.GetCommit(commit4.ParentIds.First().Id);
+
+			Assert.AreEqual(commit2.Sha, parentCommit.Sha);
 		}
 
 
