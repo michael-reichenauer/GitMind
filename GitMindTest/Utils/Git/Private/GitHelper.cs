@@ -152,7 +152,13 @@ namespace GitMindTest.Utils.Git.Private
 
 		public async Task UndoUncommitedAsync()
 		{
-			R result = await Service<IGitCommitService2>().UndoUncommitedAsync(ct);
+			R result = await Service<IGitStatusService2>().UndoUncommitedAsync(ct);
+			Assert.IsTrue(result.IsOk);
+		}
+
+		public async Task CleanWorkingFolderAsync()
+		{
+			R result = await Service<IGitStatusService2>().UndoUncommitedAsync(ct);
 			Assert.IsTrue(result.IsOk);
 		}
 
@@ -181,5 +187,8 @@ namespace GitMindTest.Utils.Git.Private
 			R result = await Service<IGitMergeService2>().MergeAsync(branchName, ct);
 			Assert.IsTrue(result.IsOk);
 		}
+
+
+	
 	}
 }

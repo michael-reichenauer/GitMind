@@ -1,0 +1,160 @@
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using GitMind.Utils;
+using GitMind.Utils.Git;
+using GitMindTest.Utils.Git.Private;
+using NUnit.Framework;
+
+
+namespace GitMindTest.Utils.Git
+{
+	[TestFixture]
+	public class GitStatusServiceTest : GitTestBase<IGitStatusService2>
+	{
+		[Test]
+		public async Task TestStatus()
+		{
+			await git.InitRepoAsync();
+
+			R<GitStatus2> status = await cmd.GetStatusAsync(ct);
+			Assert.IsTrue(status.IsOk);
+			Assert.AreEqual(0, status.Value.AllChanges);
+
+			io.WriteFile("file1.txt", "some text");
+
+			status = await cmd.GetStatusAsync(ct);
+			Assert.AreEqual(1, status.Value.AllChanges);
+			Assert.AreEqual(1, status.Value.Added);
+			Assert.IsNotNull(status.Value.Files.FirstOrDefault(f => f.FilePath == "file1.txt"));
+
+			io.DeleteFile("file1.txt");
+			status = await cmd.GetStatusAsync(ct);
+			Assert.IsTrue(status.IsOk);
+			Assert.AreEqual(0, status.Value.AllChanges);
+		}
+
+
+		[Test]
+		public async Task TestGetStatus()
+		{
+			await git.InitRepoAsync();
+
+			GitStatus2 status = await git.GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+		}
+
+
+		[Test]
+		public async Task TestUndoUncommitedAsync()
+		{
+			await git.InitRepoAsync();
+
+			// Add a new file, check status that the file is considdered added
+			io.WriteFile("file1.txt", "some text");
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(1, status.AllChanges);
+			Assert.AreEqual(1, status.Added);
+
+			// Undo all chnages and check status
+			R result = await cmd.UndoUncommitedAsync(ct);
+			Assert.IsTrue(result.IsOk);
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+
+			// Add a new file and commit and check status
+			io.WriteFile("file1.txt", "some text");
+			await git.CommitAllChangesAsync("message 1");
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+
+			// Edit the tracked file and check status that it is modified (not added)
+			io.WriteFile("file1.txt", "some text 2");
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(1, status.AllChanges);
+			Assert.AreEqual(1, status.Modified);
+
+			// Undo all changes and check status
+			result = await cmd.UndoUncommitedAsync(ct);
+			Assert.IsTrue(result.IsOk);
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+		}
+
+		[Test]
+		public async Task TestUndoUncommitedLockedFileAsync()
+		{
+			await git.InitRepoAsync();
+
+			// Add a new file and open file to ensure it is locked
+			io.WriteFile("file1.txt", "some text");
+			io.WriteFile("file2.txt", "some text");
+			io.WriteFile("file3.txt", "some text");
+			io.WriteFile("file4.txt", "some text");
+			io.WriteFile("file5.txt", "some text");
+			io.WriteFile("file6.txt", "some text");
+
+			// Make sure some files are locked
+			using (FileStream fileStream2 = File.OpenWrite(io.FullPath("file2.txt")))
+			using (FileStream fileStream3 = File.OpenWrite(io.FullPath("file3.txt")))
+			using (FileStream fileStream5 = File.OpenWrite(io.FullPath("file5.txt")))
+			{
+				// Trying to clean folder will not remove locked files, but will return list of them
+				R<IReadOnlyList<string>> result = await cmd.UndoUncommitedAsync(ct);
+				Assert.IsTrue(result.IsOk);
+				Assert.AreEqual(3, result.Value.Count);
+				Assert.That(result.Value, Contains.Item("file2.txt"));
+				Assert.That(result.Value, Contains.Item("file3.txt"));
+				Assert.That(result.Value, Contains.Item("file5.txt"));
+			}
+		}
+
+
+		[Test]
+		public async Task TestCleanFolerAsync()
+		{
+			await git.InitRepoAsync();
+
+			// Writing a .sup file, which usually is ignored, but since not yet a .ignore file
+			// The staus will show the file and it does exist
+			io.WriteFile("file1.suo", "some text");
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(1, status.AllChanges);
+
+			// Using the UndoUncommitedAsync() will succeede, and it will remove the file
+			R<IReadOnlyList<string>> result = await cmd.UndoUncommitedAsync(ct);
+			Assert.IsTrue(result.IsOk);
+			Assert.AreEqual(0, result.Value.Count);
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+			Assert.IsFalse(io.ExistsFile("file1.suo"));
+
+			// Adding a .gitignoire file to ignore .suo files
+			io.WriteFile(".gitignore", "*.suo\n");
+			await git.CommitAllChangesAsync("Added .gitignore file");
+
+			// Writing a .suo file and make sure staus ignores it but the file does exists
+			io.WriteFile("file1.suo", "some text");
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+			Assert.IsTrue(io.ExistsFile("file1.suo"));
+
+			// Using the UndoUncommitedAsync() will succeede, but since  file ignored will not remove the file
+			result = await cmd.UndoUncommitedAsync(ct);
+			Assert.IsTrue(result.IsOk);
+			Assert.AreEqual(0, result.Value.Count);
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+			Assert.IsTrue(io.ExistsFile("file1.suo"));
+
+			// But using CleanWorkingFolderAsync will remove the file
+			result = await cmd.CleanWorkingFolderAsync(ct);
+			Assert.IsTrue(result.IsOk);
+			Assert.AreEqual(0, result.Value.Count);
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(0, status.AllChanges);
+			Assert.IsFalse(io.ExistsFile("file1.suo"));
+		}
+	}
+}

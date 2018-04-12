@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Git;
@@ -13,6 +14,12 @@ namespace GitMind.Utils.Git.Private
 	internal class GitStatusService2 : IGitStatusService2
 	{
 		private static readonly string StatusArgs = "status -s --porcelain --ahead-behind --untracked-files=all";
+
+		private static readonly Regex CleanOutputRegEx = new Regex(@"warning: failed to remove ([^:]+):",
+			RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+		private static readonly IReadOnlyList<string> EmptyFileList = new string[0].AsReadOnlyList();
+
 
 		private readonly IGitCmdService gitCmdService;
 
@@ -74,6 +81,55 @@ namespace GitMind.Utils.Git.Private
 			return file;
 		}
 
+
+		public async Task<R<IReadOnlyList<string>>> UndoUncommitedAsync(CancellationToken ct)
+		{
+			R<IReadOnlyList<string>> result = await CleanFolderAsync("-fd", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From("Failed to undo uncommited changes", result);
+			}
+
+			Log.Info("Undid uncommited changes");
+			return result;
+		}
+
+
+		public async Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync(CancellationToken ct)
+		{
+			R<IReadOnlyList<string>> result = await CleanFolderAsync("-fxd", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From("Failed to clean working folder", result);
+			}
+
+			Log.Info("Cleaned working folder");
+			return result;
+		}
+
+
+		private async Task<R<IReadOnlyList<string>>> CleanFolderAsync(string cleanArgs, CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync("reset --hard", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From("Reset failed.", result);
+			}
+
+			CmdResult2 cleanResult = await gitCmdService.RunCmdAsync($"clean {cleanArgs}", ct);
+			if (cleanResult.IsFaulted)
+			{
+				if (IsFailedToRemoveSomeFiles(cleanResult, out IReadOnlyList<string> failedFiles))
+				{
+					Log.Warn($"Failed to clean {failedFiles.Count} files");
+					return R.From(failedFiles);
+				}
+
+				return Error.From(cleanResult.ToString());
+			}
+
+			return R.From(EmptyFileList);
+		}
 
 		private GitConflicts ParseConflicts(CmdResult2 result)
 		{
@@ -238,6 +294,15 @@ namespace GitMind.Utils.Git.Private
 			}
 
 			return files;
+		}
+
+		private static bool IsFailedToRemoveSomeFiles(CmdResult2 result, out IReadOnlyList<string> failedFiles)
+		{
+			// Check if error message contains any "warning: failed to remove <file>:"
+			failedFiles = CleanOutputRegEx.Matches(result.Error).OfType<Match>()
+				.Select(match => match.Groups[1].Value).ToList();
+
+			return failedFiles.Any();
 		}
 	}
 }
