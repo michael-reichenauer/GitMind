@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
@@ -8,10 +9,12 @@ using GitMind.Common.ProgressHandling;
 using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
+using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.Features.Commits.Private
@@ -29,24 +32,28 @@ namespace GitMind.Features.Commits.Private
 		private readonly IMessage message;
 		private readonly IRepositoryCommands repositoryCommands;
 		private readonly Func<SetBranchPromptDialog> setBranchPromptDialogProvider;
-		private readonly IGitCommitsService gitCommitsService;
+		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
+		private readonly IGitCommitService2 gitCommitService2;
 		private readonly IDiffService diffService;
 		private readonly ILinkService linkService;
 		private readonly IRepositoryMgr repositoryMgr;
 		private readonly IProgressService progress;
 		private readonly IStatusService statusService;
+		private readonly IGitStatusService2 gitStatusService2;
 
 
 		public CommitsService(
 			IMessage message,
 			IRepositoryCommands repositoryCommands,
 			Func<SetBranchPromptDialog> setBranchPromptDialogProvider,
-			IGitCommitsService gitCommitsService,
+			IGitCommitBranchNameService gitCommitBranchNameService,
 			IDiffService diffService,
 			ILinkService linkService,
 			IRepositoryMgr repositoryMgr,
 			IProgressService progressService,
 			IStatusService statusService,
+			IGitCommitService2 gitCommitService2, 
+			IGitStatusService2 gitStatusService2,
 			Func<
 				BranchName,
 				IEnumerable<CommitFile>,
@@ -55,10 +62,12 @@ namespace GitMind.Features.Commits.Private
 				CommitDialog> commitDialogProvider)
 		{
 			this.commitDialogProvider = commitDialogProvider;
+			this.gitCommitService2 = gitCommitService2;
+			this.gitStatusService2 = gitStatusService2;
 			this.message = message;
 			this.repositoryCommands = repositoryCommands;
 			this.setBranchPromptDialogProvider = setBranchPromptDialogProvider;
-			this.gitCommitsService = gitCommitsService;
+			this.gitCommitBranchNameService = gitCommitBranchNameService;
 			this.diffService = diffService;
 			this.linkService = linkService;
 			this.repositoryMgr = repositoryMgr;
@@ -116,7 +125,7 @@ namespace GitMind.Features.Commits.Private
 				{
 					using (progress.ShowDialog($"Committing current branch {branchName} ..."))
 					{
-						R<GitCommit> gitCommit = await gitCommitsService.CommitAsync(
+						R<GitCommit> gitCommit = await CommitAsync(
 							dialog.CommitMessage, branchName, dialog.CommitFiles);
 
 						if (!gitCommit.IsOk)
@@ -129,17 +138,18 @@ namespace GitMind.Features.Commits.Private
 				}
 				else if (repository.Status.IsMerging && !commitFiles.Any())
 				{
-					await gitCommitsService.ResetMerge();
+					await gitStatusService2.UndoAllUncommitedAsync(CancellationToken.None);
 				}
 			}
 		}
 
+	
 
 		public async Task UnCommitAsync(Commit commit)
 		{
 			using (progress.ShowDialog($"Uncommitting in {commit} ..."))
 			{
-				R result = await gitCommitsService.UnCommitAsync();
+				R result = await gitCommitService2.UnCommitAsync(CancellationToken.None);
 
 				if (result.IsFaulted)
 				{
@@ -152,7 +162,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			using (progress.ShowDialog($"Undo commit {commit} ..."))
 			{
-				R result = await gitCommitsService.UndoCommitAsync(commit.RealCommitSha);
+				R result = await gitCommitService2.UndoCommitAsync(commit.RealCommitSha.Sha, CancellationToken.None);
 
 				if (result.IsFaulted)
 				{
@@ -223,7 +233,7 @@ namespace GitMind.Features.Commits.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog("Undoing changes in working folder ..."))
 			{
-				await gitCommitsService.UndoWorkingFolderAsync();
+				await gitStatusService2.UndoAllUncommitedAsync(CancellationToken.None);
 			}
 		}
 
@@ -235,7 +245,7 @@ namespace GitMind.Features.Commits.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog("Cleaning untracked/ignored files in working folder  ..."))
 			{
-				failedPaths = await gitCommitsService.CleanWorkingFolderAsync();
+				failedPaths = await gitStatusService2.CleanWorkingFolderAsync(CancellationToken.None);
 			}
 
 			if (failedPaths.IsFaulted)
@@ -276,7 +286,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			using (progress.ShowDialog($"Undoing file change in {path} ..."))
 			{
-				await gitCommitsService.UndoFileInWorkingFolderAsync(path);
+				await gitStatusService2.UndoUncommitedFileAsync(path, CancellationToken.None);
 			}
 		}
 
@@ -285,7 +295,22 @@ namespace GitMind.Features.Commits.Private
 		public Task SetSpecifiedCommitBranchAsync(
 			CommitSha commitSha, CommitSha rootSha, BranchName branchName)
 		{
-			return gitCommitsService.EditCommitBranchAsync(commitSha, rootSha, branchName);
+			return gitCommitBranchNameService.EditCommitBranchNameAsync(commitSha, rootSha, branchName);
+		}
+
+		private async Task<R<GitCommit>> CommitAsync(
+			string message, string branchName, IReadOnlyList<CommitFile> paths)
+		{
+			Log.Debug($"Commit {paths.Count} files: {message} ...");
+
+			R<GitCommit> commit = await gitCommitService2.CommitAllChangesAsync(message, CancellationToken.None);
+			if (commit.IsOk)
+			{
+				CommitSha commitSha = commit.Value.Sha;
+				await gitCommitBranchNameService.SetCommitBranchNameAsync(commitSha, branchName);
+			}
+
+			return commit;
 		}
 	}
 } 

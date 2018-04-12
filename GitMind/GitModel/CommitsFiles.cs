@@ -1,10 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
-using GitMind.Features.StatusHandling;
-using GitMind.Git;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 
@@ -14,7 +13,8 @@ namespace GitMind.GitModel
 	[SingleInstance]
 	internal class CommitsFiles : ICommitsFiles
 	{
-		private readonly IGitCommitsService gitCommitsService;
+		private readonly IGitCommitService2 gitCommitService2;
+		private readonly IGitStatusService2 gitStatusService2;
 
 		private readonly ConcurrentDictionary<CommitSha, IList<CommitFile>> commitsFiles =
 			new ConcurrentDictionary<CommitSha, IList<CommitFile>>();
@@ -23,9 +23,12 @@ namespace GitMind.GitModel
 		private CommitSha nextIdToGet;
 
 
-		public CommitsFiles(IGitCommitsService gitCommitsService)
+		public CommitsFiles(
+			IGitCommitService2 gitCommitService2,
+			IGitStatusService2 gitStatusService2)
 		{
-			this.gitCommitsService = gitCommitsService;
+			this.gitCommitService2 = gitCommitService2;
+			this.gitStatusService2 = gitStatusService2;
 		}
 
 
@@ -42,10 +45,10 @@ namespace GitMind.GitModel
 				}
 
 				Task<R<IReadOnlyList<GitFile2>>> commitsFilesForCommitTask =
-					gitCommitsService.GetFilesForCommitAsync(commitSha);
+					CommitsFilesForCommitTask(commitSha);
 
 				currentTask = commitsFilesForCommitTask;
-				
+
 				if ((await commitsFilesForCommitTask).HasValue(out var commitsFilesForCommit))
 				{
 					files = commitsFilesForCommit
@@ -59,6 +62,25 @@ namespace GitMind.GitModel
 			}
 
 			return files;
+		}
+
+
+		private async Task<R<IReadOnlyList<GitFile2>>> CommitsFilesForCommitTask(CommitSha commitSha)
+		{
+			if (commitSha == CommitSha.Uncommitted)
+			{
+				R<GitStatus2> status = await gitStatusService2.GetStatusAsync(CancellationToken.None);
+				if (status.IsOk)
+				{
+					return R.From(status.Value.Files);
+				}
+				else
+				{
+					return status.Error;
+				}
+			}
+
+			return await gitCommitService2.GetCommitFilesAsync(commitSha.Sha, CancellationToken.None);
 		}
 	}
 }

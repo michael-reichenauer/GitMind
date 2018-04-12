@@ -17,5 +17,6 @@ namespace GitMind.Utils.Git
 	
 		Task<R> UndoCommitAsync(string sha, CancellationToken ct);
 		Task<R> UnCommitAsync(CancellationToken ct);
+		Task<R<string>> GetCommitMessageAsync(string sha, CancellationToken ct);
 	}
 }

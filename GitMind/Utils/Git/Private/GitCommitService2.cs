@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,12 +13,9 @@ namespace GitMind.Utils.Git.Private
 		private static readonly Regex CommitOutputRegEx = new Regex(@"^\[(\S*)\s+(\(.*\)\s+)?(\w+)\]",
 				RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-		
-
 		private readonly IGitCmdService gitCmdService;
 		private readonly IGitDiffService2 gitDiffService2;
 		private readonly IGitLogService gitLogService;
-		
 
 
 		public GitCommitService2(
@@ -38,6 +34,10 @@ namespace GitMind.Utils.Git.Private
 
 		public Task<R<IReadOnlyList<GitFile2>>> GetCommitFilesAsync(string sha, CancellationToken ct) =>
 			gitDiffService2.GetFilesAsync(sha, ct);
+
+
+		public Task<R<string>> GetCommitMessageAsync(string sha, CancellationToken ct) =>
+			gitLogService.GetCommitMessageAsync(sha, ct);
 
 
 		public async Task<R> UndoCommitAsync(string sha, CancellationToken ct)
@@ -64,9 +64,6 @@ namespace GitMind.Utils.Git.Private
 			Log.Info("Uncomitted commit");
 			return result;
 		}
-
-
-	
 
 
 		public async Task<R<GitCommit>> CommitAllChangesAsync(string message, CancellationToken ct)
