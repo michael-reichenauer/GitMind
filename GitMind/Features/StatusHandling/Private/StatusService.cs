@@ -68,10 +68,6 @@ namespace GitMind.Features.StatusHandling.Private
 			return GetFreshStatusAsync();
 		}
 
-		public Status GetStatus()
-		{
-			return GetFreshStatus();
-		}
 
 		public Task<IReadOnlyList<string>> GetRepoIdsAsync()
 		{
@@ -233,23 +229,6 @@ namespace GitMind.Features.StatusHandling.Private
 			Log.Debug("Getting status ...");
 			Timing t = new Timing();
 			R<Status> status = await gitStatusService.GetCurrentStatusAsync();
-			t.Log($"Got status {status}");
-
-			if (status.IsFaulted)
-			{
-				Log.Error("Failed to read status");
-				return Status.Default;
-			}
-
-			return status.Value;
-		}
-
-
-		private Status GetFreshStatus()
-		{
-			Log.Debug("Getting status ...");
-			Timing t = new Timing();
-			R<Status> status =  gitStatusService.GetCurrentStatus();
 			t.Log($"Got status {status}");
 
 			if (status.IsFaulted)

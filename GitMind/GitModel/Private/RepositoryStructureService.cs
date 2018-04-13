@@ -50,38 +50,35 @@ namespace GitMind.GitModel.Private
 		public async Task<MRepository> UpdateAsync(
 			MRepository mRepository, Status status, IReadOnlyList<string> repoIds)
 		{
-			return await Task.Run(() => UpdateRepository(mRepository, status, repoIds));
-		}
-
-
-		private MRepository UpdateRepository(
-			MRepository repository, Status status, IReadOnlyList<string> repoIds)
-		{
-			string workingFolder = repository.WorkingFolder;
-
-			try
+			return await Task.Run(async () =>
 			{
-				Update(repository, status, repoIds);
-			}
-			catch (Exception e)
-			{
-				Log.Exception(e, "Failed to update repository");
+				MRepository repository = mRepository;
+				string workingFolder = repository.WorkingFolder;
 
-				Log.Debug("Retry from scratch using a new repository ...");
-
-				repository = new MRepository()
+				try
 				{
-					WorkingFolder = workingFolder
-				};
+					await UpdateRepositoryAsync(repository, status, repoIds);
+				}
+				catch (Exception e)
+				{
+					Log.Exception(e, "Failed to update repository");
 
-				Update(repository, status, repoIds);
-			}
+					Log.Debug("Retry from scratch using a new repository ...");
 
-			return repository;
+					repository = new MRepository()
+					{
+						WorkingFolder = workingFolder
+					};
+
+					await UpdateRepositoryAsync(repository, status, repoIds);
+				}
+
+				return repository;
+			});
 		}
 
 
-		private void Update(MRepository repository, Status status, IReadOnlyList<string> repoIds)
+		private async Task UpdateRepositoryAsync(MRepository repository, Status status, IReadOnlyList<string> repoIds)
 		{
 			Log.Debug("Updating repository");
 			Timing t = new Timing();
@@ -89,7 +86,7 @@ namespace GitMind.GitModel.Private
 
 			using (GitRepository gitRepository = GitRepository.Open(diffService, gitRepositoryPath))
 			{
-				repository.Status = status ?? statusService.GetStatus();
+				repository.Status = status ?? await statusService.GetStatusAsync();
 				t.Log("Got status");
 
 				repository.RepositoryIds = repoIds ?? statusService.GetRepoIds();
