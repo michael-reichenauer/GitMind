@@ -285,7 +285,7 @@ namespace GitMind.GitModel.Private
 			MCommit commit,
 			CommitId parentId)
 		{
-			int modifiedCount = status.Modified;
+			int modifiedCount = status.AllChanges;
 			int conflictCount = status.Conflicted;
 
 			string subject = $"{modifiedCount} uncommitted changes in working folder";

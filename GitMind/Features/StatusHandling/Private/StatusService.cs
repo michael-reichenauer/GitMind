@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms.VisualStyles;
 using GitMind.Common.ProgressHandling;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
@@ -20,18 +19,15 @@ namespace GitMind.Features.StatusHandling.Private
 
 		private readonly IFolderMonitorService folderMonitorService;
 		private readonly IMainWindowService mainWindowService;
-		private readonly IGitStatusService gitStatusService;
 		private readonly IGitStatusService2 gitStatusService2;
 		private readonly IProgressService progress;
 		private readonly Lazy<IRepositoryService> repositoryService;
 
 		private bool isPaused = false;
 
-		//private Status oldStatus = Status.Default;
 		private Task currentStatusTask = Task.CompletedTask;
 		private int currentStatusCheckCount = 0;
 
-		//private IReadOnlyList<string> oldBranchIds = None;
 		private Task currentRepoTask = Task.CompletedTask;
 		private int currentRepoCheckCount = 0;
 
@@ -39,14 +35,12 @@ namespace GitMind.Features.StatusHandling.Private
 		public StatusService(
 			IFolderMonitorService folderMonitorService,
 			IMainWindowService mainWindowService,
-			IGitStatusService gitStatusService,
 			IGitStatusService2 gitStatusService2,
 			IProgressService progress,
 			Lazy<IRepositoryService> repositoryService)
 		{
 			this.folderMonitorService = folderMonitorService;
 			this.mainWindowService = mainWindowService;
-			this.gitStatusService = gitStatusService;
 			this.gitStatusService2 = gitStatusService2;
 			this.progress = progress;
 			this.repositoryService = repositoryService;
@@ -91,7 +85,7 @@ namespace GitMind.Features.StatusHandling.Private
 		{
 			Log.Debug("Pause status");
 			isPaused = true;
-	
+
 			return new Disposable(() =>
 			{
 				mainWindowService.SetMainWindowFocus();
@@ -108,7 +102,7 @@ namespace GitMind.Features.StatusHandling.Private
 				{
 					bool useFreshRepository = refresh == Refresh.Repo;
 					await repositoryService.Value.RefreshAfterCommandAsync(useFreshRepository);
-				}		
+				}
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
@@ -159,7 +153,7 @@ namespace GitMind.Features.StatusHandling.Private
 			currentStatusTask = newStatusTask;
 
 			GitStatus2 newStatus = await newStatusTask;
-		
+
 			TriggerStatusChanged(fileEventArgs, newStatus);
 		}
 
@@ -178,7 +172,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 			IReadOnlyList<string> newBranchIds = await newRepoTask;
 
-			TriggerRepoChanged(fileEventArgs, newBranchIds);	
+			TriggerRepoChanged(fileEventArgs, newBranchIds);
 		}
 
 
