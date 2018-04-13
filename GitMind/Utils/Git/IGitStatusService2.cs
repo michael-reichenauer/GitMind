@@ -17,5 +17,8 @@ namespace GitMind.Utils.Git
 
 		Task<R> UndoUncommitedFileAsync(
 			string path, CancellationToken ct);
+
+
+		Task<R<IReadOnlyList<string>>> GetRefsIdsAsync(CancellationToken ct);
 	}
 }

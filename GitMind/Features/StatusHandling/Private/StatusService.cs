@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common.ProgressHandling;
 using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.Features.StatusHandling.Private
@@ -18,6 +20,7 @@ namespace GitMind.Features.StatusHandling.Private
 		private readonly IFolderMonitorService folderMonitorService;
 		private readonly IMainWindowService mainWindowService;
 		private readonly IGitStatusService gitStatusService;
+		private readonly IGitStatusService2 gitStatusService2;
 		private readonly IProgressService progress;
 		private readonly Lazy<IRepositoryService> repositoryService;
 
@@ -36,12 +39,14 @@ namespace GitMind.Features.StatusHandling.Private
 			IFolderMonitorService folderMonitorService,
 			IMainWindowService mainWindowService,
 			IGitStatusService gitStatusService,
+			IGitStatusService2 gitStatusService2,
 			IProgressService progress,
 			Lazy<IRepositoryService> repositoryService)
 		{
 			this.folderMonitorService = folderMonitorService;
 			this.mainWindowService = mainWindowService;
 			this.gitStatusService = gitStatusService;
+			this.gitStatusService2 = gitStatusService2;
 			this.progress = progress;
 			this.repositoryService = repositoryService;
 
@@ -75,10 +80,10 @@ namespace GitMind.Features.StatusHandling.Private
 		}
 
 
-		public IReadOnlyList<string> GetRepoIds()
-		{
-			return GetFreshRepoIds();
-		}
+		//public IReadOnlyList<string> GetRepoIds()
+		//{
+		//	return GetFreshRepoIds();
+		//}
 
 
 		public IDisposable PauseStatusNotifications(Refresh refresh = Refresh.None)
@@ -211,7 +216,7 @@ namespace GitMind.Features.StatusHandling.Private
 		private async Task<IReadOnlyList<string>> GetFreshBranchIdsAsync()
 		{
 			Timing t = new Timing();
-			R<IReadOnlyList<string>> branchIds = await gitStatusService.GetBrancheIdsAsync();
+			R<IReadOnlyList<string>> branchIds = await gitStatusService2.GetRefsIdsAsync(CancellationToken.None);
 			t.Log($"Got  {branchIds.Or(None).Count} branch ids");
 
 			if (branchIds.IsFaulted)
@@ -241,21 +246,6 @@ namespace GitMind.Features.StatusHandling.Private
 		}
 
 
-		private IReadOnlyList<string> GetFreshRepoIds()
-		{
-			Log.Debug("Getting repo ids ...");
-			Timing t = new Timing();
-			R<IReadOnlyList<string>> branchIds = gitStatusService.GetBrancheIds();
-			t.Log($"Got  {branchIds.Or(None).Count} branch ids");
-
-			if (branchIds.IsFaulted)
-			{
-				Log.Error($"Failed to get branch ids {branchIds.Error}");
-				return new List<string>();
-			}
-
-			return branchIds.Value;
-		}
 
 
 

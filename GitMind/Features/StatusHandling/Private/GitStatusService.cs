@@ -37,28 +37,22 @@ namespace GitMind.Features.StatusHandling.Private
 		}
 
 
-		public Task<R<IReadOnlyList<string>>> GetBrancheIdsAsync()
-		{
-			return repoCaller.UseLibRepoAsync(GetRepoIds);
-		}
+		//public Task<R<IReadOnlyList<string>>> GetBranchIdsAsync()
+		//{
+		//	return repoCaller.UseLibRepoAsync(GetRepoIds);
+		//}
 
 
-		public R<IReadOnlyList<string>> GetBrancheIds()
-		{
-			return repoCaller.UseRepo(GetRepoIds);
-		}
-
-
-		private static IReadOnlyList<string> GetRepoIds(Repository repo)
-		{
-			return repo.Branches.Select(b =>
-					b.CanonicalName +
-					b.Tip.Id.Sha +
-					b.IsCurrentRepositoryHead +
-					b.TrackedBranch?.CanonicalName)
-				.Concat(repo.Tags.Select(t => t.CanonicalName + t.Target.Id.Sha))
-				.ToReadOnlyList();
-		}
+		//private static IReadOnlyList<string> GetRepoIds(Repository repo)
+		//{
+		//	return repo.Branches.Select(b =>
+		//			b.CanonicalName +
+		//			b.Tip.Id.Sha +
+		//			b.IsCurrentRepositoryHead +
+		//			b.TrackedBranch?.CanonicalName)
+		//		.Concat(repo.Tags.Select(t => t.CanonicalName + t.Target.Id.Sha))
+		//		.ToReadOnlyList();
+		//}
 
 
 		public Task<R<Status>> GetCurrentStatusAsync()
@@ -67,10 +61,10 @@ namespace GitMind.Features.StatusHandling.Private
 		}
 
 
-		public R<Status> GetCurrentStatus()
-		{
-			return repoCaller.UseRepo(repo => GetStatus(repo));
-		}
+		//public R<Status> GetCurrentStatus()
+		//{
+		//	return repoCaller.UseRepo(repo => GetStatus(repo));
+		//}
 
 		private Status GetStatus(IRepository repo)
 		{

@@ -9,8 +9,7 @@ namespace GitMind.Features.StatusHandling.Private
 	{
 		Task<R<Status>> GetCurrentStatusAsync();
 
-		Task<R<IReadOnlyList<string>>> GetBrancheIdsAsync();
-		R<Status> GetCurrentStatus();
-		R<IReadOnlyList<string>> GetBrancheIds();
+		//Task<R<IReadOnlyList<string>>> GetBranchIdsAsync();
+		//R<Status> GetCurrentStatus();
 	}
 }

@@ -89,7 +89,7 @@ namespace GitMind.GitModel.Private
 				repository.Status = status ?? await statusService.GetStatusAsync();
 				t.Log("Got status");
 
-				repository.RepositoryIds = repoIds ?? statusService.GetRepoIds();
+				repository.RepositoryIds = repoIds ?? await statusService.GetRepoIdsAsync();
 				t.Log("Got repo ids");
 
 				CleanRepositoryOfTempData(repository);

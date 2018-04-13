@@ -16,7 +16,7 @@ namespace GitMind.Features.StatusHandling
 		void Monitor(string workingFolder);
 		IDisposable PauseStatusNotifications(Refresh refresh = Refresh.None);
 		Task<Status> GetStatusAsync();
-		IReadOnlyList<string> GetRepoIds();
+	//	IReadOnlyList<string> GetRepoIds();
 		Task<IReadOnlyList<string>> GetRepoIdsAsync();
 	}
 }

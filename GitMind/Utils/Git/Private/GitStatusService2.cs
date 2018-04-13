@@ -124,6 +124,20 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		public async Task<R<IReadOnlyList<string>>> GetRefsIdsAsync(CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync("show-ref", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From("Failed to get ll refs", result);
+			}
+
+			IReadOnlyList<string> refs = result.Value.OutputLines.ToList();
+			Log.Info($"Got {refs.Count} refs");
+			return R.From(refs);
+		}
+
+
 		public async Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync(CancellationToken ct)
 		{
 			R<IReadOnlyList<string>> result = await UndoAndCleanFolderAsync("-fxd", ct);
