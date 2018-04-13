@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
@@ -17,14 +15,14 @@ namespace GitMind.Features.Branches.Private
 {
 	internal class GitBranchService : IGitBranchService
 	{
-		private static readonly MergeOptions MergeNoFFNoCommit = new MergeOptions
-		{ FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
+		//private static readonly MergeOptions MergeNoFFNoCommit = new MergeOptions
+		//{ FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
 
-		private static readonly MergeOptions MergeFastForwardOnly =
-			new MergeOptions { FastForwardStrategy = FastForwardStrategy.FastForwardOnly };
+		//private static readonly MergeOptions MergeFastForwardOnly =
+		//	new MergeOptions { FastForwardStrategy = FastForwardStrategy.FastForwardOnly };
 
-		private static readonly MergeOptions MergeNoFastForwardAndCommit =
-			new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true };
+		//private static readonly MergeOptions MergeNoFastForwardAndCommit =
+		//	new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true };
 
 
 		private readonly IRepoCaller repoCaller;
@@ -298,37 +296,54 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		public Task<R> MergeCurrentBranchAsync()
+		public async Task<R> MergeCurrentBranchAsync()
 		{
-			return repoCaller.UseRepoAsync(repo =>
+			R<bool> ffResult = await gitMergeService2.TryMergeFastForwardAsync(null, CancellationToken.None);
+			if (ffResult.IsFaulted)
 			{
-				Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
+				return Error.From("Failed to merge current branch", ffResult);
+			}
 
-				try
+			if (!ffResult.Value)
+			{
+				R result = await gitMergeService2.MergeAsync(null, CancellationToken.None);
+				if (result.IsFaulted)
 				{
-					repo.MergeFetchedRefs(committer, MergeFastForwardOnly);
+					return Error.From("Failed to merge current branch", ffResult);
 				}
-				catch (NonFastForwardException)
-				{
-					// Failed with fast forward merge, trying no fast forward.
-					repo.MergeFetchedRefs(committer, MergeNoFastForwardAndCommit);
-				}
-			});
+			}
+
+			return R.Ok;
+			//return repoCaller.UseRepoAsync(repo =>
+			//{
+			//	Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
+
+			//	try
+			//	{
+			//		repo.MergeFetchedRefs(committer, MergeFastForwardOnly);
+			//	}
+			//	catch (NonFastForwardException)
+			//	{
+			//		// Failed with fast forward merge, trying no fast forward.
+			//		repo.MergeFetchedRefs(committer, MergeNoFastForwardAndCommit);
+			//	}
+			//});
 		}
 
 
 		public Task<R> DeleteLocalBranchAsync(BranchName branchName)
 		{
-			Log.Debug($"Delete local branch {branchName}  ...");
+			return gitBranchService2.DeleteLocalBranchAsync(branchName, CancellationToken.None);
+			//Log.Debug($"Delete local branch {branchName}  ...");
 
-			return repoCaller.UseRepoAsync(repo =>
-			{
-				repo.Branches.Remove(branchName, false);
-			});
+			//return repoCaller.UseRepoAsync(repo =>
+			//{
+			//	repo.Branches.Remove(branchName, false);
+			//});
 		}
 
 
-		public R<GitDivergence> CheckAheadBehind(CommitSha localTip, CommitSha remoteTip)
+		public R<GitDivergence> GetCommonAncestor(CommitSha localTip, CommitSha remoteTip)
 		{
 			return repoCaller.UseRepo(
 				repo =>
@@ -360,15 +375,15 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		private static Branch TryGetBranch(Repository repository, BranchName branchName)
-		{
-			return repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-		}
+		//private static Branch TryGetBranch(Repository repository, BranchName branchName)
+		//{
+		//	return repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
+		//}
 
 
-		private static Signature GetSignature(Repository repository)
-		{
-			return repository.Config.BuildSignature(DateTimeOffset.Now);
-		}
+		//private static Signature GetSignature(Repository repository)
+		//{
+		//	return repository.Config.BuildSignature(DateTimeOffset.Now);
+		//}
 	}
 }

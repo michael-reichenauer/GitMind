@@ -112,6 +112,34 @@ namespace GitMind.Utils.Git.Private
 			return result;
 		}
 
+		public async Task<R> DeleteLocalBranchAsync(string name, CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync($"branch --delete {name}", ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed to delete branch {name}", result);
+			}
+
+			Log.Debug($"Deleted branch {name}");
+			return result;
+		}
+
+
+		public async Task<R<string>> GetCommonAncestorAsync(string sha1, string sha2, CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync($"merge-base {sha1} {sha1}", ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed to get common ancestor of {sha1} and {sha2}", result);
+			}
+
+			string common = result.Value.Output.Trim();
+			Log.Debug($"Common ancestor of {sha1} and {sha2} is {common}");
+			return common;
+
+		}
 
 
 		private static GitBranch2 ToBranch(Match match)

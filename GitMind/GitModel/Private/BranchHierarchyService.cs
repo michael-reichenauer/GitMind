@@ -337,7 +337,7 @@ namespace GitMind.GitModel.Private
 					localTipCommit = localTipCommit.FirstParent;
 				}
 
-				if (gitBranchService.CheckAheadBehind(
+				if (gitBranchService.GetCommonAncestor(
 					localTipCommit.Sha, remoteTipCommit.Sha).HasValue(out var div))
 				{
 					CommitSha commonTip = div.CommonId;
