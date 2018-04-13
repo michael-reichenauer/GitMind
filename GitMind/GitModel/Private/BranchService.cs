@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Common;
-using GitMind.Features.StatusHandling;
 using GitMind.Git;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel.Private
@@ -31,7 +31,7 @@ namespace GitMind.GitModel.Private
 
 		public void AddActiveBranches(GitRepository gitRepository, MRepository repository)
 		{
-			Status status = repository.Status;
+			GitStatus2 status = repository.Status;
 
 			GitBranch currentBranch = gitRepository.Head;
 
@@ -46,7 +46,7 @@ namespace GitMind.GitModel.Private
 				MSubBranch subBranch = ToBranch(gitBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!status.IsOK && gitBranch.IsCurrent && !gitBranch.IsRemote)
+				if (!status.OK && gitBranch.IsCurrent && !gitBranch.IsRemote)
 				{
 					// Setting virtual uncommitted commit as tip of the current branch
 					subBranch.TipCommitId = repository.Uncommitted.Id;
@@ -59,7 +59,7 @@ namespace GitMind.GitModel.Private
 				MSubBranch subBranch = ToBranch(gitRepository.Head, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!status.IsOK && gitRepository.Head.IsCurrent && !gitRepository.Head.IsRemote)
+				if (!status.OK && gitRepository.Head.IsCurrent && !gitRepository.Head.IsRemote)
 				{
 					// Setting virtual uncommitted commit as tip of the current branch
 					subBranch.TipCommitId = repository.Uncommitted.Id;
@@ -72,7 +72,7 @@ namespace GitMind.GitModel.Private
 				MSubBranch subBranch = ToBranch(currentBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!status.IsOK)
+				if (!status.OK)
 				{
 					// Setting virtual uncommitted commit as tip of the detached branch
 					subBranch.TipCommitId = repository.Uncommitted.Id;

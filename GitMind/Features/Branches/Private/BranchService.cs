@@ -13,7 +13,7 @@ using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
-using Status = GitMind.Features.StatusHandling.Status;
+//using Status = GitMind.Features.StatusHandling.Status;
 
 
 namespace GitMind.Features.Branches.Private
@@ -185,7 +185,7 @@ namespace GitMind.Features.Branches.Private
 		public bool CanExecuteSwitchBranch(Branch branch)
 		{
 			return
-				branch.Repository.Status.ConflictCount == 0
+				branch.Repository.Status.Conflicted == 0
 				&& !branch.Repository.Status.IsMerging
 				&& !branch.IsCurrentBranch;
 		}
@@ -225,9 +225,9 @@ namespace GitMind.Features.Branches.Private
 		public bool CanExecuteSwitchToBranchCommit(Commit commit)
 		{
 			return
-				commit.Repository.Status.ChangedCount == 0
+				commit.Repository.Status.AllChanges == 0
 				&& !commit.Repository.Status.IsMerging
-				&& commit.Repository.Status.ConflictCount == 0;
+				&& commit.Repository.Status.Conflicted == 0;
 		}
 
 
@@ -333,7 +333,7 @@ namespace GitMind.Features.Branches.Private
 					return;
 				}
 
-				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.ChangedCount > 0)
+				if (branch.Repository.Status.Conflicted > 0 || branch.Repository.Status.AllChanges > 0)
 				{
 					message.ShowInfo("You must first commit uncommitted changes before merging.");
 					return;
@@ -349,8 +349,8 @@ namespace GitMind.Features.Branches.Private
 					await repositoryService.Value.CheckLocalRepositoryAsync();
 				}
 
-				Status status = repositoryService.Value.Repository.Status;
-				if (status.ConflictCount == 0)
+				GitStatus2 status = repositoryService.Value.Repository.Status;
+				if (status.Conflicted == 0)
 				{
 					await commitsService.CommitChangesAsync();
 				}
@@ -371,7 +371,7 @@ namespace GitMind.Features.Branches.Private
 					return;
 				}
 
-				if (commit.Repository.Status.ConflictCount > 0 || commit.Repository.Status.ChangedCount > 0)
+				if (commit.Repository.Status.Conflicted > 0 || commit.Repository.Status.AllChanges > 0)
 				{
 					message.ShowInfo("You must first commit uncommitted changes before merging.");
 					return;
@@ -387,8 +387,8 @@ namespace GitMind.Features.Branches.Private
 					await repositoryService.Value.CheckLocalRepositoryAsync();
 				}
 
-				Status status = repositoryService.Value.Repository.Status;
-				if (status.ConflictCount == 0)
+				GitStatus2 status = repositoryService.Value.Repository.Status;
+				if (status.Conflicted == 0)
 				{
 					await commitsService.CommitChangesAsync($"Merge branch '{commit.Branch.Name}'");
 				}

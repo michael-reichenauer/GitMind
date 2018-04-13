@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using GitMind.Common;
-using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel.Private
@@ -14,7 +13,7 @@ namespace GitMind.GitModel.Private
 	{
 		public void AddBranchCommits(GitRepository gitRepository, MRepository repository)
 		{
-			Status status = repository.Status;
+			GitStatus2 status = repository.Status;
 
 			Timing t = new Timing();
 			IEnumerable<CommitSha> rootCommits = gitRepository.Branches.Select(b => new CommitSha(b.TipId));
@@ -102,7 +101,7 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			if (!status.IsOK)
+			if (!status.OK)
 			{
 				// Adding a virtual "uncommitted" commit since current working folder status has changes
 				AddVirtualUncommitted(gitRepository, status, repository);
@@ -142,7 +141,7 @@ namespace GitMind.GitModel.Private
 
 
 		private void AddVirtualUncommitted(
-			GitRepository gitRepository, Status status, MRepository repository)
+			GitRepository gitRepository, GitStatus2 status, MRepository repository)
 		{
 			MCommit commit = repository.Commit(CommitId.Uncommitted);
 			repository.Uncommitted = commit;
@@ -282,12 +281,12 @@ namespace GitMind.GitModel.Private
 		private static void CopyToUncommitedCommit(
 			GitRepository gitRepository,
 			MRepository repository,
-			Status status,
+			GitStatus2 status,
 			MCommit commit,
 			CommitId parentId)
 		{
-			int modifiedCount = status.ChangedCount;
-			int conflictCount = status.ConflictCount;
+			int modifiedCount = status.Modified;
+			int conflictCount = status.Conflicted;
 
 			string subject = $"{modifiedCount} uncommitted changes in working folder";
 
@@ -321,7 +320,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static string ShortSubject(Status status)
+		private static string ShortSubject(GitStatus2 status)
 		{
 			string subject = status.MergeMessage?.Trim() ?? "";
 			string firstLine = subject.Split("\n".ToCharArray())[0];
@@ -362,7 +361,7 @@ namespace GitMind.GitModel.Private
 		//		tickets += match.Value;
 		//	}
 
-		
+
 		//	return tickets;
 		//}
 	}

@@ -559,8 +559,8 @@ namespace GitMind.RepositoryViews
 			Commit uncommitted = repository.UnComitted;
 			UnCommited = uncommitted;
 
-			ConflictsText = repository.Status.ConflictCount > 0
-				? $"Conflicts in {repository.Status.ConflictCount} files\""
+			ConflictsText = repository.Status.Conflicted > 0
+				? $"Conflicts in {repository.Status.Conflicted} files\""
 				: null;
 		}
 

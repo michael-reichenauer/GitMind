@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GitMind.Features.StatusHandling.Private;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.Features.StatusHandling
@@ -15,7 +16,7 @@ namespace GitMind.Features.StatusHandling
 
 		void Monitor(string workingFolder);
 		IDisposable PauseStatusNotifications(Refresh refresh = Refresh.None);
-		Task<Status> GetStatusAsync();
+		Task<GitStatus2> GetStatusAsync();
 	//	IReadOnlyList<string> GetRepoIds();
 		Task<IReadOnlyList<string>> GetRepoIdsAsync();
 	}

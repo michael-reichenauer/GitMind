@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms.VisualStyles;
 using GitMind.Common;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Remote;
@@ -118,10 +119,10 @@ namespace GitMind.GitModel.Private
 
 		public async Task UpdateRepositoryAfterCommandAsync()
 		{
-			Task<Status> statusTask = statusService.GetStatusAsync();
+			Task<GitStatus2> statusTask = statusService.GetStatusAsync();
 			Task<IReadOnlyList<string>> repoIdsTask = statusService.GetRepoIdsAsync();
 
-			Status status = await statusTask;
+			GitStatus2 status = await statusTask;
 			IReadOnlyList<string> repoIds = await repoIdsTask;
 
 			if (Repository.Status.IsSame(status)
@@ -208,7 +209,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async void OnStatusChanged(Status status)
+		private async void OnStatusChanged(GitStatus2 status)
 		{
 			try
 			{
@@ -232,7 +233,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async Task UpdateRepositoryAsync(Status status, IReadOnlyList<string> repoIds)
+		private async Task UpdateRepositoryAsync(GitStatus2 status, IReadOnlyList<string> repoIds)
 		{
 			if (Repository == null)
 			{
@@ -282,7 +283,7 @@ namespace GitMind.GitModel.Private
 
 
 		private async Task<Repository> UpdateRepositoryAsync(
-			Repository sourcerepository, Status status, IReadOnlyList<string> branchIds)
+			Repository sourcerepository, GitStatus2 status, IReadOnlyList<string> branchIds)
 		{
 			using (await syncRootAsync.LockAsync())
 			{

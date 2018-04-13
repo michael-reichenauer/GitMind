@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using GitMind.Common;
-using GitMind.Features.StatusHandling;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel.Private
@@ -15,13 +15,16 @@ namespace GitMind.GitModel.Private
 
 		[DataMember] public string Version { get; set; } = CurrentVersion;
 
-		[DataMember] public Dictionary<CommitId, GitCommit> GitCommits { get; set; } =
+		[DataMember]
+		public Dictionary<CommitId, GitCommit> GitCommits { get; set; } =
 			new Dictionary<CommitId, GitCommit>();
-		[DataMember] public Dictionary<CommitId, MCommit> Commits { get; set; } = 
+		[DataMember]
+		public Dictionary<CommitId, MCommit> Commits { get; set; } =
 			new Dictionary<CommitId, MCommit>();
 		[DataMember] public CommitId CurrentCommitId { get; set; }
 		[DataMember] public string CurrentBranchId { get; set; }
-		[DataMember] public Dictionary<string, MBranch> Branches { get; set; } = 
+		[DataMember]
+		public Dictionary<string, MBranch> Branches { get; set; } =
 			new Dictionary<string, MBranch>();
 		[DataMember] public TimeSpan TimeToCreateFresh { get; set; }
 		[DataMember] public CommitId RootCommitId { get; set; }
@@ -33,7 +36,7 @@ namespace GitMind.GitModel.Private
 
 		public bool IsCached { get; set; }
 
-		public Status Status { get; set; } = Status.Default;
+		public GitStatus2 Status { get; set; } = GitStatus2.Default;
 
 		public MCommit Uncommitted { get; set; }
 
@@ -69,7 +72,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-	
+
 
 		public void CompleteDeserialization(string workingFolder)
 		{

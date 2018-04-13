@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms.VisualStyles;
 using GitMind.Common;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel
@@ -25,7 +27,7 @@ namespace GitMind.GitModel
 			Lazy<Branch> currentBranch,
 			Lazy<Commit> currentCommit,
 			ICommitsFiles commitsFiles,
-			Status status,
+			GitStatus2 status,
 			CommitId rootId,
 			CommitId unComittedId)
 		{
@@ -47,7 +49,7 @@ namespace GitMind.GitModel
 		public Commit CurrentCommit => currentCommit.Value;
 		public MRepository MRepository { get; }
 		public ICommitsFiles CommitsFiles { get; }
-		public Status Status { get; }
+		public GitStatus2 Status { get; }
 		public Commit RootCommit => commits.Value[rootId];
 		public Commit UnComitted => unComittedId == CommitId.Uncommitted ? commits.Value[unComittedId] : null;
 	}

@@ -24,6 +24,9 @@ namespace GitMind.Utils.Git
 		}
 
 
+		public static GitStatus2 Default { get; } = new GitStatus2(0, 0, 0, 0, false, null, new GitFile2[0]);
+
+
 		public int Modified { get; }
 		public int Added { get; }
 		public int Deleted { get; }
@@ -35,11 +38,20 @@ namespace GitMind.Utils.Git
 
 		public bool OK => AllChanges == 0 && !IsMerging;
 
+		public bool IsSame(GitStatus2 status) =>
+			status.AllChanges == AllChanges &&
+			status.Modified == Modified &&
+			status.Deleted == Deleted &&
+			status.Added == Added &&
+			status.Conflicted == Conflicted &&
+			status.MergeMessage == MergeMessage &&
+			status.IsMerging == IsMerging;
+
 
 		public override string ToString() =>
 			OK ? "Ok" : $"{AllChanges} ({Modified}M, {Added}A, {Deleted}D {Conflicted}C{MergeText})";
 
 
-		public string MergeText => IsMerging ? " |\\" : "";
+		private string MergeText => IsMerging ? " |\\" : "";
 	}
 }
