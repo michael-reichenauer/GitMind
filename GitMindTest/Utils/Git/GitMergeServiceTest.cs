@@ -125,5 +125,57 @@ namespace GitMindTest.Utils.Git
 			log = await git.GetLogAsync();
 			log.ForEach(c => Log.Debug($"{c}"));
 		}
+
+		[Test]
+		public async Task TestMergeFastForwardAsync()
+		{
+			await git.InitRepoAsync();
+
+			io.WriteFile("file1.txt", "Text 1");
+			await git.CommitAllChangesAsync("Message 1");
+
+			await git.BrancheAsync("branch1");
+			io.WriteFile("file1.txt", "Text on branch 1");
+
+			await git.CommitAllChangesAsync("Message 1 on branch1");
+
+			await git.CheckoutAsync("master");
+
+
+			R<bool> result = await cmd.TryMergeFastForwardAsync("branch1", ct);
+			Assert.AreEqual(true, result.IsOk);
+			Assert.AreEqual(true, result.Value);
+
+			log = await git.GetLogAsync();
+			Assert.AreEqual(2, log.Count);
+			Assert.AreEqual(1, log[0].ParentIds.Count);
+			Assert.AreEqual(log[1].Sha.ShortSha, log[0].ParentIds[0].ShortSha);
+			Assert.AreEqual("Message 1 on branch1", log[0].Subject);
+			Assert.AreEqual("Text on branch 1", io.ReadFile("file1.txt"));
+		}
+
+		[Test]
+		public async Task TestMergeFastForwardFailedAsync()
+		{
+			await git.InitRepoAsync();
+
+			io.WriteFile("file1.txt", "Text 1 on master");
+			await git.CommitAllChangesAsync("Message 1 on master");
+
+			await git.BrancheAsync("branch1");
+			io.WriteFile("file1.txt", "Text 1 on branch 1");
+
+			await git.CommitAllChangesAsync("Message 1 on branch1");
+
+			await git.CheckoutAsync("master");
+			io.WriteFile("file1.txt", "Text 2 on master");
+			await git.CommitAllChangesAsync("Message 1 on master");
+
+			R<bool> result = await cmd.TryMergeFastForwardAsync("branch1", ct);
+			Assert.AreEqual(true, result.IsOk);
+			Assert.AreEqual(false, result.Value);
+
+			await git.MergeAsync("branch1");
+		}
 	}
 }

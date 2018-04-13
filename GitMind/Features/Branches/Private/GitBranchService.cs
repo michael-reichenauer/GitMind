@@ -31,18 +31,21 @@ namespace GitMind.Features.Branches.Private
 		private readonly IGitBranchService2 gitBranchService2;
 		private readonly IGitMergeService2 gitMergeService2;
 		private readonly IGitCommitService2 gitCommitService2;
+		private readonly IGitCheckoutService gitCheckoutService;
 
 
 		public GitBranchService(
 			IRepoCaller repoCaller,
 			IGitBranchService2 gitBranchService2,
 			IGitMergeService2 gitMergeService2,
-			IGitCommitService2 gitCommitService2)
+			IGitCommitService2 gitCommitService2,
+			IGitCheckoutService gitCheckoutService)
 		{
 			this.repoCaller = repoCaller;
 			this.gitBranchService2 = gitBranchService2;
 			this.gitMergeService2 = gitMergeService2;
 			this.gitCommitService2 = gitCommitService2;
+			this.gitCheckoutService = gitCheckoutService;
 		}
 
 
@@ -162,85 +165,136 @@ namespace GitMind.Features.Branches.Private
 
 
 
-		public Task<R> SwitchToBranchAsync(BranchName branchName, CommitSha tipSha)
+		public async Task<R> SwitchToBranchAsync(BranchName branchName, CommitSha tipSha)
 		{
 			Log.Debug($"Switch to branch {branchName} ...");
-			return repoCaller.UseLibRepoAsync(repository =>
+
+			R<bool> checkoutResult = await gitCheckoutService.TryCheckoutAsync(branchName, CancellationToken.None);
+			if (checkoutResult.IsFaulted)
 			{
-				Branch branch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
+				return Error.From("Failed to switch branch", checkoutResult);
+			}
 
-				if (branch != null)
-				{
-					repository.Checkout(branch);
-				}
-				else
-				{
-					Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
-					if (remoteBranch != null)
-					{
-						branch = repository.Branches.Add(branchName, remoteBranch.Tip);
-						repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
+			if (!checkoutResult.Value)
+			{
+				Log.Debug($"Branch {branchName} does not exist, lets try to create it");
 
-						repository.Checkout(branch);
-					}
-					else
-					{
-						// No existing branch with that name. Try create a local branch
-						Commit commit = repository.Lookup<Commit>(new ObjectId(tipSha.Sha));
-						if (commit != null)
-						{
-							branch = repository.Branches.Add(branchName, commit);
-							repository.Checkout(branch);
-						}
-					}
+				var branchResult = await gitBranchService2.BranchFromCommitAsync(branchName, tipSha.Sha, true, CancellationToken.None);
+
+				if (branchResult.IsFaulted)
+				{
+					return Error.From("Failed to switch branch", branchResult);
 				}
-			});
+			}
+
+			return R.Ok;
+			//return repoCaller.UseLibRepoAsync(repository =>
+			//{
+			//	Branch branch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
+
+			//	if (branch != null)
+			//	{
+			//		repository.Checkout(branch);
+			//	}
+			//	else
+			//	{
+			//		Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
+			//		if (remoteBranch != null)
+			//		{
+			//			branch = repository.Branches.Add(branchName, remoteBranch.Tip);
+			//			repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
+
+			//			repository.Checkout(branch);
+			//		}
+			//		else
+			//		{
+			//			// No existing branch with that name. Try create a local branch
+			//			Commit commit = repository.Lookup<Commit>(new ObjectId(tipSha.Sha));
+			//			if (commit != null)
+			//			{
+			//				branch = repository.Branches.Add(branchName, commit);
+			//				repository.Checkout(branch);
+			//			}
+			//		}
+			//	}
+			//});
 		}
 
 
-		public Task<R<BranchName>> SwitchToCommitAsync(CommitSha commitSha, BranchName branchName)
+		public async Task<R<BranchName>> SwitchToCommitAsync(CommitSha commitSha, BranchName branchName)
 		{
 			Log.Debug($"Switch to commit {commitSha} with branch name '{branchName}' ...");
-			return repoCaller.UseLibRepoAsync(repository =>
+
+			R<IReadOnlyList<GitBranch2>> branches = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
+			if (branches.IsFaulted)
 			{
-				Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
-				if (commit == null)
-				{
-					Log.Error($"Unknown commit id {commitSha}");
-					return null;
-				}
+				return Error.From("Failed to switch to commit", branches);
+			}
 
-				if (branchName != null)
+			if (branches.Value.TryGet(branchName, out GitBranch2 branch))
+			{
+				if (branch.TipSha == commitSha)
 				{
-					// Trying to get an existing switch branch) at that commit
-					Branch branch = repository.Branches
-					.FirstOrDefault(b =>
-						!b.IsRemote
-						&& branchName.IsEqual(b.FriendlyName)
-						&& b.Tip.Sha == commitSha.Sha);
-
-					if (branch != null)
+					R checkoutResult = await gitCheckoutService.CheckoutAsync(branchName, CancellationToken.None);
+					if (checkoutResult.IsFaulted)
 					{
-						repository.Checkout(branch);
-						return branchName;
+						return Error.From("Failed to switch to commit", checkoutResult);
 					}
+
+					return branchName;
 				}
+			}
 
-				// No branch with that name so lets check out commit (detached head)
-				repository.Checkout(commit);
+			R checkoutCommitResult = await gitCheckoutService.CheckoutAsync(commitSha.Sha, CancellationToken.None);
+			if (checkoutCommitResult.IsFaulted)
+			{
+				return Error.From("Failed to switch to commit", checkoutCommitResult);
+			}
 
-				return null;
-			});
+			return null;
+
+
+			//return repoCaller.UseLibRepoAsync(repository =>
+			//{
+			//	Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
+			//	if (commit == null)
+			//	{
+			//		Log.Error($"Unknown commit id {commitSha}");
+			//		return null;
+			//	}
+
+			//	if (branchName != null)
+			//	{
+			//		// Trying to get an existing switch branch) at that commit
+			//		Branch branch = repository.Branches
+			//		.FirstOrDefault(b =>
+			//			!b.IsRemote
+			//			&& branchName.IsEqual(b.FriendlyName)
+			//			&& b.Tip.Sha == commitSha.Sha);
+
+			//		if (branch != null)
+			//		{
+			//			repository.Checkout(branch);
+			//			return branchName;
+			//		}
+			//	}
+
+			//	// No branch with that name so lets check out commit (detached head)
+			//	repository.Checkout(commit);
+
+			//	return null;
+			//});
 		}
 
 
 		public Task<R> MergeCurrentBranchFastForwardOnlyAsync()
 		{
-			return repoCaller.UseRepoAsync(repo =>
-			{
-				Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
-				repo.MergeFetchedRefs(committer, MergeFastForwardOnly);
-			});
+			return gitMergeService2.MergeAsync(null, CancellationToken.None);
+			//return repoCaller.UseRepoAsync(repo =>
+			//{
+			//	Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
+			//	repo.MergeFetchedRefs(committer, MergeFastForwardOnly);
+			//});
 		}
 
 

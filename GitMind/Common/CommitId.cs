@@ -40,6 +40,8 @@ namespace GitMind.Common
 
 		public override string ToString() => Id;
 
+		public string ShortSha => Id.Substring(0, 6);
+
 		public static bool TryParse(string id, out CommitId commitId)
 		{
 			int length = id?.Length ?? 0;
@@ -50,7 +52,7 @@ namespace GitMind.Common
 			}
 
 			commitId = new CommitId(id);
-			return true;			
+			return true;
 		}
 	}
 }
