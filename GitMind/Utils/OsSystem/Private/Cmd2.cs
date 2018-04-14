@@ -25,7 +25,7 @@ namespace GitMind.Utils.OsSystem.Private
 		public async Task<CmdResult2> RunAsync(
 			string command, string arguments, CmdOptions options, CancellationToken ct)
 		{
-			// Makse sure we can handle comd paths with "space"
+			// Make sure we can handle command paths with "space"
 			command = Quote(command);
 
 			try
@@ -141,13 +141,13 @@ namespace GitMind.Utils.OsSystem.Private
 
 			Task streamsTask = Task.WhenAll(outputStreamTask, errorStreamTask);
 
-			// Ensure cancel will abanden asds stream reading
+			// Ensure cancel will abandons stream reading
 			TaskCompletionSource<bool> canceledTcs = new TaskCompletionSource<bool>();
 			ct.Register(() => canceledTcs.TrySetResult(true));
 			await Task.WhenAny(streamsTask, canceledTcs.Task);
 
 			string error = (errorText?.ToString() ?? "") +
-				(ct.IsCancellationRequested ? "... Cancelled" : "");
+				(ct.IsCancellationRequested ? "... Canceled" : "");
 
 			return new OutData
 			{ Outout = outputText?.ToString() ?? "", Error = error };
@@ -184,15 +184,15 @@ namespace GitMind.Utils.OsSystem.Private
 				return;
 			}
 
-			if (texts != null)
-			{
-				text?.Append(textFragment);
-				texts?.Invoke(textFragment);
-			}
-			else
+			if (lines != null)
 			{
 				text?.AppendLine(textFragment);
 				lines?.Invoke(textFragment);
+			}
+			else
+			{
+				text?.Append(textFragment);
+				texts?.Invoke(textFragment);
 			}
 		}
 

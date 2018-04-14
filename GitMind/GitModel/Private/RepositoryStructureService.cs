@@ -105,7 +105,7 @@ namespace GitMind.GitModel.Private
 				//	return;
 				//}
 
-				tagService.CopyTags(gitRepository, repository);
+				await tagService.CopyTagsAsync(repository);
 				t.Log("CopyTags");
 
 				branchService.AddActiveBranches(gitRepository, repository);

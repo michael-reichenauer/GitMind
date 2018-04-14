@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
@@ -20,7 +21,17 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R> FetchAsync(CancellationToken ct) => await gitCmdService.RunAsync(FetchArgs, ct);
+		public async Task<R> FetchAsync(CancellationToken ct)
+		{
+			CmdResult2 result = await gitCmdService.RunCmdAsync(FetchArgs, ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From("Failed to fetch", result.AsError());
+			}
+
+			return R.Ok;
+		}
 
 
 		public async Task<R> FetchBranchAsync(string branchName, CancellationToken ct) =>
