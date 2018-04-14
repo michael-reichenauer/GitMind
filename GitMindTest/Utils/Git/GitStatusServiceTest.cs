@@ -58,7 +58,7 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(1, status.Added);
 
 			// Undo all chnages and check status
-			R result = await cmd.UndoAllUncommitedAsync(ct);
+			R result = await cmd.UndoAllUncommittedAsync(ct);
 			Assert.IsTrue(result.IsOk);
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
@@ -76,7 +76,7 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(1, status.Modified);
 
 			// Undo all changes and check status
-			result = await cmd.UndoAllUncommitedAsync(ct);
+			result = await cmd.UndoAllUncommittedAsync(ct);
 			Assert.IsTrue(result.IsOk);
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
@@ -101,7 +101,7 @@ namespace GitMindTest.Utils.Git
 			using (FileStream fileStream5 = File.OpenWrite(io.FullPath("file5.txt")))
 			{
 				// Trying to clean folder will not remove locked files, but will return list of them
-				R<IReadOnlyList<string>> result = await cmd.UndoAllUncommitedAsync(ct);
+				R<IReadOnlyList<string>> result = await cmd.UndoAllUncommittedAsync(ct);
 				Assert.IsTrue(result.IsOk);
 				Assert.AreEqual(3, result.Value.Count);
 				Assert.That(result.Value, Contains.Item("file2.txt"));
@@ -123,7 +123,7 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(1, status.AllChanges);
 
 			// Using the UndoUncommitedAsync() will succeede, and it will remove the file
-			R<IReadOnlyList<string>> result = await cmd.UndoAllUncommitedAsync(ct);
+			R<IReadOnlyList<string>> result = await cmd.UndoAllUncommittedAsync(ct);
 			Assert.IsTrue(result.IsOk);
 			Assert.AreEqual(0, result.Value.Count);
 			status = await git.GetStatusAsync();
@@ -141,7 +141,7 @@ namespace GitMindTest.Utils.Git
 			Assert.IsTrue(io.ExistsFile("file1.suo"));
 
 			// Using the UndoUncommitedAsync() will succeede, but since  file ignored will not remove the file
-			result = await cmd.UndoAllUncommitedAsync(ct);
+			result = await cmd.UndoAllUncommittedAsync(ct);
 			Assert.IsTrue(result.IsOk);
 			Assert.AreEqual(0, result.Value.Count);
 			status = await git.GetStatusAsync();
@@ -179,19 +179,19 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(1, status.Deleted);
 			Assert.AreEqual(2, status.Added);
 
-			R result = await cmd.UndoUncommitedFileAsync("file1.txt", ct);
+			R result = await cmd.UndoUncommittedFileAsync("file1.txt", ct);
 			Assert.AreEqual(true, result.IsOk);
 			Assert.AreEqual("some text 1", io.ReadFile("file1.txt"));
 
-			result = await cmd.UndoUncommitedFileAsync("file2.txt", ct);
+			result = await cmd.UndoUncommittedFileAsync("file2.txt", ct);
 			Assert.AreEqual(true, result.IsOk);
 			Assert.AreEqual("some text 2", io.ReadFile("file2.txt"));
 
-			result = await cmd.UndoUncommitedFileAsync("file3.txt", ct);
+			result = await cmd.UndoUncommittedFileAsync("file3.txt", ct);
 			Assert.AreEqual(true, result.IsOk);
 			Assert.AreEqual(false, io.ExistsFile("file3.txt"));
 
-			result = await cmd.UndoUncommitedFileAsync("Folder1/file4.txt", ct);
+			result = await cmd.UndoUncommittedFileAsync("Folder1/file4.txt", ct);
 			Assert.AreEqual(true, result.IsOk);
 			Assert.AreEqual(false, io.ExistsFile("Folder1/file4.txt"));
 		}

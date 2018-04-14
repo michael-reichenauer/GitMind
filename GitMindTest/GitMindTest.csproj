@@ -84,6 +84,7 @@
     <Compile Include="Utils\Git\GitPushTest.cs" />
     <Compile Include="Utils\Git\GitRepoServiceTest.cs" />
     <Compile Include="Utils\Git\GitStatusServiceTest.cs" />
+    <Compile Include="Utils\Git\GitTagServiceTest.cs" />
     <Compile Include="Utils\Git\Private\GitHelper.cs" />
     <Compile Include="Utils\Git\Private\GitTestBase.cs" />
     <Compile Include="Utils\Git\GitEnvironmentServiceTest.cs" />

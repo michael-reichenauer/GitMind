@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using GitMind.Utils;
 
 
 namespace GitMindTest.Utils.Git.Private
@@ -47,13 +49,20 @@ namespace GitMindTest.Utils.Git.Private
 
 		public void CleanTempDirs()
 		{
-			string path = GetTempBaseDirPath();
-
-			ClearReadOnlyFlag(path);
-
-			if (Directory.Exists(path))
+			try
 			{
-				Directory.Delete(path, true);
+				string path = GetTempBaseDirPath();
+
+				ClearReadOnlyFlag(path);
+
+				if (Directory.Exists(path))
+				{
+					Directory.Delete(path, true);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to clean temp dir, {e.Message}");
 			}
 		}
 

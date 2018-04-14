@@ -99,9 +99,9 @@ namespace GitMindTest.Utils.Git.Private
 
 		public Task UncommitAsync() => Service<IGitCommitService2>().Call(s => s.UnCommitAsync(ct));
 
-		public Task UndoUncommitedAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommitedAsync(ct));
+		public Task UndoUncommitedAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommittedAsync(ct));
 
-		public Task CleanWorkingFolderAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommitedAsync(ct));
+		public Task CleanWorkingFolderAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommittedAsync(ct));
 
 		public Task PushAsync() => Service<IGitPushService>().Call(s => s.PushAsync(ct));
 

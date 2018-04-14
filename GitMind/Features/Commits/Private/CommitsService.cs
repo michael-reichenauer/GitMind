@@ -52,7 +52,7 @@ namespace GitMind.Features.Commits.Private
 			IRepositoryMgr repositoryMgr,
 			IProgressService progressService,
 			IStatusService statusService,
-			IGitCommitService2 gitCommitService2, 
+			IGitCommitService2 gitCommitService2,
 			IGitStatusService2 gitStatusService2,
 			Func<
 				BranchName,
@@ -138,12 +138,12 @@ namespace GitMind.Features.Commits.Private
 				}
 				else if (repository.Status.IsMerging && !commitFiles.Any())
 				{
-					await gitStatusService2.UndoAllUncommitedAsync(CancellationToken.None);
+					await gitStatusService2.UndoAllUncommittedAsync(CancellationToken.None);
 				}
 			}
 		}
 
-	
+
 
 		public async Task UnCommitAsync(Commit commit)
 		{
@@ -190,7 +190,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			return commit != null && !commit.IsUncommitted;
 		}
-	
+
 
 		public async Task EditCommitBranchAsync(Commit commit)
 		{
@@ -233,7 +233,7 @@ namespace GitMind.Features.Commits.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog("Undoing changes in working folder ..."))
 			{
-				await gitStatusService2.UndoAllUncommitedAsync(CancellationToken.None);
+				await gitStatusService2.UndoAllUncommittedAsync(CancellationToken.None);
 			}
 		}
 
@@ -286,7 +286,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			using (progress.ShowDialog($"Undoing file change in {path} ..."))
 			{
-				await gitStatusService2.UndoUncommitedFileAsync(path, CancellationToken.None);
+				await gitStatusService2.UndoUncommittedFileAsync(path, CancellationToken.None);
 			}
 		}
 
@@ -313,4 +313,4 @@ namespace GitMind.Features.Commits.Private
 			return commit;
 		}
 	}
-} 
+}

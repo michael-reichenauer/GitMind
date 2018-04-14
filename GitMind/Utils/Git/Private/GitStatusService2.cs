@@ -82,21 +82,20 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R<IReadOnlyList<string>>> UndoAllUncommitedAsync(CancellationToken ct)
+		public async Task<R<IReadOnlyList<string>>> UndoAllUncommittedAsync(CancellationToken ct)
 		{
 			R<IReadOnlyList<string>> result = await UndoAndCleanFolderAsync("-fd", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to undo uncommited changes", result);
+				return Error.From("Failed to undo uncommitted changes", result);
 			}
 
-			Log.Info("Undid uncommited changes");
+			Log.Info("Undid uncommitted changes");
 			return result;
 		}
 
 
-		public async Task<R> UndoUncommitedFileAsync(
-			string path, CancellationToken ct)
+		public async Task<R> UndoUncommittedFileAsync(string path, CancellationToken ct)
 		{
 			CmdResult2 result = await gitCmdService.RunCmdAsync(
 				$"checkout --force -- \"{path}\"", CancellationToken.None);

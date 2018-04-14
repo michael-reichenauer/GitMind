@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using GitMind.Utils.Git.Private;
 
 
 namespace GitMind.Utils.OsSystem
@@ -66,6 +67,10 @@ namespace GitMind.Utils.OsSystem
 			$"\nProgress:\n{Truncate(Error)}" : $"\nError:\n{Truncate(Error)}\nin: {WorkingDirectory}";
 
 
+		public Error AsError() =>
+			Utils.Error.From(new GitException(string.Join("\n", ErrorLines.Take(10)) + $"\n{this}"));
+
+
 		private static IEnumerable<string> Lines(string text)
 		{
 			if (text.EndsWith("\r\n"))
@@ -87,6 +92,7 @@ namespace GitMind.Utils.OsSystem
 				}
 			}
 		}
+
 
 		private static string Truncate(string text)
 		{

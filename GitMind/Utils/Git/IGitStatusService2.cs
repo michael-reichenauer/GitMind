@@ -11,11 +11,11 @@ namespace GitMind.Utils.Git
 		Task<R<GitConflicts>> GetConflictsAsync(CancellationToken ct);
 		Task<R<string>> GetConflictFile(string fileId, CancellationToken ct);
 
-		Task<R<IReadOnlyList<string>>> UndoAllUncommitedAsync(CancellationToken ct);
+		Task<R<IReadOnlyList<string>>> UndoAllUncommittedAsync(CancellationToken ct);
 		Task<R<IReadOnlyList<string>>> CleanWorkingFolderAsync(CancellationToken ct);
 
 
-		Task<R> UndoUncommitedFileAsync(
+		Task<R> UndoUncommittedFileAsync(
 			string path, CancellationToken ct);
 
 
