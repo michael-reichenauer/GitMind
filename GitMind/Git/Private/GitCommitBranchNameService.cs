@@ -10,7 +10,6 @@ using GitMind.Common;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
-using GitMind.Utils.Git.Private;
 
 
 namespace GitMind.Git.Private
@@ -21,7 +20,6 @@ namespace GitMind.Git.Private
 		public static readonly string ManualBranchNoteNameSpace = "GitMind.Branches.Manual";
 
 		private readonly WorkingFolder workingFolder;
-		//private readonly IRepoCaller repoCaller;
 		private readonly Lazy<IRepositoryMgr> repositoryMgr;
 		private readonly IGitFetchService gitFetchService;
 		private readonly IGitNotesService2 gitNotesService2;
@@ -30,14 +28,12 @@ namespace GitMind.Git.Private
 
 		public GitCommitBranchNameService(
 			WorkingFolder workingFolder,
-			//IRepoCaller repoCaller,
 			Lazy<IRepositoryMgr> repositoryMgr,
 			IGitFetchService gitFetchService,
 			IGitNotesService2 gitNotesService2,
 			IGitPushService gitPushService)
 		{
 			this.workingFolder = workingFolder;
-			//this.repoCaller = repoCaller;
 			this.repositoryMgr = repositoryMgr;
 			this.gitFetchService = gitFetchService;
 			this.gitNotesService2 = gitNotesService2;
@@ -131,20 +127,6 @@ namespace GitMind.Git.Private
 			string originNotesText = (await gitNotesService2.GetNoteAsync(
 				rootId.Sha, $"refs/notes/origin/{nameSpace}", CancellationToken.None)).Or("");
 
-			//string originNotesText = repoCaller.UseRepo(repo =>
-			//{
-			//	IReadOnlyList<GitNote> notes = repo.GetCommitNotes(rootId);
-			//	GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
-
-			//	return note?.Message ?? "";
-			//})
-			//.Or("");
-
-			//if (originNotesText != originNotesText2)
-			//{
-			//	Log.Warn("Differs");
-			//}
-
 			string notesText = MergeNotes(originNotesText, addedNotesText);
 
 			if (notesText == originNotesText)
@@ -156,7 +138,7 @@ namespace GitMind.Git.Private
 
 			R setResult = await gitNotesService2.AddNoteAsync(
 				rootId.Sha, $"refs/notes/{nameSpace}", notesText, CancellationToken.None);
-			//repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
+
 			if (setResult.IsFaulted)
 			{
 				Log.Warn($"Failed to set notes, {setResult}");
@@ -271,20 +253,6 @@ namespace GitMind.Git.Private
 			string notesText = (await gitNotesService2.GetNoteAsync(
 				rootId.Sha, $"refs/notes/origin/{nameSpace}", CancellationToken.None))
 				.Or("");
-
-			//string notesText = repoCaller.UseRepo(repo =>
-			//{
-			//	IReadOnlyList<GitNote> notes = repo.GetCommitNotes(rootId);
-			//	GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
-			//	return note?.Message ?? "";
-			//})
-			//.Or("");
-
-			//if (notesText != notesText2)
-			//{
-			//	Log.Warn("Notest texts differs");
-			//}
-
 
 			try
 			{
