@@ -61,7 +61,7 @@ namespace GitMind.Utils.Git.Private
 				return Error.From("Uncommit commit failed.", result);
 			}
 
-			Log.Info("Uncomitted commit");
+			Log.Info("Uncommitted commit");
 			return result;
 		}
 
@@ -87,11 +87,11 @@ namespace GitMind.Utils.Git.Private
 				string shortId = match.Groups[3].Value;
 				R<GitCommit> commit = await GetCommitAsync(shortId, ct);
 
-				Log.Info($"Commited {commit}");
+				Log.Info($"Committed {commit}");
 				return commit;
 			}
 
-			return Error.From("Commit succeded, but failed to parse commit id from output");
+			return Error.From("Commit succeeded, but failed to parse commit id from output");
 		}
 	}
 }

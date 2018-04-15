@@ -30,6 +30,7 @@ namespace GitMindTest.Utils.Git.Private
 		protected GitStatus2 status;
 		protected IReadOnlyList<GitBranch2> branches;
 		protected IReadOnlyList<GitCommit> log;
+		protected bool isCleanUp = true;
 
 		[SetUp]
 		public void Setup()
@@ -63,7 +64,10 @@ namespace GitMindTest.Utils.Git.Private
 		{
 			am.Dispose();
 			am2.Dispose();
-			io.CleanTempDirs();
+			if (isCleanUp)
+			{
+				io.CleanTempDirs();
+			}
 		}
 	}
 }
