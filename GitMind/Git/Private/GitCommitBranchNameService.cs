@@ -21,23 +21,26 @@ namespace GitMind.Git.Private
 		public static readonly string ManualBranchNoteNameSpace = "GitMind.Branches.Manual";
 
 		private readonly WorkingFolder workingFolder;
-		private readonly IRepoCaller repoCaller;
+		//private readonly IRepoCaller repoCaller;
 		private readonly Lazy<IRepositoryMgr> repositoryMgr;
 		private readonly IGitFetchService gitFetchService;
+		private readonly IGitNotesService2 gitNotesService2;
 		private readonly IGitPushService gitPushService;
 
 
 		public GitCommitBranchNameService(
 			WorkingFolder workingFolder,
-			IRepoCaller repoCaller,
+			//IRepoCaller repoCaller,
 			Lazy<IRepositoryMgr> repositoryMgr,
 			IGitFetchService gitFetchService,
+			IGitNotesService2 gitNotesService2,
 			IGitPushService gitPushService)
 		{
 			this.workingFolder = workingFolder;
-			this.repoCaller = repoCaller;
+			//this.repoCaller = repoCaller;
 			this.repositoryMgr = repositoryMgr;
 			this.gitFetchService = gitFetchService;
+			this.gitNotesService2 = gitNotesService2;
 			this.gitPushService = gitPushService;
 		}
 
@@ -60,15 +63,15 @@ namespace GitMind.Git.Private
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetEditedBranchNames(CommitSha rootSha)
+		public Task<IReadOnlyList<CommitBranchName>> GetEditedBranchNamesAsync(CommitSha rootSha)
 		{
-			return GetNoteBranches(ManualBranchNoteNameSpace, rootSha);
+			return GetNoteBranchesAsync(ManualBranchNoteNameSpace, rootSha);
 		}
 
 
-		public IReadOnlyList<CommitBranchName> GetCommitBrancheNames(CommitSha rootId)
+		public Task<IReadOnlyList<CommitBranchName>> GetCommitBranchNamesAsync(CommitSha rootId)
 		{
-			return GetNoteBranches(CommitBranchNoteNameSpace, rootId);
+			return GetNoteBranchesAsync(CommitBranchNoteNameSpace, rootId);
 		}
 
 
@@ -125,14 +128,22 @@ namespace GitMind.Git.Private
 
 			await FetchNotesAsync(nameSpace);
 
-			string originNotesText = repoCaller.UseRepo(repo =>
-			{
-				IReadOnlyList<GitNote> notes = repo.GetCommitNotes(rootId);
-				GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
+			string originNotesText = (await gitNotesService2.GetNoteAsync(
+				rootId.Sha, $"refs/notes/origin/{nameSpace}", CancellationToken.None)).Or("");
 
-				return note?.Message ?? "";
-			})
-			.Or("");
+			//string originNotesText = repoCaller.UseRepo(repo =>
+			//{
+			//	IReadOnlyList<GitNote> notes = repo.GetCommitNotes(rootId);
+			//	GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
+
+			//	return note?.Message ?? "";
+			//})
+			//.Or("");
+
+			//if (originNotesText != originNotesText2)
+			//{
+			//	Log.Warn("Differs");
+			//}
 
 			string notesText = MergeNotes(originNotesText, addedNotesText);
 
@@ -143,7 +154,14 @@ namespace GitMind.Git.Private
 				return;
 			}
 
-			repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
+			R setResult = await gitNotesService2.AddNoteAsync(
+				rootId.Sha, $"refs/notes/{nameSpace}", notesText, CancellationToken.None);
+			//repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
+			if (setResult.IsFaulted)
+			{
+				Log.Warn("Failed to set notes");
+				return;
+			}
 
 			string[] refs = { $"refs/notes/{nameSpace}:refs/notes/{nameSpace}" };
 			R result = await gitPushService.PushRefsAsync(refs, CancellationToken.None);
@@ -245,17 +263,28 @@ namespace GitMind.Git.Private
 		}
 
 
-		private IReadOnlyList<CommitBranchName> GetNoteBranches(string nameSpace, CommitSha rootId)
+		private async Task<IReadOnlyList<CommitBranchName>> GetNoteBranchesAsync(
+			string nameSpace, CommitSha rootId)
 		{
 			Log.Debug($"Getting notes {nameSpace} from root commit {rootId} ...");
 
-			string notesText = repoCaller.UseRepo(repo =>
-			{
-				IReadOnlyList<GitNote> notes = repo.GetCommitNotes(rootId);
-				GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
-				return note?.Message ?? "";
-			})
-			.Or("");
+			string notesText = (await gitNotesService2.GetNoteAsync(
+				rootId.Sha, $"refs/notes/origin/{nameSpace}", CancellationToken.None))
+				.Or("");
+
+			//string notesText = repoCaller.UseRepo(repo =>
+			//{
+			//	IReadOnlyList<GitNote> notes = repo.GetCommitNotes(rootId);
+			//	GitNote note = notes.FirstOrDefault(n => n.NameSpace == $"origin/{nameSpace}");
+			//	return note?.Message ?? "";
+			//})
+			//.Or("");
+
+			//if (notesText != notesText2)
+			//{
+			//	Log.Warn("Notest texts differs");
+			//}
+
 
 			try
 			{

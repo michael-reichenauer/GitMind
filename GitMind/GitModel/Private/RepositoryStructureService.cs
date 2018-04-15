@@ -111,7 +111,7 @@ namespace GitMind.GitModel.Private
 				branchService.AddActiveBranches(gitRepository, repository);
 				t.Log("AddActiveBranches");
 
-				SetSpecifiedCommitBranchNames(repository);
+				await SetSpecifiedCommitBranchNamesAsync(repository);
 				t.Log("SetSpecifiedCommitBranchNames");
 
 				commitBranchNameService.SetMasterBranchCommits(repository);
@@ -167,15 +167,15 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void SetSpecifiedCommitBranchNames(MRepository repository)
+		private async Task SetSpecifiedCommitBranchNamesAsync(MRepository repository)
 		{
 			MCommit rootCommit = GetRootCommit(repository);
 			repository.RootCommitId = rootCommit.RealCommitId;
 
-			IReadOnlyList<CommitBranchName> gitSpecifiedNames = gitCommitBranchNameService.GetEditedBranchNames(
+			IReadOnlyList<CommitBranchName> gitSpecifiedNames = await gitCommitBranchNameService.GetEditedBranchNamesAsync(
 				rootCommit.Sha);
 
-			IReadOnlyList<CommitBranchName> commitBranches = gitCommitBranchNameService.GetCommitBrancheNames(
+			IReadOnlyList<CommitBranchName> commitBranches = await gitCommitBranchNameService.GetCommitBranchNamesAsync(
 				rootCommit.Sha);
 
 			commitBranchNameService.SetSpecifiedCommitBranchNames(gitSpecifiedNames, repository);
