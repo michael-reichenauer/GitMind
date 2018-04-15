@@ -20,7 +20,7 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file1.txt", "Text 1");
 			await git.CommitAllChangesAsync("Message 1");
 
-			await git.BrancheAsync("branch1");
+			await git.BranchAsync("branch1");
 			io.WriteFile("file1.txt", "Text on branch 1");
 			await git.CommitAllChangesAsync("Message 1");
 
@@ -55,7 +55,7 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file5.txt", "Text 5");
 			await git.CommitAllChangesAsync("Initial addon master");
 
-			await git.BrancheAsync("branch1");
+			await git.BranchAsync("branch1");
 			io.WriteFile("file1.exe", "Text on branch 1\r\n\n");
 			io.DeleteFile("file2.txt");
 			io.WriteFile("file3.txt", "Text on branch 3");
@@ -97,7 +97,7 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file1.txt", "Text 1");
 			await git.CommitAllChangesAsync("Message 1 on master");
 
-			await git.BrancheAsync("branch1");
+			await git.BranchAsync("branch1");
 			io.WriteFile("file1.txt", "Text on branch 1");
 			GitCommit commit = await git.CommitAllChangesAsync("Message 1on branch1");
 
@@ -134,7 +134,7 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file1.txt", "Text 1");
 			await git.CommitAllChangesAsync("Message 1");
 
-			await git.BrancheAsync("branch1");
+			await git.BranchAsync("branch1");
 			io.WriteFile("file1.txt", "Text on branch 1");
 
 			await git.CommitAllChangesAsync("Message 1 on branch1");
@@ -162,7 +162,7 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file1.txt", "Text 1 on master");
 			await git.CommitAllChangesAsync("Message 1 on master");
 
-			await git.BrancheAsync("branch1");
+			await git.BranchAsync("branch1");
 			io.WriteFile("file1.txt", "Text 1 on branch 1");
 
 			await git.CommitAllChangesAsync("Message 1 on branch1");

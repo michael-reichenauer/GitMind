@@ -1,20 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using GitMind.Common;
+﻿using GitMind.Common;
 
 
 namespace GitMind.Utils.Git.Private
 {
-	public static class GitBranchesExtensions
-	{
-		public static bool TryGet(this IEnumerable<GitBranch2> branches, string branchName, out GitBranch2 branch)
-		{
-			branch = branches.FirstOrDefault(b => b.Name == branchName);
-			return branch != null;
-		}
-	}
-
-
 	public class GitBranch2
 	{
 		public string Name { get; }
@@ -25,11 +13,13 @@ namespace GitMind.Utils.Git.Private
 		public int AheadCount { get; }
 		public int BehindCount { get; }
 		public bool IsRemoteMissing { get; }
+		public bool IsDetached { get; }
 		public bool IsRemote { get; }
 		public bool IsLocal => !IsRemote;
 
 		public bool IsAhead => AheadCount > 0;
 		public bool IsBehind => BehindCount > 0;
+		public bool IsTracking => !string.IsNullOrEmpty(RemoteName);
 
 		public bool IsPushable =>
 			!string.IsNullOrEmpty(RemoteName) &&
@@ -41,14 +31,16 @@ namespace GitMind.Utils.Git.Private
 			BehindCount > 0 &&
 			AheadCount == 0;
 
-		public GitBranch2(string branchName,
+		public GitBranch2(
+			string branchName,
 			CommitSha tipSha,
 			bool isCurrent,
 			string message,
 			string remoteName,
 			int aheadCount,
 			int behindCount,
-			bool isRemoteMissing)
+			bool isRemoteMissing,
+			bool isDetached)
 		{
 			IsRemote = branchName.StartsWith("remotes/");
 			Name = !IsRemote ? branchName : branchName.Substring(8);
@@ -59,6 +51,7 @@ namespace GitMind.Utils.Git.Private
 			AheadCount = aheadCount;
 			BehindCount = behindCount;
 			IsRemoteMissing = isRemoteMissing;
+			IsDetached = isDetached;
 		}
 
 

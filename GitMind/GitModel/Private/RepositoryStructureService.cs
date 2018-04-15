@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
-using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
 using GitMind.Features.Tags;
 using GitMind.Git;
 using GitMind.Git.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 
 
 namespace GitMind.GitModel.Private
@@ -23,7 +24,8 @@ namespace GitMind.GitModel.Private
 		private readonly IBranchHierarchyService branchHierarchyService;
 		private readonly ITagService tagService;
 		private readonly ICommitsService commitsService;
-		private readonly IDiffService diffService;
+		private readonly IGitBranchService2 gitBranchService2;
+		//private readonly IDiffService diffService;
 
 
 
@@ -35,7 +37,9 @@ namespace GitMind.GitModel.Private
 			IBranchHierarchyService branchHierarchyService,
 			ITagService tagService,
 			ICommitsService commitsService,
-			IDiffService diffService)
+			IGitBranchService2 gitBranchService2
+			//IDiffService diffService
+			)
 		{
 			this.branchService = branchService;
 			this.statusService = statusService;
@@ -44,7 +48,8 @@ namespace GitMind.GitModel.Private
 			this.branchHierarchyService = branchHierarchyService;
 			this.tagService = tagService;
 			this.commitsService = commitsService;
-			this.diffService = diffService;
+			this.gitBranchService2 = gitBranchService2;
+			//this.diffService = diffService;
 		}
 
 
@@ -85,62 +90,70 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			string gitRepositoryPath = repository.WorkingFolder;
 
-			using (GitRepository gitRepository = GitRepository.Open(diffService, gitRepositoryPath))
+			var branchesResult = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
+			if (branchesResult.IsFaulted)
 			{
-				repository.Status = status ?? await statusService.GetStatusAsync();
-				t.Log("Got status");
-
-				repository.RepositoryIds = repoIds ?? await statusService.GetRepoIdsAsync();
-				t.Log("Got repo ids");
-
-				CleanRepositoryOfTempData(repository);
-				t.Log("CleanRepositoryOfTempData");
-
-				commitsService.AddBranchCommits(gitRepository, repository);
-				t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
-
-				//if (!repository.Commits.Any())
-				//{
-				//	Log.Debug("No branches, no commits");
-				//	return;
-				//}
-
-				await tagService.CopyTagsAsync(repository);
-				t.Log("CopyTags");
-
-				branchService.AddActiveBranches(gitRepository, repository);
-				t.Log("AddActiveBranches");
-
-				await SetSpecifiedCommitBranchNamesAsync(repository);
-				t.Log("SetSpecifiedCommitBranchNames");
-
-				commitBranchNameService.SetMasterBranchCommits(repository);
-				t.Log("SetMasterBranchCommits");
-
-				branchService.AddInactiveBranches(repository);
-				t.Log("AddInactiveBranches");
-
-				commitBranchNameService.SetBranchTipCommitsNames(repository);
-				t.Log("SetBranchTipCommitsNames");
-
-				commitBranchNameService.SetNeighborCommitNames(repository);
-				t.Log("SetNeighborCommitNames");
-
-				branchService.AddMissingInactiveBranches(repository);
-				t.Log("AddMissingInactiveBranches");
-
-				branchService.AddMultiBranches(repository);
-				t.Log("AddMultiBranches");
-
-				branchHierarchyService.SetBranchHierarchy(repository);
-				t.Log("SetBranchHierarchy");
-
-				SetCurrentBranchAndCommit(repository, gitRepository);
-				t.Log("SetCurrentBranchAndCommit");
-
-				repository.SubBranches.Clear();
-				t.Log("Clear sub branches");
+				Log.Warn($"Failed to update repo, {branchesResult}");
+				return;
 			}
+
+			IReadOnlyList<GitBranch2> branches = branchesResult.Value;
+			//using (GitRepository gitRepository = GitRepository.Open(diffService, gitRepositoryPath))
+
+			repository.Status = status ?? await statusService.GetStatusAsync();
+			t.Log("Got status");
+
+			repository.RepositoryIds = repoIds ?? await statusService.GetRepoIdsAsync();
+			t.Log("Got repo ids");
+
+			CleanRepositoryOfTempData(repository);
+			t.Log("CleanRepositoryOfTempData");
+
+			commitsService.AddBranchCommits(null, repository);   //#####################
+			t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
+
+			//if (!repository.Commits.Any())
+			//{
+			//	Log.Debug("No branches, no commits");
+			//	return;
+			//}
+
+			await tagService.CopyTagsAsync(repository);
+			t.Log("CopyTags");
+
+			branchService.AddActiveBranches(branches, repository);
+			t.Log("AddActiveBranches");
+
+			await SetSpecifiedCommitBranchNamesAsync(repository);
+			t.Log("SetSpecifiedCommitBranchNames");
+
+			commitBranchNameService.SetMasterBranchCommits(repository);
+			t.Log("SetMasterBranchCommits");
+
+			branchService.AddInactiveBranches(repository);
+			t.Log("AddInactiveBranches");
+
+			commitBranchNameService.SetBranchTipCommitsNames(repository);
+			t.Log("SetBranchTipCommitsNames");
+
+			commitBranchNameService.SetNeighborCommitNames(repository);
+			t.Log("SetNeighborCommitNames");
+
+			branchService.AddMissingInactiveBranches(repository);
+			t.Log("AddMissingInactiveBranches");
+
+			branchService.AddMultiBranches(repository);
+			t.Log("AddMultiBranches");
+
+			branchHierarchyService.SetBranchHierarchy(repository);
+			t.Log("SetBranchHierarchy");
+
+			SetCurrentBranchAndCommit(repository, null); /////###################
+			t.Log("SetCurrentBranchAndCommit");
+
+			repository.SubBranches.Clear();
+			t.Log("Clear sub branches");
+
 
 			t.Log("Done");
 		}

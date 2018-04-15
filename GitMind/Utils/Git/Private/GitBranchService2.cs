@@ -15,7 +15,7 @@ namespace GitMind.Utils.Git.Private
 		//	RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
 		public static readonly Regex BranchesRegEx = new Regex(
-			@"^(\*)?\s+(\S+)\s+(\S+)(\s+)?(\[(\S+)(:\s)?(ahead\s(\d+))?(,\s)?(behind\s(\d+))?(gone)?\])?(\s+)?(.+)?",
+			@"^(\*)?\s+(\(HEAD detached at (\S+)\)|(\S+))\s+(\S+)(\s+)?(\[(\S+)(:\s)?(ahead\s(\d+))?(,\s)?(behind\s(\d+))?(gone)?\])?(\s+)?(.+)?",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
 		private readonly IGitCmdService gitCmdService;
@@ -75,6 +75,10 @@ namespace GitMind.Utils.Git.Private
 				{
 					GitBranch2 branch = ToBranch(match);
 					branches.Add(branch);
+				}
+				else
+				{
+
 				}
 			}
 
@@ -145,21 +149,22 @@ namespace GitMind.Utils.Git.Private
 		private static GitBranch2 ToBranch(Match match)
 		{
 			bool isCurrent = match.Groups[1].Value == "*";
-			string branchName = match.Groups[2].Value;
-			CommitSha tipSha = new CommitSha(match.Groups[3].Value);
-			string boundBranchName = match.Groups[6].Value;
-			int.TryParse(match.Groups[9].Value, out int aheadCount);
-			int.TryParse(match.Groups[12].Value, out int behindCount);
-			bool isRemoteMissing = match.Groups[13].Value == "gone";
-			string message = (match.Groups[15].Value ?? "").TrimEnd('\r');
+			bool isDetached = !string.IsNullOrEmpty(match.Groups[3].Value);
+			string branchName = isDetached ? $"({match.Groups[3].Value})" : match.Groups[4].Value;
+			CommitSha tipSha = new CommitSha(match.Groups[5].Value);
+			string boundBranchName = match.Groups[8].Value;
+			int.TryParse(match.Groups[11].Value, out int aheadCount);
+			int.TryParse(match.Groups[14].Value, out int behindCount);
+			bool isRemoteMissing = match.Groups[15].Value == "gone";
+			string message = (match.Groups[17].Value ?? "").TrimEnd('\r');
 
 			GitBranch2 branch = new GitBranch2(
-				branchName, tipSha, isCurrent, message, boundBranchName, aheadCount, behindCount, isRemoteMissing);
+				branchName, tipSha, isCurrent, message, boundBranchName, aheadCount, behindCount, isRemoteMissing, isDetached);
 			return branch;
 		}
 
 
-		private static bool IsPointerBranch(Match match) => match.Groups[3].Value == "->";
+		private static bool IsPointerBranch(Match match) => match.Groups[5].Value == "->";
 
 
 		//private static bool IsLocalBranch(string errorMessage) =>

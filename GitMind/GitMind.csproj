@@ -220,6 +220,7 @@
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
     <Compile Include="Utils\Git\GitAheadBehind.cs" />
+    <Compile Include="Utils\Git\Private\GitBranchesExtensions.cs" />
     <Compile Include="Utils\Git\Private\GitNotesService2.cs" />
     <Compile Include="Utils\Git\IGitNotesService2.cs" />
     <Compile Include="Utils\Git\Private\GitTagService2.cs" />

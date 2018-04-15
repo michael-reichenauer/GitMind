@@ -23,7 +23,7 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(true, result.IsOk);
 			Assert.AreEqual(false, result.Value);
 
-			await git.BrancheAsync("branch1", false);
+			await git.BranchAsync("branch1", false);
 
 			// Try checkout branch1, will succeed and value is true
 			result = await cmd.TryCheckoutAsync("branch1", ct);

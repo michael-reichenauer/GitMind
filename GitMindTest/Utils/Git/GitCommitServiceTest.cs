@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
@@ -139,7 +137,7 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file1.txt", "Some text 2");
 			GitCommit commit2 = await git.CommitAllChangesAsync("Message 2");
 
-			await git.BrancheAsync("branch1");
+			await git.BranchAsync("branch1");
 
 			io.WriteFile("file1.txt", "Some text on branch 1");
 			GitCommit commit3 = await git.CommitAllChangesAsync("Message  on branch 1");
@@ -165,7 +163,7 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file1.txt", "Some text 2");
 			GitCommit commit2 = await git.CommitAllChangesAsync("Message 2");
 
-			await git.BrancheAsync("branch1");
+			await git.BranchAsync("branch1");
 
 			io.WriteFile("file1.txt", "Some text on branch 1");
 			GitCommit commit3 = await git.CommitAllChangesAsync("Message  on branch 1");

@@ -4,6 +4,7 @@ using System.Linq;
 using GitMind.Common;
 using GitMind.Git;
 using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 
 
 namespace GitMind.GitModel.Private
@@ -29,13 +30,13 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddActiveBranches(GitRepository gitRepository, MRepository repository)
+		public void AddActiveBranches(IReadOnlyList<GitBranch2> branches, MRepository repository)
 		{
 			GitStatus2 status = repository.Status;
 
-			GitBranch currentBranch = gitRepository.Head;
+			GitBranch2 currentBranch = branches.GetCurrent();
 
-			foreach (GitBranch gitBranch in gitRepository.Branches)
+			foreach (GitBranch2 gitBranch in branches)
 			{
 				BranchName branchName = gitBranch.Name;
 				if (branchName == BranchName.OriginHead || branchName == BranchName.Head)
@@ -54,18 +55,18 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			if (!gitRepository.Branches.Any())
-			{
-				MSubBranch subBranch = ToBranch(gitRepository.Head, repository);
-				repository.SubBranches[subBranch.SubBranchId] = subBranch;
+			//if (!branches.Any())
+			//{
+			//	MSubBranch subBranch = ToBranch(gitRepository.Head, repository);
+			//	repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!status.OK && gitRepository.Head.IsCurrent && !gitRepository.Head.IsRemote)
-				{
-					// Setting virtual uncommitted commit as tip of the current branch
-					subBranch.TipCommitId = repository.Uncommitted.Id;
-					subBranch.TipCommit.SubBranchId = subBranch.SubBranchId;
-				}
-			}
+			//	if (!status.OK && gitRepository.Head.IsCurrent && !gitRepository.Head.IsRemote)
+			//	{
+			//		// Setting virtual uncommitted commit as tip of the current branch
+			//		subBranch.TipCommitId = repository.Uncommitted.Id;
+			//		subBranch.TipCommit.SubBranchId = subBranch.SubBranchId;
+			//	}
+			//}
 
 			if (currentBranch.IsDetached)
 			{
@@ -228,7 +229,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static MSubBranch ToBranch(GitBranch gitBranch, MRepository repository)
+		private static MSubBranch ToBranch(GitBranch2 gitBranch, MRepository repository)
 		{
 			BranchName branchName = gitBranch.Name;
 			if (gitBranch.IsRemote && branchName.StartsWith(Origin))
@@ -236,7 +237,7 @@ namespace GitMind.GitModel.Private
 				branchName = branchName.Substring(Origin.Length);
 			}
 
-			string gitBranchTipId = gitBranch.HasCommits ? gitBranch.TipId : CommitId.NoCommits.Id;
+			string gitBranchTipId = gitBranch.TipSha.Sha;
 
 			return new MSubBranch
 			{

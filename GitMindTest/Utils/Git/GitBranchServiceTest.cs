@@ -25,7 +25,7 @@ namespace GitMindTest.Utils.Git
 			branches = await git.GetBranchesAsync();
 			Assert.AreEqual(1, branches.Count);
 
-			await git.BrancheAsync("branch1");
+			await git.BranchAsync("branch1");
 			branches = await git.GetBranchesAsync();
 			Assert.AreEqual(2, branches.Count);
 			GitBranch2 current = branches.First(branch => branch.IsCurrent);
@@ -193,6 +193,34 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(false, remote.IsPushable);
 		}
 
+
+		[Test]
+		public async Task TestDetachedAsync()
+		{
+			await git.InitRepoAsync();
+
+			io.WriteFile("file1.txt", "text1");
+			var commit1 = await git.CommitAllChangesAsync("Message1");
+			io.WriteFile("file1.txt", "text2");
+			await git.CommitAllChangesAsync("Message2");
+
+			await git.BranchAsync("branch1", true);
+
+			io.WriteFile("file1.txt", "text3");
+			await git.CommitAllChangesAsync("Message3");
+
+			branches = await git.GetBranchesAsync();
+			Assert.AreEqual(2, branches.Count);
+
+			// Check out a commit (thus detached extra branch at that commit)
+			await git.CheckoutAsync(commit1.Sha.Sha);
+
+			branches = await git.GetBranchesAsync();
+			Assert.AreEqual(3, branches.Count);
+			Assert.AreEqual(true, branches.GetCurrent().IsDetached);
+			Assert.AreEqual(commit1.Message, branches.GetCurrent().Message);
+			Assert.AreEqual(true, branches.GetCurrent().Name.StartsWith(commit1.Sha.ShortSha));
+		}
 
 
 		[Test, Explicit]
