@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Utils.OsSystem;
 
@@ -42,8 +44,12 @@ namespace GitMind.Utils.Git.Private
 		{
 			Log.Debug($"Adding {note.Length}chars on {sha} {notesRef} ...");
 
+			string filePath = Path.GetTempFileName();
+			File.WriteAllText(filePath, note);
 			CmdResult2 result = await gitCmdService.RunCmdAsync(
-				$"-c core.notesRef={notesRef} notes add -f --allow-empty -m\"{note}\" {sha}", ct);
+				$"-c core.notesRef={notesRef} notes add -f --allow-empty -F \"{filePath}\" {sha}", ct);
+
+			DeleteNotesFile(filePath);
 
 			if (result.IsFaulted)
 			{
@@ -54,6 +60,7 @@ namespace GitMind.Utils.Git.Private
 			Log.Info($"Added note {note.Length} length");
 			return R.Ok;
 		}
+
 
 		public async Task<R> AppendNoteAsync(
 			string sha, string notesRef, string note, CancellationToken ct)
@@ -71,6 +78,7 @@ namespace GitMind.Utils.Git.Private
 			return R.Ok;
 		}
 
+
 		public async Task<R> RemoveNoteAsync(string sha, string notesRef, CancellationToken ct)
 		{
 			CmdResult2 result = await gitCmdService.RunCmdAsync(
@@ -83,6 +91,19 @@ namespace GitMind.Utils.Git.Private
 
 			Log.Info($"Removed note");
 			return R.Ok;
+		}
+
+
+		private static void DeleteNotesFile(string filePath)
+		{
+			try
+			{
+				File.Delete(filePath);
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to delete temp notes file {filePath}, {e.Message}");
+			}
 		}
 	}
 }
