@@ -159,7 +159,7 @@ namespace GitMind.Git.Private
 			//repoCaller.UseRepo(repo => repo.SetCommitNote(rootId, new GitNote(nameSpace, notesText)));
 			if (setResult.IsFaulted)
 			{
-				Log.Warn("Failed to set notes");
+				Log.Warn($"Failed to set notes, {setResult}");
 				return;
 			}
 

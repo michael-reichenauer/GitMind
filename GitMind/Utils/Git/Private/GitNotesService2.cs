@@ -40,6 +40,8 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R> AddNoteAsync(
 			string sha, string notesRef, string note, CancellationToken ct)
 		{
+			Log.Debug($"Adding {note.Length}chars on {sha} {notesRef} ...");
+
 			CmdResult2 result = await gitCmdService.RunCmdAsync(
 				$"-c core.notesRef={notesRef} notes add -f --allow-empty -m\"{note}\" {sha}", ct);
 
