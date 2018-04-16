@@ -113,7 +113,7 @@ namespace GitMind.GitModel.Private
 		{
 			Timing t = new Timing();
 			await branchTipMonitorService.CheckAsync(Repository);
-			t.Log("branchTipMonitorService.Check");
+			t.Log("Check branch tips");
 		}
 
 
