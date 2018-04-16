@@ -11,7 +11,7 @@ namespace GitMind.GitModel.Private
 	[DataContract]
 	public class MRepository
 	{
-		public static string CurrentVersion = "23";
+		public static string CurrentVersion = "24";
 
 		[DataMember] public string Version { get; set; } = CurrentVersion;
 

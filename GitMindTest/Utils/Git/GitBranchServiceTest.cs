@@ -216,10 +216,11 @@ namespace GitMindTest.Utils.Git
 			await git.CheckoutAsync(commit1.Sha.Sha);
 
 			branches = await git.GetBranchesAsync();
+			branches.TryGetCurrent(out GitBranch2 current);
 			Assert.AreEqual(3, branches.Count);
-			Assert.AreEqual(true, branches.GetCurrent().IsDetached);
-			Assert.AreEqual(commit1.Message, branches.GetCurrent().Message);
-			Assert.AreEqual(true, branches.GetCurrent().Name.StartsWith(commit1.Sha.ShortSha));
+			Assert.AreEqual(true, current.IsDetached);
+			Assert.AreEqual(commit1.Message, current.Message);
+			Assert.AreEqual(true, current.Name.StartsWith(commit1.Sha.ShortSha));
 		}
 
 

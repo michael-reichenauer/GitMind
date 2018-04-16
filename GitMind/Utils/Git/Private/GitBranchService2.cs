@@ -76,13 +76,9 @@ namespace GitMind.Utils.Git.Private
 					GitBranch2 branch = ToBranch(match);
 					branches.Add(branch);
 				}
-				else
-				{
-
-				}
 			}
 
-			Log.Debug($"Got {branches.Count} branches in {result.Value.WorkingDirectory}");
+			Log.Info($"Got {branches.Count} branches");
 			return branches;
 		}
 
@@ -97,7 +93,7 @@ namespace GitMind.Utils.Git.Private
 				return Error.From($"Failed to create branch {name}", result);
 			}
 
-			Log.Debug($"Created branch {name}");
+			Log.Info($"Created branch {name}");
 			return result;
 		}
 
@@ -112,7 +108,7 @@ namespace GitMind.Utils.Git.Private
 				return Error.From($"Failed to create branch {name}", result);
 			}
 
-			Log.Debug($"Created branch {name} at {sha}");
+			Log.Info($"Created branch {name} at {sha}");
 			return result;
 		}
 
@@ -125,7 +121,7 @@ namespace GitMind.Utils.Git.Private
 				return Error.From($"Failed to delete branch {name}", result);
 			}
 
-			Log.Debug($"Deleted branch {name}");
+			Log.Info($"Deleted branch {name}");
 			return result;
 		}
 
@@ -140,9 +136,8 @@ namespace GitMind.Utils.Git.Private
 			}
 
 			string common = result.Value.Output.Trim();
-			Log.Debug($"Common ancestor of {sha1} and {sha2} is {common}");
+			Log.Info($"Common ancestor of {sha1} and {sha2} is {common}");
 			return common;
-
 		}
 
 

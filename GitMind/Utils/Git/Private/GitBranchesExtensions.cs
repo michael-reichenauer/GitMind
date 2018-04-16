@@ -12,7 +12,10 @@ namespace GitMind.Utils.Git.Private
 			return branch != null;
 		}
 
-		public static GitBranch2 GetCurrent(this IEnumerable<GitBranch2> branches) =>
-			branches.First(b => b.IsCurrent);
+		public static bool TryGetCurrent(this IEnumerable<GitBranch2> branches, out GitBranch2 branch)
+		{ 
+			branch = branches.FirstOrDefault(b => b.IsCurrent);
+			return branch != null;
+		}
 	}
 }

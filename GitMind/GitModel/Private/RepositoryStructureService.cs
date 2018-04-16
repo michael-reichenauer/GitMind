@@ -88,7 +88,7 @@ namespace GitMind.GitModel.Private
 		{
 			Log.Debug("Updating repository");
 			Timing t = new Timing();
-			string gitRepositoryPath = repository.WorkingFolder;
+			//string gitRepositoryPath = repository.WorkingFolder;
 
 			var branchesResult = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
 			if (branchesResult.IsFaulted)
@@ -109,7 +109,10 @@ namespace GitMind.GitModel.Private
 			CleanRepositoryOfTempData(repository);
 			t.Log("CleanRepositoryOfTempData");
 
-			commitsService.AddBranchCommits(null, repository);   //#####################
+			await commitsService.AddNewCommitsAsync(repository);
+			t.Log("Added new commits");
+
+			commitsService.AddBranchCommits(branches, repository);   
 			t.Log($"Added {repository.Commits.Count} commits referenced by active branches");
 
 			//if (!repository.Commits.Any())

@@ -160,8 +160,6 @@ namespace GitMind
 		{
 			try
 			{
-				Log.Debug("Checking if other instance already exists ...");
-				
 				string id = MainWindowIpcService.GetId(workingFolder);
 				using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 				{

@@ -34,7 +34,7 @@ namespace GitMind.GitModel.Private
 		{
 			GitStatus2 status = repository.Status;
 
-			GitBranch2 currentBranch = branches.GetCurrent();
+			//GitBranch2 currentBranch = branches.GetCurrent();
 
 			foreach (GitBranch2 gitBranch in branches)
 			{
@@ -55,20 +55,20 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			//if (!branches.Any())
-			//{
-			//	MSubBranch subBranch = ToBranch(gitRepository.Head, repository);
-			//	repository.SubBranches[subBranch.SubBranchId] = subBranch;
+			if (!branches.Any())
+			{
+				MSubBranch subBranch = ToEmptyMasterBranch(repository);
+				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-			//	if (!status.OK && gitRepository.Head.IsCurrent && !gitRepository.Head.IsRemote)
-			//	{
-			//		// Setting virtual uncommitted commit as tip of the current branch
-			//		subBranch.TipCommitId = repository.Uncommitted.Id;
-			//		subBranch.TipCommit.SubBranchId = subBranch.SubBranchId;
-			//	}
-			//}
+				if (!status.OK)
+				{
+					// Setting virtual uncommitted commit as tip of the current branch
+					subBranch.TipCommitId = repository.Uncommitted.Id;
+					subBranch.TipCommit.SubBranchId = subBranch.SubBranchId;
+				}
+			}
 
-			if (currentBranch.IsDetached)
+			if (branches.TryGetCurrent(out GitBranch2 currentBranch) && currentBranch.IsDetached)
 			{
 				MSubBranch subBranch = ToBranch(currentBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
@@ -249,6 +249,25 @@ namespace GitMind.GitModel.Private
 				IsCurrent = gitBranch.IsCurrent,
 				IsDetached = gitBranch.IsDetached,
 				IsRemote = gitBranch.IsRemote
+			};
+		}
+
+		private static MSubBranch ToEmptyMasterBranch(MRepository repository)
+		{
+			BranchName branchName = "master";
+
+			string gitBranchTipId = CommitSha.NoCommits.Sha;
+
+			return new MSubBranch
+			{
+				Repository = repository,
+				SubBranchId = Guid.NewGuid().ToString(),
+				Name = branchName,
+				TipCommitId = repository.Commit(new CommitId(gitBranchTipId)).Id,
+				IsActive = true,
+				IsCurrent = true,
+				IsDetached = false,
+				IsRemote =false
 			};
 		}
 

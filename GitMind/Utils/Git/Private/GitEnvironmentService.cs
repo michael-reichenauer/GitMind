@@ -74,7 +74,7 @@ namespace GitMind.Utils.Git.Private
 				path = Path.GetDirectoryName(path);
 			}
 
-			Log.Debug($"Root: {workingFolderRoot}");
+			Log.Info($"Working folder: {workingFolderRoot}");
 			return workingFolderRoot;
 		}
 

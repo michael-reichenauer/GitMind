@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -32,6 +33,8 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<GitStatus2>> GetStatusAsync(CancellationToken ct)
 		{
+			// Log.Debug($"Call stack: {new StackTrace(false)}");
+
 			R<CmdResult2> result = await gitCmdService.RunAsync(StatusArgs, ct);
 
 			if (result.IsFaulted)

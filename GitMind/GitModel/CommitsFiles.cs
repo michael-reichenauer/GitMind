@@ -32,7 +32,7 @@ namespace GitMind.GitModel
 		}
 
 
-		public async Task<IEnumerable<CommitFile>> GetAsync(CommitSha commitSha)
+		public async Task<IEnumerable<CommitFile>> GetAsync(CommitSha commitSha, GitStatus2 status)
 		{
 			if (commitSha == CommitSha.Uncommitted || !commitsFiles.TryGetValue(commitSha, out var files))
 			{
@@ -45,7 +45,7 @@ namespace GitMind.GitModel
 				}
 
 				Task<R<IReadOnlyList<GitFile2>>> commitsFilesForCommitTask =
-					CommitsFilesForCommitTask(commitSha);
+					CommitsFilesForCommitTask(commitSha, status);
 
 				currentTask = commitsFilesForCommitTask;
 
@@ -65,19 +65,11 @@ namespace GitMind.GitModel
 		}
 
 
-		private async Task<R<IReadOnlyList<GitFile2>>> CommitsFilesForCommitTask(CommitSha commitSha)
+		private async Task<R<IReadOnlyList<GitFile2>>> CommitsFilesForCommitTask(CommitSha commitSha, GitStatus2 status)
 		{
 			if (commitSha == CommitSha.Uncommitted)
 			{
-				R<GitStatus2> status = await gitStatusService2.GetStatusAsync(CancellationToken.None);
-				if (status.IsOk)
-				{
-					return R.From(status.Value.Files);
-				}
-				else
-				{
-					return status.Error;
-				}
+				return R.From(status.Files);
 			}
 
 			return await gitCommitService2.GetCommitFilesAsync(commitSha.Sha, CancellationToken.None);

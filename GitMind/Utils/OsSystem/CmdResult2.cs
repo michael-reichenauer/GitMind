@@ -9,6 +9,8 @@ namespace GitMind.Utils.OsSystem
 {
 	public class CmdResult2
 	{
+		private static readonly int MaxRows = 3;
+
 		public CmdResult2(
 			string command,
 			string arguments,
@@ -102,9 +104,8 @@ namespace GitMind.Utils.OsSystem
 			}
 			else
 			{
-				int maxRows = 10;
-				string subText = string.Join("\n", Lines(text).Take(maxRows));
-				if (subText.Length + maxRows < text.Length)
+				string subText = string.Join("\n", Lines(text).Take(MaxRows));
+				if (subText.Length + MaxRows < text.Length)
 				{
 					subText += "\n...";
 				}
