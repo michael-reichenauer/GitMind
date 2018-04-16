@@ -23,6 +23,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R> FetchAsync(CancellationToken ct)
 		{
+			Log.Debug("Fetching ...");
 			CmdResult2 result = await gitCmdService.RunCmdAsync(FetchArgs, ct);
 
 			if (result.IsFaulted)
@@ -35,19 +36,22 @@ namespace GitMind.Utils.Git.Private
 
 
 		public async Task<R> FetchBranchAsync(string branchName, CancellationToken ct) =>
-			await FetchRefsAsync(new[] { $"{branchName}:{branchName}" }, ct);
+			await FetchRefsAsync(new[] {$"{branchName}:{branchName}"}, ct);
 
 
 		public async Task<R> FetchRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
 		{
 			string refsText = string.Join(" ", refspecs);
 			string args = $"{FetchRefsArgs} {refsText}";
-
+			Log.Debug($"Fetching {refsText} ...");
 			return await gitCmdService.RunAsync(args, ct);
 		}
 
 
-		public async Task<R> FetchPruneTagsAsync(CancellationToken ct) =>
-			await gitCmdService.RunAsync("fetch --prune origin \"+refs/tags/*:refs/tags/*\"", ct);
+		public async Task<R> FetchPruneTagsAsync(CancellationToken ct)
+		{
+			Log.Debug("Fetching tags ...");
+			return await gitCmdService.RunAsync("fetch --prune origin \"+refs/tags/*:refs/tags/*\"", ct);
+		}
 	}
 }

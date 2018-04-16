@@ -1,6 +1,6 @@
 namespace GitMind.Git
 {
-	internal class CommitDiff
+	public class CommitDiff
 	{
 		public CommitDiff(string leftPath, string rightPath)
 		{

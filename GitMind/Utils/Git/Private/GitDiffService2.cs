@@ -26,10 +26,57 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to get list of commit files", result);
+				return Error.From($"Failed to get list of commit files for {sha}", result);
 			}
 
-			return R.From(ParseCommitFiles(result.Value));
+			IReadOnlyList<GitFile2> files = ParseCommitFiles(result.Value);
+			Log.Info($"Got {files.Count} for {sha}");
+			return R.From(files);
+		}
+
+
+		public async Task<R<string>> GetCommitDiffAsync(string sha, CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync(
+				$"show --patch --root {sha}", ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed to get commit diff for {sha}", result);
+			}
+
+			Log.Info($"Got path for {sha}");
+			return R.From(result.Value.Output);
+		}
+
+
+		public async Task<R<string>> GetCommitDiffRangeAsync(string sha1, string sha2, CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync(
+				$"diff --patch  {sha1} {sha2}", ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed to get commit diff for {sha1}..{sha2}", result);
+			}
+
+			Log.Info($"Got path for {sha1}..{sha2}");
+			return R.From(result.Value.Output);
+		}
+
+
+		public async Task<R<string>> GetFileDiffAsync(string sha, string path, CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync(
+				$"show --patch --root  {sha} --cc \"{path}\" ", ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed to get commit diff for {sha}", result);
+			}
+
+			Log.Info($"Got path for {sha}");
+			return R.From(result.Value.Output);
 		}
 
 

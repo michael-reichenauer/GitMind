@@ -78,6 +78,7 @@
     <Compile Include="Utils\Git\GitCheckoutServiceTest.cs" />
     <Compile Include="Utils\Git\GitCommitServiceTest.cs" />
     <Compile Include="Utils\Git\GitConfigTest.cs" />
+    <Compile Include="Utils\Git\GitDiffServiceTest.cs" />
     <Compile Include="Utils\Git\GitFetchServiceTest.cs" />
     <Compile Include="Utils\Git\GitMergeServiceTest.cs" />
     <Compile Include="Utils\Git\GitNotesServiceTest.cs" />
