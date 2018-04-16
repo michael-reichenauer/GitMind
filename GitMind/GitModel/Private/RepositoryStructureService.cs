@@ -151,7 +151,7 @@ namespace GitMind.GitModel.Private
 			branchHierarchyService.SetBranchHierarchy(repository);
 			t.Log("SetBranchHierarchy");
 
-			SetCurrentBranchAndCommit(repository, null); /////###################
+			SetCurrentBranchAndCommit(repository, branches);
 			t.Log("SetCurrentBranchAndCommit");
 
 			repository.SubBranches.Clear();
@@ -162,16 +162,15 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static void SetCurrentBranchAndCommit(
-			MRepository repository, GitRepository gitRepository)
+		private static void SetCurrentBranchAndCommit(MRepository repository, IReadOnlyList<GitBranch2> branches)
 		{
 			GitStatus2 status = repository.Status;
 			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);
 			repository.CurrentBranchId = currentBranch.Id;
-
+			branches.TryGetCurrent(out GitBranch2 current);
 			repository.CurrentCommitId = status.OK
-				? gitRepository.Head.HasCommits
-					? repository.Commit(new CommitId(gitRepository.Head.TipId)).Id
+				? current != null
+					? repository.Commit(new CommitId(current.TipSha.Sha)).Id
 					: CommitId.NoCommits
 				: CommitId.Uncommitted;
 
