@@ -71,6 +71,19 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		public async Task<CmdResult2> RunCmdAsync(
+			string gitArgs, Action<string> outputLines, CancellationToken ct)
+		{
+			GitOptions options = new GitOptions
+			{
+				OutputLines = outputLines,
+				IsOutputDisabled = true,
+			};
+
+			return await CmdAsync(gitArgs, options, ct);
+		}
+
+
 		public async Task<R<CmdResult2>> RunAsync(
 			string gitArgs, Action<string> outputLines, CancellationToken ct)
 		{

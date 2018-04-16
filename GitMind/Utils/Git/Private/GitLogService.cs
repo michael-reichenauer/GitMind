@@ -54,11 +54,11 @@ namespace GitMind.Utils.Git.Private
 				}
 			}
 
-			R<CmdResult2> result = await gitCmdService.RunAsync($"log --all --pretty=\"{LogFormat}\"", OutputLines, ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync($"log --all --pretty=\"{LogFormat}\"", OutputLines, ct);
 
 			if (result.IsFaulted && !ct.IsCancellationRequested)
 			{
-				return Error.From("Failed to get log", result);
+				return Error.From("Failed to get log", result.AsError());
 			}
 
 			Log.Info($"Got log for {count} commits");
