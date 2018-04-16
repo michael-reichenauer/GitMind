@@ -80,6 +80,22 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		public async Task<R<string>> GetPreviewMergeDiffAsync(string sha1, string sha2, CancellationToken ct)
+		{
+			R<CmdResult2> result = await gitCmdService.RunAsync(
+				$"diff --find-renames --full-index {sha1} {sha2}", ct);
+
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed to get merge diff for {sha1} and {sha2}", result);
+			}
+
+			Log.Info($"Got merge diff for {sha1} and {sha2}");
+			return R.From(result.Value.Output);
+
+		}
+
+
 		private IReadOnlyList<GitFile2> ParseCommitFiles(CmdResult2 result)
 		{
 			List<GitFile2> files = new List<GitFile2>();

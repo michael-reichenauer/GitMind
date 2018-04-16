@@ -57,11 +57,13 @@ namespace GitMind.Features.Diffing.Private
 
 		public async Task ShowPreviewMergeDiffAsync(CommitSha commitSha1, CommitSha commitSha2)
 		{
-			await Task.Yield();
-			//if ((await gitDiffService.GetPreviewMergeDiffAsync(commitSha1, commitSha2)).HasValue(out var commitDiff))
-			//{
-			//	await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
-			//}
+
+			if ((await gitDiffService2.GetPreviewMergeDiffAsync(
+				commitSha1.Sha, commitSha2.Sha, CancellationToken.None)).HasValue(out string patch))
+			{
+				CommitDiff commitDiff = await diffParser.ParseAsync(null, patch, true, false);
+				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
+			}
 		}
 
 
