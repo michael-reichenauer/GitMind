@@ -1,7 +1,5 @@
 ﻿using System.IO;
 using GitMind.Git;
-using GitMind.Utils.Git.Private;
-using LibGit2Sharp;
 
 
 namespace GitMind.Utils.Git

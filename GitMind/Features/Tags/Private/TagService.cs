@@ -7,13 +7,10 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.StatusHandling;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel.Private;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
-using GitMind.Utils.Git.Private;
-using LibGit2Sharp;
 
 
 namespace GitMind.Features.Tags.Private
