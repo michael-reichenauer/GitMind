@@ -3,29 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
-using LibGit2Sharp;
 
 
 namespace GitMind.Features.Branches.Private
 {
 	internal class GitBranchService : IGitBranchService
 	{
-		//private static readonly MergeOptions MergeNoFFNoCommit = new MergeOptions
-		//{ FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = false };
-
-		//private static readonly MergeOptions MergeFastForwardOnly =
-		//	new MergeOptions { FastForwardStrategy = FastForwardStrategy.FastForwardOnly };
-
-		//private static readonly MergeOptions MergeNoFastForwardAndCommit =
-		//	new MergeOptions { FastForwardStrategy = FastForwardStrategy.NoFastForward, CommitOnSuccess = true };
-
-
-		private readonly IRepoCaller repoCaller;
 		private readonly IGitBranchService2 gitBranchService2;
 		private readonly IGitMergeService2 gitMergeService2;
 		private readonly IGitCommitService2 gitCommitService2;
@@ -33,13 +20,11 @@ namespace GitMind.Features.Branches.Private
 
 
 		public GitBranchService(
-			IRepoCaller repoCaller,
 			IGitBranchService2 gitBranchService2,
 			IGitMergeService2 gitMergeService2,
 			IGitCommitService2 gitCommitService2,
 			IGitCheckoutService gitCheckoutService)
 		{
-			this.repoCaller = repoCaller;
 			this.gitBranchService2 = gitBranchService2;
 			this.gitMergeService2 = gitMergeService2;
 			this.gitCommitService2 = gitCommitService2;
