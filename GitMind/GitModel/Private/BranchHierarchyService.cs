@@ -354,6 +354,7 @@ namespace GitMind.GitModel.Private
 						commit.IsRemoteAhead = false;
 						commit.IsLocal = false;
 						commit.IsRemote = false;
+						commit.IsCommon = false;
 					});
 
 					localTipCommit

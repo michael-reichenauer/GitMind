@@ -129,7 +129,7 @@ namespace GitMind.GitModel.Private
 		public IEnumerable<MCommit> Ancestors(Func<MCommit, bool> predicate)
 		{
 			Stack<MCommit> commits = new Stack<MCommit>();
-			Children
+			Parents
 				.Where(predicate)
 				.ForEach(child => commits.Push(child));
 
@@ -138,7 +138,7 @@ namespace GitMind.GitModel.Private
 				MCommit commit = commits.Pop();
 				yield return commit;
 
-				commit.Children
+				commit.Parents
 					.Where(predicate)
 					.ForEach(child => commits.Push(child));
 			}
