@@ -275,6 +275,14 @@
     <Compile Include="Utils\Git\Private\CredentialsHandling\IGitCredential.cs" />
     <Compile Include="Utils\Git\IGitRepoService.cs" />
     <Compile Include="Utils\Git\GitStatus2.cs" />
+    <Compile Include="Utils\GlobPatterns\Glob.cs" />
+    <Compile Include="Utils\GlobPatterns\GlobExtensions.cs" />
+    <Compile Include="Utils\GlobPatterns\GlobNode.cs" />
+    <Compile Include="Utils\GlobPatterns\Matcher.cs" />
+    <Compile Include="Utils\GlobPatterns\Parser.cs" />
+    <Compile Include="Utils\GlobPatterns\Scanner.cs" />
+    <Compile Include="Utils\GlobPatterns\Token.cs" />
+    <Compile Include="Utils\GlobPatterns\TokenKind.cs" />
     <Compile Include="Utils\OsSystem\CmdOptions.cs" />
     <Compile Include="Utils\OsSystem\ICmd2.cs" />
     <Compile Include="Utils\OsSystem\Private\Cmd2.cs" />
