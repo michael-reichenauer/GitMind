@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Threading;
 using GitMind.Utils;
+using GitMind.Utils.GlobPatterns;
 
 
 namespace GitMind.Features.StatusHandling.Private
@@ -16,14 +18,14 @@ namespace GitMind.Features.StatusHandling.Private
 		private const string GitRefsFolder = "refs";
 		private static readonly string GitHeadFile = Path.Combine(GitFolder, "HEAD");
 		private const NotifyFilters NotifyFilters =
-			System.IO.NotifyFilters.LastWrite
-			| System.IO.NotifyFilters.FileName
-			| System.IO.NotifyFilters.DirectoryName;
+				System.IO.NotifyFilters.LastWrite
+				| System.IO.NotifyFilters.FileName
+				| System.IO.NotifyFilters.DirectoryName;
 
 		private readonly FileSystemWatcher workFolderWatcher = new FileSystemWatcher();
 		private readonly FileSystemWatcher refsWatcher = new FileSystemWatcher();
 
-		private LibGit2Sharp.Repository repo = null;
+		private IReadOnlyList<Glob> matchers;
 
 		private readonly object syncRoot = new object();
 
@@ -76,7 +78,7 @@ namespace GitMind.Features.StatusHandling.Private
 			statusTimer.Stop();
 			repoTimer.Stop();
 
-			repo = GetRepo(workingFolder);
+			matchers = GetMatches(workingFolder);
 
 			workFolderWatcher.Path = workingFolder;
 			workFolderWatcher.NotifyFilter = NotifyFilters;
@@ -89,32 +91,13 @@ namespace GitMind.Features.StatusHandling.Private
 			refsWatcher.Filter = "*.*";
 			refsWatcher.IncludeSubdirectories = true;
 
-			statusChangeTime = DateTime.Now;	
+			statusChangeTime = DateTime.Now;
 			repoChangeTime = DateTime.Now;
-		
+
 			workFolderWatcher.EnableRaisingEvents = true;
 			refsWatcher.EnableRaisingEvents = true;
 		}
 
-
-		private LibGit2Sharp.Repository GetRepo(string workingFolder)
-		{
-			try
-			{
-				if (repo != null)
-				{
-					repo.Dispose();
-				}
-
-				return new LibGit2Sharp.Repository(workingFolder);
-			}
-			catch (Exception e)
-			{
-				Log.Exception(e, "Failed to create repo to check ignored files");
-			}
-
-			return null;
-		}
 
 
 		private void WorkingFolderChange(string fullPath, string path, WatcherChangeTypes changeType)
@@ -127,7 +110,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 			if (path == null || !path.StartsWith(GitFolder))
 			{
-				if (repo != null && path != null && repo.Ignore.IsPathIgnored(path))
+				if (path != null && IsIgnored(path))
 				{
 					return;
 				}
@@ -138,6 +121,84 @@ namespace GitMind.Features.StatusHandling.Private
 					StatusChange();
 				}
 			}
+		}
+
+
+
+
+
+		private IReadOnlyList<Glob> GetMatches(string workingFolder)
+		{
+			List<Glob> patterns = new List<Glob>();
+			string gitIgnorePath = Path.Combine(workingFolder, ".gitignore");
+			if (!File.Exists(gitIgnorePath))
+			{
+				return patterns;
+			}
+
+			string[] gitIgnore = File.ReadAllLines(gitIgnorePath);
+			foreach (string line in gitIgnore)
+			{
+				string pattern = line;
+
+				int index = pattern.IndexOf("#");
+				if (index > -1)
+				{
+					if (index == 0)
+					{
+						continue;
+					}
+
+					pattern = pattern.Substring(0, index);
+				}
+
+				pattern = pattern.Trim();
+				if (string.IsNullOrEmpty(pattern))
+				{
+					continue;
+				}
+
+
+				if (pattern.EndsWith("/"))
+				{
+					pattern = pattern + "**/*";
+					if (pattern.StartsWith("/"))
+					{
+						pattern = pattern.Substring(1);
+					}
+					else
+					{
+						pattern = "**/" + pattern;
+					}
+				}
+
+				try
+				{
+					patterns.Add(new Glob(pattern));
+				}
+				catch (Exception e)
+				{
+					Log.Debug($"Failed to add pattern {pattern}, {e.Message}");
+				}
+			}
+
+			return patterns;
+		}
+
+
+		private bool IsIgnored(string path)
+		{
+			foreach (Glob matcher in matchers)
+			{
+				if (matcher.IsMatch(path))
+				{
+					// Log.Debug($"Ignoring {path}");
+					return true;
+				}
+			}
+
+			Log.Warn($"Allow {path}");
+			return false;
 		}
 
 
@@ -157,7 +218,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 
 		private void RepoChange(string fullPath, string path, WatcherChangeTypes changeType)
-		{	
+		{
 			if (Path.GetExtension(fullPath) == ".lock")
 			{
 				return;
@@ -194,7 +255,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 				isStatus = false;
 			}
-		
+
 			FileChanged?.Invoke(this, new FileEventArgs(statusChangeTime));
 		}
 
@@ -212,7 +273,7 @@ namespace GitMind.Features.StatusHandling.Private
 				isRepo = false;
 			}
 
-			RepoChanged?.Invoke(this, new FileEventArgs(repoChangeTime));		
+			RepoChanged?.Invoke(this, new FileEventArgs(repoChangeTime));
 		}
 	}
 }

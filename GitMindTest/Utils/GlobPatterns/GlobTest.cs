@@ -15,6 +15,17 @@ namespace GitMindTest.Utils.GlobPatterns
         }
 
         [Test]
+        public void Test()
+        {
+            Assert.IsTrue(Glob.IsMatch("som/folder/bin/SomeFoo.txt", "**/bin/**/*"));
+
+            Assert.IsTrue(Glob.IsMatch("GitMind\\Dependencies\\Autofac.dllt", "GitMind/Dependencies/**/*"));
+
+            //Assert.IsTrue(Glob.IsMatch("som/folder/bin/SomeFoo.txt", "**/[Dd]ebug//**/*"));
+        }
+
+
+        [Test]
         public void CanParseSimpleFilename()
         {
             var glob = new Glob("*.txt");
@@ -167,8 +178,8 @@ namespace GitMindTest.Utils.GlobPatterns
         [TestCase("/*file.txt", "/file.txt")]
         [TestCase("C:\\THIS_IS_A_DIR\\*", "C:\\THIS_IS_A_DIR\\somefile")] // Regression Test for https://github.com/dazinator/DotNet.Glob/issues/20
         [TestCase("/DIR1/*/*", "/DIR1/DIR2/file.txt")]  // Regression Test for https://github.com/dazinator/DotNet.Glob/issues/21
-        //[TestCase("~/*~3", "~/abc123~3")]  // Regression Test for https://github.com/dazinator/DotNet.Glob/pull/15
-        //[TestCase("**\\Shock* 12", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Adobe\\Shockwave 12")]
+                                                        //[TestCase("~/*~3", "~/abc123~3")]  // Regression Test for https://github.com/dazinator/DotNet.Glob/pull/15
+                                                        //[TestCase("**\\Shock* 12", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Adobe\\Shockwave 12")]
         [TestCase("**\\*ave*2", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Adobe\\Shockwave 12")]
         [TestCase("**", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Adobe\\Shockwave 12")]
         [TestCase("**", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Adobe\\Shockwave 12.txt")]
