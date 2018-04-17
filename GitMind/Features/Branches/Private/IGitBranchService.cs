@@ -20,7 +20,7 @@ namespace GitMind.Features.Branches.Private
 
 		Task<R> MergeAsync(BranchName branchName);
 
-		R<GitDivergence> GetCommonAncestor(CommitSha localTip, CommitSha remoteTip);
+	//	R<GitDivergence> GetCommonAncestor(CommitSha localTip, CommitSha remoteTip);
 
 		Task<R> DeleteLocalBranchAsync(BranchName branchName);
 		Task<R> MergeAsync(CommitSha commitSha);

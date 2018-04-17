@@ -337,24 +337,44 @@ namespace GitMind.GitModel.Private
 					localTipCommit = localTipCommit.FirstParent;
 				}
 
-				if (gitBranchService.GetCommonAncestor(
-					localTipCommit.Sha, remoteTipCommit.Sha).HasValue(out var div))
+				//if (gitBranchService.GetCommonAncestor(
+				//	localTipCommit.Sha, remoteTipCommit.Sha).HasValue(out var div))
 				{
-					CommitSha commonTip = div.CommonId;
-					MCommit commonCommit = repository.Commits[new CommitId(commonTip.Sha)];
+					//CommitSha commonTip = div.CommonId;
+					//MCommit commonCommit = repository.Commits[new CommitId(commonTip.Sha)];
 
-					commonCommit
-						.CommitAndFirstAncestors()
-						.Where(c => c.BranchId == branch.Id)
-						.ForEach(c => c.IsCommon = true);
+					//commonCommit
+					//	.CommitAndFirstAncestors()
+					//	.Where(c => c.BranchId == branch.Id)
+					//	.ForEach(c => c.IsCommon = true);
 
 					branch.Commits.ForEach(commit =>
 					{
 						commit.IsLocalAhead = false;
 						commit.IsRemoteAhead = false;
+						commit.IsLocal = false;
+						commit.IsRemote = false;
 					});
 
-					if (commonTip != localTipCommit.Sha || 
+					localTipCommit
+						.CommitAndAncestors(c => c.BranchId == branch.Id)
+						.ForEach(c => c.IsLocal = true);
+
+					remoteTipCommit
+						.CommitAndAncestors(c => c.BranchId == branch.Id)
+						.ForEach(c => c.IsRemote = true);
+
+					branch.Commits.ForEach(commit =>
+					{
+						commit.IsCommon = commit.IsLocal && commit.IsRemote;
+					});
+
+
+					MCommit commonCommit = localTipCommit
+						.CommitAndAncestors(c => c.BranchId == branch.Id)
+						.First(c => c.IsCommon);
+
+					if (commonCommit.Sha != localTipCommit.Sha || 
 						(repository.Commits[branch.LocalTipCommitId].IsUncommitted 
 							&& !repository.Commits[branch.FirstCommitId].IsUncommitted))
 					{

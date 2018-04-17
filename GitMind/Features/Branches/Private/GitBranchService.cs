@@ -343,36 +343,36 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		public R<GitDivergence> GetCommonAncestor(CommitSha localTip, CommitSha remoteTip)
-		{
-			return repoCaller.UseRepo(
-				repo =>
-				{
-					Commit local = repo.Lookup<Commit>(new ObjectId(localTip.Sha));
-					Commit remote = repo.Lookup<Commit>(new ObjectId(remoteTip.Sha));
+		//public R<GitDivergence> GetCommonAncestor(CommitSha localTip, CommitSha remoteTip)
+		//{
+		//	return repoCaller.UseRepo(
+		//		repo =>
+		//		{
+		//			Commit local = repo.Lookup<Commit>(new ObjectId(localTip.Sha));
+		//			Commit remote = repo.Lookup<Commit>(new ObjectId(remoteTip.Sha));
 
-					if (local != null && remote != null)
-					{
-						HistoryDivergence div = repo.ObjectDatabase.CalculateHistoryDivergence(local, remote);
+		//			if (local != null && remote != null)
+		//			{
+		//				HistoryDivergence div = repo.ObjectDatabase.CalculateHistoryDivergence(local, remote);
 
-						return new GitDivergence(
-							new CommitSha(div.One.Sha),
-							new CommitSha(div.Another.Sha),
-							new CommitSha(div.CommonAncestor.Sha),
-							div.AheadBy ?? 0,
-							div.BehindBy ?? 0);
-					}
-					else
-					{
-						return new GitDivergence(
-							localTip,
-							remoteTip,
-							localTip,
-							0,
-							0);
-					}
-				});
-		}
+		//				return new GitDivergence(
+		//					new CommitSha(div.One.Sha),
+		//					new CommitSha(div.Another.Sha),
+		//					new CommitSha(div.CommonAncestor.Sha),
+		//					div.AheadBy ?? 0,
+		//					div.BehindBy ?? 0);
+		//			}
+		//			else
+		//			{
+		//				return new GitDivergence(
+		//					localTip,
+		//					remoteTip,
+		//					localTip,
+		//					0,
+		//					0);
+		//			}
+		//		});
+		//}
 
 
 		//private static Branch TryGetBranch(Repository repository, BranchName branchName)

@@ -63,6 +63,9 @@ namespace GitMind.GitModel.Private
 		public bool IsMerging { get; set; }
 		public bool HasConflicts { get; set; }
 
+		public bool IsLocal { get; set; }
+		public bool IsRemote { get; set; }
+
 		public bool HasBranchName => BranchName != null;
 		public bool HasFirstParent => ParentIds.Count > 0;
 		public bool HasSecondParent => ParentIds.Count > 1;
