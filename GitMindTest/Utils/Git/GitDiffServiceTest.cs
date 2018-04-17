@@ -87,6 +87,9 @@ namespace GitMindTest.Utils.Git
 			R<string> result = await cmd.GetUncommittedDiffAsync(ct);
 			Assert.IsNotNullOrEmpty(result.Value);
 
+			result = await cmd.GetUncommittedFileDiffAsync("file1.txt", ct);
+			Assert.IsNotNullOrEmpty(result.Value);
+
 			await git.CommitAllChangesAsync("Message1");
 
 			io.WriteFile("file1.txt", "line1\nline22\nline3\n");
@@ -94,6 +97,15 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file3.txt", "line1\nline2\nline3\n");
 
 			result = await cmd.GetUncommittedDiffAsync(ct);
+			Assert.IsNotNullOrEmpty(result.Value);
+
+			result = await cmd.GetUncommittedFileDiffAsync("file1.txt", ct);
+			Assert.IsNotNullOrEmpty(result.Value);
+
+			result = await cmd.GetUncommittedFileDiffAsync("file2.txt", ct);
+			Assert.IsNotNullOrEmpty(result.Value);
+
+			result = await cmd.GetUncommittedFileDiffAsync("file3.txt", ct);
 			Assert.IsNotNullOrEmpty(result.Value);
 		}
 	}

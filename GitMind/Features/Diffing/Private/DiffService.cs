@@ -47,25 +47,26 @@ namespace GitMind.Features.Diffing.Private
 
 		public async Task ShowDiffAsync(CommitSha commitSha)
 		{
+			string patch;
 			if (commitSha == CommitSha.Uncommitted)
 			{
-				if ((await gitDiffService2.GetUncommittedDiffAsync(
-					CancellationToken.None)).HasValue(out string patch))
+				if (!(await gitDiffService2.GetUncommittedDiffAsync(
+					CancellationToken.None)).HasValue(out patch))
 				{
-					CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, true, false);
-					await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
+					return;
 				}
 			}
 			else
 			{
-				if ((await gitDiffService2.GetCommitDiffAsync(
-					commitSha.Sha, CancellationToken.None)).HasValue(out string patch))
+				if (!(await gitDiffService2.GetCommitDiffAsync(
+					commitSha.Sha, CancellationToken.None)).HasValue(out patch))
 				{
-					CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, true, false);
-					await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
-
+					return;
 				}
 			}
+
+			CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, true, false);
+			await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 		}
 
 		public async Task ShowPreviewMergeDiffAsync(CommitSha commitSha1, CommitSha commitSha2)
@@ -284,12 +285,26 @@ namespace GitMind.Features.Diffing.Private
 
 		public async Task ShowFileDiffAsync(CommitSha commitSha, string path)
 		{
-			if ((await gitDiffService2.GetFileDiffAsync(
-				commitSha.Sha, path, CancellationToken.None)).HasValue(out string patch))
+			string patch;
+			if (commitSha == CommitSha.Uncommitted)
 			{
-				CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, true, false);
-				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
+				if (!(await gitDiffService2.GetUncommittedFileDiffAsync(
+					path, CancellationToken.None)).HasValue(out patch))
+				{
+					return;
+				}
 			}
+			else
+			{
+				if (!(await gitDiffService2.GetFileDiffAsync(
+					commitSha.Sha, path, CancellationToken.None)).HasValue(out patch))
+				{
+					return;
+				}
+			}
+
+			CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, false, false);
+			await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 		}
 
 
