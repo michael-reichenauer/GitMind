@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Remote;
@@ -153,6 +154,12 @@ namespace GitMind.GitModel.Private
 
 		public async Task CheckRemoteChangesAsync(bool isFetchNotes)
 		{
+			if (Settings.Get<Options>().DisableAutoUpdate)
+			{
+				Log.Info("DisableAutoUpdate = true");
+				return;
+			}
+
 			if (DateTime.Now - fetchedTime < RemoteRepositoryInterval)
 			{
 				Log.Debug("No need the check remote yet");

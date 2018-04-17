@@ -74,5 +74,27 @@ namespace GitMindTest.Utils.Git
 			Assert.IsNotNullOrEmpty(File.ReadAllText(diff2.RightPath));
 		}
 
+
+		[Test, Explicit]
+		public async Task TestDiffUncommittedAsync()
+		{
+			isCleanUp = false;
+			await git.InitRepoAsync();
+
+			io.WriteFile("file1.txt", "line1\nline2\nline3\n");
+			io.WriteFile("file2.txt", "line1\nline2\nline3\n");
+
+			R<string> result = await cmd.GetUncommittedDiffAsync(ct);
+			Assert.IsNotNullOrEmpty(result.Value);
+
+			await git.CommitAllChangesAsync("Message1");
+
+			io.WriteFile("file1.txt", "line1\nline22\nline3\n");
+			io.DeleteFile("file2.txt");
+			io.WriteFile("file3.txt", "line1\nline2\nline3\n");
+
+			result = await cmd.GetUncommittedDiffAsync(ct);
+			Assert.IsNotNullOrEmpty(result.Value);
+		}
 	}
 }

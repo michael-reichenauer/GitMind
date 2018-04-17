@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Git;
 using GitMind.Git.Private;
@@ -49,6 +50,12 @@ namespace GitMind.GitModel.Private
 				}
 
 				await gitCommitBranchNameService.SetCommitBranchNameAsync(pair.Key, branchName);
+			}
+
+			if (Settings.Get<Options>().DisableAutoUpdate)
+			{
+				Log.Info("DisableAutoUpdate = true");
+				return;
 			}
 
 			await gitCommitBranchNameService.PushNotesAsync(repository.RootCommit.RealCommitSha);

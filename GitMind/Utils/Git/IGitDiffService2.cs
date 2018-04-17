@@ -12,5 +12,6 @@ namespace GitMind.Utils.Git
 		Task<R<string>> GetCommitDiffRangeAsync(string sha1, string sha2, CancellationToken ct);
 		Task<R<string>> GetFileDiffAsync(string sha, string path, CancellationToken ct);
 		Task<R<string>> GetPreviewMergeDiffAsync(string sha1, string sha2, CancellationToken ct);
+		Task<R<string>> GetUncommittedDiffAsync(CancellationToken ct);
 	}
 }

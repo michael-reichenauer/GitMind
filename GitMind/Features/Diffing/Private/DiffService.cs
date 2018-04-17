@@ -47,11 +47,24 @@ namespace GitMind.Features.Diffing.Private
 
 		public async Task ShowDiffAsync(CommitSha commitSha)
 		{
-			if ((await gitDiffService2.GetCommitDiffAsync(
-				commitSha.Sha, CancellationToken.None)).HasValue(out string patch))
+			if (commitSha == CommitSha.Uncommitted)
 			{
-				CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, true, false);
-				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
+				if ((await gitDiffService2.GetUncommittedDiffAsync(
+					CancellationToken.None)).HasValue(out string patch))
+				{
+					CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, true, false);
+					await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
+				}
+			}
+			else
+			{
+				if ((await gitDiffService2.GetCommitDiffAsync(
+					commitSha.Sha, CancellationToken.None)).HasValue(out string patch))
+				{
+					CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, true, false);
+					await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
+
+				}
 			}
 		}
 

@@ -96,6 +96,32 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		public async Task<R<string>> GetUncommittedDiffAsync(CancellationToken ct)
+		{
+			R<CmdResult2> addResult = await gitCmdService.RunAsync("add .", ct);
+			if (addResult.IsFaulted)
+			{
+				return Error.From("Failed to get uncommitted diff", addResult);
+			}
+
+			R<CmdResult2> diffResult = await gitCmdService.RunAsync(
+				$"diff --find-renames --cached", ct);
+			if (diffResult.IsFaulted)
+			{
+				return Error.From("Failed to get uncommitted diff", diffResult);
+			}
+
+			R<CmdResult2> resetResult = await gitCmdService.RunAsync("reset", ct);
+			if (resetResult.IsFaulted)
+			{
+				return Error.From("Failed to get uncommitted diff", resetResult);
+			}
+
+			Log.Info("Got uncommitted diff");
+			return R.From(diffResult.Value.Output);
+		}
+
+
 		private IReadOnlyList<GitFile2> ParseCommitFiles(CmdResult2 result)
 		{
 			List<GitFile2> files = new List<GitFile2>();
