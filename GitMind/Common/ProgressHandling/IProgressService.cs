@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Windows;
 
 
 namespace GitMind.Common.ProgressHandling
 {
-	internal interface IProgressService
+	public interface IProgressService
 	{
-		Progress ShowDialog(string text = "");
+		Progress ShowDialog(string text = "", Window owner = null);
 
 		void SetText(string text);
 		IDisposable ShowBusy();

@@ -162,7 +162,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R> InstallGitAsync()
+		public async Task<R> InstallGitAsync(Action<string> progress)
 		{
 			try
 			{
@@ -180,7 +180,7 @@ namespace GitMind.Utils.Git.Private
 					Directory.Delete(gitFolderPath);
 				}
 
-				await InstallAsync(gitUri, gitFolderPath);
+				await InstallAsync(gitUri, gitFolderPath, progress);
 
 				if (ExpectedGitExists(gitPath, GitVersion))
 				{
@@ -198,7 +198,8 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private static async Task InstallAsync(string uri, string gitFolderPath)
+		private static async Task InstallAsync(
+			string uri, string gitFolderPath, Action<string> progress)
 		{
 			Log.Info($"Downloading git {GitVersion} from {uri} ...");
 
@@ -211,7 +212,8 @@ namespace GitMind.Utils.Git.Private
 
 				client.ProgressChanged += (totalFileSize, totalBytesDownloaded, progressPercentage) =>
 				{
-					Log.Debug($"{progressPercentage}% ({totalBytesDownloaded}/{totalFileSize})");
+					progress($"Downloading git {(int)(progressPercentage??0)}% ...");
+					Log.Debug($"Downloading git {progressPercentage}% ...");
 				};
 
 				await client.StartDownload(uri, zipPath);

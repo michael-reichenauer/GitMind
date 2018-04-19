@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMindTest.Utils.Git.Private;
 using NUnit.Framework;
@@ -52,9 +53,7 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestInstallAsync()
 		{
-			await cmd.InstallGitAsync();
+			await cmd.InstallGitAsync(text => { Log.Debug(text); });
 		}
-
-
 	}
 }

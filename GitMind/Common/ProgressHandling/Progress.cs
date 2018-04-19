@@ -3,7 +3,7 @@
 
 namespace GitMind.Common.ProgressHandling
 {
-	internal class Progress : IDisposable
+	public class Progress : IDisposable
 	{
 		public virtual void SetText(string text)
 		{		
