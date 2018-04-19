@@ -47,5 +47,14 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(workingFolder, cmd.TryGetWorkingFolderRoot(
 				Path.Combine(workingFolder, ".git")));
 		}
+
+
+		[Test]
+		public async Task TestInstallAsync()
+		{
+			await cmd.InstallGitAsync();
+		}
+
+
 	}
 }

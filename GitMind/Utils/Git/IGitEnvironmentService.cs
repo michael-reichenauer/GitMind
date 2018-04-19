@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace GitMind.Utils.Git
@@ -11,5 +12,6 @@ namespace GitMind.Utils.Git
 		string TryGetGitCmdPath();
 		string TryGetGitVersion();
 		string TryGetWorkingFolderRoot(string path);
+		Task<R> InstallGitAsync();
 	}
 }

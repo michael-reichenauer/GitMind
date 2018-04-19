@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.Tracking;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using Microsoft.Win32;
 
 
@@ -34,12 +36,14 @@ namespace GitMind.ApplicationHandling.Installation
 
 
 		private readonly ICmd cmd;
+		private readonly IGitEnvironmentService gitEnvironmentService;
 
 
-		public Installer(ICommandLine commandLine, ICmd cmd)
+		public Installer(ICommandLine commandLine, ICmd cmd, IGitEnvironmentService gitEnvironmentService)
 		{
 			this.commandLine = commandLine;
 			this.cmd = cmd;
+			this.gitEnvironmentService = gitEnvironmentService;
 		}
 
 
@@ -157,6 +161,7 @@ namespace GitMind.ApplicationHandling.Installation
 			CreateStartMenuShortcut(path);
 			AddToPathVariable(path);
 			AddFolderContextMenu();
+			Task.Run(() => gitEnvironmentService.InstallGitAsync()).Wait();
 			Log.Usage("Installed");
 		}
 

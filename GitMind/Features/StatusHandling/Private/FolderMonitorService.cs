@@ -197,7 +197,7 @@ namespace GitMind.Features.StatusHandling.Private
 				}
 			}
 
-			Log.Warn($"Allow {path}");
+			// Log.Warn($"Allow {path}");
 			return false;
 		}
 
