@@ -143,9 +143,10 @@ namespace GitMind.Utils.Git.Private
 		{
 			AdjustOptions(options, sessionId);
 
-			// Log.Debug($"Runing: {GitCmdPath} {gitArgs}");
+			// Log.Debug($"Running: {GitCmdPath} {gitArgs}");
 			CmdOptions cmdOptions = ToCmdOptions(options);
-			CmdResult2 result = await cmd.RunAsync(GitCmdPath, gitArgs, cmdOptions, ct);
+			string gitCmdPath = GitCmdPath;
+			CmdResult2 result = await cmd.RunAsync(gitCmdPath, gitArgs, cmdOptions, ct);
 
 			if (result.IsFaulted && !result.IsCanceled)
 			{
@@ -154,7 +155,8 @@ namespace GitMind.Utils.Git.Private
 			else
 			{
 				Track.Event("gitCmd", $"{result.ElapsedMs}ms: {result.Command} {result.Arguments}");
-				Log.Debug($"{result.ElapsedMs}ms: {result}");
+				var replace = result.ToString().Replace($"\"{gitCmdPath}\"", "git");
+				Log.Debug($"{result.ElapsedMs}ms: {replace}");
 			}
 
 			return result;

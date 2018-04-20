@@ -66,7 +66,6 @@ namespace GitMind.Features.Remote.Private
 
 		public Task PushNotesAsync(CommitSha rootId)
 		{
-
 			return gitCommitBranchNameService.PushNotesAsync(rootId);
 		}
 

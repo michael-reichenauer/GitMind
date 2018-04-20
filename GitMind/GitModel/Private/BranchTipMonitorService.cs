@@ -33,6 +33,7 @@ namespace GitMind.GitModel.Private
 
 		public async Task CheckAsync(Repository repository)
 		{
+			Log.Debug("Checking branch tips ...");
 			var branches = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
 			if (branches.IsFaulted)
 			{

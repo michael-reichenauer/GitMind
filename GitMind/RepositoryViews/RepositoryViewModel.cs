@@ -283,8 +283,10 @@ namespace GitMind.RepositoryViews
 					t.Log("Updated view model after cached/fresh");
 				}
 
-				// isValidUri = gitInfoService.IsSupportedRemoteUrl(workingFolder);
+				Track.Info($"MainWindow - Loaded first view {t.ElapsedMs} ms");
 				
+				// isValidUri = gitInfoService.IsSupportedRemoteUrl(workingFolder);
+
 				using (progress.ShowBusy())
 				{
 					if (repositoryService.Repository.MRepository.IsCached)
@@ -302,6 +304,7 @@ namespace GitMind.RepositoryViews
 					t.Log("Checked remote");
 				}
 
+				Track.Info($"MainWindow - Loaded after remote changes {t.ElapsedMs} ms");
 				await repositoryService.CheckBranchTipCommitsAsync();
 			}
 		}
@@ -393,7 +396,7 @@ namespace GitMind.RepositoryViews
 					await gitFetchService.FetchPruneTagsAsync(CancellationToken.None);
 
 					Log.Debug("Get fresh repository from scratch");
-					await repositoryService.GetRemoteAndFreshRepositoryAsync();
+					await repositoryService.GetRemoteAndFreshRepositoryAsync(true);
 				}
 			}
 		}

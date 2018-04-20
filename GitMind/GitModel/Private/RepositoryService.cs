@@ -152,15 +152,15 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task CheckRemoteChangesAsync(bool isFetchNotes)
+		public async Task CheckRemoteChangesAsync(bool isFetchNotes, bool isManual = false)
 		{
-			if (Settings.Get<Options>().DisableAutoUpdate)
+			if (!isManual && Settings.Get<Options>().DisableAutoUpdate)
 			{
 				Log.Info("DisableAutoUpdate = true");
 				return;
 			}
 
-			if (DateTime.Now - fetchedTime < RemoteRepositoryInterval)
+			if (!isManual && DateTime.Now - fetchedTime < RemoteRepositoryInterval)
 			{
 				Log.Debug("No need the check remote yet");
 				return;
@@ -186,11 +186,11 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task GetRemoteAndFreshRepositoryAsync()
+		public async Task GetRemoteAndFreshRepositoryAsync(bool isManual)
 		{
 			Timing t = new Timing();
 			fetchedTime = DateTime.MinValue;
-			await CheckRemoteChangesAsync(true);
+			await CheckRemoteChangesAsync(true, isManual);
 			t.Log("Remote check");
 			await GetFreshRepositoryAsync();
 			t.Log("Got Fresh Repository");

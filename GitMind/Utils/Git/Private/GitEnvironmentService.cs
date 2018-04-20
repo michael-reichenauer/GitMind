@@ -63,6 +63,7 @@ namespace GitMind.Utils.Git.Private
 					gitVersion = TryGetGitVersion();
 				}
 
+				Log.Info($"Using git: {gitFullPath}, Version: {gitVersion}");
 				Track.Info($"Using git: {gitFullPath}, Version: {gitVersion}");
 			}
 
