@@ -38,7 +38,17 @@ namespace GitMindTest.Utils.Git
 		}
 
 
-		[Test, Explicit]
+		[Test]
+		public async Task TestNoRemoteAsync()
+		{
+			await git.InitRepoAsync();
+
+			R result = await cmd.FetchAsync(ct);
+			Assert.IsTrue(result.IsOk);
+		}
+
+
+		[Test]
 		public async Task TestFetchBranch()
 		{
 			await git.CloneRepoAsync();
@@ -46,6 +56,8 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file1.txt", "Text 1");
 			await git.CommitAllChangesAsync("Message 1");
 			await git.PushAsync();
+
+			await git.BranchAsync("branch1", true);
 
 			string[] rfs = { "master:master" };
 

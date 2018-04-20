@@ -28,6 +28,10 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
+				if (IsNoRemote(result))
+				{
+					return R.Ok;
+				}
 				return Error.From("Failed to fetch", result.AsError());
 			}
 
@@ -36,7 +40,7 @@ namespace GitMind.Utils.Git.Private
 
 
 		public async Task<R> FetchBranchAsync(string branchName, CancellationToken ct) =>
-			await FetchRefsAsync(new[] {$"{branchName}:{branchName}"}, ct);
+			await FetchRefsAsync(new[] { $"{branchName}:{branchName}" }, ct);
 
 
 		public async Task<R> FetchRefsAsync(IEnumerable<string> refspecs, CancellationToken ct)
@@ -44,14 +48,40 @@ namespace GitMind.Utils.Git.Private
 			string refsText = string.Join(" ", refspecs);
 			string args = $"{FetchRefsArgs} {refsText}";
 			Log.Debug($"Fetching {refsText} ...");
-			return await gitCmdService.RunAsync(args, ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync(args, ct);
+
+			if (result.IsFaulted)
+			{
+				if (IsNoRemote(result))
+				{
+					return R.Ok;
+				}
+				return Error.From("Failed to fetch", result.AsError());
+			}
+
+			return R.Ok;
 		}
 
 
 		public async Task<R> FetchPruneTagsAsync(CancellationToken ct)
 		{
 			Log.Debug("Fetching tags ...");
-			return await gitCmdService.RunAsync("fetch --prune origin \"+refs/tags/*:refs/tags/*\"", ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync("fetch --prune origin \"+refs/tags/*:refs/tags/*\"", ct);
+
+			if (result.IsFaulted)
+			{
+				if (IsNoRemote(result))
+				{
+					return R.Ok;
+				}
+				return Error.From("Failed to fetch", result.AsError());
+			}
+
+			return R.Ok;
 		}
+
+
+		private bool IsNoRemote(CmdResult2 result) =>
+			result.Error.StartsWith("fatal: 'origin' does not appear to be a git repository");
 	}
 }

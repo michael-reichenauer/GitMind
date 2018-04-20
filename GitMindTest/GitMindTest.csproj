@@ -83,7 +83,7 @@
     <Compile Include="Utils\Git\GitMergeServiceTest.cs" />
     <Compile Include="Utils\Git\GitNotesServiceTest.cs" />
     <Compile Include="Utils\Git\GitPullServiceTest.cs" />
-    <Compile Include="Utils\Git\GitPushTest.cs" />
+    <Compile Include="Utils\Git\GitPushServiceTest.cs" />
     <Compile Include="Utils\Git\GitRepoServiceTest.cs" />
     <Compile Include="Utils\Git\GitStatusServiceTest.cs" />
     <Compile Include="Utils\Git\GitTagServiceTest.cs" />

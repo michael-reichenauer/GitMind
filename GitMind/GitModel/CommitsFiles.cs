@@ -34,6 +34,11 @@ namespace GitMind.GitModel
 
 		public async Task<IEnumerable<CommitFile>> GetAsync(CommitSha commitSha, GitStatus2 status)
 		{
+			if (commitSha == CommitSha.NoCommits)
+			{
+				return new CommitFile[0];
+			}
+
 			if (commitSha == CommitSha.Uncommitted || !commitsFiles.TryGetValue(commitSha, out var files))
 			{
 				nextIdToGet = commitSha;

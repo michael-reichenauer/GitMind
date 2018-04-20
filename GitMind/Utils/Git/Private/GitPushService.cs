@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.Utils.Git.Private
@@ -18,7 +19,21 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R> PushAsync(CancellationToken ct) => await gitCmdService.RunAsync(PushArgs, ct);
+		public async Task<R> PushAsync(CancellationToken ct)
+		{
+			CmdResult2 result = await gitCmdService.RunCmdAsync(PushArgs, ct);
+
+			if (result.IsFaulted)
+			{
+				if (IsNoRemoteBranch(result))
+				{
+					return R.Ok;
+				}
+				return Error.From("Failed to push", result.AsError());
+			}
+
+			return R.Ok;
+		}
 
 
 		public async Task<R> PushBranchAsync(string branchName, CancellationToken ct)
@@ -26,14 +41,34 @@ namespace GitMind.Utils.Git.Private
 			Log.Debug($"Pushing branch {branchName} ...");
 			string args = $"{PushArgs} -u refs/heads/{branchName}:refs/heads/{branchName}";
 
-			return await gitCmdService.RunAsync(args, ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync(args, ct);
+			if (result.IsFaulted)
+			{
+				if (IsNoRemote(result))
+				{
+					return R.Ok;
+				}
+				return Error.From("Failed to push", result.AsError());
+			}
+
+			return R.Ok;
 		}
 
 
 		public async Task<R> PushDeleteRemoteBranchAsync(string branchName, CancellationToken ct)
 		{
 			Log.Debug($"Pushing delete branch {branchName} ...");
-			return await gitCmdService.RunAsync($"{PushArgs} --delete {branchName}", ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync($"{PushArgs} --delete {branchName}", ct);
+			if (result.IsFaulted)
+			{
+				if (IsNoRemote(result))
+				{
+					return R.Ok;
+				}
+				return Error.From("Failed to push", result.AsError());
+			}
+
+			return R.Ok;
 		}
 
 
@@ -41,7 +76,18 @@ namespace GitMind.Utils.Git.Private
 		{
 			Log.Debug($"Pushing tag {tagName} ...");
 
-			return await gitCmdService.RunAsync($"{PushArgs} {tagName}", ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync($"{PushArgs} {tagName}", ct);
+
+			if (result.IsFaulted)
+			{
+				if (IsNoRemote(result))
+				{
+					return R.Ok;
+				}
+				return Error.From("Failed to push tag", result.AsError());
+			}
+
+			return R.Ok;
 		}
 
 
@@ -49,7 +95,18 @@ namespace GitMind.Utils.Git.Private
 		{
 			Log.Debug($"Pushing delete tag {tagName} ...");
 
-			return await gitCmdService.RunAsync($"{PushArgs} --delete {tagName}", ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync($"{PushArgs} --delete {tagName}", ct);
+
+			if (result.IsFaulted)
+			{
+				if (IsNoRemote(result))
+				{
+					return R.Ok;
+				}
+				return Error.From("Failed to delete remote tags", result.AsError());
+			}
+
+			return R.Ok;
 		}
 
 
@@ -58,7 +115,24 @@ namespace GitMind.Utils.Git.Private
 			string refsText = string.Join(" ", refspecs);
 			Log.Debug($"Pushing refs {refsText} ...");
 
-			return await gitCmdService.RunAsync($"{PushArgs} {refsText}", ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync($"{PushArgs} {refsText}", ct);
+
+			if (result.IsFaulted)
+			{
+				if (IsNoRemote(result))
+				{
+					return R.Ok;
+				}
+				return Error.From("Failed to push", result.AsError());
+			}
+
+			return R.Ok;
 		}
+
+		private bool IsNoRemote(CmdResult2 result) =>
+			result.Error.StartsWith("fatal: 'origin' does not appear to be a git repository");
+
+		private bool IsNoRemoteBranch(CmdResult2 result) =>
+			result.Error.Contains(" has no upstream ");
 	}
 }

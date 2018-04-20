@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitPushTest : GitTestBase<IGitPushService>
+	public class GitPushServiceTest : GitTestBase<IGitPushService>
 	{
 		[Test]
 		public async Task TestPushAsync()
@@ -53,6 +53,24 @@ namespace GitMindTest.Utils.Git
 			// Branch is insync
 			branches = await git.GetBranchesAsync();
 			Assert.AreEqual(0, branches[0].AheadCount);
+		}
+
+
+		[Test]
+		public async Task TestNoRemoteAsync()
+		{
+			await git.InitRepoAsync();
+
+			io.WriteFile("file2.txt", "text1");
+			await git.CommitAllChangesAsync("Message1");
+
+			await git.BranchAsync("branch1");
+
+			R result = await cmd.PushBranchAsync("branch1", ct);
+			Assert.AreEqual(true, result.IsOk);
+
+			result = await cmd.PushAsync(ct);
+			Assert.AreEqual(true, result.IsOk);
 		}
 	}
 }
