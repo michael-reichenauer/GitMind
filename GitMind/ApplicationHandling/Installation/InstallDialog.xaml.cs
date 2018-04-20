@@ -5,7 +5,7 @@ using System.Windows;
 using GitMind.Utils;
 
 
-namespace GitMind.Common.MessageDialogs
+namespace GitMind.ApplicationHandling.Installation
 {
 	/// <summary>
 	/// Interaction logic for MessageDialog.xaml
@@ -15,7 +15,6 @@ namespace GitMind.Common.MessageDialogs
 		private InstallDialogViewModel viewModel;
 
 		public InstallDialog(
-			//IProgressService progressService,
 			Window owner,
 			string message,
 			string title,
@@ -35,20 +34,5 @@ namespace GitMind.Common.MessageDialogs
 		public string Message { get => viewModel.Message; set => viewModel.Message = value; }
 
 		public bool IsButtonsVisible { get => viewModel.IsButtonsVisible; set => viewModel.IsButtonsVisible = value; }
-
-		protected override void OnClosing(CancelEventArgs e)
-		{
-			Log.Debug("Before closing");
-			base.OnClosing(e);
-			Log.Debug("After closing");
-		}
-
-
-		protected override void OnClosed(EventArgs e)
-		{
-			Log.Debug("Before closed");
-			base.OnClosed(e);
-			Log.Debug("After closed");
-		}
 	}
 }

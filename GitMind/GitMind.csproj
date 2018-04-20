@@ -110,10 +110,10 @@
     <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\WorkingFolder.cs" />
     <Compile Include="ApplicationHandling\WorkingFolderPath.cs" />
-    <Compile Include="Common\MessageDialogs\InstallDialog.xaml.cs">
+    <Compile Include="ApplicationHandling\Installation\InstallDialog.xaml.cs">
       <DependentUpon>InstallDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Common\MessageDialogs\InstallDialogViewModel.cs" />
+    <Compile Include="ApplicationHandling\Installation\InstallDialogViewModel.cs" />
     <Compile Include="Common\ThemeHandling\BranchColorsOption.cs" />
     <Compile Include="Common\ThemeHandling\Converter.cs" />
     <Compile Include="Common\ThemeHandling\Theme.cs" />
@@ -437,7 +437,7 @@
     <Compile Include="Common\WindowControlButtons.xaml.cs">
       <DependentUpon>WindowControlButtons.xaml</DependentUpon>
     </Compile>
-    <Page Include="Common\MessageDialogs\InstallDialog.xaml">
+    <Page Include="ApplicationHandling\Installation\InstallDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

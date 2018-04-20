@@ -14,7 +14,6 @@ namespace GitMind.GitModel
 	internal class CommitsFiles : ICommitsFiles
 	{
 		private readonly IGitCommitService2 gitCommitService2;
-		private readonly IGitStatusService2 gitStatusService2;
 
 		private readonly ConcurrentDictionary<CommitSha, IList<CommitFile>> commitsFiles =
 			new ConcurrentDictionary<CommitSha, IList<CommitFile>>();
@@ -23,12 +22,9 @@ namespace GitMind.GitModel
 		private CommitSha nextIdToGet;
 
 
-		public CommitsFiles(
-			IGitCommitService2 gitCommitService2,
-			IGitStatusService2 gitStatusService2)
+		public CommitsFiles(IGitCommitService2 gitCommitService2)
 		{
 			this.gitCommitService2 = gitCommitService2;
-			this.gitStatusService2 = gitStatusService2;
 		}
 
 
