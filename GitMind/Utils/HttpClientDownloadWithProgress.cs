@@ -2,13 +2,28 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 
 namespace GitMind.Utils
 {
 	public class HttpClientDownloadWithProgress : IDisposable
 	{
+		private readonly DispatcherTimer dispatcherTimer = new DispatcherTimer();
+		private readonly CancellationTokenSource cts = new CancellationTokenSource();
+
+
+		public HttpClientDownloadWithProgress(TimeSpan timeout)
+		{
+			dispatcherTimer = new DispatcherTimer();
+			dispatcherTimer.Tick += (s, e) => cts.Cancel();
+			dispatcherTimer.Interval = timeout;
+
+		}
+
+
 		public HttpClient HttpClient { get; } = new HttpClient();
 
 
@@ -18,22 +33,38 @@ namespace GitMind.Utils
 		public event ProgressChangedHandler ProgressChanged;
 
 
-		public async Task StartDownload(string uri, string filePath)
+		public Task StartDownloadAsync(string uri, string filePath)
 		{
 			ServicePointManager.Expect100Continue = true;
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-		
-			using (var response = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead))
+
+			TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+			cts.Token.Register(() => tcs.TrySetCanceled());
+
+			StartAsync(uri, filePath).ContinueWith(_ => tcs.TrySetResult(true));
+			return tcs.Task;
+		}
+
+
+		private async Task StartAsync(string uri, string filePath)
+		{
+			dispatcherTimer.Start();
+			using (var response = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cts.Token))
 			{
-				await DownloadFile(response, filePath);
+				await DownloadFileAsync(response, filePath, cts.Token);
 			}
 		}
 
 
-		public void Dispose() => HttpClient?.Dispose();
+		public void Dispose()
+		{
+			cts.Dispose();
+			HttpClient?.Dispose();
+			dispatcherTimer.Stop();
+		}
 
 
-		private async Task DownloadFile(HttpResponseMessage response, string filePath)
+		private async Task DownloadFileAsync(HttpResponseMessage response, string filePath, CancellationToken ct)
 		{
 			response.EnsureSuccessStatusCode();
 
@@ -41,12 +72,13 @@ namespace GitMind.Utils
 
 			using (Stream contentStream = await response.Content.ReadAsStreamAsync())
 			{
-				await ProcessContentStream(totalBytes, contentStream, filePath);
+				await ProcessContentStreamAsync(totalBytes, contentStream, filePath, ct);
 			}
 		}
 
 
-		private async Task ProcessContentStream(long? totalDownloadSize, Stream contentStream, string filePath)
+		private async Task ProcessContentStreamAsync(
+			long? totalDownloadSize, Stream contentStream, string filePath, CancellationToken ct)
 		{
 			long totalBytesRead = 0L;
 			long readCount = 0L;
@@ -58,7 +90,9 @@ namespace GitMind.Utils
 			{
 				do
 				{
-					var bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length);
+					dispatcherTimer.Stop();
+					dispatcherTimer.Start();
+					var bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, ct);
 					if (bytesRead == 0)
 					{
 						isMoreToRead = false;
@@ -66,7 +100,7 @@ namespace GitMind.Utils
 						continue;
 					}
 
-					await fileStream.WriteAsync(buffer, 0, bytesRead);
+					await fileStream.WriteAsync(buffer, 0, bytesRead, ct);
 
 					totalBytesRead += bytesRead;
 					readCount += 1;

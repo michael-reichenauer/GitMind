@@ -34,6 +34,8 @@ namespace GitMind.Common.MessageDialogs
 
 		public string Message { get => viewModel.Message; set => viewModel.Message = value; }
 
+		public bool IsButtonsVisible { get => viewModel.IsButtonsVisible; set => viewModel.IsButtonsVisible = value; }
+
 		protected override void OnClosing(CancelEventArgs e)
 		{
 			Log.Debug("Before closing");

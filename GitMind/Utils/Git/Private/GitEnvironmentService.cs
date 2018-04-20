@@ -22,7 +22,7 @@ namespace GitMind.Utils.Git.Private
 		private static string gitUri =
 			"https://github.com/git-for-windows/git/releases/download/v2.17.0.windows.1/MinGit-2.17.0-64-bit.zip";
 
-		
+
 		private readonly ICmd2 cmd;
 
 		private string gitCmdPath = null;
@@ -205,18 +205,18 @@ namespace GitMind.Utils.Git.Private
 
 			string zipPath = ProgramPaths.GetTempFilePath() + $".git_{GitVersion}";
 
-			using (var client = new HttpClientDownloadWithProgress())
+			using (var client = new HttpClientDownloadWithProgress(TimeSpan.FromSeconds(30)))
 			{
-				client.HttpClient.Timeout = TimeSpan.FromSeconds(60 * 5) ;
+				client.HttpClient.Timeout = TimeSpan.FromSeconds(60 * 5);
 				client.HttpClient.DefaultRequestHeaders.Add("user-agent", "GitMind");
 
 				client.ProgressChanged += (totalFileSize, totalBytesDownloaded, progressPercentage) =>
 				{
-					progress($"Downloading git {(int)(progressPercentage??0)}% ...");
+					progress($"Downloading git {(int)(progressPercentage ?? 0)}% ...");
 					Log.Debug($"Downloading git {progressPercentage}% ...");
 				};
 
-				await client.StartDownload(uri, zipPath);
+				await client.StartDownloadAsync(uri, zipPath);
 			}
 
 			Log.Info($"Downloaded {uri} to {zipPath}");

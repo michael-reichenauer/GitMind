@@ -24,6 +24,7 @@ namespace GitMind.Common.MessageDialogs
 			//this.progressService = progressService;
 			//this.owner = owner;
 			this.installActionAsync = installActionAsync;
+			IsButtonsVisible = true;
 		}
 
 		public string Title { get => Get(); set => Set(value); }
@@ -32,14 +33,13 @@ namespace GitMind.Common.MessageDialogs
 
 		public string CancelText { get => Get(); set => Set(value); }
 
+		public bool IsButtonsVisible { get => Get(); set => Set(value); }
+
 
 		private async void SetOK(Window window)
 		{
-			//using (Progress progress = progressService.ShowDialog("", owner))
-			{
-				await installActionAsync();
-			}
-
+			await installActionAsync();
+			
 			window.DialogResult = true;
 		}
 	}

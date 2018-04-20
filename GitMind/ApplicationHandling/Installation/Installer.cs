@@ -111,12 +111,13 @@ namespace GitMind.ApplicationHandling.Installation
 				}
 
 				dialog.Message = "";
+				dialog.IsButtonsVisible = false;
 
 				using (Progress progress = progressService.ShowDialog("", dialog))
 				{
 					await InstallSilentAsync(progress);
 				}
-
+				
 				Message.ShowInfo(
 					"Setup has finished installing GitMind.",
 					SetupTitle,
@@ -141,11 +142,15 @@ namespace GitMind.ApplicationHandling.Installation
 
 			if (showDialog != true)
 			{
+				Log.Usage("Install canceled.");
+				Log.Warn("Dialog canceled");
 				return;
 			}
 
 			if (isCanceled)
 			{
+				Log.Usage("Install canceled.");
+				Log.Warn("Is canceled");
 				return;
 			}
 
@@ -188,7 +193,7 @@ namespace GitMind.ApplicationHandling.Installation
 		}
 
 
-		private async Task InstallSilentAsync(Progress progress)
+		private async Task<R> InstallSilentAsync(Progress progress)
 		{
 			Log.Usage("Installing ...");
 			progress?.SetText("Installing GitMind ...");
@@ -204,8 +209,17 @@ namespace GitMind.ApplicationHandling.Installation
 			await Task.Yield();
 			Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
 			progress?.SetText("Downloading git ...");
-			await gitEnvironmentService.InstallGitAsync(text => dispatcher.Invoke(() => progress?.SetText(text)));
+			R gitResult = await gitEnvironmentService.InstallGitAsync(
+				text => dispatcher.Invoke(() => progress?.SetText(text)));
 			Log.Usage("Installed");
+
+			if (gitResult.IsFaulted)
+			{
+				Track.Error($"Failed to install git {gitResult}");
+				return gitResult;
+			}
+
+			return R.Ok;
 		}
 
 
