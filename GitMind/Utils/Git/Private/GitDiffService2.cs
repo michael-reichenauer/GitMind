@@ -68,7 +68,7 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<string>> GetFileDiffAsync(string sha, string path, CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmdService.RunAsync(
-				$"show --patch --root  {sha} --cc \"{path}\" ", ct);
+				$"show --patch --root  {sha} -- \"{path}\" ", ct);
 
 			if (result.IsFaulted)
 			{

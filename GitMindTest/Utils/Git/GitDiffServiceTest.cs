@@ -59,19 +59,50 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file2.txt", "text22");
 			GitCommit commit2 = await git.CommitAllChangesAsync("Message2");
 
-			R<string> result = await cmd.GetFileDiffAsync(commit1.Sha.Sha, "file1.txt", ct);
-			Assert.AreEqual(true, result.IsOk);
+			R<string> result1 = await cmd.GetFileDiffAsync(commit1.Sha.Sha, "file1.txt", ct);
+			Assert.AreEqual(true, result1.IsOk);
 
-			CommitDiff diff = await diffParser.ParseAsync(commit1.Sha, result.Value, false, false);
-			Assert.IsNotNullOrEmpty(File.ReadAllText(diff.LeftPath));
-			Assert.IsNotNullOrEmpty(File.ReadAllText(diff.RightPath));
+			// "file1.txt" ####
+			CommitDiff diff = await diffParser.ParseAsync(commit1.Sha, result1.Value, false, false);
+			Assert.IsNullOrEmpty(File.ReadAllText(diff.LeftPath));
+			Assert.AreEqual("text1\r\n", File.ReadAllText(diff.RightPath));
 
-			result = await cmd.GetFileDiffAsync(commit2.Sha.Sha, "file2.txt", ct);
-			Assert.AreEqual(true, result.IsOk);
+			R<string> result2 = await cmd.GetFileDiffAsync(commit2.Sha.Sha, "file2.txt", ct);
+			Assert.AreEqual(true, result2.IsOk);
 
-			CommitDiff diff2 = await diffParser.ParseAsync(commit1.Sha, result.Value, false, false);
-			Assert.IsNotNullOrEmpty(File.ReadAllText(diff2.LeftPath));
-			Assert.IsNotNullOrEmpty(File.ReadAllText(diff2.RightPath));
+			// "file2.txt" ####
+			CommitDiff diff2 = await diffParser.ParseAsync(commit1.Sha, result2.Value, false, false);
+			Assert.AreEqual("text2", File.ReadAllText(diff2.LeftPath));
+			Assert.AreEqual("text22\r\n", File.ReadAllText(diff2.RightPath));
+		}
+
+
+		[Test]
+		public async Task TestDiffDeletedFiletAsync()
+		{
+			GitDiffParser diffParser = new GitDiffParser();
+
+			await git.InitRepoAsync();
+
+			io.WriteFile("file1.txt", "text1");
+			GitCommit commit1 = await git.CommitAllChangesAsync("Message1");
+
+			io.DeleteFile("file1.txt");
+			GitCommit commit2 = await git.CommitAllChangesAsync("Message2");
+
+			R<string> result1 = await cmd.GetFileDiffAsync(commit1.Sha.Sha, "file1.txt", ct);
+			Assert.AreEqual(true, result1.IsOk);
+
+			CommitDiff diff1 = await diffParser.ParseAsync(commit1.Sha, result1.Value, false, false);
+			Assert.IsNullOrEmpty(File.ReadAllText(diff1.LeftPath));
+			Assert.AreEqual("text1\r\n", File.ReadAllText(diff1.RightPath));
+
+			R<string> result2 = await cmd.GetFileDiffAsync(commit2.Sha.Sha, "file1.txt", ct);
+			Assert.AreEqual(true, result2.IsOk);
+
+			CommitDiff diff2 = await diffParser.ParseAsync(commit2.Sha, result2.Value, false, false);
+			Assert.AreEqual("text1\r", File.ReadAllText(diff2.LeftPath));
+			Assert.IsNullOrEmpty(File.ReadAllText(diff2.RightPath));
 		}
 
 

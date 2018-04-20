@@ -33,54 +33,9 @@ namespace GitMind.Features.Diffing.Private
 				StringBuilder left = new StringBuilder();
 				StringBuilder right = new StringBuilder();
 
-				// MUst be fixed ####
-				int diffFileIndex = 0;
+				ExtractLeftAndRightSides(patchLines, left, right, files, addPrefixes, isConflicts);
 
-				int index = 0;
-
-				while (index != -1)
-				{
-					diffFileIndex++;
-					string prefix = addPrefixes ? $"{diffFileIndex}| " : "";
-
-					index = TryFindNextFile(index, patchLines);
-					if (index == -1)
-					{
-						break;
-					}
-
-					if (prefix != "")
-					{
-						
-						left.AppendLine(prefix + FilePart);
-						right.AppendLine(prefix + FilePart);
-
-						string fileName = GetFileName(index, patchLines, isConflicts);
-						files.Add(fileName);
-						left.AppendLine(prefix + fileName);
-						right.AppendLine(prefix + fileName);
-
-						left.AppendLine(prefix + FilePart);
-						right.AppendLine(prefix + FilePart);
-					}
-
-					index = FindFileDiff(index, patchLines);
-					index = WriteFileDiff(index, patchLines, left, right, prefix);
-
-					if (prefix != "")
-					{
-						left.AppendLine(prefix);
-						left.AppendLine(prefix);
-						right.AppendLine(prefix);
-						right.AppendLine(prefix);
-					}
-				}
-
-				string tempPath = Path.Combine(Path.GetTempPath(), "GitMind");
-				if (!Directory.Exists(tempPath))
-				{
-					Directory.CreateDirectory(tempPath);
-				}
+				string tempPath = GetTempPath();
 
 				string shortId = commitSha?.ShortSha ?? "";
 				string leftName = $"Commit {shortId}-before";
@@ -88,26 +43,106 @@ namespace GitMind.Features.Diffing.Private
 				string leftPath = Path.Combine(tempPath, leftName);
 				string rightPath = Path.Combine(tempPath, rightName);
 
-				if (addPrefixes)
-				{
-					StringBuilder filesText = new StringBuilder();
-					filesText.AppendLine($"Changed files: {files.Count}");
-					files.ForEach(file =>
-					{
-						filesText.AppendLine("   " + file);
-					});
-
-					File.WriteAllText(leftPath, filesText + "\n\n" + left);
-					File.WriteAllText(rightPath, filesText + "\n\n" + right);
-				}
-				else
-				{
-					File.WriteAllText(leftPath, left.ToString());
-					File.WriteAllText(rightPath, right.ToString());
-				}			
+				WriteFiles(addPrefixes, files, leftPath, left, rightPath, right);
 
 				return new CommitDiff(leftPath, rightPath);
 			});
+		}
+
+
+		private void ExtractLeftAndRightSides(
+			string[] patchLines,
+			StringBuilder left,
+			StringBuilder right,
+			List<string> files, bool addPrefixes,
+			bool isConflicts)
+		{
+			// MUst be fixed ####
+			int diffFileIndex = 0;
+
+			int index = 0;
+
+			while (index != -1)
+			{
+				diffFileIndex++;
+				string prefix = addPrefixes ? $"{diffFileIndex}| " : "";
+
+				index = TryFindNextFile(index, patchLines);
+				if (index == -1)
+				{
+					break;
+				}
+
+				string fileName = GetFileName(index, patchLines, isConflicts);
+
+				if (prefix != "")
+				{
+					left.AppendLine(prefix + FilePart);
+					right.AppendLine(prefix + FilePart);
+
+					files.Add(fileName);
+					left.AppendLine(prefix + fileName);
+					right.AppendLine(prefix + fileName);
+
+					left.AppendLine(prefix + FilePart);
+					right.AppendLine(prefix + FilePart);
+				}
+
+				index = FindFileDiff(index, patchLines);
+				index = WriteFileDiff(index, patchLines, left, right, prefix);
+
+				if (prefix != "")
+				{
+					left.AppendLine(prefix);
+					left.AppendLine(prefix);
+					right.AppendLine(prefix);
+					right.AppendLine(prefix);
+				}
+			}
+		}
+
+
+		private static void WriteFiles(
+			bool addPrefixes,
+			List<string> files,
+			string leftPath,
+			StringBuilder left,
+			string rightPath,
+			StringBuilder right)
+		{
+			if (addPrefixes)
+			{
+				string filesText = GetFileListText(files);
+
+				File.WriteAllText(leftPath, filesText + "\n\n" + left);
+				File.WriteAllText(rightPath, filesText + "\n\n" + right);
+			}
+			else
+			{
+				File.WriteAllText(leftPath, left.ToString());
+				File.WriteAllText(rightPath, right.ToString());
+			}
+		}
+
+
+		private static string GetFileListText(List<string> files)
+		{
+			StringBuilder filesText = new StringBuilder();
+			filesText.AppendLine($"Changed files: {files.Count}");
+			files.ForEach(file => { filesText.AppendLine("   " + file); });
+			return filesText.ToString();
+		}
+
+
+		private static string GetTempPath()
+		{
+			string tempPath = Path.Combine(Path.GetTempPath(), "GitMind");
+			if (!Directory.Exists(tempPath))
+			{
+				Directory.CreateDirectory(tempPath);
+			}
+
+			return tempPath;
 		}
 
 

@@ -69,6 +69,32 @@ namespace GitMind.Features.Diffing.Private
 			await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 		}
 
+
+		public async Task ShowFileDiffAsync(CommitSha commitSha, string path)
+		{
+			string patch;
+			if (commitSha == CommitSha.Uncommitted)
+			{
+				if (!(await gitDiffService2.GetUncommittedFileDiffAsync(
+					path, CancellationToken.None)).HasValue(out patch))
+				{
+					return;
+				}
+			}
+			else
+			{
+				if (!(await gitDiffService2.GetFileDiffAsync(
+					commitSha.Sha, path, CancellationToken.None)).HasValue(out patch))
+				{
+					return;
+				}
+			}
+
+			CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, false, false);
+			await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
+		}
+
+
 		public async Task ShowPreviewMergeDiffAsync(CommitSha commitSha1, CommitSha commitSha2)
 		{
 
@@ -280,31 +306,6 @@ namespace GitMind.Features.Diffing.Private
 			string fullPath = Path.Combine(workingFolder, file.Path);
 
 			await GetFileAsync(fileId, fullPath);
-		}
-
-
-		public async Task ShowFileDiffAsync(CommitSha commitSha, string path)
-		{
-			string patch;
-			if (commitSha == CommitSha.Uncommitted)
-			{
-				if (!(await gitDiffService2.GetUncommittedFileDiffAsync(
-					path, CancellationToken.None)).HasValue(out patch))
-				{
-					return;
-				}
-			}
-			else
-			{
-				if (!(await gitDiffService2.GetFileDiffAsync(
-					commitSha.Sha, path, CancellationToken.None)).HasValue(out patch))
-				{
-					return;
-				}
-			}
-
-			CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, false, false);
-			await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 		}
 
 
