@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling;
 using GitMind.Git;
 using GitMind.Utils.OsSystem;
 
@@ -10,11 +12,13 @@ namespace GitMind.Utils.Git.Private
 	internal class GitDiffService2 : IGitDiffService2
 	{
 		private readonly IGitCmdService gitCmdService;
+		private readonly WorkingFolderPath workingFolder;
 
 
-		public GitDiffService2(IGitCmdService gitCmdService)
+		public GitDiffService2(IGitCmdService gitCmdService, WorkingFolderPath workingFolder)
 		{
 			this.gitCmdService = gitCmdService;
+			this.workingFolder = workingFolder;
 		}
 
 
@@ -98,12 +102,15 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<string>> GetUncommittedDiffAsync(CancellationToken ct)
 		{
+			string mergeIpPath = Path.Combine(workingFolder, ".git", "MERGE_HEAD");
+			bool isMergeInProgress = File.Exists(mergeIpPath);
+
 			R<CmdResult2> addResult = await gitCmdService.RunAsync("add .", ct);
 			if (addResult.IsFaulted)
 			{
 				return Error.From("Failed to get uncommitted diff", addResult);
 			}
-
+			
 			R<CmdResult2> diffResult = await gitCmdService.RunAsync(
 				$"diff --find-renames --cached", ct);
 			if (diffResult.IsFaulted)
@@ -111,10 +118,14 @@ namespace GitMind.Utils.Git.Private
 				return Error.From("Failed to get uncommitted diff", diffResult);
 			}
 
-			R<CmdResult2> resetResult = await gitCmdService.RunAsync("reset", ct);
-			if (resetResult.IsFaulted)
+			if (!isMergeInProgress)
 			{
-				return Error.From("Failed to get uncommitted diff", resetResult);
+				// Not resetting if merge is in progress, since that will abort the merge
+				R<CmdResult2> resetResult = await gitCmdService.RunAsync("reset", ct);
+				if (resetResult.IsFaulted)
+				{
+					return Error.From("Failed to get uncommitted diff", resetResult);
+				}
 			}
 
 			Log.Info("Got uncommitted diff");
