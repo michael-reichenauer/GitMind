@@ -201,8 +201,6 @@
     <Compile Include="Features\StatusHandling\Private\FolderMonitorService.cs" />
     <Compile Include="Git\BranchName.cs" />
     <Compile Include="Git\GitDivergence.cs" />
-    <Compile Include="Features\Diffing\Private\GitDiffService.cs" />
-    <Compile Include="Features\Diffing\Private\IGitDiffService.cs" />
     <Compile Include="Features\Branches\Private\GitBranchService.cs" />
     <Compile Include="Git\Private\GitCommitBranchNameService.cs" />
     <Compile Include="Features\Branches\Private\IGitBranchService.cs" />
