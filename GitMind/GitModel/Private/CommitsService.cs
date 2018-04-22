@@ -27,21 +27,26 @@ namespace GitMind.GitModel.Private
 		{
 			int addedCount = 0;
 			CancellationTokenSource cts = new CancellationTokenSource();
+			int seenCount = 0;
 			void OnCommit(GitCommit commit)
 			{
-				//gitCommit = ToGitCommit(gitLibCommit);
-
 				CommitId commitId = new CommitId(commit.Sha);
 
 				if (repository.GitCommits.TryGetValue(commitId, out _))
 				{
-					Log.Debug($"Commit {commitId} already cached");
-					cts.Cancel();
-					return;
+					seenCount++;
+					if (seenCount > 100)
+					{
+						Log.Debug($"Commit {commitId} already cached");
+						cts.Cancel();
+					}
 				}
-
-				repository.GitCommits[commitId] = commit;
-				addedCount++;
+				else
+				{
+					seenCount = 0;
+					repository.GitCommits[commitId] = commit;
+					addedCount++;
+				}
 			}
 
 			R result = await gitLogService.GetLogAsync(OnCommit, cts.Token);

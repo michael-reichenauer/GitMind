@@ -98,7 +98,6 @@ namespace GitMind.GitModel.Private
 			}
 
 			IReadOnlyList<GitBranch2> branches = branchesResult.Value;
-			//using (GitRepository gitRepository = GitRepository.Open(diffService, gitRepositoryPath))
 
 			repository.Status = status ?? await statusService.GetStatusAsync();
 			t.Log("Got status");
