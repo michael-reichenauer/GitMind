@@ -39,18 +39,45 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		//public async Task<R<string>> GetCommitDiffAsync(string sha, CancellationToken ct)
+		//{
+		//	R<CmdResult2> result = await gitCmdService.RunAsync(
+		//		$"show --patch --root {sha}", ct);
+
+		//	if (result.IsFaulted)
+		//	{
+		//		return Error.From($"Failed to get commit diff for {sha}", result);
+		//	}
+
+		//	Log.Info($"Got path for {sha}");
+		//	return R.From(result.Value.Output);
+		//}
+
+
 		public async Task<R<string>> GetCommitDiffAsync(string sha, CancellationToken ct)
 		{
-			R<CmdResult2> result = await gitCmdService.RunAsync(
-				$"show --patch --cc --root {sha}", ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync(
+				$"diff --patch --root {sha}^..{sha}", ct);
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to get commit diff for {sha}", result);
+				if (result.Error.StartsWith("fatal: ambiguous argument"))
+				{
+					// Failed to get diff for sha, might be root commit, so try again
+					CmdResult2 showRootResult = await gitCmdService.RunCmdAsync(
+						$"show --patch --root {sha}", ct);
+					if (showRootResult.IsOk)
+					{
+						Log.Info($"Got diff patch for root {sha}");
+						return R.From(showRootResult.Output);
+					}
+				}
+
+				return Error.From($"Failed to get commit diff for {sha}", result.AsError());
 			}
 
-			Log.Info($"Got path for {sha}");
-			return R.From(result.Value.Output);
+			Log.Info($"Got diff patch for {sha}");
+			return R.From(result.Output);
 		}
 
 

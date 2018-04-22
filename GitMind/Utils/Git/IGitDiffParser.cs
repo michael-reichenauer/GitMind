@@ -3,7 +3,7 @@ using GitMind.Common;
 using GitMind.Git;
 
 
-namespace GitMind.Features.Diffing.Private
+namespace GitMind.Utils.Git
 {
 	internal interface IGitDiffParser
 	{

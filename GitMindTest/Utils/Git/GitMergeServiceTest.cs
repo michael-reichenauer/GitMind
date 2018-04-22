@@ -1,9 +1,12 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Features.Diffing.Private;
 using GitMind.Git;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 using GitMindTest.Utils.Git.Private;
 using NUnit.Framework;
 
@@ -115,6 +118,8 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestConflictsResolveAsync()
 		{
+			GitDiffParser diffParser = new GitDiffParser();
+
 			await git.InitRepoAsync();
 
 			// Add some files as initial add on master
@@ -123,7 +128,7 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file3.txt", "Text 3");
 			io.WriteFile("file4.txt", "Text 4");
 			io.WriteFile("file5.txt", "Text 5");
-			await git.CommitAllChangesAsync("Initial add on master");
+			GitCommit masterCommit1 = await git.CommitAllChangesAsync("Initial add on master");
 
 			// Create branch1
 			await git.BranchAsync("branch1");
@@ -133,7 +138,7 @@ namespace GitMindTest.Utils.Git
 			io.WriteFile("file4.txt", "Text 42 on branch");
 			io.DeleteFile("file5.txt");                           // Delete 5 on branch
 			io.WriteFile("file6.txt", "Text 62 on branch");        // Added 6 on branch
-			await git.CommitAllChangesAsync("Message 1 on branch1");
+			GitCommit branchCommit1 = await git.CommitAllChangesAsync("Message 1 on branch1");
 
 			// Switch to master and make some changes and commit
 			await git.CheckoutAsync("master");
@@ -143,7 +148,7 @@ namespace GitMindTest.Utils.Git
 																														// No change on file 4
 			io.DeleteFile("file5.txt");                           // Delete 5 om master
 			io.WriteFile("file6.txt", "Text 62 on master");        // added on master
-			await git.CommitAllChangesAsync("Message 2 on master");
+			GitCommit masterCommit2 = await git.CommitAllChangesAsync("Message 2 on master");
 
 			// Merge branch to master, expecting 1CMM, 2CMD, 3CDM, 4M, (no 5), 6CAA
 			R result = await cmd.MergeAsync("branch1", ct);
@@ -188,8 +193,18 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(1, status.Deleted);
 			Assert.AreEqual(0, status.Conflicted);
 
+
 			GitCommit mergeCommit = await git.CommitAllChangesAsync(status.MergeMessage);
-			string mergeDiff = await git.Service<IGitDiffService2>().Call(m => m.GetCommitDiffAsync(mergeCommit.Sha.Sha, ct));
+			string mergePatch = await git.Service<IGitDiffService2>().Call(m => m.GetCommitDiffAsync(mergeCommit.Sha.Sha, ct));
+			string mergePatch2 = await git.Service<IGitDiffService2>().Call(
+				m => m.GetCommitDiffAsync(mergeCommit.Sha.Sha, ct));
+			CommitDiff diff = await diffParser.ParseAsync(mergeCommit.Sha, mergePatch, true, false);
+			CommitDiff diff2 = await diffParser.ParseAsync(mergeCommit.Sha, mergePatch2, true, false);
+			string left = File.ReadAllText(diff.LeftPath);
+			string right = File.ReadAllText(diff.RightPath);
+
+			string left2 = File.ReadAllText(diff2.LeftPath);
+			string right2 = File.ReadAllText(diff2.RightPath);
 		}
 
 

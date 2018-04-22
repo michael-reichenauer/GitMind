@@ -435,7 +435,7 @@ namespace GitMind.Features.Diffing.Private
 			////}
 
 			// Temp workaround to trigger status update after resolving conflicts, ill be handled better
-			string tempPath = path + ".resolve_tmp";
+			string tempPath = fullPath + ".resolve_tmp";
 			File.AppendAllText(tempPath, "tmp");
 			File.Delete(tempPath);
 		}

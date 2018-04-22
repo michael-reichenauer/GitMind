@@ -4,6 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Common;
+using GitMind.Features.Diffing.Private;
+using GitMind.Git;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -115,6 +118,9 @@ namespace GitMindTest.Utils.Git.Private
 
 		public Task<GitCommit> GetCommit(string sha) => Service<IGitCommitService2>().Call(s => s.GetCommitAsync(sha, ct));
 
+
+		public Task<CommitDiff> ParsePatchAsync(CommitSha commitSha, string patch, bool addPrefixes = true) =>
+			am.Resolve<IGitDiffParser>().ParseAsync(commitSha, patch, addPrefixes, false);
 
 		public SomeService<T> Service<T>() => new SomeService<T>(am.Resolve<T>());
 

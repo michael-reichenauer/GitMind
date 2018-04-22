@@ -388,8 +388,8 @@
     <Compile Include="Utils\AsyncSemaphore.cs" />
     <Compile Include="Utils\EnumerableExtensions.cs" />
     <Compile Include="Utils\Error.cs" />
-    <Compile Include="Features\Diffing\Private\GitDiffParser.cs" />
-    <Compile Include="Features\Diffing\Private\IGitDiffParser.cs" />
+    <Compile Include="Utils\Git\Private\GitDiffParser.cs" />
+    <Compile Include="Utils\Git\IGitDiffParser.cs" />
     <Compile Include="GitModel\Private\MergeBranchNames.cs" />
     <Compile Include="ApplicationHandling\Installation\IInstaller.cs" />
     <Compile Include="ApplicationHandling\ILatestVersionService.cs" />

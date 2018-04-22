@@ -1,10 +1,10 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using GitMind.Features.Diffing.Private;
 using GitMind.Git;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 using GitMindTest.Utils.Git.Private;
 using NUnit.Framework;
 
@@ -17,8 +17,6 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestDiffCommitAsync()
 		{
-			GitDiffParser diffParser = new GitDiffParser();
-
 			await git.InitRepoAsync();
 
 			io.WriteFile("file1.txt", "text1");
@@ -32,16 +30,16 @@ namespace GitMindTest.Utils.Git
 			R<string> result = await cmd.GetCommitDiffAsync(commit1.Sha.Sha, ct);
 			Assert.AreEqual(true, result.IsOk);
 
-			CommitDiff diff = await diffParser.ParseAsync(commit1.Sha, result.Value, true, false);
-			Assert.IsNotNullOrEmpty(File.ReadAllText(diff.LeftPath));
-			Assert.IsNotNullOrEmpty(File.ReadAllText(diff.RightPath));
+			CommitDiff diff = await git.ParsePatchAsync(commit1.Sha, result.Value);
+			Assert.IsNotNullOrEmpty(diff.LeftText);
+			Assert.IsNotNullOrEmpty(diff.RightText);
 
 			result = await cmd.GetCommitDiffAsync(commit2.Sha.Sha, ct);
 			Assert.AreEqual(true, result.IsOk);
 
-			CommitDiff diff2 = await diffParser.ParseAsync(commit1.Sha, result.Value, true, false);
-			Assert.IsNotNullOrEmpty(File.ReadAllText(diff2.LeftPath));
-			Assert.IsNotNullOrEmpty(File.ReadAllText(diff2.RightPath));
+			CommitDiff diff2 = await git.ParsePatchAsync(commit1.Sha, result.Value);
+			Assert.IsNotNullOrEmpty(diff2.LeftText);
+			Assert.IsNotNullOrEmpty(diff2.RightText);
 		}
 
 		[Test]
