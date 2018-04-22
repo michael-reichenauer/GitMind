@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using GitMind.Common;
 using GitMind.Git;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
@@ -15,17 +16,22 @@ namespace GitMind.GitModel.Private
 
 		public MCommit()
 		{
-			gitCommit = new Lazy<GitCommit>(() => Repository.GitCommits[Id]);
+			gitCommit = new Lazy<GitCommit>(() =>
+			{
+				try
+				{
+					return Repository.GitCommits[Id];
+				}
+				catch (Exception e)
+				{
+					Log.Exception(e, $"Failed to get commit {Id}");
+					throw;
+				}
+			});
 		}
 
 		[DataMember] public CommitId Id { get; set; }
 		[DataMember] public string BranchId { get; set; }
-
-		//[DataMember] public string Subject { get; set; }
-		//[DataMember]public string Author { get; set; }
-		//[DataMember] public DateTime AuthorDate { get; set; }
-		//[DataMember] public DateTime CommitDate { get; set; }
-		//[DataMember] public List<CommitId> ParentIds { get; set; } = new List<CommitId>();
 
 		public CommitSha Sha => gitCommit.Value.Sha;
 		public string Subject => gitCommit.Value.Subject;
@@ -53,7 +59,21 @@ namespace GitMind.GitModel.Private
 
 
 		public CommitId RealCommitId => IsVirtual && Id != CommitId.Uncommitted && Id != CommitId.NoCommits ? FirstParent.Id : Id;
-		public CommitSha RealCommitSha => IsVirtual && Id != CommitId.Uncommitted && Id != CommitId.NoCommits ? FirstParent.Sha : Sha;
+		public CommitSha RealCommitSha
+		{
+			get
+			{
+				try
+				{
+					return IsVirtual && Id != CommitId.Uncommitted && Id != CommitId.NoCommits ? FirstParent.Sha : Sha;
+				}
+				catch (Exception e)
+				{
+					Log.Exception(e, $"Sha {Sha} has no parent");
+					throw;
+				}
+			}
+		}
 
 		public string ShortId => RealCommitSha.ShortSha;
 
