@@ -77,10 +77,11 @@ namespace GitMind.Common.MessageDialogs
 	{
 		public static void ShowInfo(
 			string message,
-			string title = null)
+			string title = null,
+			Window owner = null)
 		{
 			MessageDialog dialog = new MessageDialog(
-				null,
+				owner,
 				message,
 				title ?? "GitMind",
 				MessageBoxButton.OK,
@@ -107,10 +108,11 @@ namespace GitMind.Common.MessageDialogs
 
 		public static bool ShowAskOkCancel(
 			string message,
-			string title = null)
+			string title = null,
+			Window owner = null)
 		{
 			MessageDialog dialog = new MessageDialog(
-				null,
+				owner,
 				message,
 				title ?? "GitMind",
 				MessageBoxButton.OKCancel,

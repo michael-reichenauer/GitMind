@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Remote;
 using GitMind.Features.StatusHandling;
-using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -21,7 +20,7 @@ namespace GitMind.GitModel.Private
 		private static readonly TimeSpan RemoteRepositoryInterval = TimeSpan.FromSeconds(15);
 		private static readonly TimeSpan MinCreateTimeBeforeCaching = TimeSpan.FromMilliseconds(1000);
 
-		private readonly IGitFetch gitFetch;
+
 		private readonly IStatusService statusService;
 		private readonly ICacheService cacheService;
 		private readonly ICommitsFiles commitsFiles;
@@ -34,7 +33,6 @@ namespace GitMind.GitModel.Private
 		private AsyncLock syncRootAsync = new AsyncLock();
 
 		public RepositoryService(
-			IGitFetch gitFetch,
 			IStatusService statusService,
 			ICacheService cacheService,
 			ICommitsFiles commitsFiles,
@@ -43,7 +41,6 @@ namespace GitMind.GitModel.Private
 			IProgressService progressService,
 			IBranchTipMonitorService branchTipMonitorService)
 		{
-			this.gitFetch = gitFetch;
 			this.statusService = statusService;
 			this.cacheService = cacheService;
 			this.commitsFiles = commitsFiles;
@@ -84,12 +81,10 @@ namespace GitMind.GitModel.Private
 			R<Repository> repository = await GetCachedRepositoryAsync(workingFolder);
 			if (!repository.IsOk)
 			{
-				await remoteService.Value.FetchAllNotesAsync();
-
 				repository = await GetFreshRepositoryAsync(workingFolder, null);
 			}
 
-			Repository = repository.Value;			
+			Repository = repository.Value;
 		}
 
 
@@ -116,20 +111,20 @@ namespace GitMind.GitModel.Private
 		{
 			Timing t = new Timing();
 			await branchTipMonitorService.CheckAsync(Repository);
-			t.Log("branchTipMonitorService.Check");
+			t.Log("Check branch tips");
 		}
 
 
 		public async Task UpdateRepositoryAfterCommandAsync()
 		{
-			Task<Status> statusTask = statusService.GetStatusAsync();
+			Task<GitStatus2> statusTask = statusService.GetStatusAsync();
 			Task<IReadOnlyList<string>> repoIdsTask = statusService.GetRepoIdsAsync();
 
-			Status status = await statusTask;
+			GitStatus2 status = await statusTask;
 			IReadOnlyList<string> repoIds = await repoIdsTask;
 
 			if (Repository.Status.IsSame(status)
-			    && Repository.MRepository.RepositoryIds.SequenceEqual(repoIds))
+					&& Repository.MRepository.RepositoryIds.SequenceEqual(repoIds))
 			{
 				Log.Debug("Repository has not changed after command");
 				return;
@@ -157,17 +152,21 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task CheckRemoteChangesAsync(bool isFetchNotes)
+		public async Task CheckRemoteChangesAsync(bool isFetchNotes, bool isManual = false)
 		{
-			if (DateTime.Now - fetchedTime < RemoteRepositoryInterval)
+			if (!isManual && Settings.Get<Options>().DisableAutoUpdate)
+			{
+				Log.Info("DisableAutoUpdate = true");
+				return;
+			}
+
+			if (!isManual && DateTime.Now - fetchedTime < RemoteRepositoryInterval)
 			{
 				Log.Debug("No need the check remote yet");
 				return;
 			}
 
 			Log.Debug("Fetching");
-
-			await gitFetch.FetchAsync(CancellationToken.None);
 
 			if (isFetchNotes)
 			{
@@ -187,11 +186,11 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task GetRemoteAndFreshRepositoryAsync()
+		public async Task GetRemoteAndFreshRepositoryAsync(bool isManual)
 		{
 			Timing t = new Timing();
 			fetchedTime = DateTime.MinValue;
-			await CheckRemoteChangesAsync(true);
+			await CheckRemoteChangesAsync(true, isManual);
 			t.Log("Remote check");
 			await GetFreshRepositoryAsync();
 			t.Log("Got Fresh Repository");
@@ -200,7 +199,7 @@ namespace GitMind.GitModel.Private
 
 		private async void OnRepoChanged(IReadOnlyList<string> repoIds)
 		{
-			if (Repository?.MRepository?.RepositoryIds.SequenceEqual(repoIds) ?? true) 
+			if (Repository?.MRepository?.RepositoryIds.SequenceEqual(repoIds) ?? true)
 			{
 				Log.Debug("Same repo");
 				return;
@@ -214,7 +213,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async void OnStatusChanged(Status status)
+		private async void OnStatusChanged(GitStatus2 status)
 		{
 			try
 			{
@@ -234,11 +233,11 @@ namespace GitMind.GitModel.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, "Error handling status change");
-			}			
+			}
 		}
 
 
-		private async Task UpdateRepositoryAsync(Status status, IReadOnlyList<string> repoIds)
+		private async Task UpdateRepositoryAsync(GitStatus2 status, IReadOnlyList<string> repoIds)
 		{
 			if (Repository == null)
 			{
@@ -288,7 +287,7 @@ namespace GitMind.GitModel.Private
 
 
 		private async Task<Repository> UpdateRepositoryAsync(
-			Repository sourcerepository, Status status, IReadOnlyList<string> branchIds)
+			Repository sourcerepository, GitStatus2 status, IReadOnlyList<string> branchIds)
 		{
 			using (await syncRootAsync.LockAsync())
 			{
@@ -342,7 +341,7 @@ namespace GitMind.GitModel.Private
 			}
 			catch (Exception e)
 			{
-				Log.Exception(e, "Failed to read cached repository");		
+				Log.Exception(e, "Failed to read cached repository");
 				return e;
 			}
 			finally

@@ -92,9 +92,9 @@ namespace GitMind.GitModel
 		public Branch MainbBranch => Repository.Branches[MainBranchId];
 		public bool IsCurrentBranch => Repository.CurrentBranch == this 
 			|| IsMainPart && LocalSubBranch.IsCurrentBranch;
-		public bool IsUncommited => IsCurrentBranch && !Repository.Status.IsOK;
-		public bool IsCanBeMergeToOther => !IsCurrentBranch && Repository.Status.IsOK;
-			public bool ICanBeMergeIntoThis => IsCurrentBranch && Repository.Status.IsOK;
+		public bool IsUncommited => IsCurrentBranch && !Repository.Status.OK;
+		public bool IsCanBeMergeToOther => !IsCurrentBranch && Repository.Status.OK;
+			public bool ICanBeMergeIntoThis => IsCurrentBranch && Repository.Status.OK;
 		public bool IsDetached { get; }
 		public Repository Repository { get; }
 

@@ -10,16 +10,18 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitConfigTest : GitTestBase<IGitConfig>
+	public class GitConfigTest : GitTestBase<IGitConfigService>
 	{
-		[Test, Explicit]
+		[Test]
 		public async Task Test()
 		{
-			string ToText(IReadOnlyList<GitSetting> c) =>
-				string.Join("\n", c.Select(p => p.ToString()));
+			//string ToText(IReadOnlyList<GitSetting> c) =>
+			//	string.Join("\n", c.Select(p => p.ToString()));
 
-			IReadOnlyList<GitSetting> config = await gitCmd.GetAsync(ct);
-			Log.Debug($"Config:\n{ToText(config)}");
+			R<IReadOnlyList<GitSetting>> config = await cmd.GetAsync(ct);
+			Assert.AreEqual(true, config.IsOk);
+			Assert.IsTrue(config.Value.Count > 20);
+			//Log.Debug($"Config:\n{ToText(config.Value)}");
 		}
 	}
 }

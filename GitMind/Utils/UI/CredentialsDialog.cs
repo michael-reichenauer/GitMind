@@ -393,9 +393,27 @@ namespace GitMind.Utils.UI
 					// for some reason, this is encountered when credentials are overwritten
 					break;
 
+				case CREDUI.ReturnCodes.ERROR_NOT_FOUND:
+					// for some reason, this is encountered when dialog was not shown
+					break;
+
+
 				default:
 					throw new ApplicationException("Credential confirmation failed. " + confirmCredentials);
 			}
+		}
+
+
+		public bool Delete()
+		{
+			if (string.IsNullOrEmpty(Target))
+			{
+				throw new InvalidOperationException("Target must be specified to delete a credential.");
+			}
+
+			StringBuilder target = string.IsNullOrEmpty(Target) ? new StringBuilder() : new StringBuilder(Target);
+			bool result = CREDUI.CredDelete(target, CREDUI.CredentialType.Generic, 0);
+			return result;
 		}
 
 
@@ -585,6 +603,15 @@ namespace GitMind.Utils.UI
 			ERROR_INVALID_ACCOUNT_NAME = 1315
 		}
 
+		public enum CredentialType
+		{
+			None = 0,
+			Generic = 1,
+			DomainPassword = 2,
+			DomainCertificate = 3,
+			DomainVisiblePassword = 4
+		}
+
 		/// <summary>
 		/// http://www.pinvoke.net/default.aspx/Structures.CREDUI_INFO
 		/// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/credui_info.asp
@@ -627,5 +654,8 @@ namespace GitMind.Utils.UI
 				string targetName,
 				bool confirm
 				);
+
+		[DllImport("advapi32.dll", EntryPoint = "CredDeleteW", CharSet = CharSet.Unicode)]
+		internal static extern bool CredDelete(StringBuilder target, CredentialType type, int flags);
 	}
 }

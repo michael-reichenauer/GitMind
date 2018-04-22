@@ -70,17 +70,31 @@
   <ItemGroup>
     <Compile Include="AutoMocking\Private\AutofacMoqSource.cs" />
     <Compile Include="AutoMocking\AutoMock.cs" />
+    <Compile Include="LogTestNames.cs" />
     <Compile Include="Utils\CmdTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\EquatableTest.cs" />
+    <Compile Include="Utils\Git\GitBranchServiceTest.cs" />
+    <Compile Include="Utils\Git\GitCheckoutServiceTest.cs" />
+    <Compile Include="Utils\Git\GitCommitServiceTest.cs" />
     <Compile Include="Utils\Git\GitConfigTest.cs" />
-    <Compile Include="Utils\Git\GitFetchTest.cs" />
-    <Compile Include="Utils\Git\GitPushTest.cs" />
-    <Compile Include="Utils\Git\GitStatusTest.cs" />
+    <Compile Include="Utils\Git\GitDiffServiceTest.cs" />
+    <Compile Include="Utils\Git\GitFetchServiceTest.cs" />
+    <Compile Include="Utils\Git\GitMergeServiceTest.cs" />
+    <Compile Include="Utils\Git\GitNotesServiceTest.cs" />
+    <Compile Include="Utils\Git\GitPullServiceTest.cs" />
+    <Compile Include="Utils\Git\GitPushServiceTest.cs" />
+    <Compile Include="Utils\Git\GitRepoServiceTest.cs" />
+    <Compile Include="Utils\Git\GitStatusServiceTest.cs" />
+    <Compile Include="Utils\Git\GitTagServiceTest.cs" />
+    <Compile Include="Utils\Git\Private\GitHelper.cs" />
     <Compile Include="Utils\Git\Private\GitTestBase.cs" />
-    <Compile Include="Utils\Git\GitInfoTest.cs" />
+    <Compile Include="Utils\Git\GitEnvironmentServiceTest.cs" />
     <Compile Include="Utils\Git\Private\GitCmdTest.cs" />
     <Compile Include="Utils\Git\GitLogTest.cs" />
+    <Compile Include="Utils\Git\Private\IoHelper.cs" />
+    <Compile Include="Utils\GlobPatterns\GlobTest.cs" />
+    <Compile Include="Utils\Ipc\IpcServiceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

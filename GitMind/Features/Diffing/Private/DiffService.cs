@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using GitMind.ApplicationHandling;
@@ -10,6 +11,7 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.Features.Diffing.Private
@@ -22,33 +24,84 @@ namespace GitMind.Features.Diffing.Private
 		private static readonly string ConflictMarker = "<<<<<<< HEAD";
 
 		private readonly WorkingFolder workingFolder;
-		private readonly IGitDiffService gitDiffService;
+		private readonly IGitDiffService2 gitDiffService2;
+		private readonly IGitStatusService2 gitStatusService2;
+		private readonly IGitDiffParser diffParser;
 		private readonly ICmd cmd;
 
 
 		public DiffService(
 			WorkingFolder workingFolder,
-			IGitDiffService gitDiffService,
+			IGitDiffService2 gitDiffService2,
+			IGitStatusService2 gitStatusService2,
+			IGitDiffParser diffParser,
 			ICmd cmd)
 		{
 			this.workingFolder = workingFolder;
-			this.gitDiffService = gitDiffService;
+			this.gitDiffService2 = gitDiffService2;
+			this.gitStatusService2 = gitStatusService2;
+			this.diffParser = diffParser;
 			this.cmd = cmd;
 		}
 
 
 		public async Task ShowDiffAsync(CommitSha commitSha)
 		{
-			if ((await gitDiffService.GetCommitDiffAsync(commitSha)).HasValue(out var commitDiff))
+			string patch;
+			if (commitSha == CommitSha.Uncommitted)
 			{
-				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
+				if (!(await gitDiffService2.GetUncommittedDiffAsync(
+					CancellationToken.None)).HasValue(out patch))
+				{
+					return;
+				}
 			}
+			else
+			{
+				if (!(await gitDiffService2.GetCommitDiffAsync(
+					commitSha.Sha, CancellationToken.None)).HasValue(out patch))
+				{
+					return;
+				}
+			}
+
+			CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, true, false);
+			await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 		}
+
+
+		public async Task ShowFileDiffAsync(CommitSha commitSha, string path)
+		{
+			string patch;
+			if (commitSha == CommitSha.Uncommitted)
+			{
+				if (!(await gitDiffService2.GetUncommittedFileDiffAsync(
+					path, CancellationToken.None)).HasValue(out patch))
+				{
+					return;
+				}
+			}
+			else
+			{
+				if (!(await gitDiffService2.GetFileDiffAsync(
+					commitSha.Sha, path, CancellationToken.None)).HasValue(out patch))
+				{
+					return;
+				}
+			}
+
+			CommitDiff commitDiff = await diffParser.ParseAsync(commitSha, patch, false, false);
+			await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
+		}
+
 
 		public async Task ShowPreviewMergeDiffAsync(CommitSha commitSha1, CommitSha commitSha2)
 		{
-			if ((await gitDiffService.GetPreviewMergeDiffAsync(commitSha1, commitSha2)).HasValue(out var commitDiff))
+
+			if ((await gitDiffService2.GetPreviewMergeDiffAsync(
+				commitSha1.Sha, commitSha2.Sha, CancellationToken.None)).HasValue(out string patch))
 			{
+				CommitDiff commitDiff = await diffParser.ParseAsync(null, patch, true, false);
 				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 			}
 		}
@@ -56,8 +109,11 @@ namespace GitMind.Features.Diffing.Private
 
 		public async Task ShowDiffRangeAsync(CommitSha commitSha1, CommitSha commitSha2)
 		{
-			if ((await gitDiffService.GetCommitDiffRangeAsync(commitSha1, commitSha2)).HasValue(out var commitDiff))
+			await Task.Yield();
+			if ((await gitDiffService2.GetCommitDiffRangeAsync(
+				commitSha1.Sha, commitSha2.Sha, CancellationToken.None)).HasValue(out string patch))
 			{
+				CommitDiff commitDiff = await diffParser.ParseAsync(null, patch, true, false);
 				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
 			}
 		}
@@ -71,19 +127,17 @@ namespace GitMind.Features.Diffing.Private
 			string yoursPath = GetPath(file, Yours);
 			string theirsPath = GetPath(file, Theirs);
 
-			string fullPath = Path.Combine(workingFolder, file.Path);
-
-			gitDiffService.GetFile(file.Conflict.OursId, yoursPath);
-			gitDiffService.GetFile(file.Conflict.TheirsId, theirsPath);
-			gitDiffService.GetFile(file.Conflict.BaseId, basePath);
+			await GetFileAsync(file.Conflict.LocalId, yoursPath);
+			await GetFileAsync(file.Conflict.RemoteId, theirsPath);
+			await GetFileAsync(file.Conflict.BaseId, basePath);
 
 			if (File.Exists(yoursPath) && File.Exists(theirsPath) && File.Exists(basePath))
 			{
-				await ShowMergeImplAsync(theirsPath, yoursPath, basePath, fullPath);
+				await ShowMergeImplAsync(theirsPath, yoursPath, basePath, file.FullFilePath);
 
 				if (!HasConflicts(file))
 				{
-					await gitDiffService.ResolveAsync(file.Path);
+					await ResolveAsync(file.Path, file.FullFilePath);
 				}
 			}
 
@@ -91,79 +145,75 @@ namespace GitMind.Features.Diffing.Private
 		}
 
 
-
-		public bool CanMergeConflict(CommitFile file)
+		private async Task GetFileAsync(string fileId, string path)
 		{
-			return
-				file.Status.HasFlag(GitFileStatus.Conflict)
-				&& file.Conflict.BaseId != null
-				&& file.Conflict.OursId != null
-				&& file.Conflict.TheirsId != null;
+			if (string.IsNullOrEmpty(fileId))
+			{
+				File.WriteAllText(path, "");
+				return;
+			}
+
+			R<string> yoursFile = await gitStatusService2.GetConflictFile(fileId, CancellationToken.None);
+			if (yoursFile.IsOk)
+			{
+				File.WriteAllText(path, yoursFile.Value);
+			}
 		}
+
+
+		public bool CanMergeConflict(CommitFile file) =>
+			file.Status.HasFlag(GitFileStatus.ConflictMM) ||
+			file.Status.HasFlag(GitFileStatus.ConflictAA);
 
 
 		public async Task UseYoursAsync(CommitFile file)
 		{
 			CleanTempPaths(file);
 
-			UseFile(file, file.Conflict.OursId);
+			await UseFileAsync(file, file.Conflict.LocalId);
 
-			await gitDiffService.ResolveAsync(file.Path);
+			await ResolveAsync(file.Path, file.FullFilePath);
 		}
 
 
 
-		public bool CanUseYours(CommitFile file)
-		{
-			return
-				file.Status.HasFlag(GitFileStatus.Conflict)
-				&& file.Conflict.OursId != null;
-		}
+		public bool CanUseYours(CommitFile file) => !file.Status.HasFlag(GitFileStatus.ConflictDM);
 
 
 		public async Task UseTheirsAsync(CommitFile file)
 		{
 			CleanTempPaths(file);
 
-			UseFile(file, file.Conflict.TheirsId);
+			await UseFileAsync(file, file.Conflict.RemoteId);
 
-			await gitDiffService.ResolveAsync(file.Path);
+			await ResolveAsync(file.Path, file.FullFilePath);
 		}
 
 
-		public bool CanUseTheirs(CommitFile file)
-		{
-			return
-				file.Status.HasFlag(GitFileStatus.Conflict)
-				&& file.Conflict.TheirsId != null;
-		}
+		public bool CanUseTheirs(CommitFile file) => !file.Status.HasFlag(GitFileStatus.ConflictMD);
 
 
 		public async Task UseBaseAsync(CommitFile file)
 		{
 			CleanTempPaths(file);
-			UseFile(file, file.Conflict.BaseId);
+			await UseFileAsync(file, file.Conflict.BaseId);
 
-			await gitDiffService.ResolveAsync(file.Path);
+			await ResolveAsync(file.Path, file.FullFilePath);
 		}
 
 
-		public bool CanUseBase(CommitFile file)
-		{
-			return
-				file.Status.HasFlag(GitFileStatus.Conflict)
-				&& file.Conflict.BaseId != null;
-		}
+		public bool CanUseBase(CommitFile file) => !file.Status.HasFlag(GitFileStatus.ConflictAA);
 
 
 		public async Task DeleteAsync(CommitFile file)
 		{
+			await Task.Yield();
 			CleanTempPaths(file);
-			string fullPath = Path.Combine(workingFolder, file.Path);
+			string fullPath = file.FullFilePath;
 
 			DeletePath(fullPath);
 
-			await gitDiffService.ResolveAsync(file.Path);
+			await ResolveAsync(file.Path, file.FullFilePath);
 		}
 
 
@@ -178,8 +228,8 @@ namespace GitMind.Features.Diffing.Private
 			string yoursPath = GetPath(file, Theirs);
 			string basePath = GetPath(file, Base);
 
-			gitDiffService.GetFile(file.Conflict.OursId, yoursPath);
-			gitDiffService.GetFile(file.Conflict.BaseId, basePath);
+			await GetFileAsync(file.Conflict.LocalId, yoursPath);
+			await GetFileAsync(file.Conflict.BaseId, basePath);
 
 			if (File.Exists(yoursPath) && File.Exists(basePath))
 			{
@@ -197,8 +247,8 @@ namespace GitMind.Features.Diffing.Private
 			string basePath = GetPath(file, Base);
 			string theirsPath = GetPath(file, Theirs);
 
-			gitDiffService.GetFile(file.Conflict.BaseId, basePath);
-			gitDiffService.GetFile(file.Conflict.TheirsId, theirsPath);
+			await GetFileAsync(file.Conflict.BaseId, basePath);
+			await GetFileAsync(file.Conflict.RemoteId, theirsPath);
 
 			if (File.Exists(theirsPath) && File.Exists(basePath))
 			{
@@ -235,20 +285,9 @@ namespace GitMind.Features.Diffing.Private
 		}
 
 
-		private void UseFile(CommitFile file, string fileId)
+		private async Task UseFileAsync(CommitFile file, string fileId)
 		{
-			string fullPath = Path.Combine(workingFolder, file.Path);
-
-			gitDiffService.GetFile(fileId, fullPath);
-		}
-
-
-		public async Task ShowFileDiffAsync(CommitSha commitSha, string name)
-		{
-			if ((await gitDiffService.GetFileDiffAsync(commitSha, name)).HasValue(out var commitDiff))
-			{
-				await ShowDiffImplAsync(commitDiff.LeftPath, commitDiff.RightPath);
-			}
+			await GetFileAsync(fileId, file.FullFilePath);
 		}
 
 
@@ -344,13 +383,13 @@ namespace GitMind.Features.Diffing.Private
 
 		private string GetPath(CommitFile file, string type)
 		{
-			return GetPath(file.Path, type);
+			return GetConflictTypePath(file.FullFilePath, type);
 		}
 
 
-		private string GetPath(string path, string type)
+		private string GetConflictTypePath(string fullPath, string type)
 		{
-			string fullPath = Path.Combine(workingFolder, path);
+			//	string fullPath = Path.Combine(workingFolder, path);
 			string extension = Path.GetExtension(fullPath);
 			return Path.ChangeExtension(fullPath, type + extension);
 		}
@@ -372,5 +411,34 @@ namespace GitMind.Features.Diffing.Private
 				File.Delete(path);
 			}
 		}
+
+		public async Task ResolveAsync(string path, string fullPath)
+		{
+			if (File.Exists(fullPath))
+			{
+				await gitStatusService2.AddAsync(path, CancellationToken.None);
+			}
+			else
+			{
+				await gitStatusService2.RemoveAsync(path, CancellationToken.None);
+			}
+
+			////string fullPath = Path.Combine(workingFolder, path);
+			////Log.Debug($"Resolving {path}");
+			////if (File.Exists(fullPath))
+			////{
+			////	repository.Index.Add(path);
+			////}
+			////else
+			////{
+			////	repository.Remove(path);
+			////}
+
+			// Temp workaround to trigger status update after resolving conflicts, ill be handled better
+			string tempPath = fullPath + ".resolve_tmp";
+			File.AppendAllText(tempPath, "tmp");
+			File.Delete(tempPath);
+		}
+
 	}
 }

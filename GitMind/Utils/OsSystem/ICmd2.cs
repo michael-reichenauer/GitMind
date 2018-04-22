@@ -6,6 +6,8 @@ namespace GitMind.Utils.OsSystem
 {
 	internal interface ICmd2
 	{
+		CmdResult2 Run(string command, string arguments);
+
 		Task<CmdResult2> RunAsync(string command, string arguments, CancellationToken ct);
 
 

@@ -1,10 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
+using GitMind.Common.ProgressHandling;
 using GitMind.Common.Tracking;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using Microsoft.Win32;
 
 
@@ -34,12 +39,20 @@ namespace GitMind.ApplicationHandling.Installation
 
 
 		private readonly ICmd cmd;
+		private readonly IGitEnvironmentService gitEnvironmentService;
+		private readonly IProgressService progressService;
 
 
-		public Installer(ICommandLine commandLine, ICmd cmd)
+		public Installer(
+			ICommandLine commandLine,
+			ICmd cmd,
+			IGitEnvironmentService gitEnvironmentService,
+			IProgressService progressService)
 		{
 			this.commandLine = commandLine;
 			this.cmd = cmd;
+			this.gitEnvironmentService = gitEnvironmentService;
+			this.progressService = progressService;
 		}
 
 
@@ -54,8 +67,7 @@ namespace GitMind.ApplicationHandling.Installation
 			}
 			else if (commandLine.IsInstall && commandLine.IsSilent)
 			{
-				Track.Event("Install-Silent");
-				InstallSilent();
+				Task.Run(() => InstallSilentAsync(null)).Wait();
 
 				if (commandLine.IsRunInstalled)
 				{
@@ -87,29 +99,60 @@ namespace GitMind.ApplicationHandling.Installation
 		{
 			Log.Usage("Install normal.");
 
-			if (!Message.ShowAskOkCancel(
+			InstallDialog dialog = null;
+
+			bool isCanceled = false;
+			async Task InstallActionAsync()
+			{
+				if (!EnsureNoOtherInstancesAreRunning(dialog))
+				{
+					isCanceled = true;
+					return;
+				}
+
+				dialog.Message = "";
+				dialog.IsButtonsVisible = false;
+
+				using (Progress progress = progressService.ShowDialog("", dialog))
+				{
+					await InstallSilentAsync(progress);
+				}
+				
+				Message.ShowInfo(
+					"Setup has finished installing GitMind.",
+					SetupTitle,
+					dialog);
+				Log.Usage("Installed normal.");
+			}
+
+			dialog = new InstallDialog(
+				null,
 				"Welcome to the GitMind setup.\n\n" +
 				" This will:\n" +
 				" - Add a GitMind shortcut in the Start Menu.\n" +
 				" - Add a 'GitMind' context menu item in Windows File Explorer.\n" +
 				" - Make GitMind command available in Command Prompt window.\n\n" +
-				"Click OK to install GitMind or Cancel to exit Setup.",
-				SetupTitle))
+				"Click Install to install GitMind or Cancel to exit Setup.",
+				SetupTitle,
+				(InstallActionAsync)
+				);
+
+			bool? showDialog = dialog.ShowDialog();
+			Log.Debug($"Dialog result: {showDialog}");
+
+			if (showDialog != true)
 			{
+				Log.Usage("Install canceled.");
+				Log.Warn("Dialog canceled");
 				return;
 			}
 
-			if (!EnsureNoOtherInstancesAreRunning())
+			if (isCanceled)
 			{
+				Log.Usage("Install canceled.");
+				Log.Warn("Is canceled");
 				return;
 			}
-
-			InstallSilent();
-			Log.Usage("Installed normal.");
-
-			Message.ShowInfo(
-				"Setup has finished installing GitMind.",
-				SetupTitle);
 
 			StartInstalled();
 		}
@@ -123,7 +166,7 @@ namespace GitMind.ApplicationHandling.Installation
 		}
 
 
-		private static bool EnsureNoOtherInstancesAreRunning()
+		private static bool EnsureNoOtherInstancesAreRunning(Window owner = null)
 		{
 			while (true)
 			{
@@ -137,7 +180,9 @@ namespace GitMind.ApplicationHandling.Installation
 
 					Log.Debug("GitMind instance is already running, needs to be closed.");
 					if (!Message.ShowAskOkCancel(
-						"Please close all instances of GitMind before continue the installation."))
+						"Please close all instances of GitMind before continue the installation.",
+						"GitMind",
+						owner))
 					{
 						return false;
 					}
@@ -148,16 +193,33 @@ namespace GitMind.ApplicationHandling.Installation
 		}
 
 
-		private void InstallSilent()
+		private async Task<R> InstallSilentAsync(Progress progress)
 		{
 			Log.Usage("Installing ...");
+			progress?.SetText("Installing GitMind ...");
 			string path = CopyFileToProgramFiles();
-
+			await Task.Yield();
 			AddUninstallSupport(path);
+			await Task.Yield();
 			CreateStartMenuShortcut(path);
+			await Task.Yield();
 			AddToPathVariable(path);
+			await Task.Yield();
 			AddFolderContextMenu();
+			await Task.Yield();
+			Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
+			progress?.SetText("Downloading git ...");
+			R gitResult = await gitEnvironmentService.InstallGitAsync(
+				text => dispatcher.Invoke(() => progress?.SetText(text)));
 			Log.Usage("Installed");
+
+			if (gitResult.IsFaulted)
+			{
+				Track.Error($"Failed to install git {gitResult}");
+				return gitResult;
+			}
+
+			return R.Ok;
 		}
 
 

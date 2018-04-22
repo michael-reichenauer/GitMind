@@ -38,6 +38,11 @@ namespace GitMind.MainWindowViews
 		{
 			get
 			{
+				if (Window == null)
+				{
+					return null;
+				}
+
 				var source = PresentationSource.FromVisual(Window) as System.Windows.Interop.HwndSource;
 				System.Windows.Forms.IWin32Window win = new OldWindow(source.Handle);
 				return win;

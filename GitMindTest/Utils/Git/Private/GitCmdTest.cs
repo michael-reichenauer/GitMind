@@ -1,32 +1,22 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using GitMind.Utils;
 using GitMind.Utils.Git.Private;
 using GitMind.Utils.OsSystem;
-using GitMindTest.AutoMocking;
 using NUnit.Framework;
 
 
 namespace GitMindTest.Utils.Git.Private
 {
 	[TestFixture]
-	public class GitCmdTest
+	public class GitCmdTest : GitTestBase<IGitCmdService>
 	{
-		private readonly CancellationToken ct = CancellationToken.None;
-
-		[Test, Explicit]
+		[Test]
 		public async Task TestCmd()
 		{
-			using (AutoMock am = new AutoMock()
-				.RegisterNamespaceOf<IGitCmd>()
-				.RegisterNamespaceOf<ICmd2>())
-			{
-				IGitCmd gitCmd = am.Resolve<IGitCmd>();
+			R<CmdResult2> result = await cmd.RunAsync("version", ct);
 
-				CmdResult2 result = await gitCmd.RunAsync("version", ct);
-
-				Assert.AreEqual(0, result.ExitCode);
-				Assert.That(result.Output, Is.StringMatching(@"git version \d\.\d+.*windows"));
-			}
+			Assert.AreEqual(0, result.Value.ExitCode);
+			Assert.That(result.Value.Output, Is.StringMatching(@"git version \d\.\d+.*windows"));
 		}
 	}
 }

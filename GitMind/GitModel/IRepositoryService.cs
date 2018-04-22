@@ -27,8 +27,9 @@ namespace GitMind.GitModel
 		Task UpdateRepositoryAfterCommandAsync();
 
 		Task RefreshAfterCommandAsync(bool useFreshRepository);
-		Task CheckRemoteChangesAsync(bool b);
 
-		Task GetRemoteAndFreshRepositoryAsync();
+		Task CheckRemoteChangesAsync(bool isFetchNotes, bool isManual = false);
+
+		Task GetRemoteAndFreshRepositoryAsync(bool isManual);
 	}
 }

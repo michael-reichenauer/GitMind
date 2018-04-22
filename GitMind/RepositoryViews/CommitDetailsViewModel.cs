@@ -21,7 +21,6 @@ namespace GitMind.RepositoryViews
 		private readonly IDiffService diffService;
 		private readonly IThemeService themeService;
 		private readonly ICommitsService commitsService;
-		private readonly IGitCommitsService gitCommitsService;
 
 		private readonly ObservableCollection<CommitFileViewModel> files =
 			new ObservableCollection<CommitFileViewModel>();
@@ -33,13 +32,11 @@ namespace GitMind.RepositoryViews
 		public CommitDetailsViewModel(
 			IDiffService diffService,
 			IThemeService themeService,
-			ICommitsService commitsService,
-			IGitCommitsService gitCommitsService)
+			ICommitsService commitsService)
 		{
 			this.diffService = diffService;
 			this.themeService = themeService;
 			this.commitsService = commitsService;
-			this.gitCommitsService = gitCommitsService;
 		}
 
 
@@ -138,11 +135,11 @@ namespace GitMind.RepositoryViews
 
 		private static int Compare(GitFileStatus s1, GitFileStatus s2)
 		{
-			if (s1 == GitFileStatus.Conflict && s2 != GitFileStatus.Conflict)
+			if (s1.HasFlag(GitFileStatus.Conflict) && !s2.HasFlag(GitFileStatus.Conflict))
 			{
 				return -1;
 			}
-			else if (s2 == GitFileStatus.Conflict && s1 != GitFileStatus.Conflict)
+			else if (s2.HasFlag(GitFileStatus.Conflict) && !s1.HasFlag(GitFileStatus.Conflict))
 			{
 				return 1;
 			}

@@ -34,7 +34,6 @@ namespace GitMind.Common.ProgressHandling
 			await closeTask;
 
 			viewModel.Stop();
-			DialogResult = true;
 		}
 
 

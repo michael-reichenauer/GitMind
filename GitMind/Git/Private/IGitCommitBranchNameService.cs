@@ -10,8 +10,8 @@ namespace GitMind.Git.Private
 	{
 		Task EditCommitBranchNameAsync(CommitSha commitSha, CommitSha rootSha, BranchName branchName);
 		Task SetCommitBranchNameAsync(CommitSha commitSha, BranchName branchName);
-		IReadOnlyList<CommitBranchName> GetEditedBranchNames(CommitSha rootSha);
-		IReadOnlyList<CommitBranchName> GetCommitBrancheNames(CommitSha rootId);
+		Task<IReadOnlyList<CommitBranchName>> GetEditedBranchNamesAsync(CommitSha rootSha);
+		Task<IReadOnlyList<CommitBranchName>> GetCommitBranchNamesAsync(CommitSha rootId);
 
 		Task PushNotesAsync(CommitSha rootId);
 

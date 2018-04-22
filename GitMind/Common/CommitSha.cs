@@ -17,7 +17,7 @@ namespace GitMind.Common
 
 		public CommitSha()
 		{
-			shortSha = new Lazy<string>(() => Sha.Substring(0, 6));
+			shortSha = new Lazy<string>(() => Sha.Substring(0, 12));
 		}
 
 		public CommitSha(string commitSha)
