@@ -175,7 +175,6 @@
     <Compile Include="GitModel\Private\RepositoryStructureService.cs" />
     <Compile Include="GitModel\RepositoryErrorEventArgs.cs" />
     <Compile Include="GitModel\RepositoryUpdatedEventArgs.cs" />
-    <Compile Include="Git\MergePatch.cs" />
     <Compile Include="RepositoryViews\DeleteTagItem.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
     <Compile Include="RepositoryViews\LinkItem.cs" />
@@ -200,13 +199,10 @@
     <Compile Include="Features\Commits\ICommitsService.cs" />
     <Compile Include="Features\StatusHandling\Private\FolderMonitorService.cs" />
     <Compile Include="Git\BranchName.cs" />
-    <Compile Include="Git\GitDivergence.cs" />
     <Compile Include="Features\Branches\Private\GitBranchService.cs" />
     <Compile Include="Git\Private\GitCommitBranchNameService.cs" />
     <Compile Include="Features\Branches\Private\IGitBranchService.cs" />
     <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
-    <Compile Include="Git\Private\IRepoCaller.cs" />
-    <Compile Include="Git\Private\RepoCaller.cs" />
     <Compile Include="MainWindowViews\IMainWindowService.cs" />
     <Compile Include="MainWindowViews\MainWindowIpcService.cs" />
     <Compile Include="MainWindowViews\MainWindowService.cs" />
@@ -214,7 +210,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Common\CredentialHandler.cs" />
     <Compile Include="Git\GitConflicts.cs" />
-    <Compile Include="Git\GitConflictStatus.cs" />
     <Compile Include="Git\GitFileStatus.cs" />
     <Compile Include="Git\GitNote.cs" />
     <Compile Include="Git\ICredentialHandler.cs" />
@@ -323,8 +318,6 @@
     <Compile Include="Common\SearchFilter.xaml.cs">
       <DependentUpon>SearchFilter.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Git\GitDiff.cs" />
-    <Compile Include="Git\GitRepository.cs" />
     <Compile Include="MainWindowViews\HamburgerButton.xaml.cs">
       <DependentUpon>HamburgerButton.xaml</DependentUpon>
     </Compile>
@@ -371,7 +364,6 @@
     <Compile Include="GitModel\Repository.cs" />
     <Compile Include="GitModel\Tag.cs" />
     <Compile Include="Git\GitCommitFiles.cs" />
-    <Compile Include="Git\GitFile.cs" />
     <Compile Include="Git\CommitBranchName.cs" />
     <Compile Include="Utils\IReadOnlyKeyedList.cs" />
     <Compile Include="Utils\KeyedList.cs" />
@@ -407,7 +399,6 @@
     <Compile Include="Utils\UI\Command.cs" />
     <Compile Include="Git\CommitDiff.cs" />
     <Compile Include="Git\GitTag.cs" />
-    <Compile Include="Git\IGitCommitsService.cs" />
     <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />
@@ -426,7 +417,6 @@
     <Compile Include="Utils\Cmd.cs" />
     <Compile Include="Utils\ICmd.cs" />
     <Compile Include="Utils\Log.cs" />
-    <Compile Include="Git\Private\GitCommitsService.cs" />
     <Compile Include="Git\GitLibCommit.cs" />
     <Compile Include="Utils\MicroDiContainer.cs" />
     <Compile Include="Utils\UI\VirtualCanvas\VirtualPanel.cs" />

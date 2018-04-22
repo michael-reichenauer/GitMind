@@ -71,81 +71,12 @@ namespace GitMind.Features.Branches.Private
 
 
 			return await gitMergeService2.MergeAsync(branch.Name, CancellationToken.None);
-
-			//return repoCaller.UseLibRepoAsync(repository =>
-			//{
-			//	Signature signature = GetSignature(repository);
-
-			//	Branch localbranch = TryGetBranch(repository, branchName);
-			//	Branch remoteBranch = TryGetBranch(repository, "origin/" + branchName);
-
-			//	Branch branch = localbranch ?? remoteBranch;
-			//	if (localbranch != null && remoteBranch != null)
-			//	{
-			//		// Both local and remote tip exists, use the branch with the most resent tip
-			//		if (remoteBranch.Tip.Committer.When.LocalDateTime
-			//		> localbranch.Tip.Committer.When.LocalDateTime)
-			//		{
-			//			branch = remoteBranch;
-			//		}
-			//	}
-
-			//	if (branch != null)
-			//	{
-			//		repository.Merge(branch, signature, MergeNoFFNoCommit);
-
-			//		//RepositoryStatus repositoryStatus = repository.RetrieveStatus(new StatusOptions());
-
-			//		//if (!repositoryStatus.IsDirty)
-			//		//{
-			//		//	// Empty merge with no changes, lets reset merge since there is nothing to merge
-			//		//	repository.Reset(ResetMode.Hard);
-			//		//}
-			//	}
-			//});
 		}
 
-		public async Task<R> MergeAsync(CommitSha commitSha)
-		{
-			return await gitMergeService2.MergeAsync(commitSha.Sha, CancellationToken.None);
-
-			//	return repoCaller.UseLibRepoAsync(repository =>
-			//{
-			//	Signature signature = GetSignature(repository);
-			//	Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
-
-			//	repository.Merge(commit, signature, MergeNoFFNoCommit);
-			//});
-		}
+		public async Task<R> MergeAsync(CommitSha commitSha) => await gitMergeService2.MergeAsync(commitSha.Sha, CancellationToken.None);
 
 
-		public Task<R> CreateBranchAsync(BranchName branchName, CommitSha commitSha)
-		{
-			return gitBranchService2.BranchFromCommitAsync(branchName, commitSha.Sha, true, CancellationToken.None);
-
-			//return repoCaller.UseLibRepoAsync(repository =>
-			//{
-			//	Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
-			//	if (commit == null)
-			//	{
-			//		Log.Error($"Unknown commit id {commitSha}");
-			//		return;
-			//	}
-
-			//	Branch branch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-
-			//	if (branch != null)
-			//	{
-			//		Log.Warn($"Branch already exists {branchName}");
-			//		return;
-			//	}
-
-			//	branch = repository.Branches.Add(branchName, commit);
-
-			//	repository.Checkout(branch);
-			//});
-		}
-
+		public Task<R> CreateBranchAsync(BranchName branchName, CommitSha commitSha) => gitBranchService2.BranchFromCommitAsync(branchName, commitSha.Sha, true, CancellationToken.None);
 
 
 		public async Task<R> SwitchToBranchAsync(BranchName branchName, CommitSha tipSha)
@@ -171,36 +102,6 @@ namespace GitMind.Features.Branches.Private
 			}
 
 			return R.Ok;
-			//return repoCaller.UseLibRepoAsync(repository =>
-			//{
-			//	Branch branch = repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-
-			//	if (branch != null)
-			//	{
-			//		repository.Checkout(branch);
-			//	}
-			//	else
-			//	{
-			//		Branch remoteBranch = repository.Branches.FirstOrDefault(b => b.FriendlyName == "origin/" + branchName);
-			//		if (remoteBranch != null)
-			//		{
-			//			branch = repository.Branches.Add(branchName, remoteBranch.Tip);
-			//			repository.Branches.Update(branch, b => b.TrackedBranch = remoteBranch.CanonicalName);
-
-			//			repository.Checkout(branch);
-			//		}
-			//		else
-			//		{
-			//			// No existing branch with that name. Try create a local branch
-			//			Commit commit = repository.Lookup<Commit>(new ObjectId(tipSha.Sha));
-			//			if (commit != null)
-			//			{
-			//				branch = repository.Branches.Add(branchName, commit);
-			//				repository.Checkout(branch);
-			//			}
-			//		}
-			//	}
-			//});
 		}
 
 
@@ -235,50 +136,10 @@ namespace GitMind.Features.Branches.Private
 			}
 
 			return null;
-
-
-			//return repoCaller.UseLibRepoAsync(repository =>
-			//{
-			//	Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
-			//	if (commit == null)
-			//	{
-			//		Log.Error($"Unknown commit id {commitSha}");
-			//		return null;
-			//	}
-
-			//	if (branchName != null)
-			//	{
-			//		// Trying to get an existing switch branch) at that commit
-			//		Branch branch = repository.Branches
-			//		.FirstOrDefault(b =>
-			//			!b.IsRemote
-			//			&& branchName.IsEqual(b.FriendlyName)
-			//			&& b.Tip.Sha == commitSha.Sha);
-
-			//		if (branch != null)
-			//		{
-			//			repository.Checkout(branch);
-			//			return branchName;
-			//		}
-			//	}
-
-			//	// No branch with that name so lets check out commit (detached head)
-			//	repository.Checkout(commit);
-
-			//	return null;
-			//});
 		}
 
 
-		public Task<R> MergeCurrentBranchFastForwardOnlyAsync()
-		{
-			return gitMergeService2.MergeAsync(null, CancellationToken.None);
-			//return repoCaller.UseRepoAsync(repo =>
-			//{
-			//	Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
-			//	repo.MergeFetchedRefs(committer, MergeFastForwardOnly);
-			//});
-		}
+		public Task<R> MergeCurrentBranchFastForwardOnlyAsync() => gitMergeService2.MergeAsync(null, CancellationToken.None);
 
 
 		public async Task<R> MergeCurrentBranchAsync()
@@ -299,76 +160,9 @@ namespace GitMind.Features.Branches.Private
 			}
 
 			return R.Ok;
-			//return repoCaller.UseRepoAsync(repo =>
-			//{
-			//	Signature committer = repo.Config.BuildSignature(DateTimeOffset.Now);
-
-			//	try
-			//	{
-			//		repo.MergeFetchedRefs(committer, MergeFastForwardOnly);
-			//	}
-			//	catch (NonFastForwardException)
-			//	{
-			//		// Failed with fast forward merge, trying no fast forward.
-			//		repo.MergeFetchedRefs(committer, MergeNoFastForwardAndCommit);
-			//	}
-			//});
 		}
 
 
-		public Task<R> DeleteLocalBranchAsync(BranchName branchName)
-		{
-			return gitBranchService2.DeleteLocalBranchAsync(branchName, CancellationToken.None);
-			//Log.Debug($"Delete local branch {branchName}  ...");
-
-			//return repoCaller.UseRepoAsync(repo =>
-			//{
-			//	repo.Branches.Remove(branchName, false);
-			//});
-		}
-
-
-		//public R<GitDivergence> GetCommonAncestor(CommitSha localTip, CommitSha remoteTip)
-		//{
-		//	return repoCaller.UseRepo(
-		//		repo =>
-		//		{
-		//			Commit local = repo.Lookup<Commit>(new ObjectId(localTip.Sha));
-		//			Commit remote = repo.Lookup<Commit>(new ObjectId(remoteTip.Sha));
-
-		//			if (local != null && remote != null)
-		//			{
-		//				HistoryDivergence div = repo.ObjectDatabase.CalculateHistoryDivergence(local, remote);
-
-		//				return new GitDivergence(
-		//					new CommitSha(div.One.Sha),
-		//					new CommitSha(div.Another.Sha),
-		//					new CommitSha(div.CommonAncestor.Sha),
-		//					div.AheadBy ?? 0,
-		//					div.BehindBy ?? 0);
-		//			}
-		//			else
-		//			{
-		//				return new GitDivergence(
-		//					localTip,
-		//					remoteTip,
-		//					localTip,
-		//					0,
-		//					0);
-		//			}
-		//		});
-		//}
-
-
-		//private static Branch TryGetBranch(Repository repository, BranchName branchName)
-		//{
-		//	return repository.Branches.FirstOrDefault(b => branchName.IsEqual(b.FriendlyName));
-		//}
-
-
-		//private static Signature GetSignature(Repository repository)
-		//{
-		//	return repository.Config.BuildSignature(DateTimeOffset.Now);
-		//}
+		public Task<R> DeleteLocalBranchAsync(BranchName branchName) => gitBranchService2.DeleteLocalBranchAsync(branchName, CancellationToken.None);
 	}
 }

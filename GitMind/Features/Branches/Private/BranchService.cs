@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Commits;
@@ -12,8 +11,7 @@ using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
-using GitMind.Utils.Git.Private;
-//using Status = GitMind.Features.StatusHandling.Status;
+
 
 
 namespace GitMind.Features.Branches.Private
