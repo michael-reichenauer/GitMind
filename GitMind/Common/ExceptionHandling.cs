@@ -150,7 +150,7 @@ namespace GitMind.Common
 		private static void Restart()
 		{
 			string targetPath = ProgramPaths.GetInstallFilePath();
-			cmd.Start(targetPath, "");
+			cmd.Start(targetPath, "/run");
 		}
 
 
