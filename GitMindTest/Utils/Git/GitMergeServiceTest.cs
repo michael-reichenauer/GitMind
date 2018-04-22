@@ -268,7 +268,7 @@ namespace GitMindTest.Utils.Git
 			log = await git.GetLogAsync();
 			Assert.AreEqual(2, log.Count);
 			Assert.AreEqual(1, log[0].ParentIds.Count);
-			Assert.AreEqual(log[1].Sha.ShortSha, log[0].ParentIds[0].ShortSha);
+			Assert.AreEqual(log[1].Sha.ShortSha, log[0].ParentIds[0].AsText);
 			Assert.AreEqual("Message 1 on branch1", log[0].Subject);
 			Assert.AreEqual("Text on branch 1", io.ReadFile("file1.txt"));
 		}

@@ -40,7 +40,7 @@ namespace GitMind.Common
 
 		public override string ToString() => Id;
 
-		public string ShortSha => Id.Substring(0, 6);
+		public string AsText => Id;
 
 		public static bool TryParse(string id, out CommitId commitId)
 		{
