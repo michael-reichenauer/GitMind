@@ -57,7 +57,7 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<string>> GetCommitDiffAsync(string sha, CancellationToken ct)
 		{
 			CmdResult2 result = await gitCmdService.RunCmdAsync(
-				$"diff --patch --root {sha}^..{sha}", ct);
+				$"diff --patch --unified=6 --root {sha}^..{sha}", ct);
 
 			if (result.IsFaulted)
 			{
@@ -84,7 +84,7 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<string>> GetCommitDiffRangeAsync(string sha1, string sha2, CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmdService.RunAsync(
-				$"diff --patch {sha1} {sha2}", ct);
+				$"diff --patch --unified=6 {sha1} {sha2}", ct);
 
 			if (result.IsFaulted)
 			{
@@ -114,7 +114,7 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<string>> GetPreviewMergeDiffAsync(string sha1, string sha2, CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmdService.RunAsync(
-				$"diff --find-renames --full-index {sha1} {sha2}", ct);
+				$"diff --find-renames --unified=6 --full-index {sha1} {sha2}", ct);
 
 			if (result.IsFaulted)
 			{
@@ -141,7 +141,7 @@ namespace GitMind.Utils.Git.Private
 			}
 
 			R<CmdResult2> diffResult = await gitCmdService.RunAsync(
-				$"diff --find-renames --cached", ct);
+				$"diff --find-renames --unified=6 --cached", ct);
 			if (diffResult.IsFaulted)
 			{
 				return Error.From("Failed to get uncommitted diff", diffResult);
