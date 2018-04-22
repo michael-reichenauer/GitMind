@@ -172,7 +172,7 @@ namespace GitMind.Utils.Git.Private
 
 				if (ExpectedGitExists(gitPath, GitVersion))
 				{
-					Log.Info($"Git: {gitPath}, version: {GitVersion} already exists");
+					Track.Info($"Git: {gitPath}, version: {GitVersion} already exists");
 					return R.Ok;
 				}
 
@@ -185,7 +185,7 @@ namespace GitMind.Utils.Git.Private
 
 				if (ExpectedGitExists(gitPath, GitVersion))
 				{
-					Log.Info($"Git: {gitPath}, version: {GitVersion} has been installed");
+					Track.Info($"Git: {gitPath}, version: {GitVersion} has been installed");
 					return R.Ok;
 				}
 
@@ -202,7 +202,7 @@ namespace GitMind.Utils.Git.Private
 		private static async Task InstallAsync(
 			string uri, string gitFolderPath, Action<string> progress)
 		{
-			Log.Info($"Downloading git {GitVersion} from {uri} ...");
+			Track.Info($"Downloading git {GitVersion} from {uri} ...");
 
 			string zipPath = ProgramPaths.GetTempFilePath() + $".git_{GitVersion}";
 
@@ -220,7 +220,7 @@ namespace GitMind.Utils.Git.Private
 				await client.StartDownloadAsync(uri, zipPath);
 			}
 
-			Log.Info($"Downloaded {uri} to {zipPath}");
+			Track.Info($"Downloaded {uri} to {zipPath}");
 
 			ZipFile.ExtractToDirectory(zipPath, gitFolderPath);
 			Log.Info($"Unzipped {zipPath} to {gitFolderPath}");
