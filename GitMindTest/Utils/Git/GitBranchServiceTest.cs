@@ -220,7 +220,7 @@ namespace GitMindTest.Utils.Git
 			Assert.AreEqual(3, branches.Count);
 			Assert.AreEqual(true, current.IsDetached);
 			Assert.AreEqual(commit1.Message, current.Message);
-			Assert.AreEqual(true, current.Name.StartsWith(commit1.Sha.ShortSha));
+			Assert.AreEqual(true, current.Name.StartsWith($"({commit1.Sha.ShortSha}"));
 		}
 
 

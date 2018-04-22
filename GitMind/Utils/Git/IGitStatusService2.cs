@@ -20,5 +20,7 @@ namespace GitMind.Utils.Git
 
 
 		Task<R<IReadOnlyList<string>>> GetRefsIdsAsync(CancellationToken ct);
+		Task<R> AddAsync(string path, CancellationToken ct);
+		Task<R> RemoveAsync(string path, CancellationToken ct);
 	}
 }

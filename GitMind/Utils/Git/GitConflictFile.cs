@@ -26,7 +26,7 @@ namespace GitMind.Utils.Git
 		public string BaseId { get; }
 		public string LocalId { get; }
 		public string RemoteId { get; }
-		public string FillPath => Path.Combine(WorkfolderPath, FilePath);
+		public string FullFilePath => Path.Combine(WorkfolderPath, FilePath);
 		public string WorkfolderPath { get; set; }
 		public GitFileStatus Status { get; }
 

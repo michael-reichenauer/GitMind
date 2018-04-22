@@ -13,7 +13,8 @@ namespace GitMind.Utils.Git.Private
 {
 	internal class GitStatusService2 : IGitStatusService2
 	{
-		private static readonly string StatusArgs = "status -s --porcelain --ahead-behind --untracked-files=all";
+		private static readonly string StatusArgs =
+			"status -s --porcelain --ahead-behind --untracked-files=all";
 
 		private static readonly Regex CleanOutputRegEx = new Regex(@"warning: failed to remove ([^:]+):",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -132,13 +133,37 @@ namespace GitMind.Utils.Git.Private
 			{
 				if (result.ExitCode != 1)
 				{
-					return Error.From("Failed to get ll refs", result.AsError());
+					return Error.From("Failed to get refs", result.AsError());
 				}
 			}
 
 			IReadOnlyList<string> refs = result.OutputLines.ToList();
 			Log.Info($"Got {refs.Count} refs");
 			return R.From(refs);
+		}
+
+
+		public async Task<R> AddAsync(string path, CancellationToken ct)
+		{
+			CmdResult2 result = await gitCmdService.RunCmdAsync($"add \"{path}\"", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed add {path}", result.AsError());
+			}
+
+			return R.Ok;
+		}
+
+
+		public async Task<R> RemoveAsync(string path, CancellationToken ct)
+		{
+			CmdResult2 result = await gitCmdService.RunCmdAsync($"rm \"{path}\"", ct);
+			if (result.IsFaulted)
+			{
+				return Error.From($"Failed remove {path}", result.AsError());
+			}
+
+			return R.Ok;
 		}
 
 
@@ -290,6 +315,11 @@ namespace GitMind.Utils.Git.Private
 
 		private GitStatus2 ParseStatus(CmdResult2 result)
 		{
+			//if (result.Output.StartsWith("## No commits yet on"))
+			//{
+			//	return GitStatus2.Default;
+			//}
+
 			IReadOnlyList<GitFile2> files = ParseFiles(result);
 
 			int added = files.Count(file => file.Status.HasFlag(GitFileStatus.Added));

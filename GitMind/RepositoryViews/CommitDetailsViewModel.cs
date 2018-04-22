@@ -135,11 +135,11 @@ namespace GitMind.RepositoryViews
 
 		private static int Compare(GitFileStatus s1, GitFileStatus s2)
 		{
-			if (s1 == GitFileStatus.Conflict && s2 != GitFileStatus.Conflict)
+			if (s1.HasFlag(GitFileStatus.Conflict) && !s2.HasFlag(GitFileStatus.Conflict))
 			{
 				return -1;
 			}
-			else if (s2 == GitFileStatus.Conflict && s1 != GitFileStatus.Conflict)
+			else if (s2.HasFlag(GitFileStatus.Conflict) && !s1.HasFlag(GitFileStatus.Conflict))
 			{
 				return 1;
 			}

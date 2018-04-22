@@ -109,26 +109,35 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public async Task TestDiffUncommittedAsync()
 		{
-			isCleanUp = false;
+			GitDiffParser diffParser = new GitDiffParser();
+
 			await git.InitRepoAsync();
 
 			io.WriteFile("file1.txt", "line1\nline2\nline3\n");
 			io.WriteFile("file2.txt", "line1\nline2\nline3\n");
-
-			R<string> result = await cmd.GetUncommittedDiffAsync(ct);
-			Assert.IsNotNullOrEmpty(result.Value);
-
-			result = await cmd.GetUncommittedFileDiffAsync("file1.txt", ct);
-			Assert.IsNotNullOrEmpty(result.Value);
-
 			await git.CommitAllChangesAsync("Message1");
 
 			io.WriteFile("file1.txt", "line1\nline22\nline3\n");
 			io.DeleteFile("file2.txt");
 			io.WriteFile("file3.txt", "line1\nline2\nline3\n");
 
-			result = await cmd.GetUncommittedDiffAsync(ct);
+			R<string> result = await cmd.GetUncommittedDiffAsync(ct);
+			CommitDiff diff = await diffParser.ParseAsync(null, result.Value, true, false);
+			string d1 = File.ReadAllText(diff.LeftPath);
+			string d2 = File.ReadAllText(diff.RightPath);
 			Assert.IsNotNullOrEmpty(result.Value);
+
+			result = await cmd.GetUncommittedFileDiffAsync("file1.txt", ct);
+			Assert.IsNotNullOrEmpty(result.Value);
+
+
+
+			//io.WriteFile("file1.txt", "line1\nline22\nline3\n");
+			//io.DeleteFile("file2.txt");
+			//io.WriteFile("file3.txt", "line1\nline2\nline3\n");
+
+			//result = await cmd.GetUncommittedDiffAsync(ct);
+			//Assert.IsNotNullOrEmpty(result.Value);
 
 			result = await cmd.GetUncommittedFileDiffAsync("file1.txt", ct);
 			Assert.IsNotNullOrEmpty(result.Value);

@@ -127,19 +127,17 @@ namespace GitMind.Features.Diffing.Private
 			string yoursPath = GetPath(file, Yours);
 			string theirsPath = GetPath(file, Theirs);
 
-			string fullPath = Path.Combine(workingFolder, file.Path);
-
-			await GetFileAsync(file.Conflict.OursId, yoursPath);
-			await GetFileAsync(file.Conflict.TheirsId, theirsPath);
+			await GetFileAsync(file.Conflict.LocalId, yoursPath);
+			await GetFileAsync(file.Conflict.RemoteId, theirsPath);
 			await GetFileAsync(file.Conflict.BaseId, basePath);
 
 			if (File.Exists(yoursPath) && File.Exists(theirsPath) && File.Exists(basePath))
 			{
-				await ShowMergeImplAsync(theirsPath, yoursPath, basePath, fullPath);
+				await ShowMergeImplAsync(theirsPath, yoursPath, basePath, file.FullFilePath);
 
 				if (!HasConflicts(file))
 				{
-					TriggerStatus(file.Path);
+					await ResolveAsync(file.Path, file.FullFilePath);
 				}
 			}
 
@@ -149,6 +147,12 @@ namespace GitMind.Features.Diffing.Private
 
 		private async Task GetFileAsync(string fileId, string path)
 		{
+			if (string.IsNullOrEmpty(fileId))
+			{
+				File.WriteAllText(path, "");
+				return;
+			}
+
 			R<string> yoursFile = await gitStatusService2.GetConflictFile(fileId, CancellationToken.None);
 			if (yoursFile.IsOk)
 			{
@@ -157,51 +161,36 @@ namespace GitMind.Features.Diffing.Private
 		}
 
 
-		public bool CanMergeConflict(CommitFile file)
-		{
-			return
-				file.Status.HasFlag(GitFileStatus.Conflict)
-				&& file.Conflict.BaseId != null
-				&& file.Conflict.OursId != null
-				&& file.Conflict.TheirsId != null;
-		}
+		public bool CanMergeConflict(CommitFile file) =>
+			file.Status.HasFlag(GitFileStatus.ConflictMM) ||
+			file.Status.HasFlag(GitFileStatus.ConflictAA);
 
 
 		public async Task UseYoursAsync(CommitFile file)
 		{
 			CleanTempPaths(file);
 
-			await UseFileAsync(file, file.Conflict.OursId);
+			await UseFileAsync(file, file.Conflict.LocalId);
 
-			TriggerStatus(file.Path);
+			await ResolveAsync(file.Path, file.FullFilePath);
 		}
 
 
 
-		public bool CanUseYours(CommitFile file)
-		{
-			return
-				file.Status.HasFlag(GitFileStatus.Conflict)
-				&& file.Conflict.OursId != null;
-		}
+		public bool CanUseYours(CommitFile file) => !file.Status.HasFlag(GitFileStatus.ConflictDM);
 
 
 		public async Task UseTheirsAsync(CommitFile file)
 		{
 			CleanTempPaths(file);
 
-			await UseFileAsync(file, file.Conflict.TheirsId);
+			await UseFileAsync(file, file.Conflict.RemoteId);
 
-			TriggerStatus(file.Path);
+			await ResolveAsync(file.Path, file.FullFilePath);
 		}
 
 
-		public bool CanUseTheirs(CommitFile file)
-		{
-			return
-				file.Status.HasFlag(GitFileStatus.Conflict)
-				&& file.Conflict.TheirsId != null;
-		}
+		public bool CanUseTheirs(CommitFile file) => !file.Status.HasFlag(GitFileStatus.ConflictMD);
 
 
 		public async Task UseBaseAsync(CommitFile file)
@@ -209,27 +198,22 @@ namespace GitMind.Features.Diffing.Private
 			CleanTempPaths(file);
 			await UseFileAsync(file, file.Conflict.BaseId);
 
-			TriggerStatus(file.Path);
+			await ResolveAsync(file.Path, file.FullFilePath);
 		}
 
 
-		public bool CanUseBase(CommitFile file)
-		{
-			return
-				file.Status.HasFlag(GitFileStatus.Conflict)
-				&& file.Conflict.BaseId != null;
-		}
+		public bool CanUseBase(CommitFile file) => !file.Status.HasFlag(GitFileStatus.ConflictAA);
 
 
 		public async Task DeleteAsync(CommitFile file)
 		{
 			await Task.Yield();
 			CleanTempPaths(file);
-			string fullPath = Path.Combine(workingFolder, file.Path);
+			string fullPath = file.FullFilePath;
 
 			DeletePath(fullPath);
 
-			TriggerStatus(file.Path);
+			await ResolveAsync(file.Path, file.FullFilePath);
 		}
 
 
@@ -244,7 +228,7 @@ namespace GitMind.Features.Diffing.Private
 			string yoursPath = GetPath(file, Theirs);
 			string basePath = GetPath(file, Base);
 
-			await GetFileAsync(file.Conflict.OursId, yoursPath);
+			await GetFileAsync(file.Conflict.LocalId, yoursPath);
 			await GetFileAsync(file.Conflict.BaseId, basePath);
 
 			if (File.Exists(yoursPath) && File.Exists(basePath))
@@ -264,7 +248,7 @@ namespace GitMind.Features.Diffing.Private
 			string theirsPath = GetPath(file, Theirs);
 
 			await GetFileAsync(file.Conflict.BaseId, basePath);
-			await GetFileAsync(file.Conflict.TheirsId, theirsPath);
+			await GetFileAsync(file.Conflict.RemoteId, theirsPath);
 
 			if (File.Exists(theirsPath) && File.Exists(basePath))
 			{
@@ -303,9 +287,7 @@ namespace GitMind.Features.Diffing.Private
 
 		private async Task UseFileAsync(CommitFile file, string fileId)
 		{
-			string fullPath = Path.Combine(workingFolder, file.Path);
-
-			await GetFileAsync(fileId, fullPath);
+			await GetFileAsync(fileId, file.FullFilePath);
 		}
 
 
@@ -401,13 +383,13 @@ namespace GitMind.Features.Diffing.Private
 
 		private string GetPath(CommitFile file, string type)
 		{
-			return GetPath(file.Path, type);
+			return GetConflictTypePath(file.FullFilePath, type);
 		}
 
 
-		private string GetPath(string path, string type)
+		private string GetConflictTypePath(string fullPath, string type)
 		{
-			string fullPath = Path.Combine(workingFolder, path);
+			//	string fullPath = Path.Combine(workingFolder, path);
 			string extension = Path.GetExtension(fullPath);
 			return Path.ChangeExtension(fullPath, type + extension);
 		}
@@ -430,21 +412,30 @@ namespace GitMind.Features.Diffing.Private
 			}
 		}
 
-		public void TriggerStatus(string path)
+		public async Task ResolveAsync(string path, string fullPath)
 		{
-			//string fullPath = Path.Combine(workingFolder, path);
-			//Log.Debug($"Resolving {path}");
-			//if (File.Exists(fullPath))
-			//{
-			//	repository.Index.Add(path);
-			//}
-			//else
-			//{
-			//	repository.Remove(path);
-			//}
+			if (File.Exists(fullPath))
+			{
+				await gitStatusService2.AddAsync(path, CancellationToken.None);
+			}
+			else
+			{
+				await gitStatusService2.RemoveAsync(path, CancellationToken.None);
+			}
+
+			////string fullPath = Path.Combine(workingFolder, path);
+			////Log.Debug($"Resolving {path}");
+			////if (File.Exists(fullPath))
+			////{
+			////	repository.Index.Add(path);
+			////}
+			////else
+			////{
+			////	repository.Remove(path);
+			////}
 
 			// Temp workaround to trigger status update after resolving conflicts, ill be handled better
-			string tempPath = path + ".tmp";
+			string tempPath = path + ".resolve_tmp";
 			File.AppendAllText(tempPath, "tmp");
 			File.Delete(tempPath);
 		}

@@ -201,7 +201,7 @@
 						<Grid>
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="*" />
-								<ColumnDefinition Width="20" />
+								<ColumnDefinition Width="30" />
 							</Grid.ColumnDefinitions>
 
 							<Label
@@ -252,7 +252,7 @@
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}">
 										<MenuItem.Icon>
 											<Border>
-												<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE5C4;"/>
+                                                <TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE3C5;"/>
 											</Border>
 										</MenuItem.Icon>
 									</MenuItem>
@@ -263,7 +263,7 @@
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}">
 										<MenuItem.Icon>
 											<Border>
-												<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE5C8;"/>
+                                                <TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE0B5;"/>
 											</Border>
 										</MenuItem.Icon>
 									</MenuItem>
@@ -274,7 +274,7 @@
 										Visibility="{Binding HasConflicts, Converter={StaticResource VC}}">
 										<MenuItem.Icon>
 											<Border>
-												<TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE5D8;"/>
+                                                <TextBlock Style="{DynamicResource MenuIconStyle}" Text="&#xE5DB;"/>
 											</Border>
 										</MenuItem.Icon>
 									</MenuItem>

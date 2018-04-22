@@ -116,10 +116,10 @@ namespace GitMindTest.Utils.Git.Private
 		public Task<GitCommit> GetCommit(string sha) => Service<IGitCommitService2>().Call(s => s.GetCommitAsync(sha, ct));
 
 
-		private SomeService<T> Service<T>() => new SomeService<T>(am.Resolve<T>());
+		public SomeService<T> Service<T>() => new SomeService<T>(am.Resolve<T>());
 
 
-		private class SomeService<T>
+		public class SomeService<T>
 		{
 			private readonly T service;
 

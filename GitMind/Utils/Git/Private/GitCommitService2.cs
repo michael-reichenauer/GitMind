@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling;
 using GitMind.GitModel.Private;
 using GitMind.Utils.OsSystem;
 
@@ -16,16 +18,19 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitCmdService gitCmdService;
 		private readonly IGitDiffService2 gitDiffService2;
 		private readonly IGitLogService gitLogService;
+		private readonly WorkingFolderPath workingFolder;
 
 
 		public GitCommitService2(
 			IGitCmdService gitCmdService,
 			IGitDiffService2 gitDiffService2,
-			IGitLogService gitLogService)
+			IGitLogService gitLogService,
+			WorkingFolderPath workingFolder)
 		{
 			this.gitCmdService = gitCmdService;
 			this.gitDiffService2 = gitDiffService2;
 			this.gitLogService = gitLogService;
+			this.workingFolder = workingFolder;
 		}
 
 		public Task<R<GitCommit>> GetCommitAsync(string sha, CancellationToken ct) =>
@@ -68,10 +73,14 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<GitCommit>> CommitAllChangesAsync(string message, CancellationToken ct)
 		{
-			R<CmdResult2> result = await gitCmdService.RunAsync("add .", ct);
-			if (result.IsFaulted)
+			R<CmdResult2> result;
+			if (!IsMergeInProgress())
 			{
-				return Error.From("Failed to stage using add before commit", result);
+				result = await gitCmdService.RunAsync("add .", ct);
+				if (result.IsFaulted)
+				{
+					return Error.From("Failed to stage using add before commit", result);
+				}
 			}
 
 			result = await gitCmdService.RunAsync($"commit -am \"{message}\"", ct);
@@ -92,6 +101,13 @@ namespace GitMind.Utils.Git.Private
 			}
 
 			return Error.From("Commit succeeded, but failed to parse commit id from output");
+		}
+
+		private bool IsMergeInProgress()
+		{
+			string mergeIpPath = Path.Combine(workingFolder, ".git", "MERGE_HEAD");
+			bool isMergeInProgress = File.Exists(mergeIpPath);
+			return isMergeInProgress;
 		}
 	}
 }

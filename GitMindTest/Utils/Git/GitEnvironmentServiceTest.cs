@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using GitMind.Utils;
 using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 using GitMindTest.Utils.Git.Private;
 using NUnit.Framework;
 
@@ -15,7 +16,7 @@ namespace GitMindTest.Utils.Git
 		public void TestVersion()
 		{
 			string version = cmd.TryGetGitVersion();
-			Assert.AreEqual("2.16.2.windows.1", version);
+			Assert.AreEqual(GitEnvironmentService.GitVersion, version);
 		}
 
 

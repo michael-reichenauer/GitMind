@@ -14,6 +14,7 @@ namespace GitMind.GitModel
 	internal class CommitsFiles : ICommitsFiles
 	{
 		private readonly IGitCommitService2 gitCommitService2;
+		private readonly IGitStatusService2 gitStatusService2;
 
 		private readonly ConcurrentDictionary<CommitSha, IList<CommitFile>> commitsFiles =
 			new ConcurrentDictionary<CommitSha, IList<CommitFile>>();
@@ -22,9 +23,12 @@ namespace GitMind.GitModel
 		private CommitSha nextIdToGet;
 
 
-		public CommitsFiles(IGitCommitService2 gitCommitService2)
+		public CommitsFiles(
+			IGitCommitService2 gitCommitService2,
+			IGitStatusService2 gitStatusService2)
 		{
 			this.gitCommitService2 = gitCommitService2;
+			this.gitStatusService2 = gitStatusService2;
 		}
 
 
@@ -35,6 +39,7 @@ namespace GitMind.GitModel
 				return new CommitFile[0];
 			}
 
+			// Get fresh list of uncomitted files or try to get them from cach, otherwise get from repo
 			if (commitSha == CommitSha.Uncommitted || !commitsFiles.TryGetValue(commitSha, out var files))
 			{
 				nextIdToGet = commitSha;
@@ -48,12 +53,24 @@ namespace GitMind.GitModel
 				Task<R<IReadOnlyList<GitFile2>>> commitsFilesForCommitTask =
 					CommitsFilesForCommitTask(commitSha, status);
 
+				GitConflicts conflicts = GitConflicts.None;
+				if (commitSha == CommitSha.Uncommitted && status.HasConflicts)
+				{
+					conflicts = (await gitStatusService2.GetConflictsAsync(CancellationToken.None)).Or(GitConflicts.None);
+				}
+
 				currentTask = commitsFilesForCommitTask;
 
 				if ((await commitsFilesForCommitTask).HasValue(out var commitsFilesForCommit))
 				{
-					files = commitsFilesForCommit
-						.Select(f => new CommitFile(f)).ToList();
+					files = commitsFilesForCommit.Select(f =>
+						{
+							GitConflictFile conflict = conflicts.Files.FirstOrDefault(cf => cf.FilePath == f.FilePath);
+							return new CommitFile(f, conflict);
+						})
+					.ToList();
+
+					// Cache the list of files
 					commitsFiles[commitSha] = files;
 					return files;
 				}

@@ -90,9 +90,9 @@ namespace GitMind.Utils.Git.Private
 
 			string message = result.Value.Output;
 
-			if (message.EndsWith("\n\n\r\n"))
+			if (message.EndsWith("\n\n"))
 			{
-				message = message.Substring(0, message.Length - 4);
+				message = message.Substring(0, message.Length - 2);
 			}
 
 			Log.Debug($"Got message for commit {sha}");

@@ -33,28 +33,16 @@ namespace GitMind.RepositoryViews
 
 		public string WorkingFolder { get; set; }
 
-		public string Name
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public string Name { get => Get(); set => Set(value); }
 
-		public string Status
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public string Status { get => Get(); set => Set(value); }
 
 		public bool HasConflicts => file.Status.HasFlag(GitFileStatus.Conflict);
 		public bool HasNotConflicts => !HasConflicts;
-		//public bool IsMerged => diffService.IsMerged(WorkingFolder, file);
-		//public bool IsDeleted => diffService.IsDeleted(WorkingFolder, file);
-		//public bool IsUseBase => diffService.IsUseBase(WorkingFolder, file);
-		//public bool IsUseYours => diffService.IsUseYours(WorkingFolder, file);
-		//public bool IsUseTheirs => diffService.IsUseTheirs(WorkingFolder, file);
 
-		public Brush FileNameBrush => file.Status != GitFileStatus.Conflict
-			? themeService.Theme.TextBrush : themeService.Theme.ConflictBrush;
+
+		public Brush FileNameBrush => file.Status.HasFlag(GitFileStatus.Conflict)
+			? themeService.Theme.ConflictBrush : themeService.Theme.TextBrush;
 
 		public bool IsUncommitted => HasNotConflicts && Id == CommitSha.Uncommitted;
 

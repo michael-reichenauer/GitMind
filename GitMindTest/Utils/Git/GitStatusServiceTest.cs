@@ -18,21 +18,35 @@ namespace GitMindTest.Utils.Git
 		{
 			await git.InitRepoAsync();
 
-			R<GitStatus2> status = await cmd.GetStatusAsync(ct);
-			Assert.IsTrue(status.IsOk);
-			Assert.AreEqual(0, status.Value.AllChanges);
+			R<GitStatus2> result = await cmd.GetStatusAsync(ct);
+			Assert.IsTrue(result.IsOk);
+			Assert.AreEqual(0, result.Value.AllChanges);
 
 			io.WriteFile("file1.txt", "some text");
 
-			status = await cmd.GetStatusAsync(ct);
-			Assert.AreEqual(1, status.Value.AllChanges);
-			Assert.AreEqual(1, status.Value.Added);
-			Assert.IsNotNull(status.Value.Files.FirstOrDefault(f => f.FilePath == "file1.txt"));
+			result = await cmd.GetStatusAsync(ct);
+			Assert.AreEqual(1, result.Value.AllChanges);
+			Assert.AreEqual(1, result.Value.Added);
+			Assert.IsNotNull(result.Value.Files.FirstOrDefault(f => f.FilePath == "file1.txt"));
 
 			io.DeleteFile("file1.txt");
-			status = await cmd.GetStatusAsync(ct);
-			Assert.IsTrue(status.IsOk);
-			Assert.AreEqual(0, status.Value.AllChanges);
+			result = await cmd.GetStatusAsync(ct);
+			Assert.IsTrue(result.IsOk);
+			Assert.AreEqual(0, result.Value.AllChanges);
+		}
+
+		[Test]
+		public async Task TestStatusAfterCommit()
+		{
+			await git.InitRepoAsync();
+			io.WriteFile("file1.txt", "text1");
+			await git.CommitAllChangesAsync("Message1");
+
+			io.WriteFile("file1.txt", "text21");
+			io.WriteFile("file2.txt", "text22");
+			R<GitStatus2> result = await cmd.GetStatusAsync(ct);
+			Assert.AreEqual(2, result.Value.AllChanges);
+
 		}
 
 

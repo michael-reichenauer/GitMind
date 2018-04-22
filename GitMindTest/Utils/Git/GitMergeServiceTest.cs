@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using GitMind.Git;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -46,48 +47,151 @@ namespace GitMindTest.Utils.Git
 		[Test]
 		public async Task TestMergeWithConflictsAsync()
 		{
+			isCleanUp = false;
+
 			await git.InitRepoAsync();
 
-			io.WriteFile("file1.exe", "Text 1");
+			// Add some files as initial add on master
+			io.WriteFile("file1.txt", "Text 1");
 			io.WriteFile("file2.txt", "Text 2");
 			io.WriteFile("file3.txt", "Text 3");
 			io.WriteFile("file4.txt", "Text 4");
 			io.WriteFile("file5.txt", "Text 5");
-			await git.CommitAllChangesAsync("Initial addon master");
+			await git.CommitAllChangesAsync("Initial add on master");
 
+			// Create branch1
 			await git.BranchAsync("branch1");
-			io.WriteFile("file1.exe", "Text on branch 1\r\n\n");
-			io.DeleteFile("file2.txt");
-			io.WriteFile("file3.txt", "Text on branch 3");
-			io.WriteFile("file4.txt", "Text on branch 4");
-			io.DeleteFile("file5.txt");
-			io.WriteFile("file6.txt", "Text on branch 6");  // Added branch
-			await git.CommitAllChangesAsync("Message 1 on branch 1");
+			io.WriteFile("file1.txt", "Text 12 on branch\r\n\n");
+			io.DeleteFile("file2.txt");                           // Deleted 2 on branch
+			io.WriteFile("file3.txt", "Text 32 on branch");
+			io.WriteFile("file4.txt", "Text 42 on branch");
+			io.DeleteFile("file5.txt");                           // Delete 5 on branch
+			io.WriteFile("file6.txt", "Text 62 on branch");        // Added 6 on branch
+			await git.CommitAllChangesAsync("Message 1 on branch1");
 
+			// Switch to master and make some changes and commit
 			await git.CheckoutAsync("master");
-			io.WriteFile("file1.exe", "Text on master 1\n");
-			io.WriteFile("file2.txt", "Text on master 2");
-			io.DeleteFile("file3.txt");
-			// skip file 4
-			io.DeleteFile("file5.txt");
-			io.WriteFile("file6.txt", "Text on master 6"); // added on master
+			io.WriteFile("file1.txt", "Text 12 on master\n");
+			io.WriteFile("file2.txt", "Text 22 on master");
+			io.DeleteFile("file3.txt");                           // Delete 3 on master
+																														// No change on file 4
+			io.DeleteFile("file5.txt");                           // Delete 5 om master
+			io.WriteFile("file6.txt", "Text 62 on master");        // added on master
 			await git.CommitAllChangesAsync("Message 2 on master");
 
+			// Merge branch to master, expecting 1CMM, 2CMD, 3CDM, 4M, (no 5), 6CAA
 			R result = await cmd.MergeAsync("branch1", ct);
 			Assert.AreEqual(true, result.IsOk);
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(1, status.Modified);
 			Assert.AreEqual(4, status.Conflicted);
-
-			GitConflicts conflicts = await git.GetConflictsAsync();
-			Assert.AreEqual(false, conflicts.OK);
-			Assert.AreEqual(4, conflicts.Count);
 			Assert.AreEqual(true, status.IsMerging);
 
+			GitConflicts conflicts = await git.GetConflictsAsync();
+			Assert.AreEqual(true, conflicts.HasConflicts);
+			Assert.AreEqual(4, conflicts.Count);
+
+			Assert.AreEqual(true, conflicts.Files[0].Status.HasFlag(GitFileStatus.ConflictMM));
 			Assert.AreEqual("Text 1", await git.GetConflictFileAsync(conflicts.Files[0].BaseId));
-			Assert.AreEqual("Text on master 1\n", await git.GetConflictFileAsync(conflicts.Files[0].LocalId));
-			Assert.AreEqual("Text on branch 1\n\n", await git.GetConflictFileAsync(conflicts.Files[0].RemoteId));
+			Assert.AreEqual("Text 12 on master\n", await git.GetConflictFileAsync(conflicts.Files[0].LocalId));
+			Assert.AreEqual("Text 12 on branch\n\n", await git.GetConflictFileAsync(conflicts.Files[0].RemoteId));
+
+			Assert.AreEqual(true, conflicts.Files[1].Status.HasFlag(GitFileStatus.ConflictMD));
+			Assert.AreEqual("Text 2", await git.GetConflictFileAsync(conflicts.Files[1].BaseId));
+			Assert.AreEqual("Text 22 on master", await git.GetConflictFileAsync(conflicts.Files[1].LocalId));
+			Assert.AreEqual(null, conflicts.Files[1].RemoteId);
+
+			Assert.AreEqual(true, conflicts.Files[2].Status.HasFlag(GitFileStatus.ConflictDM));
+			Assert.AreEqual("Text 3", await git.GetConflictFileAsync(conflicts.Files[2].BaseId));
+			Assert.AreEqual(null, conflicts.Files[2].LocalId);
+			Assert.AreEqual("Text 32 on branch", await git.GetConflictFileAsync(conflicts.Files[2].RemoteId));
+
+			Assert.AreEqual(true, conflicts.Files[3].Status.HasFlag(GitFileStatus.ConflictAA));
+			Assert.AreEqual(null, conflicts.Files[3].BaseId);
+			Assert.AreEqual("Text 62 on master", await git.GetConflictFileAsync(conflicts.Files[3].LocalId));
+			Assert.AreEqual("Text 62 on branch", await git.GetConflictFileAsync(conflicts.Files[3].RemoteId));
 		}
+
+		[Test]
+		public async Task TestConflictsResolveAsync()
+		{
+			await git.InitRepoAsync();
+
+			// Add some files as initial add on master
+			io.WriteFile("file1.txt", "Text 1");
+			io.WriteFile("file2.txt", "Text 2");
+			io.WriteFile("file3.txt", "Text 3");
+			io.WriteFile("file4.txt", "Text 4");
+			io.WriteFile("file5.txt", "Text 5");
+			await git.CommitAllChangesAsync("Initial add on master");
+
+			// Create branch1
+			await git.BranchAsync("branch1");
+			io.WriteFile("file1.txt", "Text 12 on branch\r\n\n");
+			io.DeleteFile("file2.txt");                           // Deleted 2 on branch
+			io.WriteFile("file3.txt", "Text 32 on branch");
+			io.WriteFile("file4.txt", "Text 42 on branch");
+			io.DeleteFile("file5.txt");                           // Delete 5 on branch
+			io.WriteFile("file6.txt", "Text 62 on branch");        // Added 6 on branch
+			await git.CommitAllChangesAsync("Message 1 on branch1");
+
+			// Switch to master and make some changes and commit
+			await git.CheckoutAsync("master");
+			io.WriteFile("file1.txt", "Text 12 on master\n");
+			io.WriteFile("file2.txt", "Text 22 on master");
+			io.DeleteFile("file3.txt");                           // Delete 3 on master
+																														// No change on file 4
+			io.DeleteFile("file5.txt");                           // Delete 5 om master
+			io.WriteFile("file6.txt", "Text 62 on master");        // added on master
+			await git.CommitAllChangesAsync("Message 2 on master");
+
+			// Merge branch to master, expecting 1CMM, 2CMD, 3CDM, 4M, (no 5), 6CAA
+			R result = await cmd.MergeAsync("branch1", ct);
+
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(1, status.Modified);
+			Assert.AreEqual(4, status.Conflicted);
+			Assert.AreEqual(true, status.IsMerging);
+
+			GitConflicts conflicts = await git.GetConflictsAsync();
+			Assert.AreEqual(true, conflicts.HasConflicts);
+			Assert.AreEqual(4, conflicts.Count);
+
+
+			io.WriteFile("file1.txt", "Text 13 merged");
+			status = await git.GetStatusAsync();
+			await git.Service<IGitStatusService2>().Call(m => m.AddAsync("file1.txt", ct));
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(2, status.Modified);
+			Assert.AreEqual(3, status.Conflicted);
+
+			io.DeleteFile("file2.txt");
+			await git.Service<IGitStatusService2>().Call(m => m.RemoveAsync("file2.txt", ct));
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(2, status.Modified);
+			Assert.AreEqual(1, status.Deleted);
+			Assert.AreEqual(2, status.Conflicted);
+
+
+			string branchSide = await git.GetConflictFileAsync(conflicts.Files[2].RemoteId);
+			io.WriteFile("file3.txt", branchSide);
+			await git.Service<IGitStatusService2>().Call(m => m.AddAsync("file3.txt", ct));
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(3, status.Modified);
+			Assert.AreEqual(1, status.Deleted);
+			Assert.AreEqual(1, status.Conflicted);
+
+			io.WriteFile("file6.txt", "Text 63 merged");
+			await git.Service<IGitStatusService2>().Call(m => m.AddAsync("file6.txt", ct));
+			status = await git.GetStatusAsync();
+			Assert.AreEqual(4, status.Modified);
+			Assert.AreEqual(1, status.Deleted);
+			Assert.AreEqual(0, status.Conflicted);
+
+			GitCommit mergeCommit = await git.CommitAllChangesAsync(status.MergeMessage);
+			string mergeDiff = await git.Service<IGitDiffService2>().Call(m => m.GetCommitDiffAsync(mergeCommit.Sha.Sha, ct));
+		}
+
 
 		[Test]
 		public async Task TestMergeCommitAsync()

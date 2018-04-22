@@ -18,7 +18,7 @@ namespace GitMind.Utils.Git.Private
 		//private static string gitUri =
 		//	"https://github.com/git-for-windows/git/releases/download/v2.16.2.windows.1/MinGit-2.16.2-64-bit.zip";
 
-		private static readonly string GitVersion = "2.17.0.windows.1";
+		public static readonly string GitVersion = "2.17.0.windows.1";
 		private static string gitUri =
 			"https://github.com/git-for-windows/git/releases/download/v2.17.0.windows.1/MinGit-2.17.0-64-bit.zip";
 

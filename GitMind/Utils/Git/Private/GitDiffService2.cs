@@ -42,7 +42,7 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<string>> GetCommitDiffAsync(string sha, CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmdService.RunAsync(
-				$"show --patch --root {sha}", ct);
+				$"show --patch --cc --root {sha}", ct);
 
 			if (result.IsFaulted)
 			{
@@ -102,15 +102,17 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<string>> GetUncommittedDiffAsync(CancellationToken ct)
 		{
-			string mergeIpPath = Path.Combine(workingFolder, ".git", "MERGE_HEAD");
-			bool isMergeInProgress = File.Exists(mergeIpPath);
+			bool isMergeInProgress = IsMergeInProgress();
 
-			R<CmdResult2> addResult = await gitCmdService.RunAsync("add .", ct);
-			if (addResult.IsFaulted)
+			if (!isMergeInProgress)
 			{
-				return Error.From("Failed to get uncommitted diff", addResult);
+				R<CmdResult2> addResult = await gitCmdService.RunAsync("add .", ct);
+				if (addResult.IsFaulted)
+				{
+					return Error.From("Failed to get uncommitted diff", addResult);
+				}
 			}
-			
+
 			R<CmdResult2> diffResult = await gitCmdService.RunAsync(
 				$"diff --find-renames --cached", ct);
 			if (diffResult.IsFaulted)
@@ -135,23 +137,30 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<string>> GetUncommittedFileDiffAsync(string path, CancellationToken ct)
 		{
-			R<CmdResult2> addResult = await gitCmdService.RunAsync("add .", ct);
-			if (addResult.IsFaulted)
+			bool isMergeInProgress = IsMergeInProgress();
+			if (!isMergeInProgress)
 			{
-				return Error.From("Failed to get uncommitted diff", addResult);
+				R<CmdResult2> addResult = await gitCmdService.RunAsync("add .", ct);
+				if (addResult.IsFaulted)
+				{
+					return Error.From("Failed to get uncommitted diff", addResult);
+				}
 			}
 
 			R<CmdResult2> diffResult = await gitCmdService.RunAsync(
-				$"diff --find-renames --cached --unified=100000 -- \"{path}\"", ct);
+				$"diff --find-renames --unified=100000 HEAD -- \"{path}\"", ct);
 			if (diffResult.IsFaulted)
 			{
 				return Error.From("Failed to get uncommitted diff", diffResult);
 			}
 
-			R<CmdResult2> resetResult = await gitCmdService.RunAsync("reset", ct);
-			if (resetResult.IsFaulted)
+			if (!isMergeInProgress)
 			{
-				return Error.From("Failed to get uncommitted diff", resetResult);
+				R<CmdResult2> resetResult = await gitCmdService.RunAsync("reset", ct);
+				if (resetResult.IsFaulted)
+				{
+					return Error.From("Failed to get uncommitted diff", resetResult);
+				}
 			}
 
 			Log.Info("Got uncommitted diff");
@@ -194,6 +203,14 @@ namespace GitMind.Utils.Git.Private
 			}
 
 			return files;
+		}
+
+
+		private bool IsMergeInProgress()
+		{
+			string mergeIpPath = Path.Combine(workingFolder, ".git", "MERGE_HEAD");
+			bool isMergeInProgress = File.Exists(mergeIpPath);
+			return isMergeInProgress;
 		}
 	}
 }

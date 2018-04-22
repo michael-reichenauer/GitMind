@@ -32,6 +32,7 @@ namespace GitMind.Utils.Git
 		public int Deleted { get; }
 		public int Conflicted { get; }
 		public bool IsMerging { get; }
+		public bool HasConflicts => Conflicted > 0;
 		public string MergeMessage { get; }
 		public IReadOnlyList<GitFile2> Files { get; }
 		public int AllChanges => Modified + Added + Deleted + Conflicted;
