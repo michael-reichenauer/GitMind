@@ -298,6 +298,7 @@
     <Compile Include="Utils\Json.cs" />
     <Compile Include="GitModel\Private\Caching\Serializer.cs" />
     <Compile Include="Utils\SingleInstanceAttribute.cs" />
+    <Compile Include="Utils\UI\DispatcherExtensions.cs" />
     <Compile Include="Utils\UI\InputBindingsBehavior.cs" />
     <Compile Include="Utils\UI\UiThread.cs" />
     <Compile Include="Utils\UI\VisibleWindow.cs" />

@@ -50,6 +50,7 @@ namespace GitMind.Common.ProgressHandling
 			private readonly ProgressDialog progressDialog;
 			private readonly TaskCompletionSource<bool> closeTask = new TaskCompletionSource<bool>();
 			private Timing timing;
+			private bool isDisposed = false;
 
 			public ProgressBox(Window owner, string text)
 			{
@@ -61,6 +62,7 @@ namespace GitMind.Common.ProgressHandling
 
 			public override void Dispose()
 			{
+				isDisposed = true;
 				closeTask.TrySetResult(true);
 				progressDialog.DialogResult = true;
 			}
@@ -68,8 +70,11 @@ namespace GitMind.Common.ProgressHandling
 
 			public override void SetText(string text)
 			{
-				timing.Log($"Progress status: {text}");
-				progressDialog.SetText(text);
+				if (!isDisposed)
+				{
+					timing.Log($"Progress status: {text}");
+					progressDialog.SetText(text);
+				}
 			}
 
 

@@ -280,7 +280,8 @@ namespace GitMind.RepositoryViews
 					if (!isCached)
 					{
 						Log.Debug("Could not load cached repo, loading fresh repo");
-						progress.SetText("Loading branch view (first time) ...");
+						Dispatcher.CurrentDispatcher.Delay(TimeSpan.FromMilliseconds(2000),
+						() => progress.SetText("Loading branch view (first time) ..."));
 						await repositoryService.LoadFreshRepositoryAsync(workingFolder);
 						t.Log("Read fresh repository");
 					}
