@@ -167,7 +167,7 @@ namespace GitMind.Features.Branches.Private
 
 		public async Task SwitchBranchAsync(Branch branch)
 		{
-			using (statusService.PauseStatusNotifications())
+			using (statusService.PauseStatusNotifications(Refresh.Status))
 			using (progress.ShowDialog($"Switching to branch {branch.Name} ..."))
 			{
 				R result = await gitBranchService.SwitchToBranchAsync(
