@@ -389,7 +389,6 @@ namespace GitMind.Features.Diffing.Private
 
 		private string GetConflictTypePath(string fullPath, string type)
 		{
-			//	string fullPath = Path.Combine(workingFolder, path);
 			string extension = Path.GetExtension(fullPath);
 			return Path.ChangeExtension(fullPath, type + extension);
 		}
@@ -422,17 +421,6 @@ namespace GitMind.Features.Diffing.Private
 			{
 				await gitStatusService2.RemoveAsync(path, CancellationToken.None);
 			}
-
-			////string fullPath = Path.Combine(workingFolder, path);
-			////Log.Debug($"Resolving {path}");
-			////if (File.Exists(fullPath))
-			////{
-			////	repository.Index.Add(path);
-			////}
-			////else
-			////{
-			////	repository.Remove(path);
-			////}
 
 			// Temp workaround to trigger status update after resolving conflicts, ill be handled better
 			string tempPath = fullPath + ".resolve_tmp";

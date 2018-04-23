@@ -17,7 +17,6 @@ namespace GitMind.Features.Tags.Private
 {
 	internal class TagService : ITagService
 	{
-		//private readonly IRepoCaller repoCaller;
 		private readonly IStatusService statusService;
 		private readonly IProgressService progress;
 		private readonly IGitPushService gitPushService;
@@ -27,7 +26,6 @@ namespace GitMind.Features.Tags.Private
 
 
 		public TagService(
-			//IRepoCaller repoCaller,
 			IStatusService statusService,
 			IProgressService progressService,
 			IGitPushService gitPushService,
@@ -35,7 +33,6 @@ namespace GitMind.Features.Tags.Private
 			IMessage message,
 			WindowOwner owner)
 		{
-			//this.repoCaller = repoCaller;
 			this.statusService = statusService;
 			this.progress = progressService;
 			this.gitPushService = gitPushService;
@@ -71,26 +68,6 @@ namespace GitMind.Features.Tags.Private
 					}
 				}
 			}
-
-			//repoCaller.UseLibRepo(repo =>
-			//{
-			//	foreach (var tag in repo.Tags)
-			//	{
-			//		if (repository.Commits.TryGetValue(new CommitId(tag.Target.Sha), out MCommit commit))
-			//		{
-			//			string name = tag.FriendlyName;
-			//			string tagText = $":{name}:";
-			//			if (commit.Tags != null && -1 == commit.Tags.IndexOf(tagText, StringComparison.Ordinal))
-			//			{
-			//				commit.Tags += tagText;
-			//			}
-			//			else if (commit.Tags == null)
-			//			{
-			//				commit.Tags = tagText;
-			//			}
-			//		}
-			//	}
-			//});
 		}
 
 
@@ -107,15 +84,6 @@ namespace GitMind.Features.Tags.Private
 
 					using (progress.ShowDialog($"Add tag {tagText} ..."))
 					{
-						//R<string> addResult = await repoCaller.UseLibRepoAsync(repository =>
-						//{
-						//	Commit commit = repository.Lookup<Commit>(new ObjectId(commitSha.Sha));
-
-						//	Tag tag = repository.Tags.Add(tagText, commit);
-
-						//	return tag.CanonicalName;
-						//});
-
 						R result = await gitTagService2.AddTagAsync(commitSha.Sha, tagText, CancellationToken.None);
 						if (result.IsOk)
 						{
@@ -146,7 +114,6 @@ namespace GitMind.Features.Tags.Private
 			{
 				using (progress.ShowDialog($"Delete tag {tagName} ..."))
 				{
-					//R deleteLocalResult = await repoCaller.UseLibRepoAsync(repo => repo.Tags.Remove(tagName));
 					R deleteLocalResult = await gitTagService2.DeleteTagAsync(tagName, CancellationToken.None);
 
 					R result = deleteLocalResult;

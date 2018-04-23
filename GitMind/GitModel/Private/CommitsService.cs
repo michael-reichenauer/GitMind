@@ -102,19 +102,6 @@ namespace GitMind.GitModel.Private
 				{
 					Log.Warn($"Unknown commit {commitSha}");
 					continue;
-					//// This git commit id has not yet been seen before
-					//var gitLibCommit = gitRepository.GetCommit(commitSha);
-
-					//parentIds = gitLibCommit.ParentIds;
-
-					//gitCommit = ToGitCommit(gitLibCommit);
-
-					//if (IsMergeCommit(gitCommit))
-					//{
-					//	TrySetBranchNameFromSubject(commitId, gitCommit, branchNameByCommitId, subjectBranchNameByCommitId);
-					//}
-
-					//repository.GitCommits[commitId] = gitCommit;
 				}
 
 				if (IsMergeCommit(gitCommit))
@@ -221,16 +208,6 @@ namespace GitMind.GitModel.Private
 		{
 			CommitSha virtualSha = CommitSha.NoCommits;
 			CommitId virtualId = new CommitId(virtualSha);
-
-			//MCommit commit = new MCommit()
-			//{
-			//	Repository = repository,
-			//	Id = virtualId,
-			//};
-
-			//repository.Commits[virtualId] = commit;
-
-			//commit.IsVirtual = true;
 
 			GitCommit gitCommit = new GitCommit(
 				virtualSha,
@@ -394,29 +371,5 @@ namespace GitMind.GitModel.Private
 				branchNames.SourceBranchName != null
 				&& branchNames.SourceBranchName == branchNames.TargetBranchName;
 		}
-
-
-		private static string GetSubjectWithoutTickets(string subject, string tickets)
-		{
-			return subject.Substring(tickets.Length);
-		}
-
-
-		//private static Regex rgx1 = new Regex(@"([\,; ]*#(\d\d*)[\,; ]*)|([\,; ]*#CST(\d\d*)[\,; ]*)");
-		//private static Regex rgx2 = new Regex(@"[\,; ]*#(CST\d\d*)[\,; ]*");
-
-		//private static Regex rgx1 = new Regex(@"#(\d\d*)");
-
-		//private string GetTickets(string subject)
-		//{
-		//	string tickets = "";
-		//	foreach (Match match in rgx1.Matches(subject))
-		//	{
-		//		tickets += match.Value;
-		//	}
-
-
-		//	return tickets;
-		//}
 	}
 }

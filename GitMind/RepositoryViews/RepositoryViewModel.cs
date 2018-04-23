@@ -9,9 +9,9 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
-using GitMind.Common.ThemeHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
+using GitMind.Common.ThemeHandling;
 using GitMind.Common.Tracking;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
@@ -51,7 +51,6 @@ namespace GitMind.RepositoryViews
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string settingFilterText = "";
-		//private bool isValidUri;
 
 		private int width = 0;
 		private int graphWidth = 0;
@@ -68,8 +67,6 @@ namespace GitMind.RepositoryViews
 
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; } = new Branch[0];
-
-		//public string WorkingFolder { get; set; }
 
 		public IReadOnlyList<BranchName> SpecifiedBranchNames { get; set; }
 		public ZoomableCanvas Canvas { get; set; }
@@ -284,7 +281,7 @@ namespace GitMind.RepositoryViews
 				}
 
 				Track.Info($"MainWindow - Loaded first view {t.ElapsedMs} ms");
-				
+
 				// isValidUri = gitInfoService.IsSupportedRemoteUrl(workingFolder);
 
 				using (progress.ShowBusy())
@@ -329,13 +326,6 @@ namespace GitMind.RepositoryViews
 					await repositoryService.CheckRemoteChangesAsync(false);
 				}
 
-				//if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
-				//{
-				//	FetchErrorText =
-				//		"SSH protocol is not yet supported for remote access.\n" +
-				//		"Use git:// or https:// instead if yopu want remote status, updates and push support.";
-				//}
-
 				t.Log("Activate refresh done");
 			}
 		}
@@ -353,13 +343,6 @@ namespace GitMind.RepositoryViews
 			}
 
 			await repositoryService.CheckBranchTipCommitsAsync();
-
-			//if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
-			//{
-			//	FetchErrorText =
-			//		"SSH protocol is not yet supported for remote access.\n" +
-			//		"Use git:// or https:// instead if yopu want remote status, updates and push support.";
-			//}
 		}
 
 
@@ -416,7 +399,7 @@ namespace GitMind.RepositoryViews
 						branch.MouseOnCommit(Commits[i].Commit);
 						break;
 					}
-				}				
+				}
 			}
 
 			if (branch.Branch.IsLocalPart)
@@ -457,24 +440,6 @@ namespace GitMind.RepositoryViews
 				commit.SetNormal(viewModelService.GetSubjectBrush(commit.Commit));
 			}
 		}
-
-
-		//private async Task CheckRemoteChangesAsync(bool isFetchNotes)
-		//{
-		//	Log.Debug("Fetching");
-		//	R result = await remoteService.FetchAsync();
-		//	FetchErrorText = "";
-		//	if (result.IsFaulted)
-		//	{
-		//		string text = $"Fetch error: {result.Message}";
-		//		Log.Warn(text);
-		//		FetchErrorText = text;
-		//	}
-		//	else if (isFetchNotes)
-		//	{
-		//		await remoteService.FetchAllNotesAsync();
-		//	}
-
 
 
 		private void UpdateViewModel()
