@@ -211,12 +211,22 @@ namespace GitMind.RepositoryViews.Private
 						stableCommit = commit.SecondParent;
 					}
 				}
-				else if (!commit.HasFirstChild || 
+				else if (!commit.HasFirstChild ||
 					commit.Branch.TipCommit == commit)
 				{
 					// A branch tip, closing the clicked branch
 					otherBranch = clickedBranch;
-					stableCommit = commit.Branch.ParentCommit;
+					if (commit.Branch.HasParentBranch)
+					{
+						stableCommit = commit.Branch.ParentCommit;
+					}
+					else
+					{
+						Branch repositoryBranch = commit.Repository.Branches.First(b => b.Name == BranchName.Master && b.IsActive);
+
+						stableCommit = repositoryBranch.TipCommit;
+					}
+
 					if (clickedBranch.Branch.IsLocalPart)
 					{
 						otherBranch = repositoryViewModel
@@ -305,7 +315,7 @@ namespace GitMind.RepositoryViews.Private
 			{
 				message.ShowError($"Failed to show branch {branch}");
 				Log.Exception(e, $"Failed to show branch {branch}");
-			}		
+			}
 		}
 
 		public void HideBranch(RepositoryViewModel repositoryViewModel, Branch branch)
@@ -343,7 +353,7 @@ namespace GitMind.RepositoryViews.Private
 			{
 				List<Branch> preFilterBranches =
 					repositoryViewModel.PreFilterBranches?.ToList() ?? new List<Branch>();
-				 CommitViewModel preFilterSelectedItem = repositoryViewModel.PreFilterSelectedItem;
+				CommitViewModel preFilterSelectedItem = repositoryViewModel.PreFilterSelectedItem;
 				repositoryViewModel.PreFilterBranches = null;
 				repositoryViewModel.PreFilterSelectedItem = null;
 
@@ -555,7 +565,7 @@ namespace GitMind.RepositoryViews.Private
 				return 0;
 			}
 		}
-		
+
 
 		private void UpdateCommits(
 			IReadOnlyList<Commit> sourceCommits,
@@ -565,7 +575,7 @@ namespace GitMind.RepositoryViews.Private
 			var commitsById = repositoryViewModel.CommitsById;
 
 			SetNumberOfItems(
-				commits, 
+				commits,
 				sourceCommits.Count,
 				i => new CommitViewModel(
 					branchService, diffService, themeService, repositoryCommands, commitsService, tagService));
@@ -644,8 +654,8 @@ namespace GitMind.RepositoryViews.Private
 				branch.X = branch.Branch.IsLocalPart && branch.Branch.MainbBranch.Commits.Any()
 					? Converters.ToX(branch.BranchColumn) - 10
 					: Converters.ToX(branch.BranchColumn);
-				
-			
+
+
 				branch.HoverBrush = Brushes.Transparent;
 				branch.Dashes = sourceBranch.IsLocalPart ? "1" : "";
 
@@ -664,7 +674,7 @@ namespace GitMind.RepositoryViews.Private
 				}
 
 				branch.SetColor(themeService.GetBranchBrush(sourceBranch));
-			
+
 
 				branch.BranchToolTip = GetBranchToolTip(sourceBranch);
 				branch.CurrentBranchName = repositoryMgr.Repository.CurrentBranch.Name;
