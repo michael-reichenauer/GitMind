@@ -274,8 +274,17 @@ namespace GitMind.RepositoryViews
 
 				using (progress.ShowDialog("Loading branch view ..."))
 				{
-					await repositoryService.LoadRepositoryAsync(workingFolder);
-					t.Log("Read cached/fresh repository");
+					bool isCached = await repositoryService.LoadCachedRepositoryAsync(workingFolder);
+					t.Log("Read cached repository");
+
+					if (!isCached)
+					{
+						Log.Debug("Could not load cached repo, loading fresh repo");
+						progress.SetText("Loading branch view (first time) ...");
+						await repositoryService.LoadFreshRepositoryAsync(workingFolder);
+						t.Log("Read fresh repository");
+					}
+					
 					LoadViewModel();
 					t.Log("Updated view model after cached/fresh");
 				}

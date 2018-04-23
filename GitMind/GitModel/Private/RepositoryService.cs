@@ -74,15 +74,28 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public async Task LoadRepositoryAsync(string workingFolder)
+
+		public async Task<bool> LoadCachedRepositoryAsync(string workingFolder)
 		{
 			Monitor(workingFolder);
 
 			R<Repository> repository = await GetCachedRepositoryAsync(workingFolder);
 			if (!repository.IsOk)
 			{
-				repository = await GetFreshRepositoryAsync(workingFolder, null);
+				return false;
 			}
+
+			Repository = repository.Value;
+			return true;
+		}
+
+
+
+		public async Task LoadFreshRepositoryAsync(string workingFolder)
+		{
+			Monitor(workingFolder);
+
+			R<Repository> repository = await GetFreshRepositoryAsync(workingFolder, null);
 
 			Repository = repository.Value;
 		}
