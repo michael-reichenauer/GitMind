@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Utils;
@@ -18,6 +20,12 @@ namespace GitMind
 		public static void Main()
 		{
 			Log.Debug(GetStartLineText());
+
+			if (Environment.GetCommandLineArgs().Contains("/run"))
+			{
+				Log.Debug("Pause a while to let other instance close");
+				Thread.Sleep(1500);
+			}
 
 			Program program = new Program();
 			program.Run();
