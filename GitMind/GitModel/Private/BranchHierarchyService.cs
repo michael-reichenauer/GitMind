@@ -25,9 +25,7 @@ namespace GitMind.GitModel.Private
 		public void SetBranchHierarchy(MRepository repository)
 		{
 			CombineMainWithLocalSubBranches(repository);
-
-			SetParentCommitId(repository);		
-
+			SetParentCommitId(repository);
 			GroupSubBranchesIntoMainBranches(repository);
 
 			MoveCommitsIntoBranches(repository);
@@ -302,7 +300,7 @@ namespace GitMind.GitModel.Private
 		}
 
 		private static MCommit AddVirtualCommit(
-			MRepository repository, 
+			MRepository repository,
 			CommitId virtualId)
 		{
 			MCommit commit = new MCommit()
@@ -320,10 +318,10 @@ namespace GitMind.GitModel.Private
 		private void SetLocalAndRemoteAhead(MRepository repository)
 		{
 			IEnumerable<MBranch> unsynkedBranches = repository.Branches.Values
-				.Where(b => 
+				.Where(b =>
 					b.IsActive &&
-					b.IsLocal && 
-					b.IsRemote && 
+					b.IsLocal &&
+					b.IsRemote &&
 					b.LocalTipCommitId != b.RemoteTipCommitId)
 					.ToList();
 
@@ -337,101 +335,89 @@ namespace GitMind.GitModel.Private
 					localTipCommit = localTipCommit.FirstParent;
 				}
 
-				//if (gitBranchService.GetCommonAncestor(
-				//	localTipCommit.Sha, remoteTipCommit.Sha).HasValue(out var div))
+				branch.Commits.ForEach(commit =>
 				{
-					//CommitSha commonTip = div.CommonId;
-					//MCommit commonCommit = repository.Commits[new CommitId(commonTip.Sha)];
+					commit.IsLocalAhead = false;
+					commit.IsRemoteAhead = false;
+					commit.IsLocal = false;
+					commit.IsRemote = false;
+					commit.IsCommon = false;
+				});
 
-					//commonCommit
-					//	.CommitAndFirstAncestors()
-					//	.Where(c => c.BranchId == branch.Id)
-					//	.ForEach(c => c.IsCommon = true);
+				localTipCommit
+					.CommitAndAncestors(c => c.BranchId == branch.Id && c.IsLocal != true)
+					.ForEach(c => c.IsLocal = true);
 
-					branch.Commits.ForEach(commit =>
-					{
-						commit.IsLocalAhead = false;
-						commit.IsRemoteAhead = false;
-						commit.IsLocal = false;
-						commit.IsRemote = false;
-						commit.IsCommon = false;
-					});
+				remoteTipCommit
+					.CommitAndAncestors(c => c.BranchId == branch.Id && c.IsRemote != true)
+					.ForEach(c => c.IsRemote = true);
 
-					localTipCommit
-						.CommitAndAncestors(c => c.BranchId == branch.Id)
-						.ForEach(c => c.IsLocal = true);
+				branch.Commits.ForEach(commit =>
+				{
+					commit.IsCommon = commit.IsLocal && commit.IsRemote;
+				});
 
-					remoteTipCommit
-						.CommitAndAncestors(c => c.BranchId == branch.Id)
-						.ForEach(c => c.IsRemote = true);
+				MCommit commonCommit = localTipCommit
+					.CommitAndAncestors(c => c.BranchId == branch.Id)
+					.First(c => c.IsCommon);
 
-					branch.Commits.ForEach(commit =>
-					{
-						commit.IsCommon = commit.IsLocal && commit.IsRemote;
-					});
-
-
-					MCommit commonCommit = localTipCommit
-						.CommitAndAncestors(c => c.BranchId == branch.Id)
-						.First(c => c.IsCommon);
-
-					if (commonCommit.Sha != localTipCommit.Sha || 
-						(repository.Commits[branch.LocalTipCommitId].IsUncommitted 
-							&& !repository.Commits[branch.FirstCommitId].IsUncommitted))
-					{
-						MakeLocalBranch(repository, branch, localTipCommit.Id, commonCommit.Id);
-					}
-
-					if (branch.IsLocal)
-					{
-						HashSet<CommitId> marked = new HashSet<CommitId>();
-						int localCount = 0;
-						Stack<MCommit> commits = new Stack<MCommit>();
-						commits.Push(localTipCommit);
-
-						while (commits.Any())
-						{
-							MCommit commit = commits.Pop();
-							if (!marked.Contains(commit.Id) && !commit.IsCommon && commit.Branch == branch)
-							{
-								commit.IsLocalAhead = true;
-								localCount++;
-								marked.Add(commit.Id);
-								commit.Parents
-									.Where(p => p.Branch == branch)
-									.ForEach(p => commits.Push(p));
-							}
-						}
-
-						branch.LocalAheadCount = localCount;
-					}
-
-					if (branch.IsRemote)
-					{
-						HashSet<CommitId> marked = new HashSet<CommitId>();
-						int remoteCount = 0;
-						Stack<MCommit> commits = new Stack<MCommit>();
-						commits.Push(remoteTipCommit);
-
-						while (commits.Any())
-						{
-							MCommit commit = commits.Pop();
-
-							if (!marked.Contains(commit.Id) && !commit.IsCommon && commit.Branch == branch)
-							{
-								commit.IsRemoteAhead = true;
-								remoteCount++;
-								marked.Add(commit.Id);
-							
-								commit.Parents
-									.Where(p => p.Branch == branch)
-									.ForEach(p => commits.Push(p));
-							}
-						}
-
-						branch.RemoteAheadCount = remoteCount;
-					}
+				if (commonCommit.Sha != localTipCommit.Sha ||
+					(repository.Commits[branch.LocalTipCommitId].IsUncommitted
+						&& !repository.Commits[branch.FirstCommitId].IsUncommitted))
+				{
+					MakeLocalBranch(repository, branch, localTipCommit.Id, commonCommit.Id);
 				}
+
+				if (branch.IsLocal)
+				{
+					HashSet<CommitId> marked = new HashSet<CommitId>();
+					int localCount = 0;
+					Stack<MCommit> commits = new Stack<MCommit>();
+					commits.Push(localTipCommit);
+
+					while (commits.Any())
+					{
+						MCommit commit = commits.Pop();
+						if (!marked.Contains(commit.Id) && !commit.IsCommon && commit.Branch == branch)
+						{
+							commit.IsLocalAhead = true;
+							localCount++;
+							marked.Add(commit.Id);
+							commit.Parents
+								.Where(p => p.Branch == branch)
+								.ForEach(p => commits.Push(p));
+						}
+					}
+
+					branch.LocalAheadCount = localCount;
+				}
+
+				if (branch.IsRemote)
+				{
+					HashSet<CommitId> marked = new HashSet<CommitId>();
+					int remoteCount = 0;
+					Stack<MCommit> commits = new Stack<MCommit>();
+					commits.Push(remoteTipCommit);
+
+					while (commits.Any())
+					{
+						MCommit commit = commits.Pop();
+
+						if (!marked.Contains(commit.Id) && !commit.IsCommon && commit.Branch == branch)
+						{
+							commit.IsRemoteAhead = true;
+							remoteCount++;
+							marked.Add(commit.Id);
+
+							commit.Parents
+								.Where(p => p.Branch == branch)
+								.ForEach(p => commits.Push(p));
+						}
+					}
+
+					branch.RemoteAheadCount = remoteCount;
+				}
+
 			}
 		}
 
@@ -450,8 +436,8 @@ namespace GitMind.GitModel.Private
 
 
 		private static void MakeLocalBranch(
-			MRepository repository, 
-			MBranch branch, 
+			MRepository repository,
+			MBranch branch,
 			CommitId localTip,
 			CommitId commonTip)
 		{

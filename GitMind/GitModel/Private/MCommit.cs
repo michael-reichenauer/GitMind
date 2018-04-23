@@ -151,7 +151,7 @@ namespace GitMind.GitModel.Private
 			Stack<MCommit> commits = new Stack<MCommit>();
 			Parents
 				.Where(predicate)
-				.ForEach(child => commits.Push(child));
+				.ForEach(parent => commits.Push(parent));
 
 			while (commits.Any())
 			{
@@ -160,7 +160,7 @@ namespace GitMind.GitModel.Private
 
 				commit.Parents
 					.Where(predicate)
-					.ForEach(child => commits.Push(child));
+					.ForEach(parent => commits.Push(parent));
 			}
 		}
 
