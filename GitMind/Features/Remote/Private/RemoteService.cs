@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
@@ -11,6 +12,7 @@ using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.Features.Remote.Private
@@ -22,7 +24,8 @@ namespace GitMind.Features.Remote.Private
 		private readonly IMessage message;
 		private readonly IStatusService statusService;
 		private readonly IGitBranchService gitBranchService;
-		private readonly IGitNetworkService gitNetworkService;
+		private readonly IGitFetchService gitFetchService;
+		private readonly IGitPushService gitPushService;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 
 
@@ -32,7 +35,8 @@ namespace GitMind.Features.Remote.Private
 			IMessage message,
 			IStatusService statusService,
 			IGitBranchService gitBranchService,
-			IGitNetworkService gitNetworkService,
+			IGitFetchService gitFetchService,
+			IGitPushService gitPushService,
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
 			this.repositoryMgr = repositoryMgr;
@@ -40,28 +44,28 @@ namespace GitMind.Features.Remote.Private
 			this.message = message;
 			this.statusService = statusService;
 			this.gitBranchService = gitBranchService;
-			this.gitNetworkService = gitNetworkService;
+			this.gitFetchService = gitFetchService;
+			this.gitPushService = gitPushService;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 		}
 
 		private Repository Repository => repositoryMgr.Repository;
 
 
-		public Task<R> FetchAsync()
+		public async Task<R> FetchAsync()
 		{
-			return gitNetworkService.FetchAsync();
+			return await gitFetchService.FetchAsync(CancellationToken.None);
 		}
 
 
-		public Task<R> PushBranchAsync(BranchName branchName)
+		public async Task<R> PushBranchAsync(BranchName branchName)
 		{
-			return gitNetworkService.PushBranchAsync(branchName);
+			return await gitPushService.PushBranchAsync(branchName, CancellationToken.None);
 		}
 
 
 		public Task PushNotesAsync(CommitSha rootId)
 		{
-
 			return gitCommitBranchNameService.PushNotesAsync(rootId);
 		}
 
@@ -108,8 +112,8 @@ namespace GitMind.Features.Remote.Private
 				foreach (Branch branch in updatableBranches)
 				{
 					progress.SetText($"Updating branch {branch.Name} ...");
-
-					await gitNetworkService.FetchBranchAsync(branch.Name);
+					string[] refspecs = { $"{branch.Name}:{branch.Name}" };
+					await gitFetchService.FetchRefsAsync(refspecs, CancellationToken.None);
 				}
 
 				progress.SetText("Updating all branches ...");
@@ -157,12 +161,12 @@ namespace GitMind.Features.Remote.Private
 			{
 				await PushNotesAsync(Repository.RootCommit.RealCommitSha);
 
-				R result = await gitNetworkService.PushCurrentBranchAsync();
+				R result = await gitPushService.PushAsync(CancellationToken.None);
 
-				if (result.IsFaulted)
+				if (!result.IsOk)
 				{
 					message.ShowWarning(
-						 $"Failed to push current branch {branchName}.\n{result.Message}");
+						 $"Failed to push current branch {branchName}.\n{result.Error}");
 				}
 			}
 		}
@@ -188,7 +192,7 @@ namespace GitMind.Features.Remote.Private
 				if (currentBranch.CanBePushed)
 				{
 					progress.SetText($"Pushing current branch {currentBranch.Name} ...");
-					result = await gitNetworkService.PushCurrentBranchAsync();
+					result = await gitPushService.PushAsync(CancellationToken.None);
 				}
 
 				if (result.IsFaulted)
@@ -198,8 +202,8 @@ namespace GitMind.Features.Remote.Private
 				}
 
 				IEnumerable<Branch> pushableBranches = Repository.Branches
-					.Where(b => !b.IsCurrentBranch && b.CanBePushed)
-					.ToList();
+				.Where(b => !b.IsCurrentBranch && b.CanBePushed)
+				.ToList();
 
 				foreach (Branch branch in pushableBranches)
 				{

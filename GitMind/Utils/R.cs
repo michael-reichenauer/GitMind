@@ -7,9 +7,9 @@ namespace GitMind.Utils
 	{
 		public static R Ok = new R(Error.None);
 		public static R NoValue = new R(Error.NoValue);
-	
 
-		public R(Error error)
+
+		protected R(Error error)
 		{
 			Error = error;
 		}
@@ -24,18 +24,8 @@ namespace GitMind.Utils
 
 		public static implicit operator R(Error error) => new R(error);
 		public static implicit operator R(Exception e) => new R(Error.From(e));
-
-		public static implicit operator bool(R r) => !r.IsFaulted;
-
-		public override string ToString()
-		{
-			if (IsFaulted)
-			{
-				return $"Error: {Error}";
-			}
-
-			return "OK";
-		}
+		public static implicit operator bool(R r) => r.IsOk;
+		public override string ToString() => IsOk ? "OK" : $"Error: {Error}";
 	}
 
 
@@ -45,11 +35,7 @@ namespace GitMind.Utils
 
 		public new static R<T> NoValue = new R<T>(Error.NoValue);
 
-		public R(T value)
-			: base(Error.None)
-		{
-			this.storedValue = value;
-		}
+		public R(T value) : base(Error.None) => this.storedValue = value;
 
 		public R(Error error)
 			: base(error)
@@ -59,7 +45,7 @@ namespace GitMind.Utils
 
 		public static implicit operator R<T>(Error error) => new R<T>(error);
 		public static implicit operator R<T>(Exception e) => new R<T>(Error.From(e));
-		public static implicit operator bool(R<T> r) => !r.IsFaulted;
+		public static implicit operator bool(R<T> r) => r.IsOk;
 
 		public static implicit operator R<T>(T value)
 		{
@@ -72,20 +58,7 @@ namespace GitMind.Utils
 		}
 
 
-		public T Value
-		{
-			get
-			{
-				if (!IsFaulted)
-				{
-					return storedValue;
-				}
-
-				throw Asserter.FailFast(Error);
-			}
-		}
-
-		//public bool HasValue => ;
+		public T Value => !IsFaulted ? storedValue : throw Asserter.FailFast(Error);
 
 
 		public bool HasValue(out T value)
@@ -102,25 +75,10 @@ namespace GitMind.Utils
 			}
 		}
 
-		public T Or(T defaultValue)
-		{
-			if (IsFaulted)
-			{
-				return defaultValue;
-			}
-
-			return Value;
-		}
+		public T Or(T defaultValue) => IsFaulted ? defaultValue : Value;
 
 
-		public override string ToString()
-		{
-			if (IsFaulted)
-			{
-				return $"Error: {Error}";
-			}
-
-			return storedValue?.ToString() ?? "";
-		}
+		public override string ToString() =>
+			IsFaulted ? $"Error: {Error}" : (storedValue?.ToString() ?? "");
 	}
 }

@@ -18,6 +18,8 @@ namespace GitMind.Utils
 		}
 
 
+		public static Timing StartNew() => new Timing();
+
 		public TimeSpan Stop()
 		{
 			stopwatch.Stop();
@@ -25,7 +27,7 @@ namespace GitMind.Utils
 		}
 
 
-		public TimeSpan Elapsed 
+		public TimeSpan Elapsed
 		{
 			get
 			{
@@ -58,7 +60,7 @@ namespace GitMind.Utils
 			count++;
 
 			Utils.Log.Debug(
-				$"{count}: {message}: {this}", memberName, sourceFilePath, sourceLineNumber);	
+				$"{count}: {message}: {this}", memberName, sourceFilePath, sourceLineNumber);
 		}
 
 		public void Log(
@@ -69,10 +71,10 @@ namespace GitMind.Utils
 		{
 			count++;
 
-			Utils.Log.Debug($"At {count}: {this}", memberName, sourceFilePath, sourceLineNumber);		
+			Utils.Log.Debug($"At {count}: {this}", memberName, sourceFilePath, sourceLineNumber);
 		}
 
-		
+
 		public override string ToString() => $"Timing: {DiffMs}ms ({ElapsedMs}ms)";
 
 		public struct StopParameter

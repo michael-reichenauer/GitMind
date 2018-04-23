@@ -21,7 +21,7 @@ namespace GitMind.ApplicationHandling
 			add { workingFolderService.OnChange += value; }
 			remove { workingFolderService.OnChange -= value; }
 		}
-	
+
 
 		public string Path => workingFolderService.Path;
 

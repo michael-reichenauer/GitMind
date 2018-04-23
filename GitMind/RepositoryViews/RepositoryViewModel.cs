@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
-using GitMind.Common.ThemeHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
+using GitMind.Common.ThemeHandling;
 using GitMind.Common.Tracking;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
@@ -18,6 +19,7 @@ using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.RepositoryViews.Private;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
 using ListBox = System.Windows.Controls.ListBox;
@@ -36,7 +38,7 @@ namespace GitMind.RepositoryViews
 		private readonly IViewModelService viewModelService;
 		private readonly IRepositoryService repositoryService;
 
-		private readonly IGitInfoService gitInfoService;
+		private readonly IGitFetchService gitFetchService;
 
 		private readonly IThemeService themeService;
 		private readonly IMessage message;
@@ -45,12 +47,10 @@ namespace GitMind.RepositoryViews
 		private readonly ICommandLine commandLine;
 		private readonly ICommitsService commitsService;
 		private readonly IProgressService progress;
-		private readonly IGitNetworkService gitNetworkService;
 
 
 		private readonly DispatcherTimer filterTriggerTimer = new DispatcherTimer();
 		private string settingFilterText = "";
-		private bool isValidUri;
 
 		private int width = 0;
 		private int graphWidth = 0;
@@ -68,8 +68,6 @@ namespace GitMind.RepositoryViews
 
 		public IReadOnlyList<Branch> SpecifiedBranches { get; set; } = new Branch[0];
 
-		//public string WorkingFolder { get; set; }
-
 		public IReadOnlyList<BranchName> SpecifiedBranchNames { get; set; }
 		public ZoomableCanvas Canvas { get; set; }
 
@@ -81,11 +79,10 @@ namespace GitMind.RepositoryViews
 			IViewModelService viewModelService,
 			ICommitsService commitsService,
 			IRepositoryService repositoryService,
-			IGitInfoService gitInfoService,
+			IGitFetchService gitFetchService,
 			IThemeService themeService,
 			IMessage message,
 			IProgressService progressService,
-			IGitNetworkService gitNetworkService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
 		{
 			this.workingFolder = workingFolder;
@@ -95,12 +92,11 @@ namespace GitMind.RepositoryViews
 			this.commitsService = commitsService;
 			this.repositoryService = repositoryService;
 
-			this.gitInfoService = gitInfoService;
+			this.gitFetchService = gitFetchService;
 
 			this.themeService = themeService;
 			this.message = message;
 			this.progress = progressService;
-			this.gitNetworkService = gitNetworkService;
 
 			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
 
@@ -278,14 +274,26 @@ namespace GitMind.RepositoryViews
 
 				using (progress.ShowDialog("Loading branch view ..."))
 				{
-					await repositoryService.LoadRepositoryAsync(workingFolder);
-					t.Log("Read cached/fresh repository");
+					bool isCached = await repositoryService.LoadCachedRepositoryAsync(workingFolder);
+					t.Log("Read cached repository");
+
+					if (!isCached)
+					{
+						Log.Debug("Could not load cached repo, loading fresh repo");
+						Dispatcher.CurrentDispatcher.Delay(TimeSpan.FromMilliseconds(2000),
+						() => progress.SetText("Loading branch view (first time) ..."));
+						await repositoryService.LoadFreshRepositoryAsync(workingFolder);
+						t.Log("Read fresh repository");
+					}
+					
 					LoadViewModel();
 					t.Log("Updated view model after cached/fresh");
 				}
 
-				isValidUri = gitInfoService.IsSupportedRemoteUrl(workingFolder);
-				
+				Track.Info($"MainWindow - Loaded first view {t.ElapsedMs} ms");
+
+				// isValidUri = gitInfoService.IsSupportedRemoteUrl(workingFolder);
+
 				using (progress.ShowBusy())
 				{
 					if (repositoryService.Repository.MRepository.IsCached)
@@ -303,6 +311,7 @@ namespace GitMind.RepositoryViews
 					t.Log("Checked remote");
 				}
 
+				Track.Info($"MainWindow - Loaded after remote changes {t.ElapsedMs} ms");
 				await repositoryService.CheckBranchTipCommitsAsync();
 			}
 		}
@@ -327,13 +336,6 @@ namespace GitMind.RepositoryViews
 					await repositoryService.CheckRemoteChangesAsync(false);
 				}
 
-				if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
-				{
-					FetchErrorText =
-						"SSH protocol is not yet supported for remote access.\n" +
-						"Use git:// or https:// instead if yopu want remote status, updates and push support.";
-				}
-
 				t.Log("Activate refresh done");
 			}
 		}
@@ -351,13 +353,6 @@ namespace GitMind.RepositoryViews
 			}
 
 			await repositoryService.CheckBranchTipCommitsAsync();
-
-			if (!isValidUri && string.IsNullOrEmpty(FetchErrorText))
-			{
-				FetchErrorText =
-					"SSH protocol is not yet supported for remote access.\n" +
-					"Use git:// or https:// instead if yopu want remote status, updates and push support.";
-			}
 		}
 
 
@@ -391,10 +386,10 @@ namespace GitMind.RepositoryViews
 				{
 					Log.Debug("Refreshing after manual trigger ...");
 
-					await gitNetworkService.PruneLocalTagsAsync();
+					await gitFetchService.FetchPruneTagsAsync(CancellationToken.None);
 
 					Log.Debug("Get fresh repository from scratch");
-					await repositoryService.GetRemoteAndFreshRepositoryAsync();
+					await repositoryService.GetRemoteAndFreshRepositoryAsync(true);
 				}
 			}
 		}
@@ -414,7 +409,7 @@ namespace GitMind.RepositoryViews
 						branch.MouseOnCommit(Commits[i].Commit);
 						break;
 					}
-				}				
+				}
 			}
 
 			if (branch.Branch.IsLocalPart)
@@ -455,24 +450,6 @@ namespace GitMind.RepositoryViews
 				commit.SetNormal(viewModelService.GetSubjectBrush(commit.Commit));
 			}
 		}
-
-
-		//private async Task CheckRemoteChangesAsync(bool isFetchNotes)
-		//{
-		//	Log.Debug("Fetching");
-		//	R result = await remoteService.FetchAsync();
-		//	FetchErrorText = "";
-		//	if (result.IsFaulted)
-		//	{
-		//		string text = $"Fetch error: {result.Message}";
-		//		Log.Warn(text);
-		//		FetchErrorText = text;
-		//	}
-		//	else if (isFetchNotes)
-		//	{
-		//		await remoteService.FetchAllNotesAsync();
-		//	}
-
 
 
 		private void UpdateViewModel()
@@ -560,8 +537,8 @@ namespace GitMind.RepositoryViews
 			Commit uncommitted = repository.UnComitted;
 			UnCommited = uncommitted;
 
-			ConflictsText = repository.Status.ConflictCount > 0
-				? $"Conflicts in {repository.Status.ConflictCount} files\""
+			ConflictsText = repository.Status.Conflicted > 0
+				? $"Conflicts in {repository.Status.Conflicted} files\""
 				: null;
 		}
 

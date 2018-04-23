@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.Common.Tracking;
 
 
 namespace GitMind.Utils
@@ -17,43 +14,68 @@ namespace GitMind.Utils
 	internal static class Log
 	{
 		private static readonly int MaxLogFileSize = 2000000;
-
-		private static readonly UdpClient UdpClient = new UdpClient();
 		private static readonly BlockingCollection<string> logTexts = new BlockingCollection<string>();
-
-		private static readonly IPEndPoint usageLogEndPoint =
-			new IPEndPoint(IPAddress.Parse("10.85.12.4"), 41110);
 
 		private static readonly object syncRoot = new object();
 
-		private static readonly string LogPath = ProgramPaths.GetLogFilePath();
 		private static readonly int ProcessID = Process.GetCurrentProcess().Id;
 		private static readonly string LevelUsage = "USAGE";
 		private static readonly string LevelDebug = "DEBUG";
 		private static readonly string LevelInfo = "INFO ";
 		private static readonly string LevelWarn = "WARN ";
 		private static readonly string LevelError = "ERROR";
-		private static readonly Lazy<bool> DisableErrorAndUsageReporting;
+
+		private static int prefixLength = 0;
+		private static string LogPath = null;
+
 
 		static Log()
 		{
-			DisableErrorAndUsageReporting = new Lazy<bool>(() =>
-				Settings.Get<Options>().DisableErrorAndUsageReporting);
-
 			Task.Factory.StartNew(SendBufferedLogRows, TaskCreationOptions.LongRunning)
 				.RunInBackground();
 		}
 
 
+		public static void Init(string logFilePath, [CallerFilePath] string sourceFilePath = "")
+		{
+			LogPath = logFilePath;
+			string rootPath = Path.GetDirectoryName(Path.GetDirectoryName(sourceFilePath));
+			prefixLength = rootPath.Length + 1;
+		}
+
+
 		private static void SendBufferedLogRows()
 		{
+			List<string> batchedTexts = new List<string>();
 			while (!logTexts.IsCompleted)
 			{
+				// Wait for texts to log
+				string filePrefix = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}]";
 				string logText = logTexts.Take();
-
 				Native.OutputDebugString(logText);
+				batchedTexts.Add($"{filePrefix} {logText}");
 
-				//Debugger.Log(0, Debugger.DefaultCategory, logText);
+				// Check if there might be more buffered log texts, if so add them in batch
+				while (logTexts.TryTake(out logText))
+				{
+					Native.OutputDebugString(logText);
+					batchedTexts.Add($"{filePrefix} {logText}");
+				}
+
+				try
+				{
+					WriteToFile(batchedTexts);
+				}
+				catch (ThreadAbortException)
+				{
+					// The process or app-domain is closing,
+					Thread.ResetAbort();
+					return;
+				}
+				catch (Exception e) when (e.IsNotFatal())
+				{
+					Native.OutputDebugString("ERROR Failed to log to file, " + e);
+				}
 			}
 		}
 
@@ -93,7 +115,6 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelWarn, msg, memberName, sourceFilePath, sourceLineNumber);
-			Track.TraceWarn($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
 		}
 
 
@@ -104,7 +125,6 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelError, msg, memberName, sourceFilePath, sourceLineNumber);
-			Track.TraceError($"{sourceFilePath}-{memberName}({sourceLineNumber}) {msg}");
 		}
 
 		public static void Exception(
@@ -115,9 +135,17 @@ namespace GitMind.Utils
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
 			Write(LevelError, $"{msg}\n{e}", memberName, sourceFilePath, sourceLineNumber);
+		}
 
-			string message = $"{sourceFilePath}-{memberName}({sourceLineNumber}) - {e.Message}, {msg}";
-			Track.Exception(e, message);
+
+		public static void Exception(
+			Exception e,
+			Timing.StopParameter stop = default(Timing.StopParameter),
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0)
+		{
+			Write(LevelError, $"{e}", memberName, sourceFilePath, sourceLineNumber);
 		}
 
 
@@ -126,29 +154,25 @@ namespace GitMind.Utils
 			string msg,
 			string memberName,
 			string filePath,
-			int lineNumber,
-			[CallerFilePath] string sourceFilePath = "")
+			int lineNumber)
 		{
-			int prefixLength = sourceFilePath.Length - 20;
 			filePath = filePath.Substring(prefixLength);
 			string text = $"{level} [{ProcessID}] {filePath}({lineNumber}) {memberName} - {msg}";
 
+			//Native.OutputDebugString(text);
+
 			if (level == LevelUsage || level == LevelWarn || level == LevelError)
 			{
-				SendUsage(text);
+				//SendUsage(text);
 			}
 
 			try
 			{
-				//byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
-				//UdpClient.Send(bytes, bytes.Length, LocalLogEndPoint);
 				SendLog(text);
-				WriteToFile(text);
 			}
 			catch (Exception e) when (e.IsNotFatal())
 			{
-				//Debugger.Log(0, Debugger.DefaultCategory, "ERROR Failed to log to udp " + e);
-				SendLog("ERROR Failed to log to udp " + e);
+				SendLog("ERROR Failed to log " + e);
 			}
 		}
 
@@ -159,39 +183,21 @@ namespace GitMind.Utils
 		}
 
 
-
-		private static void SendUsage(string text)
+		private static void WriteToFile(IReadOnlyCollection<string> text)
 		{
-			if (DisableErrorAndUsageReporting.Value)
+			if (LogPath == null)
 			{
 				return;
 			}
 
-			try
-			{
-				string logRow = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}";
-
-				byte[] bytes = System.Text.Encoding.UTF8.GetBytes(logRow);
-				UdpClient.Send(bytes, bytes.Length, usageLogEndPoint);
-			}
-			catch (Exception)
-			{
-				// Ignore failed
-			}
-		}
-
-
-		private static void WriteToFile(string text)
-		{
+			Exception error = null;
 			lock (syncRoot)
 			{
-				Exception error = null;
 				for (int i = 0; i < 10; i++)
 				{
 					try
 					{
-						File.AppendAllText(
-							LogPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}] {text}{Environment.NewLine}");
+						File.AppendAllLines(LogPath, text);
 
 						long length = new FileInfo(LogPath).Length;
 
@@ -207,14 +213,23 @@ namespace GitMind.Utils
 						// Ignore error since folder has been deleted during uninstallation
 						return;
 					}
+					catch (ThreadAbortException)
+					{
+						// Process or app-domain is closing
+						Thread.ResetAbort();
+						return;
+					}
 					catch (Exception e)
 					{
 						Thread.Sleep(30);
 						error = e;
 					}
 				}
+			}
 
-				SendLog("ERROR Failed to log to file: " + error);
+			if (error != null)
+			{
+				throw error;
 			}
 		}
 

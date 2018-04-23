@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Common;
-using GitMind.Features.StatusHandling;
 using GitMind.Git;
+using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 
 
 namespace GitMind.GitModel.Private
@@ -29,13 +30,13 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddActiveBranches(GitRepository gitRepository, MRepository repository)
+		public void AddActiveBranches(IReadOnlyList<GitBranch2> branches, MRepository repository)
 		{
-			Status status = repository.Status;
+			GitStatus2 status = repository.Status;
 
-			GitBranch currentBranch = gitRepository.Head;
+			//GitBranch2 currentBranch = branches.GetCurrent();
 
-			foreach (GitBranch gitBranch in gitRepository.Branches)
+			foreach (GitBranch2 gitBranch in branches)
 			{
 				BranchName branchName = gitBranch.Name;
 				if (branchName == BranchName.OriginHead || branchName == BranchName.Head)
@@ -46,7 +47,7 @@ namespace GitMind.GitModel.Private
 				MSubBranch subBranch = ToBranch(gitBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!status.IsOK && gitBranch.IsCurrent && !gitBranch.IsRemote)
+				if (!status.OK && gitBranch.IsCurrent && !gitBranch.IsRemote)
 				{
 					// Setting virtual uncommitted commit as tip of the current branch
 					subBranch.TipCommitId = repository.Uncommitted.Id;
@@ -54,12 +55,12 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			if (!gitRepository.Branches.Any())
+			if (!branches.Any())
 			{
-				MSubBranch subBranch = ToBranch(gitRepository.Head, repository);
+				MSubBranch subBranch = ToEmptyMasterBranch(repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!status.IsOK && gitRepository.Head.IsCurrent && !gitRepository.Head.IsRemote)
+				if (!status.OK)
 				{
 					// Setting virtual uncommitted commit as tip of the current branch
 					subBranch.TipCommitId = repository.Uncommitted.Id;
@@ -67,12 +68,12 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			if (currentBranch.IsDetached)
+			if (branches.TryGetCurrent(out GitBranch2 currentBranch) && currentBranch.IsDetached)
 			{
 				MSubBranch subBranch = ToBranch(currentBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
 
-				if (!status.IsOK)
+				if (!status.OK)
 				{
 					// Setting virtual uncommitted commit as tip of the detached branch
 					subBranch.TipCommitId = repository.Uncommitted.Id;
@@ -228,7 +229,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static MSubBranch ToBranch(GitBranch gitBranch, MRepository repository)
+		private static MSubBranch ToBranch(GitBranch2 gitBranch, MRepository repository)
 		{
 			BranchName branchName = gitBranch.Name;
 			if (gitBranch.IsRemote && branchName.StartsWith(Origin))
@@ -236,7 +237,7 @@ namespace GitMind.GitModel.Private
 				branchName = branchName.Substring(Origin.Length);
 			}
 
-			string gitBranchTipId = gitBranch.HasCommits ? gitBranch.TipId : CommitId.NoCommits.Id;
+			string gitBranchTipId = gitBranch.TipSha.Sha;
 
 			return new MSubBranch
 			{
@@ -248,6 +249,25 @@ namespace GitMind.GitModel.Private
 				IsCurrent = gitBranch.IsCurrent,
 				IsDetached = gitBranch.IsDetached,
 				IsRemote = gitBranch.IsRemote
+			};
+		}
+
+		private static MSubBranch ToEmptyMasterBranch(MRepository repository)
+		{
+			BranchName branchName = "master";
+
+			string gitBranchTipId = CommitSha.NoCommits.Sha;
+
+			return new MSubBranch
+			{
+				Repository = repository,
+				SubBranchId = Guid.NewGuid().ToString(),
+				Name = branchName,
+				TipCommitId = repository.Commit(new CommitId(gitBranchTipId)).Id,
+				IsActive = true,
+				IsCurrent = true,
+				IsDetached = false,
+				IsRemote =false
 			};
 		}
 

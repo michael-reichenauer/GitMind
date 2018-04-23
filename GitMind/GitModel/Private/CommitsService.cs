@@ -1,27 +1,74 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using GitMind.Common;
-using GitMind.Features.StatusHandling;
 using GitMind.Git;
 using GitMind.Utils;
+using GitMind.Utils.Git;
+using GitMind.Utils.Git.Private;
 
 
 namespace GitMind.GitModel.Private
 {
 	internal class CommitsService : ICommitsService
 	{
-		public void AddBranchCommits(GitRepository gitRepository, MRepository repository)
+		private readonly IGitLogService gitLogService;
+
+
+		public CommitsService(IGitLogService gitLogService)
 		{
-			Status status = repository.Status;
+			this.gitLogService = gitLogService;
+		}
+
+
+		public async Task AddNewCommitsAsync(MRepository repository)
+		{
+			int addedCount = 0;
+			CancellationTokenSource cts = new CancellationTokenSource();
+			int seenCount = 0;
+			void OnCommit(GitCommit commit)
+			{
+				CommitId commitId = new CommitId(commit.Sha);
+
+				if (repository.GitCommits.TryGetValue(commitId, out _))
+				{
+					seenCount++;
+					if (seenCount > 100)
+					{
+						Log.Debug($"Commit {commitId} already cached");
+						cts.Cancel();
+					}
+				}
+				else
+				{
+					seenCount = 0;
+					repository.GitCommits[commitId] = commit;
+					addedCount++;
+				}
+			}
+
+			R result = await gitLogService.GetLogAsync(OnCommit, cts.Token);
+			if (result.IsFaulted)
+			{
+				Log.Warn($"Failed to add new commits, {result}");
+			}
+
+			Log.Debug($"Added {addedCount} to cache");
+		}
+
+
+		public void AddBranchCommits(IReadOnlyList<GitBranch2> branches, MRepository repository)
+		{
+			GitStatus2 status = repository.Status;
 
 			Timing t = new Timing();
-			IEnumerable<CommitSha> rootCommits = gitRepository.Branches.Select(b => new CommitSha(b.TipId));
+			IEnumerable<CommitSha> rootCommits = branches.Select(b => b.TipSha);
 
-			if (gitRepository.Head.IsDetached)
+			if (branches.TryGetCurrent(out GitBranch2 current) && current.IsDetached)
 			{
-				rootCommits = rootCommits.Concat(new[] { new CommitSha(gitRepository.Head.TipId) });
+				rootCommits = rootCommits.Concat(new[] { current.TipSha });
 			}
 
 			if (!rootCommits.Any())
@@ -53,19 +100,13 @@ namespace GitMind.GitModel.Private
 				IEnumerable<CommitSha> parentIds = null;
 				if (!repository.GitCommits.TryGetValue(commitId, out gitCommit))
 				{
-					// This git commit id has not yet been seen before
-					var gitLibCommit = gitRepository.GetCommit(commitSha);
+					Log.Warn($"Unknown commit {commitSha}");
+					continue;
+				}
 
-					parentIds = gitLibCommit.ParentIds;
-
-					gitCommit = ToGitCommit(gitLibCommit);
-
-					if (IsMergeCommit(gitCommit))
-					{
-						TrySetBranchNameFromSubject(commitId, gitCommit, branchNameByCommitId, subjectBranchNameByCommitId);
-					}
-
-					repository.GitCommits[commitId] = gitCommit;
+				if (IsMergeCommit(gitCommit))
+				{
+					TrySetBranchNameFromSubject(commitId, gitCommit, branchNameByCommitId, subjectBranchNameByCommitId);
 				}
 
 				MCommit commit = repository.Commit(commitId);
@@ -102,10 +143,10 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			if (!status.IsOK)
+			if (!status.OK)
 			{
 				// Adding a virtual "uncommitted" commit since current working folder status has changes
-				AddVirtualUncommitted(gitRepository, status, repository);
+				AddVirtualUncommitted(current, status, repository);
 			}
 		}
 
@@ -141,8 +182,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void AddVirtualUncommitted(
-			GitRepository gitRepository, Status status, MRepository repository)
+		private void AddVirtualUncommitted(GitBranch2 currentBranch, GitStatus2 status, MRepository repository)
 		{
 			MCommit commit = repository.Commit(CommitId.Uncommitted);
 			repository.Uncommitted = commit;
@@ -151,14 +191,14 @@ namespace GitMind.GitModel.Private
 
 			CommitId headCommitId = CommitId.NoCommits;
 
-			if (gitRepository.Head.HasCommits)
+			if (currentBranch != null)
 			{
-				CommitId headId = new CommitId(gitRepository.Head.TipId);
+				CommitId headId = new CommitId(currentBranch.TipSha.Sha);
 				MCommit headCommit = repository.Commit(headId);
 				headCommitId = headCommit.Id;
 			}
 
-			CopyToUncommitedCommit(gitRepository, repository, status, commit, headCommitId);
+			CopyToUncommitedCommit(currentBranch, repository, status, commit, headCommitId);
 
 			SetChildOfParents(commit);
 		}
@@ -168,16 +208,6 @@ namespace GitMind.GitModel.Private
 		{
 			CommitSha virtualSha = CommitSha.NoCommits;
 			CommitId virtualId = new CommitId(virtualSha);
-
-			//MCommit commit = new MCommit()
-			//{
-			//	Repository = repository,
-			//	Id = virtualId,
-			//};
-
-			//repository.Commits[virtualId] = commit;
-
-			//commit.IsVirtual = true;
 
 			GitCommit gitCommit = new GitCommit(
 				virtualSha,
@@ -280,14 +310,14 @@ namespace GitMind.GitModel.Private
 
 
 		private static void CopyToUncommitedCommit(
-			GitRepository gitRepository,
+			GitBranch2 currentBranch,
 			MRepository repository,
-			Status status,
+			GitStatus2 status,
 			MCommit commit,
 			CommitId parentId)
 		{
-			int modifiedCount = status.ChangedCount;
-			int conflictCount = status.ConflictCount;
+			int modifiedCount = status.AllChanges;
+			int conflictCount = status.Conflicted;
 
 			string subject = $"{modifiedCount} uncommitted changes in working folder";
 
@@ -307,21 +337,21 @@ namespace GitMind.GitModel.Private
 				CommitSha.Uncommitted,
 				subject,
 				subject,
-				gitRepository.UserName ?? "",
+				"",
 				DateTime.Now,
 				DateTime.Now,
 				new List<CommitId> { parentId });
 
 			repository.GitCommits[CommitId.Uncommitted] = gitCommit;
 
-			commit.SetBranchName(gitRepository.Head.Name);
+			commit.SetBranchName(currentBranch?.Name ?? "master");
 
 			commit.Tickets = "";
 			commit.BranchId = null;
 		}
 
 
-		private static string ShortSubject(Status status)
+		private static string ShortSubject(GitStatus2 status)
 		{
 			string subject = status.MergeMessage?.Trim() ?? "";
 			string firstLine = subject.Split("\n".ToCharArray())[0];
@@ -341,29 +371,5 @@ namespace GitMind.GitModel.Private
 				branchNames.SourceBranchName != null
 				&& branchNames.SourceBranchName == branchNames.TargetBranchName;
 		}
-
-
-		private static string GetSubjectWithoutTickets(string subject, string tickets)
-		{
-			return subject.Substring(tickets.Length);
-		}
-
-
-		//private static Regex rgx1 = new Regex(@"([\,; ]*#(\d\d*)[\,; ]*)|([\,; ]*#CST(\d\d*)[\,; ]*)");
-		//private static Regex rgx2 = new Regex(@"[\,; ]*#(CST\d\d*)[\,; ]*");
-
-		//private static Regex rgx1 = new Regex(@"#(\d\d*)");
-
-		//private string GetTickets(string subject)
-		//{
-		//	string tickets = "";
-		//	foreach (Match match in rgx1.Matches(subject))
-		//	{
-		//		tickets += match.Value;
-		//	}
-
-		
-		//	return tickets;
-		//}
 	}
 }

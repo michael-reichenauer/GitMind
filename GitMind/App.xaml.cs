@@ -14,6 +14,8 @@ using GitMind.Common.Tracking;
 using GitMind.Features.Diffing;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
+using GitMind.Utils.Ipc;
 
 
 namespace GitMind
@@ -155,17 +157,21 @@ namespace GitMind
 		{
 			try
 			{
-				Log.Debug("Try ActivatedOtherInstance");
-				Track.Event("ActivatedOtherInstance");
 				string id = MainWindowIpcService.GetId(workingFolder);
 				using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 				{
 					if (!ipcRemotingService.TryCreateServer(id))
 					{
 						// Another GitMind instance for that working folder is already running, activate that.
+						Log.Debug("Try activate other instance ...");
 						var args = Environment.GetCommandLineArgs();
 						ipcRemotingService.CallService<MainWindowIpcService>(id, service => service.Activate(args));
+						Track.Event("ActivatedOtherInstance");
 						return true;
+					}
+					else
+					{
+						Log.Debug("Continue with this instance...");
 					}
 				}
 			}

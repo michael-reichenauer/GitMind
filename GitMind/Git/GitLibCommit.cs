@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using GitMind.Common;
 
 
@@ -34,6 +33,6 @@ namespace GitMind.Git
 		public DateTime CommitDate { get; }
 		public List<CommitSha> ParentIds { get; }
 
-		public override string ToString() => $"{Sha.Sha.Substring(0, 6)} {AuthorDate} {Subject}";
+		public override string ToString() => $"{Sha.ShortSha} {AuthorDate} {Subject}";
 	}
 }

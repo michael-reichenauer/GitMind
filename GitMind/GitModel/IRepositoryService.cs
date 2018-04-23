@@ -16,7 +16,7 @@ namespace GitMind.GitModel
 
 		bool IsRepositoryCached(string workingFolder);
 
-		Task LoadRepositoryAsync(string workingFolder);
+		Task LoadFreshRepositoryAsync(string workingFolder);
 
 		Task GetFreshRepositoryAsync();
 
@@ -27,8 +27,10 @@ namespace GitMind.GitModel
 		Task UpdateRepositoryAfterCommandAsync();
 
 		Task RefreshAfterCommandAsync(bool useFreshRepository);
-		Task CheckRemoteChangesAsync(bool b);
 
-		Task GetRemoteAndFreshRepositoryAsync();
+		Task CheckRemoteChangesAsync(bool isFetchNotes, bool isManual = false);
+
+		Task GetRemoteAndFreshRepositoryAsync(bool isManual);
+		Task<bool> LoadCachedRepositoryAsync(string workingFolder);
 	}
 }

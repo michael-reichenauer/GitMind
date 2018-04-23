@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
 
@@ -9,7 +10,7 @@ namespace GitMind.Common.ProgressHandling
 {
 	internal class ProgressService : IProgressService
 	{
-		private readonly WindowOwner owner;
+		private readonly WindowOwner windowsOwner;
 		private readonly Lazy<MainWindowViewModel> mainWindowViewModel;
 		private Progress currentProgress = null;
 
@@ -17,7 +18,7 @@ namespace GitMind.Common.ProgressHandling
 			WindowOwner owner,
 			Lazy<MainWindowViewModel> mainWindowViewModel)
 		{
-			this.owner = owner;
+			this.windowsOwner = owner;
 			this.mainWindowViewModel = mainWindowViewModel;
 		}
 
@@ -32,10 +33,10 @@ namespace GitMind.Common.ProgressHandling
 		}
 
 
-		public Progress ShowDialog(string text = "")
+		public Progress ShowDialog(string text = "", Window owner = null)
 		{
 			Log.Debug($"Progress status: {text}");
-
+			owner = owner ?? windowsOwner;
 			ProgressBox progress = new ProgressBox(owner, text);
 
 			progress.StartShowDialog();
@@ -49,8 +50,9 @@ namespace GitMind.Common.ProgressHandling
 			private readonly ProgressDialog progressDialog;
 			private readonly TaskCompletionSource<bool> closeTask = new TaskCompletionSource<bool>();
 			private Timing timing;
+			private bool isDisposed = false;
 
-			public ProgressBox(WindowOwner owner, string text)
+			public ProgressBox(Window owner, string text)
 			{
 				timing = new Timing();
 				timing.Log($"Progress status: {text}");
@@ -60,15 +62,19 @@ namespace GitMind.Common.ProgressHandling
 
 			public override void Dispose()
 			{
-				timing.Log("Progress status done");
+				isDisposed = true;
 				closeTask.TrySetResult(true);
+				progressDialog.DialogResult = true;
 			}
 
 
 			public override void SetText(string text)
 			{
-				timing.Log($"Progress status: {text}");
-				progressDialog.SetText(text);
+				if (!isDisposed)
+				{
+					timing.Log($"Progress status: {text}");
+					progressDialog.SetText(text);
+				}
 			}
 
 

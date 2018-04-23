@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
@@ -9,6 +10,8 @@ using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
+
 
 
 namespace GitMind.Features.Branches.Private
@@ -19,7 +22,8 @@ namespace GitMind.Features.Branches.Private
 	internal class BranchService : IBranchService
 	{
 		private readonly IGitBranchService gitBranchService;
-		private readonly IGitNetworkService gitNetworkService;
+		private readonly IGitFetchService gitFetchService;
+		private readonly IGitPushService gitPushService;
 		private readonly ICommitsService commitsService;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
@@ -31,7 +35,8 @@ namespace GitMind.Features.Branches.Private
 
 		public BranchService(
 			IGitBranchService gitBranchService,
-			IGitNetworkService gitNetworkService,
+			IGitFetchService gitFetchService,
+			IGitPushService gitPushService,
 			ICommitsService commitsService,
 			IProgressService progressService,
 			IMessage message,
@@ -41,7 +46,8 @@ namespace GitMind.Features.Branches.Private
 			IStatusService statusService)
 		{
 			this.gitBranchService = gitBranchService;
-			this.gitNetworkService = gitNetworkService;
+			this.gitFetchService = gitFetchService;
+			this.gitPushService = gitPushService;
 			this.commitsService = commitsService;
 			this.progress = progressService;
 			this.message = message;
@@ -80,7 +86,7 @@ namespace GitMind.Features.Branches.Private
 							{
 								progress.SetText($"Publishing branch {dialog.BranchName}...");
 
-								R publish = await gitNetworkService.PublishBranchAsync(branchName);
+								R publish = await gitPushService.PushBranchAsync(branchName, CancellationToken.None);
 								if (publish.IsFaulted)
 								{
 									message.ShowWarning($"Failed to publish the branch {branchName}.");
@@ -104,7 +110,7 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Publishing branch {branch.Name} ..."))
 			{
-				R publish = await gitNetworkService.PublishBranchAsync(branch.Name);
+				R publish = await gitPushService.PushBranchAsync(branch.Name, CancellationToken.None);
 
 				if (publish.IsFaulted)
 				{
@@ -119,11 +125,11 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Pushing branch {branch.Name} ..."))
 			{
-				R result = await gitNetworkService.PushBranchAsync(branch.Name);
+				R result = await gitPushService.PushBranchAsync(branch.Name, CancellationToken.None);
 
 				if (result.IsFaulted)
 				{
-					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Message}");
+					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Error}");
 				}
 			}
 		}
@@ -134,13 +140,13 @@ namespace GitMind.Features.Branches.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog($"Updating branch {branch.Name} ..."))
 			{
-				R result;
+				R result = R.NoValue;
 				if (branch == branch.Repository.CurrentBranch ||
 					branch.IsMainPart && branch.LocalSubBranch == branch.Repository.CurrentBranch)
 				{
 					Log.Debug("Update current branch");
-					result = await gitNetworkService.FetchAsync();
-					if (result.IsOk)
+
+					if ((await gitFetchService.FetchAsync(CancellationToken.None)).IsOk)
 					{
 						result = await gitBranchService.MergeCurrentBranchAsync();
 					}
@@ -148,7 +154,7 @@ namespace GitMind.Features.Branches.Private
 				else
 				{
 					Log.Debug($"Update branch {branch.Name}");
-					result = await gitNetworkService.FetchBranchAsync(branch.Name);
+					result = await gitFetchService.FetchBranchAsync(branch.Name, CancellationToken.None);
 				}
 
 				if (result.IsFaulted)
@@ -161,7 +167,7 @@ namespace GitMind.Features.Branches.Private
 
 		public async Task SwitchBranchAsync(Branch branch)
 		{
-			using (statusService.PauseStatusNotifications())
+			using (statusService.PauseStatusNotifications(Refresh.Repo))
 			using (progress.ShowDialog($"Switching to branch {branch.Name} ..."))
 			{
 				R result = await gitBranchService.SwitchToBranchAsync(
@@ -177,7 +183,7 @@ namespace GitMind.Features.Branches.Private
 		public bool CanExecuteSwitchBranch(Branch branch)
 		{
 			return
-				branch.Repository.Status.ConflictCount == 0
+				branch.Repository.Status.Conflicted == 0
 				&& !branch.Repository.Status.IsMerging
 				&& !branch.IsCurrentBranch;
 		}
@@ -217,9 +223,9 @@ namespace GitMind.Features.Branches.Private
 		public bool CanExecuteSwitchToBranchCommit(Commit commit)
 		{
 			return
-				commit.Repository.Status.ChangedCount == 0
+				commit.Repository.Status.AllChanges == 0
 				&& !commit.Repository.Status.IsMerging
-				&& commit.Repository.Status.ConflictCount == 0;
+				&& commit.Repository.Status.Conflicted == 0;
 		}
 
 
@@ -301,7 +307,7 @@ namespace GitMind.Features.Branches.Private
 			R deleted;
 			if (isRemote)
 			{
-				deleted = await gitNetworkService.DeleteRemoteBranchAsync(branch.Name);
+				deleted = await gitPushService.PushDeleteRemoteBranchAsync(branch.Name, CancellationToken.None);
 			}
 			else
 			{
@@ -325,7 +331,7 @@ namespace GitMind.Features.Branches.Private
 					return;
 				}
 
-				if (branch.Repository.Status.ConflictCount > 0 || branch.Repository.Status.ChangedCount > 0)
+				if (branch.Repository.Status.Conflicted > 0 || branch.Repository.Status.AllChanges > 0)
 				{
 					message.ShowInfo("You must first commit uncommitted changes before merging.");
 					return;
@@ -341,8 +347,8 @@ namespace GitMind.Features.Branches.Private
 					await repositoryService.Value.CheckLocalRepositoryAsync();
 				}
 
-				Status status = repositoryService.Value.Repository.Status;
-				if (status.ConflictCount == 0)
+				GitStatus2 status = repositoryService.Value.Repository.Status;
+				if (status.Conflicted == 0)
 				{
 					await commitsService.CommitChangesAsync();
 				}
@@ -363,7 +369,7 @@ namespace GitMind.Features.Branches.Private
 					return;
 				}
 
-				if (commit.Repository.Status.ConflictCount > 0 || commit.Repository.Status.ChangedCount > 0)
+				if (commit.Repository.Status.Conflicted > 0 || commit.Repository.Status.AllChanges > 0)
 				{
 					message.ShowInfo("You must first commit uncommitted changes before merging.");
 					return;
@@ -379,8 +385,8 @@ namespace GitMind.Features.Branches.Private
 					await repositoryService.Value.CheckLocalRepositoryAsync();
 				}
 
-				Status status = repositoryService.Value.Repository.Status;
-				if (status.ConflictCount == 0)
+				GitStatus2 status = repositoryService.Value.Repository.Status;
+				if (status.Conflicted == 0)
 				{
 					await commitsService.CommitChangesAsync($"Merge branch '{commit.Branch.Name}'");
 				}

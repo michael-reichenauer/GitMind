@@ -1,6 +1,9 @@
+using System.IO;
+
+
 namespace GitMind.Git
 {
-	internal class CommitDiff
+	public class CommitDiff
 	{
 		public CommitDiff(string leftPath, string rightPath)
 		{
@@ -11,5 +14,8 @@ namespace GitMind.Git
 		public string LeftPath { get; }
 
 		public string RightPath { get; }
+
+		public string LeftText => File.Exists(LeftPath) ? File.ReadAllText(LeftPath) : "";
+		public string RightText => File.Exists(RightPath) ? File.ReadAllText(RightPath) : "";
 	}
 }

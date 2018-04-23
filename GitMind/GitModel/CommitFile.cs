@@ -1,24 +1,27 @@
-using GitMind.Features.StatusHandling;
 using GitMind.Git;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel
 {
 	public class CommitFile
 	{
-		private readonly StatusFile gitFile;
+		private readonly GitFile2 gitFile;
 
 
-		public CommitFile(StatusFile gitFile)
+		public CommitFile(GitFile2 gitFile, GitConflictFile conflict = null)
 		{
 			this.gitFile = gitFile;
+			Conflict = conflict ??
+				new GitConflictFile(null, gitFile.FilePath, null, null, null, GitFileStatus.Modified);
 		}
 
 
 		public string Path => gitFile.FilePath;
+		public string FullFilePath => gitFile.FullFilePath;
 		public string OldPath => gitFile.OldFilePath;
 
-		public GitConflict Conflict => gitFile.Conflict;
+		public GitConflictFile Conflict { get; }
 
 		public GitFileStatus Status => gitFile.Status;
 
@@ -43,10 +46,17 @@ namespace GitMind.GitModel
 			{
 				return "D";
 			}
-			else if (Status.HasFlag(GitFileStatus.Conflict) && 
-				(Conflict.IsOursDeleted || Conflict.IsTheirsDeleted))
+			else if (Status.HasFlag(GitFileStatus.ConflictDM))
 			{
-				return "CD";
+				return "CDM";
+			}
+			else if (Status.HasFlag(GitFileStatus.ConflictMD))
+			{
+				return "CMD";
+			}
+			else if (Status.HasFlag(GitFileStatus.ConflictAA))
+			{
+				return "CAA";
 			}
 			else if (Status.HasFlag(GitFileStatus.Conflict))
 			{
@@ -55,6 +65,6 @@ namespace GitMind.GitModel
 
 			return "";
 		}
-	
+
 	}
 }

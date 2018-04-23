@@ -15,6 +15,7 @@ using GitMind.Features.Remote;
 using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Ipc;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
 
@@ -213,10 +214,7 @@ namespace GitMind.MainWindowViews
 
 		private async Task SetWorkingFolderAsync()
 		{
-			if (ipcRemotingService != null)
-			{
-				ipcRemotingService.Dispose();
-			}
+			CloseIpcServer();
 
 			ipcRemotingService = new IpcRemotingService();
 
@@ -242,7 +240,7 @@ namespace GitMind.MainWindowViews
 				}
 
 				Application.Current.Shutdown(0);
-				ipcRemotingService.Dispose();
+				CloseIpcServer();
 				return;
 			}
 
@@ -252,6 +250,13 @@ namespace GitMind.MainWindowViews
 
 			await RepositoryViewModel.LoadAsync();
 			isLoaded = true;
+		}
+
+
+		private void CloseIpcServer()
+		{
+			ipcRemotingService?.Dispose();
+			ipcRemotingService = null;
 		}
 
 

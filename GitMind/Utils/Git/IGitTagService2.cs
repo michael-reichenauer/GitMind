@@ -1,0 +1,16 @@
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using GitMind.Git;
+
+
+namespace GitMind.Utils.Git
+{
+	public interface IGitTagService2
+	{
+		Task<R<IReadOnlyList<GitTag>>> GetAllTagsAsync(CancellationToken ct);
+
+		Task<R<GitTag>> AddTagAsync(string sha, string tagName, CancellationToken ct);
+		Task<R> DeleteTagAsync(string tagName, CancellationToken ct);
+	}
+}

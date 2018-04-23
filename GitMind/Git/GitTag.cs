@@ -1,14 +1,11 @@
-using LibGit2Sharp;
-
-
 namespace GitMind.Git
 {
-	internal class GitTag
+	public class GitTag
 	{
-		public GitTag(Tag tag)
+		public GitTag(string sha, string name)
 		{
-			CommitId = tag.Target.Sha;
-			TagName = tag.FriendlyName;
+			CommitId = sha;
+			TagName = name;
 		}
 
 		public string CommitId { get; }
