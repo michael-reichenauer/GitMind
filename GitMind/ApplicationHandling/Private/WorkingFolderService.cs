@@ -70,6 +70,7 @@ namespace GitMind.ApplicationHandling.Private
 		{
 			if (IsValid)
 			{
+				Environment.CurrentDirectory = workingFolder;
 				ProgramSettings settings = Settings.Get<ProgramSettings>();
 				settings.LastUsedWorkingFolder = workingFolder;
 				Settings.Set(settings);

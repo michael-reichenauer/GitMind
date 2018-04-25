@@ -44,24 +44,24 @@ namespace GitMind.ApplicationHandling
 		}
 
 
-		public async Task<bool> StartLatestInstalledVersionAsync()
-		{
-			await Task.Yield();
+		//public async Task<bool> StartLatestInstalledVersionAsync()
+		//{
+		//	await Task.Yield();
 
-			try
-			{
-				string installedPath = ProgramPaths.GetInstallFilePath();
+		//	try
+		//	{
+		//		string installedPath = ProgramPaths.GetInstallFilePath();
 
-				cmd.Start(installedPath, "/run");
-				return true;
-			}
-			catch (Exception e) when (e.IsNotFatal())
-			{
-				Log.Exception(e, "Failed to install new version");
-			}
+		//		cmd.Start(installedPath, "/run");
+		//		return true;
+		//	}
+		//	catch (Exception e) when (e.IsNotFatal())
+		//	{
+		//		Log.Exception(e, "Failed to install new version");
+		//	}
 
-			return false;
-		}
+		//	return false;
+		//}
 
 
 		private async void CheckLatestVersionAsync(object sender, EventArgs e)
