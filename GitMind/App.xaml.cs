@@ -14,7 +14,6 @@ using GitMind.Common.Tracking;
 using GitMind.Features.Diffing;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
-using GitMind.Utils.Git;
 using GitMind.Utils.Ipc;
 
 
@@ -82,12 +81,25 @@ namespace GitMind
 				return;
 			}
 
-			if (!commandLine.IsRunInstalled && IsActivatedOtherInstance())
+			if (commandLine.IsRunInstalled)
 			{
-				// Another instance for this working folder is already running and it received the
-				// command line from this instance, lets exit this instance, while other instance continuous
-				Application.Current.Shutdown(0);
-				return;
+				if (!WaitForOtherInstance())
+				{
+					// Another instance for this working folder is still running and did not close
+					Application.Current.Shutdown(0);
+					return;
+				}
+			}
+			else
+			{
+				// Try once to activate existing instance for this working folder
+				if (IsActivatedOtherInstance())
+				{
+					// Another instance for this working folder is already running and it received the
+					// command line from this instance, lets exit this instance, while other instance continuous
+					Application.Current.Shutdown(0);
+					return;
+				}
 			}
 
 			Log.Usage($"Start version: {GetProgramVersion()}");
@@ -180,6 +192,37 @@ namespace GitMind
 				Log.Exception(e, "Failed to activate other instance");
 			}
 
+			return false;
+		}
+
+
+		private bool WaitForOtherInstance()
+		{
+			Timing t = Timing.StartNew();
+			while (t.Elapsed < TimeSpan.FromSeconds(20))
+			{
+				try
+				{
+					string id = MainWindowIpcService.GetId(workingFolder);
+					using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
+					{
+						if (ipcRemotingService.TryCreateServer(id))
+						{
+							Log.Debug("Other instance has closed");
+							return true;
+						}
+
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Exception(e, "Failed to check if other instance is running");
+				}
+
+				Thread.Sleep(100);
+			}
+
+			Log.Error("Failed to wait for other instance");
 			return false;
 		}
 

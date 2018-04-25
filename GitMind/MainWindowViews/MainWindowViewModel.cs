@@ -26,6 +26,7 @@ namespace GitMind.MainWindowViews
 	internal class MainWindowViewModel : ViewModel
 	{
 		private readonly ILatestVersionService latestVersionService;
+		private readonly IRestartService restartService;
 		private readonly IMessage message;
 		private readonly IMainWindowService mainWindowService;
 		private readonly MainWindowIpcService mainWindowIpcService;
@@ -49,6 +50,7 @@ namespace GitMind.MainWindowViews
 			IRemoteService remoteService,
 			ICommitsService commitsService,
 			ILatestVersionService latestVersionService,
+			IRestartService restartService,
 			IMessage message,
 			IMainWindowService mainWindowService,
 			MainWindowIpcService mainWindowIpcService,
@@ -60,6 +62,7 @@ namespace GitMind.MainWindowViews
 			this.remoteService = remoteService;
 			this.commitsService = commitsService;
 			this.latestVersionService = latestVersionService;
+			this.restartService = restartService;
 			this.message = message;
 			this.mainWindowService = mainWindowService;
 			this.mainWindowIpcService = mainWindowIpcService;
@@ -149,7 +152,7 @@ namespace GitMind.MainWindowViews
 
 		public Command SelectWorkingFolderCommand => AsyncCommand(SelectWorkingFolderAsync);
 
-		public Command RunLatestVersionCommand => AsyncCommand(RunLatestVersionAsync);
+		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
 		public Command FeedbackCommand => Command(Feedback);
 
@@ -351,11 +354,9 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private async Task RunLatestVersionAsync()
+		private void RunLatestVersion()
 		{
-			bool IsStarting = await latestVersionService.StartLatestInstalledVersionAsync();
-
-			if (IsStarting)
+			if (restartService.TriggerRestart(workingFolder))
 			{
 				// Newer version is started, close this instance
 				Application.Current.Shutdown(0);

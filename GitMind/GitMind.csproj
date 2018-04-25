@@ -106,8 +106,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="ApplicationHandling\IRestartService.cs" />
     <Compile Include="ApplicationHandling\IWorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
+    <Compile Include="ApplicationHandling\Private\RestartService.cs" />
     <Compile Include="ApplicationHandling\WorkingFolder.cs" />
     <Compile Include="ApplicationHandling\WorkingFolderPath.cs" />
     <Compile Include="ApplicationHandling\Installation\InstallDialog.xaml.cs">
