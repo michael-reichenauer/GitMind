@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 
 namespace GitMind.ApplicationHandling
@@ -9,7 +8,5 @@ namespace GitMind.ApplicationHandling
 		event EventHandler OnNewVersionAvailable;
 
 		void StartCheckForLatestVersion();
-
-		//Task<bool> StartLatestInstalledVersionAsync();
 	}
 }

@@ -5,9 +5,12 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling.SettingsHandling;
+using GitMind.Common.Tracking;
 using GitMind.Utils;
+using GitMind.Utils.OsSystem;
 
 
 namespace GitMind.ApplicationHandling
@@ -15,21 +18,32 @@ namespace GitMind.ApplicationHandling
 	[SingleInstance]
 	internal class LatestVersionService : ILatestVersionService
 	{
+		private static readonly TimeSpan IdleTimeBeforeRestarting = TimeSpan.FromMinutes(30);
 		private static readonly TimeSpan FirstCheckTime = TimeSpan.FromSeconds(1);
 		private static readonly TimeSpan CheckInterval = TimeSpan.FromHours(3);
 
+
 		private static readonly string latestUri =
 			"https://api.github.com/repos/michael-reichenauer/GitMind/releases/latest";
+
 		private static readonly string UserAgent = "GitMind";
 
 		private readonly ICmd cmd;
+		private readonly IRestartService restartService;
+		private readonly WorkingFolder workingFolder;
 
 		private DispatcherTimer checkTimer;
+		private DispatcherTimer idleTimer;
 
 
-		public LatestVersionService(ICmd cmd)
+		public LatestVersionService(
+			ICmd cmd,
+			IRestartService restartService,
+			WorkingFolder workingFolder)
 		{
 			this.cmd = cmd;
+			this.restartService = restartService;
+			this.workingFolder = workingFolder;
 		}
 
 
@@ -41,27 +55,12 @@ namespace GitMind.ApplicationHandling
 			checkTimer.Tick += CheckLatestVersionAsync;
 			checkTimer.Interval = FirstCheckTime;
 			checkTimer.Start();
+
+			idleTimer = new DispatcherTimer();
+			idleTimer.Tick += CheckIdleBeforeRestart;
+			idleTimer.Interval = TimeSpan.FromMinutes(1);
 		}
 
-
-		//public async Task<bool> StartLatestInstalledVersionAsync()
-		//{
-		//	await Task.Yield();
-
-		//	try
-		//	{
-		//		string installedPath = ProgramPaths.GetInstallFilePath();
-
-		//		cmd.Start(installedPath, "/run");
-		//		return true;
-		//	}
-		//	catch (Exception e) when (e.IsNotFatal())
-		//	{
-		//		Log.Exception(e, "Failed to install new version");
-		//	}
-
-		//	return false;
-		//}
 
 
 		private async void CheckLatestVersionAsync(object sender, EventArgs e)
@@ -173,7 +172,7 @@ namespace GitMind.ApplicationHandling
 					return version;
 				}
 			}
-			catch (Exception e) when(e.IsNotFatal())
+			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Exception(e, "Failed to get latest version");
 			}
@@ -203,7 +202,7 @@ namespace GitMind.ApplicationHandling
 
 					if (response.StatusCode == HttpStatusCode.NotModified || response.Content == null)
 					{
-						Log.Debug("Remote latest version info same as cached info");						
+						Log.Debug("Remote latest version info same as cached info");
 						return GetCachedLatestVersionInfo();
 					}
 					else
@@ -218,7 +217,7 @@ namespace GitMind.ApplicationHandling
 						}
 
 						return Json.As<LatestInfo>(latestInfoText);
-					}			
+					}
 				}
 			}
 			catch (Exception e) when (e.IsNotFatal())
@@ -267,6 +266,40 @@ namespace GitMind.ApplicationHandling
 			if (IsNewVersionInstalled())
 			{
 				OnNewVersionAvailable?.Invoke(this, EventArgs.Empty);
+
+				if (!idleTimer.IsEnabled)
+				{
+					Log.Debug($"Waiting for idle {IdleTimeBeforeRestarting} before restarting newer version ...");
+					idleTimer.Start();
+				}
+			}
+			else
+			{
+				if (idleTimer.IsEnabled)
+				{
+					Log.Debug("No longer newer version installed, canceling idle wait for restart");
+					idleTimer.Stop();
+				}
+			}
+		}
+
+
+		void CheckIdleBeforeRestart(object sender, EventArgs e)
+		{
+			TimeSpan idleTime = SystemIdle.GetLastInputIdleTimeSpan();
+			if (idleTime > IdleTimeBeforeRestarting)
+			{
+				Track.Info($"Idle time {idleTime}, trigger restart if newer is installed");
+				idleTimer.Stop();
+
+				if (IsNewVersionInstalled())
+				{
+					if (restartService.TriggerRestart(workingFolder))
+					{
+						// Newer version is started, close this instance
+						Application.Current.Shutdown(0);
+					}
+				}
 			}
 		}
 
