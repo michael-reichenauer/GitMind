@@ -175,13 +175,6 @@ namespace GitMind.RepositoryViews.Private
 
 		public int ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit)
 		{
-			int a = 1;
-			if (a == 1)
-			{
-				throw new InvalidDataException("Some strange error");
-			}
-
-
 			List<Branch> currentlyShownBranches = repositoryViewModel.SpecifiedBranches.ToList();
 
 			BranchViewModel clickedBranch = repositoryViewModel
