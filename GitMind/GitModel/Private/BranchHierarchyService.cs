@@ -363,8 +363,14 @@ namespace GitMind.GitModel.Private
 
 				if (commonCommit == null)
 				{
-					commonCommit = localTipCommit;
-
+					if (branch.HasParentBranch)
+					{
+						commonCommit = branch.ParentCommit;
+					}
+					else
+					{
+						commonCommit = branch.FirstCommit;
+					}
 				}
 
 				if (commonCommit.Sha != localTipCommit.Sha ||
