@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using GitMind.Common.Tracking;
 
 
 namespace GitMind.Utils
@@ -134,6 +135,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
+			Track.Exception(e, $"{sourceFilePath}({sourceLineNumber}) {memberName} - {msg}\n{e}");
 			Write(LevelError, $"{msg}\n{e}", memberName, sourceFilePath, sourceLineNumber);
 		}
 
@@ -161,9 +163,9 @@ namespace GitMind.Utils
 
 			//Native.OutputDebugString(text);
 
-			if (level == LevelUsage || level == LevelWarn || level == LevelError)
+			if (level == LevelError)
 			{
-				//SendUsage(text);
+				Track.Error(text);
 			}
 
 			try
