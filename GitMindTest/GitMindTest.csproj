@@ -95,6 +95,7 @@
     <Compile Include="Utils\Git\Private\IoHelper.cs" />
     <Compile Include="Utils\GlobPatterns\GlobTest.cs" />
     <Compile Include="Utils\Ipc\IpcServiceTest.cs" />
+    <Compile Include="Utils\OsSystem\SystemIdleTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

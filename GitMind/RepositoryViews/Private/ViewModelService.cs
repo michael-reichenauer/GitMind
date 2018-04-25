@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -175,13 +174,6 @@ namespace GitMind.RepositoryViews.Private
 
 		public int ToggleMergePoint(RepositoryViewModel repositoryViewModel, Commit commit)
 		{
-			int a = 1;
-			if (a == 1)
-			{
-
-				throw new InvalidDataException("Some strange error");
-			}
-
 			List<Branch> currentlyShownBranches = repositoryViewModel.SpecifiedBranches.ToList();
 
 			BranchViewModel clickedBranch = repositoryViewModel

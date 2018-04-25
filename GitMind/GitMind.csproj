@@ -284,6 +284,7 @@
     <Compile Include="Utils\OsSystem\ICmd2.cs" />
     <Compile Include="Utils\OsSystem\Private\Cmd2.cs" />
     <Compile Include="Utils\OsSystem\CmdResult2.cs" />
+    <Compile Include="Utils\OsSystem\SystemIdle.cs" />
     <Compile Include="Utils\RegexExtensions.cs" />
     <Compile Include="Utils\Txt.cs" />
     <Compile Include="Utils\Throttler.cs" />
