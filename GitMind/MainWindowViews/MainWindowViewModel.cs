@@ -15,6 +15,7 @@ using GitMind.Features.Remote;
 using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using GitMind.Utils.Ipc;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
@@ -27,6 +28,7 @@ namespace GitMind.MainWindowViews
 	{
 		private readonly ILatestVersionService latestVersionService;
 		private readonly IRestartService restartService;
+		private readonly IGitInfoService gitInfoService;
 		private readonly IMessage message;
 		private readonly IMainWindowService mainWindowService;
 		private readonly MainWindowIpcService mainWindowIpcService;
@@ -51,6 +53,7 @@ namespace GitMind.MainWindowViews
 			ICommitsService commitsService,
 			ILatestVersionService latestVersionService,
 			IRestartService restartService,
+			IGitInfoService gitInfoService,
 			IMessage message,
 			IMainWindowService mainWindowService,
 			MainWindowIpcService mainWindowIpcService,
@@ -63,6 +66,7 @@ namespace GitMind.MainWindowViews
 			this.commitsService = commitsService;
 			this.latestVersionService = latestVersionService;
 			this.restartService = restartService;
+			this.gitInfoService = gitInfoService;
 			this.message = message;
 			this.mainWindowService = mainWindowService;
 			this.mainWindowIpcService = mainWindowIpcService;
@@ -150,7 +154,7 @@ namespace GitMind.MainWindowViews
 
 		public Command RefreshCommand => AsyncCommand(ManualRefreshAsync);
 
-		public Command SelectWorkingFolderCommand => AsyncCommand(SelectWorkingFolderAsync);
+		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
 
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
@@ -201,17 +205,22 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private async Task SelectWorkingFolderAsync()
+		private void SelectWorkingFolder()
 		{
 			isLoaded = false;
 
-			if (!TryLetUserSelectWorkingFolder())
+			R<string> folder = SelectNewWorkingFolder();
+
+			if (folder.IsOk)
 			{
-				isLoaded = true;
-				return;
+				if (restartService.TriggerRestart(folder.Value))
+				{
+					Application.Current.Shutdown(0);
+					return;
+				}
 			}
 
-			await SetWorkingFolderAsync();
+			isLoaded = true;
 		}
 
 
@@ -418,6 +427,45 @@ namespace GitMind.MainWindowViews
 				mainWindowService.SetRepositoryViewFocus();
 			}
 		}
+
+
+		private R<string> SelectNewWorkingFolder()
+		{
+			while (true)
+			{
+				var dialog = new FolderBrowserDialog()
+				{
+					Description = "Select a working folder with a valid git repository.",
+					ShowNewFolderButton = false,
+					RootFolder = Environment.SpecialFolder.MyComputer
+				};
+
+				if (workingFolder.HasValue)
+				{
+					dialog.SelectedPath = workingFolder;
+				}
+
+				if (dialog.ShowDialog(owner.Win32Window) != DialogResult.OK)
+				{
+					Log.Debug("User canceled selecting a Working folder");
+					return Error.NoValue;
+				}
+
+				if (!string.IsNullOrWhiteSpace(dialog.SelectedPath) && Directory.Exists(dialog.SelectedPath))
+				{
+					R<string> rootFolder = gitInfoService.GetWorkingFolderRoot(dialog.SelectedPath);
+
+					if (rootFolder.IsOk)
+					{
+						Log.Debug($"User selected valid working folder: {rootFolder.Value}");
+						return rootFolder.Value;
+					}
+				}
+				
+				Log.Debug($"User selected an invalid working folder: {dialog.SelectedPath}");
+			}
+		}
+
 
 
 		public bool TryLetUserSelectWorkingFolder()
