@@ -11,6 +11,7 @@ using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.Tracking;
 using GitMind.Utils;
 using GitMind.Utils.OsSystem;
+using Microsoft.Win32;
 
 
 namespace GitMind.ApplicationHandling
@@ -59,6 +60,8 @@ namespace GitMind.ApplicationHandling
 			idleTimer = new DispatcherTimer();
 			idleTimer.Tick += CheckIdleBeforeRestart;
 			idleTimer.Interval = TimeSpan.FromMinutes(1);
+
+			SystemEvents.PowerModeChanged += OnPowerModeChange;
 		}
 
 
@@ -279,6 +282,25 @@ namespace GitMind.ApplicationHandling
 				{
 					Log.Debug("No longer newer version installed, canceling idle wait for restart");
 					idleTimer.Stop();
+				}
+			}
+		}
+
+
+		private void OnPowerModeChange(object sender, PowerModeChangedEventArgs e)
+		{
+			Log.Info($"Power mode {e.Mode}");
+
+			if (e.Mode == PowerModes.Resume)
+			{
+				if (IsNewVersionInstalled())
+				{
+					Log.Info("Newer version is installed, restart ...");
+					if (restartService.TriggerRestart(workingFolder))
+					{
+						// Newer version is started, close this instance
+						Application.Current.Shutdown(0);
+					}
 				}
 			}
 		}
