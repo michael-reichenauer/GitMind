@@ -16,7 +16,7 @@ namespace GitMind.ApplicationHandling.Private
 			string folder = workingFolder;
 
 			string targetPath = ProgramPaths.GetInstallFilePath();
-			string arguments = string.IsNullOrWhiteSpace(folder) ? "/run" : $"/run d:/\"{folder}\"";
+			string arguments = string.IsNullOrWhiteSpace(folder) ? "/run" : $"/run /d:\"{folder}\"";
 
 			Log.Info($"Restarting: {targetPath} {arguments}");
 
