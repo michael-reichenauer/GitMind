@@ -48,6 +48,8 @@ namespace GitMind.RepositoryViews
 				if (value != commitViewModel)
 				{
 					commitViewModel = value;
+					Message = CommitViewModel?.Commit.Subject;
+
 					NotifyAll();
 				}
 
@@ -59,14 +61,14 @@ namespace GitMind.RepositoryViews
 		{
 			get
 			{
-				SetFiles();
+				SetDetails();
 
 				return files;
 			}
 		}
 
 
-		private void SetFiles()
+		private void SetDetails()
 		{
 			if (CommitViewModel != null)
 			{
@@ -86,8 +88,9 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public string Message => CommitViewModel?.Commit.Message;
-	
+		//public string Message => CommitViewModel?.Commit.Subject;
+		public string Message { get => Get(); set => Set(value); }
+
 		public string CommitId => CommitViewModel?.Commit.RealCommitSha.Sha;
 		public string ShortId => CommitViewModel?.ShortId;
 		public string BranchName => CommitViewModel?.Commit?.Branch?.Name;
@@ -114,7 +117,13 @@ namespace GitMind.RepositoryViews
 
 		private async Task SetFilesAsync(Commit commit)
 		{
-			IEnumerable<CommitFile> commitFiles = await commit.FilesTask;
+			CommitDetails commitDetails = await commit.FilesTask;
+			if (commitDetails.Message != null)
+			{
+				Message = commitDetails.Message;
+			}
+
+			IEnumerable<CommitFile> commitFiles = commitDetails.Files;
 			if (filesCommitId == commit.RealCommitId)
 			{
 				files.Clear();

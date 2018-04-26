@@ -107,7 +107,7 @@ namespace GitMind.GitModel
 		public string WorkingFolder => Repository.MRepository.WorkingFolder;
 		public Repository Repository { get; }
 
-		public Task<IEnumerable<CommitFile>> FilesTask => Repository.CommitsFiles.GetAsync(RealCommitSha, Repository.Status);
+		public Task<CommitDetails> FilesTask => Repository.CommitsDetailsService.GetAsync(RealCommitSha, Repository.Status);
 
 		public override string ToString() => $"{Id} {Subject} {CommitDate}";
 

@@ -11,19 +11,19 @@ using GitMind.Utils.Git;
 namespace GitMind.GitModel
 {
 	[SingleInstance]
-	internal class CommitsFiles : ICommitsFiles
+	internal class CommitsDetailsService : ICommitsDetailsService
 	{
 		private readonly IGitCommitService2 gitCommitService2;
 		private readonly IGitStatusService2 gitStatusService2;
 
-		private readonly ConcurrentDictionary<CommitSha, IList<CommitFile>> commitsFiles =
-			new ConcurrentDictionary<CommitSha, IList<CommitFile>>();
+		private readonly ConcurrentDictionary<CommitSha, CommitDetails> commitsFiles =
+			new ConcurrentDictionary<CommitSha, CommitDetails>();
 
 		private Task currentTask = Task.FromResult(true);
 		private CommitSha nextIdToGet;
 
 
-		public CommitsFiles(
+		public CommitsDetailsService(
 			IGitCommitService2 gitCommitService2,
 			IGitStatusService2 gitStatusService2)
 		{
@@ -32,23 +32,27 @@ namespace GitMind.GitModel
 		}
 
 
-		public async Task<IEnumerable<CommitFile>> GetAsync(CommitSha commitSha, GitStatus2 status)
+		public async Task<CommitDetails> GetAsync(CommitSha commitSha, GitStatus2 status)
 		{
 			if (commitSha == CommitSha.NoCommits)
 			{
-				return new CommitFile[0];
+				return new CommitDetails(new CommitFile[0], null);
 			}
 
 			// Get fresh list of uncomitted files or try to get them from cach, otherwise get from repo
-			if (commitSha == CommitSha.Uncommitted || !commitsFiles.TryGetValue(commitSha, out var files))
+			if (commitSha == CommitSha.Uncommitted || !commitsFiles.TryGetValue(commitSha,out CommitDetails commitDetails))
 			{
 				nextIdToGet = commitSha;
 				await currentTask;
 				if (nextIdToGet != commitSha)
 				{
 					// This commit id is no longer relevant 
-					return Enumerable.Empty<CommitFile>();
+					return new CommitDetails(new CommitFile[0], null);
 				}
+
+				string message = (commitSha == CommitSha.Uncommitted || commitSha == CommitSha.NoCommits)
+					? null
+					: (await gitCommitService2.GetCommitMessageAsync(commitSha.Sha, CancellationToken.None)).Or(null);
 
 				Task<R<IReadOnlyList<GitFile2>>> commitsFilesForCommitTask =
 					CommitsFilesForCommitTask(commitSha, status);
@@ -63,23 +67,24 @@ namespace GitMind.GitModel
 
 				if ((await commitsFilesForCommitTask).HasValue(out var commitsFilesForCommit))
 				{
-					files = commitsFilesForCommit.Select(f =>
+					var files = commitsFilesForCommit.Select(f =>
 						{
 							GitConflictFile conflict = conflicts.Files.FirstOrDefault(cf => cf.FilePath == f.FilePath);
 							return new CommitFile(f, conflict);
 						})
 					.ToList();
 
+					commitDetails = new CommitDetails(files, message);
 					// Cache the list of files
-					commitsFiles[commitSha] = files;
-					return files;
+					commitsFiles[commitSha] = commitDetails;
+					return commitDetails;
 				}
 
 				Log.Error($"Failed to get files for {commitSha}");
-				return Enumerable.Empty<CommitFile>();
+				return new CommitDetails(new CommitFile[0], message);
 			}
 
-			return files;
+			return commitDetails;
 		}
 
 
