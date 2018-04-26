@@ -29,7 +29,7 @@ namespace GitMind.ApplicationHandling
 		private static readonly string UserAgent = "GitMind";
 
 		private readonly ICmd cmd;
-		private readonly IRestartService restartService;
+		private readonly IStartInstanceService startInstanceService;
 		private readonly WorkingFolder workingFolder;
 
 		private DispatcherTimer checkTimer;
@@ -38,11 +38,11 @@ namespace GitMind.ApplicationHandling
 
 		public LatestVersionService(
 			ICmd cmd,
-			IRestartService restartService,
+			IStartInstanceService startInstanceService,
 			WorkingFolder workingFolder)
 		{
 			this.cmd = cmd;
-			this.restartService = restartService;
+			this.startInstanceService = startInstanceService;
 			this.workingFolder = workingFolder;
 		}
 
@@ -294,7 +294,7 @@ namespace GitMind.ApplicationHandling
 
 				if (IsNewVersionInstalled())
 				{
-					if (restartService.TriggerRestart(workingFolder))
+					if (startInstanceService.StartInstance(workingFolder))
 					{
 						// Newer version is started, close this instance
 						Application.Current.Shutdown(0);

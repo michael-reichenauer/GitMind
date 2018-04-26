@@ -16,7 +16,7 @@ namespace GitMind.Common
 	{
 		private static readonly TimeSpan MinTimeBeforeAutoRestart = TimeSpan.FromSeconds(10);
 
-		private static readonly RestartService restartService =  new RestartService();
+		private static readonly StartInstanceService StartInstanceService =  new StartInstanceService();
 
 
 		private static bool hasDisplayedErrorMessageBox;
@@ -116,7 +116,7 @@ namespace GitMind.Common
 
 			if (DateTime.Now - StartTime >= MinTimeBeforeAutoRestart)
 			{
-				restartService.TriggerRestart(Environment.CurrentDirectory);
+				StartInstanceService.StartInstance(Environment.CurrentDirectory);
 			}
 
 			if (IsDispatcherInitialized)

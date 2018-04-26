@@ -26,8 +26,7 @@ namespace GitMind.MainWindowViews
 	[SingleInstance]
 	internal class MainWindowViewModel : ViewModel
 	{
-		private readonly ILatestVersionService latestVersionService;
-		private readonly IRestartService restartService;
+		private readonly IStartInstanceService startInstanceService;
 		private readonly IGitInfoService gitInfoService;
 		private readonly IMessage message;
 		private readonly IMainWindowService mainWindowService;
@@ -52,7 +51,7 @@ namespace GitMind.MainWindowViews
 			IRemoteService remoteService,
 			ICommitsService commitsService,
 			ILatestVersionService latestVersionService,
-			IRestartService restartService,
+			IStartInstanceService startInstanceService,
 			IGitInfoService gitInfoService,
 			IMessage message,
 			IMainWindowService mainWindowService,
@@ -64,8 +63,7 @@ namespace GitMind.MainWindowViews
 			this.repositoryCommands = repositoryCommands;
 			this.remoteService = remoteService;
 			this.commitsService = commitsService;
-			this.latestVersionService = latestVersionService;
-			this.restartService = restartService;
+			this.startInstanceService = startInstanceService;
 			this.gitInfoService = gitInfoService;
 			this.message = message;
 			this.mainWindowService = mainWindowService;
@@ -213,7 +211,7 @@ namespace GitMind.MainWindowViews
 
 			if (folder.IsOk)
 			{
-				if (restartService.TriggerRestart(folder.Value))
+				if (startInstanceService.StartInstance(folder.Value))
 				{
 					Application.Current.Shutdown(0);
 					return;
@@ -365,7 +363,7 @@ namespace GitMind.MainWindowViews
 
 		private void RunLatestVersion()
 		{
-			if (restartService.TriggerRestart(workingFolder))
+			if (startInstanceService.StartInstance(workingFolder))
 			{
 				// Newer version is started, close this instance
 				Application.Current.Shutdown(0);

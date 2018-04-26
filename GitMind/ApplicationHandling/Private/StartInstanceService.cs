@@ -6,12 +6,12 @@ using GitMind.Utils;
 
 namespace GitMind.ApplicationHandling.Private
 {
-	internal class RestartService : IRestartService
+	internal class StartInstanceService : IStartInstanceService
 	{
 		private static readonly char[] QuoteChar = "\"".ToCharArray();
 
 
-		public bool TriggerRestart(string workingFolder)
+		public bool StartInstance(string workingFolder)
 		{
 			string folder = workingFolder;
 
