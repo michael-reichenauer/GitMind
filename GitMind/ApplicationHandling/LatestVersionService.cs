@@ -296,7 +296,7 @@ namespace GitMind.ApplicationHandling
 				if (IsNewVersionInstalled())
 				{
 					Log.Info("Newer version is installed, restart ...");
-					if (restartService.TriggerRestart(workingFolder))
+					if (startInstanceService.StartInstance(workingFolder))
 					{
 						// Newer version is started, close this instance
 						Application.Current.Shutdown(0);
