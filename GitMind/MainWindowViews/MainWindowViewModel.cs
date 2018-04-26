@@ -191,14 +191,7 @@ namespace GitMind.MainWindowViews
 			else
 			{
 				isLoaded = false;
-
-				if (!TryLetUserSelectWorkingFolder())
-				{
-					Application.Current.Shutdown(0);
-					return;
-				}
-
-				await SetWorkingFolderAsync();
+				SelectWorkingFolder();
 			}
 		}
 
@@ -211,14 +204,10 @@ namespace GitMind.MainWindowViews
 
 			if (folder.IsOk)
 			{
-				if (startInstanceService.StartInstance(folder.Value))
-				{
-					Application.Current.Shutdown(0);
-					return;
-				}
+				startInstanceService.StartInstance(folder.Value);
 			}
 
-			isLoaded = true;
+			Application.Current.Shutdown(0);
 		}
 
 
@@ -258,7 +247,7 @@ namespace GitMind.MainWindowViews
 
 			Notify(nameof(Title));
 
-			await RepositoryViewModel.LoadAsync();
+			await RepositoryViewModel.LoadRepoAsync();
 			isLoaded = true;
 		}
 

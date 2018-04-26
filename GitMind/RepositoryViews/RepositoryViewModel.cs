@@ -264,7 +264,7 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public async Task LoadAsync()
+		public async Task LoadRepoAsync()
 		{
 			Timing t = new Timing();
 
