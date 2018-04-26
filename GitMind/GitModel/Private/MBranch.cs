@@ -46,7 +46,7 @@ namespace GitMind.GitModel.Private
 		public MCommit TipCommit => Repository.Commits[TipCommitId];
 		public MCommit ParentCommit => Repository.Commits[ParentCommitId];
 		public MBranch ParentBranch => Repository.Branches[ParentBranchId];
-
+		public bool HasParentBranch => ParentCommitId != null;
 
 
 		public override string ToString() => IsLocalPart ? $"{Name} (local)" : $"{Name}";

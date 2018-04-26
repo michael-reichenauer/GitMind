@@ -26,13 +26,13 @@ namespace GitMind.GitModel
 			Lazy<IReadOnlyDictionary<CommitId, Commit>> commits,
 			Lazy<Branch> currentBranch,
 			Lazy<Commit> currentCommit,
-			ICommitsFiles commitsFiles,
+			ICommitsDetailsService commitsDetailsService,
 			GitStatus2 status,
 			CommitId rootId,
 			CommitId unComittedId)
 		{
 			MRepository = mRepository;
-			CommitsFiles = commitsFiles;
+			CommitsDetailsService = commitsDetailsService;
 			Status = status;
 
 			this.branches = branches;
@@ -48,7 +48,7 @@ namespace GitMind.GitModel
 		public Branch CurrentBranch => currentBranch.Value;
 		public Commit CurrentCommit => currentCommit.Value;
 		public MRepository MRepository { get; }
-		public ICommitsFiles CommitsFiles { get; }
+		public ICommitsDetailsService CommitsDetailsService { get; }
 		public GitStatus2 Status { get; }
 		public Commit RootCommit => commits.Value[rootId];
 		public Commit UnComitted => unComittedId == CommitId.Uncommitted ? commits.Value[unComittedId] : null;

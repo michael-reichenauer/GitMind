@@ -23,7 +23,7 @@ namespace GitMind.GitModel.Private
 
 		private readonly IStatusService statusService;
 		private readonly ICacheService cacheService;
-		private readonly ICommitsFiles commitsFiles;
+		private readonly ICommitsDetailsService commitsDetailsService;
 		private readonly Lazy<IRemoteService> remoteService;
 		private readonly IRepositoryStructureService repositoryStructureService;
 		private readonly IProgressService progressService;
@@ -35,7 +35,7 @@ namespace GitMind.GitModel.Private
 		public RepositoryService(
 			IStatusService statusService,
 			ICacheService cacheService,
-			ICommitsFiles commitsFiles,
+			ICommitsDetailsService commitsDetailsService,
 			Lazy<IRemoteService> remoteService,
 			IRepositoryStructureService repositoryStructureService,
 			IProgressService progressService,
@@ -43,7 +43,7 @@ namespace GitMind.GitModel.Private
 		{
 			this.statusService = statusService;
 			this.cacheService = cacheService;
-			this.commitsFiles = commitsFiles;
+			this.commitsDetailsService = commitsDetailsService;
 			this.remoteService = remoteService;
 			this.repositoryStructureService = repositoryStructureService;
 			this.progressService = progressService;
@@ -379,7 +379,7 @@ namespace GitMind.GitModel.Private
 				new Lazy<IReadOnlyDictionary<CommitId, Commit>>(() => rCommits),
 				new Lazy<Branch>(() => currentBranch),
 				new Lazy<Commit>(() => currentCommit),
-				commitsFiles,
+				commitsDetailsService,
 				mRepository.Status,
 				rootCommitId,
 				mRepository.Uncommitted?.Id ?? CommitId.None);

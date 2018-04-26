@@ -1,28 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 
 namespace GitMind.Utils.OsSystem
 {
 	public class SystemIdle
 	{
-		public static void TriggerOnIdle(TimeSpan idleTime, Action action, CancellationToken ct)
-		{
-			void CheckIdle(object state)
-			{
-				if (DateTime.UtcNow - GetLastInputUtcTime() > idleTime)
-				{
-					action();
-				}
-			}
-
-			Timer timer = new Timer(CheckIdle);
-			timer.Change(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
-			ct.Register(() => timer.Dispose());
-		}
-
-
 		public static TimeSpan GetLastInputIdleTimeSpan() => DateTime.UtcNow - GetLastInputUtcTime();
 
 

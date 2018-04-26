@@ -359,7 +359,19 @@ namespace GitMind.GitModel.Private
 
 				MCommit commonCommit = localTipCommit
 					.CommitAndAncestors(c => c.BranchId == branch.Id)
-					.First(c => c.IsCommon);
+					.FirstOrDefault(c => c.IsCommon);
+
+				if (commonCommit == null)
+				{
+					if (branch.HasParentBranch)
+					{
+						commonCommit = branch.ParentCommit;
+					}
+					else
+					{
+						commonCommit = branch.FirstCommit;
+					}
+				}
 
 				if (commonCommit.Sha != localTipCommit.Sha ||
 					(repository.Commits[branch.LocalTipCommitId].IsUncommitted

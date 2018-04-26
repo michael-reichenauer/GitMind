@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using GitMind.ApplicationHandling.Private;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
-using GitMind.Common.Tracking;
 using GitMind.Utils;
 using GitMind.Utils.UI;
 
@@ -16,7 +16,7 @@ namespace GitMind.Common
 	{
 		private static readonly TimeSpan MinTimeBeforeAutoRestart = TimeSpan.FromSeconds(10);
 
-		private static readonly ICmd cmd = new Cmd();
+		private static readonly RestartService restartService =  new RestartService();
 
 
 		private static bool hasDisplayedErrorMessageBox;
@@ -30,7 +30,7 @@ namespace GitMind.Common
 		public static void HandleUnhandledException()
 		{
 			// Add the event handler for handling non-UI thread exceptions to the event. 
-			AppDomain.CurrentDomain.UnhandledException += (s, e) => 
+			AppDomain.CurrentDomain.UnhandledException += (s, e) =>
 				HandleException("app domain exception", e.ExceptionObject as Exception);
 
 			// Log exceptions that hasn't been handled when a Task is finalized.
@@ -41,7 +41,7 @@ namespace GitMind.Common
 			};
 
 			// Add event handler for fatal execptions using catch condition "when (e.IsNotFatal())"
-			FatalExceptionsExtensions.FatalExeption += (s, e) => 
+			FatalExceptionsExtensions.FatalExeption += (s, e) =>
 				HandleException(e.Message, e.Exception);
 		}
 
@@ -116,7 +116,7 @@ namespace GitMind.Common
 
 			if (DateTime.Now - StartTime >= MinTimeBeforeAutoRestart)
 			{
-				Restart();
+				restartService.TriggerRestart(Environment.CurrentDirectory);
 			}
 
 			if (IsDispatcherInitialized)
@@ -144,13 +144,6 @@ namespace GitMind.Common
 			}
 
 			hasDisplayedErrorMessageBox = true;
-		}
-
-
-		private static void Restart()
-		{
-			string targetPath = ProgramPaths.GetInstallFilePath();
-			cmd.Start(targetPath, "/run");
 		}
 
 

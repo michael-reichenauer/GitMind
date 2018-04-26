@@ -106,8 +106,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="ApplicationHandling\IRestartService.cs" />
     <Compile Include="ApplicationHandling\IWorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
+    <Compile Include="ApplicationHandling\Private\RestartService.cs" />
     <Compile Include="ApplicationHandling\WorkingFolder.cs" />
     <Compile Include="ApplicationHandling\WorkingFolderPath.cs" />
     <Compile Include="ApplicationHandling\Installation\InstallDialog.xaml.cs">
@@ -158,7 +160,8 @@
     </Compile>
     <Compile Include="Features\Tags\Private\AddTagDialogViewModel.cs" />
     <Compile Include="Features\Tags\Private\TagService.cs" />
-    <Compile Include="GitModel\ICommitsFiles.cs" />
+    <Compile Include="GitModel\CommitDetails.cs" />
+    <Compile Include="GitModel\ICommitsDetailsService.cs" />
     <Compile Include="GitModel\Link.cs" />
     <Compile Include="GitModel\Private\LinkService.cs" />
     <Compile Include="GitModel\Private\BranchTipMonitorService.cs" />
@@ -343,7 +346,7 @@
     <Compile Include="GitModel\Branch.cs" />
     <Compile Include="GitModel\Commit.cs" />
     <Compile Include="GitModel\CommitFiles.cs" />
-    <Compile Include="GitModel\CommitsFiles.cs" />
+    <Compile Include="GitModel\CommitsDetailsService.cs" />
     <Compile Include="GitModel\Private\AheadBehindService.cs" />
     <Compile Include="GitModel\Private\BranchHierarchyService.cs" />
     <Compile Include="GitModel\Private\BranchNameParser.cs" />
