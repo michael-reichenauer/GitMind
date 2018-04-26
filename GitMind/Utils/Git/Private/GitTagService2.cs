@@ -20,7 +20,7 @@ namespace GitMind.Utils.Git.Private
 
 		public async Task<R<IReadOnlyList<GitTag>>> GetAllTagsAsync(CancellationToken ct)
 		{
-			CmdResult2 result = await gitCmdService.RunCmdAsync("show-ref --tags", ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync("show-ref -d --tags", ct);
 			if (result.IsFaulted)
 			{
 				if (!(result.ExitCode == 1 && string.IsNullOrEmpty(result.Output)))

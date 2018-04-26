@@ -11,5 +11,7 @@ namespace GitMind.Git
 		public string CommitId { get; }
 
 		public string TagName { get; }
+
+		public override string ToString() => $"{CommitId} {TagName}";
 	}
 }
