@@ -50,7 +50,7 @@ using System.Windows;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("0.135.*")]
+[assembly: AssemblyVersion("0.136.*")]
 
 [assembly: InternalsVisibleTo("GitMindTest")]
 
