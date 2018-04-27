@@ -4,23 +4,21 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 
 
 namespace GitMind.Utils
 {
 	public class HttpClientDownloadWithProgress : IDisposable
 	{
-		private readonly DispatcherTimer dispatcherTimer = new DispatcherTimer();
+		private readonly TimeSpan timeout;
+		private readonly Timer dispatcherTimer;
 		private readonly CancellationTokenSource cts = new CancellationTokenSource();
 
 
 		public HttpClientDownloadWithProgress(TimeSpan timeout)
 		{
-			dispatcherTimer = new DispatcherTimer();
-			dispatcherTimer.Tick += (s, e) => cts.Cancel();
-			dispatcherTimer.Interval = timeout;
-
+			this.timeout = timeout;
+			dispatcherTimer = new Timer(state => cts.Cancel());
 		}
 
 
@@ -41,6 +39,7 @@ namespace GitMind.Utils
 			TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
 			cts.Token.Register(() => tcs.TrySetCanceled());
 
+
 			StartAsync(uri, filePath).ContinueWith(_ => tcs.TrySetResult(true));
 			return tcs.Task;
 		}
@@ -48,7 +47,7 @@ namespace GitMind.Utils
 
 		private async Task StartAsync(string uri, string filePath)
 		{
-			dispatcherTimer.Start();
+			dispatcherTimer.Change(timeout, timeout);
 			using (var response = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cts.Token))
 			{
 				await DownloadFileAsync(response, filePath, cts.Token);
@@ -60,7 +59,7 @@ namespace GitMind.Utils
 		{
 			cts.Dispose();
 			HttpClient?.Dispose();
-			dispatcherTimer.Stop();
+			dispatcherTimer.Dispose();
 		}
 
 
@@ -90,8 +89,7 @@ namespace GitMind.Utils
 			{
 				do
 				{
-					dispatcherTimer.Stop();
-					dispatcherTimer.Start();
+					dispatcherTimer.Change(timeout, timeout);
 					var bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, ct);
 					if (bytesRead == 0)
 					{

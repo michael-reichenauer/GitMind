@@ -222,13 +222,13 @@ namespace GitMind.Utils.Git.Private
 				client.ProgressChanged += (totalFileSize, totalBytesDownloaded, progressPercentage) =>
 				{
 					progress($"Downloading git {(int)(progressPercentage ?? 0)}% ...");
-					Track.Info($"Downloading git {progressPercentage}% ...");
+					Track.Info($"Downloading git {progressPercentage}% (time: {t.Elapsed}) ...");
 				};
 
 				await client.StartDownloadAsync(uri, zipPath);
 			}
 
-			Track.Info($"Downloaded {uri} to {zipPath} (time: {t.Elapsed})");
+			Track.Info($"Downloaded {uri} to {zipPath}");
 
 			ZipFile.ExtractToDirectory(zipPath, gitFolderPath);
 			Log.Info($"Unzipped {zipPath} to {gitFolderPath}");

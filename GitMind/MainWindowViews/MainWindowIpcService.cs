@@ -35,7 +35,7 @@ namespace GitMind.MainWindowViews
 				Application.Current.MainWindow.Activate();
 				Application.Current.MainWindow.WindowState = WindowState.Normal;
 
-				if (commandLine.IsCommitCommand(args))
+				if (commandLine.IsCommitCommand(args ?? new string[0]))
 				{
 					Log.Usage("Activated and commit");
 					commitsService.CommitChangesAsync().RunInBackground();					
