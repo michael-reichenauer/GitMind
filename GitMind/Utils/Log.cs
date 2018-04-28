@@ -125,6 +125,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
+			Track.Error($"{sourceFilePath}({sourceLineNumber}) {memberName} - {msg}\n");
 			Write(LevelError, msg, memberName, sourceFilePath, sourceLineNumber);
 		}
 
@@ -135,7 +136,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
-			Track.Exception(e, $"{sourceFilePath}({sourceLineNumber}) {memberName} - {msg}\n{e}");
+			Track.Exception(e, $"{sourceFilePath}({sourceLineNumber}) {memberName} - {msg}");
 			Write(LevelError, $"{msg}\n{e}", memberName, sourceFilePath, sourceLineNumber);
 		}
 
@@ -147,6 +148,7 @@ namespace GitMind.Utils
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
 		{
+			Track.Exception(e, $"{sourceFilePath}({sourceLineNumber}) {memberName}\n");
 			Write(LevelError, $"{e}", memberName, sourceFilePath, sourceLineNumber);
 		}
 
@@ -160,13 +162,6 @@ namespace GitMind.Utils
 		{
 			filePath = filePath.Substring(prefixLength);
 			string text = $"{level} [{ProcessID}] {filePath}({lineNumber}) {memberName} - {msg}";
-
-			//Native.OutputDebugString(text);
-
-			if (level == LevelError)
-			{
-				Track.Error(text);
-			}
 
 			try
 			{
