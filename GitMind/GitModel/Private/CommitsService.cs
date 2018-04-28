@@ -34,11 +34,18 @@ namespace GitMind.GitModel.Private
 
 				if (repository.GitCommits.TryGetValue(commitId, out _))
 				{
-					seenCount++;
-					if (seenCount > 100)
+					if (commit.ParentIds.All(p => repository.GitCommits.TryGetValue(commitId, out _)))
 					{
-						Log.Debug($"Commit {commitId} already cached");
-						cts.Cancel();
+						seenCount++;
+						if (seenCount > 100)
+						{
+							Log.Debug($"Commit {commitId} already cached");
+							cts.Cancel();
+						}
+					}
+					else
+					{
+						seenCount = 0;
 					}
 				}
 				else
