@@ -150,7 +150,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted && !result.IsCanceled)
 			{
-				Track.Event("gitCmd", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}");
+				Track.Event("gitCmd-error", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}\nError:\n{result.ShortError}");
 			}
 			else
 			{
