@@ -44,10 +44,7 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<CmdResult2>> RunWithProgressAsync(
 			string gitArgs, Action<string> lines, CancellationToken ct)
 		{
-			GitOptions options = new GitOptions
-			{
-				ErrorLines = lines,
-			};
+			GitOptions options = new GitOptions { ErrorLines = lines };
 
 			return AsR(await CmdAsync(gitArgs, options, ct));
 		}
@@ -68,6 +65,15 @@ namespace GitMind.Utils.Git.Private
 		public async Task<CmdResult2> RunCmdAsync(string gitArgs, CancellationToken ct)
 		{
 			return await CmdAsync(gitArgs, new GitOptions(), ct);
+		}
+
+
+		public async Task<CmdResult2> RunCmdWitProgressAsync(
+			string gitArgs, Action<string> lines, CancellationToken ct)
+		{
+			GitOptions options = new GitOptions { ErrorLines = lines };
+
+			return await CmdAsync(gitArgs, options, ct);
 		}
 
 

@@ -1,0 +1,183 @@
+﻿<UserControl
+	x:Class="GitMind.RepositoryViews.Open.OpenModelView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	mc:Ignorable="d"
+	d:DesignHeight="300" d:DesignWidth="300">
+
+	<Border BorderBrush="#300192D1" BorderThickness="1" Background="Transparent">
+		<Grid>
+
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="2*" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+
+			<Grid.RowDefinitions>
+				<RowDefinition Height="50" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+
+			<!-- Resent files column -->
+			<TextBlock
+				Grid.Column="0" Grid.Row="0"
+				Text="Recent"
+				FontSize="25"
+				Foreground="CornflowerBlue"
+				TextWrapping="Wrap"
+				Margin="10" />
+
+			<!-- Resent files -->
+			<ItemsControl
+				Grid.Column="0" Grid.Row="1"
+				ItemsSource="{Binding RecentFiles}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<StackPanel Orientation="Vertical" />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Grid
+							Margin="10,7">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="30" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
+
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto" />
+								<RowDefinition Height="Auto" />
+							</Grid.RowDefinitions>
+
+
+							<TextBlock
+								Grid.Column="0" Grid.Row="0"
+								Margin="3,3,0,0"
+								Style="{DynamicResource MenuIconStyle}" Text="&#xE3C5;"
+								FontSize="20" />
+
+							<TextBlock
+								Grid.Column="1" Grid.Row="0"
+								Margin="0,1,0,0"
+								VerticalAlignment="Top"
+								Foreground="{DynamicResource TextBrush}" FontSize="14"
+								Text="{Binding Path=FileName}" MouseUp="RecentFile_OnClick"
+								Cursor="Hand">
+				
+								<TextBlock.ToolTip>
+									<ToolTip
+										Content="{Binding ToolTip}"
+										Placement="Mouse"
+										BorderBrush="{DynamicResource BorderBrush}"
+										BorderThickness="1" />
+								</TextBlock.ToolTip>
+							</TextBlock>
+
+
+							<TextBlock
+								Grid.Column="1" Grid.Row="1"
+								Text="{Binding Path=FilePath}"
+								FontSize="11" VerticalAlignment="Top"
+								Foreground="{DynamicResource TextLowBrush}" />
+						</Grid>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+
+
+			<!-- Open column -->
+			<TextBlock
+				Grid.Column="1" Grid.Row="0"
+				Text="Open"
+				FontSize="25"
+				Foreground="CornflowerBlue"
+				TextWrapping="Wrap"
+				Margin="10" />
+
+			<!-- Open file with icon and link -->
+			<Grid
+				Grid.Column="1" Grid.Row="1"
+				Margin="10,7">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="30" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+
+				<!-- Open Icon -->
+				<TextBlock
+					Grid.Column="0" Grid.Row="0"
+					Margin="3,3,0,0"
+					Style="{DynamicResource MenuIconStyle}" Text="&#xE89D;"
+					FontSize="20" VerticalAlignment="Top" />
+
+				<!-- Open file link -->
+				<TextBlock
+					Grid.Column="1" Grid.Row="0"
+					Margin="0,2,0,0"
+					VerticalAlignment="Top"
+					MouseUp="OpenFile_OnClick"
+					Foreground="{DynamicResource TextBrush}" FontSize="14"
+					Text="Open File"
+					Cursor="Hand">
+
+					<TextBlock.ToolTip>
+						<ToolTip
+							Content="Open model from dll, exe or sln file"
+							Placement="Mouse"
+							BorderBrush="{DynamicResource BorderBrush}"
+							BorderThickness="1" />
+					</TextBlock.ToolTip>
+				</TextBlock>
+			</Grid>
+
+			<Grid
+				Grid.Column="1" Grid.Row="1"
+				Margin="10,47">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="30" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+
+				<!-- Open Icon -->
+				<TextBlock
+					Grid.Column="0" Grid.Row="0"
+					Margin="3,3,0,0"
+					Style="{DynamicResource MenuIconStyle}" Text="&#xE89D;"
+					FontSize="20" VerticalAlignment="Top" />
+
+				<!-- Open file link -->
+				<TextBlock
+					Grid.Column="1" Grid.Row="0"
+					Margin="0,2,0,0"
+					VerticalAlignment="Top"
+					MouseUp="OpenExample_OnClick"
+					Foreground="{DynamicResource TextBrush}" FontSize="14"
+					Text="Open an example model" 
+					Cursor="Hand">
+
+					<TextBlock.ToolTip>
+						<ToolTip
+							Content="Open an example model to tryout Dependinator"
+							Placement="Mouse"
+							BorderBrush="{DynamicResource BorderBrush}"
+							BorderThickness="1" />
+					</TextBlock.ToolTip>
+				</TextBlock>
+			</Grid>
+			
+		</Grid>
+
+	</Border>
+
+</UserControl>

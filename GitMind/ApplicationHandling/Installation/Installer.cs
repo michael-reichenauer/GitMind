@@ -67,6 +67,7 @@ namespace GitMind.ApplicationHandling.Installation
 			}
 			else if (commandLine.IsInstall && commandLine.IsSilent)
 			{
+				Track.Request("Install-Silent");
 				Task.Run(() => InstallSilentAsync(null)).Wait();
 
 				if (commandLine.IsRunInstalled)
@@ -117,7 +118,7 @@ namespace GitMind.ApplicationHandling.Installation
 				{
 					await InstallSilentAsync(progress);
 				}
-				
+
 				Message.ShowInfo(
 					"Setup has finished installing GitMind.",
 					SetupTitle,

@@ -7,18 +7,19 @@ using System.Windows;
 using System.Windows.Forms;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.Tracking;
 using GitMind.Features.Commits;
 using GitMind.Features.Remote;
 using GitMind.Git;
 using GitMind.RepositoryViews;
+using GitMind.RepositoryViews.Open;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.Ipc;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
+using JumpListService = GitMind.Common.JumpListService;
 
 
 namespace GitMind.MainWindowViews
@@ -27,12 +28,13 @@ namespace GitMind.MainWindowViews
 	internal class MainWindowViewModel : ViewModel
 	{
 		private readonly IStartInstanceService startInstanceService;
+		private readonly IRecentModelsService recentModelsService;
 		private readonly IGitInfoService gitInfoService;
 		private readonly IMessage message;
 		private readonly IMainWindowService mainWindowService;
 		private readonly MainWindowIpcService mainWindowIpcService;
 
-		private readonly JumpListService jumpListService = new JumpListService();
+		//private readonly JumpListService jumpListService = new JumpListService();
 
 		private IpcRemotingService ipcRemotingService = null;
 		private readonly WorkingFolder workingFolder;
@@ -52,6 +54,7 @@ namespace GitMind.MainWindowViews
 			ICommitsService commitsService,
 			ILatestVersionService latestVersionService,
 			IStartInstanceService startInstanceService,
+			IRecentModelsService recentModelsService,
 			IGitInfoService gitInfoService,
 			IMessage message,
 			IMainWindowService mainWindowService,
@@ -64,6 +67,7 @@ namespace GitMind.MainWindowViews
 			this.remoteService = remoteService;
 			this.commitsService = commitsService;
 			this.startInstanceService = startInstanceService;
+			this.recentModelsService = recentModelsService;
 			this.gitInfoService = gitInfoService;
 			this.message = message;
 			this.mainWindowService = mainWindowService;
@@ -191,7 +195,7 @@ namespace GitMind.MainWindowViews
 			else
 			{
 				isLoaded = false;
-				SelectWorkingFolder();
+				await RepositoryViewModel.LoadOpenRepoAsync();
 			}
 		}
 
@@ -243,7 +247,8 @@ namespace GitMind.MainWindowViews
 				return;
 			}
 
-			jumpListService.Add(workingFolder);
+			//jumpListService.Add(workingFolder);
+			recentModelsService.AddModelPaths(workingFolder);
 
 			Notify(nameof(Title));
 

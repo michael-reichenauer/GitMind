@@ -22,5 +22,9 @@ namespace GitMind.Utils.Git.Private
 		Task<CmdResult2> RunCmdAsync(string gitArgs, CancellationToken ct);
 
 		Task<CmdResult2> RunCmdAsync(string gitArgs, Action<string> outputLines, CancellationToken ct);
+
+
+		Task<CmdResult2> RunCmdWitProgressAsync(
+			string gitArgs, Action<string> lines, CancellationToken ct);
 	}
 }

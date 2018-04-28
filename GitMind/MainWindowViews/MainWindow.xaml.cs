@@ -270,7 +270,7 @@ namespace GitMind.MainWindowViews
 
 		private void StoreLasteUsedFolder()
 		{
-			Settings.Edit<ProgramSettings>(s => s.LastUsedWorkingFolder = workingFolder);
+			//Settings.Edit<ProgramSettings>(s => s.LastUsedWorkingFolder = workingFolder);
 		}
 
 

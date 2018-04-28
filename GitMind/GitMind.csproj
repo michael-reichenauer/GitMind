@@ -180,6 +180,17 @@
     <Compile Include="RepositoryViews\DeleteTagItem.cs" />
     <Compile Include="RepositoryViews\IRepositoryMgr.cs" />
     <Compile Include="RepositoryViews\LinkItem.cs" />
+    <Compile Include="RepositoryViews\Open\FileItem.cs" />
+    <Compile Include="RepositoryViews\Open\IJumpListService.cs" />
+    <Compile Include="RepositoryViews\Open\IOpenModelService.cs" />
+    <Compile Include="RepositoryViews\Open\IRecentModelsService.cs" />
+    <Compile Include="RepositoryViews\Open\JumpListService.cs" />
+    <Compile Include="RepositoryViews\Open\OpenModelService.cs" />
+    <Compile Include="RepositoryViews\Open\OpenModelView.xaml.cs">
+      <DependentUpon>OpenModelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RepositoryViews\Open\OpenRepoViewModel.cs" />
+    <Compile Include="RepositoryViews\Open\RecentModelsService.cs" />
     <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />
     <Compile Include="Utils\AsyncLock.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
@@ -462,6 +473,10 @@
     <Page Include="RepositoryViews\CommitDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RepositoryViews\Open\OpenModelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="RepositoryViews\RepositoryView.xaml">
       <SubType>Designer</SubType>
