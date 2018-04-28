@@ -156,11 +156,11 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted && !result.IsCanceled)
 			{
-				Track.Event("gitCmd", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}");
+				Track.Event("Git-error", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}\nError:\n{result.ShortError}");
 			}
 			else
 			{
-				Track.Event("gitCmd", $"{result.ElapsedMs}ms: {result.Command} {result.Arguments}");
+				Track.Event("Git", $"{result.ElapsedMs}ms: {result.Command} {result.Arguments}");
 				var replace = result.ToString().Replace($"\"{gitCmdPath}\"", "git");
 				Log.Debug($"{result.ElapsedMs}ms: {replace}");
 			}

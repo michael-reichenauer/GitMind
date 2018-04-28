@@ -44,7 +44,9 @@ namespace GitMind.Utils.Git.Private
 		public string GetGitCmdPath()
 		{
 			string gitFolderPath = GitFolderPath;
-			string gitPath = GitFolderExePath(gitFolderPath);
+			string embeddedGitPath = GitFolderExePath(gitFolderPath);
+
+			string gitPath = embeddedGitPath;
 
 			if (!File.Exists(gitPath))
 			{
@@ -65,6 +67,11 @@ namespace GitMind.Utils.Git.Private
 
 				Log.Info($"Using git: {gitFullPath}, Version: {gitVersion}");
 				Track.Info($"Using git: {gitFullPath}, Version: {gitVersion}");
+				if (gitPath != embeddedGitPath)
+				{
+					Track.Info($"{gitPath} != {embeddedGitPath}, start download gi in background");
+					InstallGitAsync(s => { }).RunInBackground();
+				}
 			}
 
 			return gitPath;
@@ -139,7 +146,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (!File.Exists(gitPath))
 			{
-				Log.Warn($"Expeded git cmd path not found: {gitPath}");
+				Track.Warn($"Expected git cmd path not found: {gitPath}");
 				return null;
 			}
 
@@ -189,6 +196,7 @@ namespace GitMind.Utils.Git.Private
 					return R.Ok;
 				}
 
+				Track.Error($"Git: Failed to install {gitUri}");
 				return Error.From($"Failed to install {gitUri}");
 			}
 			catch (Exception e)
@@ -203,7 +211,7 @@ namespace GitMind.Utils.Git.Private
 			string uri, string gitFolderPath, Action<string> progress)
 		{
 			Track.Info($"Downloading git {GitVersion} from {uri} ...");
-
+			Timing t = Timing.StartNew();
 			string zipPath = ProgramPaths.GetTempFilePath() + $".git_{GitVersion}";
 
 			using (var client = new HttpClientDownloadWithProgress(TimeSpan.FromSeconds(30)))
@@ -214,7 +222,7 @@ namespace GitMind.Utils.Git.Private
 				client.ProgressChanged += (totalFileSize, totalBytesDownloaded, progressPercentage) =>
 				{
 					progress($"Downloading git {(int)(progressPercentage ?? 0)}% ...");
-					Log.Debug($"Downloading git {progressPercentage}% ...");
+					Track.Info($"Downloading git {progressPercentage}% (time: {t.Elapsed}) ...");
 				};
 
 				await client.StartDownloadAsync(uri, zipPath);

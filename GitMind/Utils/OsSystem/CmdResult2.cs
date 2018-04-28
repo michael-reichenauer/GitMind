@@ -60,6 +60,9 @@ namespace GitMind.Utils.OsSystem
 			}
 		}
 
+
+		public string ShortError => string.Join("\n", ErrorLines.Take(10));
+
 		public override string ToString() =>
 			$"{Command} {Arguments}{ExitText}{OutputText}{ErrorText}";
 

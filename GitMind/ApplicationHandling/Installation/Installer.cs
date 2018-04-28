@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -68,7 +68,7 @@ namespace GitMind.ApplicationHandling.Installation
 			else if (commandLine.IsInstall && commandLine.IsSilent)
 			{
 				Track.Request("Install-Silent");
-				Task.Run(() => InstallSilentAsync(null)).Wait();
+				Task.Run(async () => await InstallSilentAsync(s => Log.Info(s)).ConfigureAwait(false)).Wait();
 
 				if (commandLine.IsRunInstalled)
 				{
@@ -114,9 +114,10 @@ namespace GitMind.ApplicationHandling.Installation
 				dialog.Message = "";
 				dialog.IsButtonsVisible = false;
 
+				Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
 				using (Progress progress = progressService.ShowDialog("", dialog))
 				{
-					await InstallSilentAsync(progress);
+					await InstallSilentAsync(text => dispatcher.Invoke(() => progress.SetText(text)));
 				}
 
 				Message.ShowInfo(
@@ -159,7 +160,6 @@ namespace GitMind.ApplicationHandling.Installation
 		}
 
 
-
 		private void StartInstalled()
 		{
 			string targetPath = ProgramPaths.GetInstallFilePath();
@@ -194,10 +194,10 @@ namespace GitMind.ApplicationHandling.Installation
 		}
 
 
-		private async Task<R> InstallSilentAsync(Progress progress)
+		private async Task<R> InstallSilentAsync(Action<string> progress)
 		{
 			Log.Usage("Installing ...");
-			progress?.SetText("Installing GitMind ...");
+			progress("Installing GitMind ...");
 			string path = CopyFileToProgramFiles();
 			await Task.Yield();
 			AddUninstallSupport(path);
@@ -208,10 +208,9 @@ namespace GitMind.ApplicationHandling.Installation
 			await Task.Yield();
 			AddFolderContextMenu();
 			await Task.Yield();
-			Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
-			progress?.SetText("Downloading git ...");
-			R gitResult = await gitEnvironmentService.InstallGitAsync(
-				text => dispatcher.Invoke(() => progress?.SetText(text)));
+			
+			progress.Invoke("Downloading git ...");
+			R gitResult = await gitEnvironmentService.InstallGitAsync(progress);
 			Log.Usage("Installed");
 
 			if (gitResult.IsFaulted)
