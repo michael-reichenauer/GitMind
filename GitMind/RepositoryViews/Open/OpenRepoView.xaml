@@ -124,7 +124,7 @@
 					VerticalAlignment="Top"
 					MouseUp="OpenRepo_OnClick"
 					Foreground="{DynamicResource TextBrush}" FontSize="14"
-					Text="Open Working Folder"
+					Text="Open Working Folder ..."
 					Cursor="Hand">
 
 					<TextBlock.ToolTip>
@@ -137,6 +137,7 @@
 				</TextBlock>
 			</Grid>
 
+			<!-- Clone Repo -->
 			<Grid
 				Grid.Column="1" Grid.Row="1"
 				Margin="10,47">
@@ -176,7 +177,50 @@
 					</TextBlock.ToolTip>
 				</TextBlock>
 			</Grid>
-			
+
+			<!-- Init Repo -->
+			<Grid
+				Grid.Column="1" Grid.Row="2"
+				Margin="10,87">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="30" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+
+				<!-- Init Icon -->
+				<TextBlock
+					Grid.Column="0" Grid.Row="0"
+					Margin="3,3,0,0"
+					Style="{DynamicResource MenuIconStyle}" 
+					Text="&#xE3E4;"
+					FontSize="20" VerticalAlignment="Top" />
+
+				<!-- Init repo link -->
+				<TextBlock
+					Grid.Column="1" Grid.Row="0"
+					Margin="0,2,0,0"
+					VerticalAlignment="Top"
+					MouseUp="Init_OnClick"
+					Foreground="{DynamicResource TextBrush}" FontSize="14"
+					Text="Init Repository ..." 
+					Cursor="Hand">
+
+					<TextBlock.ToolTip>
+						<ToolTip
+							Content="Init a git repository"
+							Placement="Mouse"
+							BorderBrush="{DynamicResource BorderBrush}"
+							BorderThickness="1" />
+					</TextBlock.ToolTip>
+				</TextBlock>
+			</Grid>
+
+
+
 		</Grid>
 
 	</Border>

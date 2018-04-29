@@ -12,33 +12,26 @@ namespace GitMind.RepositoryViews.Open
 	{
 		private OpenRepoViewModel ViewModel => DataContext as OpenRepoViewModel;
 
-		//private MouseClicked mouseClicked;
-
 
 		public OpenRepoView()
 		{
 			InitializeComponent();
-
-			//mouseClicked = new MouseClicked(this, Clicked);
 		}
 
 
 		private void RecentFile_OnClick(object sender, MouseButtonEventArgs e)
 		{
 			((sender as FrameworkElement)?.DataContext as FileItem)?.OpenFileCommand.Execute();
-			}
-
-
-		private void OpenRepo_OnClick(object sender, MouseButtonEventArgs e)
-		{
-			ViewModel?.OpenRepoAsync();
 		}
 
 
-		private void Clone_OnClick(object sender, MouseButtonEventArgs e)
-		{
-			ViewModel?.CloneRepoAsync();
-		}
+		private void OpenRepo_OnClick(object sender, MouseButtonEventArgs e) => ViewModel?.OpenRepoAsync();
+
+
+		private void Clone_OnClick(object sender, MouseButtonEventArgs e) => ViewModel?.CloneRepoAsync();
+
+
+		private void Init_OnClick(object sender, MouseButtonEventArgs e) => ViewModel?.InitRepoAsync();
 	}
 }
 

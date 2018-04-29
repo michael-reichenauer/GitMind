@@ -102,6 +102,56 @@ namespace GitMind.RepositoryViews.Open
 		}
 
 
+		public async Task InitRepoAsync()
+		{
+			FolderBrowserDialog dialog = new FolderBrowserDialog()
+			{
+				Description = "Select a folder to initialize as a Git repository:",
+				ShowNewFolderButton = true,
+			};
+
+			string lastParentFolder = GetInitialOpenFolder();
+
+			if (lastParentFolder != null)
+			{
+				dialog.SelectedPath = lastParentFolder;
+			}
+
+			if (dialog.ShowDialog(owner.Win32Window) != DialogResult.OK)
+			{
+				Log.Debug("User canceled selecting a Working folder");
+				return;
+			}
+			
+			string path = dialog.SelectedPath;
+
+			R<string> rootFolder = gitInfoService.GetWorkingFolderRoot(path);
+
+			if (rootFolder.IsOk)
+			{
+				if (rootFolder.Value.SameIc(path))
+				{
+					message.ShowWarning($"The selected folder is already a git repository:\n{path}");
+				}
+				else
+				{
+					message.ShowWarning($"The selected folder is a sub-folder of a git repository at:\n{rootFolder.Value}");
+				}
+			
+				return;
+			}
+
+			R result = await gitRepoService.InitAsync(path, CancellationToken.None);
+			if (result.IsFaulted)
+			{
+				message.ShowError($"Error: {result.Error}");
+				return;
+			}
+
+			await SwitchToWorkingFolder(path);
+		}
+
+
 		private async Task CloneAsync(string uri, string folder, CancellationToken ct)
 		{
 			void SetProgress(Progress progress, string text)

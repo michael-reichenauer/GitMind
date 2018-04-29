@@ -56,5 +56,8 @@ namespace GitMind.RepositoryViews.Open
 
 
 		public async void CloneRepoAsync() => await openRepoService.CloneRepoAsync();
+
+		public async void InitRepoAsync() => await openRepoService.InitRepoAsync();
+
 	}
 }

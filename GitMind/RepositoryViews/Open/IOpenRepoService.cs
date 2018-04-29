@@ -15,5 +15,6 @@ namespace GitMind.RepositoryViews.Open
 
 		Task OpenRepoAsync(IReadOnlyList<string> modelFilePaths);
 		Task CloneRepoAsync();
+		Task InitRepoAsync();
 	}
 }
