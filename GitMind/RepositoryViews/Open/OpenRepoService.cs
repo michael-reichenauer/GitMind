@@ -131,7 +131,7 @@ namespace GitMind.RepositoryViews.Open
 			}
 			catch (Exception e)
 			{
-				message.ShowError($"Failed to clone{uri} into\n{folder}\n\nError: {e.Message}");
+				message.ShowError($"Failed to clone {uri}\ninto:{folder}\n\nError: {e.Message}");
 			}
 		}
 
