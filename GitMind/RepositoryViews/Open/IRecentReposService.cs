@@ -9,6 +9,7 @@ namespace GitMind.RepositoryViews.Open
 		event EventHandler Changed;
 
 		void AddWorkFolderPath(string folderPath);
+		void RemoveWorkFolderPath(string workingFolder);
 
 		void AddCloneUri(string uri);
 

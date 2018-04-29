@@ -50,7 +50,6 @@ namespace GitMind.RepositoryViews.Open
 
 		public async Task OpenRepoAsync()
 		{
-			await Task.Yield();
 			if (!TrySelectWorkingFolder(out string folder))
 			{
 				return;
@@ -60,20 +59,10 @@ namespace GitMind.RepositoryViews.Open
 		}
 
 
-		public async Task TryOpenRepoAsync(string folder)
-		{
-			await Task.Yield();
-
-			await SwitchToWorkingFolder(folder);
-		}
+		public async Task TryOpenRepoAsync(string folder) => await SwitchToWorkingFolder(folder);
 
 
-		public async Task OpenOtherRepoAsync(string folder)
-		{
-			await Task.Yield();
-
-			await SwitchToWorkingFolder(folder);
-		}
+		public async Task OpenOtherRepoAsync(string folder) => await SwitchToWorkingFolder(folder);
 
 
 		public async Task OpenRepoAsync(IReadOnlyList<string> modelFilePaths)
@@ -272,6 +261,15 @@ namespace GitMind.RepositoryViews.Open
 
 		private async Task SwitchToWorkingFolder(string workingFolder)
 		{
+
+			if (!(Directory.Exists(workingFolder) && 
+				gitInfoService.GetWorkingFolderRoot(workingFolder).IsOk))
+			{
+				message.ShowWarning($"Path is not a valid working folder: {workingFolder}");
+				recentReposService.RemoveWorkFolderPath(workingFolder);
+				workingFolder = "Open";
+			}
+
 			startInstanceService.OpenOrStartInstance(workingFolder);
 
 			await Task.Delay(CloseTime);

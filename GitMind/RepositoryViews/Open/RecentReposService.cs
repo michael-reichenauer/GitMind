@@ -31,6 +31,21 @@ namespace GitMind.RepositoryViews.Open
 		}
 
 
+		public void RemoveWorkFolderPath(string workingFolder)
+		{
+			List<string> resentPaths = Settings.Get<ProgramSettings>().ResentWorkFolderPaths.ToList();
+			int index = resentPaths.FindIndex(path => path.SameIc(workingFolder));
+
+			if (index != -1)
+			{
+				resentPaths.RemoveAt(index);
+			}
+
+			Settings.Edit<ProgramSettings>(s => { s.ResentWorkFolderPaths = resentPaths; });
+		}
+		
+
+
 		public IReadOnlyList<string> GetWorkFolderPaths() => 
 			Settings.Get<ProgramSettings>().ResentWorkFolderPaths.ToList();
 
