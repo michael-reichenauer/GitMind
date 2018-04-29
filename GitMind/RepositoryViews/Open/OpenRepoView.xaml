@@ -63,8 +63,10 @@
 								Grid.Column="1" Grid.Row="0"
 								Margin="0,1,0,0"
 								VerticalAlignment="Top"
-								Foreground="{DynamicResource TextBrush}" FontSize="14"
-								Text="{Binding Path=FileName}" MouseUp="RecentFile_OnClick"
+								Foreground="{DynamicResource TextBrush}" 
+								FontSize="14"
+								Text="{Binding Path=FileName}" 
+								MouseUp="RecentFile_OnClick"
 								Cursor="Hand">
 				
 								<TextBlock.ToolTip>
@@ -80,8 +82,11 @@
 							<TextBlock
 								Grid.Column="1" Grid.Row="1"
 								Text="{Binding Path=FilePath}"
-								FontSize="11" VerticalAlignment="Top"
-								Foreground="{DynamicResource TextLowBrush}" />
+								FontSize="11" 
+								VerticalAlignment="Top"
+								Foreground="{DynamicResource TextLowBrush}" 
+								MouseUp="RecentFile_OnClick"
+								Cursor="Hand"/>
 						</Grid>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
