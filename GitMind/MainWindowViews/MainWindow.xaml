@@ -77,7 +77,8 @@
 						ToolTip="{Binding VersionText}"/>
 
 					<!-- Working folder -->
-					<Button 	
+					<Button 
+						IsEnabled="{Binding IsRepoView}"
 						Style="{DynamicResource BaseButtonStyle}"
 						FontSize="12"
 						Foreground="{DynamicResource TextBrush}"
@@ -287,7 +288,7 @@
 						ToolTip="New version of GitMind is available, click to reload ..." />
 
 					<!-- Hamburger button -->
-					<mainWindowViews:HamburgerButton/>
+					<mainWindowViews:HamburgerButton IsEnabled="{Binding IsRepoView}"/>
 
 				</StackPanel>
 
@@ -296,7 +297,9 @@
 				<StackPanel Grid.Column="2" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
 					
 					<!-- Search and filter box  -->
-					<common:SearchFilter x:Name="Search"/>
+					<common:SearchFilter 
+						x:Name="Search"
+						IsEnabled="{Binding IsRepoView}"/>
 
 					<!-- The 3 minimize, maximize and close window control buttons in the title bar -->
 					<common:WindowControlButtons/>

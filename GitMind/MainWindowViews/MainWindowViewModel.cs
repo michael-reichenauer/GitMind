@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -20,7 +19,6 @@ using GitMind.Utils.Git;
 using GitMind.Utils.Ipc;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
-using JumpListService = GitMind.Common.JumpListService;
 
 
 namespace GitMind.MainWindowViews
@@ -79,17 +77,15 @@ namespace GitMind.MainWindowViews
 			workingFolder.OnChange += (s, e) => Notify(nameof(WorkingFolder));
 			latestVersionService.OnNewVersionAvailable += (s, e) => IsNewVersionVisible = true;
 			latestVersionService.StartCheckForLatestVersion();
+			IsRepoView = true;
 		}
 
 
 		public bool IsInFilterMode => !string.IsNullOrEmpty(SearchBox);
 
 
-		public bool IsNewVersionVisible
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public bool IsNewVersionVisible { get => Get(); set => Set(value); }
+		public bool IsRepoView { get => Get(); set => Set(value); }
 
 		public string WorkingFolder => workingFolder;
 
@@ -195,6 +191,7 @@ namespace GitMind.MainWindowViews
 			}
 			else
 			{
+				IsRepoView = false;
 				isLoaded = false;
 				await RepositoryViewModel.LoadOpenRepoAsync();
 			}
@@ -204,7 +201,7 @@ namespace GitMind.MainWindowViews
 		private async Task OpenWorkingFolderAsync()
 		{
 			isLoaded = false;
-			
+
 			startInstanceService.StartInstance("Open");
 			await Task.Delay(1500);
 			Application.Current.Shutdown(0);
@@ -449,7 +446,7 @@ namespace GitMind.MainWindowViews
 						return rootFolder.Value;
 					}
 				}
-				
+
 				Log.Debug($"User selected an invalid working folder: {dialog.SelectedPath}");
 			}
 		}
