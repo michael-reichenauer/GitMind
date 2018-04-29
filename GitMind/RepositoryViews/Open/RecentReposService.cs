@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.RepositoryViews.Open
@@ -11,12 +12,15 @@ namespace GitMind.RepositoryViews.Open
 	internal class RecentReposService : IRecentReposService
 	{
 		private readonly IJumpListService jumpListService;
+		private readonly IGitInfoService gitInfoService;
 
 
 		public RecentReposService(
-			IJumpListService jumpListService)
+			IJumpListService jumpListService,
+			IGitInfoService gitInfoService)
 		{
 			this.jumpListService = jumpListService;
+			this.gitInfoService = gitInfoService;
 		}
 
 
@@ -46,8 +50,17 @@ namespace GitMind.RepositoryViews.Open
 		
 
 
-		public IReadOnlyList<string> GetWorkFolderPaths() => 
-			Settings.Get<ProgramSettings>().ResentWorkFolderPaths.ToList();
+		public IReadOnlyList<string> GetWorkFolderPaths()
+		{
+			List<string> resentPaths = Settings.Get<ProgramSettings>().ResentWorkFolderPaths.ToList();
+
+			resentPaths = resentPaths
+				.Where(path => gitInfoService.GetWorkingFolderRoot(path).Or("").SameIc(path))
+				.ToList();
+
+			Settings.Edit<ProgramSettings>(s => { s.ResentWorkFolderPaths = resentPaths; });
+			return resentPaths;
+		}
 
 
 		public IReadOnlyList<string> GetCloneUriPaths() => 
