@@ -13,16 +13,24 @@ namespace GitMind.ApplicationHandling.Private
 
 		public bool StartInstance(string workingFolder)
 		{
-			string folder = workingFolder;
-
 			string targetPath = ProgramPaths.GetInstallFilePath();
-			string arguments = string.IsNullOrWhiteSpace(folder) ? "/run" : $"/run /d:\"{folder}\"";
+			string arguments = string.IsNullOrWhiteSpace(workingFolder) ? "/run" : $"/run /d:\"{workingFolder}\"";
 
 			Log.Info($"Restarting: {targetPath} {arguments}");
 
 			return StartProcess(targetPath, arguments);
 		}
 
+
+		public bool OpenOrStartInstance(string workingFolder)
+		{
+			string targetPath = ProgramPaths.GetInstallFilePath();
+			string arguments =  $"/d:\"{workingFolder}\"";
+
+			Log.Info($"Restarting: {targetPath} {arguments}");
+
+			return StartProcess(targetPath, arguments);
+		}
 
 		private static bool StartProcess(string targetPath, string arguments)
 		{

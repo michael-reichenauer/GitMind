@@ -6,16 +6,16 @@ using System.Windows.Input;
 namespace GitMind.RepositoryViews.Open
 {
 	/// <summary>
-	/// Interaction logic for OpenModelView.xaml
+	/// Interaction logic for OpenRepoView.xaml
 	/// </summary>
-	public partial class OpenModelView : UserControl
+	public partial class OpenRepoView : UserControl
 	{
 		private OpenRepoViewModel ViewModel => DataContext as OpenRepoViewModel;
 
 		//private MouseClicked mouseClicked;
 
 
-		public OpenModelView()
+		public OpenRepoView()
 		{
 			InitializeComponent();
 
@@ -29,15 +29,15 @@ namespace GitMind.RepositoryViews.Open
 			}
 
 
-		private void OpenFile_OnClick(object sender, MouseButtonEventArgs e)
+		private void OpenRepo_OnClick(object sender, MouseButtonEventArgs e)
 		{
-			ViewModel?.OpenFile();
+			ViewModel?.OpenRepoAsync();
 		}
 
 
 		private void OpenExample_OnClick(object sender, MouseButtonEventArgs e)
 		{
-			ViewModel?.OpenExampleFile();
+			//ViewModel?.OpenExampleFile();
 		}
 	}
 }

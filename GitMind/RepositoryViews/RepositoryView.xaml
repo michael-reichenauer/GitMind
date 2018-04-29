@@ -141,7 +141,7 @@
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
-											<open:OpenModelView />
+											<open:OpenRepoView />
 										</DataTemplate>
 									</Setter.Value>
 								</Setter>

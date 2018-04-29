@@ -163,7 +163,7 @@ namespace GitMind.ApplicationHandling.Installation
 		private void StartInstalled()
 		{
 			string targetPath = ProgramPaths.GetInstallFilePath();
-			cmd.Start(targetPath, "/run");
+			cmd.Start(targetPath, "/run /d:Open");
 		}
 
 
@@ -208,7 +208,7 @@ namespace GitMind.ApplicationHandling.Installation
 			await Task.Yield();
 			AddFolderContextMenu();
 			await Task.Yield();
-			
+
 			progress.Invoke("Downloading git ...");
 			R gitResult = await gitEnvironmentService.InstallGitAsync(progress);
 			Log.Usage("Installed");

@@ -42,8 +42,8 @@ namespace GitMind.RepositoryViews
 		private readonly IGitFetchService gitFetchService;
 
 		private readonly IThemeService themeService;
-		private readonly IOpenModelService openModelService;
-		private readonly IRecentModelsService recentModelsService;
+		private readonly IOpenRepoService openRepoService;
+		private readonly IRecentReposService recentReposService;
 		private readonly IMessage message;
 		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
@@ -85,8 +85,8 @@ namespace GitMind.RepositoryViews
 			IRepositoryService repositoryService,
 			IGitFetchService gitFetchService,
 			IThemeService themeService,
-			IOpenModelService openModelService,
-			IRecentModelsService recentModelsService,
+			IOpenRepoService openRepoService,
+			IRecentReposService recentReposService,
 			IMessage message,	
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
@@ -101,8 +101,8 @@ namespace GitMind.RepositoryViews
 			this.gitFetchService = gitFetchService;
 
 			this.themeService = themeService;
-			this.openModelService = openModelService;
-			this.recentModelsService = recentModelsService;
+			this.openRepoService = openRepoService;
+			this.recentReposService = recentReposService;
 			this.message = message;
 			this.progress = progressService;
 
@@ -274,7 +274,7 @@ namespace GitMind.RepositoryViews
 
 		public async Task LoadOpenRepoAsync()
 		{
-			OpenRepoViewModel repoViewModel = new OpenRepoViewModel(openModelService, recentModelsService);
+			OpenRepoViewModel repoViewModel = new OpenRepoViewModel(openRepoService, recentReposService);
 			OpenRepos.Add(repoViewModel);
 			IsShowCommitDetails = false;
 			await Task.Yield();

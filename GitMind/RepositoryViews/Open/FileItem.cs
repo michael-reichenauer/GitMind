@@ -21,7 +21,7 @@ namespace GitMind.RepositoryViews.Open
 
 		public string FileName { get; }
 
-		public string ToolTip => "Open repo for " + FilePath;
+		public string ToolTip => "Open working folder:\n" + FilePath;
 
 		public Command OpenFileCommand => Command(() => openFileAction(FilePath));
 	}

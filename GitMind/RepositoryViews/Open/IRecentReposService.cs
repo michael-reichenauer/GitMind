@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 namespace GitMind.RepositoryViews.Open
 {
-	internal interface IRecentModelsService
+	internal interface IRecentReposService
 	{
 		event EventHandler Changed;
 
-		void AddModelPaths(string modelFilePath);
+		void AddRepoPaths(string modelFilePath);
 
-		IReadOnlyList<string> GetModelPaths();
+		IReadOnlyList<string> GetRepoPaths();
 	}
 }

@@ -182,15 +182,15 @@
     <Compile Include="RepositoryViews\LinkItem.cs" />
     <Compile Include="RepositoryViews\Open\FileItem.cs" />
     <Compile Include="RepositoryViews\Open\IJumpListService.cs" />
-    <Compile Include="RepositoryViews\Open\IOpenModelService.cs" />
-    <Compile Include="RepositoryViews\Open\IRecentModelsService.cs" />
+    <Compile Include="RepositoryViews\Open\IOpenRepoService.cs" />
+    <Compile Include="RepositoryViews\Open\IRecentReposService.cs" />
     <Compile Include="RepositoryViews\Open\JumpListService.cs" />
-    <Compile Include="RepositoryViews\Open\OpenModelService.cs" />
-    <Compile Include="RepositoryViews\Open\OpenModelView.xaml.cs">
-      <DependentUpon>OpenModelView.xaml</DependentUpon>
+    <Compile Include="RepositoryViews\Open\OpenRepoService.cs" />
+    <Compile Include="RepositoryViews\Open\OpenRepoView.xaml.cs">
+      <DependentUpon>OpenRepoView.xaml</DependentUpon>
     </Compile>
     <Compile Include="RepositoryViews\Open\OpenRepoViewModel.cs" />
-    <Compile Include="RepositoryViews\Open\RecentModelsService.cs" />
+    <Compile Include="RepositoryViews\Open\RecentReposService.cs" />
     <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />
     <Compile Include="Utils\AsyncLock.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
@@ -474,7 +474,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RepositoryViews\Open\OpenModelView.xaml">
+    <Page Include="RepositoryViews\Open\OpenRepoView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

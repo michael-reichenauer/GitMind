@@ -77,7 +77,7 @@ namespace GitMind.ApplicationHandling.Private
 				// Call from e.g. Windows Explorer folder context menu
 				rootFolder = GetRootFolderPath(commandLine.Folder);
 				IsValid = rootFolder.IsOk;
-				return rootFolder.IsOk ? rootFolder.Value : commandLine.Folder;
+				return rootFolder.IsOk ? rootFolder.Value : "Open";
 			}
 
 			rootFolder = GetRootFolderPath(Environment.CurrentDirectory);
@@ -88,7 +88,7 @@ namespace GitMind.ApplicationHandling.Private
 				return rootFolder.Value;
 			}
 
-			return GetMyDocumentsPath();
+			return "Open";
 		}
 
 

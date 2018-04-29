@@ -11,16 +11,16 @@ namespace GitMind.RepositoryViews.Open
 	{
 		private static readonly Rect DefaultOpenBounds = new Rect(30, 30, 730, 580);
 
-		private readonly IOpenModelService openModelService;
-		private readonly IRecentModelsService recentModelsService;
+		private readonly IOpenRepoService openRepoService;
+		private readonly IRecentReposService recentReposService;
 
 
 		public OpenRepoViewModel(
-			IOpenModelService openModelService,
-			IRecentModelsService recentModelsService)
+			IOpenRepoService openRepoService,
+			IRecentReposService recentReposService)
 		{
-			this.openModelService = openModelService;
-			this.recentModelsService = recentModelsService;
+			this.openRepoService = openRepoService;
+			this.recentReposService = recentReposService;
 			Rect = DefaultOpenBounds;
 
 			RecentFiles = GetRecentFiles();
@@ -37,28 +37,22 @@ namespace GitMind.RepositoryViews.Open
 		public IReadOnlyList<FileItem> RecentFiles { get; }
 
 
-		public async void OpenFile() => await openModelService.OpenModelAsync();
+		public async void OpenRepoAsync() => await openRepoService.OpenRepoAsync();
 
 
 		private IReadOnlyList<FileItem> GetRecentFiles()
 		{
-			IReadOnlyList<string> filesPaths = recentModelsService.GetModelPaths();
+			IReadOnlyList<string> filesPaths = recentReposService.GetRepoPaths();
 
 			var fileItems = new List<FileItem>();
 			foreach (string filePath in filesPaths)
 			{
 				string name = Path.GetFileName(filePath);
 
-				fileItems.Add(new FileItem(name, filePath, openModelService.OpenOtherModelAsync));
+				fileItems.Add(new FileItem(name, filePath, openRepoService.OpenOtherRepoAsync));
 			}
 
 			return fileItems;
-		}
-
-
-		public async void OpenExampleFile()
-		{
-			await openModelService.OpenOtherModelAsync(Assembly.GetEntryAssembly().Location);
 		}
 	}
 }

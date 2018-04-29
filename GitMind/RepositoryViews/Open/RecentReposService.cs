@@ -8,12 +8,12 @@ using GitMind.Utils;
 namespace GitMind.RepositoryViews.Open
 {
 	[SingleInstance]
-	internal class RecentModelsService : IRecentModelsService
+	internal class RecentReposService : IRecentReposService
 	{
 		private readonly IJumpListService jumpListService;
 
 
-		public RecentModelsService(
+		public RecentReposService(
 			IJumpListService jumpListService)
 		{
 			this.jumpListService = jumpListService;
@@ -22,7 +22,7 @@ namespace GitMind.RepositoryViews.Open
 
 		public event EventHandler Changed;
 		
-		public void AddModelPaths(string modelFilePath)
+		public void AddRepoPaths(string modelFilePath)
 		{
 			AddToResentPathInProgramSettings(modelFilePath);
 
@@ -31,7 +31,7 @@ namespace GitMind.RepositoryViews.Open
 		}
 
 
-		public IReadOnlyList<string> GetModelPaths()
+		public IReadOnlyList<string> GetRepoPaths()
 		{
 			ProgramSettings settings = Settings.Get<ProgramSettings>();
 

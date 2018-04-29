@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -28,7 +29,7 @@ namespace GitMind.MainWindowViews
 	internal class MainWindowViewModel : ViewModel
 	{
 		private readonly IStartInstanceService startInstanceService;
-		private readonly IRecentModelsService recentModelsService;
+		private readonly IRecentReposService recentReposService;
 		private readonly IGitInfoService gitInfoService;
 		private readonly IMessage message;
 		private readonly IMainWindowService mainWindowService;
@@ -54,7 +55,7 @@ namespace GitMind.MainWindowViews
 			ICommitsService commitsService,
 			ILatestVersionService latestVersionService,
 			IStartInstanceService startInstanceService,
-			IRecentModelsService recentModelsService,
+			IRecentReposService recentReposService,
 			IGitInfoService gitInfoService,
 			IMessage message,
 			IMainWindowService mainWindowService,
@@ -67,7 +68,7 @@ namespace GitMind.MainWindowViews
 			this.remoteService = remoteService;
 			this.commitsService = commitsService;
 			this.startInstanceService = startInstanceService;
-			this.recentModelsService = recentModelsService;
+			this.recentReposService = recentReposService;
 			this.gitInfoService = gitInfoService;
 			this.message = message;
 			this.mainWindowService = mainWindowService;
@@ -156,7 +157,7 @@ namespace GitMind.MainWindowViews
 
 		public Command RefreshCommand => AsyncCommand(ManualRefreshAsync);
 
-		public Command SelectWorkingFolderCommand => Command(SelectWorkingFolder);
+		public Command SelectWorkingFolderCommand => AsyncCommand(OpenWorkingFolderAsync);
 
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
@@ -200,17 +201,12 @@ namespace GitMind.MainWindowViews
 		}
 
 
-		private void SelectWorkingFolder()
+		private async Task OpenWorkingFolderAsync()
 		{
 			isLoaded = false;
-
-			R<string> folder = SelectNewWorkingFolder();
-
-			if (folder.IsOk)
-			{
-				startInstanceService.StartInstance(folder.Value);
-			}
-
+			
+			startInstanceService.StartInstance("Open");
+			await Task.Delay(1500);
 			Application.Current.Shutdown(0);
 		}
 
@@ -248,7 +244,7 @@ namespace GitMind.MainWindowViews
 			}
 
 			//jumpListService.Add(workingFolder);
-			recentModelsService.AddModelPaths(workingFolder);
+			recentReposService.AddRepoPaths(workingFolder);
 
 			Notify(nameof(Title));
 
