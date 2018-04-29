@@ -35,9 +35,9 @@ namespace GitMind.RepositoryViews.Open
 		}
 
 
-		private void OpenExample_OnClick(object sender, MouseButtonEventArgs e)
+		private void Clone_OnClick(object sender, MouseButtonEventArgs e)
 		{
-			//ViewModel?.OpenExampleFile();
+			ViewModel?.CloneRepoAsync();
 		}
 	}
 }

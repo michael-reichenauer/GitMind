@@ -241,7 +241,7 @@ namespace GitMind.MainWindowViews
 			}
 
 			//jumpListService.Add(workingFolder);
-			recentReposService.AddRepoPaths(workingFolder);
+			recentReposService.AddWorkFolderPath(workingFolder);
 
 			Notify(nameof(Title));
 

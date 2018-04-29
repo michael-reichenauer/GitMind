@@ -8,8 +8,12 @@ namespace GitMind.RepositoryViews.Open
 	{
 		event EventHandler Changed;
 
-		void AddRepoPaths(string modelFilePath);
+		void AddWorkFolderPath(string folderPath);
 
-		IReadOnlyList<string> GetRepoPaths();
+		void AddCloneUri(string uri);
+
+		IReadOnlyList<string> GetWorkFolderPaths();
+
+		IReadOnlyList<string> GetCloneUriPaths();
 	}
 }

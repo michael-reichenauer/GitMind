@@ -22,43 +22,58 @@ namespace GitMind.RepositoryViews.Open
 
 		public event EventHandler Changed;
 		
-		public void AddRepoPaths(string modelFilePath)
+		public void AddWorkFolderPath(string folderPath)
 		{
-			AddToResentPathInProgramSettings(modelFilePath);
+			AddToResentPathInProgramSettings(folderPath);
 
-			jumpListService.AddPath(modelFilePath);
+			jumpListService.AddPath(folderPath);
 			Changed?.Invoke(this, EventArgs.Empty);
 		}
 
 
-		public IReadOnlyList<string> GetRepoPaths()
-		{
-			ProgramSettings settings = Settings.Get<ProgramSettings>();
+		public IReadOnlyList<string> GetWorkFolderPaths() => 
+			Settings.Get<ProgramSettings>().ResentWorkFolderPaths.ToList();
 
-			return settings.ResentWorkFolderPaths.ToList();
+
+		public IReadOnlyList<string> GetCloneUriPaths() => 
+			Settings.Get<ProgramSettings>().ResentCloneUriPaths.ToList();
+
+
+		public void AddCloneUri(string uri)
+		{
+			List<string> resentPaths = Settings.Get<ProgramSettings>().ResentCloneUriPaths;
+
+			AddResent(uri, resentPaths);
+
+			Settings.Edit<ProgramSettings>(s => { s.ResentCloneUriPaths = resentPaths; });
 		}
 
 
-		private void AddToResentPathInProgramSettings(string modelFilePath)
+		private static void AddToResentPathInProgramSettings(string folderPath)
 		{
-			ProgramSettings settings = Settings.Get<ProgramSettings>();
+			List<string> resentPaths = Settings.Get<ProgramSettings>().ResentWorkFolderPaths;
 
-			List<string> resentPaths = settings.ResentWorkFolderPaths;
-			int index = resentPaths.FindIndex(path => path.SameIc(modelFilePath));
+			AddResent(folderPath, resentPaths);
+
+			Settings.Edit<ProgramSettings>(s => { s.ResentWorkFolderPaths = resentPaths; });
+		}
+
+
+		private static void AddResent(string text, List<string> textList)
+		{
+			int index = textList.FindIndex(path => path.SameIc(text));
 
 			if (index != -1)
 			{
-				resentPaths.RemoveAt(index);
+				textList.RemoveAt(index);
 			}
 
-			resentPaths.Insert(0, modelFilePath);
+			textList.Insert(0, text);
 
-			if (resentPaths.Count > 10)
+			if (textList.Count > 10)
 			{
-				resentPaths.RemoveRange(10, resentPaths.Count - 10);
+				textList.RemoveRange(10, textList.Count - 10);
 			}
-
-			Settings.Edit<ProgramSettings>(s => { s.ResentWorkFolderPaths = resentPaths; });
 		}
 	}
 }

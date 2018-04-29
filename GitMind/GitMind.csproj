@@ -191,6 +191,9 @@
     </Compile>
     <Compile Include="RepositoryViews\Open\OpenRepoViewModel.cs" />
     <Compile Include="RepositoryViews\Open\RecentReposService.cs" />
+    <Compile Include="RepositoryViews\Open\CloneDialog.xaml.cs">
+      <DependentUpon>CloneDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />
     <Compile Include="Utils\AsyncLock.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
@@ -475,6 +478,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RepositoryViews\Open\OpenRepoView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RepositoryViews\Open\CloneDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

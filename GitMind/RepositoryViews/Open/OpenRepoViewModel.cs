@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using GitMind.Utils.UI;
 
@@ -42,7 +41,7 @@ namespace GitMind.RepositoryViews.Open
 
 		private IReadOnlyList<FileItem> GetRecentFiles()
 		{
-			IReadOnlyList<string> filesPaths = recentReposService.GetRepoPaths();
+			IReadOnlyList<string> filesPaths = recentReposService.GetWorkFolderPaths();
 
 			var fileItems = new List<FileItem>();
 			foreach (string filePath in filesPaths)
@@ -54,5 +53,8 @@ namespace GitMind.RepositoryViews.Open
 
 			return fileItems;
 		}
+
+
+		public async void CloneRepoAsync() => await openRepoService.CloneRepoAsync();
 	}
 }

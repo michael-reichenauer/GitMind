@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
+using GitMind.Common.ProgressHandling;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -20,23 +22,29 @@ namespace GitMind.RepositoryViews.Open
 
 		private readonly IRecentReposService recentReposService;
 		private readonly IGitInfoService gitInfoService;
+		private readonly IGitRepoService gitRepoService;
 		private readonly IStartInstanceService startInstanceService;
 		private readonly IMessage message;
+		private readonly IProgressService progressService;
 		private readonly WindowOwner owner;
 
 
 		public OpenRepoService(
 			IRecentReposService recentReposService,
 			IGitInfoService gitInfoService,
+			IGitRepoService gitRepoService,
 			IStartInstanceService startInstanceService,
 			IMessage message,
+			IProgressService progressService,
 			WindowOwner owner)
 		{
 			this.owner = owner;
 			this.recentReposService = recentReposService;
 			this.gitInfoService = gitInfoService;
+			this.gitRepoService = gitRepoService;
 			this.startInstanceService = startInstanceService;
 			this.message = message;
+			this.progressService = progressService;
 		}
 
 
@@ -77,19 +85,68 @@ namespace GitMind.RepositoryViews.Open
 		}
 
 
+		public async Task CloneRepoAsync()
+		{
+			CloneDialog cloneDialog = new CloneDialog(owner);
+			IReadOnlyList<string> resentUris = recentReposService.GetCloneUriPaths();
+			resentUris.ForEach(uri => cloneDialog.AddUri(uri));
+
+			string folder = GetInitialCloneFolder() ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+			cloneDialog.SetInitialFolder(folder);
+
+			if (cloneDialog.ShowDialog() == true)
+			{
+				await CloneAsync(cloneDialog.UriText, cloneDialog.FolderText, CancellationToken.None);
+			}
+		}
+
+
+		private async Task CloneAsync(string uri, string folder, CancellationToken ct)
+		{
+			void SetProgress(Progress progress, string text)
+			{
+				progress.SetText($"Cloning {uri} \n{text}");
+			}
+
+			try
+			{
+				if (!Directory.Exists(folder))
+				{
+					Directory.CreateDirectory(folder);
+				}
+
+				using (Progress progress = progressService.ShowDialog($"Cloning {uri} into:\n{folder} ..."))
+				{
+					R result = await gitRepoService.CloneAsync(uri, folder, text => SetProgress(progress, text), ct);
+					if (result.IsFaulted)
+					{
+						message.ShowError($"Error: {result.Error}");
+						return;
+					}
+
+					recentReposService.AddCloneUri(uri);
+					await SwitchToWorkingFolder(folder);
+				}
+			}
+			catch (Exception e)
+			{
+				message.ShowError($"Failed to clone{uri} into\n{folder}\n\nError: {e.Message}");
+			}
+		}
+
+
 		private bool TrySelectWorkingFolder(out string folder)
 		{
 			folder = null;
 
-
-			var dialog = new FolderBrowserDialog()
+			FolderBrowserDialog dialog = new FolderBrowserDialog()
 			{
 				Description = "Select a working folder:",
 				ShowNewFolderButton = false,
-				//RootFolder = Environment.SpecialFolder.MyComputer
 			};
 
-			string lastParentFolder = GetInitialFolder();
+			string lastParentFolder = GetInitialOpenFolder();
 
 			if (lastParentFolder != null)
 			{
@@ -120,11 +177,11 @@ namespace GitMind.RepositoryViews.Open
 		}
 
 
-		private string GetInitialFolder()
+		private string GetInitialOpenFolder()
 		{
 			string lastParentFolder = null;
 
-			string lastUsedFolder = recentReposService.GetRepoPaths().FirstOrDefault();
+			string lastUsedFolder = recentReposService.GetWorkFolderPaths().FirstOrDefault();
 			if (!string.IsNullOrEmpty(lastUsedFolder))
 			{
 				if (Directory.Exists(lastUsedFolder))
@@ -132,6 +189,25 @@ namespace GitMind.RepositoryViews.Open
 					return lastUsedFolder;
 				}
 
+				string folder = Path.GetDirectoryName(lastUsedFolder);
+				if (folder != null && Directory.Exists(folder))
+				{
+					lastParentFolder = folder;
+				}
+			}
+
+			Log.Debug($"Initial folder {lastParentFolder}");
+			return lastParentFolder;
+		}
+
+
+		private string GetInitialCloneFolder()
+		{
+			string lastParentFolder = null;
+
+			string lastUsedFolder = recentReposService.GetWorkFolderPaths().FirstOrDefault();
+			if (!string.IsNullOrEmpty(lastUsedFolder))
+			{
 				string folder = Path.GetDirectoryName(lastUsedFolder);
 				if (folder != null && Directory.Exists(folder))
 				{
