@@ -13,7 +13,7 @@ namespace GitMind.Utils.Git
 
 		Task<R> BranchAsync(string name, bool isCheckout, CancellationToken ct);
 		Task<R> BranchFromCommitAsync(string name, string sha, bool isCheckout, CancellationToken ct);
-		Task<R> DeleteLocalBranchAsync(string name, CancellationToken ct);
+		Task<R> DeleteLocalBranchAsync(string name, bool isForce, CancellationToken ct);
 
 		Task<R<string>> GetCommonAncestorAsync(string sha1, string sha2, CancellationToken ct);
 	}

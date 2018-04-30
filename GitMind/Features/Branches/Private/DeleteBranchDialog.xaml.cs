@@ -35,5 +35,6 @@ namespace GitMind.Features.Branches.Private
 		public BranchName BranchName => viewModel.BranchName;
 		public bool IsLocal => viewModel.IsLocal;
 		public bool IsRemote => viewModel.IsRemote;
+		public bool IsForce => viewModel.IsForce;
 	}
 }

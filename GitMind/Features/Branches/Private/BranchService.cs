@@ -24,6 +24,7 @@ namespace GitMind.Features.Branches.Private
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitFetchService gitFetchService;
 		private readonly IGitPushService gitPushService;
+		private readonly IGitBranchService2 gitBranchService2;
 		private readonly ICommitsService commitsService;
 		private readonly IProgressService progress;
 		private readonly IMessage message;
@@ -37,6 +38,7 @@ namespace GitMind.Features.Branches.Private
 			IGitBranchService gitBranchService,
 			IGitFetchService gitFetchService,
 			IGitPushService gitPushService,
+			IGitBranchService2 gitBranchService2,
 			ICommitsService commitsService,
 			IProgressService progressService,
 			IMessage message,
@@ -48,6 +50,7 @@ namespace GitMind.Features.Branches.Private
 			this.gitBranchService = gitBranchService;
 			this.gitFetchService = gitFetchService;
 			this.gitPushService = gitPushService;
+			this.gitBranchService2 = gitBranchService2;
 			this.commitsService = commitsService;
 			this.progress = progressService;
 			this.message = message;
@@ -265,7 +268,7 @@ namespace GitMind.Features.Branches.Private
 						return;
 					}
 
-					await DeleteBranchAsync(branch, dialog.IsLocal, dialog.IsRemote);
+					await DeleteBranchAsync(branch, dialog.IsLocal, dialog.IsRemote, dialog.IsForce);
 				}
 			}
 		}
@@ -277,30 +280,25 @@ namespace GitMind.Features.Branches.Private
 		}
 
 
-		private async Task DeleteBranchAsync(
-			Branch branch,
-			bool isLocal,
-			bool isRemote)
+		private async Task DeleteBranchAsync(Branch branch, bool isLocal, bool isRemote, bool IsForce)
 		{
 			using (progress.ShowDialog())
 			{
 				if (isLocal)
 				{
 					progress.SetText($"Deleting local branch {branch.Name} ...");
-					await DeleteBranchImplAsync(branch, false);
+					await DeleteBranchImplAsync(branch, false, IsForce);
 				}
 
 				if (isRemote)
 				{
 					progress.SetText($"Deleting remote branch {branch.Name} ...");
-					await DeleteBranchImplAsync(branch, true);
+					await DeleteBranchImplAsync(branch, true, IsForce);
 				}
 			}
 		}
 
-		private async Task DeleteBranchImplAsync(
-			Branch branch,
-			bool isRemote)
+		private async Task DeleteBranchImplAsync(Branch branch, bool isRemote, bool isForce)
 		{
 			string text = isRemote ? "Remote" : "Local";
 
@@ -311,7 +309,7 @@ namespace GitMind.Features.Branches.Private
 			}
 			else
 			{
-				deleted = await gitBranchService.DeleteLocalBranchAsync(branch.Name);
+				deleted = await gitBranchService2.DeleteLocalBranchAsync(branch.Name, isForce, CancellationToken.None);
 			}
 
 			if (deleted.IsFaulted)

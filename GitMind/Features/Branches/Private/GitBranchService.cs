@@ -161,8 +161,5 @@ namespace GitMind.Features.Branches.Private
 
 			return R.Ok;
 		}
-
-
-		public Task<R> DeleteLocalBranchAsync(BranchName branchName) => gitBranchService2.DeleteLocalBranchAsync(branchName, CancellationToken.None);
 	}
 }

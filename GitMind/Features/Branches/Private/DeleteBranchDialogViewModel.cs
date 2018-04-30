@@ -10,35 +10,17 @@ namespace GitMind.Features.Branches.Private
 		public Command<Window> CancelCommand => Command<Window>(w => w.DialogResult = false);
 
 
-		public string BranchName
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public string BranchName { get => Get(); set => Set(value); }
 
-		public bool IsLocal
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public bool IsLocal { get => Get(); set => Set(value); }
 
-		public bool CanLocal
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public bool CanLocal { get => Get(); set => Set(value); }
 
-		public bool IsRemote
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public bool IsRemote { get => Get(); set => Set(value); }
 
-		public bool CanRemote
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public bool CanRemote { get => Get(); set => Set(value); }
+
+		public bool IsForce { get => Get(); set => Set(value); }
 
 		private void SetOK(Window window)
 		{

@@ -112,9 +112,10 @@ namespace GitMind.Utils.Git.Private
 			return result;
 		}
 
-		public async Task<R> DeleteLocalBranchAsync(string name, CancellationToken ct)
+		public async Task<R> DeleteLocalBranchAsync(string name, bool isForce, CancellationToken ct)
 		{
-			R<CmdResult2> result = await gitCmdService.RunAsync($"branch --delete {name}", ct);
+			string force = isForce ? " --force" : "";
+			R<CmdResult2> result = await gitCmdService.RunAsync($"branch --delete{force} {name}", ct);
 
 			if (result.IsFaulted)
 			{
