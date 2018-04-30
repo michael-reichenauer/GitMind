@@ -18,7 +18,7 @@ namespace GitMind.RepositoryViews.Open
 {
 	internal class OpenRepoService : IOpenRepoService
 	{
-		private static readonly TimeSpan CloseTime = TimeSpan.FromSeconds(2);
+		private static readonly TimeSpan CloseTime = TimeSpan.FromMilliseconds(1000);
 
 		private readonly IRecentReposService recentReposService;
 		private readonly IGitInfoService gitInfoService;
@@ -54,7 +54,7 @@ namespace GitMind.RepositoryViews.Open
 			{
 				return;
 			}
-			
+
 			await SwitchToWorkingFolder(folder);
 		}
 
@@ -111,7 +111,7 @@ namespace GitMind.RepositoryViews.Open
 				Log.Debug("User canceled selecting a Working folder");
 				return;
 			}
-			
+
 			string path = dialog.SelectedPath;
 
 			R<string> rootFolder = gitInfoService.GetWorkingFolderRoot(path);
@@ -126,7 +126,7 @@ namespace GitMind.RepositoryViews.Open
 				{
 					message.ShowWarning($"The selected folder is a sub-folder of a git repository at:\n{rootFolder.Value}");
 				}
-			
+
 				return;
 			}
 
@@ -201,7 +201,7 @@ namespace GitMind.RepositoryViews.Open
 			if (!string.IsNullOrWhiteSpace(dialog.SelectedPath) && Directory.Exists(dialog.SelectedPath))
 			{
 				R<string> rootFolder = gitInfoService.GetWorkingFolderRoot(dialog.SelectedPath);
-				
+
 				if (rootFolder.IsOk)
 				{
 					Log.Debug($"User selected valid working folder: {rootFolder.Value}");
@@ -262,7 +262,7 @@ namespace GitMind.RepositoryViews.Open
 		private async Task SwitchToWorkingFolder(string workingFolder)
 		{
 
-			if (!(Directory.Exists(workingFolder) && 
+			if (!(Directory.Exists(workingFolder) &&
 				gitInfoService.GetWorkingFolderRoot(workingFolder).IsOk))
 			{
 				message.ShowWarning($"Path is not a valid working folder: {workingFolder}");

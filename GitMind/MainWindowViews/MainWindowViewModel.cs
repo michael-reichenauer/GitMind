@@ -200,11 +200,10 @@ namespace GitMind.MainWindowViews
 
 		private async Task OpenWorkingFolderAsync()
 		{
+			await Task.Yield();
 			isLoaded = false;
 
 			startInstanceService.StartInstance("Open");
-			await Task.Delay(1500);
-			Application.Current.Shutdown(0);
 		}
 
 
