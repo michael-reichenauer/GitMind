@@ -1,5 +1,4 @@
 ﻿using System;
-using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 
@@ -36,7 +35,6 @@ namespace GitMind.ApplicationHandling.Private
 				if (workingFolder == null)
 				{
 					workingFolder = GetInitialWorkingFolder();
-					StoreLasteUsedFolder();
 				}
 
 				return workingFolder;
@@ -51,7 +49,6 @@ namespace GitMind.ApplicationHandling.Private
 				if (workingFolder != rootFolder)
 				{
 					workingFolder = rootFolder;
-					StoreLasteUsedFolder();
 					OnChange?.Invoke(this, EventArgs.Empty);
 				}
 
@@ -64,18 +61,6 @@ namespace GitMind.ApplicationHandling.Private
 			}
 		}
 
-
-
-		private void StoreLasteUsedFolder()
-		{
-			if (IsValid)
-			{
-				Environment.CurrentDirectory = workingFolder;
-				ProgramSettings settings = Settings.Get<ProgramSettings>();
-				settings.LastUsedWorkingFolder = workingFolder;
-				Settings.Set(settings);
-			}
-		}
 
 
 		// Must be able to handle:
@@ -92,18 +77,10 @@ namespace GitMind.ApplicationHandling.Private
 				// Call from e.g. Windows Explorer folder context menu
 				rootFolder = GetRootFolderPath(commandLine.Folder);
 				IsValid = rootFolder.IsOk;
-				return rootFolder.IsOk ? rootFolder.Value : commandLine.Folder;
+				return rootFolder.IsOk ? rootFolder.Value : "Open";
 			}
 
 			rootFolder = GetRootFolderPath(Environment.CurrentDirectory);
-			if (!rootFolder.IsOk)
-			{
-				string lastUsedFolder = GetLastUsedWorkingFolder();
-				if (!string.IsNullOrWhiteSpace(lastUsedFolder))
-				{
-					rootFolder = GetRootFolderPath(lastUsedFolder);
-				}
-			}
 
 			IsValid = rootFolder.IsOk;
 			if (rootFolder.IsOk)
@@ -111,19 +88,13 @@ namespace GitMind.ApplicationHandling.Private
 				return rootFolder.Value;
 			}
 
-			return GetMyDocumentsPath();
+			return "Open";
 		}
 
 
 		private static string GetMyDocumentsPath()
 		{
 			return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-		}
-
-
-		private static string GetLastUsedWorkingFolder()
-		{
-			return Settings.Get<ProgramSettings>().LastUsedWorkingFolder;
 		}
 
 

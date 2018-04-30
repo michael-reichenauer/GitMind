@@ -7,14 +7,15 @@ using System.Windows;
 using System.Windows.Forms;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.Tracking;
 using GitMind.Features.Commits;
 using GitMind.Features.Remote;
 using GitMind.Git;
 using GitMind.RepositoryViews;
+using GitMind.RepositoryViews.Open;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using GitMind.Utils.Ipc;
 using GitMind.Utils.UI;
 using Application = System.Windows.Application;
@@ -25,13 +26,14 @@ namespace GitMind.MainWindowViews
 	[SingleInstance]
 	internal class MainWindowViewModel : ViewModel
 	{
-		private readonly ILatestVersionService latestVersionService;
-		private readonly IRestartService restartService;
+		private readonly IStartInstanceService startInstanceService;
+		private readonly IRecentReposService recentReposService;
+		private readonly IGitInfoService gitInfoService;
 		private readonly IMessage message;
 		private readonly IMainWindowService mainWindowService;
 		private readonly MainWindowIpcService mainWindowIpcService;
 
-		private readonly JumpListService jumpListService = new JumpListService();
+		//private readonly JumpListService jumpListService = new JumpListService();
 
 		private IpcRemotingService ipcRemotingService = null;
 		private readonly WorkingFolder workingFolder;
@@ -50,7 +52,9 @@ namespace GitMind.MainWindowViews
 			IRemoteService remoteService,
 			ICommitsService commitsService,
 			ILatestVersionService latestVersionService,
-			IRestartService restartService,
+			IStartInstanceService startInstanceService,
+			IRecentReposService recentReposService,
+			IGitInfoService gitInfoService,
 			IMessage message,
 			IMainWindowService mainWindowService,
 			MainWindowIpcService mainWindowIpcService,
@@ -61,8 +65,9 @@ namespace GitMind.MainWindowViews
 			this.repositoryCommands = repositoryCommands;
 			this.remoteService = remoteService;
 			this.commitsService = commitsService;
-			this.latestVersionService = latestVersionService;
-			this.restartService = restartService;
+			this.startInstanceService = startInstanceService;
+			this.recentReposService = recentReposService;
+			this.gitInfoService = gitInfoService;
 			this.message = message;
 			this.mainWindowService = mainWindowService;
 			this.mainWindowIpcService = mainWindowIpcService;
@@ -72,17 +77,15 @@ namespace GitMind.MainWindowViews
 			workingFolder.OnChange += (s, e) => Notify(nameof(WorkingFolder));
 			latestVersionService.OnNewVersionAvailable += (s, e) => IsNewVersionVisible = true;
 			latestVersionService.StartCheckForLatestVersion();
+			IsRepoView = true;
 		}
 
 
 		public bool IsInFilterMode => !string.IsNullOrEmpty(SearchBox);
 
 
-		public bool IsNewVersionVisible
-		{
-			get { return Get(); }
-			set { Set(value); }
-		}
+		public bool IsNewVersionVisible { get => Get(); set => Set(value); }
+		public bool IsRepoView { get => Get(); set => Set(value); }
 
 		public string WorkingFolder => workingFolder;
 
@@ -150,7 +153,7 @@ namespace GitMind.MainWindowViews
 
 		public Command RefreshCommand => AsyncCommand(ManualRefreshAsync);
 
-		public Command SelectWorkingFolderCommand => AsyncCommand(SelectWorkingFolderAsync);
+		public Command SelectWorkingFolderCommand => AsyncCommand(OpenWorkingFolderAsync);
 
 		public Command RunLatestVersionCommand => Command(RunLatestVersion);
 
@@ -188,30 +191,20 @@ namespace GitMind.MainWindowViews
 			}
 			else
 			{
+				IsRepoView = false;
 				isLoaded = false;
-
-				if (!TryLetUserSelectWorkingFolder())
-				{
-					Application.Current.Shutdown(0);
-					return;
-				}
-
-				await SetWorkingFolderAsync();
+				await RepositoryViewModel.LoadOpenRepoAsync();
 			}
 		}
 
 
-		private async Task SelectWorkingFolderAsync()
+		private async Task OpenWorkingFolderAsync()
 		{
 			isLoaded = false;
 
-			if (!TryLetUserSelectWorkingFolder())
-			{
-				isLoaded = true;
-				return;
-			}
-
-			await SetWorkingFolderAsync();
+			startInstanceService.StartInstance("Open");
+			await Task.Delay(1500);
+			Application.Current.Shutdown(0);
 		}
 
 
@@ -247,11 +240,12 @@ namespace GitMind.MainWindowViews
 				return;
 			}
 
-			jumpListService.Add(workingFolder);
+			//jumpListService.Add(workingFolder);
+			recentReposService.AddWorkFolderPath(workingFolder);
 
 			Notify(nameof(Title));
 
-			await RepositoryViewModel.LoadAsync();
+			await RepositoryViewModel.LoadRepoAsync();
 			isLoaded = true;
 		}
 
@@ -356,7 +350,7 @@ namespace GitMind.MainWindowViews
 
 		private void RunLatestVersion()
 		{
-			if (restartService.TriggerRestart(workingFolder))
+			if (startInstanceService.StartInstance(workingFolder))
 			{
 				// Newer version is started, close this instance
 				Application.Current.Shutdown(0);
@@ -418,6 +412,45 @@ namespace GitMind.MainWindowViews
 				mainWindowService.SetRepositoryViewFocus();
 			}
 		}
+
+
+		private R<string> SelectNewWorkingFolder()
+		{
+			while (true)
+			{
+				var dialog = new FolderBrowserDialog()
+				{
+					Description = "Select a working folder with a valid git repository.",
+					ShowNewFolderButton = false,
+					RootFolder = Environment.SpecialFolder.MyComputer
+				};
+
+				if (workingFolder.HasValue)
+				{
+					dialog.SelectedPath = workingFolder;
+				}
+
+				if (dialog.ShowDialog(owner.Win32Window) != DialogResult.OK)
+				{
+					Log.Debug("User canceled selecting a Working folder");
+					return Error.NoValue;
+				}
+
+				if (!string.IsNullOrWhiteSpace(dialog.SelectedPath) && Directory.Exists(dialog.SelectedPath))
+				{
+					R<string> rootFolder = gitInfoService.GetWorkingFolderRoot(dialog.SelectedPath);
+
+					if (rootFolder.IsOk)
+					{
+						Log.Debug($"User selected valid working folder: {rootFolder.Value}");
+						return rootFolder.Value;
+					}
+				}
+
+				Log.Debug($"User selected an invalid working folder: {dialog.SelectedPath}");
+			}
+		}
+
 
 
 		public bool TryLetUserSelectWorkingFolder()

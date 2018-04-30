@@ -6,23 +6,31 @@ using GitMind.Utils;
 
 namespace GitMind.ApplicationHandling.Private
 {
-	internal class RestartService : IRestartService
+	internal class StartInstanceService : IStartInstanceService
 	{
 		private static readonly char[] QuoteChar = "\"".ToCharArray();
 
 
-		public bool TriggerRestart(string workingFolder)
+		public bool StartInstance(string workingFolder)
 		{
-			string folder = workingFolder;
-
 			string targetPath = ProgramPaths.GetInstallFilePath();
-			string arguments = string.IsNullOrWhiteSpace(folder) ? "/run" : $"/run /d:\"{folder}\"";
+			string arguments = string.IsNullOrWhiteSpace(workingFolder) ? "/run" : $"/run /d:\"{workingFolder}\"";
 
 			Log.Info($"Restarting: {targetPath} {arguments}");
 
 			return StartProcess(targetPath, arguments);
 		}
 
+
+		public bool OpenOrStartInstance(string workingFolder)
+		{
+			string targetPath = ProgramPaths.GetInstallFilePath();
+			string arguments =  $"/d:\"{workingFolder}\"";
+
+			Log.Info($"Restarting: {targetPath} {arguments}");
+
+			return StartProcess(targetPath, arguments);
+		}
 
 		private static bool StartProcess(string targetPath, string arguments)
 		{

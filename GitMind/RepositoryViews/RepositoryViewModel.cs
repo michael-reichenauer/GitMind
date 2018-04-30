@@ -17,6 +17,7 @@ using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
 using GitMind.Git;
 using GitMind.GitModel;
+using GitMind.RepositoryViews.Open;
 using GitMind.RepositoryViews.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -41,6 +42,8 @@ namespace GitMind.RepositoryViews
 		private readonly IGitFetchService gitFetchService;
 
 		private readonly IThemeService themeService;
+		private readonly IOpenRepoService openRepoService;
+		private readonly IRecentReposService recentReposService;
 		private readonly IMessage message;
 		private readonly IDiffService diffService;
 		private readonly WorkingFolder workingFolder;
@@ -58,6 +61,7 @@ namespace GitMind.RepositoryViews
 		public List<BranchViewModel> Branches { get; } = new List<BranchViewModel>();
 		public List<MergeViewModel> Merges { get; } = new List<MergeViewModel>();
 		public List<CommitViewModel> Commits { get; } = new List<CommitViewModel>();
+		public List<OpenRepoViewModel> OpenRepos { get; } = new List<OpenRepoViewModel>();
 
 
 		public Dictionary<CommitId, CommitViewModel> CommitsById { get; } =
@@ -81,7 +85,9 @@ namespace GitMind.RepositoryViews
 			IRepositoryService repositoryService,
 			IGitFetchService gitFetchService,
 			IThemeService themeService,
-			IMessage message,
+			IOpenRepoService openRepoService,
+			IRecentReposService recentReposService,
+			IMessage message,	
 			IProgressService progressService,
 			Func<CommitDetailsViewModel> commitDetailsViewModelProvider)
 		{
@@ -95,10 +101,12 @@ namespace GitMind.RepositoryViews
 			this.gitFetchService = gitFetchService;
 
 			this.themeService = themeService;
+			this.openRepoService = openRepoService;
+			this.recentReposService = recentReposService;
 			this.message = message;
 			this.progress = progressService;
 
-			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits);
+			VirtualItemsSource = new RepositoryVirtualItemsSource(Branches, Merges, Commits, OpenRepos);
 
 			filterTriggerTimer.Tick += FilterTrigger;
 			filterTriggerTimer.Interval = FilterDelay;
@@ -264,7 +272,16 @@ namespace GitMind.RepositoryViews
 		}
 
 
-		public async Task LoadAsync()
+		public async Task LoadOpenRepoAsync()
+		{
+			OpenRepoViewModel repoViewModel = new OpenRepoViewModel(openRepoService, recentReposService);
+			OpenRepos.Add(repoViewModel);
+			IsShowCommitDetails = false;
+			await Task.Yield();
+		}
+
+
+		public async Task LoadRepoAsync()
 		{
 			Timing t = new Timing();
 
