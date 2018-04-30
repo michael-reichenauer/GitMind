@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Windows;
+using System.Windows.Media;
+using GitMind.Common.ThemeHandling;
 using GitMind.Utils.UI;
 
 
@@ -12,14 +14,17 @@ namespace GitMind.RepositoryViews.Open
 
 		private readonly IOpenRepoService openRepoService;
 		private readonly IRecentReposService recentReposService;
+		private readonly IThemeService themeService;
 
 
 		public OpenRepoViewModel(
 			IOpenRepoService openRepoService,
-			IRecentReposService recentReposService)
+			IRecentReposService recentReposService,
+			IThemeService themeService)
 		{
 			this.openRepoService = openRepoService;
 			this.recentReposService = recentReposService;
+			this.themeService = themeService;
 			Rect = DefaultOpenBounds;
 
 			RecentFiles = GetRecentFiles();
@@ -34,6 +39,8 @@ namespace GitMind.RepositoryViews.Open
 		public double Height => Rect.Height;
 
 		public IReadOnlyList<FileItem> RecentFiles { get; }
+
+		public Brush HoverBrush => themeService.Theme.HoverBrush;
 
 
 		public async void OpenRepoAsync() => await openRepoService.OpenRepoAsync();

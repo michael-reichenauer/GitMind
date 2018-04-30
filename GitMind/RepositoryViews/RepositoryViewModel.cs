@@ -274,7 +274,8 @@ namespace GitMind.RepositoryViews
 
 		public async Task LoadOpenRepoAsync()
 		{
-			OpenRepoViewModel repoViewModel = new OpenRepoViewModel(openRepoService, recentReposService);
+			OpenRepoViewModel repoViewModel = new OpenRepoViewModel(
+				openRepoService, recentReposService, themeService);
 			OpenRepos.Add(repoViewModel);
 			IsShowCommitDetails = false;
 			await Task.Yield();
