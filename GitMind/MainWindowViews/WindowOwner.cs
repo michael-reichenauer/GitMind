@@ -3,6 +3,7 @@ using System.Windows;
 using GitMind.Utils;
 
 
+
 namespace GitMind.MainWindowViews
 {
 	[SingleInstance]
@@ -43,11 +44,18 @@ namespace GitMind.MainWindowViews
 					return null;
 				}
 
-				var source = PresentationSource.FromVisual(Window) as System.Windows.Interop.HwndSource;
-				System.Windows.Forms.IWin32Window win = new OldWindow(source.Handle);
-				return win;
+				return AsWin32Window(Window);
 			}
 		}
+
+
+		public static System.Windows.Forms.IWin32Window AsWin32Window(Window window)
+		{
+			var source = PresentationSource.FromVisual(window) as System.Windows.Interop.HwndSource;
+			System.Windows.Forms.IWin32Window win = new OldWindow(source.Handle);
+			return win;
+		}
+
 
 		private class OldWindow : System.Windows.Forms.IWin32Window
 		{

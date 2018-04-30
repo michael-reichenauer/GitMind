@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 
 
@@ -39,7 +40,7 @@ namespace GitMind.Common.ProgressHandling
 
 		public void SetText(string text)
 		{
-			viewModel.Text = text;
+			Dispatcher.BeginInvoke((Action)(() => viewModel.Text = text));
 		}
 	}
 }

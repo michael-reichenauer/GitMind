@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,6 +67,7 @@ namespace GitMind.ApplicationHandling.Installation
 			}
 			else if (commandLine.IsInstall && commandLine.IsSilent)
 			{
+				Track.Request("Install-Silent");
 				Task.Run(async () => await InstallSilentAsync(s => Log.Info(s)).ConfigureAwait(false)).Wait();
 
 				if (commandLine.IsRunInstalled)
@@ -118,7 +119,7 @@ namespace GitMind.ApplicationHandling.Installation
 				{
 					await InstallSilentAsync(text => dispatcher.Invoke(() => progress.SetText(text)));
 				}
-				
+
 				Message.ShowInfo(
 					"Setup has finished installing GitMind.",
 					SetupTitle,
@@ -162,7 +163,7 @@ namespace GitMind.ApplicationHandling.Installation
 		private void StartInstalled()
 		{
 			string targetPath = ProgramPaths.GetInstallFilePath();
-			cmd.Start(targetPath, "/run");
+			cmd.Start(targetPath, "/run /d:Open");
 		}
 
 
@@ -207,7 +208,7 @@ namespace GitMind.ApplicationHandling.Installation
 			await Task.Yield();
 			AddFolderContextMenu();
 			await Task.Yield();
-			
+
 			progress.Invoke("Downloading git ...");
 			R gitResult = await gitEnvironmentService.InstallGitAsync(progress);
 			Log.Usage("Installed");

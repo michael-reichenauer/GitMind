@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Utils.OsSystem;
@@ -24,7 +25,13 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R> FetchAsync(CancellationToken ct)
 		{
 			Log.Debug("Fetching ...");
-			CmdResult2 result = await gitCmdService.RunCmdAsync(FetchArgs, ct);
+
+			void Progress(string text)
+			{
+				Log.Debug($"Progress: {text}");
+			}
+
+			CmdResult2 result = await gitCmdService.RunCmdWitProgressAsync(FetchArgs, Progress, ct);
 
 			if (result.IsFaulted)
 			{
@@ -48,7 +55,13 @@ namespace GitMind.Utils.Git.Private
 			string refsText = string.Join(" ", refspecs);
 			string args = $"{FetchRefsArgs} {refsText}";
 			Log.Debug($"Fetching {refsText} ...");
-			CmdResult2 result = await gitCmdService.RunCmdAsync(args, ct);
+
+			void Progress(string text)
+			{
+				Log.Debug($"Progress: {text}");
+			}
+
+			CmdResult2 result = await gitCmdService.RunCmdWitProgressAsync(args, Progress, ct);
 
 			if (result.IsFaulted)
 			{
@@ -66,7 +79,12 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R> FetchPruneTagsAsync(CancellationToken ct)
 		{
 			Log.Debug("Fetching tags ...");
-			CmdResult2 result = await gitCmdService.RunCmdAsync("fetch --prune origin \"+refs/tags/*:refs/tags/*\"", ct);
+			string args = "fetch --prune origin \"+refs/tags/*:refs/tags/*\"";
+			void Progress(string text)
+			{
+				Log.Debug($"Progress: {text}");
+			}
+			CmdResult2 result = await gitCmdService.RunCmdWitProgressAsync(args, Progress, ct);
 
 			if (result.IsFaulted)
 			{

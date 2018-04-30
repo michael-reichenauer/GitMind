@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
+using GitMind.RepositoryViews.Open;
 using GitMind.Utils.UI.VirtualCanvas;
 
 
@@ -10,24 +12,30 @@ namespace GitMind.RepositoryViews.Private
 		private const int minCommitIndex = 0;
 		private const int minBranchIndex = 1000000;
 		private const int minMergeIndex = 2000000;
+		private const int minOpenRepoIndex = 3000000;
+
 
 		private const int maxCommitIndex = minBranchIndex;
 		private const int maxBranchIndex = minMergeIndex;
-		private const int maxMergeIndex = 3000000;
+		private const int maxMergeIndex = minOpenRepoIndex;
+		private const int maxOpenRepoIndex = 4000000;
 
 		private readonly IReadOnlyList<BranchViewModel> branches;
 		private readonly IReadOnlyList<MergeViewModel> merges;
 		private readonly IReadOnlyList<CommitViewModel> commits;
+		private readonly IReadOnlyList<OpenRepoViewModel> openRepos;
 		private Rect virtualArea;
 
 		public RepositoryVirtualItemsSource(
 			IReadOnlyList<BranchViewModel> branches,
 			IReadOnlyList<MergeViewModel> merges,
-			IReadOnlyList<CommitViewModel> commits)
+			IReadOnlyList<CommitViewModel> commits,
+			IReadOnlyList<OpenRepoViewModel> openRepos)
 		{
 			this.branches = branches;
 			this.merges = merges;
 			this.commits = commits;
+			this.openRepos = openRepos;
 		}
 
 
@@ -56,6 +64,12 @@ namespace GitMind.RepositoryViews.Private
 				yield break;
 			}
 
+			if (openRepos.Any())
+			{
+				yield return 0 + minOpenRepoIndex;
+				yield break;
+			}
+
 			// Get the part of the rectangle that is visible
 			viewArea.Intersect(VirtualArea);
 
@@ -69,7 +83,7 @@ namespace GitMind.RepositoryViews.Private
 				{
 					BranchViewModel branch = branches[i];
 
-					if (IsVisable(
+					if (IsVisible(
 						viewAreaTopIndex, viewAreaBottomIndex, branch.TipRowIndex, branch.FirstRowIndex))
 					{
 						yield return i + minBranchIndex;
@@ -80,7 +94,7 @@ namespace GitMind.RepositoryViews.Private
 				for (int i = 0; i < merges.Count; i++)
 				{
 					MergeViewModel merge = merges[i];
-					if (IsVisable(viewAreaTopIndex, viewAreaBottomIndex, merge.ChildRow, merge.ParentRow))
+					if (IsVisible(viewAreaTopIndex, viewAreaBottomIndex, merge.ChildRow, merge.ParentRow))
 					{
 						yield return i + minMergeIndex;
 					}
@@ -130,21 +144,29 @@ namespace GitMind.RepositoryViews.Private
 					return merges[mergeIndex];
 				}
 			}
+			else if (virtualId >= minOpenRepoIndex && virtualId < maxOpenRepoIndex)
+			{
+				int openIndex = virtualId - minOpenRepoIndex;
+				if (openIndex < openRepos.Count)
+				{
+					return openRepos[openIndex];
+				}
+			}
 
 			return null;
 		}
 
 
-		private static bool IsVisable(
+		private static bool IsVisible(
 			int areaTopIndex,
 			int areaBottomIndex,
 			int itemTopIndex,
-			int ItemBottomIndex)
+			int itemBottomIndex)
 		{
 			return
 				(itemTopIndex >= areaTopIndex && itemTopIndex <= areaBottomIndex)
-				|| (ItemBottomIndex >= areaTopIndex && ItemBottomIndex <= areaBottomIndex)
-				|| (itemTopIndex <= areaTopIndex && ItemBottomIndex >= areaBottomIndex);
+				|| (itemBottomIndex >= areaTopIndex && itemBottomIndex <= areaBottomIndex)
+				|| (itemTopIndex <= areaTopIndex && itemBottomIndex >= areaBottomIndex);
 		}
 	}
 }

@@ -52,7 +52,7 @@
 				</MenuItem>
 
 				<MenuItem 
-					Header="Open working folder ..." 
+					Header="Open/Clone/Init ..." 
 					Command="{Binding SelectWorkingFolderCommand}">
 					<MenuItem.Icon>
 						<Border>
