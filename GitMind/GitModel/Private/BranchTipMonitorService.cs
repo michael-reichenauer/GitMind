@@ -71,35 +71,59 @@ namespace GitMind.GitModel.Private
 
 			foreach (GitBranch2 branch in branches)
 			{
-				CommitSha commitSha = branch.TipSha;
-				CommitId commitId = new CommitId(commitSha);
-
-				// Check if commit has any children (i.e. is not sole branch tip)
-				if (repository.Commits.TryGetValue(commitId, out Commit commit) && !commit.Children.Any())
+				try
 				{
-					if (!branchByTip.TryGetValue(commitSha, out GitBranch2 existingBranch))
+					CommitSha commitSha = branch.TipSha;
+					CommitId commitId = new CommitId(commitSha);
+
+					// Check if commit has any children (i.e. is not sole branch tip)
+					if (repository.Commits.TryGetValue(commitId, out Commit commit) && !commit.Children.Any())
 					{
-						// No existing branch has yet a tip to this commit
-						branchByTip[commitSha] = branch;
-					}
-					else
-					{
-						// Some other branch points to this tip, lets check if it is remote/local pair
-						if (existingBranch != null)
+						if (!branchByTip.TryGetValue(commitSha, out GitBranch2 existingBranch))
 						{
-							if (!AreLocalRemotePair(branch, existingBranch)
-									&& !AreLocalRemotePair(existingBranch, branch))
-							{
-								// Multiple branches point to same commit, set to null to disable this commit id
-								branchByTip[commitSha] = null;
-								Log.Debug($"Multiple branches {commit}, {branch.Name} != {existingBranch.Name}");
-							}
+							// No existing branch has yet a tip to this commit
+							branchByTip[commitSha] = branch;
 						}
 						else
 						{
-							Log.Warn($"Multiple branch {commit}, {branch.Name}");
+							try
+							{
+								// Some other branch points to this tip, lets check if it is remote/local pair
+								if (existingBranch != null)
+								{
+									try
+									{
+										if (!AreLocalRemotePair(branch, existingBranch)
+																			&& !AreLocalRemotePair(existingBranch, branch))
+										{
+											// Multiple branches point to same commit, set to null to disable this commit id
+											branchByTip[commitSha] = null;
+											Log.Debug($"Multiple branches {commit}, {branch.Name} != {existingBranch.Name}");
+										}
+									}
+									catch (Exception e)
+									{
+										Log.Exception(e, $"Failed for {branch}");
+										throw;
+									}
+								}
+								else
+								{
+									Log.Warn($"Multiple branch {commit}, {branch.Name}");
+								}
+							}
+							catch (Exception e)
+							{
+								Log.Exception(e, $"Failed for {branch}");
+								throw;
+							}
 						}
 					}
+				}
+				catch (Exception e)
+				{
+					Log.Exception(e, $"Failed for {branch}");
+					throw;
 				}
 			}
 
