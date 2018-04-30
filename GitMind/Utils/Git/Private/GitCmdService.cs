@@ -154,7 +154,9 @@ namespace GitMind.Utils.Git.Private
 			string gitCmdPath = GitCmdPath;
 			CmdResult2 result = await cmd.RunAsync(gitCmdPath, gitArgs, cmdOptions, ct);
 
-			if (result.IsFaulted && !result.IsCanceled)
+			if (result.IsFaulted && 
+			 !result.IsCanceled  && 
+			 !(result.ExitCode == 1 && string.IsNullOrEmpty(result.Output)))
 			{
 				Track.Event("Git-error", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}\nError:\n{result.ShortError}");
 			}
