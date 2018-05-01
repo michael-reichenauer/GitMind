@@ -92,14 +92,13 @@ namespace GitMind.Features.Tags.Private
 							R pushResult = await gitPushService.PushTagAsync(tagText, CancellationToken.None);
 							if (pushResult.IsFaulted)
 							{
-								message.ShowWarning(
-									$"Failed to push tag '{tagText}'\n{pushResult.Error}");
+								message.ShowWarning($"Failed to push tag '{tagText}'\n{pushResult.AllMessages}");
 							}
 						}
 
 						if (result.IsFaulted)
 						{
-							message.ShowWarning($"Failed to add tag '{tagText}'\n{result.Error}");
+							message.ShowWarning($"Failed to add tag '{tagText}'\n{result.AllMessages}");
 						}
 					}
 				}
@@ -125,7 +124,7 @@ namespace GitMind.Features.Tags.Private
 
 					if (result.IsFaulted)
 					{
-						message.ShowWarning($"Failed to delete tag '{tagName}'\n{result.Error}");
+						message.ShowWarning($"Failed to delete tag '{tagName}'\n{result.AllMessages}");
 					}
 				}
 			}

@@ -30,7 +30,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to get list of commit files for {sha}", result);
+				return R.Error($"Failed to get list of commit files for {sha}", result.Exception);
 			}
 
 			IReadOnlyList<GitFile2> files = ParseCommitFiles(result.Value);
@@ -73,7 +73,7 @@ namespace GitMind.Utils.Git.Private
 					}
 				}
 
-				return Error.From($"Failed to get commit diff for {sha}", result.AsError());
+				return R.Error($"Failed to get commit diff for {sha}", result.AsException());
 			}
 
 			Log.Info($"Got diff patch for {sha}");
@@ -88,7 +88,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to get commit diff for {sha1}..{sha2}", result);
+				return R.Error($"Failed to get commit diff for {sha1}..{sha2}", result.Exception);
 			}
 
 			Log.Info($"Got path for {sha1}..{sha2}");
@@ -115,7 +115,7 @@ namespace GitMind.Utils.Git.Private
 					}
 				}
 				
-				return Error.From($"Failed to get file diff for {sha}", result.AsError());
+				return R.Error($"Failed to get file diff for {sha}", result.AsException());
 			}
 
 			Log.Info($"Got path for {sha}");
@@ -130,7 +130,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to get merge diff for {sha1} and {sha2}", result);
+				return R.Error($"Failed to get merge diff for {sha1} and {sha2}", result.Exception);
 			}
 
 			Log.Info($"Got merge diff for {sha1} and {sha2}");
@@ -148,7 +148,7 @@ namespace GitMind.Utils.Git.Private
 				R<CmdResult2> addResult = await gitCmdService.RunAsync("add .", ct);
 				if (addResult.IsFaulted)
 				{
-					return Error.From("Failed to get uncommitted diff", addResult);
+					return R.Error("Failed to get uncommitted diff", addResult.Exception);
 				}
 			}
 
@@ -156,7 +156,7 @@ namespace GitMind.Utils.Git.Private
 				$"diff --find-renames --unified=6 --cached", ct);
 			if (diffResult.IsFaulted)
 			{
-				return Error.From("Failed to get uncommitted diff", diffResult);
+				return R.Error("Failed to get uncommitted diff", diffResult.Exception);
 			}
 
 			if (!isMergeInProgress)
@@ -165,7 +165,7 @@ namespace GitMind.Utils.Git.Private
 				R<CmdResult2> resetResult = await gitCmdService.RunAsync("reset", ct);
 				if (resetResult.IsFaulted)
 				{
-					return Error.From("Failed to get uncommitted diff", resetResult);
+					return R.Error("Failed to get uncommitted diff", resetResult.Exception);
 				}
 			}
 
@@ -182,7 +182,7 @@ namespace GitMind.Utils.Git.Private
 				R<CmdResult2> addResult = await gitCmdService.RunAsync("add .", ct);
 				if (addResult.IsFaulted)
 				{
-					return Error.From("Failed to get uncommitted diff", addResult);
+					return R.Error("Failed to get uncommitted diff", addResult.Exception);
 				}
 			}
 
@@ -190,7 +190,7 @@ namespace GitMind.Utils.Git.Private
 				$"diff --find-renames --unified=100000 HEAD -- \"{path}\"", ct);
 			if (diffResult.IsFaulted)
 			{
-				return Error.From("Failed to get uncommitted diff", diffResult);
+				return R.Error("Failed to get uncommitted diff", diffResult.Exception);
 			}
 
 			if (!isMergeInProgress)
@@ -198,7 +198,7 @@ namespace GitMind.Utils.Git.Private
 				R<CmdResult2> resetResult = await gitCmdService.RunAsync("reset", ct);
 				if (resetResult.IsFaulted)
 				{
-					return Error.From("Failed to get uncommitted diff", resetResult);
+					return R.Error("Failed to get uncommitted diff", resetResult.Exception);
 				}
 			}
 

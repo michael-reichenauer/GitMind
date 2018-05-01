@@ -31,12 +31,11 @@ namespace GitMind.Utils.Git
 					return R.Ok;
 				}
 
-				return Error.From($"Failed to merge branch {name}",
-					Error.From(string.Join("\n", result.ErrorLines.Take(10)), new GitException($"{result}")));
+				return R.Error($"Failed to merge branch {name}", result.AsException());
 			}
 
 			Log.Info($"Merge of {name} was OK");
-			return result;
+			return R.Ok;
 		}
 
 
@@ -53,8 +52,7 @@ namespace GitMind.Utils.Git
 					return false;
 				}
 
-				return Error.From($"Failed to ff merge branch {name}",
-					Error.From(string.Join("\n", result.ErrorLines.Take(10)), new GitException($"{result}")));
+				return R.Error($"Failed to ff merge branch {name}", result.AsException());
 			}
 
 			Log.Info($"Merge of {name} was OK");

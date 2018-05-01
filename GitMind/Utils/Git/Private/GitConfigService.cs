@@ -38,7 +38,7 @@ namespace GitMind.Utils.Git.Private
 			R<CmdResult2> result = await gitCmdService.RunAsync(ConfigListArgs, ct);
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to get list of config values", result);
+				return R.Error("Failed to get list of config values", result.Exception);
 			}
 
 			Dictionary<string, List<string>> settings = new Dictionary<string, List<string>>();

@@ -65,7 +65,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to get branches", result);
+				return R.Error("Failed to get branches", result.Exception);
 			}
 
 			var matches = BranchesRegEx.Matches(result.Value.Output);
@@ -90,7 +90,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to create branch {name}", result);
+				return R.Error($"Failed to create branch {name}", result.Exception);
 			}
 
 			Log.Info($"Created branch {name}");
@@ -105,7 +105,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to create branch {name}", result);
+				return R.Error($"Failed to create branch {name}", result.Exception);
 			}
 
 			Log.Info($"Created branch {name} at {sha}");
@@ -119,7 +119,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to delete branch {name}", result);
+				return R.Error($"Failed to delete branch {name}", result.Exception);
 			}
 
 			Log.Info($"Deleted branch {name}");
@@ -133,7 +133,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to get common ancestor of {sha1} and {sha2}", result);
+				return R.Error($"Failed to get common ancestor of {sha1} and {sha2}", result.Exception);
 			}
 
 			string common = result.Value.Output.Trim();

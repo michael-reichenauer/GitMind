@@ -37,6 +37,7 @@ namespace GitMind.Utils.OsSystem
 		public int ExitCode { get; }
 		public string Output { get; }
 		public string Error { get; }
+		public string ErrorMessage => string.Join("\n", ErrorLines.Take(10));
 		public TimeSpan Elapsed { get; }
 		public long ElapsedMs => (long)Elapsed.TotalMilliseconds;
 		public bool IsCanceled { get; }
@@ -47,7 +48,7 @@ namespace GitMind.Utils.OsSystem
 
 		public static implicit operator string(CmdResult2 result2) => result2.Output;
 
-		public static implicit operator R(CmdResult2 result) => result.IsOk ? R.Ok : Utils.Error.From(result);
+	//	public static implicit operator R(CmdResult2 result) => result.IsOk ? R.Ok : Utils.Error.From(result);
 
 		public void ThrowIfError(string message)
 		{
@@ -61,7 +62,7 @@ namespace GitMind.Utils.OsSystem
 		}
 
 
-		public string ShortError => string.Join("\n", ErrorLines.Take(10));
+		//public string ShortError => string.Join("\n", ErrorLines.Take(10));
 
 		public override string ToString() =>
 			$"{Command} {Arguments}{ExitText}{OutputText}{ErrorText}";
@@ -72,8 +73,8 @@ namespace GitMind.Utils.OsSystem
 			$"\nProgress:\n{Truncate(Error)}" : $"\nError:\n{Truncate(Error)}\nin: {WorkingDirectory}";
 
 
-		public Error AsError() =>
-			Utils.Error.From(new GitException(string.Join("\n", ErrorLines.Take(10)) + $"\n{this}"));
+		public Exception AsException() =>
+			new GitException(string.Join("\n", ErrorLines.Take(10)) + $"\n{this}");
 
 
 		private static IEnumerable<string> Lines(string text)

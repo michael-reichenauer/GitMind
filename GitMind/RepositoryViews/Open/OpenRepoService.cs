@@ -133,7 +133,7 @@ namespace GitMind.RepositoryViews.Open
 			R result = await gitRepoService.InitAsync(path, CancellationToken.None);
 			if (result.IsFaulted)
 			{
-				message.ShowError($"Error: {result.Error}");
+				message.ShowError($"Error: {result.AllMessages}");
 				return;
 			}
 
@@ -160,7 +160,7 @@ namespace GitMind.RepositoryViews.Open
 					R result = await gitRepoService.CloneAsync(uri, folder, text => SetProgress(progress, text), ct);
 					if (result.IsFaulted)
 					{
-						message.ShowError($"Error: {result.Error}");
+						message.ShowError($"Error: {result.AllMessages}");
 						return;
 					}
 

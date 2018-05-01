@@ -432,7 +432,7 @@ namespace GitMind.MainWindowViews
 				if (dialog.ShowDialog(owner.Win32Window) != DialogResult.OK)
 				{
 					Log.Debug("User canceled selecting a Working folder");
-					return Error.NoValue;
+					return R.NoValue;
 				}
 
 				if (!string.IsNullOrWhiteSpace(dialog.SelectedPath) && Directory.Exists(dialog.SelectedPath))

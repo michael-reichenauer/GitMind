@@ -132,7 +132,7 @@ namespace GitMind.Features.Branches.Private
 
 				if (result.IsFaulted)
 				{
-					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Error}");
+					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.AllMessages}");
 				}
 			}
 		}

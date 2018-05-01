@@ -39,7 +39,7 @@ namespace GitMind.Utils.Git.Private
 				{
 					return R.Ok;
 				}
-				return Error.From("Failed to fetch", result.AsError());
+				return R.Error("Failed to fetch", result.AsException());
 			}
 
 			return R.Ok;
@@ -69,7 +69,7 @@ namespace GitMind.Utils.Git.Private
 				{
 					return R.Ok;
 				}
-				return Error.From("Failed to fetch", result.AsError());
+				return R.Error("Failed to fetch", result.AsException());
 			}
 
 			return R.Ok;
@@ -92,7 +92,7 @@ namespace GitMind.Utils.Git.Private
 				{
 					return R.Ok;
 				}
-				return Error.From("Failed to fetch", result.AsError());
+				return R.Error("Failed to fetch", result.AsException());
 			}
 
 			return R.Ok;

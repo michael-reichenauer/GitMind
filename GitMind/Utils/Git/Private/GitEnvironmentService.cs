@@ -197,12 +197,12 @@ namespace GitMind.Utils.Git.Private
 				}
 
 				Track.Error($"Git: Failed to install {gitUri}");
-				return Error.From($"Failed to install {gitUri}");
+				return R.Error($"Failed to install {gitUri}");
 			}
 			catch (Exception e)
 			{
 				Log.Exception(e, $"Failed to install git {GitVersion}");
-				return Error.From("Failed to install git", Error.From(e));
+				return R.Error("Failed to install git", e);
 			}
 		}
 

@@ -50,7 +50,7 @@ namespace GitMind.Utils.Git.Private
 			R<CmdResult2> result = await gitCmdService.RunAsync($"revert --no-commit {sha}", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From($"Undo {sha} commit failed.", result);
+				return R.Error($"Undo {sha} commit failed.", result.Exception);
 			}
 
 			Log.Info($"Undid commit {sha}");
@@ -63,7 +63,7 @@ namespace GitMind.Utils.Git.Private
 			R<CmdResult2> result = await gitCmdService.RunAsync("reset HEAD~1", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From("Uncommit commit failed.", result);
+				return R.Error("Uncommit commit failed.", result.Exception);
 			}
 
 			Log.Info("Uncommitted commit");
@@ -79,7 +79,7 @@ namespace GitMind.Utils.Git.Private
 				result = await gitCmdService.RunAsync("add .", ct);
 				if (result.IsFaulted)
 				{
-					return Error.From("Failed to stage using add before commit", result);
+					return R.Error("Failed to stage using add before commit", result.Exception);
 				}
 			}
 
@@ -87,7 +87,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to commit", result);
+				return R.Error("Failed to commit", result.Exception);
 			}
 
 			if (CommitOutputRegEx.TryMatch(result.Value.Output, out Match match))
@@ -100,7 +100,7 @@ namespace GitMind.Utils.Git.Private
 				return commit;
 			}
 
-			return Error.From("Commit succeeded, but failed to parse commit id from output");
+			return R.Error("Commit succeeded, but failed to parse commit id from output");
 		}
 
 		private bool IsMergeInProgress()

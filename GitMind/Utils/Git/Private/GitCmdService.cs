@@ -137,7 +137,7 @@ namespace GitMind.Utils.Git.Private
 		{
 			if (result.IsFaulted)
 			{
-				return Error.From(string.Join("\n", result.ErrorLines.Take(10)), new GitException($"{result}"));
+				return R.Error(result.ErrorMessage, new GitException($"{result}"));
 			}
 
 			return result;
@@ -158,7 +158,7 @@ namespace GitMind.Utils.Git.Private
 			 !result.IsCanceled  && 
 			 !(result.ExitCode == 1 && string.IsNullOrEmpty(result.Output)))
 			{
-				Track.Event("Git-error", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}\nError:\n{result.ShortError}");
+				Track.Event("Git-error", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}\nError:\n{result.ErrorMessage}");
 			}
 			else
 			{

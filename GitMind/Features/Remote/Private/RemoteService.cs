@@ -165,8 +165,7 @@ namespace GitMind.Features.Remote.Private
 
 				if (!result.IsOk)
 				{
-					message.ShowWarning(
-						 $"Failed to push current branch {branchName}.\n{result.Error}");
+					message.ShowWarning($"Failed to push current branch {branchName}.\n{result.AllMessages}");
 				}
 			}
 		}
