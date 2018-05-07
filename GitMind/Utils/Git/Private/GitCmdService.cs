@@ -137,7 +137,8 @@ namespace GitMind.Utils.Git.Private
 		{
 			if (result.IsFaulted)
 			{
-				return R.Error(result.ErrorMessage, new GitException($"{result}"));
+				Error error = R.Error(result.AsException());
+				return error;
 			}
 
 			return result;

@@ -58,6 +58,9 @@ namespace GitMind.Utils.Git.Private
 		//}
 
 
+		public GitException NotFullyMergedException { get; } = new GitException("Branch is not fully merged");
+
+
 		public async Task<R<IReadOnlyList<GitBranch2>>> GetBranchesAsync(CancellationToken ct)
 		{
 			List<GitBranch2> branches = new List<GitBranch2>();
@@ -119,6 +122,11 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
+				if (result.AllMessages.Contains("is not fully merged"))
+				{
+					return R.Error(NotFullyMergedException);
+				}
+
 				return R.Error($"Failed to delete branch {name}", result.Exception);
 			}
 

@@ -303,19 +303,27 @@ namespace GitMind.Features.Branches.Private
 		{
 			string text = isRemote ? "Remote" : "Local";
 
-			R deleted;
+			R result;
 			if (isRemote)
 			{
-				deleted = await gitPushService.PushDeleteRemoteBranchAsync(branch.Name, CancellationToken.None);
+				result = await gitPushService.PushDeleteRemoteBranchAsync(branch.Name, CancellationToken.None);
 			}
 			else
 			{
-				deleted = await gitBranchService2.DeleteLocalBranchAsync(branch.Name, isForce, CancellationToken.None);
+				result = await gitBranchService2.DeleteLocalBranchAsync(branch.Name, isForce, CancellationToken.None);
 			}
 
-			if (deleted.IsFaulted)
+			if (result.IsFaulted)
 			{
-				message.ShowWarning($"Failed to delete {text} branch '{branch.Name}'\n{deleted.Message}");
+				if (result.Exception == gitBranchService2.NotFullyMergedException)
+				{
+					message.ShowWarning(
+						$"Failed to delete {text} local branch '{branch.Name}'\n" + 
+						"The branch is not fully merged.\nCheck 'Force' checkbox to force a delete of the branch");
+					return;
+				}
+
+				message.ShowWarning($"Failed to delete {text} branch '{branch.Name}'\n{result.AllMessages}");
 			}
 		}
 

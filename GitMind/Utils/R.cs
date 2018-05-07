@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 
@@ -11,19 +10,19 @@ namespace GitMind.Utils
 		protected static readonly Exception NoError = new Exception("No error");
 		protected static readonly Exception NoValueError = new Exception("No value");
 
-		public static R Ok = new RError(NoError, null);
-		public static RError NoValue = new RError(NoValueError, null);
+		public static R Ok = new Error(NoError, null);
+		public static Error NoValue = new Error(NoValueError, null);
 
 
 		protected R(Exception e)
 		{
-			Exception = e;		
+			Exception = e;
 		}
 
 		public Exception Exception { get; }
 
 		public bool IsOk => Exception == NoError;
-		public bool IsFaulted => !Ok;
+		public bool IsFaulted => Exception != NoError;
 		public string Message => Exception.Message;
 		public string AllMessages => string.Join(",\n", AllMessageLines());
 
@@ -38,69 +37,38 @@ namespace GitMind.Utils
 				inner = inner.InnerException;
 			}
 		}
-		
+
 
 		public static R<T> From<T>(T result) => R<T>.From(result);
 
-		public static RError Error(
+		public static Error Error(
 			string message,
 			[CallerMemberName] string memberName = "",
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0) =>
-			new RError(new Exception(message), ToStackTrace(memberName, sourceFilePath, sourceLineNumber));
+			new Error(message, memberName, sourceFilePath, sourceLineNumber);
 
-		public static RError Error(
+
+		public static Error Error(
 			string message,
 			Exception e,
 			[CallerMemberName] string memberName = "",
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0) =>
-			new RError(new Exception(message, e), ToStackTrace(memberName, sourceFilePath, sourceLineNumber));
+			new Error(message, e, memberName, sourceFilePath, sourceLineNumber);
 
 
-
-		public static RError Error(
+		public static Error Error(
 			Exception e,
 			[CallerMemberName] string memberName = "",
 			[CallerFilePath] string sourceFilePath = "",
-			[CallerLineNumber] int sourceLineNumber = 0) => 
-			new RError(e, ToStackTrace(memberName, sourceFilePath, sourceLineNumber));
+			[CallerLineNumber] int sourceLineNumber = 0) =>
+			new Error(e, memberName, sourceFilePath, sourceLineNumber);
 
 		//public static implicit operator R(Exception e) => new RError(e);
 		public static implicit operator bool(R r) => r.IsOk;
 
 		public override string ToString() => IsOk ? "OK" : $"Error: {AllMessages}\n{Exception}";
-
-		private static string ToStackTrace(string memberName, string sourceFilePath, int sourceLineNumber) =>
-			$"at {sourceFilePath}({sourceLineNumber}){memberName}";
-	}
-
-
-	public class RError : R
-	{
-		public RError(Exception e, string stackTrace) : base(AddStackTrace(e, stackTrace))
-		{
-			if (e != NoError && e != NoValueError)
-			{
-				Log.Warn($"{this}");
-			}
-		}
-
-		private static Exception AddStackTrace(Exception exception, string stackTrace)
-		{
-			if (stackTrace == null)
-			{
-				return exception;
-			}
-
-			FieldInfo field = typeof(Exception).GetField(
-				"_remoteStackTraceString", BindingFlags.Instance | BindingFlags.NonPublic);
-
-			string stack = (string)field?.GetValue(exception);
-			stackTrace = string.IsNullOrEmpty(stack) ? stackTrace : $"{stackTrace}\n{stack}";
-			field?.SetValue(exception, stackTrace);
-			return exception;
-		}
 	}
 
 
@@ -118,7 +86,7 @@ namespace GitMind.Utils
 		//public static implicit operator R<T>(Error error) => new R<T>(error);
 		//public static implicit operator R<T>(Exception e) => new R<T>(e);
 
-		public static implicit operator R<T>(RError error) => new R<T>(error.Exception);
+		public static implicit operator R<T>(Error error) => new R<T>(error.Exception);
 		public static implicit operator bool(R<T> r) => r.IsOk;
 
 		public static implicit operator R<T>(T value)
@@ -153,6 +121,6 @@ namespace GitMind.Utils
 		public T Or(T defaultValue) => IsFaulted ? defaultValue : Value;
 
 
-		public override string ToString() =>IsOk ? (storedValue?.ToString() ?? "") : base.ToString();
+		public override string ToString() => IsOk ? (storedValue?.ToString() ?? "") : base.ToString();
 	}
 }
