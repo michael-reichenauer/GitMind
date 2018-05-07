@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Common;
-using GitMind.Features.Branches.Private;
 using GitMind.Utils;
 
 
@@ -13,15 +12,6 @@ namespace GitMind.GitModel.Private
 	/// </summary>
 	internal class BranchHierarchyService : IBranchHierarchyService
 	{
-		private readonly IGitBranchService gitBranchService;
-
-
-		public BranchHierarchyService(IGitBranchService gitBranchService)
-		{
-			this.gitBranchService = gitBranchService;
-		}
-
-
 		public void SetBranchHierarchy(MRepository repository)
 		{
 			CombineMainWithLocalSubBranches(repository);

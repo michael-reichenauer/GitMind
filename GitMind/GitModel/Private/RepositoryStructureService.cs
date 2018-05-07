@@ -24,7 +24,7 @@ namespace GitMind.GitModel.Private
 		private readonly IBranchHierarchyService branchHierarchyService;
 		private readonly ITagService tagService;
 		private readonly ICommitsService commitsService;
-		private readonly IGitBranchService2 gitBranchService2;
+		private readonly IGitBranchService gitBranchService;
 		//private readonly IDiffService diffService;
 
 
@@ -37,7 +37,7 @@ namespace GitMind.GitModel.Private
 			IBranchHierarchyService branchHierarchyService,
 			ITagService tagService,
 			ICommitsService commitsService,
-			IGitBranchService2 gitBranchService2
+			IGitBranchService gitBranchService
 			//IDiffService diffService
 			)
 		{
@@ -48,7 +48,7 @@ namespace GitMind.GitModel.Private
 			this.branchHierarchyService = branchHierarchyService;
 			this.tagService = tagService;
 			this.commitsService = commitsService;
-			this.gitBranchService2 = gitBranchService2;
+			this.gitBranchService = gitBranchService;
 			//this.diffService = diffService;
 		}
 
@@ -90,7 +90,7 @@ namespace GitMind.GitModel.Private
 			Timing t = new Timing();
 			//string gitRepositoryPath = repository.WorkingFolder;
 
-			var branchesResult = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
+			var branchesResult = await gitBranchService.GetBranchesAsync(CancellationToken.None);
 			if (branchesResult.IsFaulted)
 			{
 				Log.Warn($"Failed to update repo, {branchesResult}");

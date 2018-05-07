@@ -215,9 +215,7 @@
     <Compile Include="Features\Commits\ICommitsService.cs" />
     <Compile Include="Features\StatusHandling\Private\FolderMonitorService.cs" />
     <Compile Include="Git\BranchName.cs" />
-    <Compile Include="Features\Branches\Private\GitBranchService.cs" />
     <Compile Include="Git\Private\GitCommitBranchNameService.cs" />
-    <Compile Include="Features\Branches\Private\IGitBranchService.cs" />
     <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
     <Compile Include="MainWindowViews\IMainWindowService.cs" />
     <Compile Include="MainWindowViews\MainWindowIpcService.cs" />
@@ -247,8 +245,8 @@
     <Compile Include="Utils\Git\Private\GitPullService.cs" />
     <Compile Include="Utils\Git\IGitPullService.cs" />
     <Compile Include="Utils\Git\Private\GitBranch2.cs" />
-    <Compile Include="Utils\Git\Private\GitBranchService2.cs" />
-    <Compile Include="Utils\Git\IGitBranchService2.cs" />
+    <Compile Include="Utils\Git\Private\GitBranchService.cs" />
+    <Compile Include="Utils\Git\IGitBranchService.cs" />
     <Compile Include="Utils\Git\Private\GitDiffService2.cs" />
     <Compile Include="Utils\Git\IGitDiffService2.cs" />
     <Compile Include="Utils\Git\GitFile2.cs" />

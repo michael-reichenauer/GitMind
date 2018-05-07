@@ -18,15 +18,15 @@ namespace GitMind.GitModel.Private
 	{
 		private static readonly string Origin = "origin/";
 
-		private readonly IGitBranchService2 gitBranchService2;
+		private readonly IGitBranchService gitBranchService;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 
 
 		public BranchTipMonitorService(
-			IGitBranchService2 gitBranchService2,
+			IGitBranchService gitBranchService,
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
-			this.gitBranchService2 = gitBranchService2;
+			this.gitBranchService = gitBranchService;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 		}
 
@@ -34,7 +34,7 @@ namespace GitMind.GitModel.Private
 		public async Task CheckAsync(Repository repository)
 		{
 			Log.Debug("Checking branch tips ...");
-			var branches = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
+			var branches = await gitBranchService.GetBranchesAsync(CancellationToken.None);
 			if (branches.IsFaulted)
 			{
 				return;

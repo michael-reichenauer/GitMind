@@ -92,11 +92,11 @@ namespace GitMindTest.Utils.Git.Private
 
 		public Task<string> GetConflictFileAsync(string fileId) => Service<IGitStatusService2>().Call(s => s.GetConflictFile(fileId, ct));
 
-		public Task<IReadOnlyList<GitBranch2>> GetBranchesAsync() => Service<IGitBranchService2>().Call(s => s.GetBranchesAsync(ct));
+		public Task<IReadOnlyList<GitBranch2>> GetBranchesAsync() => Service<IGitBranchService>().Call(s => s.GetBranchesAsync(ct));
 
 		public async Task<GitBranch2> GetCurrentBranchAsync() => (await GetBranchesAsync()).First(branch => branch.IsCurrent);
 
-		public Task BranchAsync(string name, bool isCheckout = true) => Service<IGitBranchService2>().Call(s => s.BranchAsync(name, isCheckout, ct));
+		public Task BranchAsync(string name, bool isCheckout = true) => Service<IGitBranchService>().Call(s => s.BranchAsync(name, isCheckout, ct));
 
 		public Task<GitCommit> CommitAllChangesAsync(string message) => Service<IGitCommitService2>().Call(s => s.CommitAllChangesAsync(message, ct));
 

@@ -12,7 +12,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitBranchServiceTest : GitTestBase<IGitBranchService2>
+	public class GitBranchServiceTest : GitTestBase<IGitBranchService>
 	{
 		[Test]
 		public async Task TestBranchAsync()

@@ -8,7 +8,7 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitBranchService2 : IGitBranchService2
+	internal class GitBranchService : IGitBranchService
 	{
 		//public static readonly Regex BranchesRegEx = new Regex(
 		//	@"^(\*)?\s+(\S+)\s+(\S+)(\s+)?(\[:\s(ahead\s(\d+))?(,\s)?(behind\s(\d+))?(gone)?\])?(\s+)?(.+)?",
@@ -21,7 +21,7 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitCmdService gitCmdService;
 
 
-		public GitBranchService2(IGitCmdService gitCmdService)
+		public GitBranchService(IGitCmdService gitCmdService)
 		{
 			this.gitCmdService = gitCmdService;
 		}
