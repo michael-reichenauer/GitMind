@@ -48,21 +48,6 @@ namespace GitMind.Utils.OsSystem
 
 		public static implicit operator string(CmdResult2 result2) => result2.Output;
 
-	//	public static implicit operator R(CmdResult2 result) => result.IsOk ? R.Ok : Utils.Error.From(result);
-
-		public void ThrowIfError(string message)
-		{
-			if (ExitCode != 0)
-			{
-				string errorText = $"{message},\n{this}";
-				ApplicationException e = new ApplicationException(errorText);
-				Log.Exception(e);
-				throw e;
-			}
-		}
-
-
-		//public string ShortError => string.Join("\n", ErrorLines.Take(10));
 
 		public override string ToString() =>
 			$"{Command} {Arguments}{ExitText}{OutputText}{ErrorText}";
@@ -73,8 +58,7 @@ namespace GitMind.Utils.OsSystem
 			$"\nProgress:\n{Truncate(Error)}" : $"\nError:\n{Truncate(Error)}\nin: {WorkingDirectory}";
 
 
-		public Exception AsException() =>
-			new GitException(string.Join("\n", ErrorLines.Take(10)) + $"\n{this}");
+		public Exception AsException() => new GitException(ErrorMessage + $"\n{Command} {Arguments}");
 
 
 		private static IEnumerable<string> Lines(string text)
