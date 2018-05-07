@@ -25,7 +25,7 @@ namespace GitMind.Utils.Git.Private
 			{
 				if (!(result.ExitCode == 1 && string.IsNullOrEmpty(result.Output)))
 				{
-					return Error.From("Failed to list tags", result.AsError());
+					return R.Error("Failed to list tags", result.AsException());
 				}
 			}
 
@@ -41,7 +41,7 @@ namespace GitMind.Utils.Git.Private
 			CmdResult2 result = await gitCmdService.RunCmdAsync($"tag {tagName} {sha}", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to add tag {tagName} at {sha}", result.AsError());
+				return R.Error($"Failed to add tag {tagName} at {sha}", result.AsException());
 			}
 
 			Log.Info($"Added {tagName} at {sha}");
@@ -54,7 +54,7 @@ namespace GitMind.Utils.Git.Private
 			R<CmdResult2> result = await gitCmdService.RunAsync($"tag --delete {tagName}", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to delete tag {tagName}", result);
+				return R.Error($"Failed to delete tag {tagName}", result.Exception);
 			}
 
 			Log.Info($"Deleted {tagName}");

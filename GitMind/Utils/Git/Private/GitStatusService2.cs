@@ -39,7 +39,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to get status", result);
+				return R.Error("Failed to get status", result.Exception);
 			}
 
 			GitStatus2 status = ParseStatus(result.Value);
@@ -55,7 +55,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to get status", result);
+				return R.Error("Failed to get status", result.Exception);
 			}
 
 			GitConflicts conflicts = ParseConflicts(result.Value);
@@ -71,7 +71,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to get file {fileId}", result);
+				return R.Error($"Failed to get file {fileId}", result.Exception);
 			}
 
 			string file = result.Value.Output;
@@ -90,7 +90,7 @@ namespace GitMind.Utils.Git.Private
 			R<IReadOnlyList<string>> result = await UndoAndCleanFolderAsync("-fd", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to undo uncommitted changes", result);
+				return R.Error("Failed to undo uncommitted changes", result.Exception);
 			}
 
 			Log.Info("Undid uncommitted changes");
@@ -110,15 +110,14 @@ namespace GitMind.Utils.Git.Private
 					R deleteResult = DeleteFile(path, result);
 					if (deleteResult.IsFaulted)
 					{
-						return Error.From($"Failed to delete {path}", deleteResult);
+						return R.Error($"Failed to delete {path}", deleteResult.Exception);
 					}
 
 					Log.Info($"Undid file {path}");
 					return R.Ok;
 				}
 
-				return Error.From($"Failed to undo file {path}",
-					Error.From(string.Join("\n", result.ErrorLines.Take(10)), new GitException($"{result}")));
+				return R.Error($"Failed to undo file {path}", result.AsException());
 			}
 
 			Log.Info($"Undid file {path}");
@@ -133,7 +132,7 @@ namespace GitMind.Utils.Git.Private
 			{
 				if (result.ExitCode != 1)
 				{
-					return Error.From("Failed to get refs", result.AsError());
+					return R.Error("Failed to get refs", result.AsException());
 				}
 			}
 
@@ -148,7 +147,7 @@ namespace GitMind.Utils.Git.Private
 			CmdResult2 result = await gitCmdService.RunCmdAsync($"add \"{path}\"", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed add {path}", result.AsError());
+				return R.Error($"Failed add {path}", result.AsException());
 			}
 
 			return R.Ok;
@@ -160,7 +159,7 @@ namespace GitMind.Utils.Git.Private
 			CmdResult2 result = await gitCmdService.RunCmdAsync($"rm \"{path}\"", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed remove {path}", result.AsError());
+				return R.Error($"Failed remove {path}", result.AsException());
 			}
 
 			return R.Ok;
@@ -172,7 +171,7 @@ namespace GitMind.Utils.Git.Private
 			R<IReadOnlyList<string>> result = await UndoAndCleanFolderAsync("-fxd", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to clean working folder", result);
+				return R.Error("Failed to clean working folder", result.Exception);
 			}
 
 			Log.Info("Cleaned working folder");
@@ -195,7 +194,7 @@ namespace GitMind.Utils.Git.Private
 			}
 			catch (Exception e)
 			{
-				return e;
+				return R.Error(e);
 			}
 		}
 
@@ -210,7 +209,7 @@ namespace GitMind.Utils.Git.Private
 			R<CmdResult2> result = await gitCmdService.RunAsync("reset --hard", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From("Reset failed.", result);
+				return R.Error("Reset failed.", result.Exception);
 			}
 
 			CmdResult2 cleanResult = await gitCmdService.RunCmdAsync($"clean {cleanArgs}", ct);
@@ -222,7 +221,7 @@ namespace GitMind.Utils.Git.Private
 					return R.From(failedFiles);
 				}
 
-				return Error.From(cleanResult.ToString());
+				return R.Error(cleanResult.AsException());
 			}
 
 			return R.From(EmptyFileList);

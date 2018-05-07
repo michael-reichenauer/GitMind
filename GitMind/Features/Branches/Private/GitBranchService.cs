@@ -39,7 +39,7 @@ namespace GitMind.Features.Branches.Private
 			R<IReadOnlyList<GitBranch2>> branches = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
 			if (branches.IsFaulted)
 			{
-				return Error.From("Failed to merge", branches);
+				return R.Error("Failed to merge", branches.Exception);
 			}
 
 			// Trying to get both local and remote branch
@@ -55,7 +55,7 @@ namespace GitMind.Features.Branches.Private
 
 				if (localTipCommit.IsFaulted || remoteTipCommit.IsFaulted)
 				{
-					return Error.From("Failed to merge", remoteTipCommit);
+					return R.Error("Failed to merge", remoteTipCommit.Exception);
 				}
 
 				if (remoteTipCommit.Value.CommitDate > localTipCommit.Value.CommitDate)
@@ -66,7 +66,7 @@ namespace GitMind.Features.Branches.Private
 
 			if (branch == null)
 			{
-				return Error.From($"Failed to Merge, not valid branch {branchName}");
+				return R.Error($"Failed to Merge, not valid branch {branchName}");
 			}
 
 
@@ -86,7 +86,7 @@ namespace GitMind.Features.Branches.Private
 			R<bool> checkoutResult = await gitCheckoutService.TryCheckoutAsync(branchName, CancellationToken.None);
 			if (checkoutResult.IsFaulted)
 			{
-				return Error.From("Failed to switch branch", checkoutResult);
+				return R.Error("Failed to switch branch", checkoutResult.Exception);
 			}
 
 			if (!checkoutResult.Value)
@@ -97,7 +97,7 @@ namespace GitMind.Features.Branches.Private
 
 				if (branchResult.IsFaulted)
 				{
-					return Error.From("Failed to switch branch", branchResult);
+					return R.Error("Failed to switch branch", branchResult.Exception);
 				}
 			}
 
@@ -112,7 +112,7 @@ namespace GitMind.Features.Branches.Private
 			R<IReadOnlyList<GitBranch2>> branches = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
 			if (branches.IsFaulted)
 			{
-				return Error.From("Failed to switch to commit", branches);
+				return R.Error("Failed to switch to commit", branches.Exception);
 			}
 
 			if (branches.Value.TryGet(branchName, out GitBranch2 branch))
@@ -122,7 +122,7 @@ namespace GitMind.Features.Branches.Private
 					R checkoutResult = await gitCheckoutService.CheckoutAsync(branchName, CancellationToken.None);
 					if (checkoutResult.IsFaulted)
 					{
-						return Error.From("Failed to switch to commit", checkoutResult);
+						return R.Error("Failed to switch to commit", checkoutResult.Exception);
 					}
 
 					return branchName;
@@ -132,7 +132,7 @@ namespace GitMind.Features.Branches.Private
 			R checkoutCommitResult = await gitCheckoutService.CheckoutAsync(commitSha.Sha, CancellationToken.None);
 			if (checkoutCommitResult.IsFaulted)
 			{
-				return Error.From("Failed to switch to commit", checkoutCommitResult);
+				return R.Error("Failed to switch to commit", checkoutCommitResult.Exception);
 			}
 
 			return null;
@@ -147,7 +147,7 @@ namespace GitMind.Features.Branches.Private
 			R<bool> ffResult = await gitMergeService2.TryMergeFastForwardAsync(null, CancellationToken.None);
 			if (ffResult.IsFaulted)
 			{
-				return Error.From("Failed to merge current branch", ffResult);
+				return R.Error("Failed to merge current branch", ffResult.Exception);
 			}
 
 			if (!ffResult.Value)
@@ -155,7 +155,7 @@ namespace GitMind.Features.Branches.Private
 				R result = await gitMergeService2.MergeAsync(null, CancellationToken.None);
 				if (result.IsFaulted)
 				{
-					return Error.From("Failed to merge current branch", ffResult);
+					return R.Error("Failed to merge current branch", ffResult.Exception);
 				}
 			}
 

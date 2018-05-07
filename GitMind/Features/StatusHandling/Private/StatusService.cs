@@ -216,7 +216,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 			if (branchIds.IsFaulted)
 			{
-				Log.Error($"Failed to get branch ids {branchIds.Error}");
+				Log.Error($"Failed to get branch ids {branchIds.AllMessages}");
 				return new List<string>();
 			}
 

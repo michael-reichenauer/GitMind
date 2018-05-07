@@ -132,7 +132,7 @@ namespace GitMind.Features.Branches.Private
 
 				if (result.IsFaulted)
 				{
-					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.Error}");
+					message.ShowWarning($"Failed to push the branch {branch.Name}.\n{result.AllMessages}");
 				}
 			}
 		}
@@ -284,37 +284,46 @@ namespace GitMind.Features.Branches.Private
 		{
 			using (progress.ShowDialog())
 			{
-				if (isLocal)
-				{
-					progress.SetText($"Deleting local branch {branch.Name} ...");
-					await DeleteBranchImplAsync(branch, false, IsForce);
-				}
-
 				if (isRemote)
 				{
 					progress.SetText($"Deleting remote branch {branch.Name} ...");
 					await DeleteBranchImplAsync(branch, true, IsForce);
 				}
+
+				if (isLocal)
+				{
+					progress.SetText($"Deleting local branch {branch.Name} ...");
+					await DeleteBranchImplAsync(branch, false, IsForce);
+				}				
 			}
 		}
+
 
 		private async Task DeleteBranchImplAsync(Branch branch, bool isRemote, bool isForce)
 		{
 			string text = isRemote ? "Remote" : "Local";
 
-			R deleted;
+			R result;
 			if (isRemote)
 			{
-				deleted = await gitPushService.PushDeleteRemoteBranchAsync(branch.Name, CancellationToken.None);
+				result = await gitPushService.PushDeleteRemoteBranchAsync(branch.Name, CancellationToken.None);
 			}
 			else
 			{
-				deleted = await gitBranchService2.DeleteLocalBranchAsync(branch.Name, isForce, CancellationToken.None);
+				result = await gitBranchService2.DeleteLocalBranchAsync(branch.Name, isForce, CancellationToken.None);
 			}
 
-			if (deleted.IsFaulted)
+			if (result.IsFaulted)
 			{
-				message.ShowWarning($"Failed to delete {text} branch '{branch.Name}'\n{deleted.Message}");
+				if (result.Exception == gitBranchService2.NotFullyMergedException)
+				{
+					message.ShowWarning(
+						$"Failed to delete {text} local branch '{branch.Name}'\n" + 
+						"The branch is not fully merged.\nCheck 'Force' checkbox to force a delete of the branch");
+					return;
+				}
+
+				message.ShowWarning($"Failed to delete {text} branch '{branch.Name}'\n{result.AllMessages}");
 			}
 		}
 

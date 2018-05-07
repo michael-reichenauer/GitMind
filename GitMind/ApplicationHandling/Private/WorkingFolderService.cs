@@ -102,7 +102,7 @@ namespace GitMind.ApplicationHandling.Private
 		{
 			if (path == null)
 			{
-				return Error.From("No working folder");
+				return R.From("No working folder");
 			}
 
 			return gitInfo.Value.GetWorkingFolderRoot(path);

@@ -29,7 +29,7 @@ namespace GitMind.Utils.Git.Private
 				{
 					return R.Ok;
 				}
-				return Error.From("Failed to push", result.AsError());
+				return R.Error("Failed to push", result.AsException());
 			}
 
 			return R.Ok;
@@ -48,7 +48,7 @@ namespace GitMind.Utils.Git.Private
 				{
 					return R.Ok;
 				}
-				return Error.From("Failed to push", result.AsError());
+				return R.Error("Failed to push", result.AsException());
 			}
 
 			return R.Ok;
@@ -65,7 +65,7 @@ namespace GitMind.Utils.Git.Private
 				{
 					return R.Ok;
 				}
-				return Error.From("Failed to push", result.AsError());
+				return R.Error("Failed to push", result.AsException());
 			}
 
 			return R.Ok;
@@ -84,7 +84,7 @@ namespace GitMind.Utils.Git.Private
 				{
 					return R.Ok;
 				}
-				return Error.From("Failed to push tag", result.AsError());
+				return R.Error("Failed to push tag", result.AsException());
 			}
 
 			return R.Ok;
@@ -103,7 +103,7 @@ namespace GitMind.Utils.Git.Private
 				{
 					return R.Ok;
 				}
-				return Error.From("Failed to delete remote tags", result.AsError());
+				return R.Error("Failed to delete remote tags", result.AsException());
 			}
 
 			return R.Ok;
@@ -123,7 +123,7 @@ namespace GitMind.Utils.Git.Private
 				{
 					return R.Ok;
 				}
-				return Error.From("Failed to push", result.AsError());
+				return R.Error("Failed to push", result.AsException());
 			}
 
 			return R.Ok;

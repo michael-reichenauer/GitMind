@@ -21,7 +21,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to checkout {name}", result);
+				return R.Error($"Failed to checkout {name}", result.Exception);
 			}
 
 			Log.Info($"Checked out {name}");
@@ -41,7 +41,7 @@ namespace GitMind.Utils.Git.Private
 					return false;
 				}
 
-				return Error.From($"Failed to checkout {name}", result);
+				return R.Error($"Failed to checkout {name}", result.AsException());
 
 			}
 

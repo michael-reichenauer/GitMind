@@ -22,7 +22,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to pull", result);
+				return R.Error("Failed to pull", result.Exception);
 			}
 
 			return result;

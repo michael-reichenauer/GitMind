@@ -226,7 +226,7 @@ namespace GitMind.ApplicationHandling
 			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Exception(e, "Failed to download latest setup");
-				return e;
+				return R.Error(e);
 			}
 		}
 

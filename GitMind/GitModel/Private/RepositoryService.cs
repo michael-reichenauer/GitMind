@@ -190,7 +190,7 @@ namespace GitMind.GitModel.Private
 			RepositoryErrorChanged?.Invoke(this, new RepositoryErrorEventArgs(""));
 			if (result.IsFaulted)
 			{
-				string text = $"Fetch error: {result.Error.Exception.Message}";
+				string text = $"Fetch error: {result.AllMessages}";
 				Log.Warn(text);
 				RepositoryErrorChanged?.Invoke(this, new RepositoryErrorEventArgs(text));
 			}
@@ -355,7 +355,7 @@ namespace GitMind.GitModel.Private
 			catch (Exception e)
 			{
 				Log.Exception(e, "Failed to read cached repository");
-				return e;
+				return R.Error(e);
 			}
 			finally
 			{

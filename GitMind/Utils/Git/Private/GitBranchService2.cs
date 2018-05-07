@@ -58,6 +58,9 @@ namespace GitMind.Utils.Git.Private
 		//}
 
 
+		public GitException NotFullyMergedException { get; } = new GitException("Branch is not fully merged");
+
+
 		public async Task<R<IReadOnlyList<GitBranch2>>> GetBranchesAsync(CancellationToken ct)
 		{
 			List<GitBranch2> branches = new List<GitBranch2>();
@@ -65,7 +68,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to get branches", result);
+				return R.Error("Failed to get branches", result.Exception);
 			}
 
 			var matches = BranchesRegEx.Matches(result.Value.Output);
@@ -90,7 +93,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to create branch {name}", result);
+				return R.Error($"Failed to create branch {name}", result.Exception);
 			}
 
 			Log.Info($"Created branch {name}");
@@ -105,7 +108,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to create branch {name}", result);
+				return R.Error($"Failed to create branch {name}", result.Exception);
 			}
 
 			Log.Info($"Created branch {name} at {sha}");
@@ -119,7 +122,12 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to delete branch {name}", result);
+				if (result.AllMessages.Contains("is not fully merged"))
+				{
+					return R.Error(NotFullyMergedException);
+				}
+
+				return R.Error($"Failed to delete branch {name}", result.Exception);
 			}
 
 			Log.Info($"Deleted branch {name}");
@@ -133,7 +141,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to get common ancestor of {sha1} and {sha2}", result);
+				return R.Error($"Failed to get common ancestor of {sha1} and {sha2}", result.Exception);
 			}
 
 			string common = result.Value.Output.Trim();

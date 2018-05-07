@@ -34,7 +34,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to get log", result);
+				return R.Error("Failed to get log", result.Exception);
 			}
 
 			return commits;
@@ -58,7 +58,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted && !ct.IsCancellationRequested)
 			{
-				return Error.From("Failed to get log", result.AsError());
+				return R.Error("Failed to get log", result.AsException());
 			}
 
 			Log.Info($"Got log for {count} commits");
@@ -71,7 +71,7 @@ namespace GitMind.Utils.Git.Private
 			var result = await gitCmdService.RunAsync($"show --no-patch --pretty=\"{LogFormat}\" {sha}", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to get commit log", result);
+				return R.Error("Failed to get commit log", result.Exception);
 			}
 
 			GitCommit commit = Parse(result.Value.OutputLines.First());
@@ -85,7 +85,7 @@ namespace GitMind.Utils.Git.Private
 			var result = await gitCmdService.RunAsync($"show --no-patch --no-expand-tabs --format=\"%B\" {sha}", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to get commit log", result);
+				return R.Error("Failed to get commit log", result.Exception);
 			}
 
 			string message = result.Value.Output;

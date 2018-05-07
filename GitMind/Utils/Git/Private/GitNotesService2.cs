@@ -27,10 +27,10 @@ namespace GitMind.Utils.Git.Private
 			{
 				if (result.ExitCode == 1 && result.Error.StartsWith($"error: no note found for object {sha}"))
 				{
-					return Error.NoValue;
+					return R.NoValue;
 				}
 
-				return Error.From("Failed to get note", result.AsError());
+				return R.Error("Failed to get note", result.AsException());
 			}
 
 			string notes = result.Output;
@@ -53,7 +53,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to add note", result.AsError());
+				return R.Error("Failed to add note", result.AsException());
 			}
 
 
@@ -70,7 +70,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to add note", result.AsError());
+				return R.Error("Failed to add note", result.AsException());
 			}
 
 
@@ -86,7 +86,7 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted)
 			{
-				return Error.From("Failed to remove note", result.AsError());
+				return R.Error("Failed to remove note", result.AsException());
 			}
 
 			Log.Info($"Removed note");

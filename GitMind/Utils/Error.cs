@@ -1,74 +1,62 @@
 using System;
+using System.Reflection;
 
 
 namespace GitMind.Utils
 {
-	public class Error : Equatable<Error>
+	public class Error : R
 	{
-		private static readonly Exception noError = new Exception("No error");
-		private static readonly Exception noValue = new Exception("No value");
+		public Error(
+			string message,
+			string memberName,
+			string sourceFilePath,
+			int sourceLineNumber = 0)
+			: this(new Exception(message), ToStackTrace(memberName, sourceFilePath, sourceLineNumber)) { }
 
-		private readonly string message;
 
-		private Error(string message, Exception exception)
+		public Error(
+			string message,
+			Exception e,
+			string memberName = "",
+			string sourceFilePath = "",
+			int sourceLineNumber = 0)
+			: this(new Exception(message, e), ToStackTrace(memberName, sourceFilePath, sourceLineNumber)) { }
+
+
+		public Error(
+			Exception e,
+			string memberName = "",
+			string sourceFilePath = "",
+			int sourceLineNumber = 0)
+			: this(e, ToStackTrace(memberName, sourceFilePath, sourceLineNumber)) { }
+
+
+		private Error(Exception e, string stackTrace) : base(AddStackTrace(e, stackTrace))
 		{
-			Exception = exception ?? new Exception();
-			this.message = message ?? "";
-
-			if (!((exception == noError || exception == noValue) && message == null))
+			if (e != NoError && e != NoValueError)
 			{
-				Log.Warn(ToString());
+				Log.Warn($"{this}");
 			}
 		}
 
-		public static Error None { get; } = From(noError);
-		public static Error NoValue { get; } = From(noValue);
 
-		public Exception Exception { get; }
+		private static string ToStackTrace(string memberName, string sourceFilePath, int sourceLineNumber) =>
+			$"at {sourceFilePath}({sourceLineNumber}){memberName}";
 
-		public string Message => !string.IsNullOrEmpty(message) ? $"{message}" : Exception.Message;
-
-		public string StackTrace => Exception.StackTrace != null ? $"at:\n{Exception.StackTrace}" : null;
-
-		public static Error From(string message, Error error) => new Error(message, error.Exception);
-		public static Error From(string message, R result) => From(message, result.Error);
-
-		public static Error From(Exception e) => new Error(null, e);
-
-		public static Error From(string message, Exception e) => new Error(message, e);
-
-		public static Error From(string message) => new Error(null, new Exception(message));
-
-
-		public static implicit operator Error(Exception e) => From(e);
-
-
-		public bool Is<T>()
+		private static Exception AddStackTrace(Exception exception, string stackTrace)
 		{
-			return this is T || Exception is T;
-		}
-
-
-		protected override bool IsEqual(Error other)
-		{
-			if ((ReferenceEquals(this, None) && !ReferenceEquals(other, None))
-					|| !ReferenceEquals(this, None) && ReferenceEquals(other, None))
+			if (stackTrace == null)
 			{
-				return false;
+				return exception;
 			}
 
-			return
-				(Exception == null && other.Exception == null && GetType() == other.GetType())
-				|| other.GetType().IsInstanceOfType(this)
-				|| (GetType() == other.GetType() && Exception != null && other.Exception != null
-					&& other.Exception.GetType().IsInstanceOfType(this));
+			FieldInfo field = typeof(Exception).GetField(
+				"_remoteStackTraceString", BindingFlags.Instance | BindingFlags.NonPublic);
+
+			string stack = (string)field?.GetValue(exception);
+			stackTrace = string.IsNullOrEmpty(stack) ? stackTrace : $"{stackTrace}\n{stack}";
+			field?.SetValue(exception, stackTrace);
+			return exception;
 		}
-
-		protected override int GetHash() => 0;
-
-
-		public override string ToString() => !string.IsNullOrEmpty(message)
-			? $"{Message}\n{Exception.GetType().Name}, {Exception.Message}{StackTrace}"
-			: $"{Exception.GetType().Name}, {Exception.Message}{StackTrace}";
 	}
 }
