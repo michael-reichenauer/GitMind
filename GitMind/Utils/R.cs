@@ -17,12 +17,7 @@ namespace GitMind.Utils
 
 		protected R(Exception e)
 		{
-			Exception = e;
-
-			if (e != NoError && e != NoValueError)
-			{
-				Log.Warn($"{this}");
-			}
+			Exception = e;		
 		}
 
 		public Exception Exception { get; }
@@ -85,6 +80,10 @@ namespace GitMind.Utils
 	{
 		public RError(Exception e, string stackTrace) : base(AddStackTrace(e, stackTrace))
 		{
+			if (e != NoError && e != NoValueError)
+			{
+				Log.Warn($"{this}");
+			}
 		}
 
 		private static Exception AddStackTrace(Exception exception, string stackTrace)
