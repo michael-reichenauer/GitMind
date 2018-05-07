@@ -284,19 +284,20 @@ namespace GitMind.Features.Branches.Private
 		{
 			using (progress.ShowDialog())
 			{
-				if (isLocal)
-				{
-					progress.SetText($"Deleting local branch {branch.Name} ...");
-					await DeleteBranchImplAsync(branch, false, IsForce);
-				}
-
 				if (isRemote)
 				{
 					progress.SetText($"Deleting remote branch {branch.Name} ...");
 					await DeleteBranchImplAsync(branch, true, IsForce);
 				}
+
+				if (isLocal)
+				{
+					progress.SetText($"Deleting local branch {branch.Name} ...");
+					await DeleteBranchImplAsync(branch, false, IsForce);
+				}				
 			}
 		}
+
 
 		private async Task DeleteBranchImplAsync(Branch branch, bool isRemote, bool isForce)
 		{
