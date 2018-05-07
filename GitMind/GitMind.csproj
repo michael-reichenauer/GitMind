@@ -248,7 +248,7 @@
     <Compile Include="Utils\Git\Private\FileStatus.cs" />
     <Compile Include="Utils\Git\Private\GitCommitService.cs" />
     <Compile Include="Utils\Git\IGitCommitService.cs" />
-    <Compile Include="Utils\Git\Private\CredentialService.cs" />
+    <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialService.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialCommandData.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialIpcService.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialSession.cs" />
@@ -275,7 +275,7 @@
     <Compile Include="Utils\Git\IGitLogService.cs" />
     <Compile Include="Utils\Git\Private\GitCmdService.cs" />
     <Compile Include="Utils\HttpClientDownloadWithProgress.cs" />
-    <Compile Include="Utils\Git\Private\ICredentialService.cs" />
+    <Compile Include="Utils\Git\Private\CredentialsHandling\ICredentialService.cs" />
     <Compile Include="Utils\Git\Private\IGitCmdService.cs" />
     <Compile Include="Utils\AsyncCountdownEvent.cs" />
     <Compile Include="Utils\AsyncManualResetEvent.cs" />

@@ -2,11 +2,10 @@
 using System.Windows.Forms;
 using GitMind.Common.Tracking;
 using GitMind.MainWindowViews;
-using GitMind.Utils.Git.Private.CredentialsHandling;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Utils.Git.Private
+namespace GitMind.Utils.Git.Private.CredentialsHandling
 {
 	internal class CredentialService : ICredentialService
 	{

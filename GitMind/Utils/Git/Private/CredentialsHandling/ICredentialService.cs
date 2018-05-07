@@ -1,7 +1,4 @@
-﻿using GitMind.Utils.Git.Private.CredentialsHandling;
-
-
-namespace GitMind.Utils.Git.Private
+﻿namespace GitMind.Utils.Git.Private.CredentialsHandling
 {
 	internal interface ICredentialService
 	{
