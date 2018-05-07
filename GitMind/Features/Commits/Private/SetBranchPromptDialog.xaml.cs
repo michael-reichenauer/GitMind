@@ -2,8 +2,8 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
-using GitMind.Git;
 using GitMind.MainWindowViews;
+using GitMind.Utils.Git;
 using Log = GitMind.Utils.Log;
 
 

@@ -1,7 +1,7 @@
 using System;
 
 
-namespace GitMind.Git
+namespace GitMind.Utils.Git
 {
 	[Flags]
 	public enum GitFileStatus

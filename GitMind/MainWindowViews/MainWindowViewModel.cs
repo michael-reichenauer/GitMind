@@ -11,7 +11,6 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Common.Tracking;
 using GitMind.Features.Commits;
 using GitMind.Features.Remote;
-using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.RepositoryViews.Open;
 using GitMind.Utils;

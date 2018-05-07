@@ -2,9 +2,10 @@
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
-namespace GitMind.Git.Private
+namespace GitMind.Features.Commits.Private
 {
 	internal interface IGitCommitBranchNameService
 	{

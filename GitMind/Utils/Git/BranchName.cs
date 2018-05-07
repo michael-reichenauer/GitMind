@@ -1,8 +1,7 @@
 ﻿using System;
-using GitMind.Utils;
 
 
-namespace GitMind.Git
+namespace GitMind.Utils.Git
 {
 	/// <summary>
 	/// Branch name type, which handles branch names as case insensitive strings.

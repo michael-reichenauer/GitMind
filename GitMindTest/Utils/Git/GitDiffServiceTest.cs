@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using GitMind.Git;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;

@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
-using GitMind.Git;
 using GitMind.Utils.OsSystem;
 
 

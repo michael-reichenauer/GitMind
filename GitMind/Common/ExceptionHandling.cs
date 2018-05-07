@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling.Private;
-using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Utils;
 using GitMind.Utils.UI;
@@ -16,7 +15,7 @@ namespace GitMind.Common
 	{
 		private static readonly TimeSpan MinTimeBeforeAutoRestart = TimeSpan.FromSeconds(10);
 
-		private static readonly StartInstanceService StartInstanceService =  new StartInstanceService();
+		private static readonly StartInstanceService StartInstanceService = new StartInstanceService();
 
 
 		private static bool hasDisplayedErrorMessageBox;

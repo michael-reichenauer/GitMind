@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
-using GitMind.Git;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
@@ -155,23 +154,6 @@ namespace GitMind.GitModel.Private
 				// Adding a virtual "uncommitted" commit since current working folder status has changes
 				AddVirtualUncommitted(current, status, repository);
 			}
-		}
-
-
-		private static GitCommit ToGitCommit(GitLibCommit gitLibCommit)
-		{
-			List<CommitId> parentIds = gitLibCommit.ParentIds
-				.Select(sha => new CommitId(sha.Sha))
-				.ToList();
-
-			return new GitCommit(
-				gitLibCommit.Sha,
-				gitLibCommit.Subject,
-				gitLibCommit.Message,
-				gitLibCommit.Author,
-				gitLibCommit.AuthorDate,
-				gitLibCommit.CommitDate,
-				parentIds);
 		}
 
 

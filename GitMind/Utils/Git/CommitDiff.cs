@@ -1,7 +1,7 @@
 using System.IO;
 
 
-namespace GitMind.Git
+namespace GitMind.Utils.Git
 {
 	public class CommitDiff
 	{

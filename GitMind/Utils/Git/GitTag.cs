@@ -1,4 +1,4 @@
-namespace GitMind.Git
+namespace GitMind.Utils.Git
 {
 	public class GitTag
 	{

@@ -6,7 +6,6 @@ using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.StatusHandling;
-using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.MainWindowViews;

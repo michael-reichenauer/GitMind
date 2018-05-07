@@ -8,7 +8,6 @@ using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
-using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
 using GitMind.Utils.Git;

@@ -8,8 +8,6 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Diffing;
 using GitMind.Features.StatusHandling;
-using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.RepositoryViews;
@@ -210,7 +208,7 @@ namespace GitMind.Features.Commits.Private
 			{
 				if (dialog.ShowDialog() == true)
 				{
-					Git.BranchName branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
+					BranchName branchName = dialog.IsAutomatically ? null : dialog.PromptText?.Trim();
 
 					if (commit.SpecifiedBranchName != branchName)
 					{

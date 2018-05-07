@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using GitMind.Git;
 
 
 namespace GitMind.Utils.Git

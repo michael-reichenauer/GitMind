@@ -15,7 +15,6 @@ using GitMind.Common.ThemeHandling;
 using GitMind.Common.Tracking;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
-using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.RepositoryViews.Open;
 using GitMind.RepositoryViews.Private;

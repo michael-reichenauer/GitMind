@@ -1,7 +1,7 @@
-﻿using GitMind.Common;
+﻿using GitMind.Utils.Git;
 
 
-namespace GitMind.Git
+namespace GitMind.Features.Commits.Private
 {
 	internal class CommitBranchName
 	{

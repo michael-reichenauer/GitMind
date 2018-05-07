@@ -8,9 +8,9 @@ using GitMind.Common;
 using GitMind.Common.ThemeHandling;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
-using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using GitMind.Utils.UI;
 
 

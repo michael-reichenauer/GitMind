@@ -12,7 +12,7 @@ using GitMind.Utils;
 using GitMind.Utils.Git;
 
 
-namespace GitMind.Git.Private
+namespace GitMind.Features.Commits.Private
 {
 	internal class GitCommitBranchNameService : IGitCommitBranchNameService
 	{

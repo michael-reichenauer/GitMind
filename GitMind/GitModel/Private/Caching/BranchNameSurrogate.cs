@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.Serialization;
-using GitMind.Git;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel.Private.Caching

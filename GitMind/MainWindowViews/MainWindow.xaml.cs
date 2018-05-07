@@ -11,8 +11,8 @@ using System.Windows.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.Tracking;
-using GitMind.Git;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.MainWindowViews

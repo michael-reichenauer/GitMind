@@ -151,7 +151,6 @@
     <Compile Include="Features\StatusHandling\Private\IFolderMonitorService.cs" />
     <Compile Include="Features\StatusHandling\Private\RepoChangedEventArgs.cs" />
     <Compile Include="Features\StatusHandling\Private\StatusChangedEventArgs.cs" />
-    <Compile Include="Features\StatusHandling\StatusFile.cs" />
     <Compile Include="Features\StatusHandling\Private\StatusService.cs" />
     <Compile Include="Features\StatusHandling\Refresh.cs" />
     <Compile Include="Features\Tags\ITagService.cs" />
@@ -214,19 +213,15 @@
     <Compile Include="Features\Commits\Private\CommitsService.cs" />
     <Compile Include="Features\Commits\ICommitsService.cs" />
     <Compile Include="Features\StatusHandling\Private\FolderMonitorService.cs" />
-    <Compile Include="Git\BranchName.cs" />
-    <Compile Include="Git\Private\GitCommitBranchNameService.cs" />
-    <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
+    <Compile Include="Utils\Git\BranchName.cs" />
+    <Compile Include="Features\Commits\Private\GitCommitBranchNameService.cs" />
+    <Compile Include="Features\Commits\Private\IGitCommitBranchNameService.cs" />
     <Compile Include="MainWindowViews\IMainWindowService.cs" />
     <Compile Include="MainWindowViews\MainWindowIpcService.cs" />
     <Compile Include="MainWindowViews\MainWindowService.cs" />
     <Compile Include="MainWindowViews\WindowOwner.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Common\CredentialHandler.cs" />
-    <Compile Include="Git\GitConflicts.cs" />
-    <Compile Include="Git\GitFileStatus.cs" />
-    <Compile Include="Git\GitNote.cs" />
-    <Compile Include="Git\ICredentialHandler.cs" />
+    <Compile Include="Utils\Git\GitFileStatus.cs" />
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
@@ -379,7 +374,7 @@
     <Compile Include="GitModel\Private\SpecifiedBranchName.cs" />
     <Compile Include="GitModel\Repository.cs" />
     <Compile Include="GitModel\Tag.cs" />
-    <Compile Include="Git\CommitBranchName.cs" />
+    <Compile Include="Features\Commits\Private\CommitBranchName.cs" />
     <Compile Include="Utils\IReadOnlyKeyedList.cs" />
     <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="GitModel\Private\MRepository.cs" />
@@ -412,8 +407,8 @@
     <Compile Include="Utils\UI\MyWpfExtensions.cs" />
     <Compile Include="Utils\UI\Property.cs" />
     <Compile Include="Utils\UI\Command.cs" />
-    <Compile Include="Git\CommitDiff.cs" />
-    <Compile Include="Git\GitTag.cs" />
+    <Compile Include="Utils\Git\CommitDiff.cs" />
+    <Compile Include="Utils\Git\GitTag.cs" />
     <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />
@@ -432,7 +427,6 @@
     <Compile Include="Utils\Cmd.cs" />
     <Compile Include="Utils\ICmd.cs" />
     <Compile Include="Utils\Log.cs" />
-    <Compile Include="Git\GitLibCommit.cs" />
     <Compile Include="Utils\MicroDiContainer.cs" />
     <Compile Include="Utils\UI\VirtualCanvas\VirtualPanel.cs" />
     <Compile Include="Utils\UI\VirtualCanvas\ZoomableCanvas.cs" />
@@ -631,6 +625,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Dependencies\Microsoft.ApplicationInsights.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>mkdir "$(ProjectDir)\Dependencies" 2&gt; NUL

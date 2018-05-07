@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using GitMind.Common;
-using GitMind.Git;
 
 
 namespace GitMind.Utils.Git.Private
