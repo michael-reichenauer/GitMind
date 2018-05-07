@@ -10,25 +10,25 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitCommitService2 : IGitCommitService2
+	internal class GitCommitService : IGitCommitService
 	{
 		private static readonly Regex CommitOutputRegEx = new Regex(@"^\[(\S*)\s+(\(.*\)\s+)?(\w+)\]",
 				RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
 		private readonly IGitCmdService gitCmdService;
-		private readonly IGitDiffService2 gitDiffService2;
+		private readonly IGitDiffService gitDiffService;
 		private readonly IGitLogService gitLogService;
 		private readonly WorkingFolderPath workingFolder;
 
 
-		public GitCommitService2(
+		public GitCommitService(
 			IGitCmdService gitCmdService,
-			IGitDiffService2 gitDiffService2,
+			IGitDiffService gitDiffService,
 			IGitLogService gitLogService,
 			WorkingFolderPath workingFolder)
 		{
 			this.gitCmdService = gitCmdService;
-			this.gitDiffService2 = gitDiffService2;
+			this.gitDiffService = gitDiffService;
 			this.gitLogService = gitLogService;
 			this.workingFolder = workingFolder;
 		}
@@ -38,7 +38,7 @@ namespace GitMind.Utils.Git.Private
 
 
 		public Task<R<IReadOnlyList<GitFile2>>> GetCommitFilesAsync(string sha, CancellationToken ct) =>
-			gitDiffService2.GetFilesAsync(sha, ct);
+			gitDiffService.GetFilesAsync(sha, ct);
 
 
 		public Task<R<string>> GetCommitMessageAsync(string sha, CancellationToken ct) =>

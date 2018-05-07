@@ -8,13 +8,13 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitDiffService2 : IGitDiffService2
+	internal class GitDiffService : IGitDiffService
 	{
 		private readonly IGitCmdService gitCmdService;
 		private readonly WorkingFolderPath workingFolder;
 
 
-		public GitDiffService2(IGitCmdService gitCmdService, WorkingFolderPath workingFolder)
+		public GitDiffService(IGitCmdService gitCmdService, WorkingFolderPath workingFolder)
 		{
 			this.gitCmdService = gitCmdService;
 			this.workingFolder = workingFolder;

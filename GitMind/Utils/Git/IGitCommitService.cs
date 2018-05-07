@@ -6,7 +6,7 @@ using GitMind.GitModel.Private;
 
 namespace GitMind.Utils.Git
 {
-	public interface IGitCommitService2
+	public interface IGitCommitService
 	{
 		Task<R<IReadOnlyList<GitFile2>>> GetCommitFilesAsync(
 			string sha, CancellationToken ct);

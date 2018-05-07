@@ -97,9 +97,9 @@ namespace GitMindTest.Utils.Git.Private
 
 		public Task BranchAsync(string name, bool isCheckout = true) => Service<IGitBranchService>().Call(s => s.BranchAsync(name, isCheckout, ct));
 
-		public Task<GitCommit> CommitAllChangesAsync(string message) => Service<IGitCommitService2>().Call(s => s.CommitAllChangesAsync(message, ct));
+		public Task<GitCommit> CommitAllChangesAsync(string message) => Service<IGitCommitService>().Call(s => s.CommitAllChangesAsync(message, ct));
 
-		public Task UncommitAsync() => Service<IGitCommitService2>().Call(s => s.UnCommitAsync(ct));
+		public Task UncommitAsync() => Service<IGitCommitService>().Call(s => s.UnCommitAsync(ct));
 
 		public Task UndoUncommitedAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommittedAsync(ct));
 
@@ -115,7 +115,7 @@ namespace GitMindTest.Utils.Git.Private
 
 		public Task<IReadOnlyList<GitCommit>> GetLogAsync() => Service<IGitLogService>().Call(s => s.GetLogAsync(ct));
 
-		public Task<GitCommit> GetCommit(string sha) => Service<IGitCommitService2>().Call(s => s.GetCommitAsync(sha, ct));
+		public Task<GitCommit> GetCommit(string sha) => Service<IGitCommitService>().Call(s => s.GetCommitAsync(sha, ct));
 
 
 		public Task<CommitDiff> ParsePatchAsync(CommitSha commitSha, string patch, bool addPrefixes = true) =>

@@ -31,7 +31,7 @@ namespace GitMind.Features.Commits.Private
 		private readonly IRepositoryCommands repositoryCommands;
 		private readonly Func<SetBranchPromptDialog> setBranchPromptDialogProvider;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
-		private readonly IGitCommitService2 gitCommitService2;
+		private readonly IGitCommitService gitCommitService;
 		private readonly IDiffService diffService;
 		private readonly ILinkService linkService;
 		private readonly IRepositoryMgr repositoryMgr;
@@ -50,7 +50,7 @@ namespace GitMind.Features.Commits.Private
 			IRepositoryMgr repositoryMgr,
 			IProgressService progressService,
 			IStatusService statusService,
-			IGitCommitService2 gitCommitService2,
+			IGitCommitService gitCommitService,
 			IGitStatusService2 gitStatusService2,
 			Func<
 				BranchName,
@@ -60,7 +60,7 @@ namespace GitMind.Features.Commits.Private
 				CommitDialog> commitDialogProvider)
 		{
 			this.commitDialogProvider = commitDialogProvider;
-			this.gitCommitService2 = gitCommitService2;
+			this.gitCommitService = gitCommitService;
 			this.gitStatusService2 = gitStatusService2;
 			this.message = message;
 			this.repositoryCommands = repositoryCommands;
@@ -148,7 +148,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			using (progress.ShowDialog($"Uncommitting in {commit} ..."))
 			{
-				R result = await gitCommitService2.UnCommitAsync(CancellationToken.None);
+				R result = await gitCommitService.UnCommitAsync(CancellationToken.None);
 
 				if (result.IsFaulted)
 				{
@@ -161,7 +161,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			using (progress.ShowDialog($"Undo commit {commit} ..."))
 			{
-				R result = await gitCommitService2.UndoCommitAsync(commit.RealCommitSha.Sha, CancellationToken.None);
+				R result = await gitCommitService.UndoCommitAsync(commit.RealCommitSha.Sha, CancellationToken.None);
 
 				if (result.IsFaulted)
 				{
@@ -302,7 +302,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			Log.Debug($"Commit {paths.Count} files: {message} ...");
 
-			R<GitCommit> commit = await gitCommitService2.CommitAllChangesAsync(message, CancellationToken.None);
+			R<GitCommit> commit = await gitCommitService.CommitAllChangesAsync(message, CancellationToken.None);
 			if (commit.IsOk)
 			{
 				CommitSha commitSha = commit.Value.Sha;

@@ -11,7 +11,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitDiffServiceTest : GitTestBase<IGitDiffService2>
+	public class GitDiffServiceTest : GitTestBase<IGitDiffService>
 	{
 		[Test]
 		public async Task TestDiffCommitAsync()

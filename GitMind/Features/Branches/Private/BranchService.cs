@@ -27,7 +27,7 @@ namespace GitMind.Features.Branches.Private
 		private readonly IGitPushService gitPushService;
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitMergeService2 gitMergeService2;
-		private readonly IGitCommitService2 gitCommitService2;
+		private readonly IGitCommitService gitCommitService;
 		private readonly IGitCheckoutService gitCheckoutService;
 		private readonly ICommitsService commitsService;
 		private readonly IProgressService progress;
@@ -43,7 +43,7 @@ namespace GitMind.Features.Branches.Private
 			IGitPushService gitPushService,
 			IGitBranchService gitBranchService,
 			IGitMergeService2 gitMergeService2,
-			IGitCommitService2 gitCommitService2,
+			IGitCommitService gitCommitService,
 			IGitCheckoutService gitCheckoutService,
 			ICommitsService commitsService,
 			IProgressService progressService,
@@ -57,7 +57,7 @@ namespace GitMind.Features.Branches.Private
 			this.gitPushService = gitPushService;
 			this.gitBranchService = gitBranchService;
 			this.gitMergeService2 = gitMergeService2;
-			this.gitCommitService2 = gitCommitService2;
+			this.gitCommitService = gitCommitService;
 			this.gitCheckoutService = gitCheckoutService;
 			this.commitsService = commitsService;
 			this.progress = progressService;
@@ -431,8 +431,8 @@ namespace GitMind.Features.Branches.Private
 			if (localbranch != null && remoteBranch != null)
 			{
 				// Both local and remote tip exists, use the branch with the most resent tip
-				R<GitCommit> localTipCommit = await gitCommitService2.GetCommitAsync(localbranch.TipSha.Sha, CancellationToken.None);
-				R<GitCommit> remoteTipCommit = await gitCommitService2.GetCommitAsync(remoteBranch.TipSha.Sha, CancellationToken.None);
+				R<GitCommit> localTipCommit = await gitCommitService.GetCommitAsync(localbranch.TipSha.Sha, CancellationToken.None);
+				R<GitCommit> remoteTipCommit = await gitCommitService.GetCommitAsync(remoteBranch.TipSha.Sha, CancellationToken.None);
 
 				if (localTipCommit.IsFaulted || remoteTipCommit.IsFaulted)
 				{

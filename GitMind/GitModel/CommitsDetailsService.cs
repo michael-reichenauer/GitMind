@@ -13,7 +13,7 @@ namespace GitMind.GitModel
 	[SingleInstance]
 	internal class CommitsDetailsService : ICommitsDetailsService
 	{
-		private readonly IGitCommitService2 gitCommitService2;
+		private readonly IGitCommitService gitCommitService;
 		private readonly IGitStatusService2 gitStatusService2;
 
 		private readonly ConcurrentDictionary<CommitSha, CommitDetails> commitsFiles =
@@ -24,10 +24,10 @@ namespace GitMind.GitModel
 
 
 		public CommitsDetailsService(
-			IGitCommitService2 gitCommitService2,
+			IGitCommitService gitCommitService,
 			IGitStatusService2 gitStatusService2)
 		{
-			this.gitCommitService2 = gitCommitService2;
+			this.gitCommitService = gitCommitService;
 			this.gitStatusService2 = gitStatusService2;
 		}
 
@@ -52,7 +52,7 @@ namespace GitMind.GitModel
 
 				string message = (commitSha == CommitSha.Uncommitted || commitSha == CommitSha.NoCommits)
 					? null
-					: (await gitCommitService2.GetCommitMessageAsync(commitSha.Sha, CancellationToken.None)).Or(null);
+					: (await gitCommitService.GetCommitMessageAsync(commitSha.Sha, CancellationToken.None)).Or(null);
 
 				Task<R<IReadOnlyList<GitFile2>>> commitsFilesForCommitTask =
 					CommitsFilesForCommitTask(commitSha, status);
@@ -95,7 +95,7 @@ namespace GitMind.GitModel
 				return R.From(status.Files);
 			}
 
-			return await gitCommitService2.GetCommitFilesAsync(commitSha.Sha, CancellationToken.None);
+			return await gitCommitService.GetCommitFilesAsync(commitSha.Sha, CancellationToken.None);
 		}
 	}
 }

@@ -242,12 +242,12 @@
     <Compile Include="Utils\Git\Private\GitBranch2.cs" />
     <Compile Include="Utils\Git\Private\GitBranchService.cs" />
     <Compile Include="Utils\Git\IGitBranchService.cs" />
-    <Compile Include="Utils\Git\Private\GitDiffService2.cs" />
-    <Compile Include="Utils\Git\IGitDiffService2.cs" />
+    <Compile Include="Utils\Git\Private\GitDiffService.cs" />
+    <Compile Include="Utils\Git\IGitDiffService.cs" />
     <Compile Include="Utils\Git\GitFile2.cs" />
     <Compile Include="Utils\Git\Private\FileStatus.cs" />
-    <Compile Include="Utils\Git\Private\GitCommitService2.cs" />
-    <Compile Include="Utils\Git\IGitCommitService2.cs" />
+    <Compile Include="Utils\Git\Private\GitCommitService.cs" />
+    <Compile Include="Utils\Git\IGitCommitService.cs" />
     <Compile Include="Utils\Git\Private\CredentialService.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialCommandData.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialIpcService.cs" />

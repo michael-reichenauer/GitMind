@@ -194,8 +194,8 @@ namespace GitMindTest.Utils.Git
 
 
 			GitCommit mergeCommit = await git.CommitAllChangesAsync(status.MergeMessage);
-			string mergePatch = await git.Service<IGitDiffService2>().Call(m => m.GetCommitDiffAsync(mergeCommit.Sha.Sha, ct));
-			string mergePatch2 = await git.Service<IGitDiffService2>().Call(
+			string mergePatch = await git.Service<IGitDiffService>().Call(m => m.GetCommitDiffAsync(mergeCommit.Sha.Sha, ct));
+			string mergePatch2 = await git.Service<IGitDiffService>().Call(
 				m => m.GetCommitDiffAsync(mergeCommit.Sha.Sha, ct));
 			CommitDiff diff = await diffParser.ParseAsync(mergeCommit.Sha, mergePatch, true, false);
 			CommitDiff diff2 = await diffParser.ParseAsync(mergeCommit.Sha, mergePatch2, true, false);
