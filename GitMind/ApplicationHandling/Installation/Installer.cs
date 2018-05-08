@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using GitMind.ApplicationHandling.SettingsHandling;
+using GitMind.ApplicationHandling.Installation.StarMenuHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Common.Tracking;
@@ -387,16 +387,12 @@ namespace GitMind.ApplicationHandling.Installation
 		{
 			string shortcutLocation = GetStartMenuShortcutPath();
 
-			IWshRuntimeLibrary.WshShell shell = new IWshRuntimeLibrary.WshShell();
-			IWshRuntimeLibrary.IWshShortcut shortcut = (IWshRuntimeLibrary.IWshShortcut)
-				shell.CreateShortcut(shortcutLocation);
-
-			shortcut.Description = ProgramInfo.ProgramName;
-			shortcut.Arguments = "";
-
-			shortcut.IconLocation = pathToExe;
-			shortcut.TargetPath = pathToExe;
-			shortcut.Save();
+			StartMenuWrapper.CreateStartMenuShortCut(
+				shortcutLocation,
+				pathToExe,
+				"",
+				pathToExe, 
+				ProgramInfo.ProgramName);
 		}
 
 

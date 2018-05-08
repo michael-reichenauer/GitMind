@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -25,7 +25,7 @@ namespace GitMind.MainWindowViews
 	{
 		private readonly WorkingFolder workingFolder;
 		private readonly ICommandLine commandLine;
-	
+
 		private readonly DispatcherTimer remoteCheckTimer = new DispatcherTimer();
 
 		private readonly MainWindowViewModel viewModel;
@@ -41,7 +41,7 @@ namespace GitMind.MainWindowViews
 
 			InitializeComponent();
 			Track.Window("MainWindow");
-	
+
 			SetShowToolTipLonger();
 
 			// Make sure maximize window does not cover the task bar

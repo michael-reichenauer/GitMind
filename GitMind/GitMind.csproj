@@ -42,8 +42,11 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Debug\GitMind.xml</DocumentationFile>
+    <NoWarn>
+    </NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -53,6 +56,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\GitMind.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>MainWindowViews\Application.ico</ApplicationIcon>
@@ -106,6 +110,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="ApplicationHandling\Installation\NamespaceDoc.cs" />
+    <Compile Include="ApplicationHandling\Installation\StarMenuHandling\NamespaceDoc.cs" />
+    <Compile Include="ApplicationHandling\Installation\StarMenuHandling\StartMenuWrapper.cs" />
     <Compile Include="ApplicationHandling\IStartInstanceService.cs" />
     <Compile Include="ApplicationHandling\IWorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
@@ -397,7 +404,6 @@
     <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
     <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\R.cs" />
-    <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
     <Compile Include="Utils\TaskExtensions.cs" />
     <Compile Include="Utils\TaskThrottler.cs" />
     <Compile Include="Utils\UI\BusyIndicator.cs" />

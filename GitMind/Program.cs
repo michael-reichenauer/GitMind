@@ -1,12 +1,14 @@
 ﻿using System;
 using GitMind.ApplicationHandling;
-using GitMind.Common;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 
 
 namespace GitMind
 {
+	/// <summary>
+	/// Contains the main entry point for the program
+	/// </summary>
 	public class Program
 	{
 		private readonly DependencyInjection dependencyInjection = new DependencyInjection();

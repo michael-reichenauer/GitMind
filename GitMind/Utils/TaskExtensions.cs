@@ -40,5 +40,18 @@
 
 			await task;
 		}
+
+
+
+		public static void RunInBackground(this Task task)
+		{
+			task.ContinueWith(
+				FailTask,
+				TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnFaulted);
+		}
+
+
+		private static void FailTask(Task task) =>
+			throw new InvalidOperationException("RunInBackground task failed", task.Exception);
 	}
 }
