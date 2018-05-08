@@ -11,10 +11,10 @@ namespace GitMind.Utils.Git.Private
 	internal class GitDiffService : IGitDiffService
 	{
 		private readonly IGitCmdService gitCmdService;
-		private readonly WorkingFolderPath workingFolder;
+		private readonly WorkingFolder workingFolder;
 
 
-		public GitDiffService(IGitCmdService gitCmdService, WorkingFolderPath workingFolder)
+		public GitDiffService(IGitCmdService gitCmdService, WorkingFolder workingFolder)
 		{
 			this.gitCmdService = gitCmdService;
 			this.workingFolder = workingFolder;

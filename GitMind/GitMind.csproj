@@ -111,7 +111,6 @@
     <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\Private\StartInstanceService.cs" />
     <Compile Include="ApplicationHandling\WorkingFolder.cs" />
-    <Compile Include="ApplicationHandling\WorkingFolderPath.cs" />
     <Compile Include="ApplicationHandling\Installation\InstallDialog.xaml.cs">
       <DependentUpon>InstallDialog.xaml</DependentUpon>
     </Compile>
@@ -124,7 +123,6 @@
     <Compile Include="GitModel\CommitId.cs" />
     <Compile Include="GitModel\CommitIds.cs" />
     <Compile Include="GitModel\CommitSha.cs" />
-    <Compile Include="Common\JumpListService.cs" />
     <Compile Include="Common\MessageDialogs\Message.cs" />
     <Compile Include="Common\MessageDialogs\MessageDialog.xaml.cs">
       <DependentUpon>MessageDialog.xaml</DependentUpon>
@@ -145,7 +143,6 @@
     </Compile>
     <Compile Include="Features\Remote\Private\GitPromptService.cs" />
     <Compile Include="Features\Remote\Private\RemoteService.cs" />
-    <Compile Include="Common\ResultExtensions.cs" />
     <Compile Include="Features\StatusHandling\IStatusService.cs" />
     <Compile Include="Features\StatusHandling\Private\FileEventArgs.cs" />
     <Compile Include="Features\StatusHandling\Private\IFolderMonitorService.cs" />
@@ -194,6 +191,7 @@
       <DependentUpon>CloneDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />
+    <Compile Include="Utils\AsserterEventArgs.cs" />
     <Compile Include="Utils\AsyncLock.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
     <Compile Include="Features\Branches\Private\CrateBranchDialog.xaml.cs">
@@ -378,7 +376,7 @@
     <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="GitModel\Private\MRepository.cs" />
     <Compile Include="GitModel\Private\RepositoryService.cs" />
-    <Compile Include="Common\ExceptionHandling.cs" />
+    <Compile Include="ApplicationHandling\ExceptionHandling.cs" />
     <Compile Include="Utils\FatalExceptionsExtensions.cs" />
     <Compile Include="GitModel\Private\Caching\CacheService.cs" />
     <Compile Include="GitModel\Private\ICacheService.cs" />

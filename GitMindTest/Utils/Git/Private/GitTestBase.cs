@@ -46,13 +46,13 @@ namespace GitMindTest.Utils.Git.Private
 				.RegisterNamespaceOf<IGitInfoService>()
 				.RegisterNamespaceOf<ICmd2>()
 				.RegisterType<IMessageService>()
-				.RegisterSingleInstance(new WorkingFolderPath(io.WorkingFolder));
+				.RegisterSingleInstance(new WorkingFolder(io.WorkingFolder));
 
 			am2 = new AutoMock()
 				.RegisterNamespaceOf<IGitInfoService>()
 				.RegisterNamespaceOf<ICmd2>()
 				.RegisterType<IMessageService>()
-				.RegisterSingleInstance(new WorkingFolderPath(io2.WorkingFolder));
+				.RegisterSingleInstance(new WorkingFolder(io2.WorkingFolder));
 
 			git = new GitHelper(am, io);
 			git2 = new GitHelper(am2, io2);

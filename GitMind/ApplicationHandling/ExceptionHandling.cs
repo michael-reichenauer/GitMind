@@ -9,7 +9,7 @@ using GitMind.Utils;
 using GitMind.Utils.UI;
 
 
-namespace GitMind.Common
+namespace GitMind.ApplicationHandling
 {
 	/// <summary>
 	/// Handles unhandled exceptions top ensure they are logged and program is restarted or shut down
@@ -45,6 +45,9 @@ namespace GitMind.Common
 			// Add event handler for fatal exceptions using catch condition "when (e.IsNotFatal())"
 			FatalExceptionsExtensions.FatalExeption += (s, e) =>
 				HandleException(e.Message, e.Exception);
+
+			// Add handler for asserts
+			Asserter.AssertOccurred += (s, e) => HandleException("Assert failed", e.Exception);
 		}
 
 

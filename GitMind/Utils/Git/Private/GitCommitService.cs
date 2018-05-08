@@ -18,14 +18,14 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitCmdService gitCmdService;
 		private readonly IGitDiffService gitDiffService;
 		private readonly IGitLogService gitLogService;
-		private readonly WorkingFolderPath workingFolder;
+		private readonly WorkingFolder workingFolder;
 
 
 		public GitCommitService(
 			IGitCmdService gitCmdService,
 			IGitDiffService gitDiffService,
 			IGitLogService gitLogService,
-			WorkingFolderPath workingFolder)
+			WorkingFolder workingFolder)
 		{
 			this.gitCmdService = gitCmdService;
 			this.gitDiffService = gitDiffService;

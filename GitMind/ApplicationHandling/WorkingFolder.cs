@@ -8,7 +8,7 @@ namespace GitMind.ApplicationHandling
 	internal class WorkingFolder
 	{
 		private readonly IWorkingFolderService workingFolderService;
-
+		private string path;
 
 		public WorkingFolder(IWorkingFolderService workingFolderService)
 		{
@@ -16,16 +16,22 @@ namespace GitMind.ApplicationHandling
 		}
 
 
-		public event EventHandler OnChange
+		public WorkingFolder(string path)
 		{
-			add { workingFolderService.OnChange += value; }
-			remove { workingFolderService.OnChange -= value; }
+			this.path = path;
 		}
 
 
-		public string Path => workingFolderService.Path;
+		public event EventHandler OnChange
+		{
+			add => workingFolderService.OnChange += value;
+			remove => workingFolderService.OnChange -= value;
+		}
 
-		public bool IsValid => workingFolderService.IsValid;
+
+		public string Path => workingFolderService?.Path ?? path;
+
+		public bool IsValid => workingFolderService?.IsValid ?? true;
 
 		public bool HasValue => Path != null;
 
@@ -34,9 +40,17 @@ namespace GitMind.ApplicationHandling
 		public static implicit operator string(WorkingFolder workingFolder) => workingFolder.Path;
 
 
-		public bool TrySetPath(string path)
+		public bool TrySetPath(string newPath)
 		{
-			return workingFolderService.TrySetPath(path);
+			if (workingFolderService != null)
+			{
+				return workingFolderService.TrySetPath(newPath);
+			}
+			else
+			{
+				path = newPath;
+				return true;
+			}
 		}
 
 

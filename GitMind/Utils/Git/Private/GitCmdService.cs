@@ -20,7 +20,7 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitEnvironmentService gitEnvironmentService;
 		private readonly ICredentialService credentialService;
 		private readonly IMessage message;
-		private readonly WorkingFolderPath workingFolder;
+		private readonly WorkingFolder workingFolder;
 
 
 		public GitCmdService(
@@ -28,7 +28,7 @@ namespace GitMind.Utils.Git.Private
 			IGitEnvironmentService gitEnvironmentService,
 			ICredentialService credentialService,
 			IMessage message,
-			WorkingFolderPath workingFolder)
+			WorkingFolder workingFolder)
 		{
 			this.cmd = cmd;
 			this.gitEnvironmentService = gitEnvironmentService;
