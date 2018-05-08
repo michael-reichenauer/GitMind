@@ -13,7 +13,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitMergeServiceTest : GitTestBase<IGitMergeService2>
+	public class GitMergeServiceTest : GitTestBase<IGitMergeService>
 	{
 		[Test]
 		public async Task TestMergeAsync()
@@ -164,13 +164,13 @@ namespace GitMindTest.Utils.Git
 
 			io.WriteFile("file1.txt", "Text 13 merged");
 			status = await git.GetStatusAsync();
-			await git.Service<IGitStatusService2>().Call(m => m.AddAsync("file1.txt", ct));
+			await git.Service<IGitStatusService>().Call(m => m.AddAsync("file1.txt", ct));
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(2, status.Modified);
 			Assert.AreEqual(3, status.Conflicted);
 
 			io.DeleteFile("file2.txt");
-			await git.Service<IGitStatusService2>().Call(m => m.RemoveAsync("file2.txt", ct));
+			await git.Service<IGitStatusService>().Call(m => m.RemoveAsync("file2.txt", ct));
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(2, status.Modified);
 			Assert.AreEqual(1, status.Deleted);
@@ -179,14 +179,14 @@ namespace GitMindTest.Utils.Git
 
 			string branchSide = await git.GetConflictFileAsync(conflicts.Files[2].RemoteId);
 			io.WriteFile("file3.txt", branchSide);
-			await git.Service<IGitStatusService2>().Call(m => m.AddAsync("file3.txt", ct));
+			await git.Service<IGitStatusService>().Call(m => m.AddAsync("file3.txt", ct));
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(3, status.Modified);
 			Assert.AreEqual(1, status.Deleted);
 			Assert.AreEqual(1, status.Conflicted);
 
 			io.WriteFile("file6.txt", "Text 63 merged");
-			await git.Service<IGitStatusService2>().Call(m => m.AddAsync("file6.txt", ct));
+			await git.Service<IGitStatusService>().Call(m => m.AddAsync("file6.txt", ct));
 			status = await git.GetStatusAsync();
 			Assert.AreEqual(4, status.Modified);
 			Assert.AreEqual(1, status.Deleted);

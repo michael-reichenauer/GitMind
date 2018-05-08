@@ -22,7 +22,7 @@ namespace GitMind.Features.Commits.Private
 		private readonly WorkingFolder workingFolder;
 		private readonly Lazy<IRepositoryMgr> repositoryMgr;
 		private readonly IGitFetchService gitFetchService;
-		private readonly IGitNotesService2 gitNotesService2;
+		private readonly IGitNotesService gitNotesService;
 		private readonly IGitPushService gitPushService;
 
 
@@ -30,13 +30,13 @@ namespace GitMind.Features.Commits.Private
 			WorkingFolder workingFolder,
 			Lazy<IRepositoryMgr> repositoryMgr,
 			IGitFetchService gitFetchService,
-			IGitNotesService2 gitNotesService2,
+			IGitNotesService gitNotesService,
 			IGitPushService gitPushService)
 		{
 			this.workingFolder = workingFolder;
 			this.repositoryMgr = repositoryMgr;
 			this.gitFetchService = gitFetchService;
-			this.gitNotesService2 = gitNotesService2;
+			this.gitNotesService = gitNotesService;
 			this.gitPushService = gitPushService;
 		}
 
@@ -124,7 +124,7 @@ namespace GitMind.Features.Commits.Private
 
 			await FetchNotesAsync(nameSpace);
 
-			string originNotesText = (await gitNotesService2.GetNoteAsync(
+			string originNotesText = (await gitNotesService.GetNoteAsync(
 				rootId.Sha, $"refs/notes/origin/{nameSpace}", CancellationToken.None)).Or("");
 
 			string notesText = MergeNotes(originNotesText, addedNotesText);
@@ -136,7 +136,7 @@ namespace GitMind.Features.Commits.Private
 				return;
 			}
 
-			R setResult = await gitNotesService2.AddNoteAsync(
+			R setResult = await gitNotesService.AddNoteAsync(
 				rootId.Sha, $"refs/notes/{nameSpace}", notesText, CancellationToken.None);
 
 			if (setResult.IsFaulted)
@@ -250,7 +250,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			Log.Debug($"Getting notes {nameSpace} from root commit {rootId} ...");
 
-			string notesText = (await gitNotesService2.GetNoteAsync(
+			string notesText = (await gitNotesService.GetNoteAsync(
 				rootId.Sha, $"refs/notes/origin/{nameSpace}", CancellationToken.None))
 				.Or("");
 

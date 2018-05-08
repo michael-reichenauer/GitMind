@@ -19,7 +19,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 		private readonly IFolderMonitorService folderMonitorService;
 		private readonly IMainWindowService mainWindowService;
-		private readonly IGitStatusService2 gitStatusService2;
+		private readonly IGitStatusService gitStatusService;
 		private readonly IProgressService progress;
 		private readonly Lazy<IRepositoryService> repositoryService;
 
@@ -35,13 +35,13 @@ namespace GitMind.Features.StatusHandling.Private
 		public StatusService(
 			IFolderMonitorService folderMonitorService,
 			IMainWindowService mainWindowService,
-			IGitStatusService2 gitStatusService2,
+			IGitStatusService gitStatusService,
 			IProgressService progress,
 			Lazy<IRepositoryService> repositoryService)
 		{
 			this.folderMonitorService = folderMonitorService;
 			this.mainWindowService = mainWindowService;
-			this.gitStatusService2 = gitStatusService2;
+			this.gitStatusService = gitStatusService;
 			this.progress = progress;
 			this.repositoryService = repositoryService;
 
@@ -211,7 +211,7 @@ namespace GitMind.Features.StatusHandling.Private
 		private async Task<IReadOnlyList<string>> GetFreshBranchIdsAsync()
 		{
 			Timing t = new Timing();
-			R<IReadOnlyList<string>> branchIds = await gitStatusService2.GetRefsIdsAsync(CancellationToken.None);
+			R<IReadOnlyList<string>> branchIds = await gitStatusService.GetRefsIdsAsync(CancellationToken.None);
 			t.Log($"Got  {branchIds.Or(None).Count} branch ids");
 
 			if (branchIds.IsFaulted)
@@ -228,7 +228,7 @@ namespace GitMind.Features.StatusHandling.Private
 		{
 			Log.Debug("Getting status ...");
 			Timing t = new Timing();
-			R<GitStatus2> status = await gitStatusService2.GetStatusAsync(CancellationToken.None);
+			R<GitStatus2> status = await gitStatusService.GetStatusAsync(CancellationToken.None);
 			t.Log($"Got status {status}");
 
 			if (status.IsFaulted)

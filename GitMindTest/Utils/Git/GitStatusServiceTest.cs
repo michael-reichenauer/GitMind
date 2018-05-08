@@ -11,7 +11,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitStatusServiceTest : GitTestBase<IGitStatusService2>
+	public class GitStatusServiceTest : GitTestBase<IGitStatusService>
 	{
 		[Test]
 		public async Task TestStatus()

@@ -3,7 +3,7 @@
 
 namespace GitMind.Utils.Git.Private
 {
-	public class GitBranch2
+	public class GitBranch
 	{
 		public string Name { get; }
 		public CommitSha TipSha { get; }
@@ -31,7 +31,7 @@ namespace GitMind.Utils.Git.Private
 			BehindCount > 0 &&
 			AheadCount == 0;
 
-		public GitBranch2(
+		public GitBranch(
 			string branchName,
 			CommitSha tipSha,
 			bool isCurrent,

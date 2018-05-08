@@ -64,11 +64,11 @@ namespace GitMind.GitModel.Private
 
 		private static IReadOnlyDictionary<CommitSha, string> GetSingleBranchTipCommits(
 			Repository repository,
-			IReadOnlyList<GitBranch2> branches)
+			IReadOnlyList<GitBranch> branches)
 		{
-			Dictionary<CommitSha, GitBranch2> branchByTip = new Dictionary<CommitSha, GitBranch2>();
+			Dictionary<CommitSha, GitBranch> branchByTip = new Dictionary<CommitSha, GitBranch>();
 
-			foreach (GitBranch2 branch in branches)
+			foreach (GitBranch branch in branches)
 			{
 				try
 				{
@@ -78,7 +78,7 @@ namespace GitMind.GitModel.Private
 					// Check if commit has any children (i.e. is not sole branch tip)
 					if (repository.Commits.TryGetValue(commitId, out Commit commit) && !commit.Children.Any())
 					{
-						if (!branchByTip.TryGetValue(commitSha, out GitBranch2 existingBranch))
+						if (!branchByTip.TryGetValue(commitSha, out GitBranch existingBranch))
 						{
 							// No existing branch has yet a tip to this commit
 							branchByTip[commitSha] = branch;
@@ -133,7 +133,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static bool AreLocalRemotePair(GitBranch2 branch1, GitBranch2 branch2)
+		private static bool AreLocalRemotePair(GitBranch branch1, GitBranch branch2)
 		{
 			return
 				branch1.IsRemote &&

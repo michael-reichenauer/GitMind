@@ -96,7 +96,7 @@ namespace GitMind.GitModel.Private
 				return;
 			}
 
-			IReadOnlyList<GitBranch2> branches = branchesResult.Value;
+			IReadOnlyList<GitBranch> branches = branchesResult.Value;
 
 			repository.Status = status ?? await statusService.GetStatusAsync();
 			t.Log("Got status");
@@ -160,12 +160,12 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static void SetCurrentBranchAndCommit(MRepository repository, IReadOnlyList<GitBranch2> branches)
+		private static void SetCurrentBranchAndCommit(MRepository repository, IReadOnlyList<GitBranch> branches)
 		{
 			GitStatus2 status = repository.Status;
 			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);
 			repository.CurrentBranchId = currentBranch.Id;
-			branches.TryGetCurrent(out GitBranch2 current);
+			branches.TryGetCurrent(out GitBranch current);
 			repository.CurrentCommitId = status.OK
 				? current != null
 					? repository.Commit(new CommitId(current.TipSha.Sha)).Id

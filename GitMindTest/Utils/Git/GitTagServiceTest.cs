@@ -12,7 +12,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitTagServiceTest : GitTestBase<IGitTagService2>
+	public class GitTagServiceTest : GitTestBase<IGitTagService>
 	{
 		[Test]
 		public async Task TestTagsAsync()

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	public interface IGitStatusService2
+	public interface IGitStatusService
 	{
 		Task<R<GitStatus2>> GetStatusAsync(CancellationToken ct);
 		Task<R<GitConflicts>> GetConflictsAsync(CancellationToken ct);

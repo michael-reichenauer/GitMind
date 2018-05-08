@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	public interface IGitTagService2
+	public interface IGitTagService
 	{
 		Task<R<IReadOnlyList<GitTag>>> GetAllTagsAsync(CancellationToken ct);
 

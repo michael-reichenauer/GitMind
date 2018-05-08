@@ -14,7 +14,7 @@ namespace GitMind.GitModel
 	internal class CommitsDetailsService : ICommitsDetailsService
 	{
 		private readonly IGitCommitService gitCommitService;
-		private readonly IGitStatusService2 gitStatusService2;
+		private readonly IGitStatusService gitStatusService;
 
 		private readonly ConcurrentDictionary<CommitSha, CommitDetails> commitsFiles =
 			new ConcurrentDictionary<CommitSha, CommitDetails>();
@@ -25,10 +25,10 @@ namespace GitMind.GitModel
 
 		public CommitsDetailsService(
 			IGitCommitService gitCommitService,
-			IGitStatusService2 gitStatusService2)
+			IGitStatusService gitStatusService)
 		{
 			this.gitCommitService = gitCommitService;
-			this.gitStatusService2 = gitStatusService2;
+			this.gitStatusService = gitStatusService;
 		}
 
 
@@ -60,7 +60,7 @@ namespace GitMind.GitModel
 				GitConflicts conflicts = GitConflicts.None;
 				if (commitSha == CommitSha.Uncommitted && status.HasConflicts)
 				{
-					conflicts = (await gitStatusService2.GetConflictsAsync(CancellationToken.None)).Or(GitConflicts.None);
+					conflicts = (await gitStatusService.GetConflictsAsync(CancellationToken.None)).Or(GitConflicts.None);
 				}
 
 				currentTask = commitsFilesForCommitTask;

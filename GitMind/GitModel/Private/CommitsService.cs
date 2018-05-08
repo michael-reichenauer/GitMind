@@ -65,14 +65,14 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddBranchCommits(IReadOnlyList<GitBranch2> branches, MRepository repository)
+		public void AddBranchCommits(IReadOnlyList<GitBranch> branches, MRepository repository)
 		{
 			GitStatus2 status = repository.Status;
 
 			Timing t = new Timing();
 			IEnumerable<CommitSha> rootCommits = branches.Select(b => b.TipSha);
 
-			if (branches.TryGetCurrent(out GitBranch2 current) && current.IsDetached)
+			if (branches.TryGetCurrent(out GitBranch current) && current.IsDetached)
 			{
 				rootCommits = rootCommits.Concat(new[] { current.TipSha });
 			}
@@ -171,7 +171,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void AddVirtualUncommitted(GitBranch2 currentBranch, GitStatus2 status, MRepository repository)
+		private void AddVirtualUncommitted(GitBranch currentBranch, GitStatus2 status, MRepository repository)
 		{
 			MCommit commit = repository.Commit(CommitId.Uncommitted);
 			repository.Uncommitted = commit;
@@ -299,7 +299,7 @@ namespace GitMind.GitModel.Private
 
 
 		private static void CopyToUncommitedCommit(
-			GitBranch2 currentBranch,
+			GitBranch currentBranch,
 			MRepository repository,
 			GitStatus2 status,
 			MCommit commit,

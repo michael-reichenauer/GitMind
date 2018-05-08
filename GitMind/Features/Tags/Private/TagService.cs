@@ -19,7 +19,7 @@ namespace GitMind.Features.Tags.Private
 		private readonly IStatusService statusService;
 		private readonly IProgressService progress;
 		private readonly IGitPushService gitPushService;
-		private readonly IGitTagService2 gitTagService2;
+		private readonly IGitTagService gitTagService;
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
 
@@ -28,14 +28,14 @@ namespace GitMind.Features.Tags.Private
 			IStatusService statusService,
 			IProgressService progressService,
 			IGitPushService gitPushService,
-			IGitTagService2 gitTagService2,
+			IGitTagService gitTagService,
 			IMessage message,
 			WindowOwner owner)
 		{
 			this.statusService = statusService;
 			this.progress = progressService;
 			this.gitPushService = gitPushService;
-			this.gitTagService2 = gitTagService2;
+			this.gitTagService = gitTagService;
 			this.message = message;
 			this.owner = owner;
 		}
@@ -43,7 +43,7 @@ namespace GitMind.Features.Tags.Private
 
 		public async Task CopyTagsAsync(MRepository repository)
 		{
-			R<IReadOnlyList<GitTag>> tags = await gitTagService2.GetAllTagsAsync(CancellationToken.None);
+			R<IReadOnlyList<GitTag>> tags = await gitTagService.GetAllTagsAsync(CancellationToken.None);
 
 			if (tags.IsFaulted)
 			{
@@ -83,7 +83,7 @@ namespace GitMind.Features.Tags.Private
 
 					using (progress.ShowDialog($"Add tag {tagText} ..."))
 					{
-						R result = await gitTagService2.AddTagAsync(commitSha.Sha, tagText, CancellationToken.None);
+						R result = await gitTagService.AddTagAsync(commitSha.Sha, tagText, CancellationToken.None);
 						if (result.IsOk)
 						{
 							// Try to push immediately
@@ -112,7 +112,7 @@ namespace GitMind.Features.Tags.Private
 			{
 				using (progress.ShowDialog($"Delete tag {tagName} ..."))
 				{
-					R deleteLocalResult = await gitTagService2.DeleteTagAsync(tagName, CancellationToken.None);
+					R deleteLocalResult = await gitTagService.DeleteTagAsync(tagName, CancellationToken.None);
 
 					R result = deleteLocalResult;
 					if (deleteLocalResult.IsOk)

@@ -37,7 +37,7 @@ namespace GitMind.Features.Commits.Private
 		private readonly IRepositoryMgr repositoryMgr;
 		private readonly IProgressService progress;
 		private readonly IStatusService statusService;
-		private readonly IGitStatusService2 gitStatusService2;
+		private readonly IGitStatusService gitStatusService;
 
 
 		public CommitsService(
@@ -51,7 +51,7 @@ namespace GitMind.Features.Commits.Private
 			IProgressService progressService,
 			IStatusService statusService,
 			IGitCommitService gitCommitService,
-			IGitStatusService2 gitStatusService2,
+			IGitStatusService gitStatusService,
 			Func<
 				BranchName,
 				IEnumerable<CommitFile>,
@@ -61,7 +61,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			this.commitDialogProvider = commitDialogProvider;
 			this.gitCommitService = gitCommitService;
-			this.gitStatusService2 = gitStatusService2;
+			this.gitStatusService = gitStatusService;
 			this.message = message;
 			this.repositoryCommands = repositoryCommands;
 			this.setBranchPromptDialogProvider = setBranchPromptDialogProvider;
@@ -137,7 +137,7 @@ namespace GitMind.Features.Commits.Private
 				}
 				else if (repository.Status.IsMerging && !commitFiles.Any())
 				{
-					await gitStatusService2.UndoAllUncommittedAsync(CancellationToken.None);
+					await gitStatusService.UndoAllUncommittedAsync(CancellationToken.None);
 				}
 			}
 		}
@@ -232,7 +232,7 @@ namespace GitMind.Features.Commits.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog("Undoing changes in working folder ..."))
 			{
-				await gitStatusService2.UndoAllUncommittedAsync(CancellationToken.None);
+				await gitStatusService.UndoAllUncommittedAsync(CancellationToken.None);
 			}
 		}
 
@@ -244,7 +244,7 @@ namespace GitMind.Features.Commits.Private
 			using (statusService.PauseStatusNotifications())
 			using (progress.ShowDialog("Cleaning untracked/ignored files in working folder  ..."))
 			{
-				failedPaths = await gitStatusService2.CleanWorkingFolderAsync(CancellationToken.None);
+				failedPaths = await gitStatusService.CleanWorkingFolderAsync(CancellationToken.None);
 			}
 
 			if (failedPaths.IsFaulted)
@@ -285,7 +285,7 @@ namespace GitMind.Features.Commits.Private
 		{
 			using (progress.ShowDialog($"Undoing file change in {path} ..."))
 			{
-				await gitStatusService2.UndoUncommittedFileAsync(path, CancellationToken.None);
+				await gitStatusService.UndoUncommittedFileAsync(path, CancellationToken.None);
 			}
 		}
 

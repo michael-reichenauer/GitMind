@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Utils;
@@ -19,7 +17,7 @@ namespace GitMind
 		[STAThread]
 		public static void Main()
 		{
-			Log.Debug(GetStartLineText());
+			Log.Debug($"Start version: {Version}, args: '{CommandLine.ArgsText}'");
 
 			Program program = new Program();
 			program.Run();
@@ -66,22 +64,14 @@ namespace GitMind
 		}
 
 
-		private static string GetStartLineText()
+		private static string Version
 		{
-			string version = GetProgramVersion();
-
-			string[] args = Environment.GetCommandLineArgs();
-			string argsText = string.Join("','", args);
-
-			return $"Start version: {version}, args: '{argsText}'";
-		}
-
-
-		private static string GetProgramVersion()
-		{
-			Assembly assembly = Assembly.GetExecutingAssembly();
-			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-			return fvi.FileVersion;
+			get
+			{
+				Assembly assembly = Assembly.GetExecutingAssembly();
+				FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+				return fvi.FileVersion;
+			}
 		}
 	}
 }

@@ -24,7 +24,7 @@ namespace GitMind.Features.Remote.Private
 		private readonly IStatusService statusService;
 
 		private readonly IGitFetchService gitFetchService;
-		private readonly IGitMergeService2 gitMergeService2;
+		private readonly IGitMergeService gitMergeService;
 		private readonly IGitPushService gitPushService;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 
@@ -35,7 +35,7 @@ namespace GitMind.Features.Remote.Private
 			IMessage message,
 			IStatusService statusService,
 			IGitFetchService gitFetchService,
-			IGitMergeService2 gitMergeService2,
+			IGitMergeService gitMergeService,
 			IGitPushService gitPushService,
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
@@ -44,7 +44,7 @@ namespace GitMind.Features.Remote.Private
 			this.message = message;
 			this.statusService = statusService;
 			this.gitFetchService = gitFetchService;
-			this.gitMergeService2 = gitMergeService2;
+			this.gitMergeService = gitMergeService;
 			this.gitPushService = gitPushService;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 		}
@@ -223,7 +223,7 @@ namespace GitMind.Features.Remote.Private
 
 		private async Task<R> MergeCurrentBranchAsync()
 		{
-			R<bool> ffResult = await gitMergeService2.TryMergeFastForwardAsync(null, CancellationToken.None);
+			R<bool> ffResult = await gitMergeService.TryMergeFastForwardAsync(null, CancellationToken.None);
 			if (ffResult.IsFaulted)
 			{
 				return R.Error("Failed to merge current branch", ffResult.Exception);
@@ -231,7 +231,7 @@ namespace GitMind.Features.Remote.Private
 
 			if (!ffResult.Value)
 			{
-				R result = await gitMergeService2.MergeAsync(null, CancellationToken.None);
+				R result = await gitMergeService.MergeAsync(null, CancellationToken.None);
 				if (result.IsFaulted)
 				{
 					return R.Error("Failed to merge current branch", ffResult.Exception);

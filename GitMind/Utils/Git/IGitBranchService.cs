@@ -10,7 +10,7 @@ namespace GitMind.Utils.Git
 	{
 		GitException NotFullyMergedException { get; }
 
-		Task<R<IReadOnlyList<GitBranch2>>> GetBranchesAsync(CancellationToken ct);
+		Task<R<IReadOnlyList<GitBranch>>> GetBranchesAsync(CancellationToken ct);
 
 		Task<R> BranchAsync(string name, bool isCheckout, CancellationToken ct);
 

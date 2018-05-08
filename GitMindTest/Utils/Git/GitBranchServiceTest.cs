@@ -28,7 +28,7 @@ namespace GitMindTest.Utils.Git
 			await git.BranchAsync("branch1");
 			branches = await git.GetBranchesAsync();
 			Assert.AreEqual(2, branches.Count);
-			GitBranch2 current = branches.First(branch => branch.IsCurrent);
+			GitBranch current = branches.First(branch => branch.IsCurrent);
 			Assert.AreEqual("branch1", current.Name);
 
 			Assert.AreEqual(branches[0].TipSha, branches[1].TipSha);
@@ -65,7 +65,7 @@ namespace GitMindTest.Utils.Git
 			var commit4 = await git.CommitAllChangesAsync("Message 1 on branch1");
 
 			branches = await git.GetBranchesAsync();
-			branches.TryGet("branch1", out GitBranch2 branch);
+			branches.TryGet("branch1", out GitBranch branch);
 			Assert.AreEqual(commit4.Sha, branch.TipSha);
 			GitCommit parentCommit = await git.GetCommit(commit4.ParentIds.First().Id);
 
@@ -79,7 +79,7 @@ namespace GitMindTest.Utils.Git
 			await git.CloneRepoAsync();
 
 			// Get branches from an empty repo should be 0 branches
-			R<IReadOnlyList<GitBranch2>> result = await cmd.GetBranchesAsync(ct);
+			R<IReadOnlyList<GitBranch>> result = await cmd.GetBranchesAsync(ct);
 			Assert.IsTrue(result.IsOk);
 			Assert.IsTrue(!result.Value.Any());
 
@@ -103,8 +103,8 @@ namespace GitMindTest.Utils.Git
 			// After push, we expect 2 branches local and remote
 			result = await cmd.GetBranchesAsync(ct);
 			Assert.AreEqual(2, result.Value.Count);
-			GitBranch2 local = result.Value.First(branch => branch.IsLocal);
-			GitBranch2 remote = result.Value.First(branch => branch.IsRemote);
+			GitBranch local = result.Value.First(branch => branch.IsLocal);
+			GitBranch remote = result.Value.First(branch => branch.IsRemote);
 			Assert.AreEqual("master", local.Name);
 			Assert.AreEqual(false, local.IsRemoteMissing);
 			Assert.AreEqual(false, local.IsPushable);
@@ -166,8 +166,8 @@ namespace GitMindTest.Utils.Git
 			await git.UndoUncommitedAsync();
 
 			branches = await git.GetBranchesAsync();
-			GitBranch2 local = branches.First(branch => branch.IsLocal);
-			GitBranch2 remote = branches.First(branch => branch.IsRemote);
+			GitBranch local = branches.First(branch => branch.IsLocal);
+			GitBranch remote = branches.First(branch => branch.IsRemote);
 			Assert.AreEqual(0, local.AheadCount);
 			Assert.AreEqual(1, local.BehindCount);
 			Assert.AreEqual(true, local.IsFetchable);
@@ -216,7 +216,7 @@ namespace GitMindTest.Utils.Git
 			await git.CheckoutAsync(commit1.Sha.Sha);
 
 			branches = await git.GetBranchesAsync();
-			branches.TryGetCurrent(out GitBranch2 current);
+			branches.TryGetCurrent(out GitBranch current);
 			Assert.AreEqual(3, branches.Count);
 			Assert.AreEqual(true, current.IsDetached);
 			Assert.AreEqual(commit1.Message, current.Message);
@@ -227,7 +227,7 @@ namespace GitMindTest.Utils.Git
 		[Test, Explicit]
 		public async Task Test()
 		{
-			R<IReadOnlyList<GitBranch2>> result = await cmd.GetBranchesAsync(ct);
+			R<IReadOnlyList<GitBranch>> result = await cmd.GetBranchesAsync(ct);
 		}
 	}
 }

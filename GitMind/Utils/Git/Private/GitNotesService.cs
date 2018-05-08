@@ -7,12 +7,12 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitNotesService2 : IGitNotesService2
+	internal class GitNotesService : IGitNotesService
 	{
 		private readonly IGitCmdService gitCmdService;
 
 
-		public GitNotesService2(IGitCmdService gitCmdService)
+		public GitNotesService(IGitCmdService gitCmdService)
 		{
 			this.gitCmdService = gitCmdService;
 		}

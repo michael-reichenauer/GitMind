@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace GitMind.Utils.Git
 {
-	public interface IGitNotesService2
+	public interface IGitNotesService
 	{
 		Task<R<string>> GetNoteAsync(string sha, string notesRef, CancellationToken ct);
 

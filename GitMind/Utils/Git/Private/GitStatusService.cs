@@ -10,7 +10,7 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitStatusService2 : IGitStatusService2
+	internal class GitStatusService : IGitStatusService
 	{
 		private static readonly string StatusArgs =
 			"status -s --porcelain --ahead-behind --untracked-files=all";
@@ -24,7 +24,7 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitCmdService gitCmdService;
 
 
-		public GitStatusService2(IGitCmdService gitCmdService)
+		public GitStatusService(IGitCmdService gitCmdService)
 		{
 			this.gitCmdService = gitCmdService;
 		}

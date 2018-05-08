@@ -24,7 +24,7 @@ namespace GitMind.Features.Diffing.Private
 
 		private readonly WorkingFolder workingFolder;
 		private readonly IGitDiffService gitDiffService;
-		private readonly IGitStatusService2 gitStatusService2;
+		private readonly IGitStatusService gitStatusService;
 		private readonly IGitDiffParser diffParser;
 		private readonly ICmd cmd;
 
@@ -32,13 +32,13 @@ namespace GitMind.Features.Diffing.Private
 		public DiffService(
 			WorkingFolder workingFolder,
 			IGitDiffService gitDiffService,
-			IGitStatusService2 gitStatusService2,
+			IGitStatusService gitStatusService,
 			IGitDiffParser diffParser,
 			ICmd cmd)
 		{
 			this.workingFolder = workingFolder;
 			this.gitDiffService = gitDiffService;
-			this.gitStatusService2 = gitStatusService2;
+			this.gitStatusService = gitStatusService;
 			this.diffParser = diffParser;
 			this.cmd = cmd;
 		}
@@ -152,7 +152,7 @@ namespace GitMind.Features.Diffing.Private
 				return;
 			}
 
-			R<string> yoursFile = await gitStatusService2.GetConflictFile(fileId, CancellationToken.None);
+			R<string> yoursFile = await gitStatusService.GetConflictFile(fileId, CancellationToken.None);
 			if (yoursFile.IsOk)
 			{
 				File.WriteAllText(path, yoursFile.Value);
@@ -414,11 +414,11 @@ namespace GitMind.Features.Diffing.Private
 		{
 			if (File.Exists(fullPath))
 			{
-				await gitStatusService2.AddAsync(path, CancellationToken.None);
+				await gitStatusService.AddAsync(path, CancellationToken.None);
 			}
 			else
 			{
-				await gitStatusService2.RemoveAsync(path, CancellationToken.None);
+				await gitStatusService.RemoveAsync(path, CancellationToken.None);
 			}
 
 			// Temp workaround to trigger status update after resolving conflicts, ill be handled better

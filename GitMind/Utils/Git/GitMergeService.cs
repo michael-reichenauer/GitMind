@@ -7,12 +7,12 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git
 {
-	internal class GitMergeService2 : IGitMergeService2
+	internal class GitMergeService : IGitMergeService
 	{
 		private readonly IGitCmdService gitCmdService;
 
 
-		public GitMergeService2(IGitCmdService gitCmdService)
+		public GitMergeService(IGitCmdService gitCmdService)
 		{
 			this.gitCmdService = gitCmdService;
 		}

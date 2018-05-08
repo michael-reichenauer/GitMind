@@ -6,12 +6,12 @@ using GitMind.Utils.OsSystem;
 
 namespace GitMind.Utils.Git.Private
 {
-	internal class GitTagService2 : IGitTagService2
+	internal class GitTagService : IGitTagService
 	{
 		private readonly IGitCmdService gitCmdService;
 
 
-		public GitTagService2(IGitCmdService gitCmdService)
+		public GitTagService(IGitCmdService gitCmdService)
 		{
 			this.gitCmdService = gitCmdService;
 		}

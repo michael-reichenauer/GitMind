@@ -26,7 +26,7 @@ namespace GitMind.Features.Branches.Private
 		private readonly IGitFetchService gitFetchService;
 		private readonly IGitPushService gitPushService;
 		private readonly IGitBranchService gitBranchService;
-		private readonly IGitMergeService2 gitMergeService2;
+		private readonly IGitMergeService gitMergeService;
 		private readonly IGitCommitService gitCommitService;
 		private readonly IGitCheckoutService gitCheckoutService;
 		private readonly ICommitsService commitsService;
@@ -42,7 +42,7 @@ namespace GitMind.Features.Branches.Private
 			IGitFetchService gitFetchService,
 			IGitPushService gitPushService,
 			IGitBranchService gitBranchService,
-			IGitMergeService2 gitMergeService2,
+			IGitMergeService gitMergeService,
 			IGitCommitService gitCommitService,
 			IGitCheckoutService gitCheckoutService,
 			ICommitsService commitsService,
@@ -56,7 +56,7 @@ namespace GitMind.Features.Branches.Private
 			this.gitFetchService = gitFetchService;
 			this.gitPushService = gitPushService;
 			this.gitBranchService = gitBranchService;
-			this.gitMergeService2 = gitMergeService2;
+			this.gitMergeService = gitMergeService;
 			this.gitCommitService = gitCommitService;
 			this.gitCheckoutService = gitCheckoutService;
 			this.commitsService = commitsService;
@@ -394,7 +394,7 @@ namespace GitMind.Features.Branches.Private
 				Branch currentBranch = commit.Repository.CurrentBranch;
 				using (progress.ShowDialog($"Merging branch commit {commit.RealCommitSha.ShortSha} into {currentBranch.Name} ..."))
 				{
-					await gitMergeService2.MergeAsync(commit.RealCommitSha.Sha, CancellationToken.None);
+					await gitMergeService.MergeAsync(commit.RealCommitSha.Sha, CancellationToken.None);
 
 					repositoryCommands.SetCurrentMerging(commit.Branch, commit.RealCommitSha);
 
@@ -417,17 +417,17 @@ namespace GitMind.Features.Branches.Private
 		{
 			Log.Debug($"Merge branch {branchName} into current branch ...");
 
-			R<IReadOnlyList<GitBranch2>> branches = await gitBranchService.GetBranchesAsync(CancellationToken.None);
+			R<IReadOnlyList<GitBranch>> branches = await gitBranchService.GetBranchesAsync(CancellationToken.None);
 			if (branches.IsFaulted)
 			{
 				return R.Error("Failed to merge", branches.Exception);
 			}
 
 			// Trying to get both local and remote branch
-			branches.Value.TryGet(branchName, out GitBranch2 localbranch);
-			branches.Value.TryGet($"origin/{branchName}", out GitBranch2 remoteBranch);
+			branches.Value.TryGet(branchName, out GitBranch localbranch);
+			branches.Value.TryGet($"origin/{branchName}", out GitBranch remoteBranch);
 
-			GitBranch2 branch = localbranch ?? remoteBranch;
+			GitBranch branch = localbranch ?? remoteBranch;
 			if (localbranch != null && remoteBranch != null)
 			{
 				// Both local and remote tip exists, use the branch with the most resent tip
@@ -451,7 +451,7 @@ namespace GitMind.Features.Branches.Private
 			}
 
 
-			return await gitMergeService2.MergeAsync(branch.Name, CancellationToken.None);
+			return await gitMergeService.MergeAsync(branch.Name, CancellationToken.None);
 		}
 
 
@@ -486,13 +486,13 @@ namespace GitMind.Features.Branches.Private
 		{
 			Log.Debug($"Switch to commit {commitSha} with branch name '{branchName}' ...");
 
-			R<IReadOnlyList<GitBranch2>> branches = await gitBranchService.GetBranchesAsync(CancellationToken.None);
+			R<IReadOnlyList<GitBranch>> branches = await gitBranchService.GetBranchesAsync(CancellationToken.None);
 			if (branches.IsFaulted)
 			{
 				return R.Error("Failed to switch to commit", branches.Exception);
 			}
 
-			if (branches.Value.TryGet(branchName, out GitBranch2 branch))
+			if (branches.Value.TryGet(branchName, out GitBranch branch))
 			{
 				if (branch.TipSha == commitSha)
 				{
@@ -518,7 +518,7 @@ namespace GitMind.Features.Branches.Private
 
 		private async Task<R> MergeCurrentBranchAsync()
 		{
-			R<bool> ffResult = await gitMergeService2.TryMergeFastForwardAsync(null, CancellationToken.None);
+			R<bool> ffResult = await gitMergeService.TryMergeFastForwardAsync(null, CancellationToken.None);
 			if (ffResult.IsFaulted)
 			{
 				return R.Error("Failed to merge current branch", ffResult.Exception);
@@ -526,7 +526,7 @@ namespace GitMind.Features.Branches.Private
 
 			if (!ffResult.Value)
 			{
-				R result = await gitMergeService2.MergeAsync(null, CancellationToken.None);
+				R result = await gitMergeService.MergeAsync(null, CancellationToken.None);
 				if (result.IsFaulted)
 				{
 					return R.Error("Failed to merge current branch", ffResult.Exception);

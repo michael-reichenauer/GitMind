@@ -61,9 +61,9 @@ namespace GitMind.Utils.Git.Private
 		public GitException NotFullyMergedException { get; } = new GitException("Branch is not fully merged");
 
 
-		public async Task<R<IReadOnlyList<GitBranch2>>> GetBranchesAsync(CancellationToken ct)
+		public async Task<R<IReadOnlyList<GitBranch>>> GetBranchesAsync(CancellationToken ct)
 		{
-			List<GitBranch2> branches = new List<GitBranch2>();
+			List<GitBranch> branches = new List<GitBranch>();
 			R<CmdResult2> result = await gitCmdService.RunAsync("branch -vv --no-color --no-abbrev --all", ct);
 
 			if (result.IsFaulted)
@@ -76,7 +76,7 @@ namespace GitMind.Utils.Git.Private
 			{
 				if (!IsPointerBranch(match))
 				{
-					GitBranch2 branch = ToBranch(match);
+					GitBranch branch = ToBranch(match);
 					branches.Add(branch);
 				}
 			}
@@ -150,7 +150,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private static GitBranch2 ToBranch(Match match)
+		private static GitBranch ToBranch(Match match)
 		{
 			bool isCurrent = match.Groups[1].Value == "*";
 			bool isDetached = !string.IsNullOrEmpty(match.Groups[3].Value);
@@ -162,7 +162,7 @@ namespace GitMind.Utils.Git.Private
 			bool isRemoteMissing = match.Groups[15].Value == "gone";
 			string message = (match.Groups[17].Value ?? "").TrimEnd('\r');
 
-			GitBranch2 branch = new GitBranch2(
+			GitBranch branch = new GitBranch(
 				branchName, tipSha, isCurrent, message, boundBranchName, aheadCount, behindCount, isRemoteMissing, isDetached);
 			return branch;
 		}
