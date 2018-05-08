@@ -29,8 +29,8 @@ namespace GitMind
 			// Add handler and logging for unhandled exceptions
 			ExceptionHandling.HandleUnhandledException();
 
-			// Make external assemblies that GitMind depends on available, when needed (extracted)
-			ActivateExternalDependenciesResolver();
+			// Make dependency assemblies available, when needed (extracted from recources)
+			AssemblyResolver.Activate();
 
 			// Activate dependency injection support
 			dependencyInjection.RegisterDependencyInjectionTypes();
@@ -47,20 +47,6 @@ namespace GitMind
 			ExceptionHandling.HandleDispatcherUnhandledException();
 			application.InitializeComponent();
 			application.Run();
-		}
-
-
-		private static void ActivateExternalDependenciesResolver()
-		{
-			AssemblyResolver.Activate();
-			CommandLine commandLine = new CommandLine();
-
-			if (commandLine.IsInstall || commandLine.IsUninstall)
-			{
-				// LibGit2 requires native git2.dll, which should not be extracted during install/uninstall
-				// Since that would create a dll next to the setup file.
-				AssemblyResolver.DoNotExtractLibGit2();
-			}
 		}
 
 
