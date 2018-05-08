@@ -145,7 +145,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 
 		private static string GetProgramSettingsPath<T>()
 		{
-			return Path.Combine(ProgramPaths.DataFolderPath, typeof(T).Name + ".json");
+			return Path.Combine(ProgramInfo.DataFolderPath, typeof(T).Name + ".json");
 		}
 
 

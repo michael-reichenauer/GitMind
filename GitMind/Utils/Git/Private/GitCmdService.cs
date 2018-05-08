@@ -113,7 +113,7 @@ namespace GitMind.Utils.Git.Private
 			{
 				using (CredentialSession session = new CredentialSession(credentialService, username))
 				{
-					result = await RunGitCmsAsync(gitArgs, options, session.Id, ct);
+					result = await RunGitCmsAsync(gitArgs, options, session.SessionId, ct);
 
 					username = session.Username;
 					session.ConfirmValidCrededntial(!IsAuthenticationFailed(result));

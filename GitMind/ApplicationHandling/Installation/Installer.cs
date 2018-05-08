@@ -37,6 +37,9 @@ namespace GitMind.ApplicationHandling.Installation
 			directoryContextMenuPath + "\\command";
 		private static readonly string SetupTitle = "GitMind - Setup";
 
+		private static readonly string ProgramShortcutFileName = ProgramInfo.ProgramName + ".lnk";
+
+
 
 		private readonly ICmd cmd;
 		private readonly IGitEnvironmentService gitEnvironmentService;
@@ -162,7 +165,7 @@ namespace GitMind.ApplicationHandling.Installation
 
 		private void StartInstalled()
 		{
-			string targetPath = ProgramPaths.GetInstallFilePath();
+			string targetPath = ProgramInfo.GetInstallFilePath();
 			cmd.Start(targetPath, "/run /d:Open");
 		}
 
@@ -267,14 +270,14 @@ namespace GitMind.ApplicationHandling.Installation
 
 		private string CopyFileToProgramFiles()
 		{
-			string sourcePath = ProgramPaths.GetCurrentInstancePath();
-			Version sourceVersion = ProgramPaths.GetVersion(sourcePath);
+			string sourcePath = ProgramInfo.GetCurrentInstancePath();
+			Version sourceVersion = ProgramInfo.GetVersion(sourcePath);
 
-			string targetFolder = ProgramPaths.GetProgramFolderPath();
+			string targetFolder = ProgramInfo.GetProgramFolderPath();
 
 			EnsureDirectoryIsCreated(targetFolder);
 
-			string targetPath = ProgramPaths.GetInstallFilePath();
+			string targetPath = ProgramInfo.GetInstallFilePath();
 
 			try
 			{
@@ -289,7 +292,7 @@ namespace GitMind.ApplicationHandling.Installation
 				Log.Debug($"Failed to copy {sourcePath} to target {targetPath} {e.Message}");
 				try
 				{
-					string oldFilePath = ProgramPaths.GetTempFilePath();
+					string oldFilePath = ProgramInfo.GetTempFilePath();
 					Log.Debug($"Moving {targetPath} to {oldFilePath}");
 
 					File.Move(targetPath, oldFilePath);
@@ -312,7 +315,7 @@ namespace GitMind.ApplicationHandling.Installation
 		{
 			try
 			{
-				string path = ProgramPaths.GetVersionFilePath();
+				string path = ProgramInfo.GetVersionFilePath();
 				File.WriteAllText(path, sourceVersion.ToString());
 				Log.Debug($"Installed {sourceVersion}");
 			}
@@ -344,7 +347,7 @@ namespace GitMind.ApplicationHandling.Installation
 		private static void DeleteProgramFilesFolder()
 		{
 			Thread.Sleep(300);
-			string folderPath = ProgramPaths.GetProgramFolderPath();
+			string folderPath = ProgramInfo.GetProgramFolderPath();
 
 			for (int i = 0; i < 5; i++)
 			{
@@ -370,7 +373,7 @@ namespace GitMind.ApplicationHandling.Installation
 
 		private static void DeleteProgramDataFolder()
 		{
-			string programDataFolderPath = ProgramPaths.GetProgramDataFolderPath();
+			string programDataFolderPath = ProgramInfo.GetProgramDataFolderPath();
 
 			if (Directory.Exists(programDataFolderPath))
 			{
@@ -382,13 +385,13 @@ namespace GitMind.ApplicationHandling.Installation
 
 		private static void CreateStartMenuShortcut(string pathToExe)
 		{
-			string shortcutLocation = ProgramPaths.GetStartMenuShortcutPath();
+			string shortcutLocation = GetStartMenuShortcutPath();
 
 			IWshRuntimeLibrary.WshShell shell = new IWshRuntimeLibrary.WshShell();
 			IWshRuntimeLibrary.IWshShortcut shortcut = (IWshRuntimeLibrary.IWshShortcut)
 				shell.CreateShortcut(shortcutLocation);
 
-			shortcut.Description = ProgramPaths.ProgramName;
+			shortcut.Description = ProgramInfo.ProgramName;
 			shortcut.Arguments = "";
 
 			shortcut.IconLocation = pathToExe;
@@ -399,7 +402,7 @@ namespace GitMind.ApplicationHandling.Installation
 
 		private static void DeleteStartMenuShortcut()
 		{
-			string shortcutLocation = ProgramPaths.GetStartMenuShortcutPath();
+			string shortcutLocation = GetStartMenuShortcutPath();
 			File.Delete(shortcutLocation);
 		}
 
@@ -430,7 +433,7 @@ namespace GitMind.ApplicationHandling.Installation
 
 		private static void DeleteInPathVariable()
 		{
-			string programFilesFolderPath = ProgramPaths.GetProgramFolderPath();
+			string programFilesFolderPath = ProgramInfo.GetProgramFolderPath();
 
 			string keyName = @"Environment\";
 			string pathsVariables = (string)Registry.CurrentUser.OpenSubKey(keyName)
@@ -450,9 +453,9 @@ namespace GitMind.ApplicationHandling.Installation
 
 		private static void AddUninstallSupport(string path)
 		{
-			string version = ProgramPaths.GetVersion(path).ToString();
+			string version = ProgramInfo.GetVersion(path).ToString();
 
-			Registry.SetValue(UninstallRegKey, "DisplayName", ProgramPaths.ProgramName);
+			Registry.SetValue(UninstallRegKey, "DisplayName", ProgramInfo.ProgramName);
 			Registry.SetValue(UninstallRegKey, "DisplayIcon", path);
 			Registry.SetValue(UninstallRegKey, "Publisher", "Michael Reichenauer");
 			Registry.SetValue(UninstallRegKey, "DisplayVersion", version);
@@ -477,13 +480,13 @@ namespace GitMind.ApplicationHandling.Installation
 
 		private static void AddFolderContextMenu()
 		{
-			string programFilePath = ProgramPaths.GetInstallFilePath();
+			string programFilePath = ProgramInfo.GetInstallFilePath();
 
-			Registry.SetValue(folderContextMenuPath, "", ProgramPaths.ProgramName);
+			Registry.SetValue(folderContextMenuPath, "", ProgramInfo.ProgramName);
 			Registry.SetValue(folderContextMenuPath, "Icon", programFilePath);
 			Registry.SetValue(folderCommandContextMenuPath, "", "\"" + programFilePath + "\" \"/d:%1\"");
 
-			Registry.SetValue(directoryContextMenuPath, "", ProgramPaths.ProgramName);
+			Registry.SetValue(directoryContextMenuPath, "", ProgramInfo.ProgramName);
 			Registry.SetValue(directoryContextMenuPath, "Icon", programFilePath);
 			Registry.SetValue(
 				directoryCommandContextMenuPath, "", "\"" + programFilePath + "\" \"/d:%V\"");
@@ -506,8 +509,8 @@ namespace GitMind.ApplicationHandling.Installation
 
 		private static bool IsInstalledInstance()
 		{
-			string folderPath = Path.GetDirectoryName(ProgramPaths.GetCurrentInstancePath());
-			string programFolderGitMind = ProgramPaths.GetProgramFolderPath();
+			string folderPath = Path.GetDirectoryName(ProgramInfo.GetCurrentInstancePath());
+			string programFolderGitMind = ProgramInfo.GetProgramFolderPath();
 
 			return folderPath == programFolderGitMind;
 		}
@@ -515,11 +518,21 @@ namespace GitMind.ApplicationHandling.Installation
 
 		private static string CopyFileToTemp()
 		{
-			string sourcePath = ProgramPaths.GetCurrentInstancePath();
-			string targetPath = Path.Combine(Path.GetTempPath(), ProgramPaths.ProgramFileName);
+			string sourcePath = ProgramInfo.GetCurrentInstancePath();
+			string targetPath = Path.Combine(Path.GetTempPath(), ProgramInfo.ProgramFileName);
 			File.Copy(sourcePath, targetPath, true);
 
 			return targetPath;
+		}
+
+
+		public static string GetStartMenuShortcutPath()
+		{
+			string commonStartMenuPath = Environment.GetFolderPath(
+				Environment.SpecialFolder.StartMenu);
+			string startMenuPath = Path.Combine(commonStartMenuPath, "Programs");
+
+			return Path.Combine(startMenuPath, ProgramShortcutFileName);
 		}
 	}
 }

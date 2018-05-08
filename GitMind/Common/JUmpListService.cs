@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Windows;
 using System.Windows.Shell;
+using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 
 
@@ -23,9 +24,9 @@ namespace GitMind.Common
 
 			JumpTask jumpTask = new JumpTask();
 			jumpTask.Title = title;
-			jumpTask.ApplicationPath = ProgramPaths.GetInstallFilePath();
+			jumpTask.ApplicationPath = ProgramInfo.GetInstallFilePath();
 			jumpTask.Arguments = $"/d:\"{workingFolder}\"";
-			jumpTask.IconResourcePath = ProgramPaths.GetInstallFilePath();
+			jumpTask.IconResourcePath = ProgramInfo.GetInstallFilePath();
 			jumpTask.Description = workingFolder;
 
 			jumpList.ShowRecentCategory = true;

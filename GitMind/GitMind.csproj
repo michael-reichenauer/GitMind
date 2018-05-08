@@ -249,7 +249,6 @@
     <Compile Include="Utils\Git\Private\GitCommitService.cs" />
     <Compile Include="Utils\Git\IGitCommitService.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialService.cs" />
-    <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialCommandData.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialIpcService.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialSession.cs" />
     <Compile Include="Utils\Git\IGitAskPassService.cs" />
@@ -395,7 +394,7 @@
     <Compile Include="ApplicationHandling\ILatestVersionService.cs" />
     <Compile Include="ApplicationHandling\LatestVersionService.cs" />
     <Compile Include="ApplicationHandling\Installation\Installer.cs" />
-    <Compile Include="ApplicationHandling\SettingsHandling\ProgramPaths.cs" />
+    <Compile Include="ApplicationHandling\ProgramInfo.cs" />
     <Compile Include="ApplicationHandling\SettingsHandling\ProgramSettings.cs" />
     <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
     <Compile Include="Utils\CmdResult.cs" />

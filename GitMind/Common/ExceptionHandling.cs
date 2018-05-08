@@ -11,6 +11,9 @@ using GitMind.Utils.UI;
 
 namespace GitMind.Common
 {
+	/// <summary>
+	/// Handles unhandled exceptions top ensure they are logged and program is restarted or shut down
+	/// </summary>
 	internal static class ExceptionHandling
 	{
 		private static readonly TimeSpan MinTimeBeforeAutoRestart = TimeSpan.FromSeconds(10);
@@ -22,7 +25,7 @@ namespace GitMind.Common
 		private static bool hasFailed;
 		private static bool hasShutdown;
 		private static DateTime StartTime = DateTime.Now;
-		private static bool IsDispatcherInitialized = false;
+		private static bool isDispatcherInitialized = false;
 
 
 
@@ -39,7 +42,7 @@ namespace GitMind.Common
 				e.SetObserved();
 			};
 
-			// Add event handler for fatal execptions using catch condition "when (e.IsNotFatal())"
+			// Add event handler for fatal exceptions using catch condition "when (e.IsNotFatal())"
 			FatalExceptionsExtensions.FatalExeption += (s, e) =>
 				HandleException(e.Message, e.Exception);
 		}
@@ -56,7 +59,7 @@ namespace GitMind.Common
 
 			WpfBindingTraceListener.Register();
 
-			IsDispatcherInitialized = true;
+			isDispatcherInitialized = true;
 		}
 
 
@@ -88,6 +91,7 @@ namespace GitMind.Common
 		{
 			if (hasShutdown)
 			{
+				// Shutdown already in progress
 				return;
 			}
 
@@ -95,7 +99,7 @@ namespace GitMind.Common
 
 			Log.Exception(e, message);
 
-			if (IsDispatcherInitialized)
+			if (isDispatcherInitialized)
 			{
 				var dispatcher = GetApplicationDispatcher();
 				if (dispatcher.CheckAccess())
@@ -118,7 +122,7 @@ namespace GitMind.Common
 				StartInstanceService.StartInstance(Environment.CurrentDirectory);
 			}
 
-			if (IsDispatcherInitialized)
+			if (isDispatcherInitialized)
 			{
 				Application.Current.Shutdown(0);
 			}

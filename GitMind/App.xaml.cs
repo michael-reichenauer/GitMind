@@ -231,8 +231,8 @@ namespace GitMind
 		{
 			try
 			{
-				string tempFolderPath = ProgramPaths.GetTempFolderPath();
-				string searchPattern = $"{ProgramPaths.TempPrefix}*";
+				string tempFolderPath = ProgramInfo.GetTempFolderPath();
+				string searchPattern = $"{ProgramInfo.TempPrefix}*";
 				string[] tempFiles = Directory.GetFiles(tempFolderPath, searchPattern);
 				foreach (string tempFile in tempFiles)
 				{

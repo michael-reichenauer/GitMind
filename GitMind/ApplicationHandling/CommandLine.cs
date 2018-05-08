@@ -23,15 +23,7 @@ namespace GitMind.ApplicationHandling
 
 
 
-		public static string ArgsText
-		{
-			get
-			{
-				string[] args = Environment.GetCommandLineArgs();
-				string argsText = string.Join("','", args);
-				return argsText;
-			}
-		}
+
 
 
 		public bool IsSilent => args.Contains("/silent");

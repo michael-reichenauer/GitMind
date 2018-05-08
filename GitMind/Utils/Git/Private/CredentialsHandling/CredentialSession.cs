@@ -31,7 +31,7 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		}
 
 
-		public string Id { get; } = Guid.NewGuid().ToString();
+		public string SessionId { get; } = Guid.NewGuid().ToString();
 
 		public bool IsAskPassCanceled { get; private set; } = false;
 		public bool IsCredentialRequested { get; private set; } = false;
@@ -171,31 +171,31 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 			// Start IPC server side, which can receive requests from a tmp GitMind process started by 
 			// git, when git requires credentials via the GIT_ASKPASS environment vartiable
 			serverSideIpcService = new IpcRemotingService();
-			serverSideIpcService.TryCreateServer(Id);
+			serverSideIpcService.TryCreateServer(SessionId);
 			serverSideIpcService.PublishService(new CredentialIpcService(this));
 		}
 
 
-		private static void ParseUrl(string totallUrl, out string url, out string username)
+		private static void ParseUrl(string totalUrl, out string url, out string username)
 		{
 			// Start by assuming url does not contain credentials
-			url = totallUrl;
+			url = totalUrl;
 			username = null;
 
 			// Checking if url contains credentials in the form of "scheme://credential@host/path"
-			int endOfCredentialIndex = totallUrl.LastIndexOf('@');
+			int endOfCredentialIndex = totalUrl.LastIndexOf('@');
 
 			if (endOfCredentialIndex != -1)
 			{
 				// Credential are included in the url just after the scheme, lets extract them
-				int schemeIndex = totallUrl.IndexOfOic("://");
+				int schemeIndex = totalUrl.IndexOfOic("://");
 
 				// Getting the url without credential part (i.e. scheme + url)
 				int credentialStartIndex = schemeIndex + 3;
-				url = totallUrl.Substring(0, credentialStartIndex) + totallUrl.Substring(endOfCredentialIndex + 1);
+				url = totalUrl.Substring(0, credentialStartIndex) + totalUrl.Substring(endOfCredentialIndex + 1);
 
 				// Getting the credentials part (between the scheme and url)
-				string credential = totallUrl.Substring(credentialStartIndex, endOfCredentialIndex - credentialStartIndex);
+				string credential = totalUrl.Substring(credentialStartIndex, endOfCredentialIndex - credentialStartIndex);
 
 				// In case credentials includes password, we need to split on ":" 
 				string[] parts = credential.Split(":".ToCharArray());

@@ -5,26 +5,37 @@ using System.Reflection;
 using GitMind.Utils;
 
 
-namespace GitMind.ApplicationHandling.SettingsHandling
+namespace GitMind.ApplicationHandling
 {
-	internal static class ProgramPaths
+	internal static class ProgramInfo
 	{
-		private static readonly string remoteSetupFilePath1 =
-			@"D:\My Work\GitMind\GitMind\bin\Debug\GitMind.exe";
-
-		private static readonly string remoteSetupFilePath2 =
-			@"\\storage03\n_axis_releases_sa\GitMind\GitMindSetup.exe";
-
-		public static readonly string TempPrefix = "_tmp_";
-
 		public static readonly string ProgramName = "GitMind";
 		public static readonly string ProgramFileName = ProgramName + ".exe";
-		public static readonly string ProgramLogName = ProgramName + ".log";
 		public static readonly string VersionFileName = ProgramName + ".Version.txt";
-		private static readonly string ProgramShortcutFileName = ProgramName + ".lnk";
-		private static readonly string SettingsFileName = "settings";
-		private static readonly string LatestETagFileName = "latestetag";
-		private static readonly string LatestInfoFileName = "latestinfo";
+		public static readonly string TempPrefix = "_tmp_";
+
+
+		public static string Version
+		{
+			get
+			{
+
+				Assembly assembly = Assembly.GetExecutingAssembly();
+				FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+				return fvi.FileVersion;
+			}
+		}
+
+
+		public static string ArgsText
+		{
+			get
+			{
+				string[] args = Environment.GetCommandLineArgs();
+				string argsText = string.Join("','", args);
+				return argsText;
+			}
+		}
 
 
 		public static string DataFolderPath = Path.Combine(
@@ -32,38 +43,6 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			ProgramName);
 
 
-		public static string RemoteSetupPath
-		{
-			get
-			{
-				if (File.Exists(remoteSetupFilePath1))
-				{
-					return remoteSetupFilePath1;
-				}
-
-				return remoteSetupFilePath2;
-
-			}
-		}
-
-
-		public static string GetSettingPath()
-		{
-			string programDataFolderPath = GetProgramDataFolderPath();
-			return Path.Combine(programDataFolderPath, SettingsFileName);
-		}
-
-		public static string GetLatestETagPath()
-		{
-			string programDataFolderPath = GetProgramDataFolderPath();
-			return Path.Combine(programDataFolderPath, LatestETagFileName);
-		}
-
-		public static string GetLatestInfoPath()
-		{
-			string programDataFolderPath = GetProgramDataFolderPath();
-			return Path.Combine(programDataFolderPath, LatestInfoFileName);
-		}
 
 		public static string GetTempFilePath()
 		{
@@ -72,19 +51,10 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			return Path.Combine(programDataFolderPath, tempName);
 		}
 
+
 		public static string GetTempFolderPath()
 		{
 			return GetProgramDataFolderPath();
-		}
-
-
-		public static string GetStartMenuShortcutPath()
-		{
-			string commonStartMenuPath = Environment.GetFolderPath(
-				 Environment.SpecialFolder.StartMenu);
-			string startMenuPath = Path.Combine(commonStartMenuPath, "Programs");
-
-			return Path.Combine(startMenuPath, ProgramShortcutFileName);
 		}
 
 
@@ -164,7 +134,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 				if (File.Exists(GetVersionFilePath()))
 				{
 					string versionText = File.ReadAllText(GetVersionFilePath());
-					return Version.Parse(versionText);
+					return System.Version.Parse(versionText);
 				}
 				else
 				{
@@ -184,6 +154,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			}
 		}
 
+
 		public static Version GetVersion(string path)
 		{
 			if (!File.Exists(path))
@@ -196,7 +167,7 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 			{
 				FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(path);
 				string versionText = fvi.ProductVersion;
-				Version version = Version.Parse(versionText);
+				Version version = System.Version.Parse(versionText);
 
 				return version;
 			}
@@ -205,12 +176,6 @@ namespace GitMind.ApplicationHandling.SettingsHandling
 				Log.Exception(e, $"Failed to get version from {path}");
 				return new Version(0, 0, 0, 0);
 			}
-		}
-
-		public static string GetLogFilePath()
-		{
-			string folderPath = GetProgramDataFolderPath();
-			return Path.Combine(folderPath, ProgramLogName);
 		}
 	}
 }

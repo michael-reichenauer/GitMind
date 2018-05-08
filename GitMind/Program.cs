@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Reflection;
 using GitMind.ApplicationHandling;
 using GitMind.Common;
 using GitMind.Utils;
@@ -17,7 +15,7 @@ namespace GitMind
 		[STAThread]
 		public static void Main()
 		{
-			Log.Debug($"Start version: {Version}, args: '{CommandLine.ArgsText}'");
+			Log.Debug($"Start version: {ProgramInfo.Version}, args: '{ProgramInfo.ArgsText}'");
 
 			Program program = new Program();
 			program.Run();
@@ -26,20 +24,19 @@ namespace GitMind
 
 		private void Run()
 		{
-			// Add handler and logging for unhandled exceptions
+			// Add handler for unhandled exceptions
 			ExceptionHandling.HandleUnhandledException();
 
-			// Make dependency assemblies available, when needed (extracted from recources)
+			// Make dependency assemblies available, when needed (extract from resources)
 			AssemblyResolver.Activate();
 
 			// Activate dependency injection support
 			dependencyInjection.RegisterDependencyInjectionTypes();
 
-			var askPassService = dependencyInjection.Resolve<IGitAskPassService>();
-
-			if (askPassService.TryHandleRequest())
+			if (IsAskGitPasswordRequest())
 			{
-				return;  // The Ask Pass service handled this request
+				// The git ask ask password service handled this request
+				return;
 			}
 
 			// Start application
@@ -50,14 +47,10 @@ namespace GitMind
 		}
 
 
-		private static string Version
+		private bool IsAskGitPasswordRequest()
 		{
-			get
-			{
-				Assembly assembly = Assembly.GetExecutingAssembly();
-				FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-				return fvi.FileVersion;
-			}
+			var askPassService = dependencyInjection.Resolve<IGitAskPassService>();
+			return askPassService.TryHandleRequest();
 		}
 	}
 }
