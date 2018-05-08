@@ -7,7 +7,7 @@ namespace GitMind.Utils.Git
 {
 	public interface IGitDiffService
 	{
-		Task<R<IReadOnlyList<GitFile2>>> GetFilesAsync(string sha, CancellationToken ct);
+		Task<R<IReadOnlyList<GitFile>>> GetFilesAsync(string sha, CancellationToken ct);
 		Task<R<string>> GetCommitDiffAsync(string sha, CancellationToken ct);
 		//Task<R<string>> GetCommitDiffAsync(string sha, string parentSha, CancellationToken ct);
 		Task<R<string>> GetCommitDiffRangeAsync(string sha1, string sha2, CancellationToken ct);

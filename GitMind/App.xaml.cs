@@ -12,6 +12,7 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Common.ThemeHandling;
 using GitMind.Common.Tracking;
 using GitMind.Features.Diffing;
+using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
 using GitMind.Utils.Ipc;

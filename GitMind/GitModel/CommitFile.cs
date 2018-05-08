@@ -5,10 +5,10 @@ namespace GitMind.GitModel
 {
 	public class CommitFile
 	{
-		private readonly GitFile2 gitFile;
+		private readonly GitFile gitFile;
 
 
-		public CommitFile(GitFile2 gitFile, GitConflictFile conflict = null)
+		public CommitFile(GitFile gitFile, GitConflictFile conflict = null)
 		{
 			this.gitFile = gitFile;
 			Conflict = conflict ??

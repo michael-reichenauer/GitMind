@@ -63,7 +63,7 @@ namespace GitMind.Features.StatusHandling.Private
 		}
 
 
-		public Task<GitStatus2> GetStatusAsync()
+		public Task<GitStatus> GetStatusAsync()
 		{
 			return GetFreshStatusAsync();
 		}
@@ -149,10 +149,10 @@ namespace GitMind.Features.StatusHandling.Private
 				return;
 			}
 
-			Task<GitStatus2> newStatusTask = GetFreshStatusAsync();
+			Task<GitStatus> newStatusTask = GetFreshStatusAsync();
 			currentStatusTask = newStatusTask;
 
-			GitStatus2 newStatus = await newStatusTask;
+			GitStatus newStatus = await newStatusTask;
 
 			TriggerStatusChanged(fileEventArgs, newStatus);
 		}
@@ -224,17 +224,17 @@ namespace GitMind.Features.StatusHandling.Private
 		}
 
 
-		private async Task<GitStatus2> GetFreshStatusAsync()
+		private async Task<GitStatus> GetFreshStatusAsync()
 		{
 			Log.Debug("Getting status ...");
 			Timing t = new Timing();
-			R<GitStatus2> status = await gitStatusService.GetStatusAsync(CancellationToken.None);
+			R<GitStatus> status = await gitStatusService.GetStatusAsync(CancellationToken.None);
 			t.Log($"Got status {status}");
 
 			if (status.IsFaulted)
 			{
 				Log.Error("Failed to read status");
-				return GitStatus2.Default;
+				return GitStatus.Default;
 			}
 
 			return status.Value;
@@ -244,7 +244,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 
 
-		private void TriggerStatusChanged(FileEventArgs fileEventArgs, GitStatus2 newStatus)
+		private void TriggerStatusChanged(FileEventArgs fileEventArgs, GitStatus newStatus)
 		{
 			StatusChanged?.Invoke(this, new StatusChangedEventArgs(newStatus, fileEventArgs.DateTime));
 		}

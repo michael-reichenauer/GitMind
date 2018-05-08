@@ -67,7 +67,7 @@ namespace GitMind.GitModel.Private
 
 		public void AddBranchCommits(IReadOnlyList<GitBranch> branches, MRepository repository)
 		{
-			GitStatus2 status = repository.Status;
+			GitStatus status = repository.Status;
 
 			Timing t = new Timing();
 			IEnumerable<CommitSha> rootCommits = branches.Select(b => b.TipSha);
@@ -171,7 +171,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void AddVirtualUncommitted(GitBranch currentBranch, GitStatus2 status, MRepository repository)
+		private void AddVirtualUncommitted(GitBranch currentBranch, GitStatus status, MRepository repository)
 		{
 			MCommit commit = repository.Commit(CommitId.Uncommitted);
 			repository.Uncommitted = commit;
@@ -301,7 +301,7 @@ namespace GitMind.GitModel.Private
 		private static void CopyToUncommitedCommit(
 			GitBranch currentBranch,
 			MRepository repository,
-			GitStatus2 status,
+			GitStatus status,
 			MCommit commit,
 			CommitId parentId)
 		{
@@ -340,7 +340,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static string ShortSubject(GitStatus2 status)
+		private static string ShortSubject(GitStatus status)
 		{
 			string subject = status.MergeMessage?.Trim() ?? "";
 			string firstLine = subject.Split("\n".ToCharArray())[0];

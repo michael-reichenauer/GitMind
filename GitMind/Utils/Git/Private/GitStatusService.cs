@@ -30,7 +30,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R<GitStatus2>> GetStatusAsync(CancellationToken ct)
+		public async Task<R<GitStatus>> GetStatusAsync(CancellationToken ct)
 		{
 			// Log.Debug($"Call stack: {new StackTrace(false)}");
 
@@ -41,7 +41,7 @@ namespace GitMind.Utils.Git.Private
 				return R.Error("Failed to get status", result.Exception);
 			}
 
-			GitStatus2 status = ParseStatus(result.Value);
+			GitStatus status = ParseStatus(result.Value);
 			Log.Info($"Status: {status} in {result.Value.WorkingDirectory}");
 			return status;
 		}
@@ -311,14 +311,14 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private GitStatus2 ParseStatus(CmdResult2 result)
+		private GitStatus ParseStatus(CmdResult2 result)
 		{
 			//if (result.Output.StartsWith("## No commits yet on"))
 			//{
 			//	return GitStatus2.Default;
 			//}
 
-			IReadOnlyList<GitFile2> files = ParseFiles(result);
+			IReadOnlyList<GitFile> files = ParseFiles(result);
 
 			int added = files.Count(file => file.Status.HasFlag(GitFileStatus.Added));
 			int deleted = files.Count(file => file.Status.HasFlag(GitFileStatus.Deleted));
@@ -327,7 +327,7 @@ namespace GitMind.Utils.Git.Private
 
 			bool isMergeInProgress = GetMergeStatus(result, out string mergeMessage);
 
-			return new GitStatus2(
+			return new GitStatus(
 				modified, added, deleted, conflicted, isMergeInProgress, mergeMessage, files);
 		}
 
@@ -348,9 +348,9 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private IReadOnlyList<GitFile2> ParseFiles(CmdResult2 result)
+		private IReadOnlyList<GitFile> ParseFiles(CmdResult2 result)
 		{
-			List<GitFile2> files = new List<GitFile2>();
+			List<GitFile> files = new List<GitFile>();
 
 			foreach (string line in result.OutputLines)
 			{
@@ -390,7 +390,7 @@ namespace GitMind.Utils.Git.Private
 					status = GitFileStatus.Deleted;
 				}
 
-				files.Add(new GitFile2(result.WorkingDirectory, filePath, null, status));
+				files.Add(new GitFile(result.WorkingDirectory, filePath, null, status));
 			}
 
 			return files;

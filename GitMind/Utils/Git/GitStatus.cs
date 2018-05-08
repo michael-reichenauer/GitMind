@@ -3,16 +3,16 @@
 
 namespace GitMind.Utils.Git
 {
-	public class GitStatus2
+	public class GitStatus
 	{
-		public GitStatus2(
+		public GitStatus(
 			int modified,
 			int added,
 			int deleted,
 			int conflicted,
 			bool isMerging,
 			string mergeMessage,
-			IReadOnlyList<GitFile2> files)
+			IReadOnlyList<GitFile> files)
 		{
 			Modified = modified;
 			Added = added;
@@ -24,7 +24,7 @@ namespace GitMind.Utils.Git
 		}
 
 
-		public static GitStatus2 Default { get; } = new GitStatus2(0, 0, 0, 0, false, null, new GitFile2[0]);
+		public static GitStatus Default { get; } = new GitStatus(0, 0, 0, 0, false, null, new GitFile[0]);
 
 
 		public int Modified { get; }
@@ -34,12 +34,12 @@ namespace GitMind.Utils.Git
 		public bool IsMerging { get; }
 		public bool HasConflicts => Conflicted > 0;
 		public string MergeMessage { get; }
-		public IReadOnlyList<GitFile2> Files { get; }
+		public IReadOnlyList<GitFile> Files { get; }
 		public int AllChanges => Modified + Added + Deleted + Conflicted;
 
 		public bool OK => AllChanges == 0 && !IsMerging;
 
-		public bool IsSame(GitStatus2 status) =>
+		public bool IsSame(GitStatus status) =>
 			status.AllChanges == AllChanges &&
 			status.Modified == Modified &&
 			status.Deleted == Deleted &&

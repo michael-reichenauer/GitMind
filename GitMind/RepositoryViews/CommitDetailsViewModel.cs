@@ -73,7 +73,7 @@ namespace GitMind.RepositoryViews
 			if (CommitViewModel != null)
 			{
 				if (filesCommitId != CommitViewModel.Commit.RealCommitId
-					|| filesCommitId == Common.CommitId.Uncommitted)
+					|| filesCommitId == GitModel.CommitId.Uncommitted)
 				{
 					files.Clear();
 					filesCommitId = CommitViewModel.Commit.RealCommitId;

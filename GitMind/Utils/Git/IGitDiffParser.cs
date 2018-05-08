@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using GitMind.Common;
+using GitMind.GitModel;
 
 
 namespace GitMind.Utils.Git

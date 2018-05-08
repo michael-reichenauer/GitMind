@@ -32,7 +32,7 @@ namespace GitMind.GitModel
 		}
 
 
-		public async Task<CommitDetails> GetAsync(CommitSha commitSha, GitStatus2 status)
+		public async Task<CommitDetails> GetAsync(CommitSha commitSha, GitStatus status)
 		{
 			if (commitSha == CommitSha.NoCommits)
 			{
@@ -54,7 +54,7 @@ namespace GitMind.GitModel
 					? null
 					: (await gitCommitService.GetCommitMessageAsync(commitSha.Sha, CancellationToken.None)).Or(null);
 
-				Task<R<IReadOnlyList<GitFile2>>> commitsFilesForCommitTask =
+				Task<R<IReadOnlyList<GitFile>>> commitsFilesForCommitTask =
 					CommitsFilesForCommitTask(commitSha, status);
 
 				GitConflicts conflicts = GitConflicts.None;
@@ -88,7 +88,7 @@ namespace GitMind.GitModel
 		}
 
 
-		private async Task<R<IReadOnlyList<GitFile2>>> CommitsFilesForCommitTask(CommitSha commitSha, GitStatus2 status)
+		private async Task<R<IReadOnlyList<GitFile>>> CommitsFilesForCommitTask(CommitSha commitSha, GitStatus status)
 		{
 			if (commitSha == CommitSha.Uncommitted)
 			{

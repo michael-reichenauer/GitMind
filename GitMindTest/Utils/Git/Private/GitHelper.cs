@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Features.Diffing.Private;
+using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -85,7 +86,7 @@ namespace GitMindTest.Utils.Git.Private
 			isRepo = true;
 		}
 
-		public Task<GitStatus2> GetStatusAsync() => Service<IGitStatusService>().Call(s => s.GetStatusAsync(ct));
+		public Task<GitStatus> GetStatusAsync() => Service<IGitStatusService>().Call(s => s.GetStatusAsync(ct));
 
 		public Task<GitConflicts> GetConflictsAsync() => Service<IGitStatusService>().Call(s => s.GetConflictsAsync(ct));
 

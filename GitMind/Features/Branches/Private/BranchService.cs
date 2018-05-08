@@ -363,7 +363,7 @@ namespace GitMind.Features.Branches.Private
 					await repositoryService.Value.CheckLocalRepositoryAsync();
 				}
 
-				GitStatus2 status = repositoryService.Value.Repository.Status;
+				GitStatus status = repositoryService.Value.Repository.Status;
 				if (status.Conflicted == 0)
 				{
 					await commitsService.CommitChangesAsync();
@@ -401,7 +401,7 @@ namespace GitMind.Features.Branches.Private
 					await repositoryService.Value.CheckLocalRepositoryAsync();
 				}
 
-				GitStatus2 status = repositoryService.Value.Repository.Status;
+				GitStatus status = repositoryService.Value.Repository.Status;
 				if (status.Conflicted == 0)
 				{
 					await commitsService.CommitChangesAsync($"Merge branch '{commit.Branch.Name}'");

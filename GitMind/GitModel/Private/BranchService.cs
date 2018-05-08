@@ -31,7 +31,7 @@ namespace GitMind.GitModel.Private
 
 		public void AddActiveBranches(IReadOnlyList<GitBranch> branches, MRepository repository)
 		{
-			GitStatus2 status = repository.Status;
+			GitStatus status = repository.Status;
 
 			//GitBranch2 currentBranch = branches.GetCurrent();
 

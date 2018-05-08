@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using GitMind.Utils;
 
 
-namespace GitMind.Common
+namespace GitMind.GitModel
 {
 	[DataContract]
 	public class CommitSha : Equatable<CommitSha>

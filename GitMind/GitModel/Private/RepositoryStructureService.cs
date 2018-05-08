@@ -53,7 +53,7 @@ namespace GitMind.GitModel.Private
 
 
 		public async Task<MRepository> UpdateAsync(
-			MRepository mRepository, GitStatus2 status, IReadOnlyList<string> repoIds)
+			MRepository mRepository, GitStatus status, IReadOnlyList<string> repoIds)
 		{
 			return await Task.Run(async () =>
 			{
@@ -83,7 +83,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async Task UpdateRepositoryAsync(MRepository repository, GitStatus2 status, IReadOnlyList<string> repoIds)
+		private async Task UpdateRepositoryAsync(MRepository repository, GitStatus status, IReadOnlyList<string> repoIds)
 		{
 			Log.Debug("Updating repository");
 			Timing t = new Timing();
@@ -162,7 +162,7 @@ namespace GitMind.GitModel.Private
 
 		private static void SetCurrentBranchAndCommit(MRepository repository, IReadOnlyList<GitBranch> branches)
 		{
-			GitStatus2 status = repository.Status;
+			GitStatus status = repository.Status;
 			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);
 			repository.CurrentBranchId = currentBranch.Id;
 			branches.TryGetCurrent(out GitBranch current);

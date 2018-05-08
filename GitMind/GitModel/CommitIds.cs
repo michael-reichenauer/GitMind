@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using GitMind.Utils;
-
-
-namespace GitMind.Common
+﻿namespace GitMind.GitModel
 {
 	//internal static class CommitIds
 	//{

@@ -8,7 +8,7 @@ namespace GitMind.Utils.Git
 {
 	public interface IGitCommitService
 	{
-		Task<R<IReadOnlyList<GitFile2>>> GetCommitFilesAsync(
+		Task<R<IReadOnlyList<GitFile>>> GetCommitFilesAsync(
 			string sha, CancellationToken ct);
 
 

@@ -27,7 +27,7 @@ namespace GitMindTest.Utils.Git.Private
 		protected IoHelper io;
 		protected IoHelper io2;
 
-		protected GitStatus2 status;
+		protected GitStatus status;
 		protected IReadOnlyList<GitBranch> branches;
 		protected IReadOnlyList<GitCommit> log;
 		protected bool isCleanUp = true;
@@ -39,7 +39,7 @@ namespace GitMindTest.Utils.Git.Private
 			io = new IoHelper();
 			io2 = new IoHelper();
 
-			status = new GitStatus2(0, 0, 0, 0, false, null, new GitFile2[0]);
+			status = new GitStatus(0, 0, 0, 0, false, null, new GitFile[0]);
 			branches = new GitBranch[0];
 
 			am = new AutoMock()

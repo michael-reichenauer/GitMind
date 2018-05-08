@@ -21,7 +21,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		public async Task<R<IReadOnlyList<GitFile2>>> GetFilesAsync(
+		public async Task<R<IReadOnlyList<GitFile>>> GetFilesAsync(
 			string sha, CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmdService.RunAsync(
@@ -32,7 +32,7 @@ namespace GitMind.Utils.Git.Private
 				return R.Error($"Failed to get list of commit files for {sha}", result.Exception);
 			}
 
-			IReadOnlyList<GitFile2> files = ParseCommitFiles(result.Value);
+			IReadOnlyList<GitFile> files = ParseCommitFiles(result.Value);
 			Log.Info($"Got {files.Count} for {sha}");
 			return R.From(files);
 		}
@@ -206,9 +206,9 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private IReadOnlyList<GitFile2> ParseCommitFiles(CmdResult2 result)
+		private IReadOnlyList<GitFile> ParseCommitFiles(CmdResult2 result)
 		{
-			List<GitFile2> files = new List<GitFile2>();
+			List<GitFile> files = new List<GitFile>();
 			string folder = result.WorkingDirectory;
 
 			foreach (string line in result.OutputLines)
@@ -220,23 +220,23 @@ namespace GitMind.Utils.Git.Private
 
 				if (status.StartsWith("A") || status.StartsWith("C"))
 				{
-					files.Add(new GitFile2(folder, filePath, null, GitFileStatus.Added));
+					files.Add(new GitFile(folder, filePath, null, GitFileStatus.Added));
 				}
 				else if (status.StartsWith("D"))
 				{
-					files.Add(new GitFile2(folder, filePath, null, GitFileStatus.Deleted));
+					files.Add(new GitFile(folder, filePath, null, GitFileStatus.Deleted));
 				}
 				else if (status.StartsWith("R100"))
 				{
-					files.Add(new GitFile2(folder, newFilePath, filePath, GitFileStatus.Renamed));
+					files.Add(new GitFile(folder, newFilePath, filePath, GitFileStatus.Renamed));
 				}
 				else if (status.StartsWith("R"))
 				{
-					files.Add(new GitFile2(folder, newFilePath, filePath, GitFileStatus.Renamed | GitFileStatus.Modified));
+					files.Add(new GitFile(folder, newFilePath, filePath, GitFileStatus.Renamed | GitFileStatus.Modified));
 				}
 				else
 				{
-					files.Add(new GitFile2(folder, filePath, null, GitFileStatus.Modified));
+					files.Add(new GitFile(folder, filePath, null, GitFileStatus.Modified));
 				}
 			}
 

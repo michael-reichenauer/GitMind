@@ -2,7 +2,7 @@
 using GitMind.Utils;
 
 
-namespace GitMind.Common
+namespace GitMind.GitModel
 {
 
 	[DataContract]

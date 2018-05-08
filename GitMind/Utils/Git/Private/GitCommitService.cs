@@ -37,7 +37,7 @@ namespace GitMind.Utils.Git.Private
 			gitLogService.GetCommitAsync(sha, ct);
 
 
-		public Task<R<IReadOnlyList<GitFile2>>> GetCommitFilesAsync(string sha, CancellationToken ct) =>
+		public Task<R<IReadOnlyList<GitFile>>> GetCommitFilesAsync(string sha, CancellationToken ct) =>
 			gitDiffService.GetFilesAsync(sha, ct);
 
 
