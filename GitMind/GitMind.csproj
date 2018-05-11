@@ -231,6 +231,7 @@
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
     <Compile Include="Utils\Git\GitAheadBehind.cs" />
+    <Compile Include="Utils\Git\IWorkingFolder.cs" />
     <Compile Include="Utils\Git\Private\GitBranchesExtensions.cs" />
     <Compile Include="Utils\Git\Private\GitNotesService.cs" />
     <Compile Include="Utils\Git\IGitNotesService.cs" />

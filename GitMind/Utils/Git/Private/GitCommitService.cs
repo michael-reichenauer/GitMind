@@ -18,14 +18,14 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitCmdService gitCmdService;
 		private readonly IGitDiffService gitDiffService;
 		private readonly IGitLogService gitLogService;
-		private readonly WorkingFolder workingFolder;
+		private readonly IWorkingFolder workingFolder;
 
 
 		public GitCommitService(
 			IGitCmdService gitCmdService,
 			IGitDiffService gitDiffService,
 			IGitLogService gitLogService,
-			WorkingFolder workingFolder)
+			IWorkingFolder workingFolder)
 		{
 			this.gitCmdService = gitCmdService;
 			this.gitDiffService = gitDiffService;
@@ -105,7 +105,7 @@ namespace GitMind.Utils.Git.Private
 
 		private bool IsMergeInProgress()
 		{
-			string mergeIpPath = Path.Combine(workingFolder, ".git", "MERGE_HEAD");
+			string mergeIpPath = Path.Combine(workingFolder.Path, ".git", "MERGE_HEAD");
 			bool isMergeInProgress = File.Exists(mergeIpPath);
 			return isMergeInProgress;
 		}

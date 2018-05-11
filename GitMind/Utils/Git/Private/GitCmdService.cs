@@ -20,7 +20,7 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitEnvironmentService gitEnvironmentService;
 		private readonly ICredentialService credentialService;
 		private readonly IMessage message;
-		private readonly WorkingFolder workingFolder;
+		private readonly IWorkingFolder workingFolder;
 
 
 		public GitCmdService(
@@ -28,7 +28,7 @@ namespace GitMind.Utils.Git.Private
 			IGitEnvironmentService gitEnvironmentService,
 			ICredentialService credentialService,
 			IMessage message,
-			WorkingFolder workingFolder)
+			IWorkingFolder workingFolder)
 		{
 			this.cmd = cmd;
 			this.gitEnvironmentService = gitEnvironmentService;
@@ -179,7 +179,7 @@ namespace GitMind.Utils.Git.Private
 
 		private void AdjustOptions(GitOptions options, string sessionId)
 		{
-			options.WorkingDirectory = options.WorkingDirectory ?? workingFolder;
+			options.WorkingDirectory = options.WorkingDirectory ?? workingFolder.Path;
 
 			// Used to enable credentials handling
 			options.EnvironmentVariables = environment =>

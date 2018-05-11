@@ -11,10 +11,10 @@ namespace GitMind.Utils.Git.Private
 	internal class GitDiffService : IGitDiffService
 	{
 		private readonly IGitCmdService gitCmdService;
-		private readonly WorkingFolder workingFolder;
+		private readonly IWorkingFolder workingFolder;
 
 
-		public GitDiffService(IGitCmdService gitCmdService, WorkingFolder workingFolder)
+		public GitDiffService(IGitCmdService gitCmdService, IWorkingFolder workingFolder)
 		{
 			this.gitCmdService = gitCmdService;
 			this.workingFolder = workingFolder;
@@ -113,7 +113,7 @@ namespace GitMind.Utils.Git.Private
 						return R.From(showRootResult.Output);
 					}
 				}
-				
+
 				return R.Error($"Failed to get file diff for {sha}", result.AsException());
 			}
 
@@ -246,7 +246,7 @@ namespace GitMind.Utils.Git.Private
 
 		private bool IsMergeInProgress()
 		{
-			string mergeIpPath = Path.Combine(workingFolder, ".git", "MERGE_HEAD");
+			string mergeIpPath = Path.Combine(workingFolder.Path, ".git", "MERGE_HEAD");
 			bool isMergeInProgress = File.Exists(mergeIpPath);
 			return isMergeInProgress;
 		}

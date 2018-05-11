@@ -1,11 +1,12 @@
 ﻿using System;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.ApplicationHandling
 {
 	[SingleInstance]
-	internal class WorkingFolder
+	internal class WorkingFolder : IWorkingFolder
 	{
 		private readonly IWorkingFolderService workingFolderService;
 		private string path;
