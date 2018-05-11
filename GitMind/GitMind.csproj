@@ -577,6 +577,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\.gitattributes" />
+    <EmbeddedResource Include="Resources\.gitignore" />
     <Resource Include="Fonts\MaterialIcons-Regular.ttf" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
