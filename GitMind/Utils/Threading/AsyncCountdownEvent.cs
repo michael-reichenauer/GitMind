@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-namespace GitMind.Utils
+namespace GitMind.Utils.Threading
 {
 	/// <summary>
 	/// Used async wait for counter to reach 0

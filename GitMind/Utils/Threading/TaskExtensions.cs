@@ -1,4 +1,5 @@
-﻿namespace System.Threading.Tasks
+﻿// ReSharper disable once CheckNamespace
+namespace System.Threading.Tasks
 {
 	public static class TaskExtensions
 	{

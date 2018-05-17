@@ -199,7 +199,7 @@
     </Compile>
     <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />
     <Compile Include="Utils\AsserterEventArgs.cs" />
-    <Compile Include="Utils\AsyncLock.cs" />
+    <Compile Include="Utils\Threading\AsyncLock.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
     <Compile Include="Features\Branches\Private\CrateBranchDialog.xaml.cs">
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>
@@ -282,8 +282,8 @@
     <Compile Include="Utils\HttpClientDownloadWithProgress.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\ICredentialService.cs" />
     <Compile Include="Utils\Git\Private\IGitCmdService.cs" />
-    <Compile Include="Utils\AsyncCountdownEvent.cs" />
-    <Compile Include="Utils\AsyncManualResetEvent.cs" />
+    <Compile Include="Utils\Threading\AsyncCountdownEvent.cs" />
+    <Compile Include="Utils\Threading\AsyncManualResetEvent.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\IGitCredential.cs" />
     <Compile Include="Utils\Git\IGitRepoService.cs" />
     <Compile Include="Utils\Git\GitStatus.cs" />
@@ -302,7 +302,7 @@
     <Compile Include="Utils\OsSystem\SystemIdle.cs" />
     <Compile Include="Utils\RegexExtensions.cs" />
     <Compile Include="Utils\Txt.cs" />
-    <Compile Include="Utils\Throttler.cs" />
+    <Compile Include="Utils\Threading\Throttler.cs" />
     <Compile Include="Utils\UI\CredentialsDialog.cs" />
     <Compile Include="Utils\Disposable.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
@@ -390,7 +390,7 @@
     <Compile Include="GitModel\Private\ICacheService.cs" />
     <Compile Include="ApplicationHandling\CommandLine.cs" />
     <Compile Include="ApplicationHandling\ICommandLine.cs" />
-    <Compile Include="Utils\AsyncSemaphore.cs" />
+    <Compile Include="Utils\Threading\AsyncSemaphore.cs" />
     <Compile Include="Utils\EnumerableExtensions.cs" />
     <Compile Include="Utils\Error.cs" />
     <Compile Include="Utils\Git\Private\GitDiffParser.cs" />
@@ -405,8 +405,8 @@
     <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
     <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\R.cs" />
-    <Compile Include="Utils\TaskExtensions.cs" />
-    <Compile Include="Utils\TaskThrottler.cs" />
+    <Compile Include="Utils\Threading\TaskExtensions.cs" />
+    <Compile Include="Utils\Threading\TaskThrottler.cs" />
     <Compile Include="Utils\UI\BusyIndicator.cs" />
     <Compile Include="Utils\UI\MyWpfExtensions.cs" />
     <Compile Include="Utils\UI\Property.cs" />

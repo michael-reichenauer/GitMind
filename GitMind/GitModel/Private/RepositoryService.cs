@@ -10,6 +10,7 @@ using GitMind.Features.StatusHandling;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
 using GitMind.Utils.Git;
+using GitMind.Utils.Threading;
 
 
 namespace GitMind.GitModel.Private

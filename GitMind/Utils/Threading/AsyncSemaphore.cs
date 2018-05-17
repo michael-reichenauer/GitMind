@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 
-namespace GitMind.Utils
+namespace GitMind.Utils.Threading
 {
 	/// <summary>
 	/// An asynchronous semaphore. Can be used for throttling or handling concurrent access to a

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 
-namespace GitMind.Utils
+namespace GitMind.Utils.Threading
 {
 	public class Throttler
 	{
@@ -17,9 +17,9 @@ namespace GitMind.Utils
 		{
 			await semaphore.WaitAsync();
 
-			return new ThrottleState(semaphore);		
+			return new ThrottleState(semaphore);
 		}
-		
+
 		private class ThrottleState : IDisposable
 		{
 			private readonly AsyncSemaphore semaphore;

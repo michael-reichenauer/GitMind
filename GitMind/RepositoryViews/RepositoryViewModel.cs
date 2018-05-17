@@ -20,6 +20,7 @@ using GitMind.RepositoryViews.Open;
 using GitMind.RepositoryViews.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
+using GitMind.Utils.Threading;
 using GitMind.Utils.UI;
 using GitMind.Utils.UI.VirtualCanvas;
 using ListBox = System.Windows.Controls.ListBox;

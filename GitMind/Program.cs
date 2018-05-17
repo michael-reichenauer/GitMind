@@ -24,6 +24,9 @@ namespace GitMind
 		}
 
 
+		/// <summary>
+		/// The program instance main entry point
+		/// </summary>
 		private void Run()
 		{
 			// Add handler for unhandled exceptions

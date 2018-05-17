@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 
-namespace GitMind.Utils
+namespace GitMind.Utils.Threading
 {
 	public class TaskThrottler
 	{
