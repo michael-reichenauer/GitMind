@@ -41,11 +41,10 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>0</WarningLevel>
+    <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>bin\Debug\GitMind.xml</DocumentationFile>
-    <NoWarn>
-    </NoWarn>
+    <NoWarn>1591,1574,0419,1573,3001,3002,3009,1041</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -56,6 +55,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\GitMind.xml</DocumentationFile>
+    <NoWarn>1591,1574,0419,1573,3001,3002,3009,1041</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>MainWindowViews\Application.ico</ApplicationIcon>

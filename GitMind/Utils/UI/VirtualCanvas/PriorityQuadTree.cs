@@ -20,7 +20,7 @@ namespace GitMind.Utils.UI.VirtualCanvas
 	public class PriorityQuadTree<T> : IEnumerable<T>
 	{
 		/// <summary>
-		/// Each node stored in the tree has a position, width & height.        
+		/// Each node stored in the tree has a position, width height.        
 		/// </summary>
 		private class QuadNode
 		{
