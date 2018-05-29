@@ -105,12 +105,8 @@ namespace GitMind.Features.Commits.Private
 					return;
 				}
 
-				IEnumerable<CommitFile> commitFiles = Enumerable.Empty<CommitFile>();
-				if (repositoryCommands.UnCommited != null)
-				{
-					CommitDetails commitDetails = await repositoryCommands.UnCommited.FilesTask;
-					commitFiles = commitDetails.Files;
-				}
+				CommitDetails commitDetails = await uncommitted.FilesTask;
+				IEnumerable<CommitFile> commitFiles = commitDetails.Files;
 
 				string commitMessage = mergeCommitMessage ?? repository.Status.MergeMessage;
 

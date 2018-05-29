@@ -8,7 +8,7 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("GitMind")]
-[assembly: AssemblyDescription("GitMind")]
+[assembly: AssemblyDescription("GitMind is a visual git client.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Michael Reichenauer")]
 [assembly: AssemblyProduct("GitMind")]
