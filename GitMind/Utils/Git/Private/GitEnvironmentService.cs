@@ -3,7 +3,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
-using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.Tracking;
 using GitMind.Utils.OsSystem;
 
@@ -19,9 +18,10 @@ namespace GitMind.Utils.Git.Private
 		//private static string gitUri =
 		//	"https://github.com/git-for-windows/git/releases/download/v2.16.2.windows.1/MinGit-2.16.2-64-bit.zip";
 
-		public static readonly string GitVersion = "2.17.0.windows.1";
+		// Git releases at: https://github.com/git-for-windows/git/releases/
+		public static readonly string GitVersion = "2.17.1.windows.2";
 		private static string gitUri =
-			"https://github.com/git-for-windows/git/releases/download/v2.17.0.windows.1/MinGit-2.17.0-64-bit.zip";
+			"https://github.com/git-for-windows/git/releases/download/v2.17.1.windows.2/MinGit-2.17.1.2-64-bit.zip";
 
 
 		private readonly ICmd2 cmd;
