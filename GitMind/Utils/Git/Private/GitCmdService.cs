@@ -20,7 +20,7 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitEnvironmentService gitEnvironmentService;
 		private readonly ICredentialService credentialService;
 		private readonly IMessage message;
-		private readonly WorkingFolderPath workingFolder;
+		private readonly IWorkingFolder workingFolder;
 
 
 		public GitCmdService(
@@ -28,7 +28,7 @@ namespace GitMind.Utils.Git.Private
 			IGitEnvironmentService gitEnvironmentService,
 			ICredentialService credentialService,
 			IMessage message,
-			WorkingFolderPath workingFolder)
+			IWorkingFolder workingFolder)
 		{
 			this.cmd = cmd;
 			this.gitEnvironmentService = gitEnvironmentService;
@@ -113,7 +113,7 @@ namespace GitMind.Utils.Git.Private
 			{
 				using (CredentialSession session = new CredentialSession(credentialService, username))
 				{
-					result = await RunGitCmsAsync(gitArgs, options, session.Id, ct);
+					result = await RunGitCmsAsync(gitArgs, options, session.SessionId, ct);
 
 					username = session.Username;
 					session.ConfirmValidCrededntial(!IsAuthenticationFailed(result));
@@ -179,7 +179,7 @@ namespace GitMind.Utils.Git.Private
 
 		private void AdjustOptions(GitOptions options, string sessionId)
 		{
-			options.WorkingDirectory = options.WorkingDirectory ?? workingFolder;
+			options.WorkingDirectory = options.WorkingDirectory ?? workingFolder.Path;
 
 			// Used to enable credentials handling
 			options.EnvironmentVariables = environment =>

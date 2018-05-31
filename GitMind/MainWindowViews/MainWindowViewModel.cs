@@ -11,7 +11,6 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Common.Tracking;
 using GitMind.Features.Commits;
 using GitMind.Features.Remote;
-using GitMind.Git;
 using GitMind.RepositoryViews;
 using GitMind.RepositoryViews.Open;
 using GitMind.Utils;
@@ -120,8 +119,8 @@ namespace GitMind.MainWindowViews
 		{
 			get
 			{
-				Version version = ProgramPaths.GetRunningVersion();
-				DateTime buildTime = ProgramPaths.BuildTime();
+				Version version = ProgramInfo.GetRunningVersion();
+				DateTime buildTime = ProgramInfo.BuildTime();
 				string dateText = buildTime.ToString("yyyy-MM-dd\nHH:mm");
 				string text = $"Version: {version.Major}.{version.Minor}\n{dateText}";
 				return text;
@@ -379,7 +378,7 @@ namespace GitMind.MainWindowViews
 				Track.Command("OpenOptions");
 				Settings.EnsureExists<Options>();
 				string optionsName = nameof(Options);
-				string filePath = Path.Combine(ProgramPaths.DataFolderPath, $"{optionsName}.json");
+				string filePath = Path.Combine(ProgramInfo.DataFolderPath, $"{optionsName}.json");
 				Process.Start("notepad.exe", filePath);
 			}
 			catch (Exception e) when (e.IsNotFatal())

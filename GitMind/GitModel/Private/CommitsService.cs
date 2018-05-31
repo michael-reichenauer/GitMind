@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
-using GitMind.Git;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
@@ -66,14 +65,14 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddBranchCommits(IReadOnlyList<GitBranch2> branches, MRepository repository)
+		public void AddBranchCommits(IReadOnlyList<GitBranch> branches, MRepository repository)
 		{
-			GitStatus2 status = repository.Status;
+			GitStatus status = repository.Status;
 
 			Timing t = new Timing();
 			IEnumerable<CommitSha> rootCommits = branches.Select(b => b.TipSha);
 
-			if (branches.TryGetCurrent(out GitBranch2 current) && current.IsDetached)
+			if (branches.TryGetCurrent(out GitBranch current) && current.IsDetached)
 			{
 				rootCommits = rootCommits.Concat(new[] { current.TipSha });
 			}
@@ -158,23 +157,6 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static GitCommit ToGitCommit(GitLibCommit gitLibCommit)
-		{
-			List<CommitId> parentIds = gitLibCommit.ParentIds
-				.Select(sha => new CommitId(sha.Sha))
-				.ToList();
-
-			return new GitCommit(
-				gitLibCommit.Sha,
-				gitLibCommit.Subject,
-				gitLibCommit.Message,
-				gitLibCommit.Author,
-				gitLibCommit.AuthorDate,
-				gitLibCommit.CommitDate,
-				parentIds);
-		}
-
-
 		private void AddCommit(MCommit commit, GitCommit gitCommit)
 		{
 			//string subject = gitCommit.Subject;
@@ -189,7 +171,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private void AddVirtualUncommitted(GitBranch2 currentBranch, GitStatus2 status, MRepository repository)
+		private void AddVirtualUncommitted(GitBranch currentBranch, GitStatus status, MRepository repository)
 		{
 			MCommit commit = repository.Commit(CommitId.Uncommitted);
 			repository.Uncommitted = commit;
@@ -317,9 +299,9 @@ namespace GitMind.GitModel.Private
 
 
 		private static void CopyToUncommitedCommit(
-			GitBranch2 currentBranch,
+			GitBranch currentBranch,
 			MRepository repository,
-			GitStatus2 status,
+			GitStatus status,
 			MCommit commit,
 			CommitId parentId)
 		{
@@ -358,7 +340,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static string ShortSubject(GitStatus2 status)
+		private static string ShortSubject(GitStatus status)
 		{
 			string subject = status.MergeMessage?.Trim() ?? "";
 			string firstLine = subject.Split("\n".ToCharArray())[0];

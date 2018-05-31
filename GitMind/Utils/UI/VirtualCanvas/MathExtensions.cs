@@ -663,7 +663,7 @@ namespace GitMind.Utils.UI.VirtualCanvas
 		public static bool IsNaN(this double value) { return Double.IsNaN(value); }
 		/// <summary>Returns a value indicating whether the specified number evaluates to not a number (<see cref="F:System.Single.NaN"/>).</summary>
 		/// <returns>true if value evaluates to not a number (<see cref="F:System.Single.NaN"/>); otherwise, false.</returns>
-		/// <param name="f">A single-precision floating-point number. </param>
+		/// <param name="value">A single-precision floating-point number. </param>
 		/// <filterpriority>1</filterpriority>
 		public static bool IsNaN(this float value) { return Single.IsNaN(value); }
 

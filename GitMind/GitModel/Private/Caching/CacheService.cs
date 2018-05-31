@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using GitMind.Utils;
+using GitMind.Utils.Threading;
 
 
 namespace GitMind.GitModel.Private.Caching

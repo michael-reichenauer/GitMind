@@ -7,6 +7,6 @@ namespace GitMind.GitModel
 {
 	internal interface ICommitsDetailsService
 	{
-		Task<CommitDetails> GetAsync(CommitSha commitSha, GitStatus2 repositoryStatus);
+		Task<CommitDetails> GetAsync(CommitSha commitSha, GitStatus repositoryStatus);
 	}
 }

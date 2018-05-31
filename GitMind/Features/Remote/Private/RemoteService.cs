@@ -6,9 +6,8 @@ using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Branches.Private;
+using GitMind.Features.Commits.Private;
 using GitMind.Features.StatusHandling;
-using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
@@ -23,8 +22,9 @@ namespace GitMind.Features.Remote.Private
 		private readonly IProgressService progress;
 		private readonly IMessage message;
 		private readonly IStatusService statusService;
-		private readonly IGitBranchService gitBranchService;
+
 		private readonly IGitFetchService gitFetchService;
+		private readonly IGitMergeService gitMergeService;
 		private readonly IGitPushService gitPushService;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 
@@ -34,8 +34,8 @@ namespace GitMind.Features.Remote.Private
 			IProgressService progress,
 			IMessage message,
 			IStatusService statusService,
-			IGitBranchService gitBranchService,
 			IGitFetchService gitFetchService,
+			IGitMergeService gitMergeService,
 			IGitPushService gitPushService,
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
@@ -43,8 +43,8 @@ namespace GitMind.Features.Remote.Private
 			this.progress = progress;
 			this.message = message;
 			this.statusService = statusService;
-			this.gitBranchService = gitBranchService;
 			this.gitFetchService = gitFetchService;
+			this.gitMergeService = gitMergeService;
 			this.gitPushService = gitPushService;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 		}
@@ -96,7 +96,7 @@ namespace GitMind.Features.Remote.Private
 				if (result.IsOk && currentBranch.CanBeUpdated)
 				{
 					progress.SetText($"Updating current branch {currentBranch.Name} ...");
-					result = await gitBranchService.MergeCurrentBranchAsync();
+					result = await MergeCurrentBranchAsync();
 				}
 
 				if (result.IsFaulted)
@@ -132,7 +132,7 @@ namespace GitMind.Features.Remote.Private
 					R result = await FetchAsync();
 					if (result.IsOk)
 					{
-						result = await gitBranchService.MergeCurrentBranchAsync();
+						result = await MergeCurrentBranchAsync();
 
 						await FetchAllNotesAsync();
 					}
@@ -217,6 +217,28 @@ namespace GitMind.Features.Remote.Private
 		public bool CanExecuteTryPushAllBranches()
 		{
 			return Repository.Branches.Any(b => b.CanBePushed);
+		}
+
+
+
+		private async Task<R> MergeCurrentBranchAsync()
+		{
+			R<bool> ffResult = await gitMergeService.TryMergeFastForwardAsync(null, CancellationToken.None);
+			if (ffResult.IsFaulted)
+			{
+				return R.Error("Failed to merge current branch", ffResult.Exception);
+			}
+
+			if (!ffResult.Value)
+			{
+				R result = await gitMergeService.MergeAsync(null, CancellationToken.None);
+				if (result.IsFaulted)
+				{
+					return R.Error("Failed to merge current branch", ffResult.Exception);
+				}
+			}
+
+			return R.Ok;
 		}
 	}
 }

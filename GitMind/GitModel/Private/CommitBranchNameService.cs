@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Common;
-using GitMind.Git;
+using GitMind.Features.Commits.Private;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel.Private

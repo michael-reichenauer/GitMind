@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
 using Microsoft.ApplicationInsights;
@@ -44,7 +45,7 @@ namespace GitMind.Common.Tracking
 			Tc.Context.User.Id = GetTrackId();
 			SetInternalNodeName();
 			Tc.Context.Cloud.RoleInstance = Tc.Context.User.Id;
-			Tc.Context.User.UserAgent = $"{ProgramPaths.ProgramName}/{ProgramPaths.GetRunningVersion()}";
+			Tc.Context.User.UserAgent = $"{ProgramInfo.ProgramName}/{ProgramInfo.GetRunningVersion()}";
 			Tc.Context.Session.Id = Guid.NewGuid().ToString();
 			Tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 			Tc.Context.Component.Version = GetProgramVersion();
@@ -171,7 +172,7 @@ namespace GitMind.Common.Tracking
 		private static string GetInstrumentationKey(out bool isProduction)
 		{
 			isProduction = false;
-			string currentInstancePath = ProgramPaths.GetCurrentInstancePath();
+			string currentInstancePath = ProgramInfo.GetCurrentInstancePath();
 
 			if (currentInstancePath == null)
 			{
@@ -180,7 +181,7 @@ namespace GitMind.Common.Tracking
 			}
 
 			if (currentInstancePath != null &&
-				(currentInstancePath.StartsWithOic(ProgramPaths.GetProgramFolderPath()) || IsSetupFile()))
+				(currentInstancePath.StartsWithOic(ProgramInfo.GetProgramFolderPath()) || IsSetupFile()))
 			{
 				isProduction = true;
 				return "33982a8a-1da0-42c0-9d0a-8a159494c847";
@@ -192,7 +193,7 @@ namespace GitMind.Common.Tracking
 
 		private static bool IsSetupFile()
 		{
-			return Path.GetFileNameWithoutExtension(ProgramPaths.GetCurrentInstancePath())
+			return Path.GetFileNameWithoutExtension(ProgramInfo.GetCurrentInstancePath())
 				.StartsWithOic("GitMindSetup");
 		}
 

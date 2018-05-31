@@ -2,6 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
+using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.Tracking;
 using GitMind.Utils.OsSystem;
@@ -34,7 +35,7 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
-		private static string GitFolderPath => Path.Combine(ProgramPaths.DataFolderPath, "Git", GitVersion);
+		private static string GitFolderPath => Path.Combine(ProgramInfo.DataFolderPath, "Git", GitVersion);
 
 
 		private static string GitFolderExePath(string gitFolderPath) =>
@@ -212,7 +213,7 @@ namespace GitMind.Utils.Git.Private
 		{
 			Track.Info($"Downloading git {GitVersion} from {uri} ...");
 			Timing t = Timing.StartNew();
-			string zipPath = ProgramPaths.GetTempFilePath() + $".git_{GitVersion}";
+			string zipPath = ProgramInfo.GetTempFilePath() + $".git_{GitVersion}";
 
 			using (var client = new HttpClientDownloadWithProgress(TimeSpan.FromSeconds(30)))
 			{

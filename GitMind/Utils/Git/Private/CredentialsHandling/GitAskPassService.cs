@@ -6,6 +6,9 @@ using GitMind.Utils.Ipc;
 
 namespace GitMind.Utils.Git.Private.CredentialsHandling
 {
+	/// <summary>
+	/// Handles request by the git.exe process to ask for passwords
+	/// </summary>
 	internal class GitAskPassService : IGitAskPassService
 	{
 		public static readonly Regex AskCredentialRegex = new Regex(@"(\S+)\s+for\s+['""]([^'""]+)['""]:\s*", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -22,10 +25,11 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 			{
 				if (!IsAskPassRequest(args))
 				{
+					// It was not git.exe password request
 					return false;
 				}
 
-				AskPass(args[1]);
+				HandleAskPasswordRequest(args[1]);
 			}
 			catch (Exception e)
 			{
@@ -36,20 +40,22 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 		}
 
 
-		private void AskPass(string promptText)
+		private static void HandleAskPasswordRequest(string promptText)
 		{
 			string sessionId = Environment.GetEnvironmentVariable("GITMIND_SESSIONID");
 
 			Log.Debug($"Ask Pass session {sessionId} prompt: '{promptText}'");
 
+			// Sending the request to the "original" GitMind instance that made the git call 
 			using (IpcRemotingService ipcRemotingService = new IpcRemotingService())
 			{
+				// Make the call to the CredentialIpcService
 				string response = ipcRemotingService.CallService<CredentialIpcService, string>(
 					sessionId, service => service.AskPassRequest(promptText));
 
 				if (response == null)
 				{
-					Log.Debug($"Respone: null, Canceled");
+					Log.Debug("Response: null, Canceled");
 					Console.Out.Close();
 					return;
 				}
@@ -57,6 +63,8 @@ namespace GitMind.Utils.Git.Private.CredentialsHandling
 				if (!string.IsNullOrEmpty(response))
 				{
 					Log.Debug("Response: ******");
+
+					// Return the response to the calling git.exe process 
 					Console.Write(response);
 				}
 				else

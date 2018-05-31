@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Windows;
 using System.Windows.Shell;
+using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 
 
@@ -23,9 +24,9 @@ namespace GitMind.RepositoryViews.Open
 			JumpTask jumpTask = new JumpTask
 			{
 				Title = GetTitle(path),
-				ApplicationPath = ProgramPaths.GetInstallFilePath(),
+				ApplicationPath = ProgramInfo.GetInstallFilePath(),
 				Arguments = GetOpenArguments(path),
-				IconResourcePath = ProgramPaths.GetInstallFilePath(),
+				IconResourcePath = ProgramInfo.GetInstallFilePath(),
 				Description = path
 			};
 

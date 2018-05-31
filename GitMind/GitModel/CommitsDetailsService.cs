@@ -13,8 +13,8 @@ namespace GitMind.GitModel
 	[SingleInstance]
 	internal class CommitsDetailsService : ICommitsDetailsService
 	{
-		private readonly IGitCommitService2 gitCommitService2;
-		private readonly IGitStatusService2 gitStatusService2;
+		private readonly IGitCommitService gitCommitService;
+		private readonly IGitStatusService gitStatusService;
 
 		private readonly ConcurrentDictionary<CommitSha, CommitDetails> commitsFiles =
 			new ConcurrentDictionary<CommitSha, CommitDetails>();
@@ -24,15 +24,15 @@ namespace GitMind.GitModel
 
 
 		public CommitsDetailsService(
-			IGitCommitService2 gitCommitService2,
-			IGitStatusService2 gitStatusService2)
+			IGitCommitService gitCommitService,
+			IGitStatusService gitStatusService)
 		{
-			this.gitCommitService2 = gitCommitService2;
-			this.gitStatusService2 = gitStatusService2;
+			this.gitCommitService = gitCommitService;
+			this.gitStatusService = gitStatusService;
 		}
 
 
-		public async Task<CommitDetails> GetAsync(CommitSha commitSha, GitStatus2 status)
+		public async Task<CommitDetails> GetAsync(CommitSha commitSha, GitStatus status)
 		{
 			if (commitSha == CommitSha.NoCommits)
 			{
@@ -52,15 +52,15 @@ namespace GitMind.GitModel
 
 				string message = (commitSha == CommitSha.Uncommitted || commitSha == CommitSha.NoCommits)
 					? null
-					: (await gitCommitService2.GetCommitMessageAsync(commitSha.Sha, CancellationToken.None)).Or(null);
+					: (await gitCommitService.GetCommitMessageAsync(commitSha.Sha, CancellationToken.None)).Or(null);
 
-				Task<R<IReadOnlyList<GitFile2>>> commitsFilesForCommitTask =
+				Task<R<IReadOnlyList<GitFile>>> commitsFilesForCommitTask =
 					CommitsFilesForCommitTask(commitSha, status);
 
 				GitConflicts conflicts = GitConflicts.None;
 				if (commitSha == CommitSha.Uncommitted && status.HasConflicts)
 				{
-					conflicts = (await gitStatusService2.GetConflictsAsync(CancellationToken.None)).Or(GitConflicts.None);
+					conflicts = (await gitStatusService.GetConflictsAsync(CancellationToken.None)).Or(GitConflicts.None);
 				}
 
 				currentTask = commitsFilesForCommitTask;
@@ -88,14 +88,14 @@ namespace GitMind.GitModel
 		}
 
 
-		private async Task<R<IReadOnlyList<GitFile2>>> CommitsFilesForCommitTask(CommitSha commitSha, GitStatus2 status)
+		private async Task<R<IReadOnlyList<GitFile>>> CommitsFilesForCommitTask(CommitSha commitSha, GitStatus status)
 		{
 			if (commitSha == CommitSha.Uncommitted)
 			{
 				return R.From(status.Files);
 			}
 
-			return await gitCommitService2.GetCommitFilesAsync(commitSha.Sha, CancellationToken.None);
+			return await gitCommitService.GetCommitFilesAsync(commitSha.Sha, CancellationToken.None);
 		}
 	}
 }

@@ -7,17 +7,15 @@ using Autofac.Core.Activators.Reflection;
 
 namespace GitMind.Utils
 {
+	/// <summary>
+	/// Wrapper for Autofac dependency injection handler. 
+	/// </summary>
 	internal class DependencyInjection
 	{
 		private IContainer container;
 
 
-		public T Resolve<T>()
-		{
-			Asserter.NotNull(container);
-
-			return container.Resolve<T>();
-		}
+		public T Resolve<T>() => container.Resolve<T>();
 
 
 		public void RegisterDependencyInjectionTypes()
@@ -60,11 +58,9 @@ namespace GitMind.Utils
 		}
 
 
-		private static bool IsSingleInstance(Type type)
-		{
-			// All types that are marked with the "SingleInstance" attribute
-			return type.GetCustomAttributes(false).FirstOrDefault(
-				       obj => obj.GetType().Name == "SingleInstanceAttribute") != null;
-		}
+		// Returns true if type is marked with the "SingleInstance" attribute
+		private static bool IsSingleInstance(Type type) => 
+			type.GetCustomAttributes(false)
+				.FirstOrDefault(obj => obj.GetType().Name == "SingleInstanceAttribute") != null;
 	}
 }

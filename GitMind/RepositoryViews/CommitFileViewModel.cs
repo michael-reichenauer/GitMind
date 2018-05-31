@@ -2,8 +2,8 @@ using System.Windows.Media;
 using GitMind.Common;
 using GitMind.Common.ThemeHandling;
 using GitMind.Features.Diffing;
-using GitMind.Git;
 using GitMind.GitModel;
+using GitMind.Utils.Git;
 using GitMind.Utils.UI;
 
 

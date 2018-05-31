@@ -36,7 +36,7 @@ namespace GitMind.GitModel.Private
 
 		public bool IsCached { get; set; }
 
-		public GitStatus2 Status { get; set; } = GitStatus2.Default;
+		public GitStatus Status { get; set; } = GitStatus.Default;
 
 		public MCommit Uncommitted { get; set; }
 

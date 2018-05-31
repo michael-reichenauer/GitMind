@@ -12,6 +12,7 @@ using GitMind.Common.MessageDialogs;
 using GitMind.Common.ThemeHandling;
 using GitMind.Common.Tracking;
 using GitMind.Features.Diffing;
+using GitMind.GitModel;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
 using GitMind.Utils.Ipc;
@@ -231,8 +232,8 @@ namespace GitMind
 		{
 			try
 			{
-				string tempFolderPath = ProgramPaths.GetTempFolderPath();
-				string searchPattern = $"{ProgramPaths.TempPrefix}*";
+				string tempFolderPath = ProgramInfo.GetTempFolderPath();
+				string searchPattern = $"{ProgramInfo.TempPrefix}*";
 				string[] tempFiles = Directory.GetFiles(tempFolderPath, searchPattern);
 				foreach (string tempFile in tempFiles)
 				{

@@ -22,6 +22,10 @@ namespace GitMind.ApplicationHandling
 		}
 
 
+
+
+
+
 		public bool IsSilent => args.Contains("/silent");
 
 		public bool IsInstall => args.Contains("/install") || IsSetupFile();

@@ -7,7 +7,7 @@ namespace GitMind.GitModel.Private
 {
 	internal interface ICommitsService
 	{
-		void AddBranchCommits(IReadOnlyList<GitBranch2> branches, MRepository repository);
+		void AddBranchCommits(IReadOnlyList<GitBranch> branches, MRepository repository);
 		Task AddNewCommitsAsync(MRepository repository);
 	}
 }

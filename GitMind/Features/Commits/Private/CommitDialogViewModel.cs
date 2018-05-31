@@ -7,10 +7,10 @@ using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ThemeHandling;
 using GitMind.Features.Diffing;
-using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using GitMind.Utils.UI;
 
 

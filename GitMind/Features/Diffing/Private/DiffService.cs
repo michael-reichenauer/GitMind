@@ -8,7 +8,6 @@ using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
 using GitMind.Common.MessageDialogs;
-using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -24,22 +23,22 @@ namespace GitMind.Features.Diffing.Private
 		private static readonly string ConflictMarker = "<<<<<<< HEAD";
 
 		private readonly WorkingFolder workingFolder;
-		private readonly IGitDiffService2 gitDiffService2;
-		private readonly IGitStatusService2 gitStatusService2;
+		private readonly IGitDiffService gitDiffService;
+		private readonly IGitStatusService gitStatusService;
 		private readonly IGitDiffParser diffParser;
 		private readonly ICmd cmd;
 
 
 		public DiffService(
 			WorkingFolder workingFolder,
-			IGitDiffService2 gitDiffService2,
-			IGitStatusService2 gitStatusService2,
+			IGitDiffService gitDiffService,
+			IGitStatusService gitStatusService,
 			IGitDiffParser diffParser,
 			ICmd cmd)
 		{
 			this.workingFolder = workingFolder;
-			this.gitDiffService2 = gitDiffService2;
-			this.gitStatusService2 = gitStatusService2;
+			this.gitDiffService = gitDiffService;
+			this.gitStatusService = gitStatusService;
 			this.diffParser = diffParser;
 			this.cmd = cmd;
 		}
@@ -50,7 +49,7 @@ namespace GitMind.Features.Diffing.Private
 			string patch;
 			if (commitSha == CommitSha.Uncommitted)
 			{
-				if (!(await gitDiffService2.GetUncommittedDiffAsync(
+				if (!(await gitDiffService.GetUncommittedDiffAsync(
 					CancellationToken.None)).HasValue(out patch))
 				{
 					return;
@@ -58,7 +57,7 @@ namespace GitMind.Features.Diffing.Private
 			}
 			else
 			{
-				if (!(await gitDiffService2.GetCommitDiffAsync(
+				if (!(await gitDiffService.GetCommitDiffAsync(
 					commitSha.Sha, CancellationToken.None)).HasValue(out patch))
 				{
 					return;
@@ -75,7 +74,7 @@ namespace GitMind.Features.Diffing.Private
 			string patch;
 			if (commitSha == CommitSha.Uncommitted)
 			{
-				if (!(await gitDiffService2.GetUncommittedFileDiffAsync(
+				if (!(await gitDiffService.GetUncommittedFileDiffAsync(
 					path, CancellationToken.None)).HasValue(out patch))
 				{
 					return;
@@ -83,7 +82,7 @@ namespace GitMind.Features.Diffing.Private
 			}
 			else
 			{
-				if (!(await gitDiffService2.GetFileDiffAsync(
+				if (!(await gitDiffService.GetFileDiffAsync(
 					commitSha.Sha, path, CancellationToken.None)).HasValue(out patch))
 				{
 					return;
@@ -98,7 +97,7 @@ namespace GitMind.Features.Diffing.Private
 		public async Task ShowPreviewMergeDiffAsync(CommitSha commitSha1, CommitSha commitSha2)
 		{
 
-			if ((await gitDiffService2.GetPreviewMergeDiffAsync(
+			if ((await gitDiffService.GetPreviewMergeDiffAsync(
 				commitSha1.Sha, commitSha2.Sha, CancellationToken.None)).HasValue(out string patch))
 			{
 				CommitDiff commitDiff = await diffParser.ParseAsync(null, patch, true, false);
@@ -110,7 +109,7 @@ namespace GitMind.Features.Diffing.Private
 		public async Task ShowDiffRangeAsync(CommitSha commitSha1, CommitSha commitSha2)
 		{
 			await Task.Yield();
-			if ((await gitDiffService2.GetCommitDiffRangeAsync(
+			if ((await gitDiffService.GetCommitDiffRangeAsync(
 				commitSha1.Sha, commitSha2.Sha, CancellationToken.None)).HasValue(out string patch))
 			{
 				CommitDiff commitDiff = await diffParser.ParseAsync(null, patch, true, false);
@@ -153,7 +152,7 @@ namespace GitMind.Features.Diffing.Private
 				return;
 			}
 
-			R<string> yoursFile = await gitStatusService2.GetConflictFile(fileId, CancellationToken.None);
+			R<string> yoursFile = await gitStatusService.GetConflictFile(fileId, CancellationToken.None);
 			if (yoursFile.IsOk)
 			{
 				File.WriteAllText(path, yoursFile.Value);
@@ -415,11 +414,11 @@ namespace GitMind.Features.Diffing.Private
 		{
 			if (File.Exists(fullPath))
 			{
-				await gitStatusService2.AddAsync(path, CancellationToken.None);
+				await gitStatusService.AddAsync(path, CancellationToken.None);
 			}
 			else
 			{
-				await gitStatusService2.RemoveAsync(path, CancellationToken.None);
+				await gitStatusService.RemoveAsync(path, CancellationToken.None);
 			}
 
 			// Temp workaround to trigger status update after resolving conflicts, ill be handled better

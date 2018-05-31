@@ -11,14 +11,14 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitStatusServiceTest : GitTestBase<IGitStatusService2>
+	public class GitStatusServiceTest : GitTestBase<IGitStatusService>
 	{
 		[Test]
 		public async Task TestStatus()
 		{
 			await git.InitRepoAsync();
 
-			R<GitStatus2> result = await cmd.GetStatusAsync(ct);
+			R<GitStatus> result = await cmd.GetStatusAsync(ct);
 			Assert.IsTrue(result.IsOk);
 			Assert.AreEqual(0, result.Value.AllChanges);
 
@@ -44,7 +44,7 @@ namespace GitMindTest.Utils.Git
 
 			io.WriteFile("file1.txt", "text21");
 			io.WriteFile("file2.txt", "text22");
-			R<GitStatus2> result = await cmd.GetStatusAsync(ct);
+			R<GitStatus> result = await cmd.GetStatusAsync(ct);
 			Assert.AreEqual(2, result.Value.AllChanges);
 
 		}
@@ -55,7 +55,7 @@ namespace GitMindTest.Utils.Git
 		{
 			await git.InitRepoAsync();
 
-			GitStatus2 status = await git.GetStatusAsync();
+			GitStatus status = await git.GetStatusAsync();
 			Assert.AreEqual(0, status.AllChanges);
 		}
 
