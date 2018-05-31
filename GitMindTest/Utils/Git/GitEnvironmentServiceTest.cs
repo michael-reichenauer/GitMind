@@ -55,6 +55,9 @@ namespace GitMindTest.Utils.Git
 		public async Task TestInstallAsync()
 		{
 			await cmd.InstallGitAsync(text => { Log.Debug(text); });
+
+			string version = cmd.TryGetGitVersion();
+			Assert.AreEqual(GitEnvironmentService.GitVersion, version);
 		}
 	}
 }
