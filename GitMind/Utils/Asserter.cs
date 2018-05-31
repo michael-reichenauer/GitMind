@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using GitMind.Common;
 
 
 namespace GitMind.Utils
 {
 	public static class Asserter
 	{
+		public static event EventHandler<AsserterEventArgs> AssertOccurred;
+
 		public static void NotNull(
 			object instance,
 			[CallerMemberName] string memberName = "",
@@ -41,7 +42,7 @@ namespace GitMind.Utils
 
 
 		public static Exception FailFast(
-			Error error,
+			Exception error,
 			[CallerMemberName] string memberName = "",
 			[CallerFilePath] string sourceFilePath = "",
 			[CallerLineNumber] int sourceLineNumber = 0)
@@ -60,7 +61,7 @@ namespace GitMind.Utils
 
 			Exception exception = new InvalidOperationException(message);
 
-			ExceptionHandling.Shutdown("Assert failed", exception);
+			AssertOccurred?.Invoke(null, new AsserterEventArgs(exception));
 			return exception;
 		}
 	}

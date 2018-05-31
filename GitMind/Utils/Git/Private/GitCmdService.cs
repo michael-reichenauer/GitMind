@@ -20,7 +20,7 @@ namespace GitMind.Utils.Git.Private
 		private readonly IGitEnvironmentService gitEnvironmentService;
 		private readonly ICredentialService credentialService;
 		private readonly IMessage message;
-		private readonly WorkingFolderPath workingFolder;
+		private readonly IWorkingFolder workingFolder;
 
 
 		public GitCmdService(
@@ -28,7 +28,7 @@ namespace GitMind.Utils.Git.Private
 			IGitEnvironmentService gitEnvironmentService,
 			ICredentialService credentialService,
 			IMessage message,
-			WorkingFolderPath workingFolder)
+			IWorkingFolder workingFolder)
 		{
 			this.cmd = cmd;
 			this.gitEnvironmentService = gitEnvironmentService;
@@ -113,7 +113,7 @@ namespace GitMind.Utils.Git.Private
 			{
 				using (CredentialSession session = new CredentialSession(credentialService, username))
 				{
-					result = await RunGitCmsAsync(gitArgs, options, session.Id, ct);
+					result = await RunGitCmsAsync(gitArgs, options, session.SessionId, ct);
 
 					username = session.Username;
 					session.ConfirmValidCrededntial(!IsAuthenticationFailed(result));
@@ -137,7 +137,8 @@ namespace GitMind.Utils.Git.Private
 		{
 			if (result.IsFaulted)
 			{
-				return Error.From(string.Join("\n", result.ErrorLines.Take(10)), new GitException($"{result}"));
+				Error error = R.Error(result.AsException());
+				return error;
 			}
 
 			return result;
@@ -156,9 +157,9 @@ namespace GitMind.Utils.Git.Private
 
 			if (result.IsFaulted && 
 			 !result.IsCanceled  && 
-			 !(result.ExitCode == 1 && string.IsNullOrEmpty(result.Output)))
+			 !(result.ExitCode == 1 && string.IsNullOrEmpty(result.Error)))
 			{
-				Track.Event("Git-error", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}\nError:\n{result.ShortError}");
+				Track.Event("Git-error", $"{result.ElapsedMs}ms: Exit {result.ExitCode}: {result.Command} {result.Arguments}\nError:\n{result.ErrorMessage}");
 			}
 			else
 			{
@@ -178,7 +179,7 @@ namespace GitMind.Utils.Git.Private
 
 		private void AdjustOptions(GitOptions options, string sessionId)
 		{
-			options.WorkingDirectory = options.WorkingDirectory ?? workingFolder;
+			options.WorkingDirectory = options.WorkingDirectory ?? workingFolder.Path;
 
 			// Used to enable credentials handling
 			options.EnvironmentVariables = environment =>

@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\LibGit2Sharp.NativeBinaries.1.0.129\build\LibGit2Sharp.NativeBinaries.props" Condition="Exists('..\packages\LibGit2Sharp.NativeBinaries.1.0.129\build\LibGit2Sharp.NativeBinaries.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -44,6 +43,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Debug\GitMind.xml</DocumentationFile>
+    <NoWarn>1591,1574,0419,1573,3001,3002,3009,1041</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -53,6 +54,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\GitMind.xml</DocumentationFile>
+    <NoWarn>1591,1574,0419,1573,3001,3002,3009,1041</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>MainWindowViews\Application.ico</ApplicationIcon>
@@ -63,10 +66,6 @@
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.2.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.6.2\lib\net45\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="LibGit2Sharp, Version=0.22.0.0, Culture=neutral, PublicKeyToken=7cbde695407f0333, processorArchitecture=MSIL">
-      <HintPath>..\packages\LibGit2Sharp.0.22.0\lib\net40\LibGit2Sharp.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.ApplicationInsights, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.ApplicationInsights.2.3.0\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
@@ -106,12 +105,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="ApplicationHandling\Installation\NamespaceDoc.cs" />
+    <Compile Include="ApplicationHandling\Installation\StarMenuHandling\NamespaceDoc.cs" />
+    <Compile Include="ApplicationHandling\Installation\StarMenuHandling\StartMenuWrapper.cs" />
     <Compile Include="ApplicationHandling\IStartInstanceService.cs" />
     <Compile Include="ApplicationHandling\IWorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\Private\WorkingFolderService.cs" />
     <Compile Include="ApplicationHandling\Private\StartInstanceService.cs" />
     <Compile Include="ApplicationHandling\WorkingFolder.cs" />
-    <Compile Include="ApplicationHandling\WorkingFolderPath.cs" />
     <Compile Include="ApplicationHandling\Installation\InstallDialog.xaml.cs">
       <DependentUpon>InstallDialog.xaml</DependentUpon>
     </Compile>
@@ -121,10 +122,9 @@
     <Compile Include="Common\ThemeHandling\Theme.cs" />
     <Compile Include="Common\ThemeHandling\ThemeOption.cs" />
     <Compile Include="Common\ThemeHandling\ThemesOption.cs" />
-    <Compile Include="Common\CommitId.cs" />
-    <Compile Include="Common\CommitIds.cs" />
-    <Compile Include="Common\CommitSha.cs" />
-    <Compile Include="Common\JumpListService.cs" />
+    <Compile Include="GitModel\CommitId.cs" />
+    <Compile Include="GitModel\CommitIds.cs" />
+    <Compile Include="GitModel\CommitSha.cs" />
     <Compile Include="Common\MessageDialogs\Message.cs" />
     <Compile Include="Common\MessageDialogs\MessageDialog.xaml.cs">
       <DependentUpon>MessageDialog.xaml</DependentUpon>
@@ -145,13 +145,11 @@
     </Compile>
     <Compile Include="Features\Remote\Private\GitPromptService.cs" />
     <Compile Include="Features\Remote\Private\RemoteService.cs" />
-    <Compile Include="Common\ResultExtensions.cs" />
     <Compile Include="Features\StatusHandling\IStatusService.cs" />
     <Compile Include="Features\StatusHandling\Private\FileEventArgs.cs" />
     <Compile Include="Features\StatusHandling\Private\IFolderMonitorService.cs" />
     <Compile Include="Features\StatusHandling\Private\RepoChangedEventArgs.cs" />
     <Compile Include="Features\StatusHandling\Private\StatusChangedEventArgs.cs" />
-    <Compile Include="Features\StatusHandling\StatusFile.cs" />
     <Compile Include="Features\StatusHandling\Private\StatusService.cs" />
     <Compile Include="Features\StatusHandling\Refresh.cs" />
     <Compile Include="Features\Tags\ITagService.cs" />
@@ -195,7 +193,8 @@
       <DependentUpon>CloneDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="RepositoryViews\Private\RepositoryCommands.cs" />
-    <Compile Include="Utils\AsyncLock.cs" />
+    <Compile Include="Utils\AsserterEventArgs.cs" />
+    <Compile Include="Utils\Threading\AsyncLock.cs" />
     <Compile Include="Utils\DependencyInjection.cs" />
     <Compile Include="Features\Branches\Private\CrateBranchDialog.xaml.cs">
       <DependentUpon>CrateBranchDialog.xaml</DependentUpon>
@@ -214,49 +213,43 @@
     <Compile Include="Features\Commits\Private\CommitsService.cs" />
     <Compile Include="Features\Commits\ICommitsService.cs" />
     <Compile Include="Features\StatusHandling\Private\FolderMonitorService.cs" />
-    <Compile Include="Git\BranchName.cs" />
-    <Compile Include="Features\Branches\Private\GitBranchService.cs" />
-    <Compile Include="Git\Private\GitCommitBranchNameService.cs" />
-    <Compile Include="Features\Branches\Private\IGitBranchService.cs" />
-    <Compile Include="Git\Private\IGitCommitBranchNameService.cs" />
+    <Compile Include="Utils\Git\BranchName.cs" />
+    <Compile Include="Features\Commits\Private\GitCommitBranchNameService.cs" />
+    <Compile Include="Features\Commits\Private\IGitCommitBranchNameService.cs" />
     <Compile Include="MainWindowViews\IMainWindowService.cs" />
     <Compile Include="MainWindowViews\MainWindowIpcService.cs" />
     <Compile Include="MainWindowViews\MainWindowService.cs" />
     <Compile Include="MainWindowViews\WindowOwner.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Common\CredentialHandler.cs" />
-    <Compile Include="Git\GitConflicts.cs" />
-    <Compile Include="Git\GitFileStatus.cs" />
-    <Compile Include="Git\GitNote.cs" />
-    <Compile Include="Git\ICredentialHandler.cs" />
+    <Compile Include="Utils\Git\GitFileStatus.cs" />
     <Compile Include="ApplicationHandling\AssemblyResolver.cs" />
     <Compile Include="Utils\EofParameters.cs" />
     <Compile Include="Utils\FatalExceptionEventArgs.cs" />
     <Compile Include="Utils\Git\GitAheadBehind.cs" />
+    <Compile Include="Utils\Git\IWorkingFolder.cs" />
     <Compile Include="Utils\Git\Private\GitBranchesExtensions.cs" />
-    <Compile Include="Utils\Git\Private\GitNotesService2.cs" />
-    <Compile Include="Utils\Git\IGitNotesService2.cs" />
-    <Compile Include="Utils\Git\Private\GitTagService2.cs" />
-    <Compile Include="Utils\Git\GitMergeService2.cs" />
-    <Compile Include="Utils\Git\IGitTagService2.cs" />
-    <Compile Include="Utils\Git\IGitMergeService2.cs" />
+    <Compile Include="Utils\Git\Private\GitNotesService.cs" />
+    <Compile Include="Utils\Git\IGitNotesService.cs" />
+    <Compile Include="Utils\Git\Private\GitTagService.cs" />
+    <Compile Include="Utils\Git\GitMergeService.cs" />
+    <Compile Include="Utils\Git\IGitTagService.cs" />
+    <Compile Include="Utils\Git\IGitMergeService.cs" />
     <Compile Include="Utils\Git\Private\GitCheckoutService.cs" />
     <Compile Include="Utils\Git\IGitCheckoutService.cs" />
     <Compile Include="Utils\Git\GitConflictFile.cs" />
     <Compile Include="Utils\Git\GitConflicts.cs" />
     <Compile Include="Utils\Git\Private\GitPullService.cs" />
     <Compile Include="Utils\Git\IGitPullService.cs" />
-    <Compile Include="Utils\Git\Private\GitBranch2.cs" />
-    <Compile Include="Utils\Git\Private\GitBranchService2.cs" />
-    <Compile Include="Utils\Git\IGitBranchService2.cs" />
-    <Compile Include="Utils\Git\Private\GitDiffService2.cs" />
-    <Compile Include="Utils\Git\IGitDiffService2.cs" />
-    <Compile Include="Utils\Git\GitFile2.cs" />
+    <Compile Include="Utils\Git\Private\GitBranch.cs" />
+    <Compile Include="Utils\Git\Private\GitBranchService.cs" />
+    <Compile Include="Utils\Git\IGitBranchService.cs" />
+    <Compile Include="Utils\Git\Private\GitDiffService.cs" />
+    <Compile Include="Utils\Git\IGitDiffService.cs" />
+    <Compile Include="Utils\Git\GitFile.cs" />
     <Compile Include="Utils\Git\Private\FileStatus.cs" />
-    <Compile Include="Utils\Git\Private\GitCommitService2.cs" />
-    <Compile Include="Utils\Git\IGitCommitService2.cs" />
-    <Compile Include="Utils\Git\Private\CredentialService.cs" />
-    <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialCommandData.cs" />
+    <Compile Include="Utils\Git\Private\GitCommitService.cs" />
+    <Compile Include="Utils\Git\IGitCommitService.cs" />
+    <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialService.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialIpcService.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\CredentialSession.cs" />
     <Compile Include="Utils\Git\IGitAskPassService.cs" />
@@ -270,8 +263,8 @@
     <Compile Include="Utils\Git\GitSetting.cs" />
     <Compile Include="Utils\Git\Private\GitOptions.cs" />
     <Compile Include="Utils\Git\Private\GitRepoService.cs" />
-    <Compile Include="Utils\Git\Private\GitStatusService2.cs" />
-    <Compile Include="Utils\Git\IGitStatusService2.cs" />
+    <Compile Include="Utils\Git\Private\GitStatusService.cs" />
+    <Compile Include="Utils\Git\IGitStatusService.cs" />
     <Compile Include="Utils\Git\Private\GitPushService.cs" />
     <Compile Include="Utils\Git\IGitPushService.cs" />
     <Compile Include="Utils\Git\Private\GitInfoService.cs" />
@@ -282,13 +275,13 @@
     <Compile Include="Utils\Git\IGitLogService.cs" />
     <Compile Include="Utils\Git\Private\GitCmdService.cs" />
     <Compile Include="Utils\HttpClientDownloadWithProgress.cs" />
-    <Compile Include="Utils\Git\Private\ICredentialService.cs" />
+    <Compile Include="Utils\Git\Private\CredentialsHandling\ICredentialService.cs" />
     <Compile Include="Utils\Git\Private\IGitCmdService.cs" />
-    <Compile Include="Utils\AsyncCountdownEvent.cs" />
-    <Compile Include="Utils\AsyncManualResetEvent.cs" />
+    <Compile Include="Utils\Threading\AsyncCountdownEvent.cs" />
+    <Compile Include="Utils\Threading\AsyncManualResetEvent.cs" />
     <Compile Include="Utils\Git\Private\CredentialsHandling\IGitCredential.cs" />
     <Compile Include="Utils\Git\IGitRepoService.cs" />
-    <Compile Include="Utils\Git\GitStatus2.cs" />
+    <Compile Include="Utils\Git\GitStatus.cs" />
     <Compile Include="Utils\GlobPatterns\Glob.cs" />
     <Compile Include="Utils\GlobPatterns\GlobExtensions.cs" />
     <Compile Include="Utils\GlobPatterns\GlobNode.cs" />
@@ -304,7 +297,7 @@
     <Compile Include="Utils\OsSystem\SystemIdle.cs" />
     <Compile Include="Utils\RegexExtensions.cs" />
     <Compile Include="Utils\Txt.cs" />
-    <Compile Include="Utils\Throttler.cs" />
+    <Compile Include="Utils\Threading\Throttler.cs" />
     <Compile Include="Utils\UI\CredentialsDialog.cs" />
     <Compile Include="Utils\Disposable.cs" />
     <Compile Include="RepositoryViews\IRepositoryCommands.cs" />
@@ -381,18 +374,18 @@
     <Compile Include="GitModel\Private\SpecifiedBranchName.cs" />
     <Compile Include="GitModel\Repository.cs" />
     <Compile Include="GitModel\Tag.cs" />
-    <Compile Include="Git\CommitBranchName.cs" />
+    <Compile Include="Features\Commits\Private\CommitBranchName.cs" />
     <Compile Include="Utils\IReadOnlyKeyedList.cs" />
     <Compile Include="Utils\KeyedList.cs" />
     <Compile Include="GitModel\Private\MRepository.cs" />
     <Compile Include="GitModel\Private\RepositoryService.cs" />
-    <Compile Include="Common\ExceptionHandling.cs" />
+    <Compile Include="ApplicationHandling\ExceptionHandling.cs" />
     <Compile Include="Utils\FatalExceptionsExtensions.cs" />
     <Compile Include="GitModel\Private\Caching\CacheService.cs" />
     <Compile Include="GitModel\Private\ICacheService.cs" />
     <Compile Include="ApplicationHandling\CommandLine.cs" />
     <Compile Include="ApplicationHandling\ICommandLine.cs" />
-    <Compile Include="Utils\AsyncSemaphore.cs" />
+    <Compile Include="Utils\Threading\AsyncSemaphore.cs" />
     <Compile Include="Utils\EnumerableExtensions.cs" />
     <Compile Include="Utils\Error.cs" />
     <Compile Include="Utils\Git\Private\GitDiffParser.cs" />
@@ -402,20 +395,19 @@
     <Compile Include="ApplicationHandling\ILatestVersionService.cs" />
     <Compile Include="ApplicationHandling\LatestVersionService.cs" />
     <Compile Include="ApplicationHandling\Installation\Installer.cs" />
-    <Compile Include="ApplicationHandling\SettingsHandling\ProgramPaths.cs" />
+    <Compile Include="ApplicationHandling\ProgramInfo.cs" />
     <Compile Include="ApplicationHandling\SettingsHandling\ProgramSettings.cs" />
     <Compile Include="Utils\UI\PropertyToVisibilityConverter.cs" />
     <Compile Include="Utils\CmdResult.cs" />
     <Compile Include="Utils\R.cs" />
-    <Compile Include="Utils\RunInbackgroundTaskExtensions.cs" />
-    <Compile Include="Utils\TaskExtensions.cs" />
-    <Compile Include="Utils\TaskThrottler.cs" />
+    <Compile Include="Utils\Threading\TaskExtensions.cs" />
+    <Compile Include="Utils\Threading\TaskThrottler.cs" />
     <Compile Include="Utils\UI\BusyIndicator.cs" />
     <Compile Include="Utils\UI\MyWpfExtensions.cs" />
     <Compile Include="Utils\UI\Property.cs" />
     <Compile Include="Utils\UI\Command.cs" />
-    <Compile Include="Git\CommitDiff.cs" />
-    <Compile Include="Git\GitTag.cs" />
+    <Compile Include="Utils\Git\CommitDiff.cs" />
+    <Compile Include="Utils\Git\GitTag.cs" />
     <Compile Include="MainWindowViews\MainWindowViewModel.cs" />
     <Compile Include="Utils\Asserter.cs" />
     <Compile Include="Utils\Sorter.cs" />
@@ -434,7 +426,6 @@
     <Compile Include="Utils\Cmd.cs" />
     <Compile Include="Utils\ICmd.cs" />
     <Compile Include="Utils\Log.cs" />
-    <Compile Include="Git\GitLibCommit.cs" />
     <Compile Include="Utils\MicroDiContainer.cs" />
     <Compile Include="Utils\UI\VirtualCanvas\VirtualPanel.cs" />
     <Compile Include="Utils\UI\VirtualCanvas\ZoomableCanvas.cs" />
@@ -581,6 +572,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\.gitattributes" />
+    <EmbeddedResource Include="Resources\.gitignore" />
     <Resource Include="Fonts\MaterialIcons-Regular.ttf" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -610,12 +603,6 @@
     <EmbeddedResource Include="Dependencies\protobuf-net.dll" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Dependencies\LibGit2Sharp.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Dependencies\git2-785d8c4.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Dependencies\Autofac.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -633,21 +620,19 @@
   <ItemGroup>
     <EmbeddedResource Include="Dependencies\Microsoft.ApplicationInsights.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>mkdir "$(ProjectDir)\Dependencies" 2&gt; NUL
 copy /Y /B "$(SolutionDir)packages\Autofac.4.6.2\lib\net45\Autofac.dll" "$(ProjectDir)\Dependencies\Autofac.dll" &gt;NUL
 copy /Y /B "$(SolutionDir)packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll" "$(ProjectDir)\Dependencies\Newtonsoft.Json.dll" &gt;NUL
 copy /Y /B "$(SolutionDir)packages\protobuf-net.2.1.0\lib\net451\protobuf-net.dll" "$(ProjectDir)\Dependencies\protobuf-net.dll" &gt;NUL
-copy /Y /B "$(SolutionDir)packages\LibGit2Sharp.0.22.0\lib\net40\LibGit2Sharp.dll" "$(ProjectDir)\Dependencies\LibGit2Sharp.dll" &gt;NUL
-copy /Y /B "$(SolutionDir)packages\LibGit2Sharp.NativeBinaries.1.0.129\libgit2\windows\x86\git2-785d8c4.dll" "$(ProjectDir)\Dependencies\git2-785d8c4.dll" &gt;NUL
 copy /Y /B "$(SolutionDir)packages\Microsoft.ApplicationInsights.2.3.0\lib\net46\Microsoft.ApplicationInsights.dll" "$(ProjectDir)\Dependencies\Microsoft.ApplicationInsights.dll" &gt;NUL</PreBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\LibGit2Sharp.NativeBinaries.1.0.129\build\LibGit2Sharp.NativeBinaries.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\LibGit2Sharp.NativeBinaries.1.0.129\build\LibGit2Sharp.NativeBinaries.props'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

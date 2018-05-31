@@ -19,7 +19,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 		private readonly IFolderMonitorService folderMonitorService;
 		private readonly IMainWindowService mainWindowService;
-		private readonly IGitStatusService2 gitStatusService2;
+		private readonly IGitStatusService gitStatusService;
 		private readonly IProgressService progress;
 		private readonly Lazy<IRepositoryService> repositoryService;
 
@@ -35,13 +35,13 @@ namespace GitMind.Features.StatusHandling.Private
 		public StatusService(
 			IFolderMonitorService folderMonitorService,
 			IMainWindowService mainWindowService,
-			IGitStatusService2 gitStatusService2,
+			IGitStatusService gitStatusService,
 			IProgressService progress,
 			Lazy<IRepositoryService> repositoryService)
 		{
 			this.folderMonitorService = folderMonitorService;
 			this.mainWindowService = mainWindowService;
-			this.gitStatusService2 = gitStatusService2;
+			this.gitStatusService = gitStatusService;
 			this.progress = progress;
 			this.repositoryService = repositoryService;
 
@@ -63,7 +63,7 @@ namespace GitMind.Features.StatusHandling.Private
 		}
 
 
-		public Task<GitStatus2> GetStatusAsync()
+		public Task<GitStatus> GetStatusAsync()
 		{
 			return GetFreshStatusAsync();
 		}
@@ -149,10 +149,10 @@ namespace GitMind.Features.StatusHandling.Private
 				return;
 			}
 
-			Task<GitStatus2> newStatusTask = GetFreshStatusAsync();
+			Task<GitStatus> newStatusTask = GetFreshStatusAsync();
 			currentStatusTask = newStatusTask;
 
-			GitStatus2 newStatus = await newStatusTask;
+			GitStatus newStatus = await newStatusTask;
 
 			TriggerStatusChanged(fileEventArgs, newStatus);
 		}
@@ -211,12 +211,12 @@ namespace GitMind.Features.StatusHandling.Private
 		private async Task<IReadOnlyList<string>> GetFreshBranchIdsAsync()
 		{
 			Timing t = new Timing();
-			R<IReadOnlyList<string>> branchIds = await gitStatusService2.GetRefsIdsAsync(CancellationToken.None);
+			R<IReadOnlyList<string>> branchIds = await gitStatusService.GetRefsIdsAsync(CancellationToken.None);
 			t.Log($"Got  {branchIds.Or(None).Count} branch ids");
 
 			if (branchIds.IsFaulted)
 			{
-				Log.Error($"Failed to get branch ids {branchIds.Error}");
+				Log.Error($"Failed to get branch ids {branchIds.AllMessages}");
 				return new List<string>();
 			}
 
@@ -224,17 +224,17 @@ namespace GitMind.Features.StatusHandling.Private
 		}
 
 
-		private async Task<GitStatus2> GetFreshStatusAsync()
+		private async Task<GitStatus> GetFreshStatusAsync()
 		{
 			Log.Debug("Getting status ...");
 			Timing t = new Timing();
-			R<GitStatus2> status = await gitStatusService2.GetStatusAsync(CancellationToken.None);
+			R<GitStatus> status = await gitStatusService.GetStatusAsync(CancellationToken.None);
 			t.Log($"Got status {status}");
 
 			if (status.IsFaulted)
 			{
 				Log.Error("Failed to read status");
-				return GitStatus2.Default;
+				return GitStatus.Default;
 			}
 
 			return status.Value;
@@ -244,7 +244,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 
 
-		private void TriggerStatusChanged(FileEventArgs fileEventArgs, GitStatus2 newStatus)
+		private void TriggerStatusChanged(FileEventArgs fileEventArgs, GitStatus newStatus)
 		{
 			StatusChanged?.Invoke(this, new StatusChangedEventArgs(newStatus, fileEventArgs.DateTime));
 		}

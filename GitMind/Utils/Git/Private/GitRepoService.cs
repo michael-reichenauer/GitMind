@@ -30,7 +30,7 @@ namespace GitMind.Utils.Git.Private
 				$"clone --progress \"{uri}\" \"{path}\"", progress, ct);
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to clone repo in: {path}", result);
+				return R.Error($"Failed to clone repo in: {path}", result.Exception);
 			}
 
 			Log.Info($"Cloned repo {uri}, into: {path}");
@@ -45,7 +45,7 @@ namespace GitMind.Utils.Git.Private
 			R<CmdResult2> result = await gitCmdService.RunAsync($"init {bareText} \"{path}\"", ct);
 			if (result.IsFaulted)
 			{
-				return Error.From($"Failed to create repo in: {path}", result);
+				return R.Error($"Failed to create repo in: {path}", result.Exception);
 
 			}
 

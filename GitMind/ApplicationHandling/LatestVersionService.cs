@@ -92,8 +92,8 @@ namespace GitMind.ApplicationHandling
 		{
 			Log.Debug($"Checking remote version of {latestUri} ...");
 			Version remoteVersion = await GetLatestRemoteVersionAsync();
-			Version currentVersion = ProgramPaths.GetRunningVersion();
-			Version installedVersion = ProgramPaths.GetInstalledVersion();
+			Version currentVersion = ProgramInfo.GetRunningVersion();
+			Version installedVersion = ProgramInfo.GetInstalledVersion();
 
 			LogVersion(currentVersion, installedVersion, remoteVersion);
 			return installedVersion < remoteVersion;
@@ -139,7 +139,7 @@ namespace GitMind.ApplicationHandling
 
 			byte[] remoteFileData = await httpClient.GetByteArrayAsync(downloadUrl);
 
-			string setupPath = ProgramPaths.GetTempFilePath() + "." + setupFileInfo.name;
+			string setupPath = ProgramInfo.GetTempFilePath() + "." + setupFileInfo.name;
 			File.WriteAllBytes(setupPath, remoteFileData);
 
 			Log.Debug($"Downloaded {latestInfo.tag_name} to {setupPath}");
@@ -226,7 +226,7 @@ namespace GitMind.ApplicationHandling
 			catch (Exception e) when (e.IsNotFatal())
 			{
 				Log.Exception(e, "Failed to download latest setup");
-				return e;
+				return R.Error(e);
 			}
 		}
 
@@ -328,8 +328,8 @@ namespace GitMind.ApplicationHandling
 
 		private static bool IsNewVersionInstalled()
 		{
-			Version currentVersion = ProgramPaths.GetRunningVersion();
-			Version installedVersion = ProgramPaths.GetInstalledVersion();
+			Version currentVersion = ProgramInfo.GetRunningVersion();
+			Version installedVersion = ProgramInfo.GetInstalledVersion();
 
 			Log.Debug($"Current version: {currentVersion} installed version: {installedVersion}");
 			return currentVersion < installedVersion;

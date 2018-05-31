@@ -6,7 +6,7 @@ using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.StatusHandling;
-using GitMind.Git;
+using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.MainWindowViews;
 using GitMind.Utils;
@@ -20,7 +20,7 @@ namespace GitMind.Features.Tags.Private
 		private readonly IStatusService statusService;
 		private readonly IProgressService progress;
 		private readonly IGitPushService gitPushService;
-		private readonly IGitTagService2 gitTagService2;
+		private readonly IGitTagService gitTagService;
 		private readonly IMessage message;
 		private readonly WindowOwner owner;
 
@@ -29,14 +29,14 @@ namespace GitMind.Features.Tags.Private
 			IStatusService statusService,
 			IProgressService progressService,
 			IGitPushService gitPushService,
-			IGitTagService2 gitTagService2,
+			IGitTagService gitTagService,
 			IMessage message,
 			WindowOwner owner)
 		{
 			this.statusService = statusService;
 			this.progress = progressService;
 			this.gitPushService = gitPushService;
-			this.gitTagService2 = gitTagService2;
+			this.gitTagService = gitTagService;
 			this.message = message;
 			this.owner = owner;
 		}
@@ -44,7 +44,7 @@ namespace GitMind.Features.Tags.Private
 
 		public async Task CopyTagsAsync(MRepository repository)
 		{
-			R<IReadOnlyList<GitTag>> tags = await gitTagService2.GetAllTagsAsync(CancellationToken.None);
+			R<IReadOnlyList<GitTag>> tags = await gitTagService.GetAllTagsAsync(CancellationToken.None);
 
 			if (tags.IsFaulted)
 			{
@@ -84,7 +84,7 @@ namespace GitMind.Features.Tags.Private
 
 					using (progress.ShowDialog($"Add tag {tagText} ..."))
 					{
-						R result = await gitTagService2.AddTagAsync(commitSha.Sha, tagText, CancellationToken.None);
+						R result = await gitTagService.AddTagAsync(commitSha.Sha, tagText, CancellationToken.None);
 						if (result.IsOk)
 						{
 							// Try to push immediately
@@ -92,14 +92,13 @@ namespace GitMind.Features.Tags.Private
 							R pushResult = await gitPushService.PushTagAsync(tagText, CancellationToken.None);
 							if (pushResult.IsFaulted)
 							{
-								message.ShowWarning(
-									$"Failed to push tag '{tagText}'\n{pushResult.Error}");
+								message.ShowWarning($"Failed to push tag '{tagText}'\n{pushResult.AllMessages}");
 							}
 						}
 
 						if (result.IsFaulted)
 						{
-							message.ShowWarning($"Failed to add tag '{tagText}'\n{result.Error}");
+							message.ShowWarning($"Failed to add tag '{tagText}'\n{result.AllMessages}");
 						}
 					}
 				}
@@ -114,7 +113,7 @@ namespace GitMind.Features.Tags.Private
 			{
 				using (progress.ShowDialog($"Delete tag {tagName} ..."))
 				{
-					R deleteLocalResult = await gitTagService2.DeleteTagAsync(tagName, CancellationToken.None);
+					R deleteLocalResult = await gitTagService.DeleteTagAsync(tagName, CancellationToken.None);
 
 					R result = deleteLocalResult;
 					if (deleteLocalResult.IsOk)
@@ -125,7 +124,7 @@ namespace GitMind.Features.Tags.Private
 
 					if (result.IsFaulted)
 					{
-						message.ShowWarning($"Failed to delete tag '{tagName}'\n{result.Error}");
+						message.ShowWarning($"Failed to delete tag '{tagName}'\n{result.AllMessages}");
 					}
 				}
 			}

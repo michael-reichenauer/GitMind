@@ -82,7 +82,7 @@ namespace GitMind.Utils.UI.VirtualCanvas
 		/// <summary>
 		/// Gets or sets whether to automatically apply a <see cref="ScaleTransform"/> to the canvas.
 		/// </summary>
-		/// <value><c>true</c> or <c>false</c>.  The default is <see cref="true"/>.</value>
+		/// <value><c>true</c> or <c>false</c>.  The default is true.</value>
 		/// <remarks>
 		/// The value of this dependency property is <c>true</c> by default, meaning that the 
 		/// <see cref="RenderTransform"/> property will contain a <see cref="Transform"/> that scales
@@ -755,7 +755,7 @@ namespace GitMind.Utils.UI.VirtualCanvas
 
 		/// <summary>
 		/// Gets or sets the maximum number of elements that will be instantiated on the canvas when 
-		/// <see cref="IsVirtualizing"/> is set to <see cref="true"/>.
+		/// <see cref="IsVirtualizing"/> is set to true/>.
 		/// </summary>
 		/// <value>An <see cref="Int32"/> between <c>0</c> and <see cref="Int32.MaxValue"/>.  
 		/// The default is <see cref="Int32.MaxValue"/>.</value>
@@ -817,7 +817,7 @@ namespace GitMind.Utils.UI.VirtualCanvas
 		/// <summary>
 		/// Gets or sets the maximum number of elements that will be realized or virtualized at one time 
 		/// before yielding control back to the dispatcher when <see cref="IsVirtualizing"/> is set to 
-		/// <see cref="true"/>.
+		/// see true.
 		/// </summary>
 		/// <value>An <see cref="Int32"/> between <c>0</c> and <see cref="Int32.MaxValue"/>.  The 
 		/// default is <see cref="Int32.MaxValue"/>.</value>

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using GitMind.Git;
+using GitMind.Features.Commits.Private;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel.Private

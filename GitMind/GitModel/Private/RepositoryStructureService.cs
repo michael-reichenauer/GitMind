@@ -4,10 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
+using GitMind.Features.Commits.Private;
 using GitMind.Features.StatusHandling;
 using GitMind.Features.Tags;
-using GitMind.Git;
-using GitMind.Git.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
@@ -24,7 +23,7 @@ namespace GitMind.GitModel.Private
 		private readonly IBranchHierarchyService branchHierarchyService;
 		private readonly ITagService tagService;
 		private readonly ICommitsService commitsService;
-		private readonly IGitBranchService2 gitBranchService2;
+		private readonly IGitBranchService gitBranchService;
 		//private readonly IDiffService diffService;
 
 
@@ -37,7 +36,7 @@ namespace GitMind.GitModel.Private
 			IBranchHierarchyService branchHierarchyService,
 			ITagService tagService,
 			ICommitsService commitsService,
-			IGitBranchService2 gitBranchService2
+			IGitBranchService gitBranchService
 			//IDiffService diffService
 			)
 		{
@@ -48,13 +47,13 @@ namespace GitMind.GitModel.Private
 			this.branchHierarchyService = branchHierarchyService;
 			this.tagService = tagService;
 			this.commitsService = commitsService;
-			this.gitBranchService2 = gitBranchService2;
+			this.gitBranchService = gitBranchService;
 			//this.diffService = diffService;
 		}
 
 
 		public async Task<MRepository> UpdateAsync(
-			MRepository mRepository, GitStatus2 status, IReadOnlyList<string> repoIds)
+			MRepository mRepository, GitStatus status, IReadOnlyList<string> repoIds)
 		{
 			return await Task.Run(async () =>
 			{
@@ -84,20 +83,20 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private async Task UpdateRepositoryAsync(MRepository repository, GitStatus2 status, IReadOnlyList<string> repoIds)
+		private async Task UpdateRepositoryAsync(MRepository repository, GitStatus status, IReadOnlyList<string> repoIds)
 		{
 			Log.Debug("Updating repository");
 			Timing t = new Timing();
 			//string gitRepositoryPath = repository.WorkingFolder;
 
-			var branchesResult = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
+			var branchesResult = await gitBranchService.GetBranchesAsync(CancellationToken.None);
 			if (branchesResult.IsFaulted)
 			{
 				Log.Warn($"Failed to update repo, {branchesResult}");
 				return;
 			}
 
-			IReadOnlyList<GitBranch2> branches = branchesResult.Value;
+			IReadOnlyList<GitBranch> branches = branchesResult.Value;
 
 			repository.Status = status ?? await statusService.GetStatusAsync();
 			t.Log("Got status");
@@ -161,12 +160,12 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static void SetCurrentBranchAndCommit(MRepository repository, IReadOnlyList<GitBranch2> branches)
+		private static void SetCurrentBranchAndCommit(MRepository repository, IReadOnlyList<GitBranch> branches)
 		{
-			GitStatus2 status = repository.Status;
+			GitStatus status = repository.Status;
 			MBranch currentBranch = repository.Branches.Values.First(b => b.IsActive && b.IsCurrent);
 			repository.CurrentBranchId = currentBranch.Id;
-			branches.TryGetCurrent(out GitBranch2 current);
+			branches.TryGetCurrent(out GitBranch current);
 			repository.CurrentCommitId = status.OK
 				? current != null
 					? repository.Commit(new CommitId(current.TipSha.Sha)).Id

@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitNotesServiceTest : GitTestBase<IGitNotesService2>
+	public class GitNotesServiceTest : GitTestBase<IGitNotesService>
 	{
 		[Test]
 		public async Task TestNotesAsync()

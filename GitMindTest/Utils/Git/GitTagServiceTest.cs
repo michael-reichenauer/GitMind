@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Git;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -13,7 +12,7 @@ using NUnit.Framework;
 namespace GitMindTest.Utils.Git
 {
 	[TestFixture]
-	public class GitTagServiceTest : GitTestBase<IGitTagService2>
+	public class GitTagServiceTest : GitTestBase<IGitTagService>
 	{
 		[Test]
 		public async Task TestTagsAsync()

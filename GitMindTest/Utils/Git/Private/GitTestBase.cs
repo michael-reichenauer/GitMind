@@ -27,8 +27,8 @@ namespace GitMindTest.Utils.Git.Private
 		protected IoHelper io;
 		protected IoHelper io2;
 
-		protected GitStatus2 status;
-		protected IReadOnlyList<GitBranch2> branches;
+		protected GitStatus status;
+		protected IReadOnlyList<GitBranch> branches;
 		protected IReadOnlyList<GitCommit> log;
 		protected bool isCleanUp = true;
 
@@ -39,20 +39,20 @@ namespace GitMindTest.Utils.Git.Private
 			io = new IoHelper();
 			io2 = new IoHelper();
 
-			status = new GitStatus2(0, 0, 0, 0, false, null, new GitFile2[0]);
-			branches = new GitBranch2[0];
+			status = new GitStatus(0, 0, 0, 0, false, null, new GitFile[0]);
+			branches = new GitBranch[0];
 
 			am = new AutoMock()
 				.RegisterNamespaceOf<IGitInfoService>()
 				.RegisterNamespaceOf<ICmd2>()
 				.RegisterType<IMessageService>()
-				.RegisterSingleInstance(new WorkingFolderPath(io.WorkingFolder));
+				.RegisterSingleInstance(new WorkingFolder(io.WorkingFolder));
 
 			am2 = new AutoMock()
 				.RegisterNamespaceOf<IGitInfoService>()
 				.RegisterNamespaceOf<ICmd2>()
 				.RegisterType<IMessageService>()
-				.RegisterSingleInstance(new WorkingFolderPath(io2.WorkingFolder));
+				.RegisterSingleInstance(new WorkingFolder(io2.WorkingFolder));
 
 			git = new GitHelper(am, io);
 			git2 = new GitHelper(am2, io2);

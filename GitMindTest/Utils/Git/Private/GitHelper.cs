@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GitMind.Common;
 using GitMind.Features.Diffing.Private;
-using GitMind.Git;
+using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -86,25 +86,25 @@ namespace GitMindTest.Utils.Git.Private
 			isRepo = true;
 		}
 
-		public Task<GitStatus2> GetStatusAsync() => Service<IGitStatusService2>().Call(s => s.GetStatusAsync(ct));
+		public Task<GitStatus> GetStatusAsync() => Service<IGitStatusService>().Call(s => s.GetStatusAsync(ct));
 
-		public Task<GitConflicts> GetConflictsAsync() => Service<IGitStatusService2>().Call(s => s.GetConflictsAsync(ct));
+		public Task<GitConflicts> GetConflictsAsync() => Service<IGitStatusService>().Call(s => s.GetConflictsAsync(ct));
 
-		public Task<string> GetConflictFileAsync(string fileId) => Service<IGitStatusService2>().Call(s => s.GetConflictFile(fileId, ct));
+		public Task<string> GetConflictFileAsync(string fileId) => Service<IGitStatusService>().Call(s => s.GetConflictFile(fileId, ct));
 
-		public Task<IReadOnlyList<GitBranch2>> GetBranchesAsync() => Service<IGitBranchService2>().Call(s => s.GetBranchesAsync(ct));
+		public Task<IReadOnlyList<GitBranch>> GetBranchesAsync() => Service<IGitBranchService>().Call(s => s.GetBranchesAsync(ct));
 
-		public async Task<GitBranch2> GetCurrentBranchAsync() => (await GetBranchesAsync()).First(branch => branch.IsCurrent);
+		public async Task<GitBranch> GetCurrentBranchAsync() => (await GetBranchesAsync()).First(branch => branch.IsCurrent);
 
-		public Task BranchAsync(string name, bool isCheckout = true) => Service<IGitBranchService2>().Call(s => s.BranchAsync(name, isCheckout, ct));
+		public Task BranchAsync(string name, bool isCheckout = true) => Service<IGitBranchService>().Call(s => s.BranchAsync(name, isCheckout, ct));
 
-		public Task<GitCommit> CommitAllChangesAsync(string message) => Service<IGitCommitService2>().Call(s => s.CommitAllChangesAsync(message, ct));
+		public Task<GitCommit> CommitAllChangesAsync(string message) => Service<IGitCommitService>().Call(s => s.CommitAllChangesAsync(message, ct));
 
-		public Task UncommitAsync() => Service<IGitCommitService2>().Call(s => s.UnCommitAsync(ct));
+		public Task UncommitAsync() => Service<IGitCommitService>().Call(s => s.UnCommitAsync(ct));
 
-		public Task UndoUncommitedAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommittedAsync(ct));
+		public Task UndoUncommitedAsync() => Service<IGitStatusService>().Call(s => s.UndoAllUncommittedAsync(ct));
 
-		public Task CleanWorkingFolderAsync() => Service<IGitStatusService2>().Call(s => s.UndoAllUncommittedAsync(ct));
+		public Task CleanWorkingFolderAsync() => Service<IGitStatusService>().Call(s => s.UndoAllUncommittedAsync(ct));
 
 		public Task PushAsync() => Service<IGitPushService>().Call(s => s.PushAsync(ct));
 
@@ -112,11 +112,11 @@ namespace GitMindTest.Utils.Git.Private
 
 		public Task CheckoutAsync(string branchName) => Service<IGitCheckoutService>().Call(s => s.CheckoutAsync(branchName, ct));
 
-		public Task MergeAsync(string branchName) => Service<IGitMergeService2>().Call(s => s.MergeAsync(branchName, ct));
+		public Task MergeAsync(string branchName) => Service<IGitMergeService>().Call(s => s.MergeAsync(branchName, ct));
 
 		public Task<IReadOnlyList<GitCommit>> GetLogAsync() => Service<IGitLogService>().Call(s => s.GetLogAsync(ct));
 
-		public Task<GitCommit> GetCommit(string sha) => Service<IGitCommitService2>().Call(s => s.GetCommitAsync(sha, ct));
+		public Task<GitCommit> GetCommit(string sha) => Service<IGitCommitService>().Call(s => s.GetCommitAsync(sha, ct));
 
 
 		public Task<CommitDiff> ParsePatchAsync(CommitSha commitSha, string patch, bool addPrefixes = true) =>

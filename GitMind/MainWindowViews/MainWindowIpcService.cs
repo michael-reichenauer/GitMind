@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.Features.Commits;
@@ -38,7 +39,7 @@ namespace GitMind.MainWindowViews
 				if (commandLine.IsCommitCommand(args ?? new string[0]))
 				{
 					Log.Usage("Activated and commit");
-					commitsService.CommitChangesAsync().RunInBackground();					
+					commitsService.CommitChangesAsync().RunInBackground();
 				}
 				else
 				{

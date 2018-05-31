@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitMind.Common;
-using GitMind.Git;
 using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
 
@@ -30,13 +29,13 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		public void AddActiveBranches(IReadOnlyList<GitBranch2> branches, MRepository repository)
+		public void AddActiveBranches(IReadOnlyList<GitBranch> branches, MRepository repository)
 		{
-			GitStatus2 status = repository.Status;
+			GitStatus status = repository.Status;
 
 			//GitBranch2 currentBranch = branches.GetCurrent();
 
-			foreach (GitBranch2 gitBranch in branches)
+			foreach (GitBranch gitBranch in branches)
 			{
 				BranchName branchName = gitBranch.Name;
 				if (branchName == BranchName.OriginHead || branchName == BranchName.Head)
@@ -68,7 +67,7 @@ namespace GitMind.GitModel.Private
 				}
 			}
 
-			if (branches.TryGetCurrent(out GitBranch2 currentBranch) && currentBranch.IsDetached)
+			if (branches.TryGetCurrent(out GitBranch currentBranch) && currentBranch.IsDetached)
 			{
 				MSubBranch subBranch = ToBranch(currentBranch, repository);
 				repository.SubBranches[subBranch.SubBranchId] = subBranch;
@@ -229,7 +228,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static MSubBranch ToBranch(GitBranch2 gitBranch, MRepository repository)
+		private static MSubBranch ToBranch(GitBranch gitBranch, MRepository repository)
 		{
 			BranchName branchName = gitBranch.Name;
 			if (gitBranch.IsRemote && branchName.StartsWith(Origin))

@@ -8,11 +8,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("GitMind")]
-[assembly: AssemblyDescription("GitMind")]
+[assembly: AssemblyDescription("GitMind is a visual git client.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Michael Reichenauer")]
 [assembly: AssemblyProduct("GitMind")]
-[assembly: AssemblyCopyright("Copyright © Michael Reichenauer 2016")]
+[assembly: AssemblyCopyright("Copyright © Michael Reichenauer 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -50,7 +50,7 @@ using System.Windows;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("0.139.*")]
+[assembly: AssemblyVersion("0.141.*")]
 
 [assembly: InternalsVisibleTo("GitMindTest")]
 

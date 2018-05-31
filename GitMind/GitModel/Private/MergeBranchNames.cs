@@ -1,4 +1,4 @@
-using GitMind.Git;
+using GitMind.Utils.Git;
 
 
 namespace GitMind.GitModel.Private

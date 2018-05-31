@@ -4,13 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using GitMind.Common;
 using GitMind.Common.ThemeHandling;
 using GitMind.Features.Commits;
 using GitMind.Features.Diffing;
-using GitMind.Git;
 using GitMind.GitModel;
 using GitMind.Utils;
+using GitMind.Utils.Git;
 using GitMind.Utils.UI;
 
 
@@ -73,7 +72,7 @@ namespace GitMind.RepositoryViews
 			if (CommitViewModel != null)
 			{
 				if (filesCommitId != CommitViewModel.Commit.RealCommitId
-					|| filesCommitId == Common.CommitId.Uncommitted)
+					|| filesCommitId == GitModel.CommitId.Uncommitted)
 				{
 					files.Clear();
 					filesCommitId = CommitViewModel.Commit.RealCommitId;

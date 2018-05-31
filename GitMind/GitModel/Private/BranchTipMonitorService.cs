@@ -5,8 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common;
-using GitMind.Git;
-using GitMind.Git.Private;
+using GitMind.Features.Commits.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
@@ -18,15 +17,15 @@ namespace GitMind.GitModel.Private
 	{
 		private static readonly string Origin = "origin/";
 
-		private readonly IGitBranchService2 gitBranchService2;
+		private readonly IGitBranchService gitBranchService;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
 
 
 		public BranchTipMonitorService(
-			IGitBranchService2 gitBranchService2,
+			IGitBranchService gitBranchService,
 			IGitCommitBranchNameService gitCommitBranchNameService)
 		{
-			this.gitBranchService2 = gitBranchService2;
+			this.gitBranchService = gitBranchService;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
 		}
 
@@ -34,7 +33,7 @@ namespace GitMind.GitModel.Private
 		public async Task CheckAsync(Repository repository)
 		{
 			Log.Debug("Checking branch tips ...");
-			var branches = await gitBranchService2.GetBranchesAsync(CancellationToken.None);
+			var branches = await gitBranchService.GetBranchesAsync(CancellationToken.None);
 			if (branches.IsFaulted)
 			{
 				return;
@@ -65,11 +64,11 @@ namespace GitMind.GitModel.Private
 
 		private static IReadOnlyDictionary<CommitSha, string> GetSingleBranchTipCommits(
 			Repository repository,
-			IReadOnlyList<GitBranch2> branches)
+			IReadOnlyList<GitBranch> branches)
 		{
-			Dictionary<CommitSha, GitBranch2> branchByTip = new Dictionary<CommitSha, GitBranch2>();
+			Dictionary<CommitSha, GitBranch> branchByTip = new Dictionary<CommitSha, GitBranch>();
 
-			foreach (GitBranch2 branch in branches)
+			foreach (GitBranch branch in branches)
 			{
 				try
 				{
@@ -79,7 +78,7 @@ namespace GitMind.GitModel.Private
 					// Check if commit has any children (i.e. is not sole branch tip)
 					if (repository.Commits.TryGetValue(commitId, out Commit commit) && !commit.Children.Any())
 					{
-						if (!branchByTip.TryGetValue(commitSha, out GitBranch2 existingBranch))
+						if (!branchByTip.TryGetValue(commitSha, out GitBranch existingBranch))
 						{
 							// No existing branch has yet a tip to this commit
 							branchByTip[commitSha] = branch;
@@ -134,7 +133,7 @@ namespace GitMind.GitModel.Private
 		}
 
 
-		private static bool AreLocalRemotePair(GitBranch2 branch1, GitBranch2 branch2)
+		private static bool AreLocalRemotePair(GitBranch branch1, GitBranch branch2)
 		{
 			return
 				branch1.IsRemote &&

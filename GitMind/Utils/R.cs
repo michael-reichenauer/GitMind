@@ -1,31 +1,74 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 
 namespace GitMind.Utils
 {
 	public class R
 	{
-		public static R Ok = new R(Error.None);
-		public static R NoValue = new R(Error.NoValue);
+		protected static readonly Exception NoError = new Exception("No error");
+		protected static readonly Exception NoValueError = new Exception("No value");
+
+		public static R Ok = new Error(NoError, null);
+		public static Error NoValue = new Error(NoValueError, null);
 
 
-		protected R(Error error)
+		protected R(Exception e)
 		{
-			Error = error;
+			Exception = e;
 		}
 
-		public Error Error { get; }
+		public Exception Exception { get; }
 
-		public bool IsFaulted => Error != Error.None;
-		public bool IsOk => Error == Error.None;
-		public string Message => Error.Message;
+		public bool IsOk => Exception == NoError;
+		public bool IsFaulted => Exception != NoError;
+		public string Message => Exception.Message;
+		public string AllMessages => string.Join(",\n", AllMessageLines());
 
-		public static R<T> From<T>(T result) => new R<T>(result);
+		public IEnumerable<string> AllMessageLines()
+		{
+			yield return Message;
 
-		public static implicit operator R(Error error) => new R(error);
-		public static implicit operator R(Exception e) => new R(Error.From(e));
+			Exception inner = Exception.InnerException;
+			while (inner != null)
+			{
+				yield return inner.Message;
+				inner = inner.InnerException;
+			}
+		}
+
+
+		public static R<T> From<T>(T result) => R<T>.From(result);
+
+		public static Error Error(
+			string message,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0) =>
+			new Error(message, memberName, sourceFilePath, sourceLineNumber);
+
+
+		public static Error Error(
+			string message,
+			Exception e,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0) =>
+			new Error(message, e, memberName, sourceFilePath, sourceLineNumber);
+
+
+		public static Error Error(
+			Exception e,
+			[CallerMemberName] string memberName = "",
+			[CallerFilePath] string sourceFilePath = "",
+			[CallerLineNumber] int sourceLineNumber = 0) =>
+			new Error(e, memberName, sourceFilePath, sourceLineNumber);
+
+		//public static implicit operator R(Exception e) => new RError(e);
 		public static implicit operator bool(R r) => r.IsOk;
-		public override string ToString() => IsOk ? "OK" : $"Error: {Error}";
+
+		public override string ToString() => IsOk ? "OK" : $"Error: {AllMessages}\n{Exception}";
 	}
 
 
@@ -33,18 +76,17 @@ namespace GitMind.Utils
 	{
 		private readonly T storedValue;
 
-		public new static R<T> NoValue = new R<T>(Error.NoValue);
+		public new static readonly R<T> NoValue = new R<T>(NoValueError);
 
-		public R(T value) : base(Error.None) => this.storedValue = value;
+		private R(T value) : base(NoError) => this.storedValue = value;
 
-		public R(Error error)
-			: base(error)
-		{
-		}
+		private R(Exception error) : base(error) { }
 
 
-		public static implicit operator R<T>(Error error) => new R<T>(error);
-		public static implicit operator R<T>(Exception e) => new R<T>(Error.From(e));
+		//public static implicit operator R<T>(Error error) => new R<T>(error);
+		//public static implicit operator R<T>(Exception e) => new R<T>(e);
+
+		public static implicit operator R<T>(Error error) => new R<T>(error.Exception);
 		public static implicit operator bool(R<T> r) => r.IsOk;
 
 		public static implicit operator R<T>(T value)
@@ -57,13 +99,14 @@ namespace GitMind.Utils
 			return new R<T>(value);
 		}
 
+		public static R<T> From(T result) => new R<T>(result);
 
-		public T Value => !IsFaulted ? storedValue : throw Asserter.FailFast(Error);
+		public T Value => IsOk ? storedValue : throw Asserter.FailFast(Exception.ToString());
 
 
 		public bool HasValue(out T value)
 		{
-			if (!IsFaulted)
+			if (IsOk)
 			{
 				value = storedValue;
 				return true;
@@ -78,7 +121,6 @@ namespace GitMind.Utils
 		public T Or(T defaultValue) => IsFaulted ? defaultValue : Value;
 
 
-		public override string ToString() =>
-			IsFaulted ? $"Error: {Error}" : (storedValue?.ToString() ?? "");
+		public override string ToString() => IsOk ? (storedValue?.ToString() ?? "") : base.ToString();
 	}
 }

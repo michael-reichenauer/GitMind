@@ -27,7 +27,7 @@ namespace GitMind.GitModel
 			Lazy<Branch> currentBranch,
 			Lazy<Commit> currentCommit,
 			ICommitsDetailsService commitsDetailsService,
-			GitStatus2 status,
+			GitStatus status,
 			CommitId rootId,
 			CommitId unComittedId)
 		{
@@ -49,7 +49,7 @@ namespace GitMind.GitModel
 		public Commit CurrentCommit => currentCommit.Value;
 		public MRepository MRepository { get; }
 		public ICommitsDetailsService CommitsDetailsService { get; }
-		public GitStatus2 Status { get; }
+		public GitStatus Status { get; }
 		public Commit RootCommit => commits.Value[rootId];
 		public Commit UnComitted => unComittedId == CommitId.Uncommitted ? commits.Value[unComittedId] : null;
 	}
