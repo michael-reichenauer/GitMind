@@ -512,7 +512,18 @@ namespace GitMind.Features.Branches.Private
 				return R.Error("Failed to switch to commit", checkoutCommitResult.Exception);
 			}
 
-			return null;
+			branches = await gitBranchService.GetBranchesAsync(CancellationToken.None);
+			if (branches.IsFaulted)
+			{
+				return R.Error("Failed to get branches after switch to commit", branches.Exception);
+			}
+
+			if (!branches.Value.TryGetCurrent(out branch))
+			{
+				return R.Error("Failed to get current branch after switch to commit", branches.Exception);
+			}
+
+			return new BranchName(branch.Name);
 		}
 
 
