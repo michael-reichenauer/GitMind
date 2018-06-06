@@ -47,9 +47,9 @@ namespace GitMind.Utils
 
 		private static void SendBufferedLogRows()
 		{
-			List<string> batchedTexts = new List<string>();
 			while (!logTexts.IsCompleted)
 			{
+				List<string> batchedTexts = new List<string>();
 				// Wait for texts to log
 				string filePrefix = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss,fff} [{ProcessID}]";
 				string logText = logTexts.Take();
