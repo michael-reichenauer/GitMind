@@ -35,6 +35,7 @@ namespace GitMind.Common.ProgressHandling
 			await closeTask;
 
 			viewModel.Stop();
+			Owner?.Activate();
 		}
 
 
