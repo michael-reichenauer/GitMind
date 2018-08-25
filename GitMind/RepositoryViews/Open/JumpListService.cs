@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Shell;
 using GitMind.ApplicationHandling;
-using GitMind.ApplicationHandling.SettingsHandling;
 
 
 namespace GitMind.RepositoryViews.Open
@@ -14,7 +13,7 @@ namespace GitMind.RepositoryViews.Open
 
 		public void AddPath(string path)
 		{
-			if (string.IsNullOrEmpty(path) || !File.Exists(path))
+			if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
 			{
 				return;
 			}
