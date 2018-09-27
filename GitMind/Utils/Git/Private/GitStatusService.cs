@@ -246,7 +246,11 @@ namespace GitMind.Utils.Git.Private
 				{
 					// Next file, store previous file
 					GitFileStatus status = GetConflictStatus(baseId, localId, remoteId);
-					files.Add(new GitConflictFile(result.WorkingDirectory, filePath, baseId, localId, remoteId, status));
+					if (status.HasFlag(GitFileStatus.Conflict))
+					{
+						files.Add(new GitConflictFile(result.WorkingDirectory, filePath, baseId, localId, remoteId, status));
+					}
+
 					baseId = null;
 					localId = null;
 					remoteId = null;
@@ -260,7 +264,10 @@ namespace GitMind.Utils.Git.Private
 			{
 				// Add last file
 				GitFileStatus status = GetConflictStatus(baseId, localId, remoteId);
-				files.Add(new GitConflictFile(result.WorkingDirectory, filePath, baseId, localId, remoteId, status));
+				if (status.HasFlag(GitFileStatus.Conflict))
+				{
+					files.Add(new GitConflictFile(result.WorkingDirectory, filePath, baseId, localId, remoteId, status));
+				}
 			}
 
 			return new GitConflicts(files);
@@ -305,6 +312,10 @@ namespace GitMind.Utils.Git.Private
 			else if (localId != null && remoteId != null)
 			{
 				return GitFileStatus.Conflict | GitFileStatus.ConflictAA;
+			}
+			else if (localId != null && baseId == null && remoteId == null)
+			{
+				return GitFileStatus.Added;
 			}
 
 			throw new InvalidOperationException("Unexpected state");
