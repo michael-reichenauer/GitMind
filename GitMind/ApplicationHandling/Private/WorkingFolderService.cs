@@ -49,6 +49,17 @@ namespace GitMind.ApplicationHandling.Private
 				if (workingFolder != rootFolder)
 				{
 					workingFolder = rootFolder;
+
+					try
+					{
+						Log.Info($"Setting Environment.CurrentDirectory={workingFolder}");
+						Environment.CurrentDirectory = workingFolder;
+					}
+					catch (Exception e)
+					{
+						Log.Exception(e, $"Failed to set working folder: {workingFolder}");
+					}
+
 					OnChange?.Invoke(this, EventArgs.Empty);
 				}
 
@@ -60,7 +71,6 @@ namespace GitMind.ApplicationHandling.Private
 				return false;
 			}
 		}
-
 
 
 		// Must be able to handle:
