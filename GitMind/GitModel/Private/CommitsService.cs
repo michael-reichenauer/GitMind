@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Common;
 using GitMind.Utils;
 using GitMind.Utils.Git;
 using GitMind.Utils.Git.Private;
@@ -36,7 +35,7 @@ namespace GitMind.GitModel.Private
 					if (commit.ParentIds.All(p => repository.GitCommits.TryGetValue(commitId, out _)))
 					{
 						seenCount++;
-						if (seenCount > 100)
+						if (seenCount > 5000)
 						{
 							Log.Debug($"Commit {commitId} already cached");
 							cts.Cancel();

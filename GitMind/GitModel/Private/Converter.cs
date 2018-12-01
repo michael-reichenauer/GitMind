@@ -1,10 +1,11 @@
+using System;
 using System.Linq;
-using GitMind.Common;
+using GitMind.Utils;
 
 
 namespace GitMind.GitModel.Private
 {
-	internal class Converter 
+	internal class Converter
 	{
 		public static Branch ToBranch(Repository repository, MBranch branch)
 		{
@@ -35,32 +36,40 @@ namespace GitMind.GitModel.Private
 
 		public static Commit ToCommit(Repository repository, MCommit commit)
 		{
-			return new Commit(
-				repository,
-				commit.Id,
-				commit.RealCommitId,
-				commit.RealCommitSha,
-				commit.Subject,
-				commit.Message,
-				commit.Author,
-				commit.AuthorDate,
-				commit.CommitDate,
-				commit.Tags,
-				commit.Tickets,
-				commit.BranchTips,
-				commit.ParentIds.ToList(),
-				commit.ChildIds.ToList(),
-				commit.BranchId,
-				commit.SpecifiedBranchName,
-				commit.CommitBranchName,
-				commit.IsLocalAhead,
-				commit.IsRemoteAhead,
-				commit.IsCommon,
-				commit.IsUncommitted,
-				commit.IsVirtual,
-				commit.HasConflicts,
-				commit.IsMerging,
-				commit.HasFirstChild);
+			try
+			{
+				return new Commit(
+					repository,
+					commit.Id,
+					commit.RealCommitId,
+					commit.RealCommitSha,
+					commit.Subject,
+					commit.Message,
+					commit.Author,
+					commit.AuthorDate,
+					commit.CommitDate,
+					commit.Tags,
+					commit.Tickets,
+					commit.BranchTips,
+					commit.ParentIds.ToList(),
+					commit.ChildIds.ToList(),
+					commit.BranchId,
+					commit.SpecifiedBranchName,
+					commit.CommitBranchName,
+					commit.IsLocalAhead,
+					commit.IsRemoteAhead,
+					commit.IsCommon,
+					commit.IsUncommitted,
+					commit.IsVirtual,
+					commit.HasConflicts,
+					commit.IsMerging,
+					commit.HasFirstChild);
+			}
+			catch (Exception e)
+			{
+				Log.Exception(e, $"Failed to convert {commit.Id}");
+				throw;
+			}
 		}
 	}
 }
