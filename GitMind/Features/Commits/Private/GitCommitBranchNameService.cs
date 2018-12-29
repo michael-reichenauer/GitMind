@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling;
-using GitMind.Common;
 using GitMind.GitModel;
 using GitMind.RepositoryViews;
 using GitMind.Utils;
@@ -17,7 +16,7 @@ namespace GitMind.Features.Commits.Private
 {
 	internal class GitCommitBranchNameService : IGitCommitBranchNameService
 	{
-		public static readonly string CommitBranchNoteNameSpace = "GitMind.Branches";
+		//public static readonly string CommitBranchNoteNameSpace = "GitMind.Branches";
 		public static readonly string ManualBranchNoteNameSpace = "GitMind.Branches.Manual";
 
 		private readonly WorkingFolder workingFolder;
@@ -54,8 +53,7 @@ namespace GitMind.Features.Commits.Private
 
 		public Task SetCommitBranchNameAsync(CommitSha commitSha, BranchName branchName)
 		{
-			SetNoteBranches(CommitBranchNoteNameSpace, commitSha, branchName);
-
+			//SetNoteBranches(CommitBranchNoteNameSpace, commitSha, branchName);
 			return Task.CompletedTask;
 		}
 
@@ -68,13 +66,14 @@ namespace GitMind.Features.Commits.Private
 
 		public Task<IReadOnlyList<CommitBranchName>> GetCommitBranchNamesAsync(CommitSha rootId)
 		{
-			return GetNoteBranchesAsync(CommitBranchNoteNameSpace, rootId);
+			return Task.FromResult(Enumerable.Empty<CommitBranchName>().ToReadOnlyList());
+			//return GetNoteBranchesAsync(CommitBranchNoteNameSpace, rootId);
 		}
 
 
 		public async Task PushNotesAsync(CommitSha rootId)
 		{
-			await PushNotesAsync(CommitBranchNoteNameSpace, rootId);
+			//await PushNotesAsync(CommitBranchNoteNameSpace, rootId);
 			await PushNotesAsync(ManualBranchNoteNameSpace, rootId);
 		}
 
@@ -225,7 +224,7 @@ namespace GitMind.Features.Commits.Private
 			Log.Debug("Fetch all notes ...");
 			string[] noteRefs =
 			{
-				$"+refs/notes/{CommitBranchNoteNameSpace}:refs/notes/origin/{CommitBranchNoteNameSpace}",
+				//$"+refs/notes/{CommitBranchNoteNameSpace}:refs/notes/origin/{CommitBranchNoteNameSpace}",
 				$"+refs/notes/{ManualBranchNoteNameSpace}:refs/notes/origin/{ManualBranchNoteNameSpace}",
 			};
 
