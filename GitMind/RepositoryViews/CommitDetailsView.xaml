@@ -18,7 +18,7 @@
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
-		<!-- The commit details list -->
+		<!-- The commit details list. -->
 		<Border
 			Grid.Column="0"
 			CornerRadius="0"
