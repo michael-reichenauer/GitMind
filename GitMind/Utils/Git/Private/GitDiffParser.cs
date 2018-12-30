@@ -50,6 +50,21 @@ namespace GitMind.Utils.Git.Private
 		}
 
 
+		public void CleanTempFiles()
+		{
+			string tempPath = GetTempPath();
+			try
+			{
+				
+				Directory.Delete(tempPath, true);
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to clean temp folder {tempPath}, {e}");
+			}
+		}
+
+
 		private void ExtractLeftAndRightSides(
 			string[] patchLines,
 			StringBuilder left,

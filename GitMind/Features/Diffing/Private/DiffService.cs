@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -6,7 +7,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.GitModel;
 using GitMind.Utils;
@@ -306,6 +306,7 @@ namespace GitMind.Features.Diffing.Private
 
 				cmd.Run(diffTool.Command, args);
 			});
+			diffParser.CleanTempFiles();
 		}
 
 
@@ -328,6 +329,7 @@ namespace GitMind.Features.Diffing.Private
 
 				cmd.Run(mergeTool.Command, args);
 			});
+			diffParser.CleanTempFiles();
 		}
 
 
@@ -406,7 +408,14 @@ namespace GitMind.Features.Diffing.Private
 		{
 			if (File.Exists(path))
 			{
-				File.Delete(path);
+				try
+				{
+					File.Delete(path);
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to delete {path}, {e.Message}");
+				}
 			}
 		}
 
