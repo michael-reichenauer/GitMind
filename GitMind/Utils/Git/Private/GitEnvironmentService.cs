@@ -22,7 +22,7 @@ namespace GitMind.Utils.Git.Private
 		//public static readonly string GitVersion = "2.17.1.windows.2";
 		//private static string gitUri =
 		//	"https://github.com/git-for-windows/git/releases/download/v2.17.1.windows.2/MinGit-2.17.1.2-64-bit.zip";
-		public static readonly string GitVersion = "2.20.0.windows.1";
+		public static readonly string GitVersion = "2.20.1.windows.1";
 		private static string gitUri =
 			"https://github.com/git-for-windows/git/releases/download/v2.20.1.windows.1/MinGit-2.20.1-64-bit.zip";
 
