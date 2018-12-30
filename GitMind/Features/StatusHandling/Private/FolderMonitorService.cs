@@ -117,7 +117,7 @@ namespace GitMind.Features.StatusHandling.Private
 
 				if (fullPath != null && !Directory.Exists(fullPath))
 				{
-					Log.Debug($"Status change for '{fullPath}' {changeType}");
+					// Log.Debug($"Status change for '{fullPath}' {changeType}");
 					StatusChange();
 				}
 			}
@@ -228,7 +228,7 @@ namespace GitMind.Features.StatusHandling.Private
 				return;
 			}
 
-			Log.Debug($"Repo change for '{fullPath}' {changeType}");
+			// Log.Debug($"Repo change for '{fullPath}' {changeType}");
 
 			lock (syncRoot)
 			{
