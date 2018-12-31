@@ -204,8 +204,8 @@
 										<ColumnDefinition Width="20" />
 									</Grid.ColumnDefinitions>
 
-									<Label
-										Content="{Binding Name}" 
+									<TextBlock
+										Text="{Binding Name}" 
 										Grid.Column="0"
 										Foreground="{DynamicResource TextBrush}"
 										Padding="0"/>
