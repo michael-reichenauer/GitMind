@@ -1,5 +1,4 @@
 #tool nuget:?package=NUnit.ConsoleRunner&version=3.9.0
-//#tool nuget:?package=Tools.InnoSetup&version=5.5.9
 #tool nuget:?package=Microsoft.VSSDK.Vsixsigntool&version=15.9.28307
 #addin nuget:?package=Cake.VersionReader&version=5.0.0
 #addin nuget:?package=Cake.VsixSignTool&version=1.2.0
@@ -20,7 +19,7 @@ var configuration = Argument("configuration", "Release");
 var name = "GitMind";
 
 var solutionPath = $"./{name}.sln";
-var outputPath = $"{name}/bin/{configuration}/{name}.exe";
+var buildOutputPath = $"{name}/bin/{configuration}/{name}.exe";
 var setupPath = $"{name}Setup.exe";
 
 string signPassword = "";
@@ -44,7 +43,6 @@ Task("Clean")
 
 
 Task("Restore-NuGet-Packages")
-    .IsDependentOn("Clean")
     .Does(() =>
 {
     NuGetRestore(solutionPath, new NuGetRestoreSettings {
@@ -80,17 +78,13 @@ Task("Build-Setup-File")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    var version = GetFullVersionNumber(outputPath);
-	string isSigning = string.IsNullOrWhiteSpace(signPassword) ? "False" : "True";
-
-	CopyFile(outputPath, setupPath);	
+    // The build output is also setup file if file name ends with "Setup"
+	CopyFile(buildOutputPath, setupPath);	
 });
 
 
-Task("Build-Setup")
-    .IsDependentOn("Clean")
+Task("Sign-Setup-File")
 	.IsDependentOn("Prompt-Sign-Password")
-	.IsDependentOn("Build")
     .IsDependentOn("Build-Setup-File")
     .Does(() =>
 {
@@ -101,29 +95,59 @@ Task("Build-Setup")
             CertPath = @"C:\Users\micha\OneDrive\CodeSigning\SignCert.pfx",
             Password = signPassword
     });
-	
-	var version = GetFullVersionNumber(outputPath);
+});
+
+
+Task("Show-Build-Version")
+	.IsDependentOn("Build")
+    .Does(() =>
+{
+	// Get build version to show in console output
+	var version = GetFullVersionNumber(buildOutputPath);
     Version v = Version.Parse(version);
     string shortVersion = string.Format("{0}.{1}", v.Major, v.Minor);
 
     Information("v{0}", version); 
     Information("Version {0} beta", shortVersion); 
-
     Information("\n\n");  
 })
 .OnError(exception =>
 {
 	RunTarget("Clean");
 	throw exception;
-});;
+});
+
+
+Task("Build-Setup")
+    .IsDependentOn("Clean")
+	.IsDependentOn("Prompt-Sign-Password")
+	.IsDependentOn("Build")
+    .IsDependentOn("Build-Setup-File")
+	.IsDependentOn("Sign-Setup-File")
+	.IsDependentOn("Show-Build-Version")
+    .Does(() =>
+{
+})
+.OnError(exception =>
+{
+	RunTarget("Clean");
+	throw exception;
+});
 
 
 Task("Build-Unsigned-Setup")
+	.IsDependentOn("Clean")
+	.IsDependentOn("Build")
     .IsDependentOn("Build-Setup-File")
     .Does(() =>
 {
-	Warning("\nSetup file is not signed !!!");
-	Error("----------------------------\n\n");
+	Error("\n NOTE: Setup file is not signed !!!!!!! ");
+	Error(" -------------------------------------- \n\n");
+})
+.OnError(exception =>
+{
+	RunTarget("Clean");
+	throw exception;
 });
 
 
