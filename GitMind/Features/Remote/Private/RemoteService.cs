@@ -2,10 +2,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
-using GitMind.Features.Branches.Private;
 using GitMind.Features.Commits.Private;
 using GitMind.Features.StatusHandling;
 using GitMind.GitModel;

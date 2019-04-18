@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.Common;
 using GitMind.Features.Commits.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;

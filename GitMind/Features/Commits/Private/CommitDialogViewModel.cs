@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using GitMind.ApplicationHandling;
-using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ThemeHandling;
 using GitMind.Features.Diffing;

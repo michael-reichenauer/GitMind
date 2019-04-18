@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Common;
 using GitMind.Features.Commits.Private;
 using GitMind.Features.StatusHandling;
 using GitMind.Features.Tags;

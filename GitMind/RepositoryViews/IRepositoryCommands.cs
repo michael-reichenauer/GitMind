@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using GitMind.Common;
 using GitMind.GitModel;
 using GitMind.Utils.Git;
 

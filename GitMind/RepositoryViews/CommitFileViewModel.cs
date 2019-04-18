@@ -1,5 +1,4 @@
 using System.Windows.Media;
-using GitMind.Common;
 using GitMind.Common.ThemeHandling;
 using GitMind.Features.Diffing;
 using GitMind.GitModel;

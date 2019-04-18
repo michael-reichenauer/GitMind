@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using GitMind.Utils;
 
 
 // ReSharper disable once CheckNamespace

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.Common;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Remote;
 using GitMind.Features.StatusHandling;

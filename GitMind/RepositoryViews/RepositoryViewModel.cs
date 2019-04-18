@@ -8,7 +8,6 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GitMind.ApplicationHandling;
-using GitMind.Common;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.ProgressHandling;
 using GitMind.Common.ThemeHandling;
