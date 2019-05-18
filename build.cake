@@ -88,6 +88,11 @@ Task("Sign-Setup-File")
     .IsDependentOn("Build-Setup-File")
     .Does(() =>
 {
+	if (string.IsNullOrWhiteSpace(signPassword))
+	{
+		return;
+	}
+	
 	// Sign setup file
 	var file = new FilePath(setupPath);
     Sign(file, new SignToolSignSettings {
@@ -109,7 +114,7 @@ Task("Show-Build-Version")
 
     Information("v{0}", version); 
     Information("Version {0} beta", shortVersion); 
-    Information("\n\n");  
+    Information("\n\n"); 
 })
 .OnError(exception =>
 {
@@ -119,30 +124,20 @@ Task("Show-Build-Version")
 
 
 Task("Build-Setup")
-    .IsDependentOn("Clean")
 	.IsDependentOn("Prompt-Sign-Password")
+    .IsDependentOn("Clean")	
 	.IsDependentOn("Build")
     .IsDependentOn("Build-Setup-File")
 	.IsDependentOn("Sign-Setup-File")
 	.IsDependentOn("Show-Build-Version")
     .Does(() =>
 {
-})
-.OnError(exception =>
-{
-	RunTarget("Clean");
-	throw exception;
-});
-
-
-Task("Build-Unsigned-Setup")
-	.IsDependentOn("Clean")
-	.IsDependentOn("Build")
-    .IsDependentOn("Build-Setup-File")
-    .Does(() =>
-{
-	Error("\n NOTE: Setup file is not signed !!!!!!! ");
-	Error(" -------------------------------------- \n\n");
+	if (string.IsNullOrWhiteSpace(signPassword))
+	{
+		Error("\n NOTE: Setup file is not signed !!!!!!! ");
+		Error(" -------------------------------------- \n\n");
+		return;
+	}	
 })
 .OnError(exception =>
 {
@@ -156,7 +151,7 @@ Task("Prompt-Sign-Password")
 {
 	if(Environment.UserInteractive)
 	{
-		Console.WriteLine("Enter password for signing setup file:");
+		Console.WriteLine("Enter password for signing setup file:\n(or leave empty to skip signing):");
 		signPassword = "";
 		ConsoleKeyInfo key;
 		do
@@ -178,11 +173,6 @@ Task("Prompt-Sign-Password")
 		}
 		while (key.Key != ConsoleKey.Enter);
         Information(" ");
-
-		if (string.IsNullOrWhiteSpace(signPassword))
-		{
-			throw new Exception("Invalid sign password");
-		}
 	}
 });
 
