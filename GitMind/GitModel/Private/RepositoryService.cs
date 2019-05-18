@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Common.ProgressHandling;
 using GitMind.Features.Remote;
 using GitMind.Features.StatusHandling;
@@ -28,8 +27,9 @@ namespace GitMind.GitModel.Private
 		private readonly IRepositoryStructureService repositoryStructureService;
 		private readonly IProgressService progressService;
 		private readonly IBranchTipMonitorService branchTipMonitorService;
+        private readonly IGitSettings gitSettings;
 
-		private DateTime fetchedTime = DateTime.MinValue;
+        private DateTime fetchedTime = DateTime.MinValue;
 		private AsyncLock syncRootAsync = new AsyncLock();
 
 		public RepositoryService(
@@ -39,7 +39,8 @@ namespace GitMind.GitModel.Private
 			Lazy<IRemoteService> remoteService,
 			IRepositoryStructureService repositoryStructureService,
 			IProgressService progressService,
-			IBranchTipMonitorService branchTipMonitorService)
+			IBranchTipMonitorService branchTipMonitorService,
+            IGitSettings gitSettings)
 		{
 			this.statusService = statusService;
 			this.cacheService = cacheService;
@@ -48,8 +49,9 @@ namespace GitMind.GitModel.Private
 			this.repositoryStructureService = repositoryStructureService;
 			this.progressService = progressService;
 			this.branchTipMonitorService = branchTipMonitorService;
+            this.gitSettings = gitSettings;
 
-			statusService.StatusChanged += (s, e) => OnStatusChanged(e.NewStatus);
+            statusService.StatusChanged += (s, e) => OnStatusChanged(e.NewStatus);
 			statusService.RepoChanged += (s, e) => OnRepoChanged(e.BranchIds);
 		}
 
@@ -167,9 +169,9 @@ namespace GitMind.GitModel.Private
 
 		public async Task CheckRemoteChangesAsync(bool isFetchNotes, bool isManual = false)
 		{
-			if (!isManual && Settings.Get<Options>().DisableAutoUpdate)
+			if (!isManual && gitSettings.IsRemoteDisabled)
 			{
-				Log.Info("DisableAutoUpdate = true");
+				Log.Info("IsRemoteDisabled = true");
 				return;
 			}
 
