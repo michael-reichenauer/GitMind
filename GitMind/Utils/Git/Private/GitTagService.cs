@@ -69,6 +69,10 @@ namespace GitMind.Utils.Git.Private
 			{
 				string sha = line.Substring(0, 40);
 				string tagName = line.Substring(51);
+				if (tagName.EndsWith("^{}"))
+				{
+					tagName = tagName.Substring(0, tagName.Length - 3);
+				}
 				tags.Add(new GitTag(sha, tagName));
 			}
 
