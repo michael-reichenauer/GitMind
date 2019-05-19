@@ -54,7 +54,7 @@ namespace GitMind.Utils.Git.Private
 				}
 			}
 
-			CmdResult2 result = await gitCmdService.RunCmdAsync($"log --all --pretty=\"{LogFormat}\"", OutputLines, ct);
+			CmdResult2 result = await gitCmdService.RunCmdAsync($"log --topo-order --all --pretty=\"{LogFormat}\"", OutputLines, ct);
 
 			if (result.IsFaulted && !ct.IsCancellationRequested)
 			{
