@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Media;
-using GitMind.GitModel;
 using GitMind.Utils.Git;
 
 

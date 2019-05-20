@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Common;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Utils.OsSystem;

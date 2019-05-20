@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using GitMind.Common;
 
 
 namespace GitMind.GitModel.Private

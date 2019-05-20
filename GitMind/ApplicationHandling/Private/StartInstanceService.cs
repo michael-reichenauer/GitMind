@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using GitMind.ApplicationHandling.SettingsHandling;
 using GitMind.Utils;
 
 

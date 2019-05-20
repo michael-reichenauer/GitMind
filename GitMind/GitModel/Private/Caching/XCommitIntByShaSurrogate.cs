@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-using GitMind.Common;
-
-
-namespace GitMind.GitModel.Private.Caching
+﻿namespace GitMind.GitModel.Private.Caching
 {
 	//[DataContract, TypeConverter(typeof(CommitIntBySha))]
 	//internal class XCommitIntByShaSurrogate

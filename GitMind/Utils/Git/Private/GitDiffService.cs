@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling;
 using GitMind.Utils.OsSystem;
 
 
@@ -83,7 +82,7 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<string>> GetCommitDiffRangeAsync(string sha1, string sha2, CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmdService.RunAsync(
-				$"diff --patch --unified=6 {sha1} {sha2}", ct);
+				$"diff --patch --unified=6 {sha2} {sha1}", ct);
 
 			if (result.IsFaulted)
 			{

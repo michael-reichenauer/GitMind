@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.Common;
 using GitMind.Features.Commits.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;
@@ -19,15 +17,18 @@ namespace GitMind.GitModel.Private
 
 		private readonly IGitBranchService gitBranchService;
 		private readonly IGitCommitBranchNameService gitCommitBranchNameService;
+        private readonly IGitSettings gitSettings;
 
 
-		public BranchTipMonitorService(
+        public BranchTipMonitorService(
 			IGitBranchService gitBranchService,
-			IGitCommitBranchNameService gitCommitBranchNameService)
+			IGitCommitBranchNameService gitCommitBranchNameService,
+            IGitSettings gitSettings)
 		{
 			this.gitBranchService = gitBranchService;
 			this.gitCommitBranchNameService = gitCommitBranchNameService;
-		}
+            this.gitSettings = gitSettings;
+        }
 
 
 		public async Task CheckAsync(Repository repository)
@@ -52,9 +53,9 @@ namespace GitMind.GitModel.Private
 				await gitCommitBranchNameService.SetCommitBranchNameAsync(pair.Key, branchName);
 			}
 
-			if (Settings.Get<Options>().DisableAutoUpdate)
+			if (gitSettings.IsRemoteDisabled)
 			{
-				Log.Info("DisableAutoUpdate = true");
+				Log.Info("IsRemoteDisabled = true");
 				return;
 			}
 

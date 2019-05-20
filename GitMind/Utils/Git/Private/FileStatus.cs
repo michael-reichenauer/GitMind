@@ -1,7 +1,4 @@
-﻿using System;
-
-
-namespace GitMind.Utils.Git.Private
+﻿namespace GitMind.Utils.Git.Private
 {
 //	[Flags]
 //	public enum FileStatus

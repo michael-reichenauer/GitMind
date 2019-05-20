@@ -161,6 +161,8 @@
     <Compile Include="GitModel\CommitDetails.cs" />
     <Compile Include="GitModel\ICommitsDetailsService.cs" />
     <Compile Include="GitModel\Link.cs" />
+    <Compile Include="ApplicationHandling\Private\GitSettings.cs" />
+    <Compile Include="GitModel\IGitSettings.cs" />
     <Compile Include="GitModel\Private\LinkService.cs" />
     <Compile Include="GitModel\Private\BranchTipMonitorService.cs" />
     <Compile Include="GitModel\Private\Caching\BranchNameSurrogate.cs" />

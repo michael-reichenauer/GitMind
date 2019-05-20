@@ -1,10 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Utils;
 
@@ -15,31 +13,28 @@ namespace GitMind.GitModel.Private
 	internal class LinkService : ILinkService
 	{
 		private static readonly string splitChars = @"[\,; :]";
-
-		private readonly WorkingFolder workingFolder;
 		private readonly IMessageService messageService;
+        private readonly IGitSettings gitSettings;
 
-		private List<Pattern> issuePatterns;
+        private List<Pattern> issuePatterns;
 		private List<Pattern> tagPatterns;
 		private Regex issuesRgx;
 		private Regex tagsRgx;
-		private bool initialized = false;
+        private string parsedWorkingFolder = "";
 
 
 		public LinkService(
-			WorkingFolder workingFolder,
-			IMessageService messageService)
+			IMessageService messageService,
+            IGitSettings gitSettings)
 		{
-			this.workingFolder = workingFolder;
 			this.messageService = messageService;
-
-			workingFolder.OnChange += (s, e) => initialized = false;
+            this.gitSettings = gitSettings;
 		}
 
 
 		public Links ParseIssues(string text)
 		{
-			if (!initialized)
+			if (parsedWorkingFolder != gitSettings.WorkingFolderPath)
 			{
 				ParsePatternsForWorkingFolder();
 			}
@@ -50,12 +45,11 @@ namespace GitMind.GitModel.Private
 
 		public Links ParseTags(string text)
 		{
-			if (!initialized)
-			{
-				ParsePatternsForWorkingFolder();
-			}
-
-			return Parse(text, tagsRgx, tagPatterns);
+            if (parsedWorkingFolder != gitSettings.WorkingFolderPath)
+            {
+                ParsePatternsForWorkingFolder();
+            }
+            return Parse(text, tagsRgx, tagPatterns);
 		}
 
 
@@ -68,13 +62,13 @@ namespace GitMind.GitModel.Private
 
 			issuesRgx = GetPatternsRegExp(issuePatterns);
 			tagsRgx = GetPatternsRegExp(tagPatterns);
-			initialized = true;
+            parsedWorkingFolder =gitSettings.WorkingFolderPath;
 		}
 
 
 		private void ParseFile()
 		{
-			string filePath = Path.Combine(workingFolder, ".gitmind");
+			string filePath = Path.Combine(gitSettings.WorkingFolderPath, ".gitmind");
 			try
 			{
 				if (!File.Exists(filePath))
