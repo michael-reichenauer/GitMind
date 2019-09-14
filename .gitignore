@@ -93,8 +93,6 @@ ipch/
 *.vsp
 *.vspx
 
-# TFS 2012 Local Workspace
-$tf/
 
 # Guidance Automation Toolkit
 *.gpState
@@ -175,8 +173,6 @@ AppPackages/
 # Others
 ClientBin/
 [Ss]tyle[Cc]op.*
-~$*
-*~
 *.dbmdl
 *.dbproj.schemaview
 *.pfx
