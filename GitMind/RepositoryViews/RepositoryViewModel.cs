@@ -750,30 +750,32 @@ namespace GitMind.RepositoryViews
 					// Selection was made with ctrl-click. Lets take top and bottom commits as range
 					// even if there are more commits in the middle
 					CommitSha id1 = topCommit.Commit.RealCommitSha;
-					CommitSha id2 = bottomCommit.Commit.HasFirstParent
-						? bottomCommit.Commit.FirstParent.RealCommitSha
-						: bottomCommit.Commit.RealCommitSha;
+					CommitSha id2 = bottomCommit.Commit.RealCommitSha;
 
 					diffService.ShowDiffRangeAsync(id1, id2).RunInBackground();
 				}
 				else if (topCommit != null)
 				{
-					// Selection was probably done with shift-click. Fore some reason SelectedItems
-					// only contains first selected item, other items are null, but there are one null
-					// item for each selected item plus one extra.
-					// Find the range by iterating first parents of the top commit (selected items count)
-					Commit current = topCommit.Commit;
-					for (int i = 0; i < bottomIndex; i++)
-					{
-						if (!current.HasFirstParent)
-						{
-							break;
-						}
-						current = current.FirstParent;
-					}
+                    // Selection was probably done with shift-click. Fore some reason SelectedItems
+                    // only contains first selected item, other items are null, but there are one null
+                    // item for each selected item plus one extra.
+                    // Find the range by iterating first parents of the top commit (selected items count)
 
-					CommitSha id1 = topCommit.Commit.RealCommitSha;
-					CommitSha id2 = current.RealCommitSha;
+                    int topIndex = -1;
+                    for (int i = 0; i < Commits.Count; i++)
+                    {
+                        if (Commits[i].Commit.RealCommitId == topCommit.Commit.RealCommitId)
+                        {
+                            topIndex = i;
+                            break;
+                        }
+                    }
+                    if (topIndex == -1 || topIndex + bottomIndex - 1 > Commits.Count - 1)
+                    {
+                        return;
+                    }
+                    CommitSha id1 = topCommit.Commit.RealCommitSha;
+					CommitSha id2 = Commits[topIndex + bottomIndex - 1].Commit.RealCommitSha;
 					diffService.ShowDiffRangeAsync(id1, id2).RunInBackground(); ;
 				}
 			}
