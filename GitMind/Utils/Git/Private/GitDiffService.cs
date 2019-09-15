@@ -24,7 +24,7 @@ namespace GitMind.Utils.Git.Private
 			string sha, CancellationToken ct)
 		{
 			R<CmdResult2> result = await gitCmdService.RunAsync(
-				$"diff-tree --no-commit-id --name-status -r --find-renames -m --root {sha}", ct);
+				$"diff-tree --no-commit-id --name-status -r --find-renames -m --root {sha}^1 {sha}", ct);
 
 			if (result.IsFaulted)
 			{
@@ -55,7 +55,7 @@ namespace GitMind.Utils.Git.Private
 		public async Task<R<string>> GetCommitDiffAsync(string sha, CancellationToken ct)
 		{
 			CmdResult2 result = await gitCmdService.RunCmdAsync(
-				$"diff --patch --find-renames --unified=6 --root {sha}^..{sha}", ct);
+				$"show --first-parent --root --patch --find-renames --unified=6 {sha}", ct);
 
 			if (result.IsFaulted)
 			{

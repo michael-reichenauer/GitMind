@@ -15,9 +15,9 @@ namespace GitMind.Utils.Git.Private
 		private static string GitDefaultCmdPath => @"git.exe";
 
 		// Git releases at: https://github.com/git-for-windows/git/releases/
-		public static readonly string GitVersion = "2.21.0.windows.1";
+		public static readonly string GitVersion = "2.23.0.windows.1";
 		private static string gitUri =
-			"https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/MinGit-2.21.0-64-bit.zip";
+			"https://github.com/git-for-windows/git/releases/download/v2.23.0.windows.1/MinGit-2.23.0-64-bit.zip";
 
 
 
