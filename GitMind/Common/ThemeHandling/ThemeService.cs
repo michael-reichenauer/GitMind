@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Media;
 using GitMind.ApplicationHandling;
 using GitMind.ApplicationHandling.SettingsHandling;
-using GitMind.Common.MessageDialogs;
 using GitMind.GitModel;
 using GitMind.Utils;
 using GitMind.Utils.Git;

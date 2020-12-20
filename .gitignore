@@ -3,7 +3,10 @@
 
 GitMindSetup.exe
 version.txt
-/git2-785d8c4.dll
+
+# Build related
+tools/**
+!tools/packages.config
 
 # External dependencies (from e.g. NuGet packages)
 /GitMind/Dependencies/
@@ -90,8 +93,6 @@ ipch/
 *.vsp
 *.vspx
 
-# TFS 2012 Local Workspace
-$tf/
 
 # Guidance Automation Toolkit
 *.gpState
@@ -172,8 +173,6 @@ AppPackages/
 # Others
 ClientBin/
 [Ss]tyle[Cc]op.*
-~$*
-*~
 *.dbmdl
 *.dbproj.schemaview
 *.pfx

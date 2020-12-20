@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using GitMind.Common;
 using GitMind.GitModel;
 
 
@@ -47,6 +46,21 @@ namespace GitMind.Utils.Git.Private
 
 				return new CommitDiff(leftPath, rightPath);
 			});
+		}
+
+
+		public void CleanTempFiles()
+		{
+			string tempPath = GetTempPath();
+			try
+			{
+				
+				Directory.Delete(tempPath, true);
+			}
+			catch (Exception e)
+			{
+				Log.Warn($"Failed to clean temp folder {tempPath}, {e}");
+			}
 		}
 
 

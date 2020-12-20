@@ -3,7 +3,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling;
 using GitMind.GitModel.Private;
 using GitMind.Utils.OsSystem;
 
@@ -82,6 +81,9 @@ namespace GitMind.Utils.Git.Private
 					return R.Error("Failed to stage using add before commit", result.Exception);
 				}
 			}
+
+			// Encode '"' chars
+			message = message.Replace("\"", "\\\"");
 
 			result = await gitCmdService.RunAsync($"commit -am \"{message}\"", ct);
 

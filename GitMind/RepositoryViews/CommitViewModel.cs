@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -7,7 +6,6 @@ using GitMind.Common.ThemeHandling;
 using GitMind.Features.Diffing;
 using GitMind.Features.Tags;
 using GitMind.GitModel;
-using GitMind.GitModel.Private;
 using GitMind.Utils.Git;
 using GitMind.Utils.UI;
 using IBranchService = GitMind.Features.Branches.IBranchService;

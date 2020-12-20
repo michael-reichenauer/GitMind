@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using GitMind.Features.Tags;
-using GitMind.GitModel;
 using GitMind.Utils.UI;
 
 

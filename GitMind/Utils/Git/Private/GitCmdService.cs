@@ -1,10 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.ApplicationHandling;
 using GitMind.Common.MessageDialogs;
 using GitMind.Common.Tracking;
 using GitMind.Utils.Git.Private.CredentialsHandling;

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Windows;
 using GitMind.Common.ThemeHandling;
 
 

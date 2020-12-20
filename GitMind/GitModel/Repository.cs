@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms.VisualStyles;
-using GitMind.Common;
-using GitMind.Features.StatusHandling;
 using GitMind.GitModel.Private;
 using GitMind.Utils;
 using GitMind.Utils.Git;

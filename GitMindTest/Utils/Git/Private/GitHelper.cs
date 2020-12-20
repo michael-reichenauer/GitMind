@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GitMind.Common;
-using GitMind.Features.Diffing.Private;
 using GitMind.GitModel;
 using GitMind.GitModel.Private;
 using GitMind.Utils;

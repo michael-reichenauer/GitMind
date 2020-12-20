@@ -1,4 +1,3 @@
-using GitMind.Common;
 using GitMind.Utils.Git;
 
 
