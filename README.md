@@ -1,7 +1,7 @@
 # <img src="GitMind/MainWindowViews/Application.ico" width="20"> GitMind  
 GitMind is a Windows GUI Git client, which makes it easier to use Git, especially when using a branch model similar to e.g. GitFlow. GitMind visualizes the branch structure more like one imagines the branches, instead of just showing branches exactly as the Git raw data specifies. GitMind makes it easy to toggle which branches to show and hide, and simplifies using the most common git commands.
 
-<img src="Media/branches.gif">
+<img src="Media/branches.gif" width="660">
 
 ## Background
 Usually Git clients visualize the repository as an overwhelming number of branches, which makes the commits history difficult to understand. As a workaround, many developers simplify git history by rebasing or squashing.
